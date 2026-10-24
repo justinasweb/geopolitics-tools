@@ -15,7 +15,7 @@ function fakeSource(id: string, behave: () => FetchResult | Promise<FetchResult>
 
 function recorder(): Alerter & { sent: string[] } {
   const sent: string[] = [];
-  return { configured: true, sent, send: async (t) => { sent.push(t); } };
+  return { configured: true, sent, send: async (t) => { sent.push(t); return true; } };
 }
 
 const read = async (stores: Stores, bucket: 'raw' | 'snapshots', key: string) => {

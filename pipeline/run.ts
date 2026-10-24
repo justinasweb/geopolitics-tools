@@ -9,6 +9,7 @@
 //   --fail-on-error           exit 1 when a source that ran failed a check or got a client error
 //                             (the pull request check); network trouble and server errors only warn
 //   --list                    print the sources and their schedules, and stop
+//   --test-alert              send a test message to Telegram, and stop (exit 1 if it was not delivered)
 //   --retention               print the R2 lifecycle rules the raw bucket needs (name, prefix, days), and stop
 import { appendFileSync } from 'node:fs';
 import { telegram } from './lib/alert.ts';
@@ -33,6 +34,14 @@ if (flag('retention')) {
   for (const s of SOURCES) if (s.keepDays) console.log(`keep-${s.id} ${s.id}/ ${s.keepDays}`);
   console.log('keep-ci ci/ 2');
   process.exit(0);
+}
+
+if (flag('test-alert')) {
+  const alerter = telegram(createHttp());
+  if (!alerter.configured) console.error('TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID is not set.');
+  const sent = await alerter.send('geopolitics.tools: test alert. Data alerts will reach you here.');
+  if (sent) console.log('Test alert delivered.');
+  process.exit(sent ? 0 : 1);
 }
 
 const only = value('only')?.split(',').filter(Boolean);
