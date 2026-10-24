@@ -4,7 +4,7 @@ Generated from `src/data/licences.ts` by `node scripts/licence-table.ts > docs/l
 
 What each source's terms allow and what the site does with it (decision D9). Downloads are "Yes" only where the terms
 allow redistribution; otherwise the site shows charts and figures only. Credits travel with every chart and export.
-5 checked against the terms page, 21 to confirm, 2 waiting on permission.
+4 checked against the terms page, 22 to confirm, 2 waiting on permission.
 
 | Source | Licence | Downloads | Commercial use | Status | Note |
 |---|---|---|---|---|---|
@@ -23,7 +23,7 @@ allow redistribution; otherwise the site shows charts and figures only. Credits 
 | [Our World in Data CO2](https://ourworldindata.org/faqs) | CC BY 4.0, passing on its providers’ terms | Yes | Yes | To confirm | The CO2 columns come from the Global Carbon Budget (CC BY 4.0); confirm each column used |
 | [UNHCR Refugee Data Finder](https://www.unhcr.org/terms-use-datasets) | CC BY 4.0, with UNHCR’s supplemental terms | Yes | Yes | Checked 2026-10-24 | Link the terms page when sharing the data; no UNHCR logo; no implied endorsement |
 | [IMF World Economic Outlook](https://www.imf.org/en/about/copyright-and-terms) | IMF copyright and usage terms | Shown only | No | Permission asked |  |
-| [Submarine cables (OpenStreetMap)](https://www.openstreetmap.org/copyright) | ODbL 1.0 | Yes | Yes | Checked 2026-10-24 | A downloaded or derived database must be offered under ODbL too |
+| [Submarine cables (OpenStreetMap)](https://www.openstreetmap.org/copyright) | ODbL 1.0 | Yes | Yes | To confirm | A downloaded or derived database must be offered under ODbL too |
 | [FAOSTAT](https://www.fao.org/contact-us/terms/db-terms-of-use) | CC BY 4.0, with FAO’s additional terms | Yes | Yes | Checked 2026-10-24 | Citation names the dataset, year of update, access date and URL. No use promoting a business or implying FAO endorsement; third-party data can carry its own terms |
 | [SIPRI Arms Transfers Database](https://www.sipri.org/about/terms-and-conditions) | SIPRI terms: non-commercial reuse of under 10% of a dataset, with credit | Shown only | No | To confirm | Spec: derived five-year totals only, no download |
 | [UN World Population Prospects](https://population.un.org/wpp/downloads/) | CC BY 3.0 IGO | Yes | Yes | To confirm | Licence as recorded by Our World in Data for the 2024 files; read it on the UN page |
