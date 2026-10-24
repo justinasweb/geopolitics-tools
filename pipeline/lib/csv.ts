@@ -3,7 +3,11 @@
 import { CheckError } from './source.ts';
 
 export function parseCsv(text: string, delimiter = ','): string[][] {
-  const rows: string[][] = [];
+  return [...csvRows(text, delimiter)];
+}
+
+/** The rows one at a time, for files too big to hold as arrays (UN population by age: about a million rows). */
+export function* csvRows(text: string, delimiter = ','): Generator<string[]> {
   let row: string[] = [];
   let field = '';
   let quoted = false;
@@ -19,12 +23,11 @@ export function parseCsv(text: string, delimiter = ','): string[][] {
     else if (c === '\n' || c === '\r') {
       if (c === '\r' && text[i + 1] === '\n') i++;
       row.push(field); field = '';
-      if (row.length > 1 || row[0] !== '') rows.push(row);
+      if (row.length > 1 || row[0] !== '') yield row;
       row = [];
     } else field += c;
   }
-  if (field !== '' || row.length) { row.push(field); rows.push(row); }
-  return rows;
+  if (field !== '' || row.length) { row.push(field); yield row; }
 }
 
 const quote = (v: string, d: string) => (/["\r\n]/.test(v) || v.includes(d) ? `"${v.replace(/"/g, '""')}"` : v);
@@ -40,4 +43,15 @@ export function pickColumns(rows: string[][], columns: string[], what: string): 
   const missing = columns.filter((_, i) => idx[i] < 0);
   if (missing.length) throw new CheckError(`${what}: column(s) ${missing.join(', ')} missing; the file has ${header.slice(0, 40).join(', ')}`);
   return rows.map((r) => idx.map((i) => r[i] ?? ''));
+}
+
+/** Rows as objects keyed by the header row (header cells trimmed). */
+export function csvRecords(text: string, delimiter = ','): Record<string, string>[] {
+  const rows = csvRows(text, delimiter);
+  const first = rows.next();
+  if (first.done) return [];
+  const head = first.value.map((h) => h.trim());
+  const out: Record<string, string>[] = [];
+  for (const r of rows) out.push(Object.fromEntries(head.map((h, i) => [h, r[i] ?? ''])));
+  return out;
 }

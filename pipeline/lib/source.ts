@@ -61,7 +61,7 @@ export function check(ok: unknown, message: string): asserts ok {
  * Refuse a result with far fewer values than the last good copy: a partial download or a changed
  * filter, not a real change. Skipped with --allow-shrink.
  */
-export function guardShrink(ctx: FetchContext, what: string, now: number, previous: string | null, count: (previous: string) => number, minRatio = 0.5) {
+export function guardShrink(ctx: Pick<FetchContext, 'allowShrink'>, what: string, now: number, previous: string | null, count: (previous: string) => number, minRatio = 0.5) {
   if (!previous || ctx.allowShrink) return;
   const before = count(previous);
   if (before <= 50) return;

@@ -1,0 +1,540 @@
+[
+    {
+        "page": 1,
+        "pages": 1,
+        "per_page": 1000,
+        "total": 33,
+        "sourceid": "2",
+        "lastupdated": "2026-07-01"
+    },
+    [
+        {
+            "indicator": {
+                "id": "FI.RES.TOTL.CD",
+                "value": "Total reserves (includes gold, current US$)"
+            },
+            "country": {
+                "id": "US",
+                "value": "United States"
+            },
+            "countryiso3code": "USA",
+            "date": "2025",
+            "value": 1369541008356,
+            "unit": "",
+            "obs_status": "",
+            "decimal": 0
+        },
+        {
+            "indicator": {
+                "id": "FI.RES.TOTL.CD",
+                "value": "Total reserves (includes gold, current US$)"
+            },
+            "country": {
+                "id": "US",
+                "value": "United States"
+            },
+            "countryiso3code": "USA",
+            "date": "2024",
+            "value": 926444650563,
+            "unit": "",
+            "obs_status": "",
+            "decimal": 0
+        },
+        {
+            "indicator": {
+                "id": "FI.RES.TOTL.CD",
+                "value": "Total reserves (includes gold, current US$)"
+            },
+            "country": {
+                "id": "US",
+                "value": "United States"
+            },
+            "countryiso3code": "USA",
+            "date": "2023",
+            "value": 779114802528,
+            "unit": "",
+            "obs_status": "",
+            "decimal": 0
+        },
+        {
+            "indicator": {
+                "id": "FI.RES.TOTL.CD",
+                "value": "Total reserves (includes gold, current US$)"
+            },
+            "country": {
+                "id": "US",
+                "value": "United States"
+            },
+            "countryiso3code": "USA",
+            "date": "2022",
+            "value": 713106264478,
+            "unit": "",
+            "obs_status": "",
+            "decimal": 0
+        },
+        {
+            "indicator": {
+                "id": "FI.RES.TOTL.CD",
+                "value": "Total reserves (includes gold, current US$)"
+            },
+            "country": {
+                "id": "US",
+                "value": "United States"
+            },
+            "countryiso3code": "USA",
+            "date": "2021",
+            "value": 711209568483,
+            "unit": "",
+            "obs_status": "",
+            "decimal": 0
+        },
+        {
+            "indicator": {
+                "id": "FI.RES.TOTL.CD",
+                "value": "Total reserves (includes gold, current US$)"
+            },
+            "country": {
+                "id": "US",
+                "value": "United States"
+            },
+            "countryiso3code": "USA",
+            "date": "2020",
+            "value": 639190735516,
+            "unit": "",
+            "obs_status": "",
+            "decimal": 0
+        },
+        {
+            "indicator": {
+                "id": "FI.RES.TOTL.CD",
+                "value": "Total reserves (includes gold, current US$)"
+            },
+            "country": {
+                "id": "US",
+                "value": "United States"
+            },
+            "countryiso3code": "USA",
+            "date": "2019",
+            "value": 534035536980,
+            "unit": "",
+            "obs_status": "",
+            "decimal": 0
+        },
+        {
+            "indicator": {
+                "id": "FI.RES.TOTL.CD",
+                "value": "Total reserves (includes gold, current US$)"
+            },
+            "country": {
+                "id": "US",
+                "value": "United States"
+            },
+            "countryiso3code": "USA",
+            "date": "2018",
+            "value": 464169291853,
+            "unit": "",
+            "obs_status": "",
+            "decimal": 0
+        },
+        {
+            "indicator": {
+                "id": "FI.RES.TOTL.CD",
+                "value": "Total reserves (includes gold, current US$)"
+            },
+            "country": {
+                "id": "US",
+                "value": "United States"
+            },
+            "countryiso3code": "USA",
+            "date": "2017",
+            "value": 460659385704,
+            "unit": "",
+            "obs_status": "",
+            "decimal": 0
+        },
+        {
+            "indicator": {
+                "id": "FI.RES.TOTL.CD",
+                "value": "Total reserves (includes gold, current US$)"
+            },
+            "country": {
+                "id": "US",
+                "value": "United States"
+            },
+            "countryiso3code": "USA",
+            "date": "2016",
+            "value": 415348541424,
+            "unit": "",
+            "obs_status": "",
+            "decimal": 0
+        },
+        {
+            "indicator": {
+                "id": "FI.RES.TOTL.CD",
+                "value": "Total reserves (includes gold, current US$)"
+            },
+            "country": {
+                "id": "US",
+                "value": "United States"
+            },
+            "countryiso3code": "USA",
+            "date": "2015",
+            "value": 382874556777,
+            "unit": "",
+            "obs_status": "",
+            "decimal": 0
+        },
+        {
+            "indicator": {
+                "id": "FI.RES.TOTL.CD",
+                "value": "Total reserves (includes gold, current US$)"
+            },
+            "country": {
+                "id": "CN",
+                "value": "China"
+            },
+            "countryiso3code": "CHN",
+            "date": "2025",
+            "value": 3597162022470,
+            "unit": "",
+            "obs_status": "",
+            "decimal": 0
+        },
+        {
+            "indicator": {
+                "id": "FI.RES.TOTL.CD",
+                "value": "Total reserves (includes gold, current US$)"
+            },
+            "country": {
+                "id": "CN",
+                "value": "China"
+            },
+            "countryiso3code": "CHN",
+            "date": "2024",
+            "value": 3399840093278,
+            "unit": "",
+            "obs_status": "",
+            "decimal": 0
+        },
+        {
+            "indicator": {
+                "id": "FI.RES.TOTL.CD",
+                "value": "Total reserves (includes gold, current US$)"
+            },
+            "country": {
+                "id": "CN",
+                "value": "China"
+            },
+            "countryiso3code": "CHN",
+            "date": "2023",
+            "value": 3304102172572,
+            "unit": "",
+            "obs_status": "",
+            "decimal": 0
+        },
+        {
+            "indicator": {
+                "id": "FI.RES.TOTL.CD",
+                "value": "Total reserves (includes gold, current US$)"
+            },
+            "country": {
+                "id": "CN",
+                "value": "China"
+            },
+            "countryiso3code": "CHN",
+            "date": "2022",
+            "value": 3267775005183,
+            "unit": "",
+            "obs_status": "",
+            "decimal": 0
+        },
+        {
+            "indicator": {
+                "id": "FI.RES.TOTL.CD",
+                "value": "Total reserves (includes gold, current US$)"
+            },
+            "country": {
+                "id": "CN",
+                "value": "China"
+            },
+            "countryiso3code": "CHN",
+            "date": "2021",
+            "value": 3352964234117,
+            "unit": "",
+            "obs_status": "",
+            "decimal": 0
+        },
+        {
+            "indicator": {
+                "id": "FI.RES.TOTL.CD",
+                "value": "Total reserves (includes gold, current US$)"
+            },
+            "country": {
+                "id": "CN",
+                "value": "China"
+            },
+            "countryiso3code": "CHN",
+            "date": "2020",
+            "value": 3365205593619,
+            "unit": "",
+            "obs_status": "",
+            "decimal": 0
+        },
+        {
+            "indicator": {
+                "id": "FI.RES.TOTL.CD",
+                "value": "Total reserves (includes gold, current US$)"
+            },
+            "country": {
+                "id": "CN",
+                "value": "China"
+            },
+            "countryiso3code": "CHN",
+            "date": "2019",
+            "value": 3269198987279,
+            "unit": "",
+            "obs_status": "",
+            "decimal": 0
+        },
+        {
+            "indicator": {
+                "id": "FI.RES.TOTL.CD",
+                "value": "Total reserves (includes gold, current US$)"
+            },
+            "country": {
+                "id": "CN",
+                "value": "China"
+            },
+            "countryiso3code": "CHN",
+            "date": "2018",
+            "value": 3160031337049,
+            "unit": "",
+            "obs_status": "",
+            "decimal": 0
+        },
+        {
+            "indicator": {
+                "id": "FI.RES.TOTL.CD",
+                "value": "Total reserves (includes gold, current US$)"
+            },
+            "country": {
+                "id": "CN",
+                "value": "China"
+            },
+            "countryiso3code": "CHN",
+            "date": "2017",
+            "value": 3142909516632,
+            "unit": "",
+            "obs_status": "",
+            "decimal": 0
+        },
+        {
+            "indicator": {
+                "id": "FI.RES.TOTL.CD",
+                "value": "Total reserves (includes gold, current US$)"
+            },
+            "country": {
+                "id": "CN",
+                "value": "China"
+            },
+            "countryiso3code": "CHN",
+            "date": "2016",
+            "value": 3058803145644,
+            "unit": "",
+            "obs_status": "",
+            "decimal": 0
+        },
+        {
+            "indicator": {
+                "id": "FI.RES.TOTL.CD",
+                "value": "Total reserves (includes gold, current US$)"
+            },
+            "country": {
+                "id": "CN",
+                "value": "China"
+            },
+            "countryiso3code": "CHN",
+            "date": "2015",
+            "value": 3369920901003,
+            "unit": "",
+            "obs_status": "",
+            "decimal": 0
+        },
+        {
+            "indicator": {
+                "id": "FI.RES.TOTL.CD",
+                "value": "Total reserves (includes gold, current US$)"
+            },
+            "country": {
+                "id": "RU",
+                "value": "Russian Federation"
+            },
+            "countryiso3code": "RUS",
+            "date": "2025",
+            "value": null,
+            "unit": "",
+            "obs_status": "",
+            "decimal": 0
+        },
+        {
+            "indicator": {
+                "id": "FI.RES.TOTL.CD",
+                "value": "Total reserves (includes gold, current US$)"
+            },
+            "country": {
+                "id": "RU",
+                "value": "Russian Federation"
+            },
+            "countryiso3code": "RUS",
+            "date": "2024",
+            "value": 620817629285,
+            "unit": "",
+            "obs_status": "",
+            "decimal": 0
+        },
+        {
+            "indicator": {
+                "id": "FI.RES.TOTL.CD",
+                "value": "Total reserves (includes gold, current US$)"
+            },
+            "country": {
+                "id": "RU",
+                "value": "Russian Federation"
+            },
+            "countryiso3code": "RUS",
+            "date": "2023",
+            "value": 575380101898,
+            "unit": "",
+            "obs_status": "",
+            "decimal": 0
+        },
+        {
+            "indicator": {
+                "id": "FI.RES.TOTL.CD",
+                "value": "Total reserves (includes gold, current US$)"
+            },
+            "country": {
+                "id": "RU",
+                "value": "Russian Federation"
+            },
+            "countryiso3code": "RUS",
+            "date": "2022",
+            "value": 533800850154,
+            "unit": "",
+            "obs_status": "",
+            "decimal": 0
+        },
+        {
+            "indicator": {
+                "id": "FI.RES.TOTL.CD",
+                "value": "Total reserves (includes gold, current US$)"
+            },
+            "country": {
+                "id": "RU",
+                "value": "Russian Federation"
+            },
+            "countryiso3code": "RUS",
+            "date": "2021",
+            "value": 583481789240,
+            "unit": "",
+            "obs_status": "",
+            "decimal": 0
+        },
+        {
+            "indicator": {
+                "id": "FI.RES.TOTL.CD",
+                "value": "Total reserves (includes gold, current US$)"
+            },
+            "country": {
+                "id": "RU",
+                "value": "Russian Federation"
+            },
+            "countryiso3code": "RUS",
+            "date": "2020",
+            "value": 581200818225,
+            "unit": "",
+            "obs_status": "",
+            "decimal": 0
+        },
+        {
+            "indicator": {
+                "id": "FI.RES.TOTL.CD",
+                "value": "Total reserves (includes gold, current US$)"
+            },
+            "country": {
+                "id": "RU",
+                "value": "Russian Federation"
+            },
+            "countryiso3code": "RUS",
+            "date": "2019",
+            "value": 525351976245,
+            "unit": "",
+            "obs_status": "",
+            "decimal": 0
+        },
+        {
+            "indicator": {
+                "id": "FI.RES.TOTL.CD",
+                "value": "Total reserves (includes gold, current US$)"
+            },
+            "country": {
+                "id": "RU",
+                "value": "Russian Federation"
+            },
+            "countryiso3code": "RUS",
+            "date": "2018",
+            "value": 477255271883,
+            "unit": "",
+            "obs_status": "",
+            "decimal": 0
+        },
+        {
+            "indicator": {
+                "id": "FI.RES.TOTL.CD",
+                "value": "Total reserves (includes gold, current US$)"
+            },
+            "country": {
+                "id": "RU",
+                "value": "Russian Federation"
+            },
+            "countryiso3code": "RUS",
+            "date": "2017",
+            "value": 443041598773,
+            "unit": "",
+            "obs_status": "",
+            "decimal": 0
+        },
+        {
+            "indicator": {
+                "id": "FI.RES.TOTL.CD",
+                "value": "Total reserves (includes gold, current US$)"
+            },
+            "country": {
+                "id": "RU",
+                "value": "Russian Federation"
+            },
+            "countryiso3code": "RUS",
+            "date": "2016",
+            "value": 401456815726,
+            "unit": "",
+            "obs_status": "",
+            "decimal": 0
+        },
+        {
+            "indicator": {
+                "id": "FI.RES.TOTL.CD",
+                "value": "Total reserves (includes gold, current US$)"
+            },
+            "country": {
+                "id": "RU",
+                "value": "Russian Federation"
+            },
+            "countryiso3code": "RUS",
+            "date": "2015",
+            "value": 366059990504,
+            "unit": "",
+            "obs_status": "",
+            "decimal": 0
+        }
+    ]
+]

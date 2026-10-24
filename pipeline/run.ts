@@ -16,6 +16,7 @@ import { telegram } from './lib/alert.ts';
 import { createHttp } from './lib/http.ts';
 import { run, type RunReport } from './lib/runner.ts';
 import { openStores } from './lib/store.ts';
+import { IMPORTED } from './sources/imported.ts';
 import { SOURCES } from './sources/index.ts';
 
 const args = process.argv.slice(2);
@@ -55,6 +56,7 @@ const http = createHttp();
 const alerter = telegram(http);
 const report = await run({
   sources: SOURCES,
+  imported: IMPORTED,
   stores: openStores(value('store') ?? 'dir:.data'),
   http,
   alerter,

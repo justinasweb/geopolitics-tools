@@ -1,0 +1,44 @@
+"GEM location ID","Country/Area","Plant name","Capacity (MW)","Status","Start year","Retired year","Latitude","Longitude"
+"L100000","China","Tuoketuo",6720,"Operating",2003,,40.2,111.2
+"L100001","China","Waigaoqiao",5000,"Operating",1995,,31.35,121.6
+"L100002","China","Guodian Beilun",5000,"Operating",2000,,29.95,121.85
+"L100003","China","Zhundong (Xinjiang)",4000,"Construction",,,44.6,89.3
+"L100004","China","Huaneng Yuhuan",4000,"Operating",2006,,28.1,121.2
+"L100005","China","Shenhua Guohua Taishan",5000,"Operating",2004,,22,112.8
+"L100006","China","Datang Ningde",2400,"Construction",,,26.65,119.7
+"L100007","Taiwan","Taichung",5500,"Operating",1992,,24.21,120.48
+"L100008","South Korea","Taean",6100,"Operating",1995,,36.9,126.23
+"L100009","South Korea","Dangjin",6040,"Operating",1999,,37.05,126.5
+"L100010","Japan","Hekinan",4100,"Operating",1991,,34.83,136.95
+"L100011","India","Vindhyachal",4760,"Operating",1987,,24.1,82.67
+"L100012","India","Mundra (Adani)",4620,"Operating",2010,,22.82,69.55
+"L100013","India","Sasan",3960,"Operating",2013,,23.98,82.6
+"L100014","India","Talcher Stage III",2640,"Construction",,,20.95,85.2
+"L100015","Indonesia","Suralaya",4025,"Operating",1985,,-5.9,106
+"L100016","Indonesia","Paiton",4710,"Operating",1994,,-7.71,113.57
+"L100017","Indonesia","Batang",2000,"Operating",2022,,-6.9,109.75
+"L100018","Vietnam","Vinh Tan",4200,"Operating",2014,,11.3,108.8
+"L100019","Thailand","Mae Moh",2400,"Operating",1978,,18.3,99.75
+"L100020","Pakistan","Sahiwal",1320,"Operating",2017,,30.6,73.2
+"L100021","Pakistan","Thar Block II",1320,"Operating",2019,,24.8,70.3
+"L100022","United Arab Emirates","Hassyan",2400,"Operating",2020,,24.95,54.9
+"L100023","Türkiye","Afşin-Elbistan",2795,"Operating",1984,,38.3,36.9
+"L100024","Poland","Bełchatów",5100,"Operating",1982,,51.27,19.33
+"L100025","Poland","Kozienice",4000,"Operating",1972,,51.66,21.47
+"L100026","Germany","Neurath",4400,"Operating",1972,,51.04,6.62
+"L100027","Germany","Jänschwalde",3000,"Operating",1976,,51.83,14.46
+"L100028","United Kingdom","Ratcliffe-on-Soar",2000,"Retired",1968,2024,52.87,-1.25
+"L100029","Bulgaria","Maritsa East 2",1600,"Operating",1966,,42.25,26.1
+"L100030","Russia","Reftinskaya",3800,"Operating",1970,,57.1,61.67
+"L100031","Kazakhstan","Ekibastuz GRES-1",4000,"Operating",1980,,51.7,75.4
+"L100032","South Africa","Kendal",4116,"Operating",1988,,-26.08,28.97
+"L100033","South Africa","Medupi",4764,"Operating",2015,,-23.7,27.6
+"L100034","South Africa","Kusile",4800,"Operating",2017,,-25.92,28.92
+"L100035","Australia","Loy Yang A",2210,"Operating",1984,,-38.25,146.58
+"L100036","Australia","Bayswater",2640,"Operating",1985,,-32.4,150.95
+"L100037","Australia","Hazelwood",1600,"Retired",1964,2017,-38.27,146.4
+"L100038","United States","Gibson",3345,"Operating",1976,,38.37,-87.8
+"L100039","United States","Scherer",3564,"Operating",1982,,33.06,-83.8
+"L100040","United States","Bowen",3200,"Operating",1971,,34.13,-84.92
+"L100041","United States","Navajo",2250,"Retired",1974,2019,36.9,-111.39
+"L100042","Brazil","Candiota III",350,"Operating",2011,,-31.55,-53.68

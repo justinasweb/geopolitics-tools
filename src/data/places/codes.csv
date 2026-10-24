@@ -1,0 +1,183 @@
+source,system,code,place,start,end,note
+*,name,Burma,MMR,,,
+*,name,Ivory Coast,CIV,,,
+*,name,Czech Republic,CZE,,,
+*,name,Turkey,TUR,,,
+*,name,Swaziland,SWZ,,,
+*,name,Macedonia,MKD,,,
+*,name,Republic of North Macedonia,MKD,,,
+*,name,Cape Verde,CPV,,,
+*,name,East Timor,TLS,,,
+*,name,Holy See,VAT,,,
+*,name,Vatican,VAT,,,
+*,name,"Korea, North",PRK,,,
+*,name,"Korea, South",KOR,,,
+*,name,Republic of Korea,KOR,,,
+*,name,Democratic People's Republic of Korea,PRK,,,
+*,name,"Korea, Rep.",KOR,,,
+*,name,"Korea, Dem. People's Rep.",PRK,,,
+*,name,Congo (Kinshasa),COD,,,
+*,name,Congo (Brazzaville),COG,,,
+*,name,"Congo, Dem. Rep.",COD,,,
+*,name,"Congo, Rep.",COG,,,
+*,name,Democratic Republic of Congo,COD,,,
+*,name,Zaire,COD,,,
+*,name,Iran (Islamic Republic of),IRN,,,
+*,name,"Iran, Islamic Rep.",IRN,,,
+*,name,Lao PDR,LAO,,,
+*,name,Lao People's Democratic Republic,LAO,,,
+*,name,"China, Taiwan Province of",TWN,,,
+*,name,Taiwan Province of China,TWN,,,
+*,name,Chinese Taipei,TWN,,,
+*,name,"Hong Kong SAR, China",HKG,,,
+*,name,"China, Hong Kong SAR",HKG,,,
+*,name,"Hong Kong, China",HKG,,,
+*,name,"Macao SAR, China",MAC,,,
+*,name,"China, Macao SAR",MAC,,,
+*,name,Macau,MAC,,,
+*,name,"China, mainland",CHN,,,
+*,name,People's Republic of China,CHN,,,
+*,name,United States of America,USA,,,
+*,name,Bolivia (Plurinational State of),BOL,,,
+*,name,Venezuela (Bolivarian Republic of),VEN,,,
+*,name,"Venezuela, RB",VEN,,,
+*,name,United Republic of Tanzania,TZA,,,
+*,name,Republic of Moldova,MDA,,,
+*,name,Micronesia (Federated States of),FSM,,,
+*,name,"Micronesia, Fed. Sts.",FSM,,,
+*,name,Kyrgyz Republic,KGZ,,,
+*,name,Slovak Republic,SVK,,,
+*,name,"Gambia, The",GMB,,,
+*,name,"Bahamas, The",BHS,,,
+*,name,"Egypt, Arab Rep.",EGY,,,
+*,name,"Yemen, Rep.",YEM,,,
+*,name,Palestinian Territories,PSE,,,
+*,name,State of Palestine,PSE,,,
+*,name,West Bank and Gaza,PSE,,,
+*,name,Occupied Palestinian Territory,PSE,,,
+*,name,St. Martin (French part),MAF,,,
+*,name,Sint Maarten (Dutch part),SXM,,,
+*,name,Curacao,CUW,,,
+*,name,Virgin Islands (U.S.),VIR,,,
+*,name,German Democratic Republic,DDR,,,
+*,name,"Germany, East",DDR,,,
+*,name,"Germany, West",XWG,,,
+*,name,Federal Republic of Germany (1949-1990),XWG,,,
+*,name,Russia (Soviet Union),SUN,,,
+*,name,Union of Soviet Socialist Republics,SUN,,,
+*,name,"Yemen, South",YMD,,,
+*,name,People's Democratic Republic of Yemen,YMD,,,
+*,name,Netherlands (Kingdom of the),NLD,,,
+*,name,"Türkiye, Republic of",TUR,,,
+*,name,Kosovo (under UNSC res. 1244),XKX,,,
+*,name,World,,,,aggregate
+*,name,World total,,,,aggregate
+*,name,United Kingdom of Great Britain and Northern Ireland,GBR,,,UN and ISO full name
+*,iso3,XKX,XKX,,,"Kosovo has no ISO code; XKX is the code the World Bank, UN and EU use"
+*,m49,001,,,,World total
+faostat,m49,159,,,,"""China"" in FAOSTAT adds mainland China, Hong Kong, Macao and Taiwan; the parts are kept, the sum is skipped"
+owid,iso3,OWID_KOS,XKX,,,Our World in Data code for Kosovo
+owid,iso3,OWID_WRL,,,,World total
+imf-weo,iso3,UVK,XKX,,,IMF code for Kosovo
+aqueduct,iso3,XKO,XKX,,,"GADM code for Kosovo, used by Aqueduct"
+comtrade,m49,490,TWN,,,"UN Comtrade reports Taiwan as ""Other Asia, not elsewhere specified"""
+comtrade,m49,842,USA,,,Comtrade code for the United States (with Puerto Rico and the US Virgin Islands)
+comtrade,m49,251,FRA,,,Comtrade code for France (with Monaco)
+comtrade,m49,699,IND,,,Comtrade code for India
+comtrade,m49,757,CHE,,,Comtrade code for Switzerland (with Liechtenstein)
+comtrade,m49,579,NOR,,,Comtrade code for Norway (with Svalbard and Jan Mayen)
+comtrade,m49,0,,,,World total
+celestrak,code,US,USA,,,
+celestrak,code,PRC,CHN,,,
+celestrak,code,CIS,SUN,,1991-12-26,"CelesTrak's code for the Soviet Union and then Russia (Commonwealth of Independent States); the Soviet Union until it ended"
+celestrak,code,CIS,RUS,1991-12-26,,"CelesTrak's code for the Soviet Union and then Russia (Commonwealth of Independent States); Russia after 1991"
+celestrak,code,UK,GBR,,,
+celestrak,code,JPN,JPN,,,
+celestrak,code,IND,IND,,,
+celestrak,code,FR,FRA,,,
+celestrak,code,GER,DEU,,,
+celestrak,code,ITA,ITA,,,
+celestrak,code,SPN,ESP,,,
+celestrak,code,FIN,FIN,,,
+celestrak,code,SKOR,KOR,,,
+celestrak,code,NKOR,PRK,,,
+celestrak,code,IRAN,IRN,,,
+celestrak,code,ISRA,ISR,,,
+celestrak,code,UAE,ARE,,,
+celestrak,code,SAUD,SAU,,,
+celestrak,code,TURK,TUR,,,
+celestrak,code,CA,CAN,,,
+celestrak,code,AUS,AUS,,,
+celestrak,code,BRAZ,BRA,,,
+celestrak,code,ARGN,ARG,,,
+celestrak,code,NOR,NOR,,,
+celestrak,code,NETH,NLD,,,
+celestrak,code,POL,POL,,,
+celestrak,code,ROC,TWN,,,
+celestrak,code,TWN,TWN,,,Taiwan in the prototype's sample file
+celestrak,code,LUXE,LUX,,,
+celestrak,code,SES,LUX,,,"SES, the satellite operator based in Luxembourg, counted for Luxembourg as in the prototype"
+celestrak,code,ALG,DZA,,,
+celestrak,code,ANG,AGO,,,
+celestrak,code,ASRA,AUT,,,
+celestrak,code,AZER,AZE,,,
+celestrak,code,BEL,BEL,,,
+celestrak,code,BELA,BLR,,,
+celestrak,code,BGD,BGD,,,
+celestrak,code,BOL,BOL,,,
+celestrak,code,BUL,BGR,,,
+celestrak,code,CHLE,CHL,,,
+celestrak,code,COL,COL,,,
+celestrak,code,CZCH,CZE,,,
+celestrak,code,DEN,DNK,,,
+celestrak,code,EGYP,EGY,,,
+celestrak,code,EST,EST,,,
+celestrak,code,ETH,ETH,,,
+celestrak,code,GREC,GRC,,,
+celestrak,code,HUN,HUN,,,
+celestrak,code,INDO,IDN,,,
+celestrak,code,IRAQ,IRQ,,,
+celestrak,code,IRL,IRL,,,
+celestrak,code,KAZ,KAZ,,,
+celestrak,code,KEN,KEN,,,
+celestrak,code,LTU,LTU,,,
+celestrak,code,MALA,MYS,,,
+celestrak,code,MEX,MEX,,,
+celestrak,code,MNG,MNG,,,
+celestrak,code,NIG,NGA,,,
+celestrak,code,NZ,NZL,,,
+celestrak,code,PAKI,PAK,,,
+celestrak,code,PER,PER,,,
+celestrak,code,POR,PRT,,,
+celestrak,code,QAT,QAT,,,
+celestrak,code,ROM,ROU,,,
+celestrak,code,RP,PHL,,,
+celestrak,code,SAFR,ZAF,,,
+celestrak,code,SING,SGP,,,
+celestrak,code,SVN,SVN,,,
+celestrak,code,SWED,SWE,,,
+celestrak,code,SWTZ,CHE,,,
+celestrak,code,THAI,THA,,,
+celestrak,code,TUN,TUN,,,
+celestrak,code,UKR,UKR,,,
+celestrak,code,URY,URY,,,
+celestrak,code,VENZ,VEN,,,
+celestrak,code,VTNM,VNM,,,
+celestrak,code,ESA,,,,European Space Agency (international)
+celestrak,code,EUTE,,,,Eutelsat (international operator)
+celestrak,code,EUME,,,,EUMETSAT (international)
+celestrak,code,ESRO,,,,European Space Research Organisation (international)
+celestrak,code,ISS,,,,International Space Station (shared)
+celestrak,code,ITSO,,,,Intelsat (international operator)
+celestrak,code,IM,,,,Inmarsat (international operator)
+celestrak,code,GLOB,,,,Globalstar (international operator)
+celestrak,code,IRID,,,,Iridium (international operator)
+celestrak,code,ORB,,,,Orbcomm (international operator)
+celestrak,code,O3B,,,,O3b Networks (international operator)
+celestrak,code,AB,,,,Arab Satellite Communications Organization (international)
+celestrak,code,AC,,,,AsiaSat (international operator)
+celestrak,code,NATO,,,,NATO (international)
+celestrak,code,RASC,,,,RascomStar-QAF (international)
+celestrak,code,SEAL,,,,Sea Launch (international)
+celestrak,code,TBD,,,,Owner to be determined
+celestrak,code,UNK,,,,Unknown owner

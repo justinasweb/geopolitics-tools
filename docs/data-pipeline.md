@@ -7,12 +7,18 @@ How source data gets from 33 public sources into the site. Phase 1 of the develo
 - **One hourly run** (`.github/workflows/data.yml`, minute 23) checks every source against its own schedule and
   fetches only what is due. Nothing runs on a laptop or a server of ours.
 - **Each fetcher saves the source's own format**, trimmed but never reshaped (dropped columns, aggregates and
-  bulky fields only). Turning it into the site's shape is the adapters' job, at build time.
+  bulky fields only). Turning it into the site's shape is the adapters' job, at build time. Where the prototype had
+  a live fetcher, the files match its samples (FAOSTAT and the Pink Sheet included, whose sources are bulk files and
+  Excel), so the adapters are tested on those samples.
 - **Nothing is saved unless it passes its checks**: the expected fields are there, enough countries or rows, not far
   fewer values than the last good copy, and not older than it should be. A failed check keeps the last good copy, so
   the site never loses data because a source had a bad day.
 - **Raw files and snapshots live in R2.** Every changed copy is kept, so a release can be rebuilt exactly and sources'
   revisions can be traced. A snapshot records which copies make up the data at one moment; the site builds from one.
+- **An outside watch backs up the schedule.** GitHub's scheduled runs are best-effort and can be skipped, so the site's
+  Worker has an hourly Cron Trigger (minute 41, `worker/watch.ts`): if no data run started in the last 50 minutes it
+  starts one through the GitHub API, and if the published `status.json` is more than 6 hours old it alerts on
+  Telegram (decision D11).
 - **Alerts go to Telegram** when a source fails twice in a row or goes past its freshness deadline, then at most once a
   day while the problem lasts, and once more when it works again. The run also fails, so GitHub's failed-run email is a
   backup.
@@ -22,7 +28,9 @@ How source data gets from 33 public sources into the site. Phase 1 of the develo
 | Path | What |
 |---|---|
 | `pipeline/run.ts` | The runner's command line (options at the top of the file) |
+| `pipeline/import.ts` | The import tool's command line, for sources with no API |
 | `pipeline/sources/` | One file per source: schedule, deadline, credit, licence and its fetcher |
+| `pipeline/sources/imported.ts` | The imported sources and the file kinds each takes: columns kept, row filter, checks |
 | `pipeline/lib/runner.ts` | One run: due sources, checks, saving, state, alerts, snapshot |
 | `pipeline/lib/state.ts` | Scheduling and alert rules (pure functions, unit tested) |
 | `pipeline/lib/store.ts` | R2 through the Cloudflare API, or a local folder |
@@ -69,16 +77,16 @@ back separately, from Cloudflare's deployments.
 | Our World in Data CO2 | 30 days | 400 days | 20 columns from 1990 |
 | UNHCR | 30 days | 200 days | Totals by origin and by host, and origin–host pairs, since 2015 |
 | UK Sanctions List | 1 day | 10 days | Designations: type, regime, dates, countries |
-| World Bank Pink Sheet | 7 days | 45 days | The Monthly Prices sheet (oil, gas, food, fertiliser, metals); refuses a workbook more than 3 months old |
+| World Bank Pink Sheet | 7 days | 45 days | Monthly food, fertiliser, metals and gas prices from 2010, in three files; refuses a workbook more than 3 months old |
 | Submarine cables (OpenStreetMap) | 30 days | 120 days | Underwater communication cables and cable landing stations, from one Overpass query |
-| FAOSTAT | 30 days | 400 days | Wheat, maize, rice and soybean production and trade since 2000, fertilisers by nutrient, and each importer's main suppliers in the latest complete year |
-| IMF World Economic Outlook | 30 days | 200 days | **Off** until the IMF allows scheduled downloads. 6 indicators, country groups dropped |
-| IMF PortWatch chokepoints | 20 hours | 10 days | **Off**, as above. Daily transits for 400 days |
+| FAOSTAT | 30 days | 400 days | Wheat, maize, rice and soybean production and trade, nitrogen, phosphate and potash, since 2015, by ISO3 code; each importer's 10 main suppliers in the latest well-reported year |
+| IMF World Economic Outlook | 30 days | 200 days | **Off** until the IMF allows scheduled downloads. Growth, inflation, debt, deficit, unemployment, current account; country groups dropped |
+| IMF PortWatch chokepoints | 20 hours | 10 days | **Off**, as above. The chokepoints and their daily transits for 400 days |
 
 A failed source is retried after 1, 2, 4… hours, never later than its normal interval.
 
-Still to come in phase 1: the import tool for file-only sources (USGS minerals, SIPRI, UN population, Global Energy
-Monitor, water datasets, AidData, Treasury history), and IMF reserves (gold in tonnes needs the IMF's new SDMX
+Sources with no API are imported by hand when they publish (see "Importing a file" below). Still to come in phase 1:
+IMF reserves (gold in tonnes needs the IMF's new SDMX
 service checked first). Keyed sources (EIA, UN Comtrade, Ember, UCDP, IPC) follow as their keys arrive. FAOSTAT has
 no fertiliser trade matrix, so potash and phosphate flows will come from UN Comtrade.
 
@@ -101,11 +109,43 @@ Every fetcher takes its address from an environment variable when set (`WORLDBAN
 `UK_SANCTIONS_URL`, `PINKSHEET_URL`, `OVERPASS_URL`, `FAOSTAT_BASE`, `IMF_DATAMAPPER_BASE`, `PORTWATCH_URL`), so it
 can be pointed at a stub.
 
+## Importing a file
+
+Nine sources have no API or refuse scripts, so their files are downloaded by hand on release and imported:
+
+```sh
+node pipeline/import.ts --list                                   # the kinds, and which download each expects
+node pipeline/import.ts sipri ~/Downloads/trade-register.csv     # into .data/, to try it
+node pipeline/import.ts wpp-age WPP2024_PopulationByAge5GroupSex_Medium.csv.gz --store=r2
+```
+
+| Source | Kinds | Released |
+|---|---|---|
+| SIPRI Arms Transfers | `sipri` | Each March |
+| UN World Population Prospects | `wpp-total`, `wpp-indicators`, `wpp-age` | Every two years |
+| Global Energy Monitor | `gem-coal`, `gem-nuclear`, `gem-lng`, `gem-pipelines` | About twice a year |
+| WRI Aqueduct | `aqueduct-baseline`, `aqueduct-future` | Rarely |
+| FAO AQUASTAT | `aquastat` | Rarely |
+| Global Dam Watch | `gdw` | Rarely |
+| AidData | `aiddata` | Every few years |
+| USGS Mineral Commodity Summaries | `usgs` (one file per edition, so older ones can be added) | Each January |
+| US Treasury holdings, history | `treasury-history` | Built once |
+
+It takes the file as downloaded: CSV, JSON or an Excel workbook (the sheet with the needed columns is found, or name
+it with `--sheet=`), gzipped or zipped (`--entry=` picks the file when a zip holds several); Windows text is turned
+into UTF-8. It stops with the file's own columns listed if one it needs is missing, keeps only the needed columns,
+applies the kind's filter (countries only, for instance), and refuses fewer than 10 rows or far fewer than the last
+import (`--allow-shrink` when that is real). Columns we keep by hand, such as a GEM terminal's stop year, are added
+empty when the file lacks them. The file is then saved like a fetched one, recorded with its download name and date,
+and published in a new snapshot; the hourly run keeps it in every snapshot after that. `--store=r2` needs
+`CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` in the environment, as for the runner.
+
 ## Settings
 
 | Repository secret | Needed for |
 |---|---|
 | `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` | R2 (already set for deploys) |
+| `GH_DISPATCH_TOKEN` | The Worker's outside watch, to start a run GitHub skipped (fine-grained, this repository, "Actions: read and write") |
 | `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` | Alerts. Without them alerts are only printed in the run log, and the run fails so GitHub emails. To check them: Run workflow with "test alert" ticked |
 
 Errors are written without query strings, so an API key in an address never reaches a log or `status.json`.
@@ -116,3 +156,6 @@ Errors are written without query strings, so an API key in an address never reac
 2. Save the source's own format; check fields, a minimum size and shrink against `ctx.previous()`; throw on anything odd.
 3. Add a stub test in `tests/unit/pipeline/sources.test.ts`, then open a pull request: its live check runs the new
    fetcher against the real service.
+4. The adapter that reads the file goes in `src/adapters/`. The live check also runs every indicator and flow on the
+   files it fetched (`node pipeline/adapter-check.ts <dir>`, which works on any folder `pipeline/pull.ts` wrote) and
+   prints each adapter's unmatched codes; add those to `src/data/places/codes.csv`.

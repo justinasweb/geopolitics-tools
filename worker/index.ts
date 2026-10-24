@@ -1,7 +1,9 @@
 // The site's only server code. Static files are served by Cloudflare before this runs; it handles
 // /api/* (later: the correction form and the Telegram review button) and passes anything else to the assets.
+// Its hourly Cron Trigger watches the data pipeline from outside GitHub (decision D11): see watch.ts.
+import { watch, type WatchEnv } from './watch';
 
-export interface Env {
+export interface Env extends WatchEnv {
   ASSETS: Fetcher;
 }
 
@@ -17,5 +19,8 @@ export default {
     }
     if (pathname.startsWith('/api/')) return json({ ok: false, error: 'not found' }, 404);
     return env.ASSETS.fetch(request);
+  },
+  async scheduled(_controller, env, ctx): Promise<void> {
+    ctx.waitUntil(watch(env, new Date()).then((r) => console.log(JSON.stringify(r))));
   },
 } satisfies ExportedHandler<Env>;

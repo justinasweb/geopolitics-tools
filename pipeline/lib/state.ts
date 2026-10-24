@@ -22,6 +22,8 @@ export interface SourceState {
   files: Record<string, FileRecord>;
   rows?: number;
   dataTo?: string;
+  /** Files imported by hand (pipeline/import.ts): the downloaded file's name, when, and rows kept. */
+  imported?: Record<string, { from: string; at: string; rows: number }>;
   /** The open alert, so it is sent once and then at most daily, not every hour. */
   alert?: { kind: Problem; at: string };
 }

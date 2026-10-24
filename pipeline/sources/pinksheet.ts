@@ -1,21 +1,45 @@
-// World Bank Pink Sheet → pinksheet/monthly-prices.csv: the "Monthly Prices" sheet of the
-// workbook, as published (a row of commodity names, a row of units, then one row per month).
-// Oil, gas, food, fertiliser and metals prices all come from it. The workbook moves to a new
-// address each year, so the link is read from the Commodity Markets page; a copy whose newest
-// month is more than 3 months old is refused (the prototype once fetched last year's workbook).
+// World Bank Pink Sheet → pinksheet/cmo_{food,metals,gas}_prices.json: monthly prices from 2010 for
+// the series the site uses, read from the "Monthly Prices" sheet of the workbook and written in the
+// prototype's sample format { source, columns: {code: label}, data: [{ period: "2024M03", code: value }] }
+// (the World Bank publishes these series only as Excel). Columns are found by their header text,
+// so a moved column is fine and a renamed one stops the fetch. The workbook moves to a new address
+// each year, so the link is read from the Commodity Markets page; a copy whose newest month is more
+// than 3 months old is refused (the prototype once fetched last year's workbook).
 import { getBytes, getText } from '../lib/http.ts';
-import { parseCsv, toCsv } from '../lib/csv.ts';
 import { readXlsx } from '../lib/xlsx.ts';
-import { type Source, DAY, check, guardShrink, text } from '../lib/source.ts';
+import { type Source, DAY, check, guardShrink, json } from '../lib/source.ts';
 
 const PAGE = 'https://www.worldbank.org/en/research/commodity-markets';
+const FROM = 2010;
 
-/** Series the site uses; matched at the start of the sheet's names, which carry footnote stars. */
-export const SERIES = [
-  'Crude oil, Brent', 'Natural gas, US', 'Natural gas, Europe', 'Liquefied natural gas, Japan',
-  'Wheat, US HRW', 'Maize', 'Rice, Thai 5%', 'Soybeans', 'Phosphate rock', 'DAP', 'Potassium chloride',
-  'Aluminum', 'Copper', 'Nickel', 'Gold', 'Silver', 'Platinum',
-];
+/** file → [title, { code: [label, header text] }], as in the prototype. */
+export const FILES: Record<string, [string, Record<string, [string, string]>]> = {
+  'cmo_food_prices.json': ['World Bank Commodity Price Data (The Pink Sheet), monthly prices, $/mt', {
+    WHEAT_US_HRW: ['Wheat, US HRW', 'Wheat, US HRW'],
+    MAIZE: ['Maize', 'Maize'],
+    RICE_05: ['Rice, Thai 5%', 'Rice, Thai 5%'],
+    SOYBEANS: ['Soybeans', 'Soybeans'],
+    POTASH: ['Potassium chloride', 'Potassium chloride'],
+    DAP: ['DAP', 'DAP'],
+    PHOSROCK: ['Phosphate rock', 'Phosphate rock'],
+  }],
+  'cmo_metals_prices.json': ['World Bank Commodity Price Data (The Pink Sheet), monthly prices', {
+    COPPER: ['Copper ($/mt)', 'Copper'],
+    ALUMINUM: ['Aluminum ($/mt)', 'Aluminum'],
+    NICKEL: ['Nickel ($/mt)', 'Nickel'],
+    GOLD: ['Gold ($/troy oz)', 'Gold'],
+    SILVER: ['Silver ($/troy oz)', 'Silver'],
+    PLATINUM: ['Platinum ($/troy oz)', 'Platinum'],
+  }],
+  'cmo_gas_prices.json': ['World Bank Commodity Price Data (The Pink Sheet), monthly prices, $/mmbtu', {
+    NGAS_US: ['Natural gas, US (Henry Hub)', 'Natural gas, US'],
+    NGAS_EUR: ['Natural gas, Europe (TTF)', 'Natural gas, Europe'],
+    NGAS_JP: ['Liquefied natural gas, Japan', 'Liquefied natural gas, Japan'],
+  }],
+};
+
+/** Header text without footnote stars and odd spaces: "Potassium chloride **" → "Potassium chloride". */
+export const norm = (s: string) => s.replace(/\*/g, '').replace(/\u00a0/g, ' ').replace(/\s+/g, ' ').trim();
 
 const MONTH = /^(\d{4})M(\d\d)$/;
 
@@ -39,27 +63,39 @@ const source: Source = {
       url = findLink(await getText(ctx.http, PAGE)) ?? undefined;
       check(url, `no link to CMO-Historical-Data-Monthly.xlsx on ${PAGE}`);
     }
-    const wb = await readXlsx(await getBytes(ctx.http, url, { timeout: 180_000 }));
-    const sheet = wb.rows('Monthly Prices');
-    const h = sheet.findIndex((r) => r.some((c) => c.startsWith('Crude oil')));
-    check(h >= 0, 'Monthly Prices: no row of commodity names');
-    const names = sheet[h].map((c) => c.trim());
-    const missing = SERIES.filter((s) => !names.some((n) => n.startsWith(s)));
-    check(!missing.length, `Monthly Prices: series ${missing.join(', ')} missing; the sheet has ${names.filter(Boolean).join(', ')}`);
-    const data = sheet.slice(h + 2).filter((r) => MONTH.test(r[0]?.trim() ?? ''));
-    check(data.length >= 600, `only ${data.length} months`);
-    const width = names.length;
-    const fit = (r: string[]) => Array.from({ length: width }, (_, i) => (r[i] ?? '').trim());
-    const rows = [['month', ...names.slice(1)], ['unit', ...fit(sheet[h + 1]).slice(1)], ...data.map(fit)];
-
-    const [, y, m] = data.at(-1)![0].match(MONTH)!;
-    const newest = `${y}-${m}`;
+    const sheet = (await readXlsx(await getBytes(ctx.http, url, { timeout: 180_000 }))).rows('Monthly Prices');
+    const head = sheet.find((r) => r.map(norm).includes('Maize'))?.map(norm);
+    check(head, 'Monthly Prices: no header row with "Maize"');
+    const months = sheet.filter((r) => MONTH.test(r[0]?.trim() ?? '') && Number(r[0].slice(0, 4)) >= FROM);
+    check(months.length >= 100, `Monthly Prices: only ${months.length} months since ${FROM}`);
+    const last = months.at(-1)![0].trim();
+    const [, y, m] = last.match(MONTH)!;
     const age = (ctx.now.getUTCFullYear() - Number(y)) * 12 + ctx.now.getUTCMonth() + 1 - Number(m);
-    check(age <= 3, `newest month is ${newest}, more than 3 months old: probably last year's workbook (${url.replace(/\?.*/, '')})`);
-    const prev = await ctx.previous('monthly-prices.csv');
-    guardShrink(ctx, 'monthly-prices.csv', data.length, prev, (p) => parseCsv(p).length - 2, 0.9);
-    ctx.log(`${data.length} months × ${width - 1} series, to ${newest}`);
-    return { files: [text('monthly-prices.csv', toCsv(rows), 'text/csv')], rows: data.length * (width - 1), dataTo: newest };
+    check(age <= 3, `newest month is ${y}-${m}, more than 3 months old: probably last year's workbook (${url.replace(/\?.*/, '')})`);
+
+    const files = [];
+    let values = 0;
+    for (const [file, [title, cols]] of Object.entries(FILES)) {
+      const at = Object.entries(cols).map(([code, [, match]]) => {
+        const i = head.indexOf(match);
+        check(i >= 0, `column "${match}" not found in the Monthly Prices sheet; it may have been renamed (the sheet has ${head.filter(Boolean).join(', ')})`);
+        return [code, i] as const;
+      });
+      const data = months.map((r) => {
+        const row: Record<string, string | number | null> = { period: r[0].trim() };
+        for (const [code, i] of at) {
+          const v = Number(r[i]);
+          row[code] = r[i] !== undefined && r[i] !== '' && Number.isFinite(v) ? Math.round(v * 1000) / 1000 : null;
+          if (row[code] !== null) values++;
+        }
+        return row;
+      });
+      const prev = await ctx.previous(file);
+      guardShrink(ctx, file, data.length, prev, (p) => (JSON.parse(p).data as unknown[]).length, 0.9);
+      files.push(json(file, { source: title, columns: Object.fromEntries(Object.entries(cols).map(([c, [label]]) => [c, label])), data }));
+    }
+    ctx.log(`${months.length} months from ${months[0][0]} to ${last}, ${values} values in ${files.length} files`);
+    return { files, rows: values, dataTo: `${y}-${m}` };
   },
 };
 export default source;

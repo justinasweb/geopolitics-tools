@@ -1,131 +1,170 @@
 // FAOSTAT, from the open bulk downloads (the API now needs an account) → faostat/:
-//   crops.csv        production of wheat, maize, rice and soybeans (QCL), since 2000
-//   trade.csv        their import and export quantities (TCL), since 2000
-//   fertilizers.csv  fertilisers by nutrient (RFN), since 2000
-//   matrix.csv       who imports these crops from whom (TM), latest complete year, each importer's
-//                    main suppliers (90% of the quantity, at most 10) and one remainder row
-// Each bulk file is a zip of a CSV in FAOSTAT's normalized layout, one value per row; the trade
-// matrix is about 50 million rows, so the zips are saved to disk and read as a stream. Rows keep
-// FAOSTAT's own columns; regional aggregates stay in (the adapters keep them apart from countries).
-// FAOSTAT has no fertiliser trade matrix: potash and phosphate flows come from UN Comtrade.
-import { mkdtempSync, rmSync } from 'node:fs';
+//   QCL_production.json   production of wheat, maize, rice and soybeans
+//   TCL_trade.json        their import and export quantities
+//   RFN_fertilizers.json  nitrogen, phosphate and potash: production, trade and agricultural use
+//   TM_matrix.json        who imports these from whom: the latest well-reported year, each importer's
+//                         10 largest suppliers per commodity, flows of at least 1,000 t
+// Each is written in the row format the FAOSTAT API returns with area_cs=ISO3, the format of the
+// prototype's samples: { source, retrieved, data: [rows] }. Ported from the prototype's fetcher,
+// which was checked against the live files: countries are matched by UN M49 code, so FAO's regional
+// and income aggregates and "China" (mainland plus Hong Kong, Macao and Taiwan) drop out; World is
+// kept with an empty ISO3 code. Each bulk file is a zip of a CSV; the trade matrix is about 50
+// million rows, so the zips are saved to disk and read as streams, the matrix twice.
+// FAOSTAT's matrix has no fertiliser rows in practice: potash and phosphate flows come from UN Comtrade.
+import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createInterface } from 'node:readline';
 import { saveTo } from '../lib/http.ts';
-import { parseCsv, toCsv } from '../lib/csv.ts';
+import { parseCsv } from '../lib/csv.ts';
 import { listFile, openEntry } from '../lib/zip.ts';
-import { type Source, type FetchContext, DAY, CheckError, check, guardShrink, text } from '../lib/source.ts';
+import { type Source, type FetchContext, DAY, CheckError, check, guardShrink, json } from '../lib/source.ts';
 
-const FROM = 2000;
+const FROM = 2015;
+const TM_TOP = 10;
+const TM_MIN = 1000;
+const CROPS = [15, 27, 28, 29, 30, 31, 56, 236];
+/** 3102 nitrogen, 3103 phosphate, 3104 potash (the prototype's sample put phosphate under 3102). */
+const NUTRIENTS = [3102, 3103, 3104];
 
-/** The four crops, as FAOSTAT names them in production and trade ("Maize (corn)", "Rice, paddy"…). */
-export const CROP = /^(wheat|maize( \(corn\))?|rice(, (paddy|milled)( \(rice milled equivalent\))?)?|soya beans|soybeans)$/i;
-const CROP_HINT = /Wheat|Maize|Rice|Soya|Soybean/;
-
-export const FILES = {
-  crops: 'Production_Crops_Livestock_E_All_Data_(Normalized).zip',
-  trade: 'Trade_CropsLivestock_E_All_Data_(Normalized).zip',
-  fertilizers: 'Inputs_FertilizersNutrient_E_All_Data_(Normalized).zip',
-  matrix: 'Trade_DetailedTradeMatrix_E_All_Data_(Normalized).zip',
+export interface Domain { zip: string; save: string; title: string; items: number[]; elements: number[]; matrix?: true }
+export const DOMAINS: Record<string, Domain> = {
+  QCL: { zip: 'Production_Crops_Livestock_E_All_Data_(Normalized).zip', save: 'QCL_production.json', title: 'Crops and livestock products, production', items: [15, 27, 56, 236], elements: [5510] },
+  TCL: { zip: 'Trade_CropsLivestock_E_All_Data_(Normalized).zip', save: 'TCL_trade.json', title: 'Crops and livestock products, trade', items: CROPS, elements: [5610, 5910] },
+  RFN: { zip: 'Inputs_FertilizersNutrient_E_All_Data_(Normalized).zip', save: 'RFN_fertilizers.json', title: 'Fertilizers by Nutrient', items: NUTRIENTS, elements: [5157, 5510, 5610, 5910] },
+  TM: { zip: 'Trade_DetailedTradeMatrix_E_All_Data_(Normalized).zip', save: 'TM_matrix.json', title: 'Detailed trade matrix', items: [...CROPS, ...NUTRIENTS], elements: [5610], matrix: true },
 };
 
-const AREA = { required: ['Area Code', 'Area', 'Item Code', 'Item', 'Element Code', 'Element', 'Year', 'Unit', 'Value'], optional: ['Area Code (M49)', 'Flag'] };
-const PAIR = {
-  required: ['Reporter Country Code', 'Reporter Countries', 'Partner Country Code', 'Partner Countries', 'Item Code', 'Item', 'Element', 'Year', 'Unit', 'Value'],
-  optional: ['Reporter Country Code (M49)', 'Partner Country Code (M49)'],
-};
-
-/** A kept FAOSTAT row stays as text in FAOSTAT's columns; these pick them by name. */
-export function columnsOf(header: string[], spec: { required: string[]; optional: string[] }, what: string) {
-  const names = [...spec.required, ...spec.optional.filter((c) => header.includes(c))];
-  const missing = spec.required.filter((c) => !header.includes(c));
-  if (missing.length) throw new CheckError(`${what}: column(s) ${missing.join(', ')} missing; the file has ${header.join(', ')}`);
-  const idx = names.map((c) => header.indexOf(c));
-  const at = Object.fromEntries(names.map((c, i) => [c, i]));
-  return { names, at, pick: (r: string[]) => idx.map((i) => r[i] ?? '') };
-}
-
-/** The data CSV inside a bulk zip, line by line. Read as latin1, which keeps every byte, then each kept line is decoded as UTF-8 if it is valid UTF-8. */
-async function* lines(path: string): AsyncGenerator<string> {
-  const entries = await listFile(path);
-  const entry = entries.find((e) => /All_Data.*\.csv$/i.test(e.name)) ?? entries.find((e) => e.name.endsWith('.csv'));
-  if (!entry) throw new CheckError(`no CSV in the zip; it has ${entries.map((e) => e.name).join(', ')}`);
-  const stream = await openEntry(path, entry);
-  stream.setEncoding('latin1');
-  yield* createInterface({ input: stream, crlfDelay: Infinity });
-}
+const M49: Record<string, string> = JSON.parse(readFileSync(new URL('../reference/m49-iso3.json', import.meta.url), 'utf8'));
+/** FAOSTAT writes M49 codes as '004 (with a quote, so spreadsheets keep the zeros). */
+export const m49 = (code: string) => code.trim().replace(/^'/, '').padStart(3, '0');
+const iso = (code: string) => M49[m49(code)];
 
 const utf8 = new TextDecoder('utf-8', { fatal: true });
+/** Lines are read as latin1, which keeps every byte; a kept line is then decoded as UTF-8 if it is valid UTF-8. */
 export const fixEncoding = (line: string) => {
   // eslint-disable-next-line no-control-regex
   if (/^[\x00-\x7f]*$/.test(line)) return line;
   try { return utf8.decode(Buffer.from(line, 'latin1')); } catch { return line; }
 };
 
-/** Rows of one bulk file that pass a cheap text test first (most of the 50 million lines fail it) and then the real filter. */
-async function scan(path: string, what: string, spec: typeof AREA, hint: RegExp | null, keep: (r: string[], at: Record<string, number>) => boolean) {
-  let cols: ReturnType<typeof columnsOf> | undefined;
-  const rows: string[][] = [];
-  let seen = 0;
-  for await (const line of lines(path)) {
-    if (!cols) {
-      cols = columnsOf(parseCsv(line.replace(/^(\ufeff|\u00ef\u00bb\u00bf)/, ''))[0] ?? [], spec, what);
+type Row = { at: Record<string, number>; r: string[] };
+
+/** The data CSV inside a bulk zip, row by row; a line is parsed only when the cheap text test passes. */
+async function* rows(path: string, wanted: (line: string) => boolean): AsyncGenerator<Row> {
+  const entries = await listFile(path);
+  const entry = entries.find((e) => /All_Data.*\.csv$/i.test(e.name) && !/Flags|AreaCodes|ItemCodes|Elements/i.test(e.name));
+  if (!entry) throw new CheckError(`no data CSV in the zip; it has ${entries.map((e) => e.name).join(', ')}`);
+  const stream = await openEntry(path, entry);
+  stream.setEncoding('latin1');
+  let at: Record<string, number> | undefined;
+  for await (const line of createInterface({ input: stream, crlfDelay: Infinity })) {
+    if (!at) {
+      at = Object.fromEntries((parseCsv(line.replace(/^(\ufeff|\u00ef\u00bb\u00bf)/, ''))[0] ?? []).map((h, i) => [h.trim(), i]));
       continue;
     }
-    seen++;
-    if (hint && !hint.test(line)) continue;
-    const r = cols.pick(parseCsv(fixEncoding(line))[0] ?? []);
-    if (keep(r, cols.at)) rows.push(r);
+    if (wanted(line)) yield { at, r: parseCsv(fixEncoding(line))[0] ?? [] };
   }
-  check(cols, `${what}: empty file`);
-  return { header: cols.names, at: cols.at, rows, seen };
 }
 
-/** For each importer and crop, the suppliers that make up 90% of the quantity (at most 10), then one remainder row. */
-export function mainSuppliers(header: string[], rows: string[][]) {
-  const at = Object.fromEntries(header.map((c, i) => [c, i]));
-  const groups = new Map<string, string[][]>();
-  for (const r of rows) {
-    const k = `${r[at['Reporter Country Code']]}\u0001${r[at['Item Code']]}`;
-    const g = groups.get(k);
-    if (g) g.push(r);
-    else groups.set(k, [r]);
+const need = (at: Record<string, number>, columns: string[], what: string) => {
+  const missing = columns.filter((c) => at[c] === undefined);
+  if (missing.length) throw new CheckError(`${what}: column(s) ${missing.join(', ')} missing; the bulk format changed (it has ${Object.keys(at).join(', ')})`);
+};
+
+/** A cheap test on the raw line: one of the wanted item codes appears as a whole field. */
+const hasItem = (d: Domain) => {
+  const re = new RegExp(`(^|,)"?(${d.items.join('|')})"?(,|$)`);
+  return (line: string) => re.test(line);
+};
+
+export async function readArea(path: string, name: string, d: Domain) {
+  const items = new Set(d.items);
+  const elements = new Set(d.elements);
+  const out: Record<string, string | number>[] = [];
+  let checked = false;
+  for await (const { at, r } of rows(path, hasItem(d))) {
+    if (!checked) { need(at, ['Area Code (M49)', 'Area', 'Item Code', 'Item', 'Element Code', 'Element', 'Year', 'Unit', 'Value'], name); checked = true; }
+    const year = Number(r[at.Year]);
+    const item = Number(r[at['Item Code']]);
+    const el = Number(r[at['Element Code']]);
+    if (year < FROM || !items.has(item) || !elements.has(el) || (r[at.Value] ?? '') === '') continue;
+    const code = r[at['Area Code (M49)']] ?? '';
+    const area = m49(code) === '001' ? '' : iso(code);
+    if (area === undefined) continue;
+    out.push({
+      'Domain Code': name, 'Area Code (ISO3)': area, Area: r[at.Area], 'Element Code': el, Element: r[at.Element], 'Item Code': item, Item: r[at.Item],
+      'Year Code': year, Year: year, Unit: r[at.Unit], Value: Number(r[at.Value]), Flag: at.Flag === undefined ? '' : r[at.Flag] ?? '',
+    });
   }
-  const out: string[][] = [];
-  for (const g of groups.values()) {
-    const sorted = g.map((r) => [r, Number(r[at.Value]) || 0] as const).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]);
-    const total = sorted.reduce((s, [, v]) => s + v, 0);
-    let sum = 0;
-    let n = 0;
-    for (const [r, v] of sorted) {
-      if (n >= 10 || (n > 0 && sum >= total * 0.9)) break;
-      out.push(r);
-      sum += v;
-      n++;
-    }
-    const rest = total - sum;
-    if (rest > 0) {
-      const other = [...sorted[0][0]];
-      for (const c of ['Partner Country Code', 'Partner Country Code (M49)']) if (at[c] !== undefined) other[at[c]] = '';
-      other[at['Partner Countries']] = `Other partners (${sorted.length - n})`;
-      other[at.Value] = String(Math.round(rest * 1000) / 1000);
-      out.push(other);
-    }
-  }
+  check(checked, `${name}: no rows for the wanted items`);
   return out;
 }
 
-/** The latest year that most importers have reported: the last year often has only a few. */
-export function latestComplete(rows: string[][], yearAt: number, reporterAt: number) {
-  const reporters = new Map<string, Set<string>>();
-  for (const r of rows) {
-    const s = reporters.get(r[yearAt]) ?? new Set();
-    s.add(r[reporterAt]);
-    reporters.set(r[yearAt], s);
+/** The latest year whose reporters number at least 80% of the year before's (the newest year is usually thin). */
+export function pickYear(reporters: Map<number, Set<string>>) {
+  const years = [...reporters.keys()].sort((a, b) => b - a);
+  for (const [i, y] of years.entries()) {
+    const prev = years[i + 1];
+    if (prev === undefined || reporters.get(y)!.size >= 0.8 * reporters.get(prev)!.size) return y;
   }
-  const most = Math.max(...[...reporters.values()].map((s) => s.size));
-  return [...reporters.entries()].filter(([, s]) => s.size >= most * 0.8).map(([y]) => y).sort().at(-1);
+  return years[0];
+}
+
+export async function readMatrix(path: string, d: Domain, log: (m: string) => void) {
+  const items = new Set(d.items);
+  const wanted = hasItem(d);
+  const reporters = new Map<number, Set<string>>();
+  let checked = false;
+  for await (const { at, r } of rows(path, (l) => l.includes('5610'))) {
+    if (!checked) {
+      need(at, ['Reporter Country Code (M49)', 'Reporter Countries', 'Partner Country Code (M49)', 'Partner Countries', 'Item Code', 'Item', 'Element Code', 'Year', 'Value'], 'TM');
+      checked = true;
+    }
+    const y = Number(r[at.Year]);
+    if (Number(r[at['Element Code']]) !== 5610 || y < FROM) continue;
+    const s = reporters.get(y) ?? new Set();
+    s.add(r[at['Reporter Country Code (M49)']]);
+    reporters.set(y, s);
+  }
+  check(reporters.size, `TM: no import rows since ${FROM}`);
+  const year = pickYear(reporters);
+  log(`TM latest well-reported year: ${year} (${reporters.get(year)!.size} reporters)`);
+
+  const flows = new Map<number, Map<string, Map<string, number>>>();
+  const names = new Map<string, string>();
+  const itemNames = new Map<number, string>();
+  const units = new Map<number, string>();
+  const y = String(year);
+  for await (const { at, r } of rows(path, (l) => l.includes(y) && wanted(l))) {
+    const item = Number(r[at['Item Code']]);
+    if (r[at.Year] !== y || !items.has(item) || Number(r[at['Element Code']]) !== 5610 || (r[at.Value] ?? '') === '') continue;
+    const rep = iso(r[at['Reporter Country Code (M49)']]);
+    const par = iso(r[at['Partner Country Code (M49)']]);
+    const v = Number(r[at.Value]);
+    if (!rep || !par || rep === par || !(v >= TM_MIN)) continue;
+    let byRep = flows.get(item);
+    if (!byRep) flows.set(item, (byRep = new Map()));
+    let byPar = byRep.get(rep);
+    if (!byPar) byRep.set(rep, (byPar = new Map()));
+    byPar.set(par, (byPar.get(par) ?? 0) + v);
+    if (!names.has(rep)) names.set(rep, r[at['Reporter Countries']]);
+    if (!names.has(par)) names.set(par, r[at['Partner Countries']]);
+    if (!itemNames.has(item)) itemNames.set(item, r[at.Item]);
+    if (!units.has(item)) units.set(item, (at.Unit === undefined ? '' : r[at.Unit]) || 't');
+  }
+  const out: Record<string, string | number>[] = [];
+  for (const [item, byRep] of flows) {
+    for (const [rep, byPar] of byRep) {
+      for (const [par, v] of [...byPar].sort((a, b) => b[1] - a[1]).slice(0, TM_TOP)) {
+        out.push({
+          'Domain Code': 'TM', 'Reporter Country Code (ISO3)': rep, 'Reporter Countries': names.get(rep)!, 'Partner Country Code (ISO3)': par, 'Partner Countries': names.get(par)!,
+          'Element Code': 5610, Element: 'Import quantity', 'Item Code': item, Item: itemNames.get(item)!, 'Year Code': year, Year: year, Unit: units.get(item)!, Value: v, Flag: '',
+        });
+      }
+    }
+  }
+  return { rows: out, year };
 }
 
 async function download(ctx: FetchContext, dir: string, file: string) {
@@ -150,48 +189,32 @@ const source: Source = {
   every: 30 * DAY,
   staleAfter: 400 * DAY,
   enabled: true,
-  attribution: 'FAO, FAOSTAT',
+  attribution: 'FAO. FAOSTAT. Food and Agriculture Organization of the United Nations',
   licence: 'CC BY 4.0',
   async fetch(ctx) {
     const dir = mkdtempSync(join(tmpdir(), 'faostat-'));
+    const retrieved = ctx.now.toISOString().slice(0, 10);
     try {
-      const since = (r: string[], at: Record<string, number>) => Number(r[at.Year]) >= FROM;
-      const run = async (name: keyof typeof FILES, spec: typeof AREA, hint: RegExp | null, keep: (r: string[], at: Record<string, number>) => boolean) => {
-        const path = await download(ctx, dir, FILES[name]);
-        const out = await scan(path, FILES[name], spec, hint, keep);
+      const files = [];
+      let total = 0;
+      let newest = 0;
+      for (const [name, d] of Object.entries(DOMAINS)) {
+        const path = await download(ctx, dir, d.zip);
+        const { rows: data, year } = d.matrix ? await readMatrix(path, d, ctx.log) : { rows: await readArea(path, name, d), year: undefined };
         rmSync(path);
-        ctx.log(`${name}: ${out.seen} rows read, ${out.rows.length} kept`);
-        return out;
-      };
-
-      const crops = await run('crops', AREA, CROP_HINT, (r, at) => CROP.test(r[at.Item]) && r[at.Element] === 'Production' && since(r, at));
-      check(crops.rows.length >= 3_000, `crops: only ${crops.rows.length} rows`);
-      const trade = await run('trade', AREA, CROP_HINT, (r, at) => CROP.test(r[at.Item]) && /^(Import|Export) quantity$/.test(r[at.Element]) && since(r, at));
-      check(trade.rows.length >= 3_000, `trade: only ${trade.rows.length} rows`);
-      const fert = await run('fertilizers', AREA, null, since);
-      check(fert.rows.length >= 2_000, `fertilizers: only ${fert.rows.length} rows`);
-      // Only the last few years of the matrix are held: the latest complete one is among them.
-      const recent = ctx.now.getUTCFullYear() - 5;
-      const tm = await run('matrix', PAIR, CROP_HINT, (r, at) => CROP.test(r[at.Item]) && r[at.Element] === 'Import quantity' && Number(r[at.Year]) >= recent);
-      const year = latestComplete(tm.rows, tm.at.Year, tm.at['Reporter Country Code']);
-      check(year, 'matrix: no import rows');
-      const flows = mainSuppliers(tm.header, tm.rows.filter((r) => r[tm.at.Year] === year));
-      check(flows.length >= 1_000, `matrix: only ${flows.length} main flows in ${year}`);
-
-      const prev = await ctx.previous('crops.csv');
-      guardShrink(ctx, 'crops.csv', crops.rows.length, prev, (p) => parseCsv(p).length - 1, 0.8);
-      const newest = crops.rows.map((r) => r[crops.at.Year]).sort().at(-1);
-      ctx.log(`crops to ${newest}; trade matrix ${year}: ${flows.length} main flows`);
-      return {
-        files: [
-          text('crops.csv', toCsv([crops.header, ...crops.rows]), 'text/csv'),
-          text('trade.csv', toCsv([trade.header, ...trade.rows]), 'text/csv'),
-          text('fertilizers.csv', toCsv([fert.header, ...fert.rows]), 'text/csv'),
-          text('matrix.csv', toCsv([tm.header, ...flows]), 'text/csv'),
-        ],
-        rows: crops.rows.length + trade.rows.length + fert.rows.length + flows.length,
-        dataTo: newest,
-      };
+        const key = d.matrix ? 'Reporter Country Code (ISO3)' : 'Area Code (ISO3)';
+        const countries = new Set(data.map((r) => r[key]).filter(Boolean)).size;
+        check(countries >= Number(ctx.env.FAO_MIN_COUNTRIES ?? 60), `${name}: only ${countries} countries`);
+        const prev = await ctx.previous(d.save);
+        guardShrink(ctx, d.save, data.length, prev, (p) => (JSON.parse(p).data as unknown[]).length);
+        const years = data.map((r) => Number(r.Year));
+        const seen = [...new Map(data.map((r) => [r['Item Code'], r.Item])).entries()].map(([c, n]) => `${c} ${n}`).join('; ');
+        ctx.log(`${name}: ${data.length} rows, ${countries} countries, ${Math.min(...years)}–${Math.max(...years)}; items ${seen}`);
+        files.push(json(d.save, { source: `FAOSTAT ${name} — ${d.title}${year ? `, ${year}` : ''} (bulk download, filtered)`, retrieved, data }));
+        total += data.length;
+        if (name === 'QCL') newest = Math.max(...years);
+      }
+      return { files, rows: total, dataTo: String(newest) };
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
