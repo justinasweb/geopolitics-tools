@@ -5,7 +5,7 @@
 import { mkdirSync } from 'node:fs';
 import { chromium } from 'playwright';
 
-const base = (process.env.BASE ?? 'http://localhost:8787').replace(/\/$/, '');
+const base = (process.env.BASE || 'http://localhost:8787').replace(/\/$/, '');
 const out = process.argv[2] ?? 'shots';
 const expectIndexable = process.env.SITE_INDEXABLE === 'true';
 const headers = process.env.CF_ACCESS_CLIENT_ID

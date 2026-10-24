@@ -98,7 +98,10 @@ jobs:
           set -o pipefail
           npx wrangler preview --name "pr-${{ github.event.pull_request.number }}" \
             --message "${{ github.event.pull_request.head.sha }}" --json | tee preview.json
-          echo "url=$(jq -er '.preview.urls[0]' preview.json)" >> "$GITHUB_OUTPUT"
+          # Take the first workers.dev address anywhere in the JSON (the output shape is still in beta).
+          url=$(jq -r '[.. | strings | select(test("^https://[^ ]+\\.workers\\.dev"))] | (map(select(startswith("https://pr-"))) + .)[0] // empty' preview.json)
+          [ -n "$url" ] || { echo "No Preview URL in the wrangler output"; exit 1; }
+          echo "url=$url" >> "$GITHUB_OUTPUT"
       - name: Post the link on the pull request
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
