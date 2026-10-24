@@ -1,0 +1,901 @@
+Entity_LogicalId,Entity_EU_ReferenceNumber,Entity_SubjectType_ClassificationCode,Entity_Regulation_Programme,Entity_Regulation_PublicationDate,Entity_Regulation_EntryIntoForceDate,NameAlias_WholeName,Address_CountryIso2Code,Citizenship_CountryIso2Code
+4801,EU.4801.1,person,Russia (Ukraine territorial integrity),2025-01-06,2025-01-06,Sample listed individual RU-04801,,RU
+4801,EU.4801.1,person,Russia (Ukraine territorial integrity),2025-01-06,2025-01-06,Sample listed individual RU-04801 (alias),,RU
+4811,EU.4811.1,person,Russia (Ukraine territorial integrity),2022-08-14,2022-08-14,Sample listed individual RU-04811,,RU
+4811,EU.4811.1,person,Russia (Ukraine territorial integrity),2022-08-14,2022-08-14,Sample listed individual RU-04811 (alias),,RU
+4821,EU.4821.1,person,Russia (Ukraine territorial integrity),2022-04-27,2022-04-27,Sample listed individual RU-04821,,RU
+4821,EU.4821.1,person,Russia (Ukraine territorial integrity),2022-04-27,2022-04-27,Sample listed individual RU-04821 (alias),,RU
+4831,EU.4831.1,person,Russia (Ukraine territorial integrity),2026-06-18,2026-06-18,Sample listed individual RU-04831,,RU
+4831,EU.4831.1,person,Russia (Ukraine territorial integrity),2026-06-18,2026-06-18,Sample listed individual RU-04831 (alias),,RU
+4841,EU.4841.1,person,Russia (Ukraine territorial integrity),2022-11-07,2022-11-07,Sample listed individual RU-04841,,RU
+4841,EU.4841.1,person,Russia (Ukraine territorial integrity),2022-11-07,2022-11-07,Sample listed individual RU-04841 (alias),,RU
+4851,EU.4851.1,person,Russia (Ukraine territorial integrity),2022-06-01,2022-06-01,Sample listed individual RU-04851,,RU
+4851,EU.4851.1,person,Russia (Ukraine territorial integrity),2022-06-01,2022-06-01,Sample listed individual RU-04851 (alias),,RU
+4861,EU.4861.1,enterprise,Russia (Ukraine territorial integrity),2023-06-03,2023-06-03,Sample listed entity RU-04861,RU,
+4861,EU.4861.1,enterprise,Russia (Ukraine territorial integrity),2023-06-03,2023-06-03,Sample listed entity RU-04861 (alias),RU,
+4871,EU.4871.1,person,Russia (Ukraine territorial integrity),2022-03-13,2022-03-13,Sample listed individual RU-04871,,RU
+4871,EU.4871.1,person,Russia (Ukraine territorial integrity),2022-03-13,2022-03-13,Sample listed individual RU-04871 (alias),,RU
+4881,EU.4881.1,enterprise,Russia (Ukraine territorial integrity),2023-11-06,2023-11-06,Sample listed entity RU-04881,RU,
+4881,EU.4881.1,enterprise,Russia (Ukraine territorial integrity),2023-11-06,2023-11-06,Sample listed entity RU-04881 (alias),RU,
+4891,EU.4891.1,person,Russia (Ukraine territorial integrity),2022-12-15,2022-12-15,Sample listed individual RU-04891,,RU
+4891,EU.4891.1,person,Russia (Ukraine territorial integrity),2022-12-15,2022-12-15,Sample listed individual RU-04891 (alias),,RU
+4901,EU.4901.1,enterprise,Russia (Ukraine territorial integrity),2022-04-09,2022-04-09,Sample listed entity RU-04901,RU,
+4901,EU.4901.1,enterprise,Russia (Ukraine territorial integrity),2022-04-09,2022-04-09,Sample listed entity RU-04901 (alias),RU,
+4911,EU.4911.1,person,Russia (Ukraine territorial integrity),2026-08-01,2026-08-01,Sample listed individual RU-04911,,RU
+4911,EU.4911.1,person,Russia (Ukraine territorial integrity),2026-08-01,2026-08-01,Sample listed individual RU-04911 (alias),,RU
+4921,EU.4921.1,person,Russia (Ukraine territorial integrity),2023-10-23,2023-10-23,Sample listed individual RU-04921,,RU
+4921,EU.4921.1,person,Russia (Ukraine territorial integrity),2023-10-23,2023-10-23,Sample listed individual RU-04921 (alias),,RU
+4931,EU.4931.1,person,Russia (Ukraine territorial integrity),2022-08-22,2022-08-22,Sample listed individual RU-04931,,RU
+4931,EU.4931.1,person,Russia (Ukraine territorial integrity),2022-08-22,2022-08-22,Sample listed individual RU-04931 (alias),,RU
+4941,EU.4941.1,person,Russia (Ukraine territorial integrity),2023-11-07,2023-11-07,Sample listed individual RU-04941,,RU
+4941,EU.4941.1,person,Russia (Ukraine territorial integrity),2023-11-07,2023-11-07,Sample listed individual RU-04941 (alias),,RU
+4951,EU.4951.1,enterprise,Russia (Ukraine territorial integrity),2014-05-11,2014-05-11,Sample listed entity RU-04951,RU,
+4951,EU.4951.1,enterprise,Russia (Ukraine territorial integrity),2014-05-11,2014-05-11,Sample listed entity RU-04951 (alias),RU,
+4961,EU.4961.1,person,Russia (Ukraine territorial integrity),2026-12-16,2026-12-16,Sample listed individual RU-04961,,RU
+4961,EU.4961.1,person,Russia (Ukraine territorial integrity),2026-12-16,2026-12-16,Sample listed individual RU-04961 (alias),,RU
+4971,EU.4971.1,person,Russia (Ukraine territorial integrity),2025-03-17,2025-03-17,Sample listed individual RU-04971,,RU
+4971,EU.4971.1,person,Russia (Ukraine territorial integrity),2025-03-17,2025-03-17,Sample listed individual RU-04971 (alias),,RU
+4981,EU.4981.1,person,Russia (Ukraine territorial integrity),2022-01-28,2022-01-28,Sample listed individual RU-04981,,RU
+4981,EU.4981.1,person,Russia (Ukraine territorial integrity),2022-01-28,2022-01-28,Sample listed individual RU-04981 (alias),,RU
+4991,EU.4991.1,person,Russia (Ukraine territorial integrity),2022-05-09,2022-05-09,Sample listed individual RU-04991,,RU
+4991,EU.4991.1,person,Russia (Ukraine territorial integrity),2022-05-09,2022-05-09,Sample listed individual RU-04991 (alias),,RU
+5001,EU.5001.1,enterprise,Russia (Ukraine territorial integrity),2024-06-20,2024-06-20,Sample listed entity RU-05001,RU,
+5001,EU.5001.1,enterprise,Russia (Ukraine territorial integrity),2024-06-20,2024-06-20,Sample listed entity RU-05001 (alias),RU,
+5011,EU.5011.1,person,Russia (Ukraine territorial integrity),2023-07-04,2023-07-04,Sample listed individual RU-05011,,RU
+5011,EU.5011.1,person,Russia (Ukraine territorial integrity),2023-07-04,2023-07-04,Sample listed individual RU-05011 (alias),,RU
+5021,EU.5021.1,enterprise,Russia (Ukraine territorial integrity),2025-03-12,2025-03-12,Sample listed entity RU-05021,RU,
+5021,EU.5021.1,enterprise,Russia (Ukraine territorial integrity),2025-03-12,2025-03-12,Sample listed entity RU-05021 (alias),RU,
+5031,EU.5031.1,person,Russia (Ukraine territorial integrity),2024-02-13,2024-02-13,Sample listed individual RU-05031,,RU
+5031,EU.5031.1,person,Russia (Ukraine territorial integrity),2024-02-13,2024-02-13,Sample listed individual RU-05031 (alias),,RU
+5041,EU.5041.1,enterprise,Russia (Ukraine territorial integrity),2022-03-05,2022-03-05,Sample listed entity RU-05041,RU,
+5041,EU.5041.1,enterprise,Russia (Ukraine territorial integrity),2022-03-05,2022-03-05,Sample listed entity RU-05041 (alias),RU,
+5051,EU.5051.1,enterprise,Russia (Ukraine territorial integrity),2022-09-17,2022-09-17,Sample listed entity RU-05051,RU,
+5051,EU.5051.1,enterprise,Russia (Ukraine territorial integrity),2022-09-17,2022-09-17,Sample listed entity RU-05051 (alias),RU,
+5061,EU.5061.1,enterprise,Russia (Ukraine territorial integrity),2014-07-13,2014-07-13,Sample listed entity RU-05061,RU,
+5061,EU.5061.1,enterprise,Russia (Ukraine territorial integrity),2014-07-13,2014-07-13,Sample listed entity RU-05061 (alias),RU,
+5071,EU.5071.1,enterprise,Russia (Ukraine territorial integrity),2024-01-08,2024-01-08,Sample listed entity RU-05071,RU,
+5071,EU.5071.1,enterprise,Russia (Ukraine territorial integrity),2024-01-08,2024-01-08,Sample listed entity RU-05071 (alias),RU,
+5081,EU.5081.1,enterprise,Russia (Ukraine territorial integrity),2022-12-28,2022-12-28,Sample listed entity RU-05081,RU,
+5081,EU.5081.1,enterprise,Russia (Ukraine territorial integrity),2022-12-28,2022-12-28,Sample listed entity RU-05081 (alias),RU,
+5091,EU.5091.1,person,Russia (Ukraine territorial integrity),2024-12-18,2024-12-18,Sample listed individual RU-05091,,RU
+5091,EU.5091.1,person,Russia (Ukraine territorial integrity),2024-12-18,2024-12-18,Sample listed individual RU-05091 (alias),,RU
+5101,EU.5101.1,person,Russia (Ukraine territorial integrity),2025-07-11,2025-07-11,Sample listed individual RU-05101,,RU
+5101,EU.5101.1,person,Russia (Ukraine territorial integrity),2025-07-11,2025-07-11,Sample listed individual RU-05101 (alias),,RU
+5111,EU.5111.1,person,Russia (Ukraine territorial integrity),2022-06-23,2022-06-23,Sample listed individual RU-05111,,RU
+5111,EU.5111.1,person,Russia (Ukraine territorial integrity),2022-06-23,2022-06-23,Sample listed individual RU-05111 (alias),,RU
+5121,EU.5121.1,enterprise,Russia (Ukraine territorial integrity),2023-10-12,2023-10-12,Sample listed entity RU-05121,RU,
+5121,EU.5121.1,enterprise,Russia (Ukraine territorial integrity),2023-10-12,2023-10-12,Sample listed entity RU-05121 (alias),RU,
+5131,EU.5131.1,person,Russia (Ukraine territorial integrity),2023-07-09,2023-07-09,Sample listed individual RU-05131,,RU
+5131,EU.5131.1,person,Russia (Ukraine territorial integrity),2023-07-09,2023-07-09,Sample listed individual RU-05131 (alias),,RU
+5141,EU.5141.1,person,Russia (Ukraine territorial integrity),2018-12-11,2018-12-11,Sample listed individual RU-05141,,RU
+5141,EU.5141.1,person,Russia (Ukraine territorial integrity),2018-12-11,2018-12-11,Sample listed individual RU-05141 (alias),,RU
+5151,EU.5151.1,enterprise,Russia (Ukraine territorial integrity),2024-05-26,2024-05-26,Sample listed vessel RU-05151,RU,
+5151,EU.5151.1,enterprise,Russia (Ukraine territorial integrity),2024-05-26,2024-05-26,Sample listed vessel RU-05151 (alias),RU,
+5161,EU.5161.1,person,Russia (Ukraine territorial integrity),2023-01-25,2023-01-25,Sample listed individual RU-05161,,RU
+5161,EU.5161.1,person,Russia (Ukraine territorial integrity),2023-01-25,2023-01-25,Sample listed individual RU-05161 (alias),,RU
+5171,EU.5171.1,person,Russia (Ukraine territorial integrity),2014-08-05,2014-08-05,Sample listed individual RU-05171,,RU
+5171,EU.5171.1,person,Russia (Ukraine territorial integrity),2014-08-05,2014-08-05,Sample listed individual RU-05171 (alias),,RU
+5181,EU.5181.1,enterprise,Russia (Ukraine territorial integrity),2023-01-08,2023-01-08,Sample listed entity RU-05181,RU,
+5181,EU.5181.1,enterprise,Russia (Ukraine territorial integrity),2023-01-08,2023-01-08,Sample listed entity RU-05181 (alias),RU,
+5191,EU.5191.1,person,Russia (Ukraine territorial integrity),2014-11-24,2014-11-24,Sample listed individual RU-05191,,RU
+5191,EU.5191.1,person,Russia (Ukraine territorial integrity),2014-11-24,2014-11-24,Sample listed individual RU-05191 (alias),,RU
+5201,EU.5201.1,enterprise,Russia (Ukraine territorial integrity),2025-11-16,2025-11-16,Sample listed entity RU-05201,RU,
+5201,EU.5201.1,enterprise,Russia (Ukraine territorial integrity),2025-11-16,2025-11-16,Sample listed entity RU-05201 (alias),RU,
+5211,EU.5211.1,person,Russia (Ukraine territorial integrity),2023-02-27,2023-02-27,Sample listed individual RU-05211,,RU
+5211,EU.5211.1,person,Russia (Ukraine territorial integrity),2023-02-27,2023-02-27,Sample listed individual RU-05211 (alias),,RU
+5221,EU.5221.1,person,Russia (Ukraine territorial integrity),2024-09-14,2024-09-14,Sample listed individual RU-05221,,RU
+5221,EU.5221.1,person,Russia (Ukraine territorial integrity),2024-09-14,2024-09-14,Sample listed individual RU-05221 (alias),,RU
+5231,EU.5231.1,person,Russia (Ukraine territorial integrity),2023-12-23,2023-12-23,Sample listed individual RU-05231,,RU
+5231,EU.5231.1,person,Russia (Ukraine territorial integrity),2023-12-23,2023-12-23,Sample listed individual RU-05231 (alias),,RU
+5241,EU.5241.1,person,Russia (Ukraine territorial integrity),2023-06-18,2023-06-18,Sample listed individual RU-05241,,RU
+5241,EU.5241.1,person,Russia (Ukraine territorial integrity),2023-06-18,2023-06-18,Sample listed individual RU-05241 (alias),,RU
+5251,EU.5251.1,person,Russia (Ukraine territorial integrity),2023-07-04,2023-07-04,Sample listed individual RU-05251,,RU
+5251,EU.5251.1,person,Russia (Ukraine territorial integrity),2023-07-04,2023-07-04,Sample listed individual RU-05251 (alias),,RU
+5261,EU.5261.1,enterprise,Russia (Ukraine territorial integrity),2023-10-10,2023-10-10,Sample listed entity RU-05261,RU,
+5261,EU.5261.1,enterprise,Russia (Ukraine territorial integrity),2023-10-10,2023-10-10,Sample listed entity RU-05261 (alias),RU,
+5271,EU.5271.1,enterprise,Russia (Ukraine territorial integrity),2022-04-03,2022-04-03,Sample listed entity RU-05271,RU,
+5271,EU.5271.1,enterprise,Russia (Ukraine territorial integrity),2022-04-03,2022-04-03,Sample listed entity RU-05271 (alias),RU,
+5281,EU.5281.1,person,Russia (Ukraine territorial integrity),2022-11-19,2022-11-19,Sample listed individual RU-05281,,RU
+5281,EU.5281.1,person,Russia (Ukraine territorial integrity),2022-11-19,2022-11-19,Sample listed individual RU-05281 (alias),,RU
+5291,EU.5291.1,enterprise,Russia (Ukraine territorial integrity),2022-05-02,2022-05-02,Sample listed vessel RU-05291,RU,
+5291,EU.5291.1,enterprise,Russia (Ukraine territorial integrity),2022-05-02,2022-05-02,Sample listed vessel RU-05291 (alias),RU,
+5301,EU.5301.1,enterprise,Russia (Ukraine territorial integrity),2022-03-04,2022-03-04,Sample listed entity RU-05301,RU,
+5301,EU.5301.1,enterprise,Russia (Ukraine territorial integrity),2022-03-04,2022-03-04,Sample listed entity RU-05301 (alias),RU,
+5311,EU.5311.1,enterprise,Russia (Ukraine territorial integrity),2022-02-07,2022-02-07,Sample listed entity RU-05311,RU,
+5311,EU.5311.1,enterprise,Russia (Ukraine territorial integrity),2022-02-07,2022-02-07,Sample listed entity RU-05311 (alias),RU,
+5321,EU.5321.1,enterprise,Russia (Ukraine territorial integrity),2023-01-28,2023-01-28,Sample listed entity RU-05321,RU,
+5321,EU.5321.1,enterprise,Russia (Ukraine territorial integrity),2023-01-28,2023-01-28,Sample listed entity RU-05321 (alias),RU,
+5331,EU.5331.1,person,Russia (Ukraine territorial integrity),2023-08-13,2023-08-13,Sample listed individual RU-05331,,RU
+5331,EU.5331.1,person,Russia (Ukraine territorial integrity),2023-08-13,2023-08-13,Sample listed individual RU-05331 (alias),,RU
+5341,EU.5341.1,person,Russia (Ukraine territorial integrity),2022-02-08,2022-02-08,Sample listed individual RU-05341,,RU
+5341,EU.5341.1,person,Russia (Ukraine territorial integrity),2022-02-08,2022-02-08,Sample listed individual RU-05341 (alias),,RU
+5351,EU.5351.1,person,Russia (Ukraine territorial integrity),2023-06-23,2023-06-23,Sample listed individual RU-05351,,RU
+5351,EU.5351.1,person,Russia (Ukraine territorial integrity),2023-06-23,2023-06-23,Sample listed individual RU-05351 (alias),,RU
+5361,EU.5361.1,person,Russia (Ukraine territorial integrity),2023-01-05,2023-01-05,Sample listed individual RU-05361,,RU
+5361,EU.5361.1,person,Russia (Ukraine territorial integrity),2023-01-05,2023-01-05,Sample listed individual RU-05361 (alias),,RU
+5371,EU.5371.1,enterprise,Russia (Ukraine territorial integrity),2024-06-06,2024-06-06,Sample listed entity RU-05371,RU,
+5371,EU.5371.1,enterprise,Russia (Ukraine territorial integrity),2024-06-06,2024-06-06,Sample listed entity RU-05371 (alias),RU,
+5381,EU.5381.1,person,Russia (Ukraine territorial integrity),2024-09-15,2024-09-15,Sample listed individual RU-05381,,RU
+5381,EU.5381.1,person,Russia (Ukraine territorial integrity),2024-09-15,2024-09-15,Sample listed individual RU-05381 (alias),,RU
+5391,EU.5391.1,person,Russia (Ukraine territorial integrity),2025-06-22,2025-06-22,Sample listed individual RU-05391,,RU
+5391,EU.5391.1,person,Russia (Ukraine territorial integrity),2025-06-22,2025-06-22,Sample listed individual RU-05391 (alias),,RU
+5401,EU.5401.1,enterprise,Russia (Ukraine territorial integrity),2023-07-06,2023-07-06,Sample listed entity RU-05401,RU,
+5401,EU.5401.1,enterprise,Russia (Ukraine territorial integrity),2023-07-06,2023-07-06,Sample listed entity RU-05401 (alias),RU,
+5411,EU.5411.1,person,Russia (Ukraine territorial integrity),2022-10-17,2022-10-17,Sample listed individual RU-05411,,RU
+5411,EU.5411.1,person,Russia (Ukraine territorial integrity),2022-10-17,2022-10-17,Sample listed individual RU-05411 (alias),,RU
+5421,EU.5421.1,person,Russia (Ukraine territorial integrity),2023-04-16,2023-04-16,Sample listed individual RU-05421,,RU
+5421,EU.5421.1,person,Russia (Ukraine territorial integrity),2023-04-16,2023-04-16,Sample listed individual RU-05421 (alias),,RU
+5431,EU.5431.1,enterprise,Russia (Ukraine territorial integrity),2025-06-23,2025-06-23,Sample listed entity RU-05431,RU,
+5431,EU.5431.1,enterprise,Russia (Ukraine territorial integrity),2025-06-23,2025-06-23,Sample listed entity RU-05431 (alias),RU,
+5441,EU.5441.1,person,Russia (Ukraine territorial integrity),2025-12-17,2025-12-17,Sample listed individual RU-05441,,RU
+5441,EU.5441.1,person,Russia (Ukraine territorial integrity),2025-12-17,2025-12-17,Sample listed individual RU-05441 (alias),,RU
+5451,EU.5451.1,enterprise,Russia (Ukraine territorial integrity),2024-05-22,2024-05-22,Sample listed entity RU-05451,RU,
+5451,EU.5451.1,enterprise,Russia (Ukraine territorial integrity),2024-05-22,2024-05-22,Sample listed entity RU-05451 (alias),RU,
+5461,EU.5461.1,person,Russia (Ukraine territorial integrity),2022-02-05,2022-02-05,Sample listed individual RU-05461,,RU
+5461,EU.5461.1,person,Russia (Ukraine territorial integrity),2022-02-05,2022-02-05,Sample listed individual RU-05461 (alias),,RU
+5471,EU.5471.1,person,Russia (Ukraine territorial integrity),2024-08-16,2024-08-16,Sample listed individual RU-05471,,RU
+5471,EU.5471.1,person,Russia (Ukraine territorial integrity),2024-08-16,2024-08-16,Sample listed individual RU-05471 (alias),,RU
+5481,EU.5481.1,person,Russia (Ukraine territorial integrity),2023-07-28,2023-07-28,Sample listed individual RU-05481,,RU
+5481,EU.5481.1,person,Russia (Ukraine territorial integrity),2023-07-28,2023-07-28,Sample listed individual RU-05481 (alias),,RU
+5491,EU.5491.1,enterprise,Russia (Ukraine territorial integrity),2023-07-07,2023-07-07,Sample listed entity RU-05491,RU,
+5491,EU.5491.1,enterprise,Russia (Ukraine territorial integrity),2023-07-07,2023-07-07,Sample listed entity RU-05491 (alias),RU,
+5501,EU.5501.1,person,Russia (Ukraine territorial integrity),2022-11-13,2022-11-13,Sample listed individual RU-05501,,RU
+5501,EU.5501.1,person,Russia (Ukraine territorial integrity),2022-11-13,2022-11-13,Sample listed individual RU-05501 (alias),,RU
+5511,EU.5511.1,person,Russia (Ukraine territorial integrity),2022-11-09,2022-11-09,Sample listed individual RU-05511,,RU
+5511,EU.5511.1,person,Russia (Ukraine territorial integrity),2022-11-09,2022-11-09,Sample listed individual RU-05511 (alias),,RU
+5521,EU.5521.1,person,Russia (Ukraine territorial integrity),2025-08-28,2025-08-28,Sample listed individual RU-05521,,RU
+5521,EU.5521.1,person,Russia (Ukraine territorial integrity),2025-08-28,2025-08-28,Sample listed individual RU-05521 (alias),,RU
+5531,EU.5531.1,enterprise,Russia (Ukraine territorial integrity),2023-07-17,2023-07-17,Sample listed entity RU-05531,RU,
+5531,EU.5531.1,enterprise,Russia (Ukraine territorial integrity),2023-07-17,2023-07-17,Sample listed entity RU-05531 (alias),RU,
+5541,EU.5541.1,person,Russia (Ukraine territorial integrity),2022-12-13,2022-12-13,Sample listed individual RU-05541,,RU
+5541,EU.5541.1,person,Russia (Ukraine territorial integrity),2022-12-13,2022-12-13,Sample listed individual RU-05541 (alias),,RU
+5551,EU.5551.1,enterprise,Russia (Ukraine territorial integrity),2023-05-28,2023-05-28,Sample listed entity RU-05551,RU,
+5551,EU.5551.1,enterprise,Russia (Ukraine territorial integrity),2023-05-28,2023-05-28,Sample listed entity RU-05551 (alias),RU,
+5561,EU.5561.1,person,Russia (Ukraine territorial integrity),2022-10-11,2022-10-11,Sample listed individual RU-05561,,RU
+5561,EU.5561.1,person,Russia (Ukraine territorial integrity),2022-10-11,2022-10-11,Sample listed individual RU-05561 (alias),,RU
+5571,EU.5571.1,person,Russia (Ukraine territorial integrity),2024-04-10,2024-04-10,Sample listed individual RU-05571,,RU
+5571,EU.5571.1,person,Russia (Ukraine territorial integrity),2024-04-10,2024-04-10,Sample listed individual RU-05571 (alias),,RU
+5581,EU.5581.1,person,Russia (Ukraine territorial integrity),2024-11-01,2024-11-01,Sample listed individual RU-05581,,RU
+5581,EU.5581.1,person,Russia (Ukraine territorial integrity),2024-11-01,2024-11-01,Sample listed individual RU-05581 (alias),,RU
+5591,EU.5591.1,person,Russia (Ukraine territorial integrity),2025-09-02,2025-09-02,Sample listed individual RU-05591,,RU
+5591,EU.5591.1,person,Russia (Ukraine territorial integrity),2025-09-02,2025-09-02,Sample listed individual RU-05591 (alias),,RU
+5601,EU.5601.1,enterprise,Russia (Ukraine territorial integrity),2023-07-10,2023-07-10,Sample listed entity RU-05601,RU,
+5601,EU.5601.1,enterprise,Russia (Ukraine territorial integrity),2023-07-10,2023-07-10,Sample listed entity RU-05601 (alias),RU,
+5611,EU.5611.1,enterprise,Russia (Ukraine territorial integrity),2021-07-15,2021-07-15,Sample listed entity RU-05611,RU,
+5611,EU.5611.1,enterprise,Russia (Ukraine territorial integrity),2021-07-15,2021-07-15,Sample listed entity RU-05611 (alias),RU,
+5621,EU.5621.1,enterprise,Russia (Ukraine territorial integrity),2022-10-05,2022-10-05,Sample listed entity RU-05621,RU,
+5621,EU.5621.1,enterprise,Russia (Ukraine territorial integrity),2022-10-05,2022-10-05,Sample listed entity RU-05621 (alias),RU,
+5631,EU.5631.1,enterprise,Russia (Ukraine territorial integrity),2024-04-11,2024-04-11,Sample listed entity RU-05631,RU,
+5631,EU.5631.1,enterprise,Russia (Ukraine territorial integrity),2024-04-11,2024-04-11,Sample listed entity RU-05631 (alias),RU,
+5641,EU.5641.1,person,Russia (Ukraine territorial integrity),2022-11-21,2022-11-21,Sample listed individual RU-05641,,RU
+5641,EU.5641.1,person,Russia (Ukraine territorial integrity),2022-11-21,2022-11-21,Sample listed individual RU-05641 (alias),,RU
+5651,EU.5651.1,enterprise,Russia (Ukraine territorial integrity),2023-02-23,2023-02-23,Sample listed entity RU-05651,RU,
+5651,EU.5651.1,enterprise,Russia (Ukraine territorial integrity),2023-02-23,2023-02-23,Sample listed entity RU-05651 (alias),RU,
+5661,EU.5661.1,person,Russia (Ukraine territorial integrity),2021-04-07,2021-04-07,Sample listed individual RU-05661,,RU
+5661,EU.5661.1,person,Russia (Ukraine territorial integrity),2021-04-07,2021-04-07,Sample listed individual RU-05661 (alias),,RU
+5671,EU.5671.1,enterprise,Russia (Ukraine territorial integrity),2022-01-14,2022-01-14,Sample listed entity RU-05671,RU,
+5671,EU.5671.1,enterprise,Russia (Ukraine territorial integrity),2022-01-14,2022-01-14,Sample listed entity RU-05671 (alias),RU,
+5681,EU.5681.1,person,Russia (Ukraine territorial integrity),2025-02-12,2025-02-12,Sample listed individual RU-05681,,RU
+5681,EU.5681.1,person,Russia (Ukraine territorial integrity),2025-02-12,2025-02-12,Sample listed individual RU-05681 (alias),,RU
+5691,EU.5691.1,enterprise,Russia (Ukraine territorial integrity),2022-09-18,2022-09-18,Sample listed entity RU-05691,RU,
+5691,EU.5691.1,enterprise,Russia (Ukraine territorial integrity),2022-09-18,2022-09-18,Sample listed entity RU-05691 (alias),RU,
+5701,EU.5701.1,enterprise,Russia (Ukraine territorial integrity),2022-08-18,2022-08-18,Sample listed entity RU-05701,RU,
+5701,EU.5701.1,enterprise,Russia (Ukraine territorial integrity),2022-08-18,2022-08-18,Sample listed entity RU-05701 (alias),RU,
+5711,EU.5711.1,enterprise,Russia (Ukraine territorial integrity),2022-11-16,2022-11-16,Sample listed entity RU-05711,RU,
+5711,EU.5711.1,enterprise,Russia (Ukraine territorial integrity),2022-11-16,2022-11-16,Sample listed entity RU-05711 (alias),RU,
+5721,EU.5721.1,person,Russia (Ukraine territorial integrity),2023-01-24,2023-01-24,Sample listed individual RU-05721,,RU
+5721,EU.5721.1,person,Russia (Ukraine territorial integrity),2023-01-24,2023-01-24,Sample listed individual RU-05721 (alias),,RU
+5731,EU.5731.1,enterprise,Russia (Ukraine territorial integrity),2015-02-11,2015-02-11,Sample listed vessel RU-05731,RU,
+5731,EU.5731.1,enterprise,Russia (Ukraine territorial integrity),2015-02-11,2015-02-11,Sample listed vessel RU-05731 (alias),RU,
+5741,EU.5741.1,enterprise,Russia (Ukraine territorial integrity),2023-09-15,2023-09-15,Sample listed entity RU-05741,RU,
+5741,EU.5741.1,enterprise,Russia (Ukraine territorial integrity),2023-09-15,2023-09-15,Sample listed entity RU-05741 (alias),RU,
+5751,EU.5751.1,person,Russia (Ukraine territorial integrity),2024-05-19,2024-05-19,Sample listed individual RU-05751,,RU
+5751,EU.5751.1,person,Russia (Ukraine territorial integrity),2024-05-19,2024-05-19,Sample listed individual RU-05751 (alias),,RU
+5761,EU.5761.1,enterprise,Russia (Ukraine territorial integrity),2024-08-01,2024-08-01,Sample listed entity RU-05761,RU,
+5761,EU.5761.1,enterprise,Russia (Ukraine territorial integrity),2024-08-01,2024-08-01,Sample listed entity RU-05761 (alias),RU,
+5771,EU.5771.1,person,Russia (Ukraine territorial integrity),2024-07-09,2024-07-09,Sample listed individual RU-05771,,RU
+5771,EU.5771.1,person,Russia (Ukraine territorial integrity),2024-07-09,2024-07-09,Sample listed individual RU-05771 (alias),,RU
+5781,EU.5781.1,enterprise,Russia (Ukraine territorial integrity),2022-10-11,2022-10-11,Sample listed entity RU-05781,RU,
+5781,EU.5781.1,enterprise,Russia (Ukraine territorial integrity),2022-10-11,2022-10-11,Sample listed entity RU-05781 (alias),RU,
+5791,EU.5791.1,person,Russia (Ukraine territorial integrity),2022-02-25,2022-02-25,Sample listed individual RU-05791,,RU
+5791,EU.5791.1,person,Russia (Ukraine territorial integrity),2022-02-25,2022-02-25,Sample listed individual RU-05791 (alias),,RU
+5801,EU.5801.1,person,Russia (Ukraine territorial integrity),2025-03-06,2025-03-06,Sample listed individual RU-05801,,RU
+5801,EU.5801.1,person,Russia (Ukraine territorial integrity),2025-03-06,2025-03-06,Sample listed individual RU-05801 (alias),,RU
+5811,EU.5811.1,enterprise,Russia (Ukraine territorial integrity),2024-05-07,2024-05-07,Sample listed entity RU-05811,RU,
+5811,EU.5811.1,enterprise,Russia (Ukraine territorial integrity),2024-05-07,2024-05-07,Sample listed entity RU-05811 (alias),RU,
+5821,EU.5821.1,person,Russia (Ukraine territorial integrity),2026-04-14,2026-04-14,Sample listed individual RU-05821,,RU
+5821,EU.5821.1,person,Russia (Ukraine territorial integrity),2026-04-14,2026-04-14,Sample listed individual RU-05821 (alias),,RU
+5831,EU.5831.1,enterprise,Russia (Ukraine territorial integrity),2022-09-14,2022-09-14,Sample listed entity RU-05831,RU,
+5831,EU.5831.1,enterprise,Russia (Ukraine territorial integrity),2022-09-14,2022-09-14,Sample listed entity RU-05831 (alias),RU,
+5841,EU.5841.1,person,Russia (Ukraine territorial integrity),2024-05-05,2024-05-05,Sample listed individual RU-05841,,RU
+5841,EU.5841.1,person,Russia (Ukraine territorial integrity),2024-05-05,2024-05-05,Sample listed individual RU-05841 (alias),,RU
+5851,EU.5851.1,enterprise,Russia (Ukraine territorial integrity),2022-06-15,2022-06-15,Sample listed entity RU-05851,RU,
+5851,EU.5851.1,enterprise,Russia (Ukraine territorial integrity),2022-06-15,2022-06-15,Sample listed entity RU-05851 (alias),RU,
+5861,EU.5861.1,person,Russia (Ukraine territorial integrity),2024-08-02,2024-08-02,Sample listed individual RU-05861,,RU
+5861,EU.5861.1,person,Russia (Ukraine territorial integrity),2024-08-02,2024-08-02,Sample listed individual RU-05861 (alias),,RU
+5871,EU.5871.1,enterprise,Russia (Ukraine territorial integrity),2024-07-18,2024-07-18,Sample listed entity RU-05871,RU,
+5871,EU.5871.1,enterprise,Russia (Ukraine territorial integrity),2024-07-18,2024-07-18,Sample listed entity RU-05871 (alias),RU,
+5881,EU.5881.1,person,Russia (Ukraine territorial integrity),2022-11-02,2022-11-02,Sample listed individual RU-05881,,RU
+5881,EU.5881.1,person,Russia (Ukraine territorial integrity),2022-11-02,2022-11-02,Sample listed individual RU-05881 (alias),,RU
+5891,EU.5891.1,person,Russia (Ukraine territorial integrity),2022-03-27,2022-03-27,Sample listed individual RU-05891,,RU
+5891,EU.5891.1,person,Russia (Ukraine territorial integrity),2022-03-27,2022-03-27,Sample listed individual RU-05891 (alias),,RU
+5901,EU.5901.1,person,Russia (Ukraine territorial integrity),2021-01-05,2021-01-05,Sample listed individual RU-05901,,RU
+5901,EU.5901.1,person,Russia (Ukraine territorial integrity),2021-01-05,2021-01-05,Sample listed individual RU-05901 (alias),,RU
+5911,EU.5911.1,person,Russia (Ukraine territorial integrity),2022-02-14,2022-02-14,Sample listed individual RU-05911,,RU
+5911,EU.5911.1,person,Russia (Ukraine territorial integrity),2022-02-14,2022-02-14,Sample listed individual RU-05911 (alias),,RU
+5921,EU.5921.1,enterprise,Russia (Ukraine territorial integrity),2022-03-07,2022-03-07,Sample listed entity RU-05921,RU,
+5921,EU.5921.1,enterprise,Russia (Ukraine territorial integrity),2022-03-07,2022-03-07,Sample listed entity RU-05921 (alias),RU,
+5931,EU.5931.1,person,Russia (Ukraine territorial integrity),2022-09-13,2022-09-13,Sample listed individual RU-05931,,RU
+5931,EU.5931.1,person,Russia (Ukraine territorial integrity),2022-09-13,2022-09-13,Sample listed individual RU-05931 (alias),,RU
+5941,EU.5941.1,person,Russia (Ukraine territorial integrity),2025-10-12,2025-10-12,Sample listed individual RU-05941,,RU
+5941,EU.5941.1,person,Russia (Ukraine territorial integrity),2025-10-12,2025-10-12,Sample listed individual RU-05941 (alias),,RU
+5951,EU.5951.1,enterprise,Russia (Ukraine territorial integrity),2026-03-07,2026-03-07,Sample listed entity RU-05951,RU,
+5951,EU.5951.1,enterprise,Russia (Ukraine territorial integrity),2026-03-07,2026-03-07,Sample listed entity RU-05951 (alias),RU,
+5961,EU.5961.1,person,Russia (Ukraine territorial integrity),2022-08-27,2022-08-27,Sample listed individual RU-05961,,RU
+5961,EU.5961.1,person,Russia (Ukraine territorial integrity),2022-08-27,2022-08-27,Sample listed individual RU-05961 (alias),,RU
+5971,EU.5971.1,enterprise,Russia (Ukraine territorial integrity),2022-09-21,2022-09-21,Sample listed entity RU-05971,RU,
+5971,EU.5971.1,enterprise,Russia (Ukraine territorial integrity),2022-09-21,2022-09-21,Sample listed entity RU-05971 (alias),RU,
+5981,EU.5981.1,enterprise,Russia (Ukraine territorial integrity),2022-06-11,2022-06-11,Sample listed entity RU-05981,RU,
+5981,EU.5981.1,enterprise,Russia (Ukraine territorial integrity),2022-06-11,2022-06-11,Sample listed entity RU-05981 (alias),RU,
+5991,EU.5991.1,person,Russia (Ukraine territorial integrity),2025-04-01,2025-04-01,Sample listed individual RU-05991,,RU
+5991,EU.5991.1,person,Russia (Ukraine territorial integrity),2025-04-01,2025-04-01,Sample listed individual RU-05991 (alias),,RU
+6001,EU.6001.1,enterprise,Russia (Ukraine territorial integrity),2022-04-11,2022-04-11,Sample listed entity RU-06001,RU,
+6001,EU.6001.1,enterprise,Russia (Ukraine territorial integrity),2022-04-11,2022-04-11,Sample listed entity RU-06001 (alias),RU,
+6011,EU.6011.1,person,Russia (Ukraine territorial integrity),2023-06-22,2023-06-22,Sample listed individual RU-06011,,RU
+6011,EU.6011.1,person,Russia (Ukraine territorial integrity),2023-06-22,2023-06-22,Sample listed individual RU-06011 (alias),,RU
+6021,EU.6021.1,person,Russia (Ukraine territorial integrity),2022-02-02,2022-02-02,Sample listed individual RU-06021,,RU
+6021,EU.6021.1,person,Russia (Ukraine territorial integrity),2022-02-02,2022-02-02,Sample listed individual RU-06021 (alias),,RU
+6031,EU.6031.1,person,Russia (Ukraine territorial integrity),2024-09-25,2024-09-25,Sample listed individual RU-06031,,RU
+6031,EU.6031.1,person,Russia (Ukraine territorial integrity),2024-09-25,2024-09-25,Sample listed individual RU-06031 (alias),,RU
+6041,EU.6041.1,enterprise,Russia (Ukraine territorial integrity),2023-05-13,2023-05-13,Sample listed entity RU-06041,RU,
+6041,EU.6041.1,enterprise,Russia (Ukraine territorial integrity),2023-05-13,2023-05-13,Sample listed entity RU-06041 (alias),RU,
+6051,EU.6051.1,enterprise,Russia (Ukraine territorial integrity),2024-04-20,2024-04-20,Sample listed entity RU-06051,RU,
+6051,EU.6051.1,enterprise,Russia (Ukraine territorial integrity),2024-04-20,2024-04-20,Sample listed entity RU-06051 (alias),RU,
+6061,EU.6061.1,enterprise,Russia (Ukraine territorial integrity),2022-11-26,2022-11-26,Sample listed entity RU-06061,RU,
+6061,EU.6061.1,enterprise,Russia (Ukraine territorial integrity),2022-11-26,2022-11-26,Sample listed entity RU-06061 (alias),RU,
+6071,EU.6071.1,enterprise,Russia (Ukraine territorial integrity),2024-09-08,2024-09-08,Sample listed entity RU-06071,RU,
+6071,EU.6071.1,enterprise,Russia (Ukraine territorial integrity),2024-09-08,2024-09-08,Sample listed entity RU-06071 (alias),RU,
+6081,EU.6081.1,person,Russia (Ukraine territorial integrity),2023-06-16,2023-06-16,Sample listed individual RU-06081,,RU
+6081,EU.6081.1,person,Russia (Ukraine territorial integrity),2023-06-16,2023-06-16,Sample listed individual RU-06081 (alias),,RU
+6091,EU.6091.1,person,Russia (Ukraine territorial integrity),2018-11-20,2018-11-20,Sample listed individual RU-06091,,RU
+6091,EU.6091.1,person,Russia (Ukraine territorial integrity),2018-11-20,2018-11-20,Sample listed individual RU-06091 (alias),,RU
+6101,EU.6101.1,enterprise,Russia (Ukraine territorial integrity),2023-11-25,2023-11-25,Sample listed entity RU-06101,RU,
+6101,EU.6101.1,enterprise,Russia (Ukraine territorial integrity),2023-11-25,2023-11-25,Sample listed entity RU-06101 (alias),RU,
+6111,EU.6111.1,person,Russia (Ukraine territorial integrity),2014-11-06,2014-11-06,Sample listed individual RU-06111,,RU
+6111,EU.6111.1,person,Russia (Ukraine territorial integrity),2014-11-06,2014-11-06,Sample listed individual RU-06111 (alias),,RU
+6121,EU.6121.1,enterprise,Russia (Ukraine territorial integrity),2021-03-26,2021-03-26,Sample listed entity RU-06121,RU,
+6121,EU.6121.1,enterprise,Russia (Ukraine territorial integrity),2021-03-26,2021-03-26,Sample listed entity RU-06121 (alias),RU,
+6131,EU.6131.1,person,Russia (Ukraine territorial integrity),2026-06-11,2026-06-11,Sample listed individual RU-06131,,RU
+6131,EU.6131.1,person,Russia (Ukraine territorial integrity),2026-06-11,2026-06-11,Sample listed individual RU-06131 (alias),,RU
+6141,EU.6141.1,person,Russia (Ukraine territorial integrity),2025-09-16,2025-09-16,Sample listed individual RU-06141,,RU
+6141,EU.6141.1,person,Russia (Ukraine territorial integrity),2025-09-16,2025-09-16,Sample listed individual RU-06141 (alias),,RU
+6151,EU.6151.1,enterprise,Russia (Ukraine territorial integrity),2023-05-20,2023-05-20,Sample listed entity RU-06151,RU,
+6151,EU.6151.1,enterprise,Russia (Ukraine territorial integrity),2023-05-20,2023-05-20,Sample listed entity RU-06151 (alias),RU,
+6161,EU.6161.1,person,Russia (Ukraine territorial integrity),2023-04-14,2023-04-14,Sample listed individual RU-06161,,RU
+6161,EU.6161.1,person,Russia (Ukraine territorial integrity),2023-04-14,2023-04-14,Sample listed individual RU-06161 (alias),,RU
+6171,EU.6171.1,enterprise,Russia (Ukraine territorial integrity),2023-01-01,2023-01-01,Sample listed entity RU-06171,RU,
+6171,EU.6171.1,enterprise,Russia (Ukraine territorial integrity),2023-01-01,2023-01-01,Sample listed entity RU-06171 (alias),RU,
+6181,EU.6181.1,enterprise,Russia (Ukraine territorial integrity),2024-05-27,2024-05-27,Sample listed entity RU-06181,RU,
+6181,EU.6181.1,enterprise,Russia (Ukraine territorial integrity),2024-05-27,2024-05-27,Sample listed entity RU-06181 (alias),RU,
+6191,EU.6191.1,person,Russia (Ukraine territorial integrity),2024-12-24,2024-12-24,Sample listed individual RU-06191,,RU
+6191,EU.6191.1,person,Russia (Ukraine territorial integrity),2024-12-24,2024-12-24,Sample listed individual RU-06191 (alias),,RU
+6201,EU.6201.1,enterprise,Russia (Ukraine territorial integrity),2022-10-19,2022-10-19,Sample listed entity RU-06201,RU,
+6201,EU.6201.1,enterprise,Russia (Ukraine territorial integrity),2022-10-19,2022-10-19,Sample listed entity RU-06201 (alias),RU,
+6211,EU.6211.1,enterprise,Russia (Ukraine territorial integrity),2024-01-19,2024-01-19,Sample listed entity RU-06211,RU,
+6211,EU.6211.1,enterprise,Russia (Ukraine territorial integrity),2024-01-19,2024-01-19,Sample listed entity RU-06211 (alias),RU,
+6221,EU.6221.1,person,Russia (Ukraine territorial integrity),2014-10-16,2014-10-16,Sample listed individual RU-06221,,RU
+6221,EU.6221.1,person,Russia (Ukraine territorial integrity),2014-10-16,2014-10-16,Sample listed individual RU-06221 (alias),,RU
+6231,EU.6231.1,enterprise,Russia (Ukraine territorial integrity),2024-11-21,2024-11-21,Sample listed entity RU-06231,RU,
+6231,EU.6231.1,enterprise,Russia (Ukraine territorial integrity),2024-11-21,2024-11-21,Sample listed entity RU-06231 (alias),RU,
+6241,EU.6241.1,person,Russia (Ukraine territorial integrity),2024-06-01,2024-06-01,Sample listed individual RU-06241,,RU
+6241,EU.6241.1,person,Russia (Ukraine territorial integrity),2024-06-01,2024-06-01,Sample listed individual RU-06241 (alias),,RU
+6251,EU.6251.1,enterprise,Russia (Ukraine territorial integrity),2026-02-22,2026-02-22,Sample listed entity RU-06251,RU,
+6251,EU.6251.1,enterprise,Russia (Ukraine territorial integrity),2026-02-22,2026-02-22,Sample listed entity RU-06251 (alias),RU,
+6261,EU.6261.1,enterprise,Russia (Ukraine territorial integrity),2014-08-20,2014-08-20,Sample listed entity RU-06261,RU,
+6261,EU.6261.1,enterprise,Russia (Ukraine territorial integrity),2014-08-20,2014-08-20,Sample listed entity RU-06261 (alias),RU,
+6271,EU.6271.1,person,Russia (Ukraine territorial integrity),2024-07-01,2024-07-01,Sample listed individual RU-06271,,RU
+6271,EU.6271.1,person,Russia (Ukraine territorial integrity),2024-07-01,2024-07-01,Sample listed individual RU-06271 (alias),,RU
+6281,EU.6281.1,enterprise,Russia (Ukraine territorial integrity),2024-07-23,2024-07-23,Sample listed entity RU-06281,RU,
+6281,EU.6281.1,enterprise,Russia (Ukraine territorial integrity),2024-07-23,2024-07-23,Sample listed entity RU-06281 (alias),RU,
+6291,EU.6291.1,enterprise,Russia (Ukraine territorial integrity),2022-09-18,2022-09-18,Sample listed entity RU-06291,RU,
+6291,EU.6291.1,enterprise,Russia (Ukraine territorial integrity),2022-09-18,2022-09-18,Sample listed entity RU-06291 (alias),RU,
+6301,EU.6301.1,enterprise,Russia (Ukraine territorial integrity),2022-03-19,2022-03-19,Sample listed entity RU-06301,RU,
+6301,EU.6301.1,enterprise,Russia (Ukraine territorial integrity),2022-03-19,2022-03-19,Sample listed entity RU-06301 (alias),RU,
+6311,EU.6311.1,enterprise,Russia (Ukraine territorial integrity),2023-11-08,2023-11-08,Sample listed entity RU-06311,RU,
+6311,EU.6311.1,enterprise,Russia (Ukraine territorial integrity),2023-11-08,2023-11-08,Sample listed entity RU-06311 (alias),RU,
+6321,EU.6321.1,person,Russia (Ukraine territorial integrity),2022-10-28,2022-10-28,Sample listed individual RU-06321,,RU
+6321,EU.6321.1,person,Russia (Ukraine territorial integrity),2022-10-28,2022-10-28,Sample listed individual RU-06321 (alias),,RU
+6331,EU.6331.1,person,Russia (Ukraine territorial integrity),2022-02-02,2022-02-02,Sample listed individual RU-06331,,RU
+6331,EU.6331.1,person,Russia (Ukraine territorial integrity),2022-02-02,2022-02-02,Sample listed individual RU-06331 (alias),,RU
+6341,EU.6341.1,person,Russia (Ukraine territorial integrity),2023-11-09,2023-11-09,Sample listed individual RU-06341,,RU
+6341,EU.6341.1,person,Russia (Ukraine territorial integrity),2023-11-09,2023-11-09,Sample listed individual RU-06341 (alias),,RU
+6351,EU.6351.1,person,Russia (Ukraine territorial integrity),2023-05-09,2023-05-09,Sample listed individual RU-06351,,RU
+6351,EU.6351.1,person,Russia (Ukraine territorial integrity),2023-05-09,2023-05-09,Sample listed individual RU-06351 (alias),,RU
+6361,EU.6361.1,enterprise,Russia (Ukraine territorial integrity),2024-10-19,2024-10-19,Sample listed entity RU-06361,RU,
+6361,EU.6361.1,enterprise,Russia (Ukraine territorial integrity),2024-10-19,2024-10-19,Sample listed entity RU-06361 (alias),RU,
+6371,EU.6371.1,person,Russia (Ukraine territorial integrity),2022-09-23,2022-09-23,Sample listed individual RU-06371,,RU
+6371,EU.6371.1,person,Russia (Ukraine territorial integrity),2022-09-23,2022-09-23,Sample listed individual RU-06371 (alias),,RU
+6381,EU.6381.1,enterprise,Russia (Ukraine territorial integrity),2023-02-16,2023-02-16,Sample listed entity RU-06381,RU,
+6381,EU.6381.1,enterprise,Russia (Ukraine territorial integrity),2023-02-16,2023-02-16,Sample listed entity RU-06381 (alias),RU,
+6391,EU.6391.1,person,Russia (Ukraine territorial integrity),2024-09-21,2024-09-21,Sample listed individual RU-06391,,RU
+6391,EU.6391.1,person,Russia (Ukraine territorial integrity),2024-09-21,2024-09-21,Sample listed individual RU-06391 (alias),,RU
+6401,EU.6401.1,person,Russia (Ukraine territorial integrity),2022-10-20,2022-10-20,Sample listed individual RU-06401,,RU
+6401,EU.6401.1,person,Russia (Ukraine territorial integrity),2022-10-20,2022-10-20,Sample listed individual RU-06401 (alias),,RU
+6411,EU.6411.1,person,Russia (Ukraine territorial integrity),2022-07-21,2022-07-21,Sample listed individual RU-06411,,RU
+6411,EU.6411.1,person,Russia (Ukraine territorial integrity),2022-07-21,2022-07-21,Sample listed individual RU-06411 (alias),,RU
+6421,EU.6421.1,person,Russia (Ukraine territorial integrity),2025-03-26,2025-03-26,Sample listed individual RU-06421,,RU
+6421,EU.6421.1,person,Russia (Ukraine territorial integrity),2025-03-26,2025-03-26,Sample listed individual RU-06421 (alias),,RU
+6431,EU.6431.1,person,Russia (Ukraine territorial integrity),2023-05-15,2023-05-15,Sample listed individual RU-06431,,RU
+6431,EU.6431.1,person,Russia (Ukraine territorial integrity),2023-05-15,2023-05-15,Sample listed individual RU-06431 (alias),,RU
+6441,EU.6441.1,person,Russia (Ukraine territorial integrity),2022-10-03,2022-10-03,Sample listed individual RU-06441,,RU
+6441,EU.6441.1,person,Russia (Ukraine territorial integrity),2022-10-03,2022-10-03,Sample listed individual RU-06441 (alias),,RU
+6451,EU.6451.1,enterprise,Russia (Ukraine territorial integrity),2014-11-04,2014-11-04,Sample listed entity RU-06451,RU,
+6451,EU.6451.1,enterprise,Russia (Ukraine territorial integrity),2014-11-04,2014-11-04,Sample listed entity RU-06451 (alias),RU,
+6461,EU.6461.1,person,Russia (Ukraine territorial integrity),2023-05-26,2023-05-26,Sample listed individual RU-06461,,RU
+6461,EU.6461.1,person,Russia (Ukraine territorial integrity),2023-05-26,2023-05-26,Sample listed individual RU-06461 (alias),,RU
+6471,EU.6471.1,person,Russia (Ukraine territorial integrity),2022-05-28,2022-05-28,Sample listed individual RU-06471,,RU
+6471,EU.6471.1,person,Russia (Ukraine territorial integrity),2022-05-28,2022-05-28,Sample listed individual RU-06471 (alias),,RU
+6481,EU.6481.1,person,Russia (Ukraine territorial integrity),2022-11-06,2022-11-06,Sample listed individual RU-06481,,RU
+6481,EU.6481.1,person,Russia (Ukraine territorial integrity),2022-11-06,2022-11-06,Sample listed individual RU-06481 (alias),,RU
+6491,EU.6491.1,person,Russia (Ukraine territorial integrity),2023-11-18,2023-11-18,Sample listed individual RU-06491,,RU
+6491,EU.6491.1,person,Russia (Ukraine territorial integrity),2023-11-18,2023-11-18,Sample listed individual RU-06491 (alias),,RU
+6501,EU.6501.1,person,Russia (Ukraine territorial integrity),2022-12-10,2022-12-10,Sample listed individual RU-06501,,RU
+6501,EU.6501.1,person,Russia (Ukraine territorial integrity),2022-12-10,2022-12-10,Sample listed individual RU-06501 (alias),,RU
+6511,EU.6511.1,enterprise,Russia (Ukraine territorial integrity),2023-10-14,2023-10-14,Sample listed entity RU-06511,RU,
+6511,EU.6511.1,enterprise,Russia (Ukraine territorial integrity),2023-10-14,2023-10-14,Sample listed entity RU-06511 (alias),RU,
+6521,EU.6521.1,person,Russia (Ukraine territorial integrity),2023-09-15,2023-09-15,Sample listed individual RU-06521,,RU
+6521,EU.6521.1,person,Russia (Ukraine territorial integrity),2023-09-15,2023-09-15,Sample listed individual RU-06521 (alias),,RU
+6531,EU.6531.1,person,Russia (Ukraine territorial integrity),2022-08-20,2022-08-20,Sample listed individual RU-06531,,RU
+6531,EU.6531.1,person,Russia (Ukraine territorial integrity),2022-08-20,2022-08-20,Sample listed individual RU-06531 (alias),,RU
+6541,EU.6541.1,enterprise,Russia (Ukraine territorial integrity),2014-09-20,2014-09-20,Sample listed entity RU-06541,RU,
+6541,EU.6541.1,enterprise,Russia (Ukraine territorial integrity),2014-09-20,2014-09-20,Sample listed entity RU-06541 (alias),RU,
+6551,EU.6551.1,enterprise,Russia (Ukraine territorial integrity),2022-09-03,2022-09-03,Sample listed entity RU-06551,RU,
+6551,EU.6551.1,enterprise,Russia (Ukraine territorial integrity),2022-09-03,2022-09-03,Sample listed entity RU-06551 (alias),RU,
+6561,EU.6561.1,enterprise,Russia (Ukraine territorial integrity),2022-06-13,2022-06-13,Sample listed entity RU-06561,RU,
+6561,EU.6561.1,enterprise,Russia (Ukraine territorial integrity),2022-06-13,2022-06-13,Sample listed entity RU-06561 (alias),RU,
+6571,EU.6571.1,person,Russia (Ukraine territorial integrity),2025-09-15,2025-09-15,Sample listed individual RU-06571,,RU
+6571,EU.6571.1,person,Russia (Ukraine territorial integrity),2025-09-15,2025-09-15,Sample listed individual RU-06571 (alias),,RU
+6581,EU.6581.1,person,Russia (Ukraine territorial integrity),2022-06-27,2022-06-27,Sample listed individual RU-06581,,RU
+6581,EU.6581.1,person,Russia (Ukraine territorial integrity),2022-06-27,2022-06-27,Sample listed individual RU-06581 (alias),,RU
+6591,EU.6591.1,person,Russia (Ukraine territorial integrity),2022-04-03,2022-04-03,Sample listed individual RU-06591,,RU
+6591,EU.6591.1,person,Russia (Ukraine territorial integrity),2022-04-03,2022-04-03,Sample listed individual RU-06591 (alias),,RU
+6601,EU.6601.1,enterprise,Russia (Ukraine territorial integrity),2023-07-03,2023-07-03,Sample listed entity RU-06601,RU,
+6601,EU.6601.1,enterprise,Russia (Ukraine territorial integrity),2023-07-03,2023-07-03,Sample listed entity RU-06601 (alias),RU,
+6611,EU.6611.1,enterprise,Russia (Ukraine territorial integrity),2026-09-06,2026-09-06,Sample listed entity RU-06611,RU,
+6611,EU.6611.1,enterprise,Russia (Ukraine territorial integrity),2026-09-06,2026-09-06,Sample listed entity RU-06611 (alias),RU,
+6621,EU.6621.1,person,Russia (Ukraine territorial integrity),2025-02-25,2025-02-25,Sample listed individual RU-06621,,RU
+6621,EU.6621.1,person,Russia (Ukraine territorial integrity),2025-02-25,2025-02-25,Sample listed individual RU-06621 (alias),,RU
+6631,EU.6631.1,person,Russia (Ukraine territorial integrity),2025-06-01,2025-06-01,Sample listed individual RU-06631,,RU
+6631,EU.6631.1,person,Russia (Ukraine territorial integrity),2025-06-01,2025-06-01,Sample listed individual RU-06631 (alias),,RU
+6641,EU.6641.1,enterprise,Russia (Ukraine territorial integrity),2014-01-08,2014-01-08,Sample listed entity RU-06641,RU,
+6641,EU.6641.1,enterprise,Russia (Ukraine territorial integrity),2014-01-08,2014-01-08,Sample listed entity RU-06641 (alias),RU,
+6651,EU.6651.1,person,Russia (Ukraine territorial integrity),2022-01-16,2022-01-16,Sample listed individual RU-06651,,RU
+6651,EU.6651.1,person,Russia (Ukraine territorial integrity),2022-01-16,2022-01-16,Sample listed individual RU-06651 (alias),,RU
+6661,EU.6661.1,person,Russia (Ukraine territorial integrity),2022-02-01,2022-02-01,Sample listed individual RU-06661,,RU
+6661,EU.6661.1,person,Russia (Ukraine territorial integrity),2022-02-01,2022-02-01,Sample listed individual RU-06661 (alias),,RU
+6671,EU.6671.1,person,Russia (Ukraine territorial integrity),2023-07-08,2023-07-08,Sample listed individual RU-06671,,RU
+6671,EU.6671.1,person,Russia (Ukraine territorial integrity),2023-07-08,2023-07-08,Sample listed individual RU-06671 (alias),,RU
+6681,EU.6681.1,person,Russia (Ukraine territorial integrity),2024-08-22,2024-08-22,Sample listed individual RU-06681,,RU
+6681,EU.6681.1,person,Russia (Ukraine territorial integrity),2024-08-22,2024-08-22,Sample listed individual RU-06681 (alias),,RU
+6691,EU.6691.1,enterprise,Russia (Ukraine territorial integrity),2022-11-06,2022-11-06,Sample listed entity RU-06691,RU,
+6691,EU.6691.1,enterprise,Russia (Ukraine territorial integrity),2022-11-06,2022-11-06,Sample listed entity RU-06691 (alias),RU,
+6701,EU.6701.1,person,Russia (Ukraine territorial integrity),2026-04-15,2026-04-15,Sample listed individual RU-06701,,RU
+6701,EU.6701.1,person,Russia (Ukraine territorial integrity),2026-04-15,2026-04-15,Sample listed individual RU-06701 (alias),,RU
+6711,EU.6711.1,enterprise,Russia (Ukraine territorial integrity),2024-11-10,2024-11-10,Sample listed entity RU-06711,RU,
+6711,EU.6711.1,enterprise,Russia (Ukraine territorial integrity),2024-11-10,2024-11-10,Sample listed entity RU-06711 (alias),RU,
+6721,EU.6721.1,enterprise,Russia (Ukraine territorial integrity),2025-01-23,2025-01-23,Sample listed entity RU-06721,RU,
+6721,EU.6721.1,enterprise,Russia (Ukraine territorial integrity),2025-01-23,2025-01-23,Sample listed entity RU-06721 (alias),RU,
+6731,EU.6731.1,person,Russia (Ukraine territorial integrity),2022-07-11,2022-07-11,Sample listed individual RU-06731,,RU
+6731,EU.6731.1,person,Russia (Ukraine territorial integrity),2022-07-11,2022-07-11,Sample listed individual RU-06731 (alias),,RU
+6741,EU.6741.1,enterprise,Russia (Ukraine territorial integrity),2025-03-25,2025-03-25,Sample listed entity RU-06741,RU,
+6741,EU.6741.1,enterprise,Russia (Ukraine territorial integrity),2025-03-25,2025-03-25,Sample listed entity RU-06741 (alias),RU,
+6751,EU.6751.1,person,Russia (Ukraine territorial integrity),2024-12-28,2024-12-28,Sample listed individual RU-06751,,RU
+6751,EU.6751.1,person,Russia (Ukraine territorial integrity),2024-12-28,2024-12-28,Sample listed individual RU-06751 (alias),,RU
+6761,EU.6761.1,enterprise,Russia (Ukraine territorial integrity),2023-04-20,2023-04-20,Sample listed vessel RU-06761,RU,
+6761,EU.6761.1,enterprise,Russia (Ukraine territorial integrity),2023-04-20,2023-04-20,Sample listed vessel RU-06761 (alias),RU,
+6771,EU.6771.1,person,Russia (Ukraine territorial integrity),2022-06-07,2022-06-07,Sample listed individual RU-06771,,RU
+6771,EU.6771.1,person,Russia (Ukraine territorial integrity),2022-06-07,2022-06-07,Sample listed individual RU-06771 (alias),,RU
+6781,EU.6781.1,enterprise,Russia (Ukraine territorial integrity),2024-06-01,2024-06-01,Sample listed vessel RU-06781,RU,
+6781,EU.6781.1,enterprise,Russia (Ukraine territorial integrity),2024-06-01,2024-06-01,Sample listed vessel RU-06781 (alias),RU,
+6791,EU.6791.1,enterprise,Russia (Ukraine territorial integrity),2024-04-28,2024-04-28,Sample listed entity RU-06791,RU,
+6791,EU.6791.1,enterprise,Russia (Ukraine territorial integrity),2024-04-28,2024-04-28,Sample listed entity RU-06791 (alias),RU,
+6801,EU.6801.1,enterprise,Russia (Ukraine territorial integrity),2026-11-28,2026-11-28,Sample listed entity RU-06801,RU,
+6801,EU.6801.1,enterprise,Russia (Ukraine territorial integrity),2026-11-28,2026-11-28,Sample listed entity RU-06801 (alias),RU,
+6811,EU.6811.1,enterprise,Russia (Ukraine territorial integrity),2014-09-03,2014-09-03,Sample listed entity RU-06811,RU,
+6811,EU.6811.1,enterprise,Russia (Ukraine territorial integrity),2014-09-03,2014-09-03,Sample listed entity RU-06811 (alias),RU,
+6821,EU.6821.1,enterprise,Russia (Ukraine territorial integrity),2026-03-03,2026-03-03,Sample listed entity RU-06821,RU,
+6821,EU.6821.1,enterprise,Russia (Ukraine territorial integrity),2026-03-03,2026-03-03,Sample listed entity RU-06821 (alias),RU,
+6831,EU.6831.1,person,Russia (Ukraine territorial integrity),2024-04-17,2024-04-17,Sample listed individual RU-06831,,RU
+6831,EU.6831.1,person,Russia (Ukraine territorial integrity),2024-04-17,2024-04-17,Sample listed individual RU-06831 (alias),,RU
+6841,EU.6841.1,enterprise,Russia (Ukraine territorial integrity),2023-10-06,2023-10-06,Sample listed entity RU-06841,RU,
+6841,EU.6841.1,enterprise,Russia (Ukraine territorial integrity),2023-10-06,2023-10-06,Sample listed entity RU-06841 (alias),RU,
+6851,EU.6851.1,person,Russia (Ukraine territorial integrity),2024-11-19,2024-11-19,Sample listed individual RU-06851,,RU
+6851,EU.6851.1,person,Russia (Ukraine territorial integrity),2024-11-19,2024-11-19,Sample listed individual RU-06851 (alias),,RU
+6861,EU.6861.1,enterprise,Russia (Ukraine territorial integrity),2022-02-21,2022-02-21,Sample listed entity RU-06861,RU,
+6861,EU.6861.1,enterprise,Russia (Ukraine territorial integrity),2022-02-21,2022-02-21,Sample listed entity RU-06861 (alias),RU,
+6871,EU.6871.1,enterprise,Russia (Ukraine territorial integrity),2018-01-03,2018-01-03,Sample listed vessel RU-06871,RU,
+6871,EU.6871.1,enterprise,Russia (Ukraine territorial integrity),2018-01-03,2018-01-03,Sample listed vessel RU-06871 (alias),RU,
+6881,EU.6881.1,person,Russia (Ukraine territorial integrity),2014-04-27,2014-04-27,Sample listed individual RU-06881,,RU
+6881,EU.6881.1,person,Russia (Ukraine territorial integrity),2014-04-27,2014-04-27,Sample listed individual RU-06881 (alias),,RU
+6891,EU.6891.1,enterprise,Russia (Ukraine territorial integrity),2022-12-17,2022-12-17,Sample listed entity RU-06891,RU,
+6891,EU.6891.1,enterprise,Russia (Ukraine territorial integrity),2022-12-17,2022-12-17,Sample listed entity RU-06891 (alias),RU,
+6901,EU.6901.1,person,Russia (Ukraine territorial integrity),2023-08-03,2023-08-03,Sample listed individual RU-06901,,RU
+6901,EU.6901.1,person,Russia (Ukraine territorial integrity),2023-08-03,2023-08-03,Sample listed individual RU-06901 (alias),,RU
+6911,EU.6911.1,person,Russia (Ukraine territorial integrity),2024-04-08,2024-04-08,Sample listed individual RU-06911,,RU
+6911,EU.6911.1,person,Russia (Ukraine territorial integrity),2024-04-08,2024-04-08,Sample listed individual RU-06911 (alias),,RU
+6921,EU.6921.1,enterprise,Russia (Ukraine territorial integrity),2022-04-04,2022-04-04,Sample listed entity RU-06921,RU,
+6921,EU.6921.1,enterprise,Russia (Ukraine territorial integrity),2022-04-04,2022-04-04,Sample listed entity RU-06921 (alias),RU,
+6931,EU.6931.1,enterprise,Russia (Ukraine territorial integrity),2024-01-16,2024-01-16,Sample listed vessel RU-06931,RU,
+6931,EU.6931.1,enterprise,Russia (Ukraine territorial integrity),2024-01-16,2024-01-16,Sample listed vessel RU-06931 (alias),RU,
+6941,EU.6941.1,person,Russia (Ukraine territorial integrity),2022-02-25,2022-02-25,Sample listed individual RU-06941,,RU
+6941,EU.6941.1,person,Russia (Ukraine territorial integrity),2022-02-25,2022-02-25,Sample listed individual RU-06941 (alias),,RU
+6951,EU.6951.1,enterprise,Russia (Ukraine territorial integrity),2014-04-16,2014-04-16,Sample listed entity RU-06951,RU,
+6951,EU.6951.1,enterprise,Russia (Ukraine territorial integrity),2014-04-16,2014-04-16,Sample listed entity RU-06951 (alias),RU,
+6961,EU.6961.1,person,Russia (Ukraine territorial integrity),2024-06-16,2024-06-16,Sample listed individual RU-06961,,RU
+6961,EU.6961.1,person,Russia (Ukraine territorial integrity),2024-06-16,2024-06-16,Sample listed individual RU-06961 (alias),,RU
+6971,EU.6971.1,person,Russia (Ukraine territorial integrity),2018-07-17,2018-07-17,Sample listed individual RU-06971,,RU
+6971,EU.6971.1,person,Russia (Ukraine territorial integrity),2018-07-17,2018-07-17,Sample listed individual RU-06971 (alias),,RU
+6981,EU.6981.1,person,Russia (Ukraine territorial integrity),2026-10-13,2026-10-13,Sample listed individual RU-06981,,RU
+6981,EU.6981.1,person,Russia (Ukraine territorial integrity),2026-10-13,2026-10-13,Sample listed individual RU-06981 (alias),,RU
+6991,EU.6991.1,person,Russia (Ukraine territorial integrity),2024-04-01,2024-04-01,Sample listed individual RU-06991,,RU
+6991,EU.6991.1,person,Russia (Ukraine territorial integrity),2024-04-01,2024-04-01,Sample listed individual RU-06991 (alias),,RU
+7001,EU.7001.1,enterprise,Russia (Ukraine territorial integrity),2023-11-07,2023-11-07,Sample listed entity RU-07001,RU,
+7001,EU.7001.1,enterprise,Russia (Ukraine territorial integrity),2023-11-07,2023-11-07,Sample listed entity RU-07001 (alias),RU,
+7011,EU.7011.1,person,Russia (Ukraine territorial integrity),2022-01-22,2022-01-22,Sample listed individual RU-07011,,RU
+7011,EU.7011.1,person,Russia (Ukraine territorial integrity),2022-01-22,2022-01-22,Sample listed individual RU-07011 (alias),,RU
+7021,EU.7021.1,enterprise,Russia (Ukraine territorial integrity),2023-05-18,2023-05-18,Sample listed entity RU-07021,RU,
+7021,EU.7021.1,enterprise,Russia (Ukraine territorial integrity),2023-05-18,2023-05-18,Sample listed entity RU-07021 (alias),RU,
+7031,EU.7031.1,enterprise,Russia (Ukraine territorial integrity),2022-01-26,2022-01-26,Sample listed vessel RU-07031,RU,
+7031,EU.7031.1,enterprise,Russia (Ukraine territorial integrity),2022-01-26,2022-01-26,Sample listed vessel RU-07031 (alias),RU,
+7041,EU.7041.1,enterprise,Russia (Ukraine territorial integrity),2024-03-26,2024-03-26,Sample listed vessel RU-07041,RU,
+7041,EU.7041.1,enterprise,Russia (Ukraine territorial integrity),2024-03-26,2024-03-26,Sample listed vessel RU-07041 (alias),RU,
+7051,EU.7051.1,enterprise,Russia (Ukraine territorial integrity),2026-02-14,2026-02-14,Sample listed entity RU-07051,RU,
+7051,EU.7051.1,enterprise,Russia (Ukraine territorial integrity),2026-02-14,2026-02-14,Sample listed entity RU-07051 (alias),RU,
+7061,EU.7061.1,person,Russia (Ukraine territorial integrity),2022-02-15,2022-02-15,Sample listed individual RU-07061,,RU
+7061,EU.7061.1,person,Russia (Ukraine territorial integrity),2022-02-15,2022-02-15,Sample listed individual RU-07061 (alias),,RU
+7071,EU.7071.1,enterprise,Russia (Ukraine territorial integrity),2024-02-15,2024-02-15,Sample listed vessel RU-07071,RU,
+7071,EU.7071.1,enterprise,Russia (Ukraine territorial integrity),2024-02-15,2024-02-15,Sample listed vessel RU-07071 (alias),RU,
+7081,EU.7081.1,enterprise,Russia (Ukraine territorial integrity),2015-10-23,2015-10-23,Sample listed entity RU-07081,RU,
+7081,EU.7081.1,enterprise,Russia (Ukraine territorial integrity),2015-10-23,2015-10-23,Sample listed entity RU-07081 (alias),RU,
+7091,EU.7091.1,person,Russia (Ukraine territorial integrity),2015-05-01,2015-05-01,Sample listed individual RU-07091,,RU
+7091,EU.7091.1,person,Russia (Ukraine territorial integrity),2015-05-01,2015-05-01,Sample listed individual RU-07091 (alias),,RU
+7101,EU.7101.1,enterprise,Russia (Ukraine territorial integrity),2023-04-09,2023-04-09,Sample listed vessel RU-07101,RU,
+7101,EU.7101.1,enterprise,Russia (Ukraine territorial integrity),2023-04-09,2023-04-09,Sample listed vessel RU-07101 (alias),RU,
+7111,EU.7111.1,enterprise,Russia (Ukraine territorial integrity),2022-06-24,2022-06-24,Sample listed entity RU-07111,RU,
+7111,EU.7111.1,enterprise,Russia (Ukraine territorial integrity),2022-06-24,2022-06-24,Sample listed entity RU-07111 (alias),RU,
+7121,EU.7121.1,enterprise,Russia (Ukraine territorial integrity),2024-01-23,2024-01-23,Sample listed entity RU-07121,RU,
+7121,EU.7121.1,enterprise,Russia (Ukraine territorial integrity),2024-01-23,2024-01-23,Sample listed entity RU-07121 (alias),RU,
+7131,EU.7131.1,person,Russia (Ukraine territorial integrity),2022-06-14,2022-06-14,Sample listed individual RU-07131,,RU
+7131,EU.7131.1,person,Russia (Ukraine territorial integrity),2022-06-14,2022-06-14,Sample listed individual RU-07131 (alias),,RU
+7141,EU.7141.1,enterprise,Russia (Ukraine territorial integrity),2024-05-26,2024-05-26,Sample listed entity RU-07141,RU,
+7141,EU.7141.1,enterprise,Russia (Ukraine territorial integrity),2024-05-26,2024-05-26,Sample listed entity RU-07141 (alias),RU,
+7151,EU.7151.1,enterprise,Russia (Ukraine territorial integrity),2023-12-28,2023-12-28,Sample listed entity RU-07151,RU,
+7151,EU.7151.1,enterprise,Russia (Ukraine territorial integrity),2023-12-28,2023-12-28,Sample listed entity RU-07151 (alias),RU,
+7161,EU.7161.1,enterprise,Russia (Ukraine territorial integrity),2014-03-07,2014-03-07,Sample listed entity RU-07161,RU,
+7161,EU.7161.1,enterprise,Russia (Ukraine territorial integrity),2014-03-07,2014-03-07,Sample listed entity RU-07161 (alias),RU,
+7171,EU.7171.1,enterprise,Russia (Ukraine territorial integrity),2024-03-03,2024-03-03,Sample listed entity RU-07171,RU,
+7171,EU.7171.1,enterprise,Russia (Ukraine territorial integrity),2024-03-03,2024-03-03,Sample listed entity RU-07171 (alias),RU,
+7181,EU.7181.1,person,Russia (Ukraine territorial integrity),2024-01-22,2024-01-22,Sample listed individual RU-07181,,RU
+7181,EU.7181.1,person,Russia (Ukraine territorial integrity),2024-01-22,2024-01-22,Sample listed individual RU-07181 (alias),,RU
+7191,EU.7191.1,person,Russia (Ukraine territorial integrity),2024-08-25,2024-08-25,Sample listed individual RU-07191,,RU
+7191,EU.7191.1,person,Russia (Ukraine territorial integrity),2024-08-25,2024-08-25,Sample listed individual RU-07191 (alias),,RU
+7201,EU.7201.1,person,Russia (Ukraine territorial integrity),2021-11-23,2021-11-23,Sample listed individual RU-07201,,RU
+7201,EU.7201.1,person,Russia (Ukraine territorial integrity),2021-11-23,2021-11-23,Sample listed individual RU-07201 (alias),,RU
+7211,EU.7211.1,enterprise,Russia (Ukraine territorial integrity),2022-07-01,2022-07-01,Sample listed entity RU-07211,RU,
+7211,EU.7211.1,enterprise,Russia (Ukraine territorial integrity),2022-07-01,2022-07-01,Sample listed entity RU-07211 (alias),RU,
+7221,EU.7221.1,enterprise,Russia (Ukraine territorial integrity),2022-03-21,2022-03-21,Sample listed entity RU-07221,RU,
+7221,EU.7221.1,enterprise,Russia (Ukraine territorial integrity),2022-03-21,2022-03-21,Sample listed entity RU-07221 (alias),RU,
+7231,EU.7231.1,person,Russia (Ukraine territorial integrity),2024-06-16,2024-06-16,Sample listed individual RU-07231,,RU
+7231,EU.7231.1,person,Russia (Ukraine territorial integrity),2024-06-16,2024-06-16,Sample listed individual RU-07231 (alias),,RU
+7241,EU.7241.1,person,Russia (Ukraine territorial integrity),2024-06-17,2024-06-17,Sample listed individual RU-07241,,RU
+7241,EU.7241.1,person,Russia (Ukraine territorial integrity),2024-06-17,2024-06-17,Sample listed individual RU-07241 (alias),,RU
+7251,EU.7251.1,person,Russia (Ukraine territorial integrity),2026-10-02,2026-10-02,Sample listed individual RU-07251,,RU
+7251,EU.7251.1,person,Russia (Ukraine territorial integrity),2026-10-02,2026-10-02,Sample listed individual RU-07251 (alias),,RU
+7261,EU.7261.1,person,Russia (Ukraine territorial integrity),2022-04-15,2022-04-15,Sample listed individual RU-07261,,RU
+7261,EU.7261.1,person,Russia (Ukraine territorial integrity),2022-04-15,2022-04-15,Sample listed individual RU-07261 (alias),,RU
+7271,EU.7271.1,person,Russia (Ukraine territorial integrity),2022-01-01,2022-01-01,Sample listed individual RU-07271,,RU
+7271,EU.7271.1,person,Russia (Ukraine territorial integrity),2022-01-01,2022-01-01,Sample listed individual RU-07271 (alias),,RU
+7281,EU.7281.1,enterprise,Russia (Ukraine territorial integrity),2022-08-16,2022-08-16,Sample listed vessel RU-07281,RU,
+7281,EU.7281.1,enterprise,Russia (Ukraine territorial integrity),2022-08-16,2022-08-16,Sample listed vessel RU-07281 (alias),RU,
+7291,EU.7291.1,enterprise,Russia (Ukraine territorial integrity),2022-01-05,2022-01-05,Sample listed aircraft RU-07291,RU,
+7291,EU.7291.1,enterprise,Russia (Ukraine territorial integrity),2022-01-05,2022-01-05,Sample listed aircraft RU-07291 (alias),RU,
+10901,EU.10901.1,person,"Iran (human rights, weapons)",2019-01-07,2019-01-07,Sample listed individual IR-10901,,IR
+10901,EU.10901.1,person,"Iran (human rights, weapons)",2019-01-07,2019-01-07,Sample listed individual IR-10901 (alias),,IR
+10911,EU.10911.1,enterprise,"Iran (human rights, weapons)",2023-05-28,2023-05-28,Sample listed entity IR-10911,IR,
+10911,EU.10911.1,enterprise,"Iran (human rights, weapons)",2023-05-28,2023-05-28,Sample listed entity IR-10911 (alias),IR,
+10921,EU.10921.1,person,"Iran (human rights, weapons)",2022-09-19,2022-09-19,Sample listed individual IR-10921,,IR
+10921,EU.10921.1,person,"Iran (human rights, weapons)",2022-09-19,2022-09-19,Sample listed individual IR-10921 (alias),,IR
+10931,EU.10931.1,enterprise,"Iran (human rights, weapons)",2023-11-05,2023-11-05,Sample listed entity IR-10931,IR,
+10931,EU.10931.1,enterprise,"Iran (human rights, weapons)",2023-11-05,2023-11-05,Sample listed entity IR-10931 (alias),IR,
+10941,EU.10941.1,enterprise,"Iran (human rights, weapons)",2018-04-23,2018-04-23,Sample listed entity IR-10941,IR,
+10941,EU.10941.1,enterprise,"Iran (human rights, weapons)",2018-04-23,2018-04-23,Sample listed entity IR-10941 (alias),IR,
+10951,EU.10951.1,person,"Iran (human rights, weapons)",2018-08-03,2018-08-03,Sample listed individual IR-10951,,IR
+10951,EU.10951.1,person,"Iran (human rights, weapons)",2018-08-03,2018-08-03,Sample listed individual IR-10951 (alias),,IR
+10961,EU.10961.1,enterprise,"Iran (human rights, weapons)",2018-09-12,2018-09-12,Sample listed aircraft IR-10961,IR,
+10961,EU.10961.1,enterprise,"Iran (human rights, weapons)",2018-09-12,2018-09-12,Sample listed aircraft IR-10961 (alias),IR,
+10971,EU.10971.1,enterprise,"Iran (human rights, weapons)",2018-01-20,2018-01-20,Sample listed entity IR-10971,IR,
+10971,EU.10971.1,enterprise,"Iran (human rights, weapons)",2018-01-20,2018-01-20,Sample listed entity IR-10971 (alias),IR,
+10981,EU.10981.1,enterprise,"Iran (human rights, weapons)",2019-07-05,2019-07-05,Sample listed entity IR-10981,IR,
+10981,EU.10981.1,enterprise,"Iran (human rights, weapons)",2019-07-05,2019-07-05,Sample listed entity IR-10981 (alias),IR,
+10991,EU.10991.1,enterprise,"Iran (human rights, weapons)",2019-11-20,2019-11-20,Sample listed entity IR-10991,IR,
+10991,EU.10991.1,enterprise,"Iran (human rights, weapons)",2019-11-20,2019-11-20,Sample listed entity IR-10991 (alias),IR,
+11001,EU.11001.1,enterprise,"Iran (human rights, weapons)",2012-10-03,2012-10-03,Sample listed entity IR-11001,IR,
+11001,EU.11001.1,enterprise,"Iran (human rights, weapons)",2012-10-03,2012-10-03,Sample listed entity IR-11001 (alias),IR,
+11011,EU.11011.1,person,"Iran (human rights, weapons)",2023-08-27,2023-08-27,Sample listed individual IR-11011,,IR
+11011,EU.11011.1,person,"Iran (human rights, weapons)",2023-08-27,2023-08-27,Sample listed individual IR-11011 (alias),,IR
+11021,EU.11021.1,person,"Iran (human rights, weapons)",2023-02-01,2023-02-01,Sample listed individual IR-11021,,IR
+11021,EU.11021.1,person,"Iran (human rights, weapons)",2023-02-01,2023-02-01,Sample listed individual IR-11021 (alias),,IR
+11031,EU.11031.1,person,"Iran (human rights, weapons)",2018-05-23,2018-05-23,Sample listed individual IR-11031,,IR
+11031,EU.11031.1,person,"Iran (human rights, weapons)",2018-05-23,2018-05-23,Sample listed individual IR-11031 (alias),,IR
+11041,EU.11041.1,enterprise,"Iran (human rights, weapons)",2023-11-07,2023-11-07,Sample listed entity IR-11041,IR,
+11041,EU.11041.1,enterprise,"Iran (human rights, weapons)",2023-11-07,2023-11-07,Sample listed entity IR-11041 (alias),IR,
+11051,EU.11051.1,enterprise,"Iran (human rights, weapons)",2023-01-04,2023-01-04,Sample listed entity IR-11051,IR,
+11051,EU.11051.1,enterprise,"Iran (human rights, weapons)",2023-01-04,2023-01-04,Sample listed entity IR-11051 (alias),IR,
+11061,EU.11061.1,person,"Iran (human rights, weapons)",2019-05-22,2019-05-22,Sample listed individual IR-11061,,IR
+11061,EU.11061.1,person,"Iran (human rights, weapons)",2019-05-22,2019-05-22,Sample listed individual IR-11061 (alias),,IR
+11071,EU.11071.1,person,"Iran (human rights, weapons)",2010-09-12,2010-09-12,Sample listed individual IR-11071,,IR
+11071,EU.11071.1,person,"Iran (human rights, weapons)",2010-09-12,2010-09-12,Sample listed individual IR-11071 (alias),,IR
+11081,EU.11081.1,person,"Iran (human rights, weapons)",2010-12-03,2010-12-03,Sample listed individual IR-11081,,IR
+11081,EU.11081.1,person,"Iran (human rights, weapons)",2010-12-03,2010-12-03,Sample listed individual IR-11081 (alias),,IR
+11091,EU.11091.1,person,"Iran (human rights, weapons)",2018-10-12,2018-10-12,Sample listed individual IR-11091,,IR
+11091,EU.11091.1,person,"Iran (human rights, weapons)",2018-10-12,2018-10-12,Sample listed individual IR-11091 (alias),,IR
+11101,EU.11101.1,enterprise,"Iran (human rights, weapons)",2010-06-09,2010-06-09,Sample listed entity IR-11101,IR,
+11101,EU.11101.1,enterprise,"Iran (human rights, weapons)",2010-06-09,2010-06-09,Sample listed entity IR-11101 (alias),IR,
+11111,EU.11111.1,person,"Iran (human rights, weapons)",2018-04-14,2018-04-14,Sample listed individual IR-11111,,IR
+11111,EU.11111.1,person,"Iran (human rights, weapons)",2018-04-14,2018-04-14,Sample listed individual IR-11111 (alias),,IR
+11121,EU.11121.1,person,"Iran (human rights, weapons)",2019-12-26,2019-12-26,Sample listed individual IR-11121,,IR
+11121,EU.11121.1,person,"Iran (human rights, weapons)",2019-12-26,2019-12-26,Sample listed individual IR-11121 (alias),,IR
+11131,EU.11131.1,person,"Iran (human rights, weapons)",2012-12-11,2012-12-11,Sample listed individual IR-11131,,IR
+11131,EU.11131.1,person,"Iran (human rights, weapons)",2012-12-11,2012-12-11,Sample listed individual IR-11131 (alias),,IR
+11141,EU.11141.1,enterprise,"Iran (human rights, weapons)",2023-04-17,2023-04-17,Sample listed entity IR-11141,IR,
+11141,EU.11141.1,enterprise,"Iran (human rights, weapons)",2023-04-17,2023-04-17,Sample listed entity IR-11141 (alias),IR,
+11151,EU.11151.1,person,"Iran (human rights, weapons)",2024-01-04,2024-01-04,Sample listed individual IR-11151,,IR
+11151,EU.11151.1,person,"Iran (human rights, weapons)",2024-01-04,2024-01-04,Sample listed individual IR-11151 (alias),,IR
+11161,EU.11161.1,enterprise,"Iran (human rights, weapons)",2023-12-01,2023-12-01,Sample listed entity IR-11161,IR,
+11161,EU.11161.1,enterprise,"Iran (human rights, weapons)",2023-12-01,2023-12-01,Sample listed entity IR-11161 (alias),IR,
+11171,EU.11171.1,enterprise,"Iran (human rights, weapons)",2023-11-13,2023-11-13,Sample listed entity IR-11171,IR,
+11171,EU.11171.1,enterprise,"Iran (human rights, weapons)",2023-11-13,2023-11-13,Sample listed entity IR-11171 (alias),IR,
+11181,EU.11181.1,person,"Iran (human rights, weapons)",2024-02-16,2024-02-16,Sample listed individual IR-11181,,IR
+11181,EU.11181.1,person,"Iran (human rights, weapons)",2024-02-16,2024-02-16,Sample listed individual IR-11181 (alias),,IR
+11191,EU.11191.1,enterprise,"Iran (human rights, weapons)",2023-11-23,2023-11-23,Sample listed entity IR-11191,IR,
+11191,EU.11191.1,enterprise,"Iran (human rights, weapons)",2023-11-23,2023-11-23,Sample listed entity IR-11191 (alias),IR,
+11201,EU.11201.1,person,"Iran (human rights, weapons)",2023-06-06,2023-06-06,Sample listed individual IR-11201,,IR
+11201,EU.11201.1,person,"Iran (human rights, weapons)",2023-06-06,2023-06-06,Sample listed individual IR-11201 (alias),,IR
+11211,EU.11211.1,person,"Iran (human rights, weapons)",2018-09-23,2018-09-23,Sample listed individual IR-11211,,IR
+11211,EU.11211.1,person,"Iran (human rights, weapons)",2018-09-23,2018-09-23,Sample listed individual IR-11211 (alias),,IR
+11221,EU.11221.1,enterprise,"Iran (human rights, weapons)",2024-04-03,2024-04-03,Sample listed entity IR-11221,IR,
+11221,EU.11221.1,enterprise,"Iran (human rights, weapons)",2024-04-03,2024-04-03,Sample listed entity IR-11221 (alias),IR,
+11231,EU.11231.1,person,"Iran (human rights, weapons)",2012-05-28,2012-05-28,Sample listed individual IR-11231,,IR
+11231,EU.11231.1,person,"Iran (human rights, weapons)",2012-05-28,2012-05-28,Sample listed individual IR-11231 (alias),,IR
+11241,EU.11241.1,person,"Iran (human rights, weapons)",2025-04-23,2025-04-23,Sample listed individual IR-11241,,IR
+11241,EU.11241.1,person,"Iran (human rights, weapons)",2025-04-23,2025-04-23,Sample listed individual IR-11241 (alias),,IR
+11251,EU.11251.1,enterprise,"Iran (human rights, weapons)",2018-08-21,2018-08-21,Sample listed entity IR-11251,IR,
+11251,EU.11251.1,enterprise,"Iran (human rights, weapons)",2018-08-21,2018-08-21,Sample listed entity IR-11251 (alias),IR,
+11261,EU.11261.1,person,"Iran (human rights, weapons)",2020-01-22,2020-01-22,Sample listed individual IR-11261,,IR
+11261,EU.11261.1,person,"Iran (human rights, weapons)",2020-01-22,2020-01-22,Sample listed individual IR-11261 (alias),,IR
+11271,EU.11271.1,person,"Iran (human rights, weapons)",2020-05-05,2020-05-05,Sample listed individual IR-11271,,IR
+11271,EU.11271.1,person,"Iran (human rights, weapons)",2020-05-05,2020-05-05,Sample listed individual IR-11271 (alias),,IR
+11281,EU.11281.1,person,"Iran (human rights, weapons)",2024-04-02,2024-04-02,Sample listed individual IR-11281,,IR
+11281,EU.11281.1,person,"Iran (human rights, weapons)",2024-04-02,2024-04-02,Sample listed individual IR-11281 (alias),,IR
+11291,EU.11291.1,enterprise,"Iran (human rights, weapons)",2012-03-01,2012-03-01,Sample listed entity IR-11291,IR,
+11291,EU.11291.1,enterprise,"Iran (human rights, weapons)",2012-03-01,2012-03-01,Sample listed entity IR-11291 (alias),IR,
+11301,EU.11301.1,person,"Iran (human rights, weapons)",2010-11-12,2010-11-12,Sample listed individual IR-11301,,IR
+11301,EU.11301.1,person,"Iran (human rights, weapons)",2010-11-12,2010-11-12,Sample listed individual IR-11301 (alias),,IR
+11311,EU.11311.1,person,"Iran (human rights, weapons)",2020-04-19,2020-04-19,Sample listed individual IR-11311,,IR
+11311,EU.11311.1,person,"Iran (human rights, weapons)",2020-04-19,2020-04-19,Sample listed individual IR-11311 (alias),,IR
+11321,EU.11321.1,person,"Iran (human rights, weapons)",2010-12-19,2010-12-19,Sample listed individual IR-11321,,IR
+11321,EU.11321.1,person,"Iran (human rights, weapons)",2010-12-19,2010-12-19,Sample listed individual IR-11321 (alias),,IR
+11331,EU.11331.1,enterprise,"Iran (human rights, weapons)",2024-09-08,2024-09-08,Sample listed entity IR-11331,IR,
+11331,EU.11331.1,enterprise,"Iran (human rights, weapons)",2024-09-08,2024-09-08,Sample listed entity IR-11331 (alias),IR,
+11341,EU.11341.1,person,"Iran (human rights, weapons)",2023-02-10,2023-02-10,Sample listed individual IR-11341,,IR
+11341,EU.11341.1,person,"Iran (human rights, weapons)",2023-02-10,2023-02-10,Sample listed individual IR-11341 (alias),,IR
+12051,EU.12051.1,enterprise,North Korea,2013-12-17,2013-12-17,Sample listed entity KP-12051,KP,
+12051,EU.12051.1,enterprise,North Korea,2013-12-17,2013-12-17,Sample listed entity KP-12051 (alias),KP,
+12061,EU.12061.1,person,North Korea,2024-12-27,2024-12-27,Sample listed individual KP-12061,,KP
+12061,EU.12061.1,person,North Korea,2024-12-27,2024-12-27,Sample listed individual KP-12061 (alias),,KP
+12071,EU.12071.1,person,North Korea,2016-09-04,2016-09-04,Sample listed individual KP-12071,,KP
+12071,EU.12071.1,person,North Korea,2016-09-04,2016-09-04,Sample listed individual KP-12071 (alias),,KP
+12081,EU.12081.1,person,North Korea,2017-07-19,2017-07-19,Sample listed individual KP-12081,,KP
+12081,EU.12081.1,person,North Korea,2017-07-19,2017-07-19,Sample listed individual KP-12081 (alias),,KP
+12091,EU.12091.1,person,North Korea,2017-06-27,2017-06-27,Sample listed individual KP-12091,,KP
+12091,EU.12091.1,person,North Korea,2017-06-27,2017-06-27,Sample listed individual KP-12091 (alias),,KP
+12101,EU.12101.1,person,North Korea,2018-10-07,2018-10-07,Sample listed individual KP-12101,,KP
+12101,EU.12101.1,person,North Korea,2018-10-07,2018-10-07,Sample listed individual KP-12101 (alias),,KP
+12111,EU.12111.1,enterprise,North Korea,2024-11-26,2024-11-26,Sample listed entity KP-12111,KP,
+12111,EU.12111.1,enterprise,North Korea,2024-11-26,2024-11-26,Sample listed entity KP-12111 (alias),KP,
+12121,EU.12121.1,enterprise,North Korea,2022-07-25,2022-07-25,Sample listed entity KP-12121,KP,
+12121,EU.12121.1,enterprise,North Korea,2022-07-25,2022-07-25,Sample listed entity KP-12121 (alias),KP,
+12131,EU.12131.1,enterprise,North Korea,2016-01-22,2016-01-22,Sample listed entity KP-12131,KP,
+12131,EU.12131.1,enterprise,North Korea,2016-01-22,2016-01-22,Sample listed entity KP-12131 (alias),KP,
+12141,EU.12141.1,enterprise,North Korea,2016-02-13,2016-02-13,Sample listed entity KP-12141,KP,
+12141,EU.12141.1,enterprise,North Korea,2016-02-13,2016-02-13,Sample listed entity KP-12141 (alias),KP,
+12151,EU.12151.1,person,North Korea,2018-03-12,2018-03-12,Sample listed individual KP-12151,,KP
+12151,EU.12151.1,person,North Korea,2018-03-12,2018-03-12,Sample listed individual KP-12151 (alias),,KP
+12161,EU.12161.1,person,North Korea,2018-11-16,2018-11-16,Sample listed individual KP-12161,,KP
+12161,EU.12161.1,person,North Korea,2018-11-16,2018-11-16,Sample listed individual KP-12161 (alias),,KP
+12171,EU.12171.1,person,North Korea,2018-11-25,2018-11-25,Sample listed individual KP-12171,,KP
+12171,EU.12171.1,person,North Korea,2018-11-25,2018-11-25,Sample listed individual KP-12171 (alias),,KP
+12181,EU.12181.1,person,North Korea,2017-03-01,2017-03-01,Sample listed individual KP-12181,,KP
+12181,EU.12181.1,person,North Korea,2017-03-01,2017-03-01,Sample listed individual KP-12181 (alias),,KP
+12191,EU.12191.1,person,North Korea,2017-05-20,2017-05-20,Sample listed individual KP-12191,,KP
+12191,EU.12191.1,person,North Korea,2017-05-20,2017-05-20,Sample listed individual KP-12191 (alias),,KP
+12461,EU.12461.1,person,Syria,2020-07-18,2020-07-18,Sample listed individual SY-12461,,SY
+12461,EU.12461.1,person,Syria,2020-07-18,2020-07-18,Sample listed individual SY-12461 (alias),,SY
+12471,EU.12471.1,person,Syria,2023-09-08,2023-09-08,Sample listed individual SY-12471,,SY
+12471,EU.12471.1,person,Syria,2023-09-08,2023-09-08,Sample listed individual SY-12471 (alias),,SY
+12481,EU.12481.1,person,Syria,2012-03-17,2012-03-17,Sample listed individual SY-12481,,SY
+12481,EU.12481.1,person,Syria,2012-03-17,2012-03-17,Sample listed individual SY-12481 (alias),,SY
+12491,EU.12491.1,person,Syria,2012-01-15,2012-01-15,Sample listed individual SY-12491,,SY
+12491,EU.12491.1,person,Syria,2012-01-15,2012-01-15,Sample listed individual SY-12491 (alias),,SY
+12501,EU.12501.1,person,Syria,2023-08-24,2023-08-24,Sample listed individual SY-12501,,SY
+12501,EU.12501.1,person,Syria,2023-08-24,2023-08-24,Sample listed individual SY-12501 (alias),,SY
+12511,EU.12511.1,enterprise,Syria,2020-03-23,2020-03-23,Sample listed vessel SY-12511,SY,
+12511,EU.12511.1,enterprise,Syria,2020-03-23,2020-03-23,Sample listed vessel SY-12511 (alias),SY,
+12521,EU.12521.1,enterprise,Syria,2012-08-02,2012-08-02,Sample listed entity SY-12521,SY,
+12521,EU.12521.1,enterprise,Syria,2012-08-02,2012-08-02,Sample listed entity SY-12521 (alias),SY,
+12531,EU.12531.1,person,Syria,2011-12-22,2011-12-22,Sample listed individual SY-12531,,SY
+12531,EU.12531.1,person,Syria,2011-12-22,2011-12-22,Sample listed individual SY-12531 (alias),,SY
+12541,EU.12541.1,person,Syria,2011-06-04,2011-06-04,Sample listed individual SY-12541,,SY
+12541,EU.12541.1,person,Syria,2011-06-04,2011-06-04,Sample listed individual SY-12541 (alias),,SY
+12551,EU.12551.1,person,Syria,2023-08-20,2023-08-20,Sample listed individual SY-12551,,SY
+12551,EU.12551.1,person,Syria,2023-08-20,2023-08-20,Sample listed individual SY-12551 (alias),,SY
+12561,EU.12561.1,enterprise,Syria,2011-04-22,2011-04-22,Sample listed entity SY-12561,SY,
+12561,EU.12561.1,enterprise,Syria,2011-04-22,2011-04-22,Sample listed entity SY-12561 (alias),SY,
+12571,EU.12571.1,person,Syria,2011-04-28,2011-04-28,Sample listed individual SY-12571,,SY
+12571,EU.12571.1,person,Syria,2011-04-28,2011-04-28,Sample listed individual SY-12571 (alias),,SY
+12581,EU.12581.1,enterprise,Syria,2011-03-10,2011-03-10,Sample listed entity SY-12581,SY,
+12581,EU.12581.1,enterprise,Syria,2011-03-10,2011-03-10,Sample listed entity SY-12581 (alias),SY,
+12591,EU.12591.1,person,Syria,2014-05-04,2014-05-04,Sample listed individual SY-12591,,SY
+12591,EU.12591.1,person,Syria,2014-05-04,2014-05-04,Sample listed individual SY-12591 (alias),,SY
+12601,EU.12601.1,person,Syria,2011-11-06,2011-11-06,Sample listed individual SY-12601,,SY
+12601,EU.12601.1,person,Syria,2011-11-06,2011-11-06,Sample listed individual SY-12601 (alias),,SY
+12611,EU.12611.1,enterprise,Syria,2012-01-18,2012-01-18,Sample listed entity SY-12611,SY,
+12611,EU.12611.1,enterprise,Syria,2012-01-18,2012-01-18,Sample listed entity SY-12611 (alias),SY,
+12621,EU.12621.1,person,Syria,2012-10-04,2012-10-04,Sample listed individual SY-12621,,SY
+12621,EU.12621.1,person,Syria,2012-10-04,2012-10-04,Sample listed individual SY-12621 (alias),,SY
+12631,EU.12631.1,person,Syria,2014-01-17,2014-01-17,Sample listed individual SY-12631,,SY
+12631,EU.12631.1,person,Syria,2014-01-17,2014-01-17,Sample listed individual SY-12631 (alias),,SY
+12641,EU.12641.1,enterprise,Syria,2011-07-19,2011-07-19,Sample listed entity SY-12641,SY,
+12641,EU.12641.1,enterprise,Syria,2011-07-19,2011-07-19,Sample listed entity SY-12641 (alias),SY,
+12651,EU.12651.1,enterprise,Syria,2012-12-24,2012-12-24,Sample listed entity SY-12651,SY,
+12651,EU.12651.1,enterprise,Syria,2012-12-24,2012-12-24,Sample listed entity SY-12651 (alias),SY,
+12661,EU.12661.1,enterprise,Syria,2011-01-14,2011-01-14,Sample listed entity SY-12661,SY,
+12661,EU.12661.1,enterprise,Syria,2011-01-14,2011-01-14,Sample listed entity SY-12661 (alias),SY,
+12671,EU.12671.1,person,Syria,2011-02-24,2011-02-24,Sample listed individual SY-12671,,SY
+12671,EU.12671.1,person,Syria,2011-02-24,2011-02-24,Sample listed individual SY-12671 (alias),,SY
+12681,EU.12681.1,person,Syria,2011-07-11,2011-07-11,Sample listed individual SY-12681,,SY
+12681,EU.12681.1,person,Syria,2011-07-11,2011-07-11,Sample listed individual SY-12681 (alias),,SY
+12691,EU.12691.1,person,Syria,2020-05-22,2020-05-22,Sample listed individual SY-12691,,SY
+12691,EU.12691.1,person,Syria,2020-05-22,2020-05-22,Sample listed individual SY-12691 (alias),,SY
+12701,EU.12701.1,person,Syria,2011-12-09,2011-12-09,Sample listed individual SY-12701,,SY
+12701,EU.12701.1,person,Syria,2011-12-09,2011-12-09,Sample listed individual SY-12701 (alias),,SY
+12711,EU.12711.1,enterprise,Syria,2011-09-05,2011-09-05,Sample listed entity SY-12711,SY,
+12711,EU.12711.1,enterprise,Syria,2011-09-05,2011-09-05,Sample listed entity SY-12711 (alias),SY,
+13301,EU.13301.1,person,Belarus,2022-02-07,2022-02-07,Sample listed individual BY-13301,,BY
+13301,EU.13301.1,person,Belarus,2022-02-07,2022-02-07,Sample listed individual BY-13301 (alias),,BY
+13311,EU.13311.1,person,Belarus,2011-11-18,2011-11-18,Sample listed individual BY-13311,,BY
+13311,EU.13311.1,person,Belarus,2011-11-18,2011-11-18,Sample listed individual BY-13311 (alias),,BY
+13321,EU.13321.1,person,Belarus,2022-11-16,2022-11-16,Sample listed individual BY-13321,,BY
+13321,EU.13321.1,person,Belarus,2022-11-16,2022-11-16,Sample listed individual BY-13321 (alias),,BY
+13331,EU.13331.1,enterprise,Belarus,2024-09-17,2024-09-17,Sample listed entity BY-13331,BY,
+13331,EU.13331.1,enterprise,Belarus,2024-09-17,2024-09-17,Sample listed entity BY-13331 (alias),BY,
+13341,EU.13341.1,enterprise,Belarus,2022-01-04,2022-01-04,Sample listed entity BY-13341,BY,
+13341,EU.13341.1,enterprise,Belarus,2022-01-04,2022-01-04,Sample listed entity BY-13341 (alias),BY,
+13351,EU.13351.1,person,Belarus,2021-12-24,2021-12-24,Sample listed individual BY-13351,,BY
+13351,EU.13351.1,person,Belarus,2021-12-24,2021-12-24,Sample listed individual BY-13351 (alias),,BY
+13361,EU.13361.1,person,Belarus,2020-03-16,2020-03-16,Sample listed individual BY-13361,,BY
+13361,EU.13361.1,person,Belarus,2020-03-16,2020-03-16,Sample listed individual BY-13361 (alias),,BY
+13371,EU.13371.1,person,Belarus,2022-04-26,2022-04-26,Sample listed individual BY-13371,,BY
+13371,EU.13371.1,person,Belarus,2022-04-26,2022-04-26,Sample listed individual BY-13371 (alias),,BY
+13381,EU.13381.1,enterprise,Belarus,2020-06-09,2020-06-09,Sample listed entity BY-13381,BY,
+13381,EU.13381.1,enterprise,Belarus,2020-06-09,2020-06-09,Sample listed entity BY-13381 (alias),BY,
+13391,EU.13391.1,enterprise,Belarus,2021-06-22,2021-06-22,Sample listed entity BY-13391,BY,
+13391,EU.13391.1,enterprise,Belarus,2021-06-22,2021-06-22,Sample listed entity BY-13391 (alias),BY,
+13401,EU.13401.1,person,Belarus,2022-12-08,2022-12-08,Sample listed individual BY-13401,,BY
+13401,EU.13401.1,person,Belarus,2022-12-08,2022-12-08,Sample listed individual BY-13401 (alias),,BY
+13411,EU.13411.1,person,Belarus,2020-09-04,2020-09-04,Sample listed individual BY-13411,,BY
+13411,EU.13411.1,person,Belarus,2020-09-04,2020-09-04,Sample listed individual BY-13411 (alias),,BY
+13421,EU.13421.1,person,Belarus,2022-02-23,2022-02-23,Sample listed individual BY-13421,,BY
+13421,EU.13421.1,person,Belarus,2022-02-23,2022-02-23,Sample listed individual BY-13421 (alias),,BY
+13431,EU.13431.1,enterprise,Belarus,2023-05-24,2023-05-24,Sample listed entity BY-13431,BY,
+13431,EU.13431.1,enterprise,Belarus,2023-05-24,2023-05-24,Sample listed entity BY-13431 (alias),BY,
+13441,EU.13441.1,enterprise,Belarus,2023-05-08,2023-05-08,Sample listed entity BY-13441,BY,
+13441,EU.13441.1,enterprise,Belarus,2023-05-08,2023-05-08,Sample listed entity BY-13441 (alias),BY,
+13451,EU.13451.1,person,Belarus,2023-11-11,2023-11-11,Sample listed individual BY-13451,,BY
+13451,EU.13451.1,person,Belarus,2023-11-11,2023-11-11,Sample listed individual BY-13451 (alias),,BY
+13461,EU.13461.1,enterprise,Belarus,2022-12-24,2022-12-24,Sample listed entity BY-13461,BY,
+13461,EU.13461.1,enterprise,Belarus,2022-12-24,2022-12-24,Sample listed entity BY-13461 (alias),BY,
+13471,EU.13471.1,person,Belarus,2011-01-25,2011-01-25,Sample listed individual BY-13471,,BY
+13471,EU.13471.1,person,Belarus,2011-01-25,2011-01-25,Sample listed individual BY-13471 (alias),,BY
+13481,EU.13481.1,person,Belarus,2022-01-03,2022-01-03,Sample listed individual BY-13481,,BY
+13481,EU.13481.1,person,Belarus,2022-01-03,2022-01-03,Sample listed individual BY-13481 (alias),,BY
+13491,EU.13491.1,enterprise,Belarus,2022-10-05,2022-10-05,Sample listed entity BY-13491,BY,
+13491,EU.13491.1,enterprise,Belarus,2022-10-05,2022-10-05,Sample listed entity BY-13491 (alias),BY,
+13501,EU.13501.1,enterprise,Belarus,2022-04-25,2022-04-25,Sample listed entity BY-13501,BY,
+13501,EU.13501.1,enterprise,Belarus,2022-04-25,2022-04-25,Sample listed entity BY-13501 (alias),BY,
+13511,EU.13511.1,person,Belarus,2021-05-23,2021-05-23,Sample listed individual BY-13511,,BY
+13511,EU.13511.1,person,Belarus,2021-05-23,2021-05-23,Sample listed individual BY-13511 (alias),,BY
+13521,EU.13521.1,enterprise,Belarus,2011-09-17,2011-09-17,Sample listed entity BY-13521,BY,
+13521,EU.13521.1,enterprise,Belarus,2011-09-17,2011-09-17,Sample listed entity BY-13521 (alias),BY,
+13531,EU.13531.1,person,Belarus,2011-10-28,2011-10-28,Sample listed individual BY-13531,,BY
+13531,EU.13531.1,person,Belarus,2011-10-28,2011-10-28,Sample listed individual BY-13531 (alias),,BY
+13541,EU.13541.1,person,Belarus,2024-06-26,2024-06-26,Sample listed individual BY-13541,,BY
+13541,EU.13541.1,person,Belarus,2024-06-26,2024-06-26,Sample listed individual BY-13541 (alias),,BY
+13551,EU.13551.1,person,Belarus,2022-06-25,2022-06-25,Sample listed individual BY-13551,,BY
+13551,EU.13551.1,person,Belarus,2022-06-25,2022-06-25,Sample listed individual BY-13551 (alias),,BY
+13561,EU.13561.1,person,Belarus,2022-04-28,2022-04-28,Sample listed individual BY-13561,,BY
+13561,EU.13561.1,person,Belarus,2022-04-28,2022-04-28,Sample listed individual BY-13561 (alias),,BY
+13571,EU.13571.1,enterprise,Belarus,2021-02-20,2021-02-20,Sample listed entity BY-13571,BY,
+13571,EU.13571.1,enterprise,Belarus,2021-02-20,2021-02-20,Sample listed entity BY-13571 (alias),BY,
+13581,EU.13581.1,person,Belarus,2021-12-25,2021-12-25,Sample listed individual BY-13581,,BY
+13581,EU.13581.1,person,Belarus,2021-12-25,2021-12-25,Sample listed individual BY-13581 (alias),,BY
+13591,EU.13591.1,enterprise,Belarus,2020-04-08,2020-04-08,Sample listed entity BY-13591,BY,
+13591,EU.13591.1,enterprise,Belarus,2020-04-08,2020-04-08,Sample listed entity BY-13591 (alias),BY,
+13601,EU.13601.1,person,Belarus,2022-05-11,2022-05-11,Sample listed individual BY-13601,,BY
+13601,EU.13601.1,person,Belarus,2022-05-11,2022-05-11,Sample listed individual BY-13601 (alias),,BY
+13611,EU.13611.1,person,Belarus,2023-06-07,2023-06-07,Sample listed individual BY-13611,,BY
+13611,EU.13611.1,person,Belarus,2023-06-07,2023-06-07,Sample listed individual BY-13611 (alias),,BY
+13621,EU.13621.1,person,Belarus,2023-07-05,2023-07-05,Sample listed individual BY-13621,,BY
+13621,EU.13621.1,person,Belarus,2023-07-05,2023-07-05,Sample listed individual BY-13621 (alias),,BY
+13631,EU.13631.1,enterprise,Belarus,2022-10-13,2022-10-13,Sample listed entity BY-13631,BY,
+13631,EU.13631.1,enterprise,Belarus,2022-10-13,2022-10-13,Sample listed entity BY-13631 (alias),BY,
+13641,EU.13641.1,enterprise,Belarus,2023-12-01,2023-12-01,Sample listed entity BY-13641,BY,
+13641,EU.13641.1,enterprise,Belarus,2023-12-01,2023-12-01,Sample listed entity BY-13641 (alias),BY,
+13651,EU.13651.1,enterprise,Belarus,2022-04-13,2022-04-13,Sample listed entity BY-13651,BY,
+13651,EU.13651.1,enterprise,Belarus,2022-04-13,2022-04-13,Sample listed entity BY-13651 (alias),BY,
+13661,EU.13661.1,person,Belarus,2023-10-19,2023-10-19,Sample listed individual BY-13661,,BY
+13661,EU.13661.1,person,Belarus,2023-10-19,2023-10-19,Sample listed individual BY-13661 (alias),,BY
+13671,EU.13671.1,enterprise,Belarus,2011-10-05,2011-10-05,Sample listed entity BY-13671,BY,
+13671,EU.13671.1,enterprise,Belarus,2011-10-05,2011-10-05,Sample listed entity BY-13671 (alias),BY,
+13681,EU.13681.1,enterprise,Belarus,2023-12-25,2023-12-25,Sample listed entity BY-13681,BY,
+13681,EU.13681.1,enterprise,Belarus,2023-12-25,2023-12-25,Sample listed entity BY-13681 (alias),BY,
+13691,EU.13691.1,person,Belarus,2021-08-15,2021-08-15,Sample listed individual BY-13691,,BY
+13691,EU.13691.1,person,Belarus,2021-08-15,2021-08-15,Sample listed individual BY-13691 (alias),,BY
+13701,EU.13701.1,person,Belarus,2024-02-17,2024-02-17,Sample listed individual BY-13701,,BY
+13701,EU.13701.1,person,Belarus,2024-02-17,2024-02-17,Sample listed individual BY-13701 (alias),,BY
+13711,EU.13711.1,person,Belarus,2021-06-20,2021-06-20,Sample listed individual BY-13711,,BY
+13711,EU.13711.1,person,Belarus,2021-06-20,2021-06-20,Sample listed individual BY-13711 (alias),,BY
+14291,EU.14291.1,enterprise,Russia (Ukraine territorial integrity),2020-12-02,2020-12-02,Sample listed entity CN-14291,CN,
+14291,EU.14291.1,enterprise,Russia (Ukraine territorial integrity),2020-12-02,2020-12-02,Sample listed entity CN-14291 (alias),CN,
+14301,EU.14301.1,person,Russia (Ukraine territorial integrity),2023-05-16,2023-05-16,Sample listed individual CN-14301,,CN
+14301,EU.14301.1,person,Russia (Ukraine territorial integrity),2023-05-16,2023-05-16,Sample listed individual CN-14301 (alias),,CN
+14311,EU.14311.1,person,Russia (Ukraine territorial integrity),2025-06-14,2025-06-14,Sample listed individual CN-14311,,CN
+14311,EU.14311.1,person,Russia (Ukraine territorial integrity),2025-06-14,2025-06-14,Sample listed individual CN-14311 (alias),,CN
+14321,EU.14321.1,person,Russia (Ukraine territorial integrity),2023-07-22,2023-07-22,Sample listed individual CN-14321,,CN
+14321,EU.14321.1,person,Russia (Ukraine territorial integrity),2023-07-22,2023-07-22,Sample listed individual CN-14321 (alias),,CN
+14556,EU.14556.1,person,Russia (Ukraine territorial integrity),2024-12-13,2024-12-13,Sample listed individual HK-14556,,HK
+14556,EU.14556.1,person,Russia (Ukraine territorial integrity),2024-12-13,2024-12-13,Sample listed individual HK-14556 (alias),,HK
+14566,EU.14566.1,person,Russia (Ukraine territorial integrity),2024-06-18,2024-06-18,Sample listed individual HK-14566,,HK
+14566,EU.14566.1,person,Russia (Ukraine territorial integrity),2024-06-18,2024-06-18,Sample listed individual HK-14566 (alias),,HK
+14811,EU.14811.1,person,Venezuela,2017-07-24,2017-07-24,Sample listed individual VE-14811,,VE
+14811,EU.14811.1,person,Venezuela,2017-07-24,2017-07-24,Sample listed individual VE-14811 (alias),,VE
+14821,EU.14821.1,person,Venezuela,2018-04-13,2018-04-13,Sample listed individual VE-14821,,VE
+14821,EU.14821.1,person,Venezuela,2018-04-13,2018-04-13,Sample listed individual VE-14821 (alias),,VE
+14831,EU.14831.1,enterprise,Venezuela,2019-10-24,2019-10-24,Sample listed entity VE-14831,VE,
+14831,EU.14831.1,enterprise,Venezuela,2019-10-24,2019-10-24,Sample listed entity VE-14831 (alias),VE,
+14841,EU.14841.1,person,Venezuela,2017-11-27,2017-11-27,Sample listed individual VE-14841,,VE
+14841,EU.14841.1,person,Venezuela,2017-11-27,2017-11-27,Sample listed individual VE-14841 (alias),,VE
+14851,EU.14851.1,enterprise,Venezuela,2019-06-14,2019-06-14,Sample listed entity VE-14851,VE,
+14851,EU.14851.1,enterprise,Venezuela,2019-06-14,2019-06-14,Sample listed entity VE-14851 (alias),VE,
+14861,EU.14861.1,enterprise,Venezuela,2019-12-12,2019-12-12,Sample listed entity VE-14861,VE,
+14861,EU.14861.1,enterprise,Venezuela,2019-12-12,2019-12-12,Sample listed entity VE-14861 (alias),VE,
+14871,EU.14871.1,enterprise,Venezuela,2024-03-16,2024-03-16,Sample listed entity VE-14871,VE,
+14871,EU.14871.1,enterprise,Venezuela,2024-03-16,2024-03-16,Sample listed entity VE-14871 (alias),VE,
+15101,EU.15101.1,person,Myanmar/Burma,2022-01-25,2022-01-25,Sample listed individual MM-15101,,MM
+15101,EU.15101.1,person,Myanmar/Burma,2022-01-25,2022-01-25,Sample listed individual MM-15101 (alias),,MM
+15111,EU.15111.1,person,Myanmar/Burma,2022-06-21,2022-06-21,Sample listed individual MM-15111,,MM
+15111,EU.15111.1,person,Myanmar/Burma,2022-06-21,2022-06-21,Sample listed individual MM-15111 (alias),,MM
+15121,EU.15121.1,person,Myanmar/Burma,2023-06-19,2023-06-19,Sample listed individual MM-15121,,MM
+15121,EU.15121.1,person,Myanmar/Burma,2023-06-19,2023-06-19,Sample listed individual MM-15121 (alias),,MM
+15131,EU.15131.1,enterprise,Myanmar/Burma,2021-12-28,2021-12-28,Sample listed vessel MM-15131,MM,
+15131,EU.15131.1,enterprise,Myanmar/Burma,2021-12-28,2021-12-28,Sample listed vessel MM-15131 (alias),MM,
+15141,EU.15141.1,enterprise,Myanmar/Burma,2021-12-20,2021-12-20,Sample listed entity MM-15141,MM,
+15141,EU.15141.1,enterprise,Myanmar/Burma,2021-12-20,2021-12-20,Sample listed entity MM-15141 (alias),MM,
+15151,EU.15151.1,enterprise,Myanmar/Burma,2022-03-18,2022-03-18,Sample listed entity MM-15151,MM,
+15151,EU.15151.1,enterprise,Myanmar/Burma,2022-03-18,2022-03-18,Sample listed entity MM-15151 (alias),MM,
+15161,EU.15161.1,enterprise,Myanmar/Burma,2022-04-21,2022-04-21,Sample listed entity MM-15161,MM,
+15161,EU.15161.1,enterprise,Myanmar/Burma,2022-04-21,2022-04-21,Sample listed entity MM-15161 (alias),MM,
+15171,EU.15171.1,enterprise,Myanmar/Burma,2021-01-27,2021-01-27,Sample listed vessel MM-15171,MM,
+15171,EU.15171.1,enterprise,Myanmar/Burma,2021-01-27,2021-01-27,Sample listed vessel MM-15171 (alias),MM,
+15181,EU.15181.1,enterprise,Myanmar/Burma,2021-02-26,2021-02-26,Sample listed vessel MM-15181,MM,
+15181,EU.15181.1,enterprise,Myanmar/Burma,2021-02-26,2021-02-26,Sample listed vessel MM-15181 (alias),MM,
+15191,EU.15191.1,person,Myanmar/Burma,2021-09-18,2021-09-18,Sample listed individual MM-15191,,MM
+15191,EU.15191.1,person,Myanmar/Burma,2021-09-18,2021-09-18,Sample listed individual MM-15191 (alias),,MM
+15201,EU.15201.1,enterprise,Myanmar/Burma,2022-07-05,2022-07-05,Sample listed entity MM-15201,MM,
+15201,EU.15201.1,enterprise,Myanmar/Burma,2022-07-05,2022-07-05,Sample listed entity MM-15201 (alias),MM,
+15211,EU.15211.1,enterprise,Myanmar/Burma,2021-01-23,2021-01-23,Sample listed entity MM-15211,MM,
+15211,EU.15211.1,enterprise,Myanmar/Burma,2021-01-23,2021-01-23,Sample listed entity MM-15211 (alias),MM,
+16751,EU.16751.1,enterprise,Terrorist groups (ISIL/Al-Qaida),2015-05-23,2015-05-23,Sample listed entity LB-16751,LB,
+16751,EU.16751.1,enterprise,Terrorist groups (ISIL/Al-Qaida),2015-05-23,2015-05-23,Sample listed entity LB-16751 (alias),LB,
+16761,EU.16761.1,enterprise,Terrorist groups (ISIL/Al-Qaida),2024-08-24,2024-08-24,Sample listed entity LB-16761,LB,
+16761,EU.16761.1,enterprise,Terrorist groups (ISIL/Al-Qaida),2024-08-24,2024-08-24,Sample listed entity LB-16761 (alias),LB,
+16771,EU.16771.1,person,Terrorist groups (ISIL/Al-Qaida),2019-10-14,2019-10-14,Sample listed individual LB-16771,,LB
+16771,EU.16771.1,person,Terrorist groups (ISIL/Al-Qaida),2019-10-14,2019-10-14,Sample listed individual LB-16771 (alias),,LB
+17001,EU.17001.1,person,Russia (Ukraine territorial integrity),2024-04-28,2024-04-28,Sample listed individual AE-17001,,AE
+17001,EU.17001.1,person,Russia (Ukraine territorial integrity),2024-04-28,2024-04-28,Sample listed individual AE-17001 (alias),,AE
+17011,EU.17011.1,person,Russia (Ukraine territorial integrity),2019-07-20,2019-07-20,Sample listed individual AE-17011,,AE
+17011,EU.17011.1,person,Russia (Ukraine territorial integrity),2019-07-20,2019-07-20,Sample listed individual AE-17011 (alias),,AE
+17131,EU.17131.1,person,Russia (Ukraine territorial integrity),2019-11-21,2019-11-21,Sample listed individual TR-17131,,TR
+17131,EU.17131.1,person,Russia (Ukraine territorial integrity),2019-11-21,2019-11-21,Sample listed individual TR-17131 (alias),,TR
+17141,EU.17141.1,enterprise,Russia (Ukraine territorial integrity),2023-02-26,2023-02-26,Sample listed entity TR-17141,TR,
+17141,EU.17141.1,enterprise,Russia (Ukraine territorial integrity),2023-02-26,2023-02-26,Sample listed entity TR-17141 (alias),TR,
+17296,EU.17296.1,enterprise,Yemen,2021-10-05,2021-10-05,Sample listed entity YE-17296,YE,
+17296,EU.17296.1,enterprise,Yemen,2021-10-05,2021-10-05,Sample listed entity YE-17296 (alias),YE,
+17451,EU.17451.1,person,Iraq,2010-01-19,2010-01-19,Sample listed individual IQ-17451,,IQ
+17451,EU.17451.1,person,Iraq,2010-01-19,2010-01-19,Sample listed individual IQ-17451 (alias),,IQ
+17461,EU.17461.1,enterprise,Iraq,2010-05-25,2010-05-25,Sample listed entity IQ-17461,IQ,
+17461,EU.17461.1,enterprise,Iraq,2010-05-25,2010-05-25,Sample listed entity IQ-17461 (alias),IQ,
+17471,EU.17471.1,enterprise,Iraq,2010-04-27,2010-04-27,Sample listed entity IQ-17471,IQ,
+17471,EU.17471.1,enterprise,Iraq,2010-04-27,2010-04-27,Sample listed entity IQ-17471 (alias),IQ,
+17481,EU.17481.1,person,Iraq,2010-02-28,2010-02-28,Sample listed individual IQ-17481,,IQ
+17481,EU.17481.1,person,Iraq,2010-02-28,2010-02-28,Sample listed individual IQ-17481 (alias),,IQ
+17491,EU.17491.1,person,Iraq,2010-04-01,2010-04-01,Sample listed individual IQ-17491,,IQ
+17491,EU.17491.1,person,Iraq,2010-04-01,2010-04-01,Sample listed individual IQ-17491 (alias),,IQ
+17501,EU.17501.1,enterprise,Iraq,2010-03-11,2010-03-11,Sample listed entity IQ-17501,IQ,
+17501,EU.17501.1,enterprise,Iraq,2010-03-11,2010-03-11,Sample listed entity IQ-17501 (alias),IQ,
+17731,EU.17731.1,person,Afghanistan (Taliban),2021-02-18,2021-02-18,Sample listed individual AF-17731,,AF
+17731,EU.17731.1,person,Afghanistan (Taliban),2021-02-18,2021-02-18,Sample listed individual AF-17731 (alias),,AF
+17741,EU.17741.1,enterprise,Afghanistan (Taliban),2010-10-23,2010-10-23,Sample listed entity AF-17741,AF,
+17741,EU.17741.1,enterprise,Afghanistan (Taliban),2010-10-23,2010-10-23,Sample listed entity AF-17741 (alias),AF,
+17751,EU.17751.1,person,Afghanistan (Taliban),2010-05-14,2010-05-14,Sample listed individual AF-17751,,AF
+17751,EU.17751.1,person,Afghanistan (Taliban),2010-05-14,2010-05-14,Sample listed individual AF-17751 (alias),,AF
+17761,EU.17761.1,person,Afghanistan (Taliban),2010-05-10,2010-05-10,Sample listed individual AF-17761,,AF
+17761,EU.17761.1,person,Afghanistan (Taliban),2010-05-10,2010-05-10,Sample listed individual AF-17761 (alias),,AF
+17771,EU.17771.1,enterprise,Afghanistan (Taliban),2010-03-11,2010-03-11,Sample listed entity AF-17771,AF,
+17771,EU.17771.1,enterprise,Afghanistan (Taliban),2010-03-11,2010-03-11,Sample listed entity AF-17771 (alias),AF,
+17781,EU.17781.1,person,Afghanistan (Taliban),2010-07-06,2010-07-06,Sample listed individual AF-17781,,AF
+17781,EU.17781.1,person,Afghanistan (Taliban),2010-07-06,2010-07-06,Sample listed individual AF-17781 (alias),,AF
+17791,EU.17791.1,enterprise,Afghanistan (Taliban),2010-06-16,2010-06-16,Sample listed vessel AF-17791,AF,
+17791,EU.17791.1,enterprise,Afghanistan (Taliban),2010-06-16,2010-06-16,Sample listed vessel AF-17791 (alias),AF,
+17801,EU.17801.1,person,Afghanistan (Taliban),2010-08-25,2010-08-25,Sample listed individual AF-17801,,AF
+17801,EU.17801.1,person,Afghanistan (Taliban),2010-08-25,2010-08-25,Sample listed individual AF-17801 (alias),,AF
+17811,EU.17811.1,person,Afghanistan (Taliban),2010-11-25,2010-11-25,Sample listed individual AF-17811,,AF
+17811,EU.17811.1,person,Afghanistan (Taliban),2010-11-25,2010-11-25,Sample listed individual AF-17811 (alias),,AF
+17821,EU.17821.1,enterprise,Afghanistan (Taliban),2010-03-12,2010-03-12,Sample listed vessel AF-17821,AF,
+17821,EU.17821.1,enterprise,Afghanistan (Taliban),2010-03-12,2010-03-12,Sample listed vessel AF-17821 (alias),AF,
+17831,EU.17831.1,person,Afghanistan (Taliban),2010-12-11,2010-12-11,Sample listed individual AF-17831,,AF
+17831,EU.17831.1,person,Afghanistan (Taliban),2010-12-11,2010-12-11,Sample listed individual AF-17831 (alias),,AF
+17841,EU.17841.1,enterprise,Afghanistan (Taliban),2010-02-24,2010-02-24,Sample listed entity AF-17841,AF,
+17841,EU.17841.1,enterprise,Afghanistan (Taliban),2010-02-24,2010-02-24,Sample listed entity AF-17841 (alias),AF,
+17851,EU.17851.1,enterprise,Afghanistan (Taliban),2010-06-07,2010-06-07,Sample listed entity AF-17851,AF,
+17851,EU.17851.1,enterprise,Afghanistan (Taliban),2010-06-07,2010-06-07,Sample listed entity AF-17851 (alias),AF,
+17861,EU.17861.1,person,Afghanistan (Taliban),2010-07-07,2010-07-07,Sample listed individual AF-17861,,AF
+17861,EU.17861.1,person,Afghanistan (Taliban),2010-07-07,2010-07-07,Sample listed individual AF-17861 (alias),,AF
+18091,EU.18091.1,enterprise,Somalia,2018-12-28,2018-12-28,Sample listed vessel SO-18091,SO,
+18091,EU.18091.1,enterprise,Somalia,2018-12-28,2018-12-28,Sample listed vessel SO-18091 (alias),SO,
+18101,EU.18101.1,enterprise,Somalia,2010-05-08,2010-05-08,Sample listed entity SO-18101,SO,
+18101,EU.18101.1,enterprise,Somalia,2010-05-08,2010-05-08,Sample listed entity SO-18101 (alias),SO,
+18211,EU.18211.1,enterprise,Sudan,2023-12-14,2023-12-14,Sample listed entity SD-18211,SD,
+18211,EU.18211.1,enterprise,Sudan,2023-12-14,2023-12-14,Sample listed entity SD-18211 (alias),SD,
+18221,EU.18221.1,enterprise,Sudan,2023-06-28,2023-06-28,Sample listed entity SD-18221,SD,
+18221,EU.18221.1,enterprise,Sudan,2023-06-28,2023-06-28,Sample listed entity SD-18221 (alias),SD,
+18231,EU.18231.1,person,Sudan,2023-04-22,2023-04-22,Sample listed individual SD-18231,,SD
+18231,EU.18231.1,person,Sudan,2023-04-22,2023-04-22,Sample listed individual SD-18231 (alias),,SD
+18331,EU.18331.1,enterprise,Libya,2017-08-08,2017-08-08,Sample listed entity LY-18331,LY,
+18331,EU.18331.1,enterprise,Libya,2017-08-08,2017-08-08,Sample listed entity LY-18331 (alias),LY,
+18341,EU.18341.1,person,Libya,2011-07-24,2011-07-24,Sample listed individual LY-18341,,LY
+18341,EU.18341.1,person,Libya,2011-07-24,2011-07-24,Sample listed individual LY-18341 (alias),,LY
+18351,EU.18351.1,person,Libya,2011-09-24,2011-09-24,Sample listed individual LY-18351,,LY
+18351,EU.18351.1,person,Libya,2011-09-24,2011-09-24,Sample listed individual LY-18351 (alias),,LY
+18361,EU.18361.1,enterprise,Libya,2011-06-20,2011-06-20,Sample listed entity LY-18361,LY,
+18361,EU.18361.1,enterprise,Libya,2011-06-20,2011-06-20,Sample listed entity LY-18361 (alias),LY,
+18371,EU.18371.1,enterprise,Libya,2011-06-24,2011-06-24,Sample listed entity LY-18371,LY,
+18371,EU.18371.1,enterprise,Libya,2011-06-24,2011-06-24,Sample listed entity LY-18371 (alias),LY,
+18491,EU.18491.1,person,Nicaragua,2021-10-11,2021-10-11,Sample listed individual NI-18491,,NI
+18491,EU.18491.1,person,Nicaragua,2021-10-11,2021-10-11,Sample listed individual NI-18491 (alias),,NI
+18501,EU.18501.1,person,Nicaragua,2022-01-24,2022-01-24,Sample listed individual NI-18501,,NI
+18501,EU.18501.1,person,Nicaragua,2022-01-24,2022-01-24,Sample listed individual NI-18501 (alias),,NI
+18891,EU.18891.1,enterprise,Terrorist groups (ISIL/Al-Qaida),2016-01-04,2016-01-04,Sample listed entity PK-18891,PK,
+18891,EU.18891.1,enterprise,Terrorist groups (ISIL/Al-Qaida),2016-01-04,2016-01-04,Sample listed entity PK-18891 (alias),PK,
+18901,EU.18901.1,enterprise,Terrorist groups (ISIL/Al-Qaida),2010-12-02,2010-12-02,Sample listed vessel PK-18901,PK,
+18901,EU.18901.1,enterprise,Terrorist groups (ISIL/Al-Qaida),2010-12-02,2010-12-02,Sample listed vessel PK-18901 (alias),PK,
+18911,EU.18911.1,enterprise,Terrorist groups (ISIL/Al-Qaida),2020-04-16,2020-04-16,Sample listed entity PK-18911,PK,
+18911,EU.18911.1,enterprise,Terrorist groups (ISIL/Al-Qaida),2020-04-16,2020-04-16,Sample listed entity PK-18911 (alias),PK,
+18961,EU.18961.1,enterprise,Mali,2019-09-10,2019-09-10,Sample listed vessel ML-18961,ML,
+18961,EU.18961.1,enterprise,Mali,2019-09-10,2019-09-10,Sample listed vessel ML-18961 (alias),ML,
+18971,EU.18971.1,enterprise,Mali,2019-08-02,2019-08-02,Sample listed entity ML-18971,ML,
+18971,EU.18971.1,enterprise,Mali,2019-08-02,2019-08-02,Sample listed entity ML-18971 (alias),ML,
+18993,EU.18993.1,person,Zimbabwe,2015-06-25,2015-06-25,Sample listed individual ZW-18993,,ZW
+18993,EU.18993.1,person,Zimbabwe,2015-06-25,2015-06-25,Sample listed individual ZW-18993 (alias),,ZW
+19149,EU.19149.1,enterprise,Russia (Ukraine territorial integrity),2024-02-18,2024-02-18,Sample listed entity KG-19149,KG,
+19149,EU.19149.1,enterprise,Russia (Ukraine territorial integrity),2024-02-18,2024-02-18,Sample listed entity KG-19149 (alias),KG,

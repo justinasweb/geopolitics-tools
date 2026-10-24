@@ -19,6 +19,9 @@ import { arms } from '../adapters/sipri.ts';
 import { water } from '../adapters/water.ts';
 import { lending } from '../adapters/aiddata.ts';
 import { weo, worldBank } from '../adapters/worldbank.ts';
+import { space } from '../adapters/celestrak.ts';
+import { ai, computeAt } from '../adapters/epoch.ts';
+import { LISTS, listingsAt, sanctions } from '../adapters/sanctions.ts';
 
 export type Group = 'economy' | 'people' | 'energy' | 'food' | 'climate' | 'security' | 'tech' | 'influence';
 export const GROUPS: Group[] = ['economy', 'people', 'energy', 'food', 'climate', 'security', 'tech', 'influence'];
@@ -29,8 +32,8 @@ export type Format = { kind: 'money' } | { kind: 'count' } | { kind: 'percent'; 
 export interface Indicator {
   id: string;
   group: Group;
-  /** Source id, for the credit line and the licence table. */
-  source: string;
+  /** Source id (or ids, when one measure combines several), for the credit line and the licence table. */
+  source: string | string[];
   format: Format;
   /** Suggested scale for maps and charts. */
   scale: 'linear' | 'log';
@@ -56,6 +59,9 @@ const emisOf = once(emissions);
 const wppOf = once(demography);
 const unhcrOf = once(displacement);
 const waterOf = once(water);
+const spaceOf = once(space);
+const aiOf = once(ai);
+const sanctionsOf = once(sanctions);
 const staticYear = (values: Record<string, number | null>, year: number): Series => {
   const out: Series = {};
   for (const [id, v] of Object.entries(values)) put(out, id, year, v);
@@ -133,11 +139,13 @@ const LIST: Indicator[] = [
   { id: 'hunger', group: 'security', source: 'ipc', format: count, scale: 'log', pending: 'IPC, waiting for an API key' },
   { id: 'hungershare', group: 'security', source: 'ipc', format: share, scale: 'linear', pending: 'IPC, waiting for an API key' },
   // Technology and space
-  { id: 'satellites', group: 'tech', source: 'celestrak', format: count, scale: 'log', pending: 'CelesTrak adapter, next' },
-  { id: 'launches', group: 'tech', source: 'celestrak', format: count, scale: 'linear', pending: 'CelesTrak adapter, next' },
-  { id: 'aicompute', group: 'tech', source: 'epoch', format: share, scale: 'linear', static: true, pending: 'Epoch adapter, next' },
+  { id: 'satellites', group: 'tech', source: 'celestrak', format: count, scale: 'log', load: (raw) => spaceOf(raw).inOrbit },
+  { id: 'launches', group: 'tech', source: 'celestrak', format: count, scale: 'linear', load: (raw) => spaceOf(raw).launches },
+  { id: 'aicompute', group: 'tech', source: 'epoch', format: share, scale: 'linear', static: true,
+    load: (raw) => { const a = aiOf(raw); const c = computeAt(a.clusters, a.lastYear); return staticYear(Object.fromEntries(Object.entries(c.by).map(([id, v]) => [id, c.total ? v / c.total : null])), a.lastYear); } },
   // Influence
-  { id: 'sanctions', group: 'influence', source: 'csl', format: count, scale: 'log', static: true, pending: 'Sanctions adapters (US, EU, UK), next' },
+  { id: 'sanctions', group: 'influence', source: ['csl', 'eu-sanctions', 'uk-sanctions'], format: count, scale: 'log', static: true,
+    load: (raw) => { const s = sanctionsOf(raw); return listingsAt(s, Math.max(0, ...LISTS.flatMap((l) => Object.keys(s.added[l]).map(Number)))); } },
   { id: 'chinaloans', group: 'influence', source: 'aiddata', format: money, scale: 'log', load: (raw) => lending(raw).byYear },
 ];
 

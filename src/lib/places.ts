@@ -55,7 +55,8 @@ export interface CoverageNote {
   checked: boolean;
 }
 
-export type System = 'iso3' | 'iso2' | 'm49' | 'name';
+/** Kinds of code; `code` is a source's own list (CelesTrak's owner codes), matched only through codes.csv. */
+export type System = 'iso3' | 'iso2' | 'm49' | 'name' | 'code';
 
 const dir = new URL('../data/places/', import.meta.url);
 const table = (file: string) => {
@@ -109,14 +110,19 @@ export class Matcher {
 
   /** The internal id for a code, at a date (YYYY or YYYY-MM-DD) when mappings change over time; null when unknown or an aggregate. */
   match(code: string, date?: string): string | null {
+    const id = this.lookup(code, date);
+    if (id !== undefined) return id;
+    if (code.trim()) this.missed.set(code.trim(), (this.missed.get(code.trim()) ?? 0) + 1);
+    return null;
+  }
+
+  /** Like match, but undefined for an unknown code, which is not counted (for trying a cell whole before splitting it). */
+  lookup(code: string, date?: string): string | null | undefined {
     const k = key(this.system, code.trim());
     if (!k) return null;
     const row = this.rows.find((r) => key(this.system, r.code) === k && inDates(r, date));
     if (row) return row.place || null;
-    const id = generic.get(`${this.system}:${k}`);
-    if (id) return id;
-    this.missed.set(code.trim(), (this.missed.get(code.trim()) ?? 0) + 1);
-    return null;
+    return generic.get(`${this.system}:${k}`);
   }
 
   /** Whether the code is one the table skips on purpose (a world or regional total). */
@@ -132,7 +138,8 @@ export class Matcher {
 
   report(): string {
     const u = this.unmatched();
-    return u.length ? `${this.source}: ${u.length} unmatched ${this.system} code(s): ${u.map(([c, n]) => `${c} (${n})`).join(', ')}` : `${this.source}: every ${this.system} code matched`;
+    const what = this.system === 'name' ? 'name' : this.system === 'code' ? 'code' : `${this.system} code`;
+    return u.length ? `${this.source}: ${u.length} unmatched ${what}(s): ${u.map(([c, n]) => `${c} (${n})`).join(', ')}` : `${this.source}: every ${what} matched`;
   }
 }
 

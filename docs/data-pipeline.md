@@ -156,3 +156,6 @@ Errors are written without query strings, so an API key in an address never reac
 2. Save the source's own format; check fields, a minimum size and shrink against `ctx.previous()`; throw on anything odd.
 3. Add a stub test in `tests/unit/pipeline/sources.test.ts`, then open a pull request: its live check runs the new
    fetcher against the real service.
+4. The adapter that reads the file goes in `src/adapters/`. The live check also runs every indicator and flow on the
+   files it fetched (`node pipeline/adapter-check.ts <dir>`, which works on any folder `pipeline/pull.ts` wrote) and
+   prints each adapter's unmatched codes; add those to `src/data/places/codes.csv`.

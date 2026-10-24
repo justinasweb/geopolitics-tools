@@ -28,7 +28,9 @@ with "&" written out and the policy's decisions applied. Edit the CSV directly; 
 Source codes that are not plain ISO or M49 codes, or that map differently: OWID_KOS, the IMF's UVK and GADM's XKO for
 Kosovo; UN Comtrade's "Other Asia, not elsewhere specified" (490) for Taiwan, and its country codes that include
 territories; FAOSTAT's "China" (159), which adds the mainland, Hong Kong, Macao and Taiwan and is skipped; and name
-variants for sources that use names (USGS, UK sanctions, the Treasury). A row with no `place` is an aggregate that is
+variants for sources that use names (USGS, UK sanctions, the Treasury); and CelesTrak's owner codes (system `code`),
+where CIS is the Soviet Union until 26 December 1991 and Russia after, and international owners (ESA, Intelsat) have
+no place. A row with no `place` is an aggregate that is
 skipped on purpose. `source` is a source id, or `*` for all sources. `start` and `end` limit a row to a period, so a
 code can map to a former state before a split.
 
@@ -41,7 +43,7 @@ against a cited source; the policy's section 4 notes are still drafts for Justin
 ## Matching in adapters
 
 ```ts
-const m = new Matcher('worldbank', 'iso3');   // or 'iso2', 'm49', 'name'
+const m = new Matcher('worldbank', 'iso3');   // or 'iso2', 'm49', 'name', or 'code' for a source's own codes
 const id = m.match(row.countryiso3code, row.date);   // null for aggregates and unknown codes
 console.log(m.report());   // "worldbank: 2 unmatched iso3 code(s): WLD (26), EAS (26)"
 ```

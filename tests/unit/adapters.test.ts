@@ -111,7 +111,7 @@ describe('adapters on the prototype samples', () => {
     water(raw);
     lending(raw);
     demography(raw);
-    expect(matchReports()).toEqual(['sipri: every name code matched', 'aqueduct: every iso3 code matched', 'aquastat: every iso3 code matched', 'gdw: every iso3 code matched', 'aiddata: every iso3 code matched', 'wpp: every iso3 code matched']);
+    expect(matchReports()).toEqual(['sipri: every name matched', 'aqueduct: every iso3 code matched', 'aquastat: every iso3 code matched', 'gdw: every iso3 code matched', 'aiddata: every iso3 code matched', 'wpp: every iso3 code matched']);
   });
 });
 
