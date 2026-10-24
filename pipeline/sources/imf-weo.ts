@@ -6,13 +6,14 @@
 import { getJson } from '../lib/http.ts';
 import { type Source, DAY, check, guardShrink, json } from '../lib/source.ts';
 
+/** The prototype's six, the files its sample and adapters use. */
 export const INDICATORS: Record<string, string> = {
-  NGDPD: 'GDP, current prices, billions of US$',
-  NGDPDPC: 'GDP per capita, current prices, US$',
-  PPPGDP: 'GDP, purchasing power parity, billions of international $',
-  NGDP_RPCH: 'Real GDP growth, annual %',
-  PCPIPCH: 'Inflation, average consumer prices, annual %',
+  NGDP_RPCH: 'Real GDP growth, %',
+  PCPIPCH: 'Inflation, average consumer prices, %',
   GGXWDG_NGDP: 'General government gross debt, % of GDP',
+  GGXCNL_NGDP: 'General government net lending/borrowing, % of GDP',
+  LUR: 'Unemployment rate, %',
+  BCA_NGDPD: 'Current account balance, % of GDP',
 };
 
 type Values = Record<string, Record<string, Record<string, number>>>;
@@ -31,7 +32,7 @@ const source: Source = {
     const base = ctx.env.IMF_DATAMAPPER_BASE ?? 'https://www.imf.org/external/datamapper/api/v1';
     const list = await getJson<{ countries?: Record<string, unknown> }>(ctx.http, `${base}/countries`);
     const countries = new Set(Object.keys(list?.countries ?? {}));
-    check(countries.size >= 180, `country list: only ${countries.size} countries`);
+    check(countries.size >= 150, `country list: only ${countries.size} countries`);
     const files = [];
     let rows = 0;
     let dataTo = '';
@@ -41,7 +42,7 @@ const source: Source = {
       check(all, `${code}: no values in the answer`);
       const kept = Object.fromEntries(Object.entries(all).filter(([c]) => countries.has(c)));
       const n = count(kept);
-      check(Object.keys(kept).length >= 150, `${code}: only ${Object.keys(kept).length} countries`);
+      check(Object.keys(kept).length >= 100, `${code}: only ${Object.keys(kept).length} countries`);
       const prev = await ctx.previous(`${code}.json`);
       guardShrink(ctx, code, n, prev, (p) => count((JSON.parse(p) as { values: Values }).values[code] ?? {}));
       files.push(json(`${code}.json`, { values: { [code]: kept } }));

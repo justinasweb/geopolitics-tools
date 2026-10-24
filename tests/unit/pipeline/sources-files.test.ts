@@ -9,11 +9,12 @@ import type { FetchResult } from '../../../pipeline/lib/source.ts';
 import { readXlsx } from '../../../pipeline/lib/xlsx.ts';
 import { listFile, openEntry, unzip } from '../../../pipeline/lib/zip.ts';
 import cables, { trim } from '../../../pipeline/sources/cables.ts';
-import faostat, { FILES, fixEncoding, latestComplete, mainSuppliers } from '../../../pipeline/sources/faostat.ts';
+import faostat, { DOMAINS, fixEncoding, m49, pickYear } from '../../../pipeline/sources/faostat.ts';
 import imfWeo from '../../../pipeline/sources/imf-weo.ts';
-import pinksheet, { SERIES, findLink } from '../../../pipeline/sources/pinksheet.ts';
+import pinksheet, { FILES, findLink, norm } from '../../../pipeline/sources/pinksheet.ts';
 import portwatch from '../../../pipeline/sources/portwatch.ts';
 import ukSanctions from '../../../pipeline/sources/uk-sanctions.ts';
+import M49_ISO3 from '../../../pipeline/reference/m49-iso3.json';
 import { ctxFor, fakeHttp, makeXlsx, makeZip } from './helpers.ts';
 
 const body = (r: FetchResult, name: string) => {
@@ -44,26 +45,31 @@ describe('zip and xlsx', () => {
 });
 
 describe('pinksheet', () => {
-  const names = [...SERIES.map((s) => (s === 'Potassium chloride' ? 'Potassium chloride **' : s)), 'Tea, avg 3 auctions'];
+  const headers = Object.values(FILES).flatMap(([, cols]) => Object.values(cols).map(([, match]) => (match === 'Potassium chloride' ? 'Potassium chloride **' : match)));
   const workbook = (lastYear: number, lastMonth: number) => {
-    const rows: (string | number | null)[][] = [['World Bank Commodity Price Data (The Pink Sheet)'], ['Monthly prices in nominal US dollars'], [], [null, ...names], [null, ...names.map(() => '($/unit)')]];
-    for (let y = 1960; y <= lastYear; y++) for (let m = 1; m <= (y === lastYear ? lastMonth : 12); m++) rows.push([`${y}M${String(m).padStart(2, '0')}`, ...names.map((_, i) => i + 0.5)]);
+    const rows: (string | number | null)[][] = [['World Bank Commodity Price Data (The Pink Sheet)'], ['Monthly prices in nominal US dollars'], [], [null, 'Crude oil, Brent', ...headers], [null, '($/bbl)', ...headers.map(() => '($/unit)')]];
+    for (let y = 1960; y <= lastYear; y++) for (let m = 1; m <= (y === lastYear ? lastMonth : 12); m++) rows.push([`${y}M${String(m).padStart(2, '0')}`, 80, ...headers.map((_, i) => (i === 0 && y < 2020 ? '\u2026' : i + 0.12345))]);
     return makeXlsx('Monthly Prices', rows);
   };
   const page = '<a href="https://thedocs.worldbank.org/en/doc/abc/related/CMO-Historical-Data-Monthly.xlsx">Monthly prices</a>';
 
-  it('finds the workbook on the Commodity Markets page and saves the monthly sheet', async () => {
+  it('finds the workbook on the Commodity Markets page and writes the three sample-format files from 2010', async () => {
     expect(findLink(page)).toBe('https://thedocs.worldbank.org/en/doc/abc/related/CMO-Historical-Data-Monthly.xlsx');
+    expect(norm('Potassium chloride **')).toBe('Potassium chloride');
     const r = await pinksheet.fetch(ctxFor(fakeHttp([[/commodity-markets/, () => page], [/CMO-Historical/, () => new Response(workbook(2026, 9))]])));
-    const rows = parseCsv(body(r, 'monthly-prices.csv'));
-    expect(rows[0].slice(0, 3)).toEqual(['month', 'Crude oil, Brent', 'Natural gas, US']);
-    expect(rows[1][1]).toBe('($/unit)');
-    expect(rows.at(-1)![0]).toBe('2026M09');
+    expect(r.files.map((f) => f.name)).toEqual(['cmo_food_prices.json', 'cmo_metals_prices.json', 'cmo_gas_prices.json']);
+    const food = JSON.parse(body(r, 'cmo_food_prices.json'));
+    expect(food.columns.WHEAT_US_HRW).toBe('Wheat, US HRW');
+    expect(food.data[0]).toEqual({ period: '2010M01', WHEAT_US_HRW: null, MAIZE: 1.123, RICE_05: 2.123, SOYBEANS: 3.123, POTASH: 4.123, DAP: 5.123, PHOSROCK: 6.123 });
+    expect(food.data.at(-1).period).toBe('2026M09');
+    expect(JSON.parse(body(r, 'cmo_gas_prices.json')).columns).toEqual({ NGAS_US: 'Natural gas, US (Henry Hub)', NGAS_EUR: 'Natural gas, Europe (TTF)', NGAS_JP: 'Liquefied natural gas, Japan' });
     expect(r.dataTo).toBe('2026-09');
   });
 
-  it("refuses last year's workbook and a page without the link", async () => {
+  it("refuses last year's workbook, a renamed column and a page without the link", async () => {
     await expect(pinksheet.fetch(ctxFor(fakeHttp([[/commodity-markets/, () => page], [/CMO-Historical/, () => new Response(workbook(2025, 12))]])))).rejects.toThrow(/2025-12, more than 3 months old/);
+    const renamed = makeXlsx('Monthly Prices', [[null, 'Maize', 'Copper'], [null, '$', '$'], ...Array.from({ length: 200 }, (_, i) => [`${2010 + Math.floor(i / 12)}M${String((i % 12) + 1).padStart(2, '0')}`, 1, 2])]);
+    await expect(pinksheet.fetch(ctxFor(fakeHttp([[/commodity-markets/, () => page], [/CMO-Historical/, () => new Response(renamed)]]), {}, new Date('2026-09-15T00:00:00Z')))).rejects.toThrow(/column "Wheat, US HRW" not found/);
     await expect(pinksheet.fetch(ctxFor(fakeHttp([[/commodity-markets/, () => '<html></html>']])))).rejects.toThrow(/no link/);
   });
 });
@@ -115,58 +121,69 @@ describe('cables', () => {
 describe('faostat', () => {
   const AREA = ['Area Code', 'Area Code (M49)', 'Area', 'Item Code', 'Item Code (CPC)', 'Item', 'Element Code', 'Element', 'Year Code', 'Year', 'Unit', 'Value', 'Flag', 'Note'];
   const PAIR = ['Reporter Country Code', 'Reporter Country Code (M49)', 'Reporter Countries', 'Partner Country Code', 'Partner Country Code (M49)', 'Partner Countries', 'Item Code', 'Item Code (CPC)', 'Item', 'Element Code', 'Element', 'Year Code', 'Year', 'Unit', 'Value', 'Flag'];
-  const crops = ['Wheat', 'Maize (corn)', 'Rice', 'Soya beans', 'Barley'];
-
-  const areaFile = (elements: string[]) => {
+  // 70 countries by M49 code, plus FAO's "China" (159, no ISO3 code: mainland + Hong Kong, Macao, Taiwan), World (001) and a region (5100, no M49).
+  const M49S = [...new Set(['156', '076', '840', '250', '276', '356', '384', ...Object.keys(M49_ISO3)])].slice(0, 70);
+  const areas: [string, string][] = [...M49S.map((c, i): [string, string] => [`'${c}`, c === '384' ? 'C\u00f4te d\'Ivoire' : `Area ${i}`]), ["'159", 'China'], ["'001", 'World'], ['', 'Africa']];
+  const items: [number, string][] = [[15, 'Wheat'], [27, 'Rice'], [56, 'Maize (corn)'], [236, 'Soya beans'], [44, 'Barley'], [3102, 'Nutrient nitrogen N (total)'], [3103, 'Nutrient phosphate P2O5 (total)'], [3104, 'Nutrient potash K2O (total)']];
+  const areaFile = (elements: [number, string][]) => {
     const rows = [AREA];
-    for (let a = 0; a < 200; a++) for (const item of crops) for (const el of elements) for (let y = 1995; y <= 2024; y++)
-      rows.push([String(a), `'${a}`, a === 0 ? "Côte d'Ivoire" : `Area ${a}`, '1', '', item, '5510', el, String(y), String(y), 't', '100', 'A', '']);
+    for (const [code, name] of areas) for (const [ic, item] of items) for (const [ec, el] of elements) for (let y = 2012; y <= 2024; y++)
+      rows.push(['1', code, name, String(ic), '', item, String(ec), el, String(y), String(y), 't', '100', 'A', '']);
     return makeZip({ 'Data_E_All_Data_(Normalized).csv': toCsv(rows), 'Data_E_Flags.csv': 'Flag\n' });
   };
   const matrix = () => {
     const rows = [PAIR];
-    for (let r = 0; r < 400; r++) for (const item of ['Wheat', 'Barley']) for (const y of [2023, 2024]) {
-      if (y === 2024 && r >= 20) continue; // 2024 has only a few reporters so far
-      for (let p = 0; p < 30; p++) rows.push([String(r), '', `R${r}`, String(p), '', `P${p}`, '1', '', item, '5610', 'Import quantity', String(y), String(y), 't', String(p < 2 ? 1000 : 1), '']);
+    for (const [r, rep] of M49S.entries()) for (const y of [2022, 2023, 2024]) {
+      if (y === 2024 && r >= 20) continue; // 2024: only a few reporters so far
+      for (const [p, par] of M49S.slice(0, 14).entries()) for (const [ic, item] of [[15, 'Wheat'], [44, 'Barley']] as const)
+        rows.push(['1', `'${rep}`, `R${r}`, '1', `'${par}`, `P${p}`, String(ic), '', item, '5610', 'Import quantity', String(y), String(y), 't', String(p === 13 ? 500 : 100_000 - p), '']);
     }
     return makeZip({ 'Trade_DetailedTradeMatrix_E_All_Data_(Normalized).csv': toCsv(rows) });
   };
 
-  it('keeps the four crops since 2000 and cuts the matrix to main suppliers in the latest complete year', async () => {
+  it('writes API-format rows by ISO3 code since 2015, keeping World and dropping aggregates and FAO\'s "China"', async () => {
     const files: Record<string, Uint8Array<ArrayBuffer>> = {
-      [FILES.crops]: areaFile(['Production', 'Area harvested']),
-      [FILES.trade]: areaFile(['Import quantity', 'Import value']),
-      [FILES.fertilizers]: areaFile(['Agricultural Use']),
-      [FILES.matrix]: matrix(),
+      [DOMAINS.QCL.zip]: areaFile([[5510, 'Production'], [5312, 'Area harvested']]),
+      [DOMAINS.TCL.zip]: areaFile([[5610, 'Import quantity'], [5622, 'Import value']]),
+      [DOMAINS.RFN.zip]: areaFile([[5157, 'Agricultural Use'], [5510, 'Production']]),
+      [DOMAINS.TM.zip]: matrix(),
     };
-    const ctx = ctxFor(fakeHttp([[/bulks-faostat/, (url) => new Response(files[decodeURIComponent(url.split('/').pop()!)])]]));
-    const r = await faostat.fetch(ctx);
-    const c = parseCsv(body(r, 'crops.csv'));
-    expect(c[0]).toEqual(['Area Code', 'Area', 'Item Code', 'Item', 'Element Code', 'Element', 'Year', 'Unit', 'Value', 'Area Code (M49)', 'Flag']);
-    expect(c.length - 1).toBe(200 * 4 * 25);
-    expect(c[1][1]).toBe("Côte d'Ivoire");
-    expect(parseCsv(body(r, 'trade.csv')).length - 1).toBe(200 * 4 * 25);
-    expect(parseCsv(body(r, 'fertilizers.csv')).length - 1).toBe(200 * 5 * 25);
-    const m = parseCsv(body(r, 'matrix.csv'));
-    // 2023, not the thin 2024; wheat only; per importer two main suppliers (2,000 of 2,028 t) and one remainder row.
-    expect(new Set(m.slice(1).map((x) => x[m[0].indexOf('Year')]))).toEqual(new Set(['2023']));
-    expect(m.length - 1).toBe(400 * 3);
-    expect(m[3]).toContain('Other partners (28)');
+    const r = await faostat.fetch(ctxFor(fakeHttp([[/bulks-faostat/, (url) => new Response(files[decodeURIComponent(url.split('/').pop()!)])]])));
+    expect(r.files.map((f) => f.name)).toEqual(['QCL_production.json', 'TCL_trade.json', 'RFN_fertilizers.json', 'TM_matrix.json']);
+    const qcl = JSON.parse(body(r, 'QCL_production.json'));
+    expect(qcl.retrieved).toBe('2026-10-24');
+    // The prototype's sample keys, in order.
+    expect(Object.keys(qcl.data[0])).toEqual(['Domain Code', 'Area Code (ISO3)', 'Area', 'Element Code', 'Element', 'Item Code', 'Item', 'Year Code', 'Year', 'Unit', 'Value', 'Flag']);
+    expect(qcl.data[0]).toMatchObject({ 'Domain Code': 'QCL', 'Area Code (ISO3)': 'CHN', 'Element Code': 5510, 'Item Code': 15, Year: 2015, Value: 100 });
+    expect(qcl.data.length).toBe((70 + 1) * 4 * 10);
+    expect(qcl.data.find((x: { Area: string }) => x.Area === 'World')['Area Code (ISO3)']).toBe('');
+    expect(qcl.data.some((x: { Area: string }) => x.Area === 'China' || x.Area === 'Africa')).toBe(false);
+    expect(qcl.data.find((x: { 'Area Code (ISO3)': string }) => x['Area Code (ISO3)'] === 'CIV').Area).toBe('C\u00f4te d\'Ivoire');
+    expect(JSON.parse(body(r, 'TCL_trade.json')).data.length).toBe(71 * 4 * 10);
+    const rfn = JSON.parse(body(r, 'RFN_fertilizers.json'));
+    expect(new Set(rfn.data.map((x: { 'Item Code': number }) => x['Item Code']))).toEqual(new Set([3102, 3103, 3104]));
+    expect(rfn.data.length).toBe(71 * 3 * 2 * 10);
+
+    const tm = JSON.parse(body(r, 'TM_matrix.json'));
+    expect(tm.source).toMatch(/Detailed trade matrix, 2023/);
+    expect(Object.keys(tm.data[0])).toEqual(['Domain Code', 'Reporter Country Code (ISO3)', 'Reporter Countries', 'Partner Country Code (ISO3)', 'Partner Countries', 'Element Code', 'Element', 'Item Code', 'Item', 'Year Code', 'Year', 'Unit', 'Value', 'Flag']);
+    // Wheat only; per importer the 10 largest suppliers, not itself, none under 1,000 t.
+    expect(new Set(tm.data.map((x: { Item: string }) => x.Item))).toEqual(new Set(['Wheat']));
+    expect(tm.data.filter((x: { 'Reporter Country Code (ISO3)': string }) => x['Reporter Country Code (ISO3)'] === 'CHN')).toHaveLength(10);
+    expect(tm.data.every((x: Record<string, unknown>) => x['Reporter Country Code (ISO3)'] !== x['Partner Country Code (ISO3)'] && (x.Value as number) >= 1000)).toBe(true);
     expect(r.dataTo).toBe('2024');
   });
 
   it('decodes UTF-8 kept lines read byte for byte, and leaves Latin-1 ones alone', () => {
-    expect(fixEncoding(Buffer.from('"Côte"', 'utf8').toString('latin1'))).toBe('"Côte"');
-    expect(fixEncoding(Buffer.from('"Côte"', 'latin1').toString('latin1'))).toBe('"Côte"');
+    expect(fixEncoding(Buffer.from('"C\u00f4te"', 'utf8').toString('latin1'))).toBe('"C\u00f4te"');
+    expect(fixEncoding(Buffer.from('"C\u00f4te"', 'latin1').toString('latin1'))).toBe('"C\u00f4te"');
+    expect(m49("'4")).toBe('004');
   });
 
-  it('folds suppliers past 90% or past ten into one row, and finds the latest complete year', () => {
-    const header = ['Reporter Country Code', 'Partner Country Code', 'Partner Countries', 'Item Code', 'Value'];
-    const rows = Array.from({ length: 15 }, (_, p) => ['1', String(p), `P${p}`, '15', '10']);
-    const out = mainSuppliers(header, rows);
-    expect(out).toHaveLength(11);
-    expect(out.at(-1)).toEqual(['1', '', 'Other partners (5)', '15', '50']);
-    expect(latestComplete([['2023', 'a'], ['2023', 'b'], ['2024', 'a']], 0, 1)).toBe('2023');
+  it('picks the latest year with at least 80% of the year before\'s reporters', () => {
+    const r = (n: number) => new Set(Array.from({ length: n }, (_, i) => String(i)));
+    expect(pickYear(new Map([[2022, r(150)], [2023, r(140)], [2024, r(30)]]))).toBe(2023);
+    expect(pickYear(new Map([[2023, r(150)], [2024, r(130)]]))).toBe(2024);
   });
 });
 
@@ -180,21 +197,29 @@ describe('IMF sources (switched off)', () => {
     const countries = Object.fromEntries(Array.from({ length: 190 }, (_, i) => [iso(i), { label: `C${i}` }]));
     const values = (code: string) => ({ values: { [code]: { ...Object.fromEntries(Object.keys(countries).map((c) => [c, { 2024: 1, 2031: 2 }])), WEOWORLD: { 2024: 9 } } } });
     const r = await imfWeo.fetch(ctxFor(fakeHttp([[/countries$/, () => ({ countries })], [/v1\/(\w+)$/, (u) => values(u.split('/').pop()!)]])));
-    const ngdpd = JSON.parse(body(r, 'NGDPD.json'));
-    expect(Object.keys(ngdpd.values.NGDPD)).toHaveLength(190);
-    expect(ngdpd.values.NGDPD.WEOWORLD).toBeUndefined();
+    expect(r.files.map((f) => f.name)).toEqual(['NGDP_RPCH.json', 'PCPIPCH.json', 'GGXWDG_NGDP.json', 'GGXCNL_NGDP.json', 'LUR.json', 'BCA_NGDPD.json']);
+    const lur = JSON.parse(body(r, 'LUR.json'));
+    expect(Object.keys(lur.values.LUR)).toHaveLength(190);
+    expect(lur.values.LUR.WEOWORLD).toBeUndefined();
     expect(r.dataTo).toBe('2031');
   });
 
-  it('portwatch pages through the feature service', async () => {
-    const day = (i: number) => ({ attributes: { ObjectId: i, date: 1_760_000_000_000 + i * 86_400_000, portid: `chokepoint${i % 24}`, portname: 'Suez Canal', n_total: 50 } });
+  it('portwatch saves the chokepoints and their daily rows in the ArcGIS format, dates as days', async () => {
+    const t0 = Date.UTC(2025, 8, 1);
+    const daily = (i: number) => ({ attributes: { date: t0 + Math.floor(i / 28) * 86_400_000, year: 2025, portid: `chokepoint${i % 28}`, portname: 'Suez Canal', n_total: 50 } });
     const calls: string[] = [];
-    const r = await portwatch.fetch(ctxFor(fakeHttp([[/Chokepoints/, (u) => {
-      const off = Number(new URL(u).searchParams.get('resultOffset'));
-      return { features: Array.from({ length: off < 8000 ? 2000 : 1500 }, (_, i) => day(off + i)), exceededTransferLimit: off < 8000 };
-    }]], calls)));
-    expect(calls).toHaveLength(5);
-    expect(r.rows).toBe(9500);
-    expect(JSON.parse(body(r, 'chokepoints.json'))[0]).not.toHaveProperty('ObjectId');
+    const r = await portwatch.fetch(ctxFor(fakeHttp([
+      [/chokepoints_database/, () => ({ features: Array.from({ length: 28 }, (_, i) => ({ attributes: { portid: `chokepoint${i}`, portname: 'Suez Canal', lat: 30, lon: 32 } })) })],
+      [/Daily_Chokepoints_Data/, (u) => {
+        const off = Number(new URL(u).searchParams.get('resultOffset'));
+        return { features: Array.from({ length: off < 10_000 ? 2000 : 1300 }, (_, i) => daily(off + i)), exceededTransferLimit: off < 10_000 };
+      }],
+    ], calls)));
+    expect(calls.filter((c) => c.includes('Daily'))).toHaveLength(6);
+    expect(new URL(calls[1]).searchParams.get('where')).toBe('year >= 2025');
+    const saved = JSON.parse(body(r, 'chokepoints_daily.json'));
+    expect(saved.features[0].attributes).toEqual({ date: '2025-09-19', portid: 'chokepoint0', portname: 'Suez Canal', n_total: 50 });
+    expect(JSON.parse(body(r, 'chokepoints.json')).features).toHaveLength(28);
+    expect(r.dataTo).toBe('2026-10-09');
   });
 });

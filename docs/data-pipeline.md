@@ -7,7 +7,9 @@ How source data gets from 33 public sources into the site. Phase 1 of the develo
 - **One hourly run** (`.github/workflows/data.yml`, minute 23) checks every source against its own schedule and
   fetches only what is due. Nothing runs on a laptop or a server of ours.
 - **Each fetcher saves the source's own format**, trimmed but never reshaped (dropped columns, aggregates and
-  bulky fields only). Turning it into the site's shape is the adapters' job, at build time.
+  bulky fields only). Turning it into the site's shape is the adapters' job, at build time. Where the prototype had
+  a live fetcher, the files match its samples (FAOSTAT and the Pink Sheet included, whose sources are bulk files and
+  Excel), so the adapters are tested on those samples.
 - **Nothing is saved unless it passes its checks**: the expected fields are there, enough countries or rows, not far
   fewer values than the last good copy, and not older than it should be. A failed check keeps the last good copy, so
   the site never loses data because a source had a bad day.
@@ -69,11 +71,11 @@ back separately, from Cloudflare's deployments.
 | Our World in Data CO2 | 30 days | 400 days | 20 columns from 1990 |
 | UNHCR | 30 days | 200 days | Totals by origin and by host, and origin–host pairs, since 2015 |
 | UK Sanctions List | 1 day | 10 days | Designations: type, regime, dates, countries |
-| World Bank Pink Sheet | 7 days | 45 days | The Monthly Prices sheet (oil, gas, food, fertiliser, metals); refuses a workbook more than 3 months old |
+| World Bank Pink Sheet | 7 days | 45 days | Monthly food, fertiliser, metals and gas prices from 2010, in three files; refuses a workbook more than 3 months old |
 | Submarine cables (OpenStreetMap) | 30 days | 120 days | Underwater communication cables and cable landing stations, from one Overpass query |
-| FAOSTAT | 30 days | 400 days | Wheat, maize, rice and soybean production and trade since 2000, fertilisers by nutrient, and each importer's main suppliers in the latest complete year |
-| IMF World Economic Outlook | 30 days | 200 days | **Off** until the IMF allows scheduled downloads. 6 indicators, country groups dropped |
-| IMF PortWatch chokepoints | 20 hours | 10 days | **Off**, as above. Daily transits for 400 days |
+| FAOSTAT | 30 days | 400 days | Wheat, maize, rice and soybean production and trade, nitrogen, phosphate and potash, since 2015, by ISO3 code; each importer's 10 main suppliers in the latest well-reported year |
+| IMF World Economic Outlook | 30 days | 200 days | **Off** until the IMF allows scheduled downloads. Growth, inflation, debt, deficit, unemployment, current account; country groups dropped |
+| IMF PortWatch chokepoints | 20 hours | 10 days | **Off**, as above. The chokepoints and their daily transits for 400 days |
 
 A failed source is retried after 1, 2, 4… hours, never later than its normal interval.
 
