@@ -9,7 +9,7 @@
 import { createHash } from 'node:crypto';
 import { gzipSync, gunzipSync } from 'node:zlib';
 import type { Alerter } from './alert.ts';
-import type { Http } from './http.ts';
+import { type Http, isTransient } from './http.ts';
 import type { FetchContext, Source } from './source.ts';
 import { type State, type SourceState, type FileRecord, emptyState, emptySource, isDue, isStale, decideAlert, runStamp } from './state.ts';
 import type { Stores } from './store.ts';
@@ -40,6 +40,8 @@ export interface SourceReport {
   outcome: Outcome;
   detail: string;
   seconds?: number;
+  /** A failure that may pass on its own (network, timeout, server error), not a check or a wrong address. */
+  transient?: boolean;
 }
 
 export interface RunReport {
@@ -216,7 +218,7 @@ export async function run(opts: RunOptions): Promise<RunReport> {
     } catch (e) {
       st.failures += 1;
       st.lastError = String((e as Error).message ?? e).slice(0, 400);
-      report = { id: src.id, name: src.name, outcome: 'failed', detail: `${st.lastError} (${st.failures} in a row)` };
+      report = { id: src.id, name: src.name, outcome: 'failed', detail: `${st.lastError} (${st.failures} in a row)`, transient: isTransient(e) };
     }
     report.seconds = Math.round((Date.now() - started) / 100) / 10;
     log(src.id.padEnd(12), report.outcome.toUpperCase(), report.detail, `${report.seconds} s`);

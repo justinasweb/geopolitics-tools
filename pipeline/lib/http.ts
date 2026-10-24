@@ -34,6 +34,12 @@ export class HttpError extends Error {
   }
 }
 
+/** A failure that says nothing about our code or the data: the network, a timeout, a server error. */
+export class NetworkError extends Error {}
+
+/** True for errors that may pass on their own (network, timeouts, 5xx, 429), as opposed to a wrong address or changed data. */
+export const isTransient = (e: unknown) => e instanceof NetworkError || (e instanceof HttpError && (e.status >= 500 || e.status === 429));
+
 const wait = (ms: number) => new Promise((s) => setTimeout(s, ms));
 
 export function createHttp(fetchImpl: typeof fetch = fetch, retryDelay = 2000): Http {
@@ -55,8 +61,10 @@ export function createHttp(fetchImpl: typeof fetch = fetch, retryDelay = 2000): 
           // Client errors will not fix themselves; 429 might, after a pause.
           if (res.status >= 400 && res.status < 500 && res.status !== 429) break;
         } catch (e) {
-          const err = e as Error;
-          last = new Error(`${err.name === 'TimeoutError' ? `timed out after ${timeout / 1000} s` : err.message} (${redact(url)})`);
+          const err = e as Error & { cause?: { code?: string; message?: string } };
+          // Node reports only "fetch failed"; the reason (ECONNRESET, ENOTFOUND…) is in the cause.
+          const why = err.name === 'TimeoutError' ? `timed out after ${timeout / 1000} s` : `${err.message}${err.cause ? `: ${err.cause.code ?? err.cause.message}` : ''}`;
+          last = new NetworkError(`${why} (${redact(url)})`);
         }
         if (i < tries) await wait(i * retryDelay);
       }

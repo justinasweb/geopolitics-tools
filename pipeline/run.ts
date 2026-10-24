@@ -6,7 +6,8 @@
 //   --allow-shrink            accept a sharp drop in values against the last good copy
 //   --fail-on-alert           exit 1 when this run raised an alert (the scheduled run uses this,
 //                             so GitHub's failed-run email backs up Telegram)
-//   --fail-on-error           exit 1 when any source that ran failed (the pull request check)
+//   --fail-on-error           exit 1 when a source that ran failed a check or got a client error
+//                             (the pull request check); network trouble and server errors only warn
 //   --list                    print the sources and their schedules, and stop
 //   --retention               print the R2 lifecycle rules the raw bucket needs (name, prefix, days), and stop
 import { appendFileSync } from 'node:fs';
@@ -72,8 +73,11 @@ if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMM
 if (process.env.GITHUB_OUTPUT) appendFileSync(process.env.GITHUB_OUTPUT, `changed=${report.changed}\nsnapshot=${report.snapshot ?? ''}\n`);
 
 const failed = report.reports.filter((s) => s.outcome === 'failed');
-if (flag('fail-on-error') && failed.length) {
-  console.error(`${failed.length} source(s) failed: ${failed.map((s) => s.id).join(', ')}`);
+const passing = failed.filter((s) => s.transient);
+if (passing.length) console.warn(`::warning::Network or server trouble, likely to pass on its own: ${passing.map((s) => s.id).join(', ')}`);
+const real = failed.filter((s) => !s.transient);
+if (flag('fail-on-error') && real.length) {
+  console.error(`${real.length} source(s) failed: ${real.map((s) => s.id).join(', ')}`);
   process.exitCode = 1;
 }
 if (flag('fail-on-alert') && report.alerts) {

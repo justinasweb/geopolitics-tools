@@ -16,8 +16,13 @@ const source: Source = {
   attribution: 'CelesTrak SATCAT (T.S. Kelso)',
   licence: 'Free reuse with credit (to confirm in the licence table)',
   async fetch(ctx) {
-    const url = ctx.env.CELESTRAK_URL ?? 'https://celestrak.org/pub/satcat.csv';
-    const rows = pickColumns(parseCsv(await getText(ctx.http, url, { timeout: 180_000 })), COLUMNS, 'satcat.csv');
+    // celestrak.com is the same service under its older name: a second way in when one is refused.
+    const urls = ctx.env.CELESTRAK_URL ? [ctx.env.CELESTRAK_URL] : ['https://celestrak.org/pub/satcat.csv', 'https://celestrak.com/pub/satcat.csv'];
+    let body = '';
+    for (const [i, url] of urls.entries()) {
+      try { body = await getText(ctx.http, url, { timeout: 180_000 }); break; } catch (e) { if (i === urls.length - 1) throw e; ctx.log(`${(e as Error).message}; trying ${urls[i + 1]}`); }
+    }
+    const rows = pickColumns(parseCsv(body), COLUMNS, 'satcat.csv');
     const data = rows.slice(1);
     check(data.length >= 50_000, `only ${data.length} objects (over 60,000 expected)`);
     const inOrbit = data.filter((r) => r[3] === 'PAY' && r[8] === '' && r[13] === 'EA').length;

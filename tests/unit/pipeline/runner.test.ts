@@ -107,6 +107,7 @@ describe('runner', () => {
     const good = fakeSource('good', () => ({ files: [{ name: 'f', body: 'ok' }], rows: 1 }));
     const r = await run({ sources: [bad, good], stores, http, alerter: recorder(), now: hour(1), log: () => {} });
     expect(r.reports.map((x) => x.outcome)).toEqual(['failed', 'changed']);
+    expect(r.reports[0].transient).toBe(false);
   });
 });
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { parseCsv, pickColumns, toCsv } from '../../../pipeline/lib/csv.ts';
-import { createHttp, getJson, redact } from '../../../pipeline/lib/http.ts';
+import { createHttp, getJson, isTransient, redact } from '../../../pipeline/lib/http.ts';
 import { R2Bucket } from '../../../pipeline/lib/store.ts';
 import { fakeFetch } from './helpers.ts';
 
@@ -41,6 +41,15 @@ describe('http', () => {
     expect(await getJson(http, 'https://x.test/flaky')).toEqual({ ok: true });
     await expect(http.get('https://x.test/gone')).rejects.toThrow(/HTTP 404/);
     expect(calls.filter((c) => c.endsWith('gone'))).toHaveLength(1);
+  });
+
+  it('names the cause of a network failure and marks it as passing, unlike a client error', async () => {
+    const down = (async () => { throw Object.assign(new TypeError('fetch failed'), { cause: { code: 'ECONNRESET' } }); }) as unknown as typeof fetch;
+    const err = await createHttp(down, 0).get('https://x.test/a').catch((e) => e);
+    expect(err.message).toBe('fetch failed: ECONNRESET (x.test/a)');
+    expect(isTransient(err)).toBe(true);
+    const gone = await createHttp(fakeFetch([[/./, () => new Response('', { status: 404 })]]), 0).get('https://x.test/b').catch((e) => e);
+    expect(isTransient(gone)).toBe(false);
   });
 
   it('says when a JSON answer is not JSON', async () => {

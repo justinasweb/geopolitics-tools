@@ -86,6 +86,8 @@ WEO, reserves and PortWatch (built but switched off until the IMF answers on sch
 
 On GitHub: Actions → **data** → Run workflow, with optional sources and "force". Every pull request that touches
 `pipeline/` runs all enabled sources against the real services (saved only inside that run) and an R2 write test.
+It fails on a failed check or a client error (a wrong address, a changed format); network trouble and server errors
+on the source's side only show as a warning, since the hourly run retries them anyway.
 
 Every fetcher takes its address from an environment variable when set (`WORLDBANK_BASE`, `GDACS_BASE`,
 `USGS_EQ_BASE`, `UNHCR_BASE`, `IODA_BASE`, `TIC_URL`, `OWID_URL`, `CELESTRAK_URL`, `CSL_URL`, `EU_FSF_URL`), so it can
