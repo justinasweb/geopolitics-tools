@@ -1,7 +1,7 @@
 // What every adapter shares: reading a snapshot's raw files, the series shape the indicator
 // registry uses, and one place collecting what each source's codes failed to match, so the build
 // prints it (territories policy, section 5: "each adapter reports anything unmatched").
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { Matcher, type System } from '../lib/places.ts';
 
@@ -11,6 +11,8 @@ export type Series = Record<string, Record<number, number>>;
 /** A snapshot's raw files, as pipeline/pull.ts unpacks them: <dir>/<source>/<file>. */
 export interface Raw {
   has(source: string, file: string): boolean;
+  /** A source's file names, for files named by edition (MCS2026_Commodities_Data.csv). */
+  list(source: string): string[];
   text(source: string, file: string): string;
   json<T = unknown>(source: string, file: string): T;
 }
@@ -22,7 +24,8 @@ export function rawDir(dir: string, folders: Record<string, string> = {}): Raw {
     if (!existsSync(path(s, f))) throw new Error(`${s}/${f} is not in the snapshot at ${dir}`);
     return readFileSync(path(s, f), 'utf8');
   };
-  return { has: (s, f) => existsSync(path(s, f)), text, json: <T>(s: string, f: string) => JSON.parse(text(s, f)) as T };
+  const list = (s: string) => (existsSync(path(s, '')) ? readdirSync(path(s, '')).sort() : []);
+  return { has: (s, f) => existsSync(path(s, f)), list, text, json: <T>(s: string, f: string) => JSON.parse(text(s, f)) as T };
 }
 
 const matchers = new Map<string, Matcher>();

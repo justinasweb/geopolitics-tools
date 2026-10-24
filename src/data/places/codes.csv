@@ -147,7 +147,6 @@ celestrak,code,MNG,MNG,,,
 celestrak,code,NIG,NGA,,,
 celestrak,code,NZ,NZL,,,
 celestrak,code,PAKI,PAK,,,
-celestrak,code,PER,PER,,,
 celestrak,code,POR,PRT,,,
 celestrak,code,QAT,QAT,,,
 celestrak,code,ROM,ROU,,,
@@ -181,3 +180,92 @@ celestrak,code,RASC,,,,RascomStar-QAF (international)
 celestrak,code,SEAL,,,,Sea Launch (international)
 celestrak,code,TBD,,,,Owner to be determined
 celestrak,code,UNK,,,,Unknown owner
+naturalearth,iso3,SDS,SSD,,,Natural Earth's code for South Sudan
+naturalearth,iso3,SOL,SOM,,,"Somaliland, its own shape in Natural Earth; data stays with Somalia, as sources report it (territories policy)"
+naturalearth,iso3,SAH,ESH,,,Natural Earth's code for Western Sahara
+naturalearth,iso3,KOS,XKX,,,Natural Earth's code for Kosovo
+naturalearth,iso3,PSX,PSE,,,Natural Earth's code for Palestine
+naturalearth,iso3,ALD,ALA,,,Natural Earth's code for Åland
+naturalearth,iso3,CYN,CYP,,,"Northern Cyprus, its own shape in Natural Earth; data stays with Cyprus, as sources report it (territories policy)"
+naturalearth,iso3,IOA,AUS,,,"Christmas Island and the Cocos (Keeling) Islands, one shape in Natural Earth"
+naturalearth,iso3,ATC,AUS,,,"Ashmore and Cartier Islands, an Australian territory"
+naturalearth,iso3,KAS,,,,"Siachen Glacier, disputed between India and Pakistan; a point there is placed in no country"
+usgs-quakes,name,Alaska,USA,,,US state in USGS place text
+usgs-quakes,name,Hawaii,USA,,,US state in USGS place text
+usgs-quakes,name,California,USA,,,US state in USGS place text
+usgs-quakes,name,CA,USA,,,US state in USGS place text
+usgs-quakes,name,Oregon,USA,,,US state in USGS place text
+usgs-quakes,name,Washington,USA,,,US state in USGS place text
+usgs-quakes,name,Nevada,USA,,,US state in USGS place text
+usgs-quakes,name,NV,USA,,,US state in USGS place text
+usgs-quakes,name,Idaho,USA,,,US state in USGS place text
+usgs-quakes,name,Montana,USA,,,US state in USGS place text
+usgs-quakes,name,Wyoming,USA,,,US state in USGS place text
+usgs-quakes,name,Utah,USA,,,US state in USGS place text
+usgs-quakes,name,Texas,USA,,,US state in USGS place text
+usgs-quakes,name,Oklahoma,USA,,,US state in USGS place text
+treasury,name,"China, Mainland",CHN,,,TIC's name for mainland China (Hong Kong and Taiwan are listed separately)
+treasury,name,Korea,KOR,,,TIC's name for South Korea
+treasury-history,name,"China, Mainland",CHN,,,TIC's name for mainland China (Hong Kong and Taiwan are listed separately)
+treasury-history,name,Korea,KOR,,,TIC's name for South Korea
+worldbank,iso3,CHI,,,,Channel Islands (Jersey and Guernsey together)
+unhcr,iso3,UNK,,,,Origin unknown
+unhcr,iso3,XXA,,,,Stateless
+unhcr,iso3,TIB,,,,"Tibetan, as UNHCR reports it"
+celestrak,code,IT,ITA,,,
+celestrak,code,PERU,PER,,,
+celestrak,code,RWA,RWA,,,
+celestrak,code,ZWE,ZWE,,,
+celestrak,code,MDA,MDA,,,
+celestrak,code,MMR,MMR,,,
+celestrak,code,UGA,UGA,,,
+celestrak,code,GUAT,GTM,,,
+celestrak,code,MUS,MUS,,,
+celestrak,code,PRY,PRY,,,
+celestrak,code,LKA,LKA,,,
+celestrak,code,NPL,NPL,,,
+celestrak,code,BHUT,BTN,,,
+celestrak,code,CRI,CRI,,,
+celestrak,code,GHA,GHA,,,
+celestrak,code,ECU,ECU,,,
+celestrak,code,LAOS,LAO,,,
+celestrak,code,MA,MAR,,,
+celestrak,code,SVK,SVK,,,
+celestrak,code,JOR,JOR,,,
+celestrak,code,KWT,KWT,,,
+celestrak,code,SDN,SDN,,,
+celestrak,code,DJI,DJI,,,
+celestrak,code,ARM,ARM,,,
+celestrak,code,HRV,HRV,,,
+celestrak,code,SEN,SEN,,,
+celestrak,code,VAT,VAT,,,
+celestrak,code,BHR,BHR,,,
+celestrak,code,BWA,BWA,,,
+celestrak,code,MCO,MCO,,,
+celestrak,code,MNE,MNE,,,
+celestrak,code,SLB,SLB,,,
+celestrak,code,FGER,,,,France and Germany (joint)
+celestrak,code,FRIT,,,,France and Italy (joint)
+celestrak,code,CHBZ,,,,China and Brazil (joint)
+celestrak,code,USBZ,,,,United States and Brazil (joint)
+celestrak,code,STCT,,,,Singapore and Taiwan (joint)
+celestrak,code,SGJP,,,,Singapore and Japan (joint)
+celestrak,code,GRSA,,,,Greece and Saudi Arabia (joint)
+celestrak,code,TMMC,,,,Turkmenistan and Monaco (joint)
+celestrak,code,ABS,,,,"ABS, Asia Broadcast Satellite (international operator)"
+celestrak,code,NICO,,,,New ICO (international operator)
+epoch,name,Multinational,,,,"Several countries, not named"
+csl,name,region: west bank,PSE,,,
+csl,name,region: northern gaza,PSE,,,
+csl,name,region: iran,IRN,,,
+csl,name,region: russia,RUS,,,
+csl,name,region: northern mali,MLI,,,
+csl,name,crimea (occupied),UKR,,,"The source reports Crimea within Ukraine; kept that way (territories policy, section 2)"
+csl,name,region: kafia kingi,,,,"Kafia Kingi, disputed between Sudan and South Sudan"
+csl,name,region: jammu and kashmir,,,,"Jammu and Kashmir, claimed by more than one country"
+csl,name,"man, isle of",IMN,,,
+eu-sanctions,name,00,,,,No country given
+uk-sanctions,name,Congo (Democratic Republic),COD,,,
+uk-sanctions,name,Occupied Palestinian Territories,PSE,,,
+uk-sanctions,name,DPRK,PRK,,,
+uk-sanctions,name,Palestinian,PSE,,,

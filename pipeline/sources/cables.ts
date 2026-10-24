@@ -18,7 +18,7 @@ out geom;
 nwr["telecom"="cable_landing_station"];
 out center;`;
 
-const TAGS = ['name', 'operator', 'owner', 'ref', 'communication', 'telecom', 'man_made', 'location', 'submarine', 'start_date', 'capacity', 'website', 'wikidata'];
+const TAGS = ['name', 'addr:country', 'operator', 'owner', 'ref', 'communication', 'telecom', 'man_made', 'location', 'submarine', 'start_date', 'capacity', 'website', 'wikidata'];
 
 interface Element {
   type: 'node' | 'way' | 'relation';

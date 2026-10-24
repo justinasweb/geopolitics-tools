@@ -1,0 +1,112 @@
+{
+    "features": [
+        {
+            "attributes": {
+                "portid": "chokepoint1",
+                "portname": "Suez Canal",
+                "lat": 30.6,
+                "lon": 32.33,
+                "vessel_count_total": 18000,
+                "industry_top1": "Mineral fuels",
+                "industry_top2": "Machinery",
+                "industry_top3": "Agriculture"
+            }
+        },
+        {
+            "attributes": {
+                "portid": "chokepoint2",
+                "portname": "Panama Canal",
+                "lat": 9.12,
+                "lon": -79.75,
+                "vessel_count_total": 12500,
+                "industry_top1": "Agriculture",
+                "industry_top2": "Mineral fuels",
+                "industry_top3": "Chemicals"
+            }
+        },
+        {
+            "attributes": {
+                "portid": "chokepoint3",
+                "portname": "Bosporus Strait",
+                "lat": 41.12,
+                "lon": 29.07,
+                "vessel_count_total": 40000,
+                "industry_top1": "Agriculture",
+                "industry_top2": "Mineral fuels",
+                "industry_top3": "Metals"
+            }
+        },
+        {
+            "attributes": {
+                "portid": "chokepoint4",
+                "portname": "Bab el-Mandeb Strait",
+                "lat": 12.58,
+                "lon": 43.33,
+                "vessel_count_total": 17000,
+                "industry_top1": "Mineral fuels",
+                "industry_top2": "Machinery",
+                "industry_top3": "Agriculture"
+            }
+        },
+        {
+            "attributes": {
+                "portid": "chokepoint5",
+                "portname": "Malacca Strait",
+                "lat": 2.5,
+                "lon": 101.4,
+                "vessel_count_total": 82000,
+                "industry_top1": "Mineral fuels",
+                "industry_top2": "Machinery",
+                "industry_top3": "Minerals"
+            }
+        },
+        {
+            "attributes": {
+                "portid": "chokepoint6",
+                "portname": "Strait of Hormuz",
+                "lat": 26.57,
+                "lon": 56.25,
+                "vessel_count_total": 38000,
+                "industry_top1": "Mineral fuels",
+                "industry_top2": "Chemicals",
+                "industry_top3": "Metals"
+            }
+        },
+        {
+            "attributes": {
+                "portid": "chokepoint7",
+                "portname": "Cape of Good Hope",
+                "lat": -34.6,
+                "lon": 18.5,
+                "vessel_count_total": 28000,
+                "industry_top1": "Minerals",
+                "industry_top2": "Mineral fuels",
+                "industry_top3": "Agriculture"
+            }
+        },
+        {
+            "attributes": {
+                "portid": "chokepoint8",
+                "portname": "Gibraltar Strait",
+                "lat": 35.95,
+                "lon": -5.6,
+                "vessel_count_total": 98000,
+                "industry_top1": "Machinery",
+                "industry_top2": "Mineral fuels",
+                "industry_top3": "Chemicals"
+            }
+        },
+        {
+            "attributes": {
+                "portid": "chokepoint9",
+                "portname": "Dover Strait",
+                "lat": 51,
+                "lon": 1.45,
+                "vessel_count_total": 130000,
+                "industry_top1": "Machinery",
+                "industry_top2": "Mineral fuels",
+                "industry_top3": "Vehicles"
+            }
+        }
+    ]
+}
