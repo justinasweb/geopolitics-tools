@@ -78,11 +78,20 @@ jobs:
           api="https://api.cloudflare.com/client/v4"
           auth="Authorization: Bearer $CLOUDFLARE_API_TOKEN"
           echo "Token: $(curl -s -H "$auth" "$api/user/tokens/verify" | jq -c '{success, status: .result.status, errors}')"
+          # What the token can reach (HTTP codes only; 403 = permission missing)
+          echo "Accounts the token sees: $(curl -s -H "$auth" "$api/accounts" | jq -r --arg id "$CLOUDFLARE_ACCOUNT_ID" '"\(.result | length), configured account among them: \([.result[].id] | index($id) != null)"')"
+          for path in pages/projects r2/buckets workers/scripts workers/subdomain; do
+            c=$(curl -s -o probe.json -w '%{http_code}' -H "$auth" "$api/accounts/$CLOUDFLARE_ACCOUNT_ID/$path")
+            echo "  $path: HTTP $c $(jq -c '.errors // empty' probe.json)"
+          done
           code=$(curl -s -o worker.json -w '%{http_code}' -H "$auth" "$api/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/scripts/geopolitics-tools/settings")
           echo "Worker settings: HTTP $code $(jq -c '.errors' worker.json)"
           # Previews hang off an existing Worker. The very first run creates it with a production deploy
           # (served only on workers.dev until the domain is connected, and noindex).
-          if [ "$code" = 404 ]; then npx wrangler deploy --message "first deploy from PR #${{ github.event.pull_request.number }}"; fi
+          # Some API paths answer 403 rather than 404 for a Worker that doesn't exist, so ask the list.
+          exists=$(curl -s -H "$auth" "$api/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/scripts" | jq -r '[.result[]?.id] | index("geopolitics-tools") != null')
+          echo "Worker exists: $exists"
+          if [ "$exists" = false ]; then npx wrangler deploy --message "first deploy from PR #${{ github.event.pull_request.number }}"; fi
       - name: Deploy the Preview
         id: deploy
         run: |
