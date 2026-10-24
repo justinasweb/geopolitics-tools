@@ -36,10 +36,10 @@ export const IMPORTED: ImportedSource[] = [
   { id: 'sipri', name: 'SIPRI Arms Transfers Database', attribution: 'Information from the Stockholm International Peace Research Institute (SIPRI), sipri.org/databases/armstransfers', licence: 'SIPRI terms: free reuse of less than 10% of the database, with credit', release: 'each March' },
   { id: 'wpp', name: 'UN World Population Prospects', attribution: 'United Nations, Department of Economic and Social Affairs, Population Division, World Population Prospects 2024', licence: 'CC BY 3.0 IGO', release: 'every two years' },
   { id: 'gem', name: 'Global Energy Monitor trackers', attribution: 'Global Energy Monitor (globalenergymonitor.org)', licence: 'CC BY 4.0', release: 'about twice a year' },
-  { id: 'aqueduct', name: 'WRI Aqueduct country rankings', attribution: 'World Resources Institute, Aqueduct 4.0', licence: 'CC BY 4.0', release: 'rarely' },
+  { id: 'aqueduct', name: 'WRI Aqueduct country rankings', attribution: 'World Resources Institute, Aqueduct 4.0', licence: 'To confirm (see docs/licences.md)', release: 'rarely' },
   { id: 'aquastat', name: 'FAO AQUASTAT', attribution: 'FAO, AQUASTAT', licence: 'CC BY 4.0', release: 'rarely' },
   { id: 'gdw', name: 'Global Dam Watch', attribution: 'Global Dam Watch (globaldamwatch.org)', licence: 'CC BY 4.0', release: 'rarely' },
-  { id: 'aiddata', name: 'AidData Chinese development finance', attribution: 'AidData, William & Mary', licence: 'Open data with credit (to be confirmed in the licence table)', release: 'every few years' },
+  { id: 'aiddata', name: 'AidData Chinese development finance', attribution: 'AidData, William & Mary', licence: 'To confirm (see docs/licences.md)', release: 'every few years' },
   { id: 'usgs-minerals', name: 'USGS Mineral Commodity Summaries', attribution: 'U.S. Geological Survey, Mineral Commodity Summaries', licence: 'Public domain (US government work)', release: 'each January' },
   { id: 'treasury-history', name: 'US Treasury holdings by country, history', attribution: 'U.S. Department of the Treasury, Treasury International Capital (TIC) system', licence: 'Public domain (US government work)', release: 'built once from the historical tables' },
 ];
