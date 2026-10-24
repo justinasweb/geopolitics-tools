@@ -98,8 +98,10 @@ jobs:
           set -o pipefail
           npx wrangler preview --name "pr-${{ github.event.pull_request.number }}" \
             --message "${{ github.event.pull_request.head.sha }}" --json | tee preview.json
-          # Take the first workers.dev address anywhere in the JSON (the output shape is still in beta).
-          url=$(jq -r '[.. | strings | select(test("^https://[^ ]+\\.workers\\.dev"))] | (map(select(startswith("https://pr-"))) + .)[0] // empty' preview.json)
+          # wrangler prints a banner before the JSON, so pick the addresses out as text.
+          # Prefer the stable Preview address (pr-<n>-…) over the one-off deployment address.
+          urls=$(grep -o 'https://[a-z0-9.-]*\.workers\.dev' preview.json | sort -u)
+          url=$(grep -m1 '^https://pr-${{ github.event.pull_request.number }}-' <<< "$urls" || head -1 <<< "$urls")
           [ -n "$url" ] || { echo "No Preview URL in the wrangler output"; exit 1; }
           echo "url=$url" >> "$GITHUB_OUTPUT"
       - name: Post the link on the pull request
