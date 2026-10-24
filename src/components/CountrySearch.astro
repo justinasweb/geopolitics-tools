@@ -1,0 +1,33 @@
+---
+// Find a country: an ARIA combobox over a list of names (src/scripts/controls.ts). Picking one fires `gt-pick`
+// with the option ({ name, note, value, href }) on the combobox; with href set it navigates.
+import '../styles/atlas/filters.css';
+import Icon from './Icon.astro';
+
+export interface CountryOption { name: string; value?: string; note?: string; href?: string }
+interface Props {
+  id: string;
+  label: string;
+  options: CountryOption[];
+  placeholder?: string;
+  /** Text when nothing matches; "{q}" is replaced by what was typed. */
+  emptyText?: string;
+  disabled?: boolean;
+}
+const { id, label, options, placeholder = 'Find a country', emptyText = 'No country called “{q}”. Try its English name.', disabled = false } = Astro.props;
+---
+<div class="gt-field">
+  <label for={`${id}-i`}>{label}</label>
+  <div class:list={['gt-combo', { 'is-disabled': disabled }]} id={id} data-gt-combo data-options={JSON.stringify(options)} data-empty={emptyText}>
+    <div class="gt-combo__box">
+      <Icon name="search" />
+      <input id={`${id}-i`} role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls={`${id}-l`} placeholder={placeholder} autocomplete="off" disabled={disabled} />
+    </div>
+    <ul class="gt-combo__list" role="listbox" id={`${id}-l`} hidden></ul>
+  </div>
+</div>
+
+<script>
+  import { initControls } from '../scripts/controls';
+  initControls();
+</script>

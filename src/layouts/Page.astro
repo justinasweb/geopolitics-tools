@@ -1,0 +1,26 @@
+---
+// A site page: header, the page container (.gt-page, the "page" container that phone layouts respond to), footer.
+import Base from './Base.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import LogoSprite from '../components/LogoSprite.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  noindex?: boolean;
+  /** The hub this page belongs to, marked in the main menu. */
+  hub?: string;
+  /** Use a wider page container (map views, tools) instead of the 1200px measure. */
+  wide?: boolean;
+}
+const { title, description, noindex = false, hub, wide = false } = Astro.props;
+---
+<Base title={title} description={description} noindex={noindex}>
+  <LogoSprite />
+  <Header current={hub} />
+  <main class:list={['gt-page', { 'gt-page--wide': wide }]}>
+    <slot />
+  </main>
+  <Footer />
+</Base>

@@ -1,0 +1,27 @@
+/* Atlas design system: Chart states: loading skeleton, empty, error.
+   Ported from the design system's bundle.css; colours and fonts come from tokens.css. */
+
+/* ---------- chart states ---------- */
+.gt-chartbox { container-type: inline-size; position: relative; background: var(--paper-raised); border-top: 2px solid var(--ink); min-height: 260px; display: grid; }
+.gt-state { display: grid; place-content: center; justify-items: center; text-align: center; gap: 10px; padding: 24px; }
+.gt-state svg { width: 28px; height: 28px; stroke: var(--ink-muted); fill: none; stroke-width: 1.6; }
+.gt-state h4 { margin: 0; font: 600 18px/24px var(--serif); color: var(--ink); }
+.gt-state p { margin: 0; font: 400 15px/22px var(--sans); color: var(--ink-muted); max-width: 40ch; }
+.gt-state--error { background: var(--error-bg); }
+.gt-state--error svg { stroke: var(--error); }
+.gt-state--error h4 { color: var(--error); }
+.gt-state--error p { color: var(--ink); }
+.gt-skel { display: grid; gap: 12px; padding: 20px; align-content: end; }
+.gt-skel i { display: block; height: 12px; background: var(--paper-sunk); }
+.gt-skel__bars { display: flex; align-items: flex-end; gap: 10px; height: 150px; }
+.gt-skel__bars i { flex: 1; height: auto; }
+@media (prefers-reduced-motion: no-preference) {
+  .gt-skel i { background: linear-gradient(90deg, var(--paper-sunk) 0 40%, var(--rule) 50%, var(--paper-sunk) 60% 100%); background-size: 300% 100%; animation: gt-shimmer 1.6s linear infinite; }
+}
+@keyframes gt-shimmer { from { background-position: 100% 0; } to { background-position: 0 0; } }
+.gt-state--quiet { padding: 16px 8px; background: var(--paper-sunk); }
+.gt-state--quiet h4 { font-size: 17px; }
+.gt-state svg { stroke: currentColor; }
+.gt-skel--flat { padding: 0; gap: 10px; align-content: start; }
+.gt-state__actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.gt-state__actions:empty { display: none; }

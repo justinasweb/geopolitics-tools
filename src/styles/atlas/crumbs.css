@@ -1,0 +1,15 @@
+/* Atlas design system: Breadcrumbs and in-page links.
+   Ported from the design system's bundle.css; colours and fonts come from tokens.css. */
+
+/* ---------- breadcrumbs, in-page links ---------- */
+.gt-crumbs ol { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 6px; list-style: none; margin: 0; padding: 0; font: 400 14px/20px var(--sans); color: var(--ink-muted); }
+.gt-crumbs li { display: inline-flex; align-items: center; gap: 6px; }
+.gt-crumbs li + li::before { content: "/"; color: var(--rule-strong); }
+.gt-crumbs a { color: var(--ink-muted); text-decoration: none; padding: 4px 0; }
+.gt-crumbs a:hover, .gt-crumbs a.is-hover { color: var(--ink); text-decoration: underline; }
+.gt-crumbs [aria-current="page"] { color: var(--ink); font-weight: 600; }
+.gt-toc { container-type: inline-size; }
+.gt-toc ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 0 24px; border-bottom: 1px solid var(--rule); overflow-x: auto; scrollbar-width: none; }
+.gt-toc a { display: inline-flex; align-items: center; min-height: 44px; font: 600 15px/1 var(--sans); color: var(--ink-muted); text-decoration: none; border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap; }
+.gt-toc a:hover, .gt-toc a.is-hover { color: var(--ink); border-bottom-color: var(--rule-strong); }
+.gt-toc a[aria-current="true"] { color: var(--ink); border-bottom-color: var(--brand); }

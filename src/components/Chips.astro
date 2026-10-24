@@ -1,0 +1,25 @@
+---
+// Several on/off filters (regions, kinds). Each chip toggles aria-pressed; the group fires `gt-change` with the
+// pressed values. With `filter` set to a list's id, an "all" chip and data-kind items filter that list.
+import '../styles/atlas/filters.css';
+import Icon from './Icon.astro';
+
+interface Props {
+  label: string;
+  options: { value: string; label: string; count?: string; pressed?: boolean; disabled?: boolean }[];
+  filter?: string;
+}
+const { label, options, filter } = Astro.props;
+---
+<div class="gt-chips" role="group" aria-label={label} data-gt-chips data-gt-filter={filter}>
+  {options.map((o) => (
+    <button type="button" class="gt-chip" data-kind={o.value} aria-pressed={o.pressed ? "true" : "false"} disabled={o.disabled}>
+      <Icon name="check" />{o.label}{o.count && <small>{o.count}</small>}
+    </button>
+  ))}
+</div>
+
+<script>
+  import { initControls } from '../scripts/controls';
+  initControls();
+</script>

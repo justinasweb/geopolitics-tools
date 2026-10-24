@@ -1,0 +1,10 @@
+/* Atlas design system: Notice: a caveat next to the figure it qualifies.
+   Ported from the design system's bundle.css; colours and fonts come from tokens.css. */
+
+/* ---------- notice ---------- */
+.gt-notice { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 4px 10px; padding: 12px 14px; background: var(--note-bg); font: 400 15px/22px var(--sans); color: var(--ink); max-width: 68ch; }
+.gt-notice svg { width: 20px; height: 20px; margin-top: 1px; stroke: var(--ink); fill: none; stroke-width: 1.8; }
+.gt-notice p { margin: 0; }
+.gt-notice a { font-weight: 600; }
+.gt-notice--inline { background: transparent; padding: 0; }
+.gt-notice__body { display: grid; gap: 4px; }

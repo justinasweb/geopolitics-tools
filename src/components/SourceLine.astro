@@ -1,0 +1,38 @@
+---
+// The line under every figure, chart and map: source, when the site last refreshed it, an optional status tag, and
+// Copy citation. Copying is wired by src/scripts/copy.ts.
+import '../styles/atlas/source.css';
+import Icon from './Icon.astro';
+import StatusTag, { type Status } from './StatusTag.astro';
+import { SOURCE_TEXT } from '../i18n/en';
+import { formatDate } from '../lib/format';
+
+interface Props {
+  /** The source's own name for itself, with edition: "USGS Mineral Commodity Summaries 2026". */
+  source: string;
+  /** When the site last refreshed the data (ISO date or Date). */
+  updated?: string | Date;
+  /** Extra plain parts, such as the period ("15–21 Oct 2026"). */
+  parts?: string[];
+  status?: Status;
+  /** Full citation for Copy citation; no button when left out. */
+  citation?: string;
+  /** Show the button disabled (data still loading). */
+  citeDisabled?: boolean;
+}
+const { source, updated, parts = [], status, citation, citeDisabled = false } = Astro.props;
+---
+<p class="gt-source">
+  <span>{SOURCE_TEXT.source} <b>{source}</b></span>
+  {parts.map((p) => <><span class="gt-source__sep" aria-hidden="true">·</span><span>{p}</span></>)}
+  {updated && <><span class="gt-source__sep" aria-hidden="true">·</span><span>{SOURCE_TEXT.updated} {formatDate(updated)}</span></>}
+  {status && <><span class="gt-source__sep" aria-hidden="true">·</span><StatusTag status={status} small /></>}
+  {(citation || citeDisabled) && (
+    <button class="gt-cite" type="button" data-gt-copy={citation} disabled={citeDisabled}><Icon name="copy" /><span data-label>{SOURCE_TEXT.cite}</span></button>
+  )}
+</p>
+
+<script>
+  import { initCopy } from '../scripts/copy';
+  initCopy();
+</script>

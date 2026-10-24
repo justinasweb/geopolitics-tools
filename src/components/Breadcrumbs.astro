@@ -1,0 +1,15 @@
+---
+// Where this page sits: Home / hub / view. The last item is the current page.
+import '../styles/atlas/crumbs.css';
+import { UI_TEXT } from '../i18n/en';
+
+interface Props { items: { label: string; href?: string }[] }
+const { items } = Astro.props;
+---
+<nav class="gt-crumbs" aria-label={UI_TEXT.breadcrumb}>
+  <ol>
+    {items.map((it, i) => (
+      <li>{i === items.length - 1 || !it.href ? <span aria-current={i === items.length - 1 ? 'page' : undefined}>{it.label}</span> : <a href={it.href}>{it.label}</a>}</li>
+    ))}
+  </ol>
+</nav>

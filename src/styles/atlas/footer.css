@@ -1,0 +1,28 @@
+/* Atlas design system: Footer.
+   Ported from the design system's bundle.css; colours and fonts come from tokens.css. */
+
+/* ---------- footer ---------- */
+.gt-footer { container-type: inline-size; background: var(--paper); border-top: 3px double var(--ink); color: var(--ink); }
+.gt-footer__in { max-width: 1200px; margin: 0 auto; padding: 28px 24px 24px; display: grid; gap: 20px; }
+.gt-footer__row { display: flex; align-items: center; justify-content: space-between; gap: 16px 32px; flex-wrap: wrap; }
+.gt-footer__brand { display: grid; gap: 6px; min-width: 0; }
+.gt-footer__brand p { margin: 0; font: 400 14px/20px var(--sans); color: var(--ink-muted); }
+.gt-footer__end { display: flex; align-items: center; gap: 8px 28px; flex-wrap: wrap; }
+.gt-footer__links { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0 24px; }
+.gt-footer__links a { display: inline-flex; align-items: center; min-height: 40px; font: 600 15px/1 var(--sans); color: var(--ink); text-decoration: none; }
+.gt-footer__links a:hover, .gt-footer__links a.is-hover { text-decoration: underline; }
+.gt-footer__social { list-style: none; margin: 0; padding: 0 0 0 20px; display: flex; gap: 4px; border-left: 1px solid var(--rule); }
+.gt-social { display: inline-grid; place-items: center; width: 40px; height: 40px; color: var(--ink); border: 1px solid transparent; }
+.gt-social svg { width: 18px; height: 18px; fill: currentColor; }
+.gt-social:hover, .gt-social.is-hover { border-color: var(--rule-strong); background: var(--paper-sunk); }
+.gt-footer__base { border-top: 1px solid var(--rule); padding-top: 14px; margin: 0; font: 400 13px/18px var(--sans); color: var(--ink-muted); }
+@container (max-width: 759px) {
+  .gt-footer__in { padding: 24px 16px 20px; gap: 16px; }
+  .gt-footer__row, .gt-footer__end { display: grid; gap: 12px; justify-content: stretch; }
+  .gt-footer__links { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
+  .gt-footer__links a { min-height: 44px; }
+  .gt-footer__social { padding: 0; border-left: 0; margin-left: -10px; }
+  .gt-social { width: 44px; height: 44px; }
+}
+.gt-footer__cookie { margin: 0; font: 400 14px/20px var(--sans); color: var(--ink-muted); display: inline-flex; gap: 8px; align-items: center; }
+.gt-footer__cookie svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.6; }

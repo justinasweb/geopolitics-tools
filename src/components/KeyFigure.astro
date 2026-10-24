@@ -1,0 +1,37 @@
+---
+// One headline number with its label, period, status, optional change and source. The tile may link to its page.
+import '../styles/atlas/keyfigure.css';
+import Icon from './Icon.astro';
+import StatusTag, { type Status } from './StatusTag.astro';
+
+interface Props {
+  kicker?: string;
+  /** What is measured, in plain words: "Australia's share of world mine production". */
+  label: string;
+  /** The rounded number as read: "32%", "290,000". */
+  value: string;
+  unit?: string;
+  period: string;
+  status?: Status;
+  /** Change since the previous period, already worded: "4 points since 2024 (62%)". Leave out when not comparable. */
+  change?: { dir: 'up' | 'down' | 'flat'; text: string };
+  /** Source name (the full source line sits under the group of tiles). */
+  source?: string;
+  href?: string;
+}
+const { kicker, label, value, unit, period, status, change, source, href } = Astro.props;
+const Tag = href ? 'a' : 'div';
+---
+<div class="gt-kf">
+  <Tag class={href ? 'gt-kf__link' : 'gt-kf__link gt-kf__link--static'} href={href}>
+    {kicker && <span class="gt-kicker">{kicker}</span>}
+    <span class="gt-kf__label">{label}</span>
+    <span class="gt-kf__num">{value}{unit && <small>{unit}</small>}</span>
+  </Tag>
+  <span class="gt-kf__meta">
+    <span class="tnum">{period}</span>
+    {status && <StatusTag status={status} small />}
+    {change && <span class="gt-kf__change"><Icon name={change.dir} />{change.text}</span>}
+  </span>
+  {source && <span class="gt-caption">{source}</span>}
+</div>

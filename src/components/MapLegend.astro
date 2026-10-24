@@ -1,0 +1,31 @@
+---
+// Map legend: a stepped scale (sequential seq-*, or diverging div-* with words at both ends), its ticks, and the
+// No data / Withheld swatches. The map engine (phase 4) renders the same component in HTML, outside the canvas.
+import '../styles/atlas/legend.css';
+import { SOURCE_TEXT, LEGEND_TEXT } from '../i18n/en';
+
+interface Props {
+  title: string;
+  scale: 'seq' | 'div';
+  ticks: string[];
+  /** Diverging only: what each end means. */
+  ends?: [string, string];
+  nodata?: boolean;
+  withheld?: boolean;
+}
+const { title, scale, ticks, ends, nodata = true, withheld = false } = Astro.props;
+const n = scale === 'seq' ? 5 : 7;
+const align = (i: number) => (scale === 'div' ? (i === 3 ? 'text-align:center' : i > 3 ? 'text-align:right' : undefined) : undefined);
+---
+<div class="gt-legend">
+  <span class="gt-legend__title">{title}</span>
+  <div class="gt-legend__scale" style={`--n:${n}`}>{Array.from({ length: n }, (_, i) => <i style={`background:var(--${scale}-${i + 1})`} />)}</div>
+  <div class:list={['gt-legend__ticks', { 'gt-legend__ticks--dense': scale === 'div' }]} style={`--n:${n}`}>{ticks.map((t, i) => <span style={align(i)}>{t}</span>)}</div>
+  {ends && <div class="gt-legend__ends"><span>← {ends[0]}</span><span>{ends[1]} →</span></div>}
+  {(nodata || withheld) && (
+    <div class="gt-legend__extra">
+      {nodata && <span><i class="gt-sw gt-sw--nodata" />{SOURCE_TEXT.noData}</span>}
+      {withheld && <span><i class="gt-sw gt-sw--withheld" />{LEGEND_TEXT.withheld}</span>}
+    </div>
+  )}
+</div>

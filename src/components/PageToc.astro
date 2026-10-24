@@ -1,0 +1,16 @@
+---
+// In-page links between the sections of a long page. The section in view gets aria-current (src/scripts/toc.ts).
+import '../styles/atlas/crumbs.css';
+import { UI_TEXT } from '../i18n/en';
+
+interface Props { items: { label: string; id: string }[]; current?: string }
+const { items, current } = Astro.props;
+---
+<nav class="gt-toc" aria-label={UI_TEXT.onThisPage} data-gt-toc>
+  <ul>{items.map((it) => <li><a href={`#${it.id}`} aria-current={current === it.id ? 'true' : undefined}>{it.label}</a></li>)}</ul>
+</nav>
+
+<script>
+  import { initToc } from '../scripts/toc';
+  document.querySelectorAll<HTMLElement>('[data-gt-toc]').forEach(initToc);
+</script>

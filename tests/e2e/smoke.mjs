@@ -70,6 +70,14 @@ for (const [name, viewport] of [['desktop', { width: 1440, height: 900 }], ['pho
   check(!sideways, `${name}: no sideways scroll`);
   check(errors.length === 0, `${name}: no console errors${errors.length ? ` (${errors.join('; ')})` : ''}`);
   await page.screenshot({ path: `${out}/home-${name}.png`, fullPage: true });
+
+  // The design system's components page (hidden, noindex): renders without errors or sideways scroll.
+  errors.length = 0;
+  await page.goto(`${base}/dev/components`, { waitUntil: 'networkidle' });
+  check(/noindex/.test(await page.content()), `${name}: /dev/components is noindex`);
+  check(!(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth)), `${name}: /dev/components has no sideways scroll`);
+  check(errors.length === 0, `${name}: /dev/components has no console errors${errors.length ? ` (${errors.join('; ')})` : ''}`);
+  await page.screenshot({ path: `${out}/components-${name}.png`, fullPage: true });
   await page.close();
 }
 await browser.close();

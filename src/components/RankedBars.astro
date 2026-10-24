@@ -1,0 +1,36 @@
+---
+// Ranked list of countries with a bar and value each, already sorted, scaled to the largest row (not 100%).
+// A withheld row stays in the list with a hatched swatch and the word "Withheld", so it never reads as zero.
+import '../styles/atlas/bars.css';
+import '../styles/atlas/legend.css';
+import { SOURCE_TEXT } from '../i18n/en';
+
+export interface BarRow {
+  name: string;
+  /** The number the bar is drawn from; null when withheld. */
+  value: number | null;
+  /** The value as read ("32%"). */
+  label?: string;
+  href?: string;
+  selected?: boolean;
+  /** "Other" rows: muted, grey bar. */
+  other?: boolean;
+}
+interface Props { rows: BarRow[]; max?: number; variant?: 'tight' | 'wide'; label?: string }
+const { rows, max = 10, variant, label } = Astro.props;
+const shown = rows.slice(0, max);
+const top = Math.max(...shown.map((r) => r.value ?? 0)) || 1;
+---
+<ol class:list={['gt-bars', variant && `gt-bars--${variant}`]} aria-label={label}>
+  {shown.map((r) => (
+    <li class:list={{ 'gt-bars__withheld': r.value === null, 'gt-bars__other': r.other }} data-selected={r.selected ? 'true' : undefined}>
+      <span class="gt-bars__name">{r.href ? <a href={r.href}>{r.name}</a> : r.name}</span>
+      <span class="gt-bars__track">
+        {r.value === null
+          ? <span class="gt-sw gt-sw--withheld" style="width:16px;height:12px;display:block" />
+          : <span class="gt-bars__fill" style={`width:${((r.value / top) * 100).toFixed(1)}%`} />}
+      </span>
+      <span class="gt-bars__val">{r.value === null ? SOURCE_TEXT.withheld : (r.label ?? String(r.value))}</span>
+    </li>
+  ))}
+</ol>

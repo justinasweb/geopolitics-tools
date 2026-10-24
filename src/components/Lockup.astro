@@ -1,0 +1,6 @@
+---
+// The geopolitics.tools lockup (symbol and wordmark). Needs <LogoSprite /> once on the page (the page layout has it).
+interface Props { label?: string }
+const { label = 'geopolitics.tools' } = Astro.props;
+---
+<svg class="gt-lockup" viewBox="0 0 809.1 100" role="img" aria-label={label}><use href="#gt-lockup-art" width="809.1" height="100" /></svg>

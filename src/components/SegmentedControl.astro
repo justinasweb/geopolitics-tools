@@ -1,0 +1,22 @@
+---
+// One choice from a few (layer picker). Pressing a button selects it (src/scripts/controls.ts) and fires
+// `gt-change` with { value } on the group. A disabled option says why in its title.
+import '../styles/atlas/filters.css';
+
+interface Props {
+  label: string;
+  options: { value: string; label: string; disabled?: string }[];
+  value?: string;
+}
+const { label, options, value = options[0]?.value } = Astro.props;
+---
+<div class="gt-seg" role="group" aria-label={label} data-gt-seg>
+  {options.map((o) => (
+    <button type="button" value={o.value} aria-pressed={o.value === value ? "true" : "false"} disabled={!!o.disabled} title={o.disabled}>{o.label}</button>
+  ))}
+</div>
+
+<script>
+  import { initControls } from '../scripts/controls';
+  initControls();
+</script>

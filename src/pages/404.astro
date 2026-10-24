@@ -1,7 +1,9 @@
 ---
-import Base from '../layouts/Base.astro';
+import Page from '../layouts/Page.astro';
 ---
-<Base title="Page not found" description="There is no page at this address." noindex>
-  <h1>Page not found</h1>
-  <p>There is no page at this address. Go to the <a href="/">home page</a>.</p>
-</Base>
+<Page title="Page not found" description="There is no page at this address." noindex>
+  <div class="gt-pagehead">
+    <h1 class="gt-title">Page not found</h1>
+    <p class="gt-lede">There is no page at this address. Go to the <a href="/">home page</a> or the <a href="/countries">countries index</a>.</p>
+  </div>
+</Page>

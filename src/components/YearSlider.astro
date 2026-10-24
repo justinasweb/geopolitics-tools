@@ -1,0 +1,36 @@
+---
+// Year slider with play. Moving it fires `gt-change` with { year }. Play steps a year at a time and slows down with
+// reduced motion. Estimated years carry a small "e" on the axis and in the announced value.
+import '../styles/atlas/years.css';
+import { YEAR_TEXT } from '../i18n/en';
+
+interface Props {
+  id: string;
+  min: number;
+  max: number;
+  value?: number;
+  /** Ticks to label (default: every other year, ending on max). */
+  ticks?: number[];
+  /** Years the source marks as estimates. */
+  estimated?: number[];
+  play?: boolean;
+  disabled?: boolean;
+}
+const { id, min, max, value = max, estimated = [], play = true, disabled = false } = Astro.props;
+const step = Math.max(1, Math.ceil((max - min) / 5));
+const ticks = Astro.props.ticks ?? Array.from({ length: Math.floor((max - min) / step) + 1 }, (_, i) => max - (Math.floor((max - min) / step) - i) * step);
+---
+<div class:list={["gt-years", { "gt-years--noplay": !play }]} data-gt-years data-est={estimated.join(' ')}>
+  {play && <button class="gt-play" type="button" aria-label={YEAR_TEXT.play} disabled={disabled}></button>}
+  <div class="gt-years__head">
+    <label class="gt-label" for={id}>{YEAR_TEXT.year}</label>
+    <span class="gt-years__now" aria-hidden="true">{value}</span>
+  </div>
+  <input id={id} type="range" min={min} max={max} step="1" value={value} disabled={disabled} />
+  <div class="gt-years__ticks">{ticks.map((t) => <span data-est={estimated.includes(t) ? '' : undefined}>{t}</span>)}</div>
+</div>
+
+<script>
+  import { initControls } from '../scripts/controls';
+  initControls();
+</script>

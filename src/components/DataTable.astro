@@ -1,0 +1,90 @@
+---
+// The full figures behind a chart or map: sortable columns (src/scripts/table.ts), sticky header, tabular figures,
+// visible gaps. "Withheld" and "–" (not reported) are never shown as 0; an empty sort value sorts last.
+import '../styles/atlas/table.css';
+import StatusTag, { type Status } from './StatusTag.astro';
+
+export interface Column { key: string; label: string; num?: boolean; sortable?: boolean }
+export interface Cell {
+  /** Sort value. null = missing (sorts last). */
+  v?: number | string | null;
+  /** Shown text; defaults to v. */
+  text?: string;
+  /** Missing value: "withheld" by the source or "none" reported. */
+  missing?: 'withheld' | 'none';
+  status?: Status;
+  /** Year marker when the row's period differs from the column's. */
+  year?: { year: string; title: string };
+  /** Smaller muted text instead of a value (status column notes). */
+  note?: string;
+  href?: string;
+}
+export type CellInput = Cell | string | number | null;
+
+interface Props {
+  label: string;
+  columns: Column[];
+  rows: CellInput[][];
+  foot?: CellInput[];
+  /** Initially sorted column and direction (already applied to rows). */
+  sorted?: { key: string; dir: 'ascending' | 'descending' };
+  caption?: string;
+  /** Max height before the table scrolls (default 420px). */
+  height?: string;
+  compact?: boolean;
+  missingText?: { withheld: string; none: string };
+}
+const { label, columns, rows, foot, sorted, caption, height, compact = false, missingText = { withheld: 'Withheld', none: '–' } } = Astro.props;
+const cell = (c: CellInput): Cell => (c !== null && typeof c === 'object' ? c : c === null ? { v: null, missing: 'none' } : { v: c });
+const shown = (c: Cell, num: boolean) => c.text ?? (typeof c.v === 'number' && num ? new Intl.NumberFormat('en').format(c.v) : c.v ?? '');
+const sortValue = (c: Cell) => (c.missing ? '' : c.v === null || c.v === undefined ? (c.status ?? c.note ?? '') : String(c.v));
+const SortIcon = '<path class="up" d="M5 0 9 5H1z"/><path class="down" d="M5 12 1 7h8z"/>';
+---
+<div class="gt-tablewrap" style={height ? `--gt-table-h:${height}` : undefined} tabindex="0" role="region" aria-label={label}>
+  <table class:list={['gt-table', { 'gt-table--compact': compact }]} data-gt-sort>
+    {caption && <caption class="gt-caption">{caption}</caption>}
+    <thead>
+      <tr>
+        {columns.map((col) => (
+          <th
+            class={col.num ? 'n' : undefined}
+            data-key={col.sortable === false ? undefined : col.key}
+            data-type={col.num ? 'num' : undefined}
+            aria-sort={sorted?.key === col.key ? sorted.dir : undefined}
+            scope="col"
+          >
+            {col.sortable === false ? <span>{col.label}</span> : <button type="button">{col.label}<svg class="gt-sort" viewBox="0 0 10 12" aria-hidden="true" set:html={SortIcon} /></button>}
+          </th>
+        ))}
+      </tr>
+    </thead>
+    <tbody>
+      {rows.map((row) => (
+        <tr>
+          {row.map((raw, i) => {
+            const c = cell(raw);
+            const num = !!columns[i]?.num;
+            return (
+              <td class={num ? 'n' : undefined} data-v={sortValue(c)}>
+                {c.missing ? <span class="gt-na">{missingText[c.missing]}</span>
+                  : c.status ? <StatusTag status={c.status} small />
+                  : c.note ? <span class="gt-caption">{c.note}</span>
+                  : c.href ? <a href={c.href}>{shown(c, num)}</a>
+                  : shown(c, num)}
+                {c.year && <abbr class="gt-yr" title={c.year.title}>{c.year.year}</abbr>}
+              </td>
+            );
+          })}
+        </tr>
+      ))}
+    </tbody>
+    {foot && (
+      <tfoot><tr>{foot.map((raw, i) => { const c = cell(raw); return <td class={columns[i]?.num ? 'n' : undefined}>{c.missing ? '' : shown(c, !!columns[i]?.num)}</td>; })}</tr></tfoot>
+    )}
+  </table>
+</div>
+
+<script>
+  import { initSortable } from '../scripts/table';
+  document.querySelectorAll<HTMLTableElement>('table[data-gt-sort]').forEach(initSortable);
+</script>

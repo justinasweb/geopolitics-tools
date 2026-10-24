@@ -1,0 +1,18 @@
+---
+// The two-column facts list at the top of a country panel. A fact is a value (with unit) or a status tag.
+import '../styles/atlas/panel.css';
+import StatusTag, { type Status } from './StatusTag.astro';
+
+interface Props { facts: { label: string; value?: string; unit?: string; status?: Status }[] }
+const { facts } = Astro.props;
+---
+<dl class="gt-panel__facts">
+  {facts.map((f) => (
+    <div>
+      <dt>{f.label}</dt>
+      {f.status
+        ? <dd class="gt-panel__tagdd"><StatusTag status={f.status} small /></dd>
+        : <dd>{f.value}{f.unit && <> <small>{f.unit}</small></>}</dd>}
+    </div>
+  ))}
+</dl>

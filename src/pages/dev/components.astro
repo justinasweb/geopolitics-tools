@@ -1,0 +1,333 @@
+---
+// Hidden components page: every Atlas component in its states, at desktop and in a 390px phone frame, to compare
+// with the design previews. Not linked anywhere, noindex, disallowed in robots.txt. Figures are the design
+// system's samples: lithium from USGS Mineral Commodity Summaries 2026 (real); the Sample tag demo is marked.
+import Base from '../../layouts/Base.astro';
+import LogoSprite from '../../components/LogoSprite.astro';
+import Header from '../../components/Header.astro';
+import PhoneMenu from '../../components/PhoneMenu.astro';
+import Footer from '../../components/Footer.astro';
+import Lockup from '../../components/Lockup.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import PageToc from '../../components/PageToc.astro';
+import SourceLine from '../../components/SourceLine.astro';
+import StatusTag from '../../components/StatusTag.astro';
+import Notice from '../../components/Notice.astro';
+import KeyFigure from '../../components/KeyFigure.astro';
+import RankedBars, { type BarRow } from '../../components/RankedBars.astro';
+import DataTable from '../../components/DataTable.astro';
+import ChartState from '../../components/ChartState.astro';
+import ShareRow from '../../components/ShareRow.astro';
+import SegmentedControl from '../../components/SegmentedControl.astro';
+import Dropdown from '../../components/Dropdown.astro';
+import CountrySearch from '../../components/CountrySearch.astro';
+import Chips from '../../components/Chips.astro';
+import YearSlider from '../../components/YearSlider.astro';
+import MapLegend from '../../components/MapLegend.astro';
+import MapTooltip from '../../components/MapTooltip.astro';
+import CountryPanel from '../../components/CountryPanel.astro';
+import PanelFacts from '../../components/PanelFacts.astro';
+import tokensJson from '../../design/tokens.json';
+import type { Tokens } from '../../../scripts/tokens';
+
+const USGS = 'USGS Mineral Commodity Summaries 2026';
+const UPDATED = '2026-10-21';
+const CITE = 'U.S. Geological Survey (2026). Mineral Commodity Summaries 2026: Lithium, world mine production, 2025 (estimated). Retrieved via geopolitics.tools/minerals/lithium, data version 2026-10-21, on 21 Oct 2026.';
+const PAGE_URL = 'https://geopolitics.tools/minerals/lithium';
+const HEADLINE = "Australia mines 32% of the world's lithium";
+
+const lithium: [string, number, number][] = [
+  ['Australia', 92000, 31.72], ['China', 62000, 21.38], ['Chile', 56000, 19.31], ['Zimbabwe', 28000, 9.66],
+  ['Argentina', 23000, 7.93], ['Brazil', 12000, 4.14], ['Mali', 9400, 3.24], ['Canada', 5600, 1.93], ['Portugal', 380, 0.13],
+];
+const bars: BarRow[] = [
+  ...lithium.slice(0, 8).map(([name, , s]) => ({ name, value: s, label: `${Math.round(s)}%` })),
+  { name: 'United States', value: null },
+];
+const barsSelected = bars.map((b) => (b.name === 'Australia' ? { ...b, selected: true } : b));
+const tableRows = [
+  ...lithium.map(([name, t, s]) => [name, { v: t }, { v: s, text: `${s.toFixed(1)}%` }, { v: 'Estimate', status: 'estimate' as const }]),
+  ['United States', { v: null, missing: 'withheld' as const }, { v: null, missing: 'none' as const }, { v: 'Withheld', note: 'Withheld by USGS' }],
+];
+const columns = [
+  { key: 'c', label: 'Country' }, { key: 't', label: 'Tonnes, 2025', num: true }, { key: 's', label: 'Share', num: true }, { key: 'st', label: 'Status' },
+];
+const countries = [
+  ['Argentina', 'Profile'], ['Australia', 'Profile'], ['Brazil', 'Profile'], ['Canada', 'Profile'], ['Chile', 'Profile'],
+  ['China', 'Full dossier'], ['Germany', 'Profile'], ['India', 'Profile'], ['Indonesia', 'Profile'], ['Japan', 'Profile'],
+  ['Mali', 'Profile'], ['Portugal', 'Profile'], ['Russia', 'Full dossier'], ['South Africa', 'Profile'],
+  ['United Kingdom', 'Profile'], ['United States', 'Full dossier'], ['Zimbabwe', 'Profile'],
+].map(([name, note]) => ({ name, note }));
+const minerals = ['Lithium', 'Cobalt', 'Rare earths', 'Gallium', 'Graphite', 'Nickel', 'Palladium', 'Tungsten'].map((m) => ({ value: m.toLowerCase(), label: m }));
+const layers = [
+  { value: 'production', label: 'Mine production' }, { value: 'reserves', label: 'Reserves' },
+  { value: 'prices', label: 'Prices' }, { value: 'trade', label: 'Trade', disabled: 'No trade data for lithium yet' },
+];
+const regions = [
+  { value: 'africa', label: 'Africa', pressed: true }, { value: 'americas', label: 'Americas' },
+  { value: 'asia', label: 'Asia', pressed: true }, { value: 'europe', label: 'Europe' }, { value: 'oceania', label: 'Oceania' },
+];
+const kfs = [
+  { kicker: 'Lithium', label: "Australia's share of world mine production", value: '32%' },
+  { kicker: 'Rare earths', label: "China's share of world mine production", value: '69%', change: { dir: 'down' as const, text: '2 points since 2024 (71%)' } },
+  { kicker: 'Nickel', label: "Indonesia's share of world mine production", value: '67%', change: { dir: 'up' as const, text: '4 points since 2024 (62%)' } },
+  { kicker: 'Gallium', label: "China's share of low-purity primary production", value: '99%', change: { dir: 'flat' as const, text: 'unchanged since 2024 (99%)' } },
+];
+const seqTicks = ['under 1%', '1–5%', '5–10%', '10–25%', '25%+'];
+const divTicks = ['100%', '60%', '20%', '0', '−20%', '−60%', '−100%+'];
+const tokens = tokensJson as unknown as Tokens;
+const colourGroups: [string, string[]][] = [
+  ['Interface', ['paper', 'paper-raised', 'paper-sunk', 'rule', 'rule-strong', 'ink', 'ink-muted', 'brand', 'brand-soft', 'accent', 'note-bg']],
+  ['Sequential', ['seq-1', 'seq-2', 'seq-3', 'seq-4', 'seq-5']],
+  ['Diverging', ['div-1', 'div-2', 'div-3', 'div-4', 'div-5', 'div-6', 'div-7']],
+  ['Categorical', ['cat-1', 'cat-2', 'cat-3', 'cat-4', 'cat-5', 'cat-6', 'cat-7', 'cat-8']],
+];
+const typeStyles = tokens.type.groups.flatMap((g) => g.styles.map((s) => ({ ...s, family: g.family })));
+---
+<Base title="Components" description="The Atlas design system's components, for checking against the designs." noindex>
+  <LogoSprite />
+  <main class="dev">
+    <header class="dev__head">
+      <p class="gt-kicker">Development only</p>
+      <h1 class="gt-title">Components</h1>
+      <p class="gt-lede">Every Atlas component as code, in its states, at desktop width and in a 390px phone frame. Compare with the design previews.</p>
+      <nav class="dev__toc" aria-label="Sections">
+        {['Tokens', 'Type', 'Page frame', 'Sources and status', 'Data display', 'Filters', 'Maps', 'Actions'].map((s) => <a href={`#${s.toLowerCase().replace(/ /g, '-')}`}>{s}</a>)}
+      </nav>
+    </header>
+
+    <section id="tokens" class="dev__sec">
+      <h2 class="gt-h2">Tokens</h2>
+      {colourGroups.map(([name, list]) => (
+        <div class="dev__cell"><span class="dev__cap">{name}</span>
+          <div class="dev__swatches">{list.map((t) => <figure><i style={`background:var(--${t})`} /><figcaption>{t}</figcaption></figure>)}</div>
+        </div>
+      ))}
+    </section>
+
+    <section id="type" class="dev__sec">
+      <h2 class="gt-h2">Type</h2>
+      <div class="dev__type">
+        {typeStyles.map((s) => (
+          <div><span class="dev__cap">{s.name} · {s.fontSize}/{s.lineHeight}</span>
+            <p style={`margin:0;font:var(--type-${s.name});${s.letterSpacing ? `letter-spacing:${s.letterSpacing};` : ''}${s.opticalSize ? `font-variation-settings:"opsz" ${s.opticalSize};` : ''}${s.name === 'label' ? 'text-transform:uppercase;' : ''}${s.name === 'number' || s.name === 'figure' ? 'font-variant-numeric:tabular-nums lining-nums;' : ''}`}>{s.sample}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section id="page-frame" class="dev__sec">
+      <h2 class="gt-h2">Page frame</h2>
+      <div class="dev__cell"><span class="dev__cap">Header · desktop (click a group; Esc closes)</span>
+        <div class="dev__desk"><Header idPrefix="h1" current="resources" /></div>
+      </div>
+      <div class="dev__cell"><span class="dev__cap">Header · Resources menu open</span>
+        <div class="dev__desk" style="min-height:400px"><Header idPrefix="h2" open="resources" /></div>
+      </div>
+      <div class="dev__row">
+        <div class="dev__cell"><span class="dev__cap">Phone 390 · compact header</span><div class="dev__phone"><Header idPrefix="h3" /></div></div>
+        <div class="dev__cell"><span class="dev__cap">Phone 390 · menu, Resources open</span><div class="dev__phone"><PhoneMenu idPrefix="pm" open="resources" /></div></div>
+      </div>
+      <div class="dev__cell"><span class="dev__cap">Footer · desktop</span><div class="dev__desk"><Footer /></div></div>
+      <div class="dev__cell"><span class="dev__cap">Footer · phone 390</span><div class="dev__phone"><Footer /></div></div>
+      <div class="dev__row">
+        <div class="dev__cell"><span class="dev__cap">Logo</span><div class="dev__logo"><Lockup /></div></div>
+        <div class="dev__cell"><span class="dev__cap">Breadcrumbs</span>
+          <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Resources', href: '/resources' }, { label: 'Critical minerals', href: '/minerals' }, { label: 'Lithium' }]} />
+        </div>
+      </div>
+      <div class="dev__cell"><span class="dev__cap">In-page links</span>
+        <PageToc current="map" items={[{ label: 'Map', id: 'map' }, { label: 'Producers', id: 'producers' }, { label: 'Table', id: 'table' }, { label: 'Over time', id: 'over-time' }, { label: 'Method and sources', id: 'method' }]} />
+      </div>
+    </section>
+
+    <section id="sources-and-status" class="dev__sec">
+      <h2 class="gt-h2">Sources and status</h2>
+      <div class="dev__cell"><span class="dev__cap">Source line · default, with status, disabled</span>
+        <SourceLine source={USGS} updated={UPDATED} citation={CITE} />
+        <SourceLine source={USGS} updated={UPDATED} status="estimate" citation={CITE} />
+        <SourceLine source={USGS} updated={UPDATED} citeDisabled />
+      </div>
+      <div class="dev__cell"><span class="dev__cap">Status tags · default and small</span>
+        <div class="dev__line">{(['estimate', 'projection', 'preliminary', 'notyet'] as const).map((s) => <StatusTag status={s} />)}</div>
+        <div class="dev__line">{(['estimate', 'projection', 'preliminary', 'notyet'] as const).map((s) => <StatusTag status={s} small />)}</div>
+        <p style="margin:0">Australia mined <b class="tnum">92,000 t</b> of lithium in 2025 <StatusTag status="estimate" small /></p>
+      </div>
+      <div class="dev__cell"><span class="dev__cap">Sample tag (never on a live page; the build fails if one ships)</span>
+        <div class="dev__line"><StatusTag status="sample" /><StatusTag status="sample" small /></div>
+        <SourceLine source="GDACS" parts={['15–21 Oct 2026', 'Updated 21 Oct, 06:00 UTC']} status="sample" />
+      </div>
+      <div class="dev__split">
+        <div class="dev__stack">
+          <Notice><p>Totals cover reporting countries only (38 of 54).</p></Notice>
+          <Notice><p>United States lithium production is withheld by USGS to protect company data, so it is not in the world total.</p><p class="gt-caption">{USGS}</p></Notice>
+          <Notice><p>2025 figures are USGS estimates and may change in the 2027 edition. <a href="/methodology">How we handle revisions</a></p></Notice>
+          <Notice inline><p class="gt-caption" style="color:var(--ink)">Shares refer to the world total of 290,000 t, which excludes the United States.</p></Notice>
+        </div>
+        <div class="dev__phone dev__pad"><Notice><p>Totals cover reporting countries only (38 of 54).</p></Notice></div>
+      </div>
+    </section>
+
+    <section id="data-display" class="dev__sec">
+      <h2 class="gt-h2">Data display</h2>
+      <div class="dev__cell"><span class="dev__cap">Key figures · four across</span>
+        <div class="gt-kfrow">{kfs.map((k) => <KeyFigure {...k} period="2025" status="estimate" source={USGS} href="/minerals/lithium" />)}</div>
+      </div>
+      <div class="dev__row">
+        <div class="dev__cell" style="width:260px"><span class="dev__cap">Not a link, with unit</span>
+          <KeyFigure kicker="Lithium" label="World mine production" value="290,000" unit="t" period="2025" status="estimate" source={USGS} />
+        </div>
+        <div class="dev__cell"><span class="dev__cap">Phone 390 · two across</span>
+          <div class="dev__phone dev__pad"><div class="gt-kfrow">{kfs.map((k) => <KeyFigure {...k} period="2025" status="estimate" source={USGS} href="/minerals/lithium" />)}</div></div>
+        </div>
+      </div>
+      <div class="dev__split">
+        <div class="dev__stack">
+          <span class="dev__cap">Ranked bars · lithium mine production by country, 2025</span>
+          <RankedBars rows={bars} label="Lithium mine production by country, 2025" />
+          <p class="gt-caption" style="margin:0">Share of the world total of 290,000 t, which excludes the United States. Portugal: under 1%.</p>
+          <SourceLine source={USGS} updated={UPDATED} status="estimate" citation={CITE} />
+          <span class="dev__cap">Selected (Australia, chosen on the map)</span>
+          <RankedBars rows={barsSelected.slice(0, 5).concat(bars.slice(-1))} />
+        </div>
+        <div class="dev__phone dev__pad"><RankedBars rows={bars} /></div>
+      </div>
+      <div class="dev__split">
+        <div class="dev__stack">
+          <span class="dev__cap">Data table · sortable (click a heading), sticky header, gaps shown</span>
+          <DataTable label="Lithium mine production by country, 2025" columns={columns} rows={tableRows} height="330px"
+            sorted={{ key: 't', dir: 'descending' }} foot={['World (rounded)', { v: 290000 }, { v: 100, text: '100%' }, '']} />
+          <SourceLine source={USGS} updated={UPDATED} citation={CITE} />
+          <span class="dev__cap">Year marked where it differs from the column</span>
+          <DataTable label="Example with a different year" height="none" columns={[{ key: 'c', label: 'Country' }, { key: 'v', label: 'Tonnes, 2025', num: true }]}
+            rows={[['Chile', { v: 56000 }], ['Mali', { v: 9400, year: { year: '2024', title: 'This row shows 2024, not 2025' } }]]} />
+        </div>
+        <div class="dev__phone dev__pad">
+          <DataTable label="Lithium mine production by country, 2025 (phone)" columns={columns.slice(0, 3)} rows={tableRows.map((r) => r.slice(0, 3))} height="330px" />
+        </div>
+      </div>
+      <div class="dev__three">
+        <div class="dev__cell"><span class="dev__cap">Chart · loading</span><ChartState state="loading" title="Loading lithium producers" /></div>
+        <div class="dev__cell"><span class="dev__cap">Chart · empty</span>
+          <ChartState state="empty" title="No data for this selection" text="USGS lists no lithium mine production for Peru in 2025. Choose another country, or see who does produce lithium.">
+            <a class="gt-btn gt-btn--quiet" href="/minerals/lithium">Show all producers</a>
+          </ChartState>
+        </div>
+        <div class="dev__cell"><span class="dev__cap">Chart · error</span>
+          <ChartState state="error" title="This chart did not load" text="The data file could not be reached. Try again, or download the figures as CSV.">
+            <button class="gt-btn" type="button">Try again</button><a class="gt-btn gt-btn--quiet" href="#data-display">Download CSV</a>
+          </ChartState>
+        </div>
+      </div>
+      <div class="dev__cell"><span class="dev__cap">Buttons</span>
+        <div class="dev__line"><button class="gt-btn" type="button">Try again</button><button class="gt-btn" type="button" disabled>Disabled</button><button class="gt-btn gt-btn--quiet" type="button">Quiet</button><a class="gt-btn gt-btn--quiet" href="/minerals/lithium">Quiet link</a></div>
+      </div>
+    </section>
+
+    <section id="filters" class="dev__sec">
+      <h2 class="gt-h2">Filters</h2>
+      <div class="dev__cell"><span class="dev__cap">Segmented control · Trade disabled (no data yet)</span><SegmentedControl label="Layer" options={layers} /></div>
+      <div class="dev__row">
+        <Dropdown id="dd1" label="Mineral" options={minerals} />
+        <Dropdown id="dd2" label="Mineral (disabled)" options={minerals} disabled />
+        <Dropdown id="dd3" label="Small" options={minerals} small />
+        <div style="width:280px"><CountrySearch id="cs1" label="Country" options={countries} /></div>
+        <div style="width:280px"><CountrySearch id="cs2" label="Country (disabled)" options={countries} disabled /></div>
+      </div>
+      <div class="dev__cell"><span class="dev__cap">Chips · Africa and Asia on</span><Chips label="Regions" options={regions} /></div>
+      <div class="dev__cell"><span class="dev__cap">Chips filtering a list</span>
+        <Chips label="Kinds" filter="dev-kinds" options={[{ value: 'all', label: 'All', pressed: true }, { value: 'quake', label: 'Earthquakes' }, { value: 'flood', label: 'Floods' }]} />
+        <ul id="dev-kinds" class="dev__list"><li data-kind="quake">Earthquake, M6.1</li><li data-kind="flood">Flood, Bangladesh</li><li data-kind="quake">Earthquake, M5.8</li></ul>
+      </div>
+      <div class="dev__split">
+        <div class="dev__stack" style="max-width:640px">
+          <span class="dev__cap">Year slider (press play; reduced motion slows it down)</span>
+          <YearSlider id="y1" min={2015} max={2025} estimated={[2025]} ticks={[2015, 2017, 2019, 2021, 2023, 2025]} />
+          <YearSlider id="y2" min={2015} max={2025} value={2019} estimated={[2025]} ticks={[2015, 2017, 2019, 2021, 2023, 2025]} />
+          <YearSlider id="y3" min={2015} max={2025} disabled ticks={[2015, 2020, 2025]} />
+        </div>
+        <div class="dev__phone dev__pad"><YearSlider id="y4" min={2015} max={2025} estimated={[2025]} ticks={[2015, 2020, 2025]} /></div>
+      </div>
+    </section>
+
+    <section id="maps" class="dev__sec">
+      <h2 class="gt-h2">Maps</h2>
+      <div class="dev__split">
+        <div class="dev__stack" style="max-width:520px">
+          <MapLegend title="Share of world mine production, 2025" scale="seq" ticks={seqTicks} withheld />
+          <MapLegend title="Net imports as a share of use" scale="div" ticks={divTicks} ends={['Import-dependent', 'Net exporter']} withheld />
+        </div>
+        <div class="dev__phone dev__pad dev__stack">
+          <MapLegend title="Share of world mine production, 2025" scale="seq" ticks={seqTicks} withheld />
+        </div>
+      </div>
+      <div class="dev__row">
+        <MapTooltip name="Australia" value="32%" measure="of world lithium mine production" detail="92,000 t · 2025" status="estimate" source={USGS} hint="Click for details" />
+        <MapTooltip name="United States" missing="Withheld by source" detail="USGS does not publish US lithium output, to protect company data. It is not in the world total." source={USGS} />
+        <MapTooltip name="Peru" missing="No data" detail="No lithium mine production listed for 2025." source={USGS} />
+      </div>
+      <div class="dev__row" style="align-items:stretch">
+        <div class="dev__cell"><span class="dev__cap">Country panel · desktop side panel</span>
+          <div class="dev__panel">
+            <CountryPanel name="Chile" kicker="Lithium · 2025">
+              <PanelFacts facts={[
+                { label: 'Share of world mine production', value: '19%' }, { label: 'Mine production', value: '56,000', unit: 't' },
+                { label: 'Rank among producers listed', value: '3', unit: 'of 9' }, { label: 'Status', status: 'estimate' },
+              ]} />
+              <RankedBars label="Top producers" rows={[bars[0], bars[1], { ...bars[2], selected: true }]} />
+              <SourceLine source={USGS} updated={UPDATED} citation={CITE} />
+              <Fragment slot="foot"><a class="gt-btn" href="/countries/chile">Chile country page</a><a class="gt-btn gt-btn--quiet" href="#table">Lithium table</a></Fragment>
+            </CountryPanel>
+          </div>
+        </div>
+        <div class="dev__cell"><span class="dev__cap">Phone 390 · bottom sheet</span>
+          <div class="dev__phone">
+            <CountryPanel name="Chile" kicker="Lithium · 2025" sheet>
+              <PanelFacts facts={[{ label: 'Share of world mine production', value: '19%' }, { label: 'Mine production', value: '56,000', unit: 't' }]} />
+              <SourceLine source={USGS} updated={UPDATED} citation={CITE} />
+              <Fragment slot="foot"><a class="gt-btn" href="/countries/chile">Chile country page</a></Fragment>
+            </CountryPanel>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="actions" class="dev__sec">
+      <h2 class="gt-h2">Actions</h2>
+      <div class="dev__split">
+        <div class="dev__cell"><span class="dev__cap">Share row (Copy link works)</span><ShareRow url={PAGE_URL} text={HEADLINE} /></div>
+        <div class="dev__phone dev__pad"><ShareRow url={PAGE_URL} text={HEADLINE} /></div>
+      </div>
+    </section>
+  </main>
+</Base>
+
+<style>
+  .dev { max-width: 1392px; margin: 0 auto; padding: 32px 24px 96px; display: grid; gap: 64px; }
+  .dev > *, .dev__sec > *, .dev__split > *, .dev__row > * { min-width: 0; max-width: 100%; }
+  .dev__head { display: grid; gap: 12px; }
+  .dev__toc { display: flex; flex-wrap: wrap; gap: 8px 20px; font: 600 15px/22px var(--sans); }
+  .dev__sec { display: grid; gap: 28px; border-top: 3px double var(--ink); padding-top: 16px; scroll-margin-top: 16px; }
+  .dev__cell, .dev__stack { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; align-content: start; min-width: 0; }
+  .dev__cap { font: 600 11px/14px var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-muted); }
+  .dev__row { display: flex; flex-wrap: wrap; gap: 24px 40px; align-items: flex-start; }
+  .dev__split { display: grid; grid-template-columns: minmax(0, 1fr) 390px; gap: 40px; align-items: start; }
+  .dev__three { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+  .dev__line { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  .dev__desk { border: 1px solid var(--rule); background: var(--paper); container: page / inline-size; }
+  .dev__phone { width: 390px; max-width: min(100%, calc(100vw - 32px)); border: 1px solid var(--rule); background: var(--paper); overflow: hidden; container: page / inline-size; }
+  .dev__pad { padding: 16px; }
+  .dev__logo { padding: 24px; background: var(--paper-raised); border: 1px solid var(--rule); }
+  .dev__logo :global(svg) { height: 40px; width: auto; display: block; }
+  .dev__panel { width: 400px; height: 560px; border: 1px solid var(--rule); }
+  .dev__list { margin: 0; padding-left: 20px; }
+  .dev__swatches { display: flex; flex-wrap: wrap; gap: 12px; }
+  .dev__swatches figure { margin: 0; display: grid; gap: 4px; width: 88px; font: 400 12px/16px var(--sans); color: var(--ink-muted); }
+  .dev__swatches i { display: block; height: 40px; border: 1px solid var(--rule); }
+  .dev__type { display: grid; gap: 20px; }
+  @media (max-width: 900px) {
+    .dev { padding: 20px 16px 64px; }
+    .dev__split, .dev__three { grid-template-columns: minmax(0, 1fr); }
+    .dev__panel { width: 100%; }
+  }
+</style>
