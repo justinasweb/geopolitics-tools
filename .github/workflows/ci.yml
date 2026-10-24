@@ -73,6 +73,16 @@ jobs:
       - run: npm ci
       - uses: actions/download-artifact@v8
         with: { name: dist, path: dist }
+      - name: Check the Cloudflare token and that the Worker exists
+        run: |
+          api="https://api.cloudflare.com/client/v4"
+          auth="Authorization: Bearer $CLOUDFLARE_API_TOKEN"
+          echo "Token: $(curl -s -H "$auth" "$api/accounts/$CLOUDFLARE_ACCOUNT_ID/tokens/verify" | jq -c '{success, status: .result.status, errors}')"
+          code=$(curl -s -o worker.json -w '%{http_code}' -H "$auth" "$api/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/scripts/geopolitics-tools/settings")
+          echo "Worker settings: HTTP $code $(jq -c '.errors' worker.json)"
+          # Previews hang off an existing Worker. The very first run creates it with a production deploy
+          # (served only on workers.dev until the domain is connected, and noindex).
+          if [ "$code" = 404 ]; then npx wrangler deploy --message "first deploy from PR #${{ github.event.pull_request.number }}"; fi
       - name: Deploy the Preview
         id: deploy
         run: |
