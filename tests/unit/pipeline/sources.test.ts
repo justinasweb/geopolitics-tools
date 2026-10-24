@@ -6,7 +6,7 @@ import type { FetchResult } from '../../../pipeline/lib/source.ts';
 import celestrak, { COLUMNS as SATCAT_COLUMNS } from '../../../pipeline/sources/celestrak.ts';
 import csl from '../../../pipeline/sources/csl.ts';
 import epoch from '../../../pipeline/sources/epoch.ts';
-import euSanctions, { COLUMNS as EU_COLUMNS } from '../../../pipeline/sources/eu-sanctions.ts';
+import euSanctions, { COLUMNS as EU_COLUMNS, isoDate } from '../../../pipeline/sources/eu-sanctions.ts';
 import gdacs from '../../../pipeline/sources/gdacs.ts';
 import { SOURCES } from '../../../pipeline/sources/index.ts';
 import ioda from '../../../pipeline/sources/ioda.ts';
@@ -207,6 +207,7 @@ describe('eu-sanctions', () => {
     expect(out.length - 2).toBe(2100);
     expect(r.rows).toBe(2100);
     expect(r.dataTo).toBe('2026-10-24');
+    expect(isoDate('23/10/2026')).toBe('2026-10-23');
   });
 });
 
@@ -221,9 +222,11 @@ describe('epoch', () => {
 });
 
 describe('ioda', () => {
-  it('keeps the events and leaves request metadata out', async () => {
+  it('asks 30 days at a time, merges the windows and leaves request metadata out', async () => {
     const events = Array.from({ length: 80 }, (_, i) => ({ location: `country/${iso(i).slice(0, 2)}`, start: 1_790_000_000 + i, duration: 3600, score: 10 }));
-    const r = await ioda.fetch(ctxFor(fakeHttp([[/outages\/events/, () => ({ type: 'outages.events', requestParameters: { until: 1 }, data: events })]])));
+    const calls: string[] = [];
+    const r = await ioda.fetch(ctxFor(fakeHttp([[/outages\/events/, () => ({ type: 'outages.events', requestParameters: { until: 1 }, data: events })]], calls)));
+    expect(calls).toHaveLength(13);
     expect(JSON.parse(body(r, 'outage_events.json'))).toEqual({ type: 'outages.events', data: events });
   });
 });

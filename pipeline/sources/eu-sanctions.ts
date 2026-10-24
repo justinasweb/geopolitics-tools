@@ -12,6 +12,12 @@ export const COLUMNS = [
   'NameAlias_WholeName', 'Address_CountryIso2Code', 'Citizenship_CountryIso2Code',
 ];
 
+/** The export writes dates as 23/10/2026 (and has used 2026-10-23); both become 2026-10-23. */
+export const isoDate = (d: string) => {
+  const m = d.match(/^(\d\d)\/(\d\d)\/(\d{4})/);
+  return m ? `${m[3]}-${m[2]}-${m[1]}` : d.slice(0, 10);
+};
+
 const source: Source = {
   id: 'eu-sanctions',
   name: 'EU sanctions list',
@@ -25,7 +31,7 @@ const source: Source = {
     const all = parseCsv(await getText(ctx.http, url, { timeout: 180_000 }), ';');
     const picked = pickColumns(all, COLUMNS, 'EU sanctions CSV');
     // The generation date changes daily; it is kept out of the file, so an unchanged list saves no new copy.
-    const generated = picked[1]?.[0]?.slice(0, 10);
+    const generated = isoDate(picked[1]?.[0] ?? '');
     const seen = new Set<string>();
     const rows = [picked[0].slice(1)];
     for (const r of picked.slice(1)) {
