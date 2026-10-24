@@ -11,6 +11,7 @@ import { gzipSync, gunzipSync } from 'node:zlib';
 import type { Alerter } from './alert.ts';
 import { type Http, isTransient } from './http.ts';
 import type { FetchContext, Source } from './source.ts';
+import type { ImportedSource } from '../sources/imported.ts';
 import { type State, type SourceState, type FileRecord, emptyState, emptySource, isDue, isStale, decideAlert, runStamp } from './state.ts';
 import type { Stores } from './store.ts';
 
@@ -19,6 +20,8 @@ const FETCH_TIMEOUT_MS = 20 * 60_000;
 
 export interface RunOptions {
   sources: Source[];
+  /** Sources imported by hand: never fetched, but kept in every snapshot and in the status. */
+  imported?: ImportedSource[];
   stores: Stores;
   http: Http;
   alerter: Alerter;
@@ -65,8 +68,11 @@ export interface Snapshot {
     rows?: number;
     dataTo?: string;
     files: Record<string, Omit<FileRecord, 'contentType'>>;
+    imported?: SourceState['imported'];
   }>;
 }
+
+type About = Pick<Source, 'id' | 'name' | 'attribution' | 'licence'>;
 
 const sha256 = (b: Uint8Array) => createHash('sha256').update(b).digest('hex');
 const bytesOf = (b: string | Uint8Array) => (typeof b === 'string' ? new TextEncoder().encode(b) : b);
@@ -103,7 +109,7 @@ function describe(src: Source, st: SourceState, kind: string, now: Date) {
   return `✅ geopolitics.tools data: ${src.name} is working again (${now.toISOString().slice(0, 16).replace('T', ' ')} UTC).`;
 }
 
-export function buildSnapshot(id: string, now: Date, state: State, sources: Source[]): Snapshot {
+export function buildSnapshot(id: string, now: Date, state: State, sources: About[]): Snapshot {
   const out: Snapshot = { id, created: now.toISOString(), sources: {} };
   for (const src of sources) {
     const st = state.sources[src.id];
@@ -117,16 +123,17 @@ export function buildSnapshot(id: string, now: Date, state: State, sources: Sour
       rows: st.rows,
       dataTo: st.dataTo,
       files: Object.fromEntries(Object.entries(st.files).map(([n, { key, sha256, bytes }]) => [n, { key, sha256, bytes }])),
+      ...(st.imported ? { imported: st.imported } : {}),
     };
   }
   return out;
 }
 
-export function publicStatus(now: Date, state: State, sources: Source[], snapshot: string | undefined) {
+export function publicStatus(now: Date, state: State, sources: Source[], snapshot: string | undefined, imported: ImportedSource[] = []) {
   return {
     generated: now.toISOString(),
     snapshot,
-    sources: Object.fromEntries(sources.map((src) => {
+    sources: Object.fromEntries([...sources.map((src) => {
       const st = state.sources[src.id] ?? emptySource();
       return [src.id, {
         name: src.name,
@@ -144,8 +151,43 @@ export function publicStatus(now: Date, state: State, sources: Source[], snapsho
         rows: st.rows ?? null,
         dataTo: st.dataTo ?? null,
       }];
-    })),
+    }), ...imported.map((src) => {
+      const st = state.sources[src.id];
+      return [src.id, {
+        name: src.name,
+        imported: true,
+        release: src.release,
+        lastImport: st?.lastSuccess ?? null,
+        files: st?.imported ?? {},
+      }];
+    })]),
   };
+}
+
+/**
+ * Write the state, a new snapshot when something changed (or the latest one's id when not) and the
+ * public status. Shared by the runner and the import tool. The state is read again just before it is
+ * written, and sources this writer does not own are taken from that fresh copy, so an import during
+ * an hourly run is not lost (and the other way round).
+ */
+export async function publish(stores: Stores, state: State, own: string[], about: { sources: Source[]; imported: ImportedSource[] }, now: Date, changed: boolean) {
+  const fresh = await loadState(stores);
+  for (const [id, st] of Object.entries(fresh.sources)) if (!own.includes(id)) state.sources[id] = st;
+  state.updated = now.toISOString();
+  await stores.raw.put(STATE_KEY, enc(state), 'application/json');
+
+  let snapshot: string | undefined;
+  if (changed) {
+    snapshot = runStamp(now);
+    const snap = enc(buildSnapshot(snapshot, now, state, [...about.sources, ...about.imported]));
+    await stores.snapshots.put(`snapshots/${snapshot}.json`, snap, 'application/json');
+    await stores.snapshots.put('latest.json', snap, 'application/json');
+  } else {
+    const latest = await stores.snapshots.get('latest.json');
+    snapshot = latest ? (JSON.parse(new TextDecoder().decode(latest)) as Snapshot).id : undefined;
+  }
+  await stores.snapshots.put('status.json', enc(publicStatus(now, state, about.sources, snapshot, about.imported)), 'application/json');
+  return snapshot;
 }
 
 export async function run(opts: RunOptions): Promise<RunReport> {
@@ -236,20 +278,7 @@ export async function run(opts: RunOptions): Promise<RunReport> {
     await opts.alerter.send(describe(src, st, d.kind, now));
   }
 
-  state.updated = now.toISOString();
-  await stores.raw.put(STATE_KEY, enc(state), 'application/json');
-
-  let snapshot: string | undefined;
-  if (changed) {
-    snapshot = stamp;
-    const snap = enc(buildSnapshot(stamp, now, state, opts.sources));
-    await stores.snapshots.put(`snapshots/${stamp}.json`, snap, 'application/json');
-    await stores.snapshots.put('latest.json', snap, 'application/json');
-  } else {
-    const latest = await stores.snapshots.get('latest.json');
-    snapshot = latest ? (JSON.parse(new TextDecoder().decode(latest)) as Snapshot).id : undefined;
-  }
-  await stores.snapshots.put('status.json', enc(publicStatus(now, state, opts.sources, snapshot)), 'application/json');
+  const snapshot = await publish(stores, state, opts.sources.map((s) => s.id), { sources: opts.sources, imported: opts.imported ?? [] }, now, changed);
 
   return { run: stamp, reports, changed, snapshot, alerts };
 }

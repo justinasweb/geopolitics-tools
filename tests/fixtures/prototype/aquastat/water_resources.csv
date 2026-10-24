@@ -1,0 +1,151 @@
+Area,ISO3,Variable,Year,Value,Unit
+Bahrain,BHR,"Dependency ratio",2022,3,%
+Bahrain,BHR,"Total renewable water resources per capita",2022,75,m3/inhab/yr
+Cyprus,CYP,"Dependency ratio",2022,0,%
+Cyprus,CYP,"Total renewable water resources per capita",2022,650,m3/inhab/yr
+Kuwait,KWT,"Dependency ratio",2022,100,%
+Kuwait,KWT,"Total renewable water resources per capita",2022,5,m3/inhab/yr
+Lebanon,LBN,"Dependency ratio",2022,1,%
+Lebanon,LBN,"Total renewable water resources per capita",2022,800,m3/inhab/yr
+Oman,OMN,"Dependency ratio",2022,0,%
+Oman,OMN,"Total renewable water resources per capita",2022,300,m3/inhab/yr
+Qatar,QAT,"Dependency ratio",2022,3,%
+Qatar,QAT,"Total renewable water resources per capita",2022,20,m3/inhab/yr
+"United Arab Emirates",ARE,"Dependency ratio",2022,0,%
+"United Arab Emirates",ARE,"Total renewable water resources per capita",2022,15,m3/inhab/yr
+"Saudi Arabia",SAU,"Dependency ratio",2022,0,%
+"Saudi Arabia",SAU,"Total renewable water resources per capita",2022,70,m3/inhab/yr
+Israel,ISR,"Dependency ratio",2022,55,%
+Israel,ISR,"Total renewable water resources per capita",2022,200,m3/inhab/yr
+Egypt,EGY,"Dependency ratio",2022,97,%
+Egypt,EGY,"Total renewable water resources per capita",2022,540,m3/inhab/yr
+Libya,LBY,"Dependency ratio",2022,0,%
+Libya,LBY,"Total renewable water resources per capita",2022,100,m3/inhab/yr
+Yemen,YEM,"Dependency ratio",2022,0,%
+Yemen,YEM,"Total renewable water resources per capita",2022,60,m3/inhab/yr
+Botswana,BWA,"Dependency ratio",2022,80,%
+Botswana,BWA,"Total renewable water resources per capita",2022,4800,m3/inhab/yr
+Iran,IRN,"Dependency ratio",2022,7,%
+Iran,IRN,"Total renewable water resources per capita",2022,1500,m3/inhab/yr
+Jordan,JOR,"Dependency ratio",2022,27,%
+Jordan,JOR,"Total renewable water resources per capita",2022,85,m3/inhab/yr
+Chile,CHL,"Dependency ratio",2022,4,%
+Chile,CHL,"Total renewable water resources per capita",2022,47000,m3/inhab/yr
+Belgium,BEL,"Dependency ratio",2022,34,%
+Belgium,BEL,"Total renewable water resources per capita",2022,1600,m3/inhab/yr
+Greece,GRC,"Dependency ratio",2022,22,%
+Greece,GRC,"Total renewable water resources per capita",2022,6400,m3/inhab/yr
+Tunisia,TUN,"Dependency ratio",2022,9,%
+Tunisia,TUN,"Total renewable water resources per capita",2022,400,m3/inhab/yr
+Namibia,NAM,"Dependency ratio",2022,65,%
+Namibia,NAM,"Total renewable water resources per capita",2022,7000,m3/inhab/yr
+"South Africa",ZAF,"Dependency ratio",2022,10,%
+"South Africa",ZAF,"Total renewable water resources per capita",2022,860,m3/inhab/yr
+Iraq,IRQ,"Dependency ratio",2022,61,%
+Iraq,IRQ,"Total renewable water resources per capita",2022,2000,m3/inhab/yr
+India,IND,"Dependency ratio",2022,31,%
+India,IND,"Total renewable water resources per capita",2022,1400,m3/inhab/yr
+Syria,SYR,"Dependency ratio",2022,72,%
+Syria,SYR,"Total renewable water resources per capita",2022,800,m3/inhab/yr
+Pakistan,PAK,"Dependency ratio",2022,78,%
+Pakistan,PAK,"Total renewable water resources per capita",2022,1050,m3/inhab/yr
+Algeria,DZA,"Dependency ratio",2022,4,%
+Algeria,DZA,"Total renewable water resources per capita",2022,260,m3/inhab/yr
+Morocco,MAR,"Dependency ratio",2022,0,%
+Morocco,MAR,"Total renewable water resources per capita",2022,790,m3/inhab/yr
+Spain,ESP,"Dependency ratio",2022,0.3,%
+Spain,ESP,"Total renewable water resources per capita",2022,2400,m3/inhab/yr
+Italy,ITA,"Dependency ratio",2022,5,%
+Italy,ITA,"Total renewable water resources per capita",2022,3200,m3/inhab/yr
+Türkiye,TUR,"Dependency ratio",2022,1,%
+Türkiye,TUR,"Total renewable water resources per capita",2022,2500,m3/inhab/yr
+Mexico,MEX,"Dependency ratio",2022,7,%
+Mexico,MEX,"Total renewable water resources per capita",2022,3500,m3/inhab/yr
+Afghanistan,AFG,"Dependency ratio",2022,29,%
+Afghanistan,AFG,"Total renewable water resources per capita",2022,1600,m3/inhab/yr
+Uzbekistan,UZB,"Dependency ratio",2022,80,%
+Uzbekistan,UZB,"Total renewable water resources per capita",2022,1400,m3/inhab/yr
+Turkmenistan,TKM,"Dependency ratio",2022,97,%
+Turkmenistan,TKM,"Total renewable water resources per capita",2022,3800,m3/inhab/yr
+Kazakhstan,KAZ,"Dependency ratio",2022,41,%
+Kazakhstan,KAZ,"Total renewable water resources per capita",2022,5700,m3/inhab/yr
+China,CHN,"Dependency ratio",2022,1,%
+China,CHN,"Total renewable water resources per capita",2022,2000,m3/inhab/yr
+"United States",USA,"Dependency ratio",2022,8,%
+"United States",USA,"Total renewable water resources per capita",2022,9300,m3/inhab/yr
+Australia,AUS,"Dependency ratio",2022,0,%
+Australia,AUS,"Total renewable water resources per capita",2022,19500,m3/inhab/yr
+Germany,DEU,"Dependency ratio",2022,30,%
+Germany,DEU,"Total renewable water resources per capita",2022,1800,m3/inhab/yr
+France,FRA,"Dependency ratio",2022,5,%
+France,FRA,"Total renewable water resources per capita",2022,3200,m3/inhab/yr
+"United Kingdom",GBR,"Dependency ratio",2022,1,%
+"United Kingdom",GBR,"Total renewable water resources per capita",2022,2200,m3/inhab/yr
+Poland,POL,"Dependency ratio",2022,13,%
+Poland,POL,"Total renewable water resources per capita",2022,1600,m3/inhab/yr
+Ukraine,UKR,"Dependency ratio",2022,62,%
+Ukraine,UKR,"Total renewable water resources per capita",2022,4000,m3/inhab/yr
+Russia,RUS,"Dependency ratio",2022,4,%
+Russia,RUS,"Total renewable water resources per capita",2022,31000,m3/inhab/yr
+Japan,JPN,"Dependency ratio",2022,0,%
+Japan,JPN,"Total renewable water resources per capita",2022,3400,m3/inhab/yr
+"South Korea",KOR,"Dependency ratio",2022,7,%
+"South Korea",KOR,"Total renewable water resources per capita",2022,1350,m3/inhab/yr
+Thailand,THA,"Dependency ratio",2022,49,%
+Thailand,THA,"Total renewable water resources per capita",2022,6300,m3/inhab/yr
+Vietnam,VNM,"Dependency ratio",2022,59,%
+Vietnam,VNM,"Total renewable water resources per capita",2022,9100,m3/inhab/yr
+Cambodia,KHM,"Dependency ratio",2022,75,%
+Cambodia,KHM,"Total renewable water resources per capita",2022,28000,m3/inhab/yr
+Laos,LAO,"Dependency ratio",2022,43,%
+Laos,LAO,"Total renewable water resources per capita",2022,45000,m3/inhab/yr
+Myanmar,MMR,"Dependency ratio",2022,15,%
+Myanmar,MMR,"Total renewable water resources per capita",2022,20000,m3/inhab/yr
+Bangladesh,BGD,"Dependency ratio",2022,91,%
+Bangladesh,BGD,"Total renewable water resources per capita",2022,7400,m3/inhab/yr
+Nepal,NPL,"Dependency ratio",2022,6,%
+Nepal,NPL,"Total renewable water resources per capita",2022,7000,m3/inhab/yr
+Indonesia,IDN,"Dependency ratio",2022,0,%
+Indonesia,IDN,"Total renewable water resources per capita",2022,7500,m3/inhab/yr
+Philippines,PHL,"Dependency ratio",2022,0,%
+Philippines,PHL,"Total renewable water resources per capita",2022,4300,m3/inhab/yr
+Ethiopia,ETH,"Dependency ratio",2022,0,%
+Ethiopia,ETH,"Total renewable water resources per capita",2022,1000,m3/inhab/yr
+Sudan,SDN,"Dependency ratio",2022,96,%
+Sudan,SDN,"Total renewable water resources per capita",2022,800,m3/inhab/yr
+"South Sudan",SSD,"Dependency ratio",2022,46,%
+"South Sudan",SSD,"Total renewable water resources per capita",2022,4300,m3/inhab/yr
+Kenya,KEN,"Dependency ratio",2022,33,%
+Kenya,KEN,"Total renewable water resources per capita",2022,600,m3/inhab/yr
+Nigeria,NGA,"Dependency ratio",2022,23,%
+Nigeria,NGA,"Total renewable water resources per capita",2022,1300,m3/inhab/yr
+Brazil,BRA,"Dependency ratio",2022,35,%
+Brazil,BRA,"Total renewable water resources per capita",2022,40000,m3/inhab/yr
+Argentina,ARG,"Dependency ratio",2022,66,%
+Argentina,ARG,"Total renewable water resources per capita",2022,19000,m3/inhab/yr
+Canada,CAN,"Dependency ratio",2022,2,%
+Canada,CAN,"Total renewable water resources per capita",2022,76000,m3/inhab/yr
+Norway,NOR,"Dependency ratio",2022,3,%
+Norway,NOR,"Total renewable water resources per capita",2022,72000,m3/inhab/yr
+Tajikistan,TJK,"Dependency ratio",2022,17,%
+Tajikistan,TJK,"Total renewable water resources per capita",2022,2400,m3/inhab/yr
+Kyrgyzstan,KGZ,"Dependency ratio",2022,0,%
+Kyrgyzstan,KGZ,"Total renewable water resources per capita",2022,3500,m3/inhab/yr
+Paraguay,PRY,"Dependency ratio",2022,70,%
+Paraguay,PRY,"Total renewable water resources per capita",2022,50000,m3/inhab/yr
+Zambia,ZMB,"Dependency ratio",2022,24,%
+Zambia,ZMB,"Total renewable water resources per capita",2022,5500,m3/inhab/yr
+Zimbabwe,ZWE,"Dependency ratio",2022,39,%
+Zimbabwe,ZWE,"Total renewable water resources per capita",2022,1300,m3/inhab/yr
+"DR Congo",COD,"Dependency ratio",2022,30,%
+"DR Congo",COD,"Total renewable water resources per capita",2022,14000,m3/inhab/yr
+Netherlands,NLD,"Dependency ratio",2022,88,%
+Netherlands,NLD,"Total renewable water resources per capita",2022,5100,m3/inhab/yr
+Hungary,HUN,"Dependency ratio",2022,94,%
+Hungary,HUN,"Total renewable water resources per capita",2022,10500,m3/inhab/yr
+Moldova,MDA,"Dependency ratio",2022,91,%
+Moldova,MDA,"Total renewable water resources per capita",2022,2900,m3/inhab/yr
+Romania,ROU,"Dependency ratio",2022,80,%
+Romania,ROU,"Total renewable water resources per capita",2022,11000,m3/inhab/yr
+Serbia,SRB,"Dependency ratio",2022,92,%
+Serbia,SRB,"Total renewable water resources per capita",2022,21000,m3/inhab/yr

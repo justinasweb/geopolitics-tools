@@ -24,7 +24,9 @@ How source data gets from 33 public sources into the site. Phase 1 of the develo
 | Path | What |
 |---|---|
 | `pipeline/run.ts` | The runner's command line (options at the top of the file) |
+| `pipeline/import.ts` | The import tool's command line, for sources with no API |
 | `pipeline/sources/` | One file per source: schedule, deadline, credit, licence and its fetcher |
+| `pipeline/sources/imported.ts` | The imported sources and the file kinds each takes: columns kept, row filter, checks |
 | `pipeline/lib/runner.ts` | One run: due sources, checks, saving, state, alerts, snapshot |
 | `pipeline/lib/state.ts` | Scheduling and alert rules (pure functions, unit tested) |
 | `pipeline/lib/store.ts` | R2 through the Cloudflare API, or a local folder |
@@ -79,8 +81,8 @@ back separately, from Cloudflare's deployments.
 
 A failed source is retried after 1, 2, 4… hours, never later than its normal interval.
 
-Still to come in phase 1: the import tool for file-only sources (USGS minerals, SIPRI, UN population, Global Energy
-Monitor, water datasets, AidData, Treasury history), and IMF reserves (gold in tonnes needs the IMF's new SDMX
+Sources with no API are imported by hand when they publish (see "Importing a file" below). Still to come in phase 1:
+IMF reserves (gold in tonnes needs the IMF's new SDMX
 service checked first). Keyed sources (EIA, UN Comtrade, Ember, UCDP, IPC) follow as their keys arrive. FAOSTAT has
 no fertiliser trade matrix, so potash and phosphate flows will come from UN Comtrade.
 
@@ -102,6 +104,37 @@ Every fetcher takes its address from an environment variable when set (`WORLDBAN
 `USGS_EQ_BASE`, `UNHCR_BASE`, `IODA_BASE`, `TIC_URL`, `OWID_URL`, `CELESTRAK_URL`, `CSL_URL`, `EU_FSF_URL`,
 `UK_SANCTIONS_URL`, `PINKSHEET_URL`, `OVERPASS_URL`, `FAOSTAT_BASE`, `IMF_DATAMAPPER_BASE`, `PORTWATCH_URL`), so it
 can be pointed at a stub.
+
+## Importing a file
+
+Nine sources have no API or refuse scripts, so their files are downloaded by hand on release and imported:
+
+```sh
+node pipeline/import.ts --list                                   # the kinds, and which download each expects
+node pipeline/import.ts sipri ~/Downloads/trade-register.csv     # into .data/, to try it
+node pipeline/import.ts wpp-age WPP2024_PopulationByAge5GroupSex_Medium.csv.gz --store=r2
+```
+
+| Source | Kinds | Released |
+|---|---|---|
+| SIPRI Arms Transfers | `sipri` | Each March |
+| UN World Population Prospects | `wpp-total`, `wpp-indicators`, `wpp-age` | Every two years |
+| Global Energy Monitor | `gem-coal`, `gem-nuclear`, `gem-lng`, `gem-pipelines` | About twice a year |
+| WRI Aqueduct | `aqueduct-baseline`, `aqueduct-future` | Rarely |
+| FAO AQUASTAT | `aquastat` | Rarely |
+| Global Dam Watch | `gdw` | Rarely |
+| AidData | `aiddata` | Every few years |
+| USGS Mineral Commodity Summaries | `usgs` (one file per edition, so older ones can be added) | Each January |
+| US Treasury holdings, history | `treasury-history` | Built once |
+
+It takes the file as downloaded: CSV, JSON or an Excel workbook (the sheet with the needed columns is found, or name
+it with `--sheet=`), gzipped or zipped (`--entry=` picks the file when a zip holds several); Windows text is turned
+into UTF-8. It stops with the file's own columns listed if one it needs is missing, keeps only the needed columns,
+applies the kind's filter (countries only, for instance), and refuses fewer than 10 rows or far fewer than the last
+import (`--allow-shrink` when that is real). Columns we keep by hand, such as a GEM terminal's stop year, are added
+empty when the file lacks them. The file is then saved like a fetched one, recorded with its download name and date,
+and published in a new snapshot; the hourly run keeps it in every snapshot after that. `--store=r2` needs
+`CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` in the environment, as for the runner.
 
 ## Settings
 

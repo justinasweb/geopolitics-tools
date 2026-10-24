@@ -3,7 +3,11 @@
 import { CheckError } from './source.ts';
 
 export function parseCsv(text: string, delimiter = ','): string[][] {
-  const rows: string[][] = [];
+  return [...csvRows(text, delimiter)];
+}
+
+/** The rows one at a time, for files too big to hold as arrays (UN population by age: about a million rows). */
+export function* csvRows(text: string, delimiter = ','): Generator<string[]> {
   let row: string[] = [];
   let field = '';
   let quoted = false;
@@ -19,12 +23,11 @@ export function parseCsv(text: string, delimiter = ','): string[][] {
     else if (c === '\n' || c === '\r') {
       if (c === '\r' && text[i + 1] === '\n') i++;
       row.push(field); field = '';
-      if (row.length > 1 || row[0] !== '') rows.push(row);
+      if (row.length > 1 || row[0] !== '') yield row;
       row = [];
     } else field += c;
   }
-  if (field !== '' || row.length) { row.push(field); rows.push(row); }
-  return rows;
+  if (field !== '' || row.length) { row.push(field); yield row; }
 }
 
 const quote = (v: string, d: string) => (/["\r\n]/.test(v) || v.includes(d) ? `"${v.replace(/"/g, '""')}"` : v);

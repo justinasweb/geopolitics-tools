@@ -1,0 +1,36 @@
+GRAND_ID,DAM_NAME,RIVER,MAIN_BASIN,COUNTRY,ISO3,YEAR,DAM_HGT_M,CAP_MCM,MAIN_USE,LONG_DD,LAT_DD,STATUS
+5000,"Three Gorges",Yangtze,Yangtze,China,CHN,2003,181,39300,Hydroelectricity,111,30.82,Operating
+5001,"Grand Ethiopian Renaissance","Blue Nile",Nile,Ethiopia,ETH,2022,145,74000,Hydroelectricity,35.09,11.21,Operating
+5002,"Aswan High",Nile,Nile,Egypt,EGY,1970,111,162000,Irrigation,32.88,23.97,Operating
+5003,Merowe,Nile,Nile,Sudan,SDN,2009,67,12500,Hydroelectricity,31.82,18.67,Operating
+5004,"Gibe III",Omo,"Lake Turkana",Ethiopia,ETH,2016,243,14700,Hydroelectricity,37.3,6.85,Operating
+5005,Atatürk,Euphrates,Tigris–Euphrates,Türkiye,TUR,1990,169,48700,Hydroelectricity,38.32,37.48,Operating
+5006,Ilısu,Tigris,Tigris–Euphrates,Türkiye,TUR,2018,135,10400,Hydroelectricity,41.85,37.53,Operating
+5007,Tabqa,Euphrates,Tigris–Euphrates,Syria,SYR,1973,60,11700,Hydroelectricity,38.56,35.87,Operating
+5008,Mosul,Tigris,Tigris–Euphrates,Iraq,IRQ,1986,113,11100,Hydroelectricity,42.82,36.63,Operating
+5009,Haditha,Euphrates,Tigris–Euphrates,Iraq,IRQ,1987,57,8300,Hydroelectricity,42.36,34.21,Operating
+5010,Xiaowan,"Lancang (Mekong)",Mekong,China,CHN,2010,292,15000,Hydroelectricity,100.09,24.7,Operating
+5011,Nuozhadu,"Lancang (Mekong)",Mekong,China,CHN,2014,262,23700,Hydroelectricity,100.42,22.65,Operating
+5012,Xayaburi,Mekong,Mekong,Laos,LAO,2019,32,1300,Hydroelectricity,101.82,19.25,Operating
+5013,"Don Sahong",Mekong,Mekong,Laos,LAO,2020,25,115,Hydroelectricity,105.82,13.95,Operating
+5014,"Yarlung Tsangpo lower reaches","Yarlung Tsangpo (Brahmaputra)",Brahmaputra,China,CHN,,,50000,Hydroelectricity,95.1,29.55,Construction
+5015,Tarbela,Indus,Indus,Pakistan,PAK,1976,143,13700,Irrigation,72.69,34.09,Operating
+5016,Mangla,Jhelum,Indus,Pakistan,PAK,1967,147,9100,Irrigation,73.64,33.14,Operating
+5017,Kishanganga,"Kishanganga (Neelum)",Indus,India,IND,2018,37,18,Hydroelectricity,74.72,34.65,Operating
+5018,Baglihar,Chenab,Indus,India,IND,2008,143,475,Hydroelectricity,75.1,33.16,Operating
+5019,Bhakra,Sutlej,Indus,India,IND,1963,226,9340,Irrigation,76.43,31.41,Operating
+5020,"Farakka Barrage",Ganges,Ganges,India,IND,1975,20,300,"Water supply",87.92,24.8,Operating
+5021,Rogun,Vakhsh,"Amu Darya",Tajikistan,TJK,2018,335,13300,Hydroelectricity,69.79,38.69,Construction
+5022,Nurek,Vakhsh,"Amu Darya",Tajikistan,TJK,1980,300,10500,Hydroelectricity,69.35,38.37,Operating
+5023,Toktogul,Naryn,"Syr Darya",Kyrgyzstan,KGZ,1975,215,19500,Hydroelectricity,72.67,41.68,Operating
+5024,"Qosh Tepa canal","Amu Darya","Amu Darya",Afghanistan,AFG,,,0,Irrigation,66,37,Construction
+5025,Kajaki,Helmand,Helmand,Afghanistan,AFG,1953,98,2700,Irrigation,65.12,32.32,Operating
+5026,Kakhovka,Dnipro,Dnipro,Ukraine,UKR,1956,30,18200,Hydroelectricity,33.37,46.78,Destroyed
+5027,Kariba,Zambezi,Zambezi,Zambia,ZMB,1959,128,180600,Hydroelectricity,28.76,-16.52,Operating
+5028,"Inga I and II",Congo,Congo,"DR Congo",COD,1972,50,0,Hydroelectricity,13.6,-5.52,Operating
+5029,Itaipu,Paraná,"La Plata",Brazil,BRA,1984,196,29000,Hydroelectricity,-54.59,-25.41,Operating
+5030,"Belo Monte",Xingu,Amazon,Brazil,BRA,2016,90,4000,Hydroelectricity,-51.77,-3.12,Operating
+5031,"Grand Coulee",Columbia,Columbia,"United States",USA,1942,168,11800,Hydroelectricity,-118.98,47.96,Operating
+5032,Hoover,Colorado,Colorado,"United States",USA,1936,221,35200,"Water supply",-114.74,36.02,Operating
+5033,Jinping-I,Yalong,Yangtze,China,CHN,2014,305,7760,Hydroelectricity,101.63,28.18,Operating
+5034,"Sardar Sarovar",Narmada,Narmada,India,IND,2017,163,9500,Irrigation,73.75,21.83,Operating
