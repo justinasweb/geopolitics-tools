@@ -1,0 +1,175 @@
+# Checks every pull request and every push to main, then deploys:
+#   pull request (from this repo) -> a Cloudflare Preview named pr-<number>, link posted on the PR
+#   push to main                  -> production
+#   pull request closed           -> its Preview is deleted
+name: ci
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+env:
+  SITE_INDEXABLE: ${{ vars.SITE_INDEXABLE }}
+
+jobs:
+  check:
+    if: github.event.action != 'closed'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with: { node-version-file: .nvmrc, cache: npm }
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - uses: actions/upload-artifact@v7
+        with: { name: dist, path: dist, retention-days: 7, include-hidden-files: true }
+      - name: Serve the build locally as Cloudflare would, and check it
+        run: |
+          npx playwright install --with-deps chromium
+          npx wrangler dev --port 8787 > wrangler-dev.log 2>&1 &
+          for i in $(seq 1 30); do curl -sf -o /dev/null http://localhost:8787/ && break; sleep 2; done
+          BASE=http://localhost:8787 npm run test:e2e -- shots
+      - if: always()
+        uses: actions/upload-artifact@v7
+        with: { name: screenshots-local, path: shots, retention-days: 7, if-no-files-found: ignore }
+
+  secrets:
+    if: github.event.action != 'closed'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with: { fetch-depth: 0 }
+      - uses: gitleaks/gitleaks-action@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  preview:
+    needs: [check, secrets]
+    # Forks never get the Cloudflare secrets.
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      pull-requests: write
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with: { node-version-file: .nvmrc, cache: npm }
+      - run: npm ci
+      - uses: actions/download-artifact@v8
+        with: { name: dist, path: dist }
+      - name: Check the Cloudflare token and that the Worker exists
+        run: |
+          api="https://api.cloudflare.com/client/v4"
+          auth="Authorization: Bearer $CLOUDFLARE_API_TOKEN"
+          echo "Token: $(curl -s -H "$auth" "$api/user/tokens/verify" | jq -c '{success, status: .result.status, errors}')"
+          # What the token can reach (HTTP codes only; 403 = permission missing)
+          echo "Accounts the token sees: $(curl -s -H "$auth" "$api/accounts" | jq -r --arg id "$CLOUDFLARE_ACCOUNT_ID" '"\(.result | length), configured account among them: \([.result[].id] | index($id) != null)"')"
+          for path in pages/projects r2/buckets workers/scripts workers/subdomain; do
+            c=$(curl -s -o probe.json -w '%{http_code}' -H "$auth" "$api/accounts/$CLOUDFLARE_ACCOUNT_ID/$path")
+            echo "  $path: HTTP $c $(jq -c '.errors // empty' probe.json)"
+          done
+          code=$(curl -s -o worker.json -w '%{http_code}' -H "$auth" "$api/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/scripts/geopolitics-tools/settings")
+          echo "Worker settings: HTTP $code $(jq -c '.errors' worker.json)"
+          # Previews hang off an existing Worker. The very first run creates it with a production deploy
+          # (served only on workers.dev until the domain is connected, and noindex).
+          # Some API paths answer 403 rather than 404 for a Worker that doesn't exist, so ask the list.
+          exists=$(curl -s -H "$auth" "$api/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/scripts" | jq -r '[.result[]?.id] | index("geopolitics-tools") != null')
+          echo "Worker exists: $exists"
+          if [ "$exists" = false ]; then npx wrangler deploy --message "first deploy from PR #${{ github.event.pull_request.number }}"; fi
+      - name: Deploy the Preview
+        id: deploy
+        run: |
+          set -o pipefail
+          npx wrangler preview --name "pr-${{ github.event.pull_request.number }}" \
+            --message "${{ github.event.pull_request.head.sha }}" --json | tee preview.json
+          # wrangler prints a banner before the JSON, so pick the addresses out as text.
+          # Prefer the stable Preview address (pr-<n>-…) over the one-off deployment address.
+          urls=$(grep -o 'https://[a-z0-9.-]*\.workers\.dev' preview.json | sort -u)
+          url=$(grep -m1 '^https://pr-${{ github.event.pull_request.number }}-' <<< "$urls" || head -1 <<< "$urls")
+          [ -n "$url" ] || { echo "No Preview URL in the wrangler output"; exit 1; }
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+      - name: Post the link on the pull request
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr comment "${{ github.event.pull_request.number }}" --edit-last --create-if-none --body \
+            "Preview: ${{ steps.deploy.outputs.url }} (updated for ${{ github.event.pull_request.head.sha }})"
+          echo "Preview: ${{ steps.deploy.outputs.url }}" >> "$GITHUB_STEP_SUMMARY"
+      - name: Check the Preview
+        env:
+          BASE: ${{ steps.deploy.outputs.url }}
+          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+        run: |
+          npx playwright install --with-deps chromium
+          npm run test:e2e -- shots-preview
+      - if: always()
+        uses: actions/upload-artifact@v7
+        with: { name: screenshots-preview, path: shots-preview, retention-days: 7, if-no-files-found: ignore }
+
+  production:
+    needs: [check, secrets]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: production
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with: { node-version-file: .nvmrc, cache: npm }
+      - run: npm ci
+      - uses: actions/download-artifact@v8
+        with: { name: dist, path: dist }
+      - name: Make sure the R2 buckets exist
+        run: |
+          for b in gt-raw gt-snapshots; do
+            npx wrangler r2 bucket info "$b" > /dev/null 2>&1 || npx wrangler r2 bucket create "$b"
+          done
+      - name: Deploy to production
+        run: |
+          set -o pipefail
+          npx wrangler deploy --message "${{ github.sha }}" | tee deploy.log
+          url="${{ vars.PRODUCTION_URL }}"
+          [ -n "$url" ] || url=$(grep -o 'https://geopolitics-tools\.[a-z0-9-]*\.workers\.dev' deploy.log | head -1)
+          echo "BASE=$url" >> "$GITHUB_ENV"
+          echo "Production: $url" >> "$GITHUB_STEP_SUMMARY"
+      - name: Check production
+        run: |
+          npx playwright install --with-deps chromium
+          npm run test:e2e -- shots-production
+      - if: always()
+        uses: actions/upload-artifact@v7
+        with: { name: screenshots-production, path: shots-production, retention-days: 7, if-no-files-found: ignore }
+
+  cleanup:
+    if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with: { node-version-file: .nvmrc, cache: npm }
+      - run: npm ci
+      - run: npx wrangler preview delete --name "pr-${{ github.event.pull_request.number }}" --skip-confirmation
