@@ -162,6 +162,16 @@ jobs:
           [ -n "$url" ] || url=$(grep -o 'https://geopolitics-tools\.[a-z0-9-]*\.workers\.dev' deploy.log | head -1)
           echo "BASE=$url" >> "$GITHUB_ENV"
           echo "Production: $url" >> "$GITHUB_STEP_SUMMARY"
+      - name: Secrets for the Worker's data watch (worker/watch.ts)
+        env:
+          GH_DISPATCH_TOKEN: ${{ secrets.GH_DISPATCH_TOKEN }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          # Each is optional: without the GitHub token the watch only checks staleness, without Telegram it only logs.
+          for k in GH_DISPATCH_TOKEN TELEGRAM_BOT_TOKEN TELEGRAM_CHAT_ID; do
+            if [ -n "${!k}" ]; then printf '%s' "${!k}" | npx wrangler secret put "$k" > /dev/null && echo "$k set"; else echo "$k not set"; fi
+          done
       - name: Check production
         run: |
           npx playwright install --with-deps chromium

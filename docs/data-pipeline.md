@@ -15,6 +15,10 @@ How source data gets from 33 public sources into the site. Phase 1 of the develo
   the site never loses data because a source had a bad day.
 - **Raw files and snapshots live in R2.** Every changed copy is kept, so a release can be rebuilt exactly and sources'
   revisions can be traced. A snapshot records which copies make up the data at one moment; the site builds from one.
+- **An outside watch backs up the schedule.** GitHub's scheduled runs are best-effort and can be skipped, so the site's
+  Worker has an hourly Cron Trigger (minute 41, `worker/watch.ts`): if no data run started in the last 50 minutes it
+  starts one through the GitHub API, and if the published `status.json` is more than 6 hours old it alerts on
+  Telegram (decision D11).
 - **Alerts go to Telegram** when a source fails twice in a row or goes past its freshness deadline, then at most once a
   day while the problem lasts, and once more when it works again. The run also fails, so GitHub's failed-run email is a
   backup.
@@ -141,6 +145,7 @@ and published in a new snapshot; the hourly run keeps it in every snapshot after
 | Repository secret | Needed for |
 |---|---|
 | `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` | R2 (already set for deploys) |
+| `GH_DISPATCH_TOKEN` | The Worker's outside watch, to start a run GitHub skipped (fine-grained, this repository, "Actions: read and write") |
 | `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` | Alerts. Without them alerts are only printed in the run log, and the run fails so GitHub emails. To check them: Run workflow with "test alert" ticked |
 
 Errors are written without query strings, so an API key in an address never reaches a log or `status.json`.
