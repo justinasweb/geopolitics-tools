@@ -11,5 +11,14 @@ import treasury from './treasury.ts';
 import epoch from './epoch.ts';
 import owid from './owid.ts';
 import unhcr from './unhcr.ts';
+import ukSanctions from './uk-sanctions.ts';
+import pinksheet from './pinksheet.ts';
+import cables from './cables.ts';
+import faostat from './faostat.ts';
+import imfWeo from './imf-weo.ts';
+import portwatch from './portwatch.ts';
 
-export const SOURCES: Source[] = [gdacs, usgsQuakes, ioda, celestrak, csl, euSanctions, worldbank, treasury, epoch, owid, unhcr];
+export const SOURCES: Source[] = [
+  gdacs, usgsQuakes, ioda, portwatch, celestrak, csl, euSanctions, ukSanctions, worldbank, pinksheet, treasury, epoch,
+  owid, unhcr, imfWeo, cables, faostat,
+];

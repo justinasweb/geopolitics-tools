@@ -1,5 +1,9 @@
 // HTTP for fetchers: a polite user agent, timeouts, a few retries on network errors and 5xx, and
 // error messages without query strings, so a key in a URL never reaches a log or status.json.
+import { createWriteStream } from 'node:fs';
+import { Readable } from 'node:stream';
+import { pipeline } from 'node:stream/promises';
+import type { ReadableStream as WebReadableStream } from 'node:stream/web';
 
 const UA = 'geopolitics.tools data fetcher (+https://geopolitics.tools)';
 
@@ -89,4 +93,19 @@ export async function getText(http: Http, url: string, opts?: GetOptions): Promi
 
 export async function getBytes(http: Http, url: string, opts?: GetOptions): Promise<Uint8Array> {
   return new Uint8Array(await (await http.get(url, opts)).arrayBuffer());
+}
+
+/** Streams a large download to a file instead of memory; returns its size in bytes. */
+export async function saveTo(http: Http, url: string, path: string, opts?: GetOptions): Promise<number> {
+  const res = await http.get(url, opts);
+  if (!res.body) throw new NetworkError(`empty answer (${redact(url)})`);
+  let bytes = 0;
+  const body = Readable.fromWeb(res.body as WebReadableStream<Uint8Array>);
+  body.on('data', (c: Uint8Array) => { bytes += c.length; });
+  try {
+    await pipeline(body, createWriteStream(path));
+  } catch (e) {
+    throw new NetworkError(`download cut off after ${bytes} bytes: ${(e as Error).message} (${redact(url)})`);
+  }
+  return bytes;
 }
