@@ -1,0 +1,13 @@
+# Secret scan settings: gitleaks' default rules, with known false positives allowed by the exact line.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Not secrets"
+regexTarget = "line"
+regexes = [
+  # The EU sanctions export's public token, published by the Commission for anyone downloading the list
+  '''csvFullSanctionsList_1_1/content\?token=dG9rZW4tMjAxNw''',
+  # Our World in Data column names (pipeline/sources/owid.ts)
+  '''^\s*'co2', 'co2_per_capita', 'cumulative_co2', 'share_global_co2', 'share_global_cumulative_co2',$''',
+]
