@@ -1,0 +1,73 @@
+# The data pipeline (docs/data-pipeline.md).
+#   every hour            fetch whatever is due, keep what passes its checks in R2, alert on problems
+#   run by hand           same, with optional --only / --force (Actions tab → data → Run workflow)
+#   pull request          live check: every enabled source against the real service, saved only
+#                         inside the run, plus an R2 write test; nothing the site uses is touched
+name: data
+on:
+  schedule:
+    - cron: '23 * * * *'
+  workflow_dispatch:
+    inputs:
+      only:
+        description: Run just these sources (comma-separated ids, e.g. gdacs,worldbank); also ones switched off
+        required: false
+      force:
+        description: Run every enabled source, due or not
+        type: boolean
+        default: false
+      allow_shrink:
+        description: Accept a sharp drop in values (when a source really removed data)
+        type: boolean
+        default: false
+  pull_request:
+    paths: ['pipeline/**', '.github/workflows/data.yml']
+permissions:
+  contents: read
+concurrency:
+  # Scheduled and manual runs share the state in R2, so they never overlap; a pull request check has its own group.
+  group: ${{ github.event_name == 'pull_request' && format('data-pr-{0}', github.event.pull_request.number) || 'data' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  run:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+    steps:
+      - uses: actions/checkout@v7
+      # The pipeline uses only Node's own modules, so there is nothing to install.
+      - uses: actions/setup-node@v7
+        with: { node-version-file: .nvmrc }
+      - name: Fetch what is due
+        env:
+          ONLY: ${{ inputs.only }}
+          FORCE: ${{ inputs.force && '--force' || '' }}
+          SHRINK: ${{ inputs.allow_shrink && '--allow-shrink' || '' }}
+        run: node pipeline/run.ts --store=r2 --fail-on-alert ${ONLY:+--only=$ONLY} $FORCE $SHRINK
+
+  live-check:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with: { node-version-file: .nvmrc }
+      - name: Every enabled source against the real service
+        run: node pipeline/run.ts --store=dir:.data --force --fail-on-error
+      - name: Write to and read from R2
+        # Also when a source failed above; forked pull requests get no secrets, so skip rather than fail.
+        if: (success() || failure()) && github.event.pull_request.head.repo.full_name == github.repository
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: node pipeline/r2-check.ts
+      - if: always()
+        uses: actions/upload-artifact@v7
+        with: { name: data-live-check, path: .data, retention-days: 7, if-no-files-found: ignore, include-hidden-files: true }
