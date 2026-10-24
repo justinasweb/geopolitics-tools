@@ -23,7 +23,8 @@ export function parseTicTable5(text: string): { months: string[]; holders: Holde
     const cells = l.split('\t').map((c) => c.trim());
     if (!cells[0] || TOTALS.test(cells[0])) continue;
     const values = cells.slice(1, 1 + months.length).map((v) => (v === '' ? null : num(v)));
-    if (values.length !== months.length) continue;
+    // The notes under the table are tab-separated too; a holder has figures.
+    if (values.length !== months.length || values.every((v) => v === null)) continue;
     holders.push({ label: cells[0], place: m.match(cells[0]), values });
   }
   return { months, holders };

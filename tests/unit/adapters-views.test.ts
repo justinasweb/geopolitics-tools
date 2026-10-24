@@ -7,7 +7,7 @@ import { hazards, parseQuakes, placeFromText } from '../../src/adapters/hazards.
 import { minerals, MINERALS } from '../../src/adapters/minerals.ts';
 import { chokepoints, statusFor } from '../../src/adapters/portwatch.ts';
 import { prices } from '../../src/adapters/prices.ts';
-import { treasuryHistory, treasuryHolders } from '../../src/adapters/treasury.ts';
+import { parseTicTable5, treasuryHistory, treasuryHolders } from '../../src/adapters/treasury.ts';
 import { countryAt } from '../../src/lib/geo.ts';
 
 const FIXTURES = new URL('../fixtures/prototype/', import.meta.url).pathname;
@@ -142,6 +142,9 @@ describe('resources and money', () => {
     expect(t.holders.find((h) => h.label === 'China, Mainland')!.place).toBe('CHN');
     expect(t.holders.some((h) => /total/i.test(h.label))).toBe(false);
     expect(treasuryHistory(raw).CHN[2015]).toBe(1246);
+    // The live table ends with notes, tab-separated like the rows.
+    const notes = `${readFileSync(`${FIXTURES}treasury/slt_table5.txt`, 'utf8')}\nNotes:\t\t\t\t\t\t\t\t\t\t\t\t\t\nThe data in this table are collected\t\t\t\t\t\t\t\t\t\t\t\t\t\n`;
+    expect(parseTicTable5(notes).holders.length).toBe(t.holders.length);
     expect(matchReports().every((r) => r.includes('every'))).toBe(true);
   });
 
