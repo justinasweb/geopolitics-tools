@@ -14,5 +14,7 @@
     "not_found_handling": "404-page",
     "run_worker_first": ["/api/*"]
   },
-  "observability": { "enabled": true }
+  "observability": { "enabled": true },
+  // Branch Previews (wrangler preview). They inherit nothing from production, so add bindings here as they arrive.
+  "previews": {}
 }
