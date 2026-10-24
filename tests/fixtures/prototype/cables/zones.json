@@ -1,0 +1,88 @@
+{
+    "zones": [
+        {
+            "id": "red-sea",
+            "name": "Red Sea and Bab el-Mandeb",
+            "bbox": [
+                32,
+                12,
+                44.5,
+                30
+            ],
+            "chokepoint": "Bab el-Mandeb Strait",
+            "note": "Most cables between Europe and Asia pass here. Several were cut in 2024 when a ship hit by a missile dragged its anchor."
+        },
+        {
+            "id": "malacca",
+            "name": "Strait of Malacca",
+            "bbox": [
+                95,
+                0,
+                104.5,
+                7.5
+            ],
+            "chokepoint": "Malacca Strait",
+            "note": "Almost every cable between Singapore and South Asia, the Middle East or Europe follows the strait."
+        },
+        {
+            "id": "luzon",
+            "name": "Luzon Strait",
+            "bbox": [
+                119,
+                18.5,
+                123,
+                22.5
+            ],
+            "chokepoint": null,
+            "note": "Earthquakes here cut several cables at once in 2006, slowing internet across East Asia for weeks."
+        },
+        {
+            "id": "taiwan",
+            "name": "Taiwan Strait and Taiwan coast",
+            "bbox": [
+                117.5,
+                22,
+                122.5,
+                26.5
+            ],
+            "chokepoint": null,
+            "note": "Cables to Taiwan and its outlying islands have been cut repeatedly; Matsu lost its links for weeks in 2023."
+        },
+        {
+            "id": "baltic",
+            "name": "Baltic Sea",
+            "bbox": [
+                10,
+                53.5,
+                30,
+                61
+            ],
+            "chokepoint": null,
+            "note": "Several cables and pipelines were damaged by ships dragging anchors in 2023–2025, leading NATO to step up patrols."
+        },
+        {
+            "id": "hormuz",
+            "name": "Strait of Hormuz and the Gulf",
+            "bbox": [
+                47,
+                23.5,
+                57.5,
+                30.5
+            ],
+            "chokepoint": "Strait of Hormuz",
+            "note": "Gulf states depend on a few cables through the strait, plus routes across Saudi Arabia."
+        },
+        {
+            "id": "black-sea",
+            "name": "Black Sea",
+            "bbox": [
+                27,
+                40.5,
+                42,
+                47
+            ],
+            "chokepoint": "Bosporus Strait",
+            "note": "Few cables, but the main sea route between the Caucasus and Europe."
+        }
+    ]
+}

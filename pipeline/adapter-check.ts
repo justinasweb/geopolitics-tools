@@ -6,6 +6,13 @@
 // ones) are listed as skipped. Exits 1 when a loader fails or finds nothing.
 import { matchReports, rawDir } from '../src/adapters/core.ts';
 import { space } from '../src/adapters/celestrak.ts';
+import { cables, outages } from '../src/adapters/digital.ts';
+import { gem } from '../src/adapters/gem.ts';
+import { hazards } from '../src/adapters/hazards.ts';
+import { minerals } from '../src/adapters/minerals.ts';
+import { chokepoints } from '../src/adapters/portwatch.ts';
+import { prices } from '../src/adapters/prices.ts';
+import { treasuryHistory, treasuryHolders } from '../src/adapters/treasury.ts';
 import { FLOWS, loadFlows } from '../src/data/flows.ts';
 import { INDICATORS, latestYear, registry } from '../src/data/indicators.ts';
 
@@ -37,6 +44,28 @@ for (const [key, f] of Object.entries(FLOWS)) {
   } catch (e) {
     if (missing(e)) skipped.push(`flow ${key}`);
     else failed.push(`flow ${key}: ${(e as Error).message}`);
+  }
+}
+// Adapters the map views read directly: what each found.
+const VIEWS: [string, () => string][] = [
+  ['hazards', () => { const h = hazards(raw); const q = h.filter((e) => e.kind === 'EQ'); return `${h.length - q.length} alerts, ${q.length} quakes (${q.filter((e) => !e.place).length} at sea or unplaced)`; }],
+  ['outages', () => `${outages(raw).length} country outages`],
+  ['cables', () => { const c = cables(raw); return `${c.length} cables, ${c.filter((x) => x.landings.length >= 2).length} with two or more landings, ${c.flatMap((x) => x.landings).filter((l) => !l.place).length} landings unplaced`; }],
+  ['chokepoints', () => chokepoints(raw).map((p) => `${p.name} ${p.status}`).join(', ')],
+  ['prices', () => `${Object.keys(prices(raw).series).length} Pink Sheet series`],
+  ['minerals', () => minerals(raw).map((m) => `${m.id} ${m.year}`).join(', ')],
+  ['gem', () => { const g = gem(raw); return `${g.pipelines.length} pipelines, ${g.terminals.length} terminals, ${g.plants.length} plants`; }],
+  ['treasury', () => `${treasuryHolders(raw).holders.length} holders to ${treasuryHolders(raw).months[0]}`],
+  ['treasury history', () => `${Object.keys(treasuryHistory(raw)).length} places`],
+];
+for (const [name, f] of VIEWS) {
+  try {
+    const line = f();
+    console.log(`view ${name.padEnd(16)} ${line}`);
+    if (/^0 |^$/.test(line)) failed.push(`view ${name}: nothing found`);
+  } catch (e) {
+    if (missing(e)) skipped.push(`view ${name}`);
+    else failed.push(`view ${name}: ${(e as Error).message}`);
   }
 }
 if (raw.has('celestrak', 'satcat.csv')) {

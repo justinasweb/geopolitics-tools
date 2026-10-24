@@ -52,3 +52,13 @@ A source's own rows are tried first, then the `*` rows, then the places table. N
 accents, punctuation, a leading "the", "&" or "St." for Saint. Every adapter prints its report in the build, so a new
 code from a source shows up instead of silently dropping a country. All 160 USGS country names in the prototype's map
 match without extra rows.
+
+## Points to countries
+
+`src/lib/geo.ts` places a point in a country for sources that give coordinates and no country (USGS earthquakes,
+cable landing stations). It uses Natural Earth's 1:50m admin-0 shapes, v5.1.2 (`src/data/geo/ne_50m_admin0.json`,
+public domain, properties trimmed and coordinates rounded to 0.001°), the default de facto map the policy names.
+Natural Earth's own codes go through `codes.csv` (source `naturalearth`): Somaliland and Northern Cyprus have their
+own shapes but their points go to Somalia and Cyprus, as sources report them, and the Siachen Glacier to no country.
+`countryNear` also takes the nearest coast within 25 km, for stations a coarse coastline leaves at sea; an OSM
+address on the station wins over both, which islands too small for the map (Matsu) need.

@@ -38,7 +38,7 @@ function sampleSnapshot(): Raw {
   writeFileSync(join(dir, 'unhcr/pairs.json'), JSON.stringify({ items }));
   const samples = rawDir(FIXTURES, { 'imf-weo': 'imf' });
   const split = rawDir(dir);
-  return { has: (s, f) => (s === 'unhcr' ? split : samples).has(s, f), text: (s, f) => (s === 'unhcr' ? split : samples).text(s, f), json: (s, f) => (s === 'unhcr' ? split : samples).json(s, f) };
+  return { has: (s, f) => (s === 'unhcr' ? split : samples).has(s, f), list: (s) => (s === 'unhcr' ? split : samples).list(s), text: (s, f) => (s === 'unhcr' ? split : samples).text(s, f), json: (s, f) => (s === 'unhcr' ? split : samples).json(s, f) };
 }
 
 beforeEach(() => resetMatchers());

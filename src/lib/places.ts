@@ -74,9 +74,9 @@ export const NOTES: CoverageNote[] = table('notes.csv').map((r) => ({ source: r.
 const byId = new Map(PLACES.map((p) => [p.id, p]));
 export const place = (id: string) => byId.get(id);
 
-/** Names compared without case, accents, punctuation, a leading "the", "&" or "St" for Saint. */
+/** Names compared without case, accents, punctuation, a leading "the" or trailing "(the)", "&" or "St" for Saint. */
 export const normName = (s: string) => s.normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase()
-  .replace(/&/g, ' and ').replace(/['’`.]/g, '').replace(/[^a-z0-9]+/g, ' ').replace(/^the /, '').replace(/\bst\b/g, 'saint').trim();
+  .replace(/\s*\(the\)$/, '').replace(/&/g, ' and ').replace(/['’`.]/g, '').replace(/[^a-z0-9]+/g, ' ').replace(/^the /, '').replace(/\bst\b/g, 'saint').trim();
 
 const key = (system: System, code: string) => (system === 'name' ? normName(code) : system === 'm49' ? code.replace(/^0+/, '') : code.toUpperCase());
 

@@ -47,6 +47,21 @@ export const SITES: Record<string, Site> = {
   PALMA: { name: 'Palmachim', lat: 31.88, lon: 34.68, state: at('ISR') },
   WOMRA: { name: 'Woomera', lat: -30.95, lon: 136.5, state: at('AUS') },
   ALCLC: { name: 'Alcântara', lat: -2.37, lon: -44.4, state: at('BRA') },
+  // Codes the live check found in the real catalogue (names as understood; to check against CelesTrak's site list).
+  PLMSC: { name: 'Plesetsk', lat: 62.93, lon: 40.57, state: soviet('RUS') },
+  TANSC: { name: 'Tanegashima', lat: 30.4, lon: 130.97, state: at('JPN') },
+  SVOBO: { name: 'Svobodny', lat: 51.8, lon: 128.3, state: at('RUS') },
+  SUBL: { name: 'Submarine launch, Barents Sea', lat: 70, lon: 35, state: soviet('RUS') },
+  WRAS: { name: 'Air launch, Western Range (Pegasus)', lat: 34.7, lon: -121.5, state: at('USA') },
+  CAS: { name: 'Air launch, Canary Islands (Pegasus)', lat: 28, lon: -15, state: at('USA') },
+  STARB: { name: 'Starbase, Texas', lat: 25.99, lon: -97.15, state: at('USA') },
+  YAVNE: { name: 'Palmachim (Yavne)', lat: 31.88, lon: 34.68, state: at('ISR') },
+  SMTS: { name: 'Shahrud', lat: 36.2, lon: 55.33, state: at('IRN') },
+  SCSLA: { name: 'South China Sea (sea launch)', lat: 20.5, lon: 113.5, state: at('CHN') },
+  JJSLA: { name: 'Jeju (sea launch)', lat: 33.1, lon: 126.5, state: at('KOR') },
+  ANDSP: { name: 'Andøya', lat: 69.29, lon: 16.02, state: at('NOR') },
+  // Sea Launch, an international venture, from the equatorial Pacific: counted for no country.
+  SEAL: { name: 'Sea Launch (Pacific)', lat: 0, lon: -154, state: () => null },
 };
 
 export type Orbit = 'leo' | 'meo' | 'geo';

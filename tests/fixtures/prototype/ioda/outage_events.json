@@ -1,0 +1,317 @@
+{
+    "type": "outages.events",
+    "metadata": {
+        "from": 1735689600,
+        "until": 1790812800,
+        "entityType": "country"
+    },
+    "note": "Sample shaped like IODA outage events. The \"note\" field (cause) is ours; IODA reports when, not why. Do not cite.",
+    "data": [
+        {
+            "location": "country\/IQ",
+            "location_name": "Iraq",
+            "start": 1748066400,
+            "duration": 10800,
+            "score": 40000,
+            "method": "bgp,ping-slash24,merit-nt",
+            "note": "Exam-season shutdown"
+        },
+        {
+            "location": "country\/IQ",
+            "location_name": "Iraq",
+            "start": 1749535200,
+            "duration": 10800,
+            "score": 40000,
+            "method": "bgp,ping-slash24,merit-nt",
+            "note": "Exam-season shutdown"
+        },
+        {
+            "location": "country\/IQ",
+            "location_name": "Iraq",
+            "start": 1750140000,
+            "duration": 10800,
+            "score": 40000,
+            "method": "bgp,ping-slash24,merit-nt",
+            "note": "Exam-season shutdown"
+        },
+        {
+            "location": "country\/SY",
+            "location_name": "Syria",
+            "start": 1749880800,
+            "duration": 10800,
+            "score": 20000,
+            "method": "bgp,ping-slash24,merit-nt",
+            "note": "Exam-season shutdown"
+        },
+        {
+            "location": "country\/IR",
+            "location_name": "Iran",
+            "start": 1749794400,
+            "duration": 792000,
+            "score": 900000,
+            "method": "bgp,ping-slash24,merit-nt",
+            "note": "Nationwide restrictions during the war with Israel"
+        },
+        {
+            "location": "country\/IR",
+            "location_name": "Iran",
+            "start": 1767852000,
+            "duration": 108000,
+            "score": 300000,
+            "method": "bgp,ping-slash24,merit-nt",
+            "note": "Shutdown during protests"
+        },
+        {
+            "location": "country\/AF",
+            "location_name": "Afghanistan",
+            "start": 1759125600,
+            "duration": 172800,
+            "score": 400000,
+            "method": "bgp,ping-slash24,merit-nt",
+            "note": "Nationwide shutdown ordered by the Taliban"
+        },
+        {
+            "location": "country\/SD",
+            "location_name": "Sudan",
+            "start": 1738562400,
+            "duration": 345600,
+            "score": 200000,
+            "method": "bgp,ping-slash24,merit-nt",
+            "note": "Outage during fighting"
+        },
+        {
+            "location": "country\/SD",
+            "location_name": "Sudan",
+            "start": 1761544800,
+            "duration": 259200,
+            "score": 200000,
+            "method": "bgp,ping-slash24,merit-nt",
+            "note": "Outage during fighting in El Fasher"
+        },
+        {
+            "location": "country\/UA",
+            "location_name": "Ukraine",
+            "start": 1736920800,
+            "duration": 36000,
+            "score": 100000,
+            "method": "bgp,ping-slash24,merit-nt",
+            "note": "Power cuts after strikes on the grid"
+        },
+        {
+            "location": "country\/UA",
+            "location_name": "Ukraine",
+            "start": 1763618400,
+            "duration": 50400,
+            "score": 150000,
+            "method": "bgp,ping-slash24,merit-nt",
+            "note": "Power cuts after strikes on the grid"
+        },
+        {
+            "location": "country\/UA",
+            "location_name": "Ukraine",
+            "start": 1770271200,
+            "duration": 64800,
+            "score": 160000,
+            "method": "bgp,ping-slash24,merit-nt",
+            "note": "Power cuts after strikes on the grid"
+        },
+        {
+            "location": "country\/RU",
+            "location_name": "Russia",
+            "start": 1752559200,
+            "duration": 432000,
+            "score": 60000,
+            "method": "bgp,ping-slash24,merit-nt",
+            "note": "Regional mobile internet shutdowns"
+        },
+        {
+            "location": "country\/RU",
+            "location_name": "Russia",
+            "start": 1772344800,
+            "duration": 720000,
+            "score": 70000,
+            "method": "bgp,ping-slash24,merit-nt",
+            "note": "Regional mobile internet shutdowns"
+        },
+        {
+            "location": "country\/PS",
+            "location_name": "Palestine",
+            "start": 1736488800,
+            "duration": 216000,
+            "score": 50000,
+            "method": "bgp,ping-slash24,merit-nt",
+            "note": "Gaza: damage to networks"
+        },
+        {
+            "location": "country\/PS",
+            "location_name": "Palestine",
+            "start": 1757656800,
+            "duration": 144000,
+            "score": 50000,
+            "method": "bgp,ping-slash24,merit-nt",
+            "note": "Gaza: damage to networks"
+        },
+        {
+            "location": "country\/MM",
+            "location_name": "Myanmar",
+            "start": 1743228000,
+            "duration": 180000,
+            "score": 80000,
+            "method": "bgp,ping-slash24,merit-nt",
+            "note": "Earthquake"
+        },
+        {
+            "location": "country\/ET",
+            "location_name": "Ethiopia",
+            "start": 1754028000,
+            "duration": 1080000,
+            "score": 30000,
+            "method": "bgp,ping-slash24,merit-nt",
+            "note": "Regional shutdown in Amhara"
+        },
+        {
+            "location": "country\/PK",
+            "location_name": "Pakistan",
+            "start": 1746684000,
+            "duration": 43200,
+            "score": 120000,
+            "method": "bgp,ping-slash24,merit-nt",
+            "note": "Restrictions during the conflict with India"
+        },
+        {
+            "location": "country\/PK",
+            "location_name": "Pakistan",
+            "start": 1757138400,
+            "duration": 64800,
+            "score": 60000,
+            "method": "bgp,ping-slash24,merit-nt",
+            "note": "Slowdown after Red Sea cable damage"
+        },
+        {
+            "location": "country\/IN",
+            "location_name": "India",
+            "start": 1746770400,
+            "duration": 86400,
+            "score": 20000,
+            "method": "bgp,ping-slash24,merit-nt",
+            "note": "Regional shutdown in Kashmir"
+        },
+        {
+            "location": "country\/VE",
+            "location_name": "Venezuela",
+            "start": 1753682400,
+            "duration": 28800,
+            "score": 40000,
+            "method": "bgp,ping-slash24,merit-nt",
+            "note": "Power failure"
+        },
+        {
+            "location": "country\/ES",
+            "location_name": "Spain",
+            "start": 1745820000,
+            "duration": 36000,
+            "score": 300000,
+            "method": "bgp,ping-slash24,merit-nt",
+            "note": "Nationwide power blackout"
+        },
+        {
+            "location": "country\/PT",
+            "location_name": "Portugal",
+            "start": 1745820000,
+            "duration": 36000,
+            "score": 120000,
+            "method": "bgp,ping-slash24,merit-nt",
+            "note": "Nationwide power blackout"
+        },
+        {
+            "location": "country\/CU",
+            "location_name": "Cuba",
+            "start": 1757484000,
+            "duration": 129600,
+            "score": 90000,
+            "method": "bgp,ping-slash24,merit-nt",
+            "note": "Grid collapse"
+        },
+        {
+            "location": "country\/CU",
+            "location_name": "Cuba",
+            "start": 1773468000,
+            "duration": 108000,
+            "score": 90000,
+            "method": "bgp,ping-slash24,merit-nt",
+            "note": "Grid collapse"
+        },
+        {
+            "location": "country\/HT",
+            "location_name": "Haiti",
+            "start": 1762063200,
+            "duration": 72000,
+            "score": 10000,
+            "method": "bgp,ping-slash24,merit-nt",
+            "note": "Power and fuel shortages"
+        },
+        {
+            "location": "country\/LY",
+            "location_name": "Libya",
+            "start": 1747116000,
+            "duration": 57600,
+            "score": 20000,
+            "method": "bgp,ping-slash24,merit-nt",
+            "note": "Fighting in Tripoli"
+        },
+        {
+            "location": "country\/NG",
+            "location_name": "Nigeria",
+            "start": 1740031200,
+            "duration": 21600,
+            "score": 20000,
+            "method": "bgp,ping-slash24,merit-nt",
+            "note": "Damage to a fibre route"
+        },
+        {
+            "location": "country\/KE",
+            "location_name": "Kenya",
+            "start": 1750831200,
+            "duration": 28800,
+            "score": 30000,
+            "method": "bgp,ping-slash24,merit-nt",
+            "note": "Throttling during protests"
+        },
+        {
+            "location": "country\/TZ",
+            "location_name": "Tanzania",
+            "start": 1761717600,
+            "duration": 396000,
+            "score": 200000,
+            "method": "bgp,ping-slash24,merit-nt",
+            "note": "Shutdown around the election"
+        },
+        {
+            "location": "country\/TW",
+            "location_name": "Taiwan",
+            "start": 1740463200,
+            "duration": 21600,
+            "score": 5000,
+            "method": "bgp,ping-slash24,merit-nt",
+            "note": "Cable damage near Penghu"
+        },
+        {
+            "location": "country\/YE",
+            "location_name": "Yemen",
+            "start": 1746511200,
+            "duration": 43200,
+            "score": 30000,
+            "method": "bgp,ping-slash24,merit-nt",
+            "note": "Strikes on infrastructure"
+        },
+        {
+            "location": "country\/VN",
+            "location_name": "Vietnam",
+            "start": 1736316000,
+            "duration": 108000,
+            "score": 10000,
+            "method": "bgp,ping-slash24,merit-nt",
+            "note": "Slowdown after cable faults"
+        }
+    ]
+}
