@@ -5,7 +5,8 @@ import type { Http } from './http.ts';
 
 export interface Alerter {
   readonly configured: boolean;
-  send(text: string): Promise<void>;
+  /** Resolves true when the message was delivered. */
+  send(text: string): Promise<boolean>;
 }
 
 export function telegram(http: Http, env = process.env): Alerter {
@@ -15,7 +16,7 @@ export function telegram(http: Http, env = process.env): Alerter {
     configured: Boolean(token && chat),
     async send(text) {
       console.log(`ALERT: ${text}`);
-      if (!token || !chat) return;
+      if (!token || !chat) return false;
       try {
         await http.get(`https://api.telegram.org/bot${token}/sendMessage`, {
           method: 'POST',
@@ -23,9 +24,11 @@ export function telegram(http: Http, env = process.env): Alerter {
           body: JSON.stringify({ chat_id: chat, text, disable_web_page_preview: true }),
           tries: 2,
         });
+        return true;
       } catch (e) {
         // An alert that cannot be sent must not stop the run; the failed run still notifies.
         console.error(`Telegram alert not sent: ${(e as Error).message}`);
+        return false;
       }
     },
   };
