@@ -110,6 +110,14 @@ describe('gdacs', () => {
     expect(calls.filter((c) => /orange/.test(c))).toHaveLength(2);
   });
 
+  it('waits and retries when GDACS says its connection pool is busy', async () => {
+    let n = 0;
+    const busy = () => (++n < 3 ? new Response('{"message":"Timeout expired. The timeout period elapsed prior to obtaining a connection from the pool."}', { status: 400 }) : { features: [feature(1, 'Red')] });
+    const http = fakeHttp([[/orange.*pagenumber=1$/, busy], [/green/, () => ({ features: [] })]]);
+    await expect(gdacs.fetch(ctxFor(http))).rejects.toThrow(/only 1 orange and red alerts/);
+    expect(n).toBe(3);
+  });
+
   it('treats a 404 for a page past the end as the end', async () => {
     const r = await gdacs.fetch(ctxFor(fakeHttp([[/orange.*pagenumber=1$/, () => ({ features: Array.from({ length: 100 }, (_, i) => feature(i, 'Red')) })], [/green.*pagenumber=1$/, () => ({ features: [] })]])));
     expect(r.rows).toBe(100);
