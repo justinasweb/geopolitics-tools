@@ -1,6 +1,6 @@
 {
   "extends": "astro/tsconfigs/strict",
-  "include": [".astro/types.d.ts", "src", "scripts", "tests"],
+  "include": [".astro/types.d.ts", "src", "scripts", "tests", "pipeline"],
   "exclude": ["dist", "worker"],
-  "compilerOptions": { "resolveJsonModule": true }
+  "compilerOptions": { "resolveJsonModule": true, "erasableSyntaxOnly": true }
 }

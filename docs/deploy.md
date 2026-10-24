@@ -35,7 +35,8 @@ build; 100 Previews per Worker, oldest deleted automatically.
 
 - `wrangler.jsonc`: Worker name `geopolitics-tools`, assets from `dist/`, `/api/*` runs `worker/index.ts` first,
   unknown addresses get `404.html` with status 404, `/page.html` redirects to `/page`.
-- Repository secrets: `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` (set). Optional: `CF_ACCESS_CLIENT_ID`
+- Repository secrets: `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` (set; the data pipeline uses them for R2 too),
+  `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` (data alerts; not set yet). Optional: `CF_ACCESS_CLIENT_ID`
   and `CF_ACCESS_CLIENT_SECRET`, an Access service token, so CI can check Previews once they are private.
   Without it the Preview check notices the Access login page and skips.
 - Repository variables (optional): `PRODUCTION_URL` (set to `https://geopolitics.tools` once the domain points at the
@@ -48,10 +49,11 @@ Created by the production job if missing:
 
 | Bucket | Holds |
 |---|---|
-| `gt-raw` | Raw source files from each fetcher run, under a time-stamped folder (phase 1) |
-| `gt-snapshots` | Published data snapshots, so a whole release can be rolled back (phase 1) |
+| `gt-raw` | Raw source files, `<source>/<run>/`, and the data runner's state |
+| `gt-snapshots` | Data snapshots (which raw files make up a release), so a whole release can be rolled back |
 
-`gt-raw` already existed from the platform test and holds that test's World Bank files.
+Layout and retention rules: [data-pipeline.md](data-pipeline.md). The production job also creates the retention rules.
+`gt-raw` already existed from the platform test and holds that test's World Bank files under time-stamped folders.
 
 ## Rolling back
 

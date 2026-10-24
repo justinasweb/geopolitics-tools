@@ -18,6 +18,7 @@ Needs Node 24 (`.nvmrc`).
 | `npm run serve` | Serve `dist/` exactly as Cloudflare will (clean URLs, 404 page, `/api/*`) at http://localhost:8787 |
 | `npm run check` | Lint, type check and unit tests |
 | `npm run test:e2e` | Route and browser checks against `BASE` (default http://localhost:8787) |
+| `node pipeline/run.ts --only=<source>` | Fetch one data source into `.data/` (see [docs/data-pipeline.md](docs/data-pipeline.md)) |
 
 ## Layout
 
@@ -29,9 +30,15 @@ Needs Node 24 (`.nvmrc`).
 | `worker/` | The only server code: `/api/*` (health check now; correction form and review button later) |
 | `public/` | Files copied as-is (`_headers`, favicon, share image) |
 | `scripts/` | Build helpers |
+| `pipeline/` | Data fetchers and the hourly runner (raw files and snapshots in R2) |
 | `tests/unit/` | Vitest unit tests |
 | `tests/e2e/` | Checks against a running copy of the site |
 | `docs/` | How the project is set up and run |
+
+## Data
+
+See [docs/data-pipeline.md](docs/data-pipeline.md). An hourly GitHub Actions run fetches each source when it is due,
+checks it, keeps the last good copy when a check fails, stores raw files and snapshots in R2 and alerts on Telegram.
 
 ## Deploys
 
