@@ -77,7 +77,7 @@ jobs:
         run: |
           api="https://api.cloudflare.com/client/v4"
           auth="Authorization: Bearer $CLOUDFLARE_API_TOKEN"
-          echo "Token: $(curl -s -H "$auth" "$api/accounts/$CLOUDFLARE_ACCOUNT_ID/tokens/verify" | jq -c '{success, status: .result.status, errors}')"
+          echo "Token: $(curl -s -H "$auth" "$api/user/tokens/verify" | jq -c '{success, status: .result.status, errors}')"
           code=$(curl -s -o worker.json -w '%{http_code}' -H "$auth" "$api/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/scripts/geopolitics-tools/settings")
           echo "Worker settings: HTTP $code $(jq -c '.errors' worker.json)"
           # Previews hang off an existing Worker. The very first run creates it with a production deploy
