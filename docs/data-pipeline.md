@@ -70,7 +70,7 @@ back separately, from Cloudflare's deployments.
 | UNHCR | 30 days | 200 days | Totals by origin and by host, and origin–host pairs, since 2015 |
 | UK Sanctions List | 1 day | 10 days | Designations: type, regime, dates, countries |
 | World Bank Pink Sheet | 7 days | 45 days | The Monthly Prices sheet (oil, gas, food, fertiliser, metals); refuses a workbook more than 3 months old |
-| Submarine cables (OpenStreetMap) | 30 days | 120 days | Underwater communication cables and landing points, from one Overpass query |
+| Submarine cables (OpenStreetMap) | 30 days | 120 days | Underwater communication cables and cable landing stations, from one Overpass query |
 | FAOSTAT | 30 days | 400 days | Wheat, maize, rice and soybean production and trade since 2000, fertilisers by nutrient, and each importer's main suppliers in the latest complete year |
 | IMF World Economic Outlook | 30 days | 200 days | **Off** until the IMF allows scheduled downloads. 6 indicators, country groups dropped |
 | IMF PortWatch chokepoints | 20 hours | 10 days | **Off**, as above. Daily transits for 400 days |

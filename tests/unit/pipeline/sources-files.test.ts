@@ -92,14 +92,19 @@ describe('uk-sanctions', () => {
 describe('cables', () => {
   it('keeps cable ways, relations and landing points with trimmed tags and rounded coordinates', async () => {
     const ways = Array.from({ length: 320 }, (_, i) => ({ type: 'way', id: i, tags: { communication: 'line', location: 'underwater', name: `Cable ${i}`, note: 'x' }, geometry: [{ lat: 1.23456, lon: 2.34567 }, null] }));
-    const nodes = [{ type: 'node', id: 9, lat: 51.5001, lon: -0.1234, tags: { telecom: 'landing_point', name: 'Bude' } }];
+    const nodes = [
+      { type: 'node', id: 9, lat: 51.5001, lon: -0.1234, tags: { telecom: 'cable_landing_station', name: 'Bude' } },
+      ...Array.from({ length: 20 }, (_, i) => ({ type: 'way', id: 1000 + i, center: { lat: 10, lon: 20 }, tags: { telecom: 'cable_landing_station', building: 'service' } })),
+    ];
     const calls: string[] = [];
     const r = await cables.fetch(ctxFor(fakeHttp([[/overpass-api/, () => new Response('busy', { status: 504 })], [/kumi/, () => ({ elements: [...ways, ...nodes] })]], calls)));
     expect(calls.some((c) => c.includes('kumi'))).toBe(true);
     const saved = JSON.parse(body(r, 'overpass.json'));
     expect(saved.elements[0]).toEqual({ type: 'way', id: 0, tags: { communication: 'line', location: 'underwater', name: 'Cable 0' }, line: [[2.346, 1.235], null] });
-    expect(saved.elements.at(-1)).toEqual(trim(nodes[0] as never));
-    expect(r.rows).toBe(321);
+    expect(saved.elements[320]).toEqual({ type: 'node', id: 9, tags: { telecom: 'cable_landing_station', name: 'Bude' }, at: [-0.123, 51.5] });
+    expect(saved.elements.at(-1)).toEqual(trim(nodes.at(-1) as never));
+    expect(saved.elements.at(-1).at).toEqual([20, 10]);
+    expect(r.rows).toBe(341);
   });
 
   it('refuses an answer Overpass cut short', async () => {
