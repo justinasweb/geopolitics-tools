@@ -44,3 +44,14 @@ export function pickColumns(rows: string[][], columns: string[], what: string): 
   if (missing.length) throw new CheckError(`${what}: column(s) ${missing.join(', ')} missing; the file has ${header.slice(0, 40).join(', ')}`);
   return rows.map((r) => idx.map((i) => r[i] ?? ''));
 }
+
+/** Rows as objects keyed by the header row (header cells trimmed). */
+export function csvRecords(text: string, delimiter = ','): Record<string, string>[] {
+  const rows = csvRows(text, delimiter);
+  const first = rows.next();
+  if (first.done) return [];
+  const head = first.value.map((h) => h.trim());
+  const out: Record<string, string>[] = [];
+  for (const r of rows) out.push(Object.fromEntries(head.map((h, i) => [h, r[i] ?? ''])));
+  return out;
+}
