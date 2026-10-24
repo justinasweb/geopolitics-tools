@@ -26,6 +26,7 @@ How source data gets from 33 public sources into the site. Phase 1 of the develo
 | `pipeline/lib/runner.ts` | One run: due sources, checks, saving, state, alerts, snapshot |
 | `pipeline/lib/state.ts` | Scheduling and alert rules (pure functions, unit tested) |
 | `pipeline/lib/store.ts` | R2 through the Cloudflare API, or a local folder |
+| `pipeline/lib/zip.ts`, `pipeline/lib/xlsx.ts` | Zip files (in memory, or streamed from disk for FAOSTAT's bulk files) and Excel sheets |
 | `pipeline/pull.ts` | Downloads a snapshot's files to `data/raw/` for a build or local work |
 | `pipeline/r2-check.ts` | Write-and-read test of both buckets, run on pull requests |
 | `tests/unit/pipeline/` | The runner and every fetcher against stubs (no network) |
@@ -67,13 +68,19 @@ back separately, from Cloudflare's deployments.
 | Epoch AI | 7 days | 60 days | Notable AI models, GPU clusters |
 | Our World in Data CO2 | 30 days | 400 days | 20 columns from 1990 |
 | UNHCR | 30 days | 200 days | Totals by origin and by host, and origin–host pairs, since 2015 |
+| UK Sanctions List | 1 day | 10 days | Designations: type, regime, dates, countries |
+| World Bank Pink Sheet | 7 days | 45 days | The Monthly Prices sheet (oil, gas, food, fertiliser, metals); refuses a workbook more than 3 months old |
+| Submarine cables (OpenStreetMap) | 30 days | 120 days | Underwater communication cables and cable landing stations, from one Overpass query |
+| FAOSTAT | 30 days | 400 days | Wheat, maize, rice and soybean production and trade since 2000, fertilisers by nutrient, and each importer's main suppliers in the latest complete year |
+| IMF World Economic Outlook | 30 days | 200 days | **Off** until the IMF allows scheduled downloads. 6 indicators, country groups dropped |
+| IMF PortWatch chokepoints | 20 hours | 10 days | **Off**, as above. Daily transits for 400 days |
 
 A failed source is retried after 1, 2, 4… hours, never later than its normal interval.
 
-Still to come in phase 1: FAOSTAT, World Bank Pink Sheet, UK sanctions, submarine cables, the import tool for
-file-only sources (USGS minerals, SIPRI, UN population, Global Energy Monitor, water datasets, AidData), and IMF
-WEO, reserves and PortWatch (built but switched off until the IMF answers on scheduled downloads). Keyed sources
-(EIA, UN Comtrade, Ember, UCDP, IPC) follow as their keys arrive.
+Still to come in phase 1: the import tool for file-only sources (USGS minerals, SIPRI, UN population, Global Energy
+Monitor, water datasets, AidData, Treasury history), and IMF reserves (gold in tonnes needs the IMF's new SDMX
+service checked first). Keyed sources (EIA, UN Comtrade, Ember, UCDP, IPC) follow as their keys arrive. FAOSTAT has
+no fertiliser trade matrix, so potash and phosphate flows will come from UN Comtrade.
 
 ## Running it
 
@@ -90,8 +97,9 @@ It fails on a failed check or a client error (a wrong address, a changed format)
 on the source's side only show as a warning, since the hourly run retries them anyway.
 
 Every fetcher takes its address from an environment variable when set (`WORLDBANK_BASE`, `GDACS_BASE`,
-`USGS_EQ_BASE`, `UNHCR_BASE`, `IODA_BASE`, `TIC_URL`, `OWID_URL`, `CELESTRAK_URL`, `CSL_URL`, `EU_FSF_URL`), so it can
-be pointed at a stub.
+`USGS_EQ_BASE`, `UNHCR_BASE`, `IODA_BASE`, `TIC_URL`, `OWID_URL`, `CELESTRAK_URL`, `CSL_URL`, `EU_FSF_URL`,
+`UK_SANCTIONS_URL`, `PINKSHEET_URL`, `OVERPASS_URL`, `FAOSTAT_BASE`, `IMF_DATAMAPPER_BASE`, `PORTWATCH_URL`), so it
+can be pointed at a stub.
 
 ## Settings
 
