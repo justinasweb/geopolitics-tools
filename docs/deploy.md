@@ -43,8 +43,9 @@ build; 100 Previews per Worker, oldest deleted automatically.
   job copies the last three into the Worker's secrets. Optional: `CF_ACCESS_CLIENT_ID`
   and `CF_ACCESS_CLIENT_SECRET`, an Access service token, so CI can check Previews once they are private.
   Without it the Preview check notices the Access login page and skips.
-- Repository variables (optional): `PRODUCTION_URL` (set to `https://geopolitics.tools` once the domain points at the
-  Worker; until then the workers.dev address is used), `SITE_INDEXABLE` (`true` at launch: removes `noindex` and
+- Repository variables (optional): `PRODUCTION_URL` (leave unset until launch: the domain shows only the holding
+  page until then, so the production checks run on the workers.dev address; set it to `https://geopolitics.tools`
+  at launch), `SITE_INDEXABLE` (`true` at launch: removes `noindex` and
   opens `robots.txt`), `SITE_HOLDING` (`false` at launch: production stops serving the holding page as
   the home page; until then production builds get it and pull request builds get the development index).
 
@@ -57,6 +58,9 @@ Until `SITE_INDEXABLE` is `true`, every build, production and Previews alike, ca
 - `robots.txt` with `Disallow: /`.
 
 The browser checks (`tests/e2e/smoke.mjs`) fail if any of them is missing, so a deploy that loses one shows red.
+On top of that, while `SITE_HOLDING` is on, `geopolitics.tools` shows only the holding page: the Worker sends every
+other address there with a 302 (`worker/index.ts`, switched on by the `HOLDING` variable the production deploy sets).
+The workers.dev address and Previews keep every page, so CI can check them; they are not linked anywhere.
 `www.geopolitics.tools` is not connected; a Cloudflare Redirect Rule (www to the bare domain) is the planned way
 to cover it.
 

@@ -172,7 +172,8 @@ jobs:
       - name: Deploy to production
         run: |
           set -o pipefail
-          npx wrangler deploy --message "${{ github.sha }}" | tee deploy.log
+          # HOLDING keeps geopolitics.tools on the holding page (worker/index.ts) until SITE_HOLDING is false.
+          npx wrangler deploy --message "${{ github.sha }}" --var "HOLDING:$SITE_HOLDING" | tee deploy.log
           url="${{ vars.PRODUCTION_URL }}"
           [ -n "$url" ] || url=$(grep -o 'https://geopolitics-tools\.[a-z0-9-]*\.workers\.dev' deploy.log | head -1)
           echo "BASE=$url" >> "$GITHUB_ENV"
@@ -191,6 +192,13 @@ jobs:
         run: |
           npx playwright install --with-deps chromium
           npm run test:e2e -- shots-production
+      - name: Check the domain shows only the holding page
+        if: env.SITE_HOLDING == 'true'
+        run: |
+          home=$(curl -s -o /dev/null -w '%{http_code}' https://geopolitics.tools/)
+          other=$(curl -s -o /dev/null -w '%{http_code}' https://geopolitics.tools/countries)
+          echo "/ answers $home, /countries answers $other"
+          [ "$home" = 200 ] && [ "$other" = 302 ]
       - if: always()
         uses: actions/upload-artifact@v7
         with: { name: screenshots-production, path: shots-production, retention-days: 7, if-no-files-found: ignore }
