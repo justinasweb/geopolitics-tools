@@ -1,6 +1,7 @@
 # Checks every pull request and every push to main, then deploys:
 #   pull request (from this repo) -> a Cloudflare Preview named pr-<number>, link posted on the PR
 #   push to main                  -> production
+#   Run workflow on main          -> production again, from the latest data snapshot (after an import)
 #   pull request closed           -> its Preview is deleted
 name: ci
 on:
@@ -136,7 +137,7 @@ jobs:
 
   production:
     needs: [check, secrets]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment: production
