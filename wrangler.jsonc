@@ -1,5 +1,6 @@
 // Cloudflare Worker that serves the built site (dist/) as static assets.
-// Requests under /api/ run worker/index.ts first; everything else is a file from dist/.
+// Every request runs worker/index.ts first: it answers /api/, keeps the domain on the holding page until launch,
+// and hands everything else to the files from dist/.
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "geopolitics-tools",
@@ -16,7 +17,7 @@
     "binding": "ASSETS",
     "html_handling": "auto-trailing-slash",
     "not_found_handling": "404-page",
-    "run_worker_first": ["/api/*"]
+    "run_worker_first": true
   },
   "observability": { "enabled": true },
   // Hourly outside watch of the data pipeline (worker/watch.ts): starts a run if GitHub skipped one,
