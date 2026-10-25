@@ -6,7 +6,7 @@ import { INDICATOR_TEXT } from '../../../i18n/en';
 import { COMPARE_TEXT, INDICATOR_PAGE, OG_TEXT, SOURCE_NOTE, SOURCE_SHORT, mineralName } from '../../../i18n/pages.en';
 import { countryModel } from '../../../lib/country';
 import { sourceName } from '../../../lib/data';
-import { formatShare, formatValue } from '../../../lib/format';
+import { formatDate, formatShare, formatValue } from '../../../lib/format';
 import { answerFor, indicatorModel } from '../../../lib/indicator';
 import { shareImage, type Card } from '../../../lib/og';
 import { place } from '../../../lib/places';
@@ -16,6 +16,8 @@ import { MINERALS_VIEW } from '../../../i18n/map.en';
 import { amount, lede, listed, mineralPage, nameOf as producerName, shareText } from '../../../lib/minerals';
 import { creditOf, lede as viewLede, valueText, viewPage } from '../../../lib/views';
 import { VIEW_TEXT } from '../../../i18n/views.en';
+import { DISASTERS_TEXT, KIND_TEXT } from '../../../i18n/disasters.en';
+import { disasterPage } from '../../../lib/disasters';
 
 export const getStaticPaths = (() => {
   if (process.env.GT_FAST === '1') return [{ params: { kind: 'page', name: 'default' }, props: { route: null } }];
@@ -68,6 +70,15 @@ function card(r: Route | null): Card {
       kicker: MINERALS_VIEW.section, title: p.text.title(p.title), figure: y.world ? `${amount(y.world)} ${p.unit}` : undefined,
       caption: lede(p) ?? undefined, source: `${p.source}${y.estimated ? ', estimated' : ''}`,
       bars: listed(y).slice(0, 5).map((x) => ({ label: producerName(x), value: x.share!, text: shareText(x.share!) })),
+    };
+  }
+  if (r.kind === 'view' && r.id.startsWith('disasters:')) {
+    const p = disasterPage(r.id.split(':')[1])!;
+    const x = p.byDays[p.days];
+    return {
+      kicker: DISASTERS_TEXT.section, title: KIND_TEXT[p.id].title, figure: DISASTERS_TEXT.ogFigure(x.alerts.length), caption: DISASTERS_TEXT.ogCaption(x.days),
+      source: `${short('gdacs')}, ${formatDate(x.from)} – ${formatDate(x.to)}`,
+      bars: x.rows.slice(0, 5).map((y) => ({ label: nameOf(y.id), value: y.n, text: String(y.n) })),
     };
   }
   if (r.kind === 'view') {

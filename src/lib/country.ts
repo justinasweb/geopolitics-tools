@@ -4,7 +4,7 @@
 import { aggregate, sanctions as loadSanctions, type PlaceListings } from '../adapters/sanctions.ts';
 import { lending as loadLending } from '../adapters/aiddata.ts';
 import { minerals as loadMinerals, type Mineral } from '../adapters/minerals.ts';
-import { parseGdacs, type Hazard } from '../adapters/hazards.ts';
+import { alertsIn, firstDay, lastDay } from './disasters.ts';
 import { INDICATORS, type Loaded } from '../data/indicators.ts';
 import { INDICATOR_TEXT } from '../i18n/en.ts';
 import { DEP_TEXT, RESOURCE_TEXT, SOURCE_SHORT, SUMMARY, inSentence, mineralName } from '../i18n/pages.en.ts';
@@ -29,7 +29,6 @@ export interface Figure { id: string; value: number; year: number; rank: number;
 export interface MineralShare { id: string; label: string; share: number; year: number; estimated: boolean; rank: number; of: number; measure: 'mine' | 'primary' }
 
 const mineralsData = shared(loadMinerals);
-const gdacsData = shared((raw) => parseGdacs(raw.json('gdacs', 'events.json')));
 const sanctionsData = shared((raw) => (raw.has('csl', 'consolidated.json') ? loadSanctions(raw) : aggregate([])));
 const lendingData = shared(loadLending);
 
@@ -73,11 +72,11 @@ export interface Blocks {
 }
 
 function disastersFor(id: string): Blocks['disasters'] | undefined {
-  const all = gdacsData();
-  if (!all) return undefined;
-  const to = (refreshed('gdacs') ?? data().snapshot.created).slice(0, 10);
-  const from = new Date(Date.parse(to) - 365 * 864e5).toISOString().slice(0, 10);
-  const hits = (all as Hazard[]).filter((h) => (h.alert === 'orange' || h.alert === 'red') && h.places.includes(id) && h.from >= from && h.from <= to);
+  if (!data().raw.has('gdacs', 'events.json')) return undefined;
+  // The same rule as the disasters map (./disasters.ts): orange and red alerts active in the past year.
+  const to = lastDay();
+  const from = firstDay(to, 365);
+  const hits = alertsIn(from, to, ['orange', 'red']).filter((h) => h.places.includes(id));
   const byKind: Record<string, number> = {};
   for (const h of hits) byKind[h.kind] = (byKind[h.kind] ?? 0) + 1;
   return { count: hits.length, byKind, from, to };

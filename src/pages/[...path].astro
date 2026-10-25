@@ -11,6 +11,7 @@ import LongRead from '../templates/LongRead.astro';
 import SourcesPage from '../templates/SourcesPage.astro';
 import MineralView from '../templates/MineralView.astro';
 import IndicatorView from '../templates/IndicatorView.astro';
+import DisasterView from '../templates/DisasterView.astro';
 import { BUILT_KINDS, routes, type Route } from '../lib/routes';
 
 export const getStaticPaths = (() =>
@@ -28,4 +29,5 @@ const [a, b] = route.id.split(',');
 {route.kind === 'page' && <LongRead id={route.id} />}
 {route.kind === 'sources' && <SourcesPage />}
 {route.kind === 'view' && route.id.startsWith('minerals:') && <MineralView id={route.id.slice('minerals:'.length)} />}
-{route.kind === 'view' && !route.id.startsWith('minerals:') && <IndicatorView id={route.id.split(':')[1]} />}
+{route.kind === 'view' && route.id.startsWith('disasters:') && <DisasterView id={route.id.split(':')[1]} />}
+{route.kind === 'view' && !/^(minerals|disasters):/.test(route.id) && <IndicatorView id={route.id.split(':')[1]} />}

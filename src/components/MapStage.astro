@@ -10,6 +10,7 @@ import '../styles/atlas/legend.css';
 import '../styles/atlas/tooltip.css';
 import '../styles/atlas/tags.css';
 import Icon from './Icon.astro';
+import MarkIcon from './MarkIcon.astro';
 import { MAP_TEXT } from '../i18n/map.en';
 import { paths } from '../lib/routes';
 
@@ -20,7 +21,7 @@ interface Props {
   label: string;
   /** The view's name, for the phone map's top bar. */
   title: string;
-  legend: { title: string; scale: 'seq' | 'div'; ticks: string[]; ends?: [string, string]; none: string; withheld?: boolean; notyet?: string };
+  legend: { title: string; scale: 'seq' | 'div'; ticks: string[]; ends?: [string, string]; none: string; withheld?: boolean; notyet?: string; marks?: { symbol: 'dot' | 'hollow' | 'triangle' | 'diamond' | 'square'; label: string }[] };
   basemap?: string;
 }
 const { layer, label, title, legend, basemap = '/geo/basemap.json' } = Astro.props;
@@ -58,6 +59,7 @@ const n = legend.scale === 'seq' ? 5 : 7;
             {legend.withheld && <span><i class="gt-sw gt-sw--withheld"></i>{MAP_TEXT.withheldBy}</span>}
             {legend.notyet && <span><i class="gt-sw gt-sw--notyet"></i>{legend.notyet}</span>}
           </div>
+          {legend.marks && legend.marks.length > 0 && <div class="gt-legend__extra gt-legend__marks">{legend.marks.map((m) => <span><MarkIcon symbol={m.symbol} />{m.label}</span>)}</div>}
         </div>
         <p class="gt-stage__borders"><i aria-hidden="true"></i>{MAP_TEXT.borders} <a href={paths.page('methodology')}>{MAP_TEXT.howBorders}</a></p>
       </div>

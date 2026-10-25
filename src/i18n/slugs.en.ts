@@ -6,13 +6,18 @@
 export const SECTION_SLUGS = {
   countries: 'countries', compare: 'compare', indicators: 'indicators', downloads: 'downloads',
   about: 'about', methodology: 'methodology', sources: 'sources', privacy: 'privacy', minerals: 'minerals',
-  emissions: 'emissions', refugees: 'refugees',
+  emissions: 'emissions', refugees: 'refugees', disasters: 'disasters',
 } as const;
 
 /** Map view layers after their section (/emissions/per-person), by registry id; the first layer of a section is the section itself (''). */
 export const VIEW_SLUGS: Record<string, string> = {
   co2: '', co2pc: 'per-person', co2cum: 'since-1750', co2trade: 'imported',
   refout: '', refin: 'hosted', refinpc: 'per-person', idps: 'displaced',
+};
+
+/** Disaster kinds after /disasters; every kind together is the section itself. */
+export const DISASTER_SLUGS: Record<string, string> = {
+  all: '', EQ: 'earthquakes', TC: 'cyclones', FL: 'floods', DR: 'droughts', WF: 'wildfires', VO: 'volcanoes',
 };
 
 /** Joins two country slugs on a Compare page: /compare/united-states-vs-china. */

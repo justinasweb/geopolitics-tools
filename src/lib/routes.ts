@@ -6,7 +6,7 @@
 //
 // Map views, hubs and tools are registered but not live until their phase builds them; the menu and every link
 // skip routes that are not live, so nothing links to a page that does not exist.
-import { SECTION_SLUGS, INDICATOR_SLUGS, COMPARE_JOIN, VIEW_SLUGS } from '../i18n/slugs.en.ts';
+import { SECTION_SLUGS, INDICATOR_SLUGS, COMPARE_JOIN, VIEW_SLUGS, DISASTER_SLUGS } from '../i18n/slugs.en.ts';
 import { NAV_HUBS, NAV_UTIL } from '../data/nav.ts';
 import { INDICATORS } from '../data/indicators.ts';
 import { countryModel, countryPages, DOSSIERS } from './country.ts';
@@ -15,6 +15,7 @@ import { indicatorModel } from './indicator.ts';
 import { PLACES, place } from './places.ts';
 import { mineralPages } from './minerals.ts';
 import { viewPages } from './views.ts';
+import { disasterPages } from './disasters.ts';
 
 export type Lang = 'en';
 export type Kind = 'countries' | 'country' | 'compare' | 'indicators' | 'indicator' | 'page' | 'sources' | 'view' | 'hub' | 'tool';
@@ -54,6 +55,8 @@ export const paths = {
   mineral: (id: string) => `/${S.minerals}/${id}`,
   /** A registry map view: /emissions, /emissions/per-person. */
   view: (family: keyof typeof SECTION_SLUGS, layer: string) => `/${S[family]}${VIEW_SLUGS[layer] ? `/${VIEW_SLUGS[layer]}` : ''}`,
+  /** Disasters: /disasters, /disasters/earthquakes. */
+  disasters: (kind: string) => `/${S.disasters}${DISASTER_SLUGS[kind] ? `/${DISASTER_SLUGS[kind]}` : ''}`,
 };
 
 /** The Compare pairs: every pair of dossier countries, in a fixed order (United States, China, Russia). */
@@ -106,6 +109,15 @@ function build(): Route[] {
     out.push({
       key: `view:${v.family.id}:${v.id}`, kind: 'view', lang, path: paths.view(v.family.id as keyof typeof SECTION_SLUGS, v.id), live: true, indexed: true,
       aliases: [], id: `${v.family.id}:${v.id}`, image: paths.image('views', `${v.family.id}-${v.id}`), lastmod: changed([v.loaded.indicator.source].flat()[0]),
+    });
+  }
+
+  // Disasters (phase 5): every kind at /disasters, one kind at /disasters/{kind}.
+  for (const d of disasterPages()) {
+    families.add('disasters');
+    out.push({
+      key: `view:disasters:${d.id}`, kind: 'view', lang, path: paths.disasters(d.id), live: true, indexed: true,
+      aliases: [], id: `disasters:${d.id}`, image: paths.image('views', `disasters-${d.id.toLowerCase()}`), lastmod: changed('gdacs'),
     });
   }
 

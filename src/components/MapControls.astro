@@ -6,6 +6,7 @@
 import '../styles/atlas/mapview.css';
 import '../styles/atlas/filters.css';
 import YearSlider from './YearSlider.astro';
+import PeriodControl from './PeriodControl.astro';
 import Icon from './Icon.astro';
 import type { Status } from './StatusTag.astro';
 import { MAP_TEXT, BLOC_TEXT } from '../i18n/map.en';
@@ -20,11 +21,13 @@ interface Props {
   yearStatus?: Record<number, Status>;
   /** Offer the bloc outline (default true). */
   blocs?: boolean;
+  /** Periods in place of years (disasters): `years` are then their lengths in days, and these their words. */
+  periods?: { label: string; note?: string; options: Record<number, string> };
 }
-const { pickerLabel, picker, years, year, yearStatus = {}, blocs = true } = Astro.props;
+const { pickerLabel, picker, years, year, yearStatus = {}, blocs = true, periods } = Astro.props;
 const blocOptions = BLOC_ORDER.map((b) => ({ value: b, label: BLOC_TEXT[b] }));
 ---
-<div class="gt-mvctl" data-gt-mapctl>
+<div class:list={["gt-mvctl", { "gt-mvctl--stack": periods }]} data-gt-mapctl>
   <div class="gt-mvctl__min">
     <span class="gt-field__label gt-mvctl__lab" id="mv-picker-l">{pickerLabel}</span>
     <nav class="gt-seg gt-mvseg" aria-labelledby="mv-picker-l">
@@ -32,7 +35,10 @@ const blocOptions = BLOC_ORDER.map((b) => ({ value: b, label: BLOC_TEXT[b] }));
     </nav>
   </div>
   <div class="gt-mvctl__row">
-    {years.length > 1 && (
+    {periods && (
+      <PeriodControl id="mv-year" label={periods.label} value={year} note={periods.note} options={years.map((d) => ({ value: d, label: periods.options[d] }))} />
+    )}
+    {!periods && years.length > 1 && (
       <div class="gt-mvctl__yr">
         <YearSlider id="mv-year" min={years[0]} max={years.at(-1)!} value={year} estimated={Object.keys(yearStatus).map(Number)} tags={yearStatus} />
       </div>
@@ -57,7 +63,7 @@ const blocOptions = BLOC_ORDER.map((b) => ({ value: b, label: BLOC_TEXT[b] }));
     </select>
   </div>
   <button class="gt-btn gt-btn--quiet gt-mvcompact__f" type="button" aria-haspopup="dialog" data-open-filters>
-    <Icon name="filter" />{MAP_TEXT.filters}<span class="gt-mvcompact__n" data-filters-summary>{year}</span>
+    <Icon name="filter" />{MAP_TEXT.filters}<span class="gt-mvcompact__n" data-filters-summary>{periods?.options[year] ?? year}</span>
   </button>
 </div>
 
@@ -69,10 +75,11 @@ const blocOptions = BLOC_ORDER.map((b) => ({ value: b, label: BLOC_TEXT[b] }));
   <div class="gt-fsheet__body">
     {years.length > 1 && (
       <fieldset>
-        <legend class="gt-label">{YEAR_TEXT.year}</legend>
-        {[...years].reverse().map((yr) => (
-          <label class="gt-fsheet__opt"><input type="radio" name="mv-fyear" value={yr} checked={yr === year} />{yr}{yearStatus[yr] && <span class="gt-caption">({YEAR_TEXT.estimate})</span>}</label>
+        <legend class="gt-label">{periods?.label ?? YEAR_TEXT.year}</legend>
+        {(periods ? years : [...years].reverse()).map((yr) => (
+          <label class="gt-fsheet__opt"><input type="radio" name="mv-fyear" value={yr} checked={yr === year} />{periods?.options[yr] ?? yr}{yearStatus[yr] && <span class="gt-caption">({YEAR_TEXT.estimate})</span>}</label>
         ))}
+        {periods?.note && <p class="gt-caption">{periods.note}</p>}
       </fieldset>
     )}
     {blocs && (

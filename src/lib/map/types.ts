@@ -15,7 +15,10 @@ export type Status = 'estimate' | 'projection' | 'preliminary';
 export type Entry = [cls: number, value: string, detail: string, status: Status | 0, rank: number];
 
 export interface LayerYear {
+  /** The year, or for a layer over periods (axis "days") the period's length in days. */
   year: number;
+  /** What the panel, tooltip and kicker say instead of the year ("Last 30 days"). */
+  label?: string;
   /** The year's own tag on the slider: the source marks it estimated or preliminary. */
   status?: Status;
   legend: string;
@@ -29,7 +32,8 @@ export interface LayerYear {
 
 export interface Arc { p: [number, number][]; w: number; tip: string }
 export interface Line { p: [number, number][][]; tip: string }
-export interface Point { at: [number, number]; r?: number; tip: string }
+/** A point; `m` is a bit mask of the year indices it shows in (bit i for data[i]), 0 or none for all. */
+export interface Point { at: [number, number]; r?: number; tip: string; m?: number }
 export type Overlay =
   | { id: string; kind: 'arcs'; label: string; items: Arc[] }
   | { id: string; kind: 'lines'; label: string; dashed?: boolean; items: Line[] }
@@ -38,6 +42,8 @@ export type Overlay =
 export interface LayerFile {
   id: string;
   scale: 'seq' | 'div';
+  /** What the slider steps through: years (the default) or periods in days (?days= in the URL). */
+  axis?: 'days';
   years: number[];
   /** The year shown when the URL names none: the latest. */
   year: number;

@@ -1,0 +1,267 @@
+---
+// The disasters map view (/disasters, /disasters/{kind}), on the map view template: the answer in one sentence, the
+// kind picker, the period (30, 90 or 365 days) and bloc outline, the map with alerts by country and the alerts as
+// marks, then the summary, every country named and the alerts themselves. All text, figures and tables are in the
+// HTML; the map (src/scripts/map/) loads after them.
+import Page from '../layouts/Page.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import SourceLine from '../components/SourceLine.astro';
+import Notice from '../components/Notice.astro';
+import ShareRow from '../components/ShareRow.astro';
+import MapStage from '../components/MapStage.astro';
+import MapControls from '../components/MapControls.astro';
+import MarkIcon from '../components/MarkIcon.astro';
+import '../styles/atlas/mapview.css';
+import '../styles/atlas/bars.css';
+import '../styles/atlas/keyfigure.css';
+import '../styles/atlas/table.css';
+import '../styles/atlas/tools.css';
+import { MAP_TEXT } from '../i18n/map.en';
+import { NAV_TEXT } from '../i18n/en';
+import { BLOCK_TEXT, SOURCE_SHORT, inSentence, list } from '../i18n/pages.en';
+import { DISASTERS_TEXT as D, KIND_TEXT } from '../i18n/disasters.en';
+import { byKind, daysText, disasterPage, disasterPages, type DisasterPage } from '../lib/disasters';
+import { refreshed, sourceName as longName } from '../lib/data';
+import { formatDate } from '../lib/format';
+import { place } from '../lib/places';
+import { countryHref, live, route } from '../lib/routes';
+import { layerPath } from '../lib/map/layers';
+import { DOSSIERS } from '../lib/country';
+import { breadcrumbs } from '../lib/structured';
+import type { Hazard } from '../adapters/hazards';
+
+interface Props { id: string }
+const p = disasterPage(Astro.props.id)!;
+const K = KIND_TEXT[p.id];
+const key = (id: string) => `view:disasters:${id}`;
+const path = route(key(p.id))!.path;
+const url = new URL(path, Astro.site).href;
+const quakes = p.kind === 'EQ';
+const sourceName = (s: string) => SOURCE_SHORT[s] ?? longName(s);
+const source = quakes ? `${sourceName('gdacs')}; ${sourceName('usgs-quakes')}` : sourceName('gdacs');
+const updated = refreshed('gdacs');
+const per = p.byDays[p.days];
+const nameOf = (id: string) => place(id)?.name ?? id;
+const kindName = (k: string, n: number) => (BLOCK_TEXT.kinds[k] ?? [k, k])[n === 1 ? 0 : 1];
+const num = (n: number) => new Intl.NumberFormat('en').format(n);
+const range = (x: { from: string; to: string }) => `${formatDate(x.from)} – ${formatDate(x.to)}`;
+const symbols = { red: 'triangle', orange: 'diamond', green: 'dot', none: 'hollow' } as const;
+
+function ledeFor(q: DisasterPage, days: number): string {
+  const x = q.byDays[days];
+  const top = x.rows[0];
+  const tie = top && x.rows[1]?.n === top.n;
+  return D.lede({
+    days, n: num(x.alerts.length), red: x.alerts.filter((h) => h.alert === 'red').length, forKind: KIND_TEXT[q.id].forKind,
+    top: top && !tie ? inSentence(nameOf(top.id), true) : undefined, topN: top ? num(top.n) : undefined, levels: D.levels(days),
+  });
+}
+const quakeLine = (days: number) => {
+  const qs = p.byDays[days].quakes;
+  const big = qs[0];
+  return D.quakes(num(qs.length), days, big ? { mag: big.mag!.toFixed(1), place: big.name.replace(/^M [\d.]+ - /, ''), date: formatDate(big.from) } : undefined);
+};
+const answer = [ledeFor(p, p.days), quakes ? quakeLine(p.days) : ''].filter(Boolean).join(' ');
+
+// The summary: alerts by kind (every kind together), how many countries, then the caveats.
+const kinds = byKind(per.alerts);
+const summary = [
+  [ledeFor(p, p.days), !p.kind && kinds.length > 1 ? D.byKind(kinds.map(([k, n]) => D.kindPart(n, kindName(k, n)))) : '', per.rows.length ? D.countries(per.rows.length) : '', quakes ? quakeLine(p.days) : ''].filter(Boolean).join(' '),
+  [ledeFor(p, 30), D.periodNote].join(' '),
+  [D.caveat, D.counting, quakes ? D.quakeNote : ''].filter(Boolean).join(' '),
+];
+
+const crumbs = [{ label: NAV_TEXT.hubs.climate }, { label: D.section, href: route(key('all'))!.path }, ...(p.kind ? [{ label: K.pick }] : [])];
+const marks = quakes
+  ? [{ symbol: 'hollow' as const, label: D.marks.quake }]
+  : [{ symbol: 'triangle' as const, label: D.marks.red }, { symbol: 'diamond' as const, label: D.marks.orange }, { symbol: 'dot' as const, label: D.marks.green }];
+
+// Every country named in the year, with its count in each period.
+const year = p.periods.at(-1)!;
+const rows = year.rows.map((r) => ({ id: r.id, n: p.periods.map((x) => x.rows.find((y) => y.id === r.id)?.n ?? 0), red: r.red }));
+const thirty = p.periods[0].rows;
+for (const r of thirty) if (!rows.some((x) => x.id === r.id)) rows.push({ id: r.id, n: p.periods.map((x) => x.rows.find((y) => y.id === r.id)?.n ?? 0), red: 0 });
+const where = (h: Hazard) => (h.places.length ? list(h.places.map((x, i) => inSentence(nameOf(x), i === 0))) : D.atSea);
+const related = [
+  ...year.rows.slice(0, 3).filter((r) => countryHref(r.id)).map((r) => ({ href: countryHref(r.id)!, name: nameOf(r.id), note: DOSSIERS.includes(r.id) ? D.dossier : D.countryPage })),
+  ...disasterPages().filter((o) => o.id !== p.id && live(key(o.id))).slice(0, 3).map((o) => ({ href: live(key(o.id))!.path, name: KIND_TEXT[o.id].title, note: D.sameView })),
+];
+const mapTop = per.rows.slice(0, 3).map((r) => `${nameOf(r.id)} ${D.alerts(r.n)}`).join(', ');
+---
+<Page title={K.title} description={K.description} hub="climate" container="mv" image={route(key(p.id))!.image}
+  jsonld={[breadcrumbs(crumbs.map((c) => ({ label: c.label, href: c.href })))]}>
+  <div class="gt-mvhead">
+    <Breadcrumbs items={crumbs} />
+    <h1 class="gt-title gt-mvhead__t">{K.title} <span class="gt-mvhead__sub">{D.sub}</span></h1>
+    <p class="gt-lede gt-mvhead__a">{answer}</p>
+    <SourceLine source={source} parts={[range(per)]} updated={updated} />
+  </div>
+
+  <MapControls
+    pickerLabel={D.pickerLabel}
+    picker={disasterPages().filter((o) => live(key(o.id))).map((o) => ({ label: KIND_TEXT[o.id].pick, href: live(key(o.id))!.path, current: o.id === p.id }))}
+    years={p.periods.map((x) => x.days)} year={p.days}
+    periods={{ label: D.periodLabel, note: D.periodNote, options: Object.fromEntries(p.periods.map((x) => [x.days, D.period(x.days)])) }} />
+
+  <MapStage layer={layerPath(`disasters-${p.id}`)} label={`${D.legend(p.days)}. ${mapTop}.`} title={K.title}
+    legend={{ title: D.legend(p.days), scale: 'seq', ticks: D.ticks, none: D.none, marks }}>
+    <div data-panel="world" slot="panel">
+      <div class="gt-panel__head">
+        <div class="gt-panel__title"><span class="gt-kicker">{K.title} · <span data-year-text>{D.last(p.days)}</span></span><h2 class="gt-h3">{MAP_TEXT.world}</h2></div>
+      </div>
+      <div class="gt-panel__body">
+        {p.periods.map((x) => {
+          const count = (l: string) => x.alerts.filter((h) => h.alert === l).length;
+          const max = x.rows[0]?.n ?? 0;
+          return (
+            <div class="gt-pyear" data-year={x.days} hidden={x.days !== p.days}>
+              <div class="gt-pkf">
+                <span class="gt-pkf__label">{D.keyLabel(x.days)}</span>
+                <span class="gt-pkf__num">{num(x.alerts.length)}</span>
+                <span class="gt-pkf__meta">
+                  {x.levels.map((l) => <span class="gt-dlevel"><MarkIcon symbol={symbols[l]} />{count(l)} {D.level(l).toLowerCase()}</span>)}
+                </span>
+                <span class="gt-caption">{range(x)} · {D.levels(x.days)}</span>
+              </div>
+              {x.rows.length > 0 && (
+                <div class="gt-pgroup">
+                  <span class="gt-label">{D.most}</span>
+                  <ol class="gt-bars gt-bars--tight" aria-label={`${D.most}, ${D.lastIn(x.days)}`}>
+                    {x.rows.slice(0, 8).map((r) => (
+                      <li><span class="gt-bars__name"><button type="button" data-select={r.id}>{nameOf(r.id)}</button></span><span class="gt-bars__track"><span class="gt-bars__fill" style={`width:${((100 * r.n) / max).toFixed(1)}%`}></span></span><span class="gt-bars__val">{r.n}</span></li>
+                    ))}
+                  </ol>
+                </div>
+              )}
+              {quakes ? x.quakes.length > 0 && (
+                <div class="gt-pgroup">
+                  <span class="gt-label">{D.largest}</span>
+                  <ul class="gt-devents">
+                    {x.quakes.slice(0, 5).map((q) => <li><MarkIcon symbol="hollow" /><span><b>M {q.mag!.toFixed(1)}</b> {q.name.replace(/^M [\d.]+ - /, '')}<small>{formatDate(q.from)}</small></span></li>)}
+                  </ul>
+                </div>
+              ) : x.alerts.length > 0 && (
+                <div class="gt-pgroup">
+                  <span class="gt-label">{D.latest}</span>
+                  <ul class="gt-devents">
+                    {x.alerts.filter((h) => h.alert !== 'green').concat(x.alerts.filter((h) => h.alert === 'green')).slice(0, 5).map((h) => (
+                      <li><MarkIcon symbol={symbols[h.alert]} /><span><b>{h.name}</b><small>{D.levelAlert(h.alert)} · {daysText(h, formatDate)}</small></span></li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          );
+        })}
+        <div class="gt-blocline" hidden><span class="gt-blocline__key" aria-hidden="true"></span><p></p></div>
+        <Notice>
+          <p>{D.caveat} {D.counting}</p>
+          {quakes && <p>{D.quakeNote}</p>}
+          <SourceLine source={source} updated={updated} />
+        </Notice>
+      </div>
+    </div>
+  </MapStage>
+
+  <section class="gt-mvbelow" aria-labelledby="mv-sum">
+    <div class="gt-mvbelow__main">
+      <h2 class="gt-h2" id="mv-sum">{D.summary}</h2>
+      <div class="gt-prose">{summary.map((s) => <p>{s}</p>)}</div>
+      <SourceLine source={source} parts={[range(year)]} updated={updated} />
+
+      <h2 class="gt-h2" id="table">{D.all}</h2>
+      <div class="gt-tablewrap" style="--gt-table-h:560px" tabindex="0" role="region" aria-label={D.tableLabel(K.title)}>
+        <table class="gt-table" data-gt-sort>
+          <caption class="gt-caption">{D.caption(p.periods.map((x) => x.days))}</caption>
+          <thead><tr>
+            <th scope="col" data-key="n"><button type="button">{D.country}</button></th>
+            {p.periods.map((x) => <th scope="col" class="n" data-key={`d${x.days}`} data-type="num" aria-sort={x.days === p.days ? 'descending' : undefined}><button type="button">{D.col(x.days)}</button></th>)}
+            <th scope="col" class="n" data-key="r" data-type="num"><button type="button">{D.red(year.days)}</button></th>
+          </tr></thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr data-place={r.id}>
+                <th scope="row">{countryHref(r.id) ? <a href={countryHref(r.id)}>{nameOf(r.id)}</a> : nameOf(r.id)}</th>
+                {r.n.map((n) => <td class="n" data-v={n}>{n}</td>)}
+                <td class="n" data-v={r.red}>{r.red}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <SourceLine source={sourceName('gdacs')} parts={[range(year)]} updated={updated} />
+
+      {year.alerts.length > 0 && (
+        <>
+          <h2 class="gt-h2" id="alerts">{D.events(year.days)}</h2>
+          <div class="gt-tablewrap" style="--gt-table-h:560px" tabindex="0" role="region" aria-label={D.eventsLabel}>
+            <table class="gt-table">
+              <caption class="gt-caption">{D.eventsCaption(year.alerts.length, year.days)}</caption>
+              <thead><tr>
+                <th scope="col">{D.event}</th>
+                {!p.kind && <th scope="col">{D.kind}</th>}
+                <th scope="col">{D.levelCol}</th>
+                <th scope="col">{D.date}</th>
+                <th scope="col">{D.where}</th>
+                <th scope="col">{D.severity}</th>
+              </tr></thead>
+              <tbody>
+                {year.alerts.map((h) => (
+                  <tr>
+                    <th scope="row">{h.name}</th>
+                    {!p.kind && <td>{kindName(h.kind, 1).replace(/^./, (c) => c.toUpperCase())}</td>}
+                    <td><span class="gt-dlevel"><MarkIcon symbol={symbols[h.alert]} />{D.level(h.alert)}</span></td>
+                    <td class="gt-nowrap">{daysText(h, formatDate)}</td>
+                    <td>{where(h)}</td>
+                    <td>{h.severity}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <SourceLine source={sourceName('gdacs')} parts={[range(year)]} updated={updated} />
+        </>
+      )}
+
+      {quakes && year.quakes.length > 0 && (
+        <>
+          <h2 class="gt-h2" id="quakes">{D.quakeTable(year.days)}</h2>
+          <div class="gt-tablewrap" tabindex="0" role="region" aria-label={D.largest}>
+            <table class="gt-table">
+              <caption class="gt-caption">{D.quakeCaption(Math.min(20, year.quakes.length), year.quakes.length)}</caption>
+              <thead><tr>
+                <th scope="col" class="n">{D.mag}</th>
+                <th scope="col">{D.place}</th>
+                <th scope="col">{D.date.replace(/s$/, '')}</th>
+                <th scope="col" class="n">{D.depth}</th>
+                <th scope="col">{D.pager}</th>
+              </tr></thead>
+              <tbody>
+                {year.quakes.slice(0, 20).map((q) => (
+                  <tr>
+                    <td class="n">{q.mag!.toFixed(1)}</td>
+                    <th scope="row">{q.name.replace(/^M [\d.]+ - /, '')}{q.tsunami && <small class="gt-caption"> ({D.tsunami})</small>}</th>
+                    <td class="gt-nowrap">{formatDate(q.from)}</td>
+                    <td class="n">{q.depth != null ? D.km(Math.round(q.depth)) : '–'}</td>
+                    <td>{q.alert === 'none' ? '–' : <span class="gt-dlevel">{D.level(q.alert)}</span>}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <SourceLine source={sourceName('usgs-quakes')} parts={[range(year)]} updated={refreshed('usgs-quakes')} />
+        </>
+      )}
+    </div>
+    <aside class="gt-mvbelow__side">
+      <h2 class="gt-label">{D.related}</h2>
+      <ul class="gt-related">{related.map((r) => <li><a href={r.href}><span>{r.name}</span><small>{r.note}</small></a></li>)}</ul>
+      <div class="gt-mvbelow__share"><ShareRow url={url} text={answer} /></div>
+    </aside>
+  </section>
+</Page>
+
+<script>
+  import { initSortable } from '../scripts/table';
+  document.querySelectorAll<HTMLTableElement>('table[data-gt-sort]').forEach(initSortable);
+</script>

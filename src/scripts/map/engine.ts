@@ -172,6 +172,7 @@ export function createMap(container: HTMLElement, base: Basemap, layer: LayerFil
       map.addLayer({ id: 'selected', type: 'line', source: 'countries', filter: ['==', ['get', 'id'], ''], paint: { 'line-color': T['--accent'], 'line-width': 2.5 } });
       addOverlays(layer.overlays ?? []);
       ready = true;
+      showMarks();
       paint();
       on.ready();
     } catch (e) {
@@ -183,6 +184,12 @@ export function createMap(container: HTMLElement, base: Basemap, layer: LayerFil
   map.on('error', (e) => { if (!ready) on.error(e.error?.message ?? 'map error'); });
 
   const overlayLayers: string[] = [];
+  // Point overlays whose marks show in some years (or periods) only: filtered on the mark's bit for the year.
+  const masked: string[] = [];
+  const showMarks = () => {
+    const bit = 2 ** year;
+    for (const id of masked) map.setFilter(id, ['any', ['==', ['get', 'm'], 0], ['==', ['%', ['floor', ['/', ['get', 'm'], bit]], 2], 1]]);
+  };
   function addOverlays(list: Overlay[]) {
     const widths = (max: number): Expr => ['interpolate', ['linear'], ['get', 'w'], 0, 0.8, max || 1, 6];
     for (const o of list) {
@@ -198,7 +205,8 @@ export function createMap(container: HTMLElement, base: Basemap, layer: LayerFil
           paint: o.dashed ? { 'line-color': T['--accent'], 'line-width': 1.6, 'line-dasharray': [3, 2] } : { 'line-color': T['--brand'], 'line-width': 1.4, 'line-opacity': 0.85 },
         });
       } else {
-        map.addSource(src, { type: 'geojson', data: { type: 'FeatureCollection', features: o.items.map((p) => ({ type: 'Feature', properties: { r: p.r ?? 5, tip: p.tip }, geometry: { type: 'Point', coordinates: p.at } })) } });
+        map.addSource(src, { type: 'geojson', data: { type: 'FeatureCollection', features: o.items.map((p) => ({ type: 'Feature', properties: { r: p.r ?? 5, tip: p.tip, m: p.m ?? 0 }, geometry: { type: 'Point', coordinates: p.at } })) } });
+        if (o.items.some((p) => p.m)) masked.push(src);
         if (o.symbol === 'dot' || o.symbol === 'hollow') {
           const hollow = o.symbol === 'hollow';
           map.addLayer({
@@ -272,7 +280,7 @@ export function createMap(container: HTMLElement, base: Basemap, layer: LayerFil
   }
 
   return {
-    setYear(i) { year = i; paint(); },
+    setYear(i) { year = i; paint(); if (ready) showMarks(); },
     select(id) {
       selected = id;
       if (ready) map.setFilter('selected', ['==', ['get', 'id'], id ?? '']);

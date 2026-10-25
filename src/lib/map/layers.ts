@@ -11,7 +11,12 @@ import { amount, listed, mineralPages, shareClass, shareText, withheld, nameOf, 
 import { list, inSentence } from '../../i18n/pages.en.ts';
 import { VIEWS_TEXT } from '../../i18n/views.en.ts';
 import { classFor, creditOf, shareOf, valueText, viewPages, type ViewPage } from '../views.ts';
-import type { Entry, LayerFile, LayerYear, Overlay } from './types.ts';
+import { countClass, daysText, disasterPages, type DisasterPage } from '../disasters.ts';
+import { DISASTERS_TEXT, KIND_TEXT } from '../../i18n/disasters.en.ts';
+import { formatDate } from '../format.ts';
+import { toMap } from './projection.ts';
+import type { Hazard } from '../../adapters/hazards.ts';
+import type { Entry, LayerFile, LayerYear, Overlay, Point } from './types.ts';
 
 export interface LayerDef {
   id: string;
@@ -141,11 +146,72 @@ function indicatorLayer(p: ViewPage): LayerFile {
   };
 }
 
+/** Alerts by country over the last 30, 90 and 365 days (GDACS), with the alerts (or, for earthquakes, USGS quakes) as marks. */
+function disasterLayer(p: DisasterPage): LayerFile {
+  const c = common();
+  const D = DISASTERS_TEXT;
+  const memberships = blocs();
+  const data: LayerYear[] = p.periods.map((per) => {
+    const v: Record<string, Entry> = {};
+    per.rows.forEach((r, i) => {
+      v[r.id] = [countClass(r.n), D.alerts(r.n), D.levelParts(r.red, r.orange, per.days <= 30 ? r.green : null), 0, i + 1];
+    });
+    const bl: Record<string, string> = {};
+    for (const [id, members] of memberships) {
+      const n = per.alerts.filter((h) => h.places.some((x) => members.includes(x))).length;
+      bl[id] = D.blocLine(BLOC_TEXT[id] ?? id, n, per.rows.filter((r) => members.includes(r.id)).length, per.days);
+    }
+    return { year: per.days, label: D.last(per.days), legend: D.legend(per.days), v, order: per.rows.map((r) => r.id), blocs: bl };
+  });
+  // A mark shows in the periods whose list has it: bit i for period i.
+  const mask = (h: Hazard, pick: (i: number) => Hazard[]) => p.periods.reduce((m, _, i) => (pick(i).includes(h) ? m | (1 << i) : m), 0);
+  const where = (h: Hazard) => (h.places.length ? list(h.places.map((x, i) => inSentence(nameOf2(x), i === 0))) : D.atSea);
+  const overlays: Overlay[] = [];
+  if (p.kind === 'EQ') {
+    const all = p.periods.at(-1)!.quakes;
+    overlays.push({
+      id: 'quakes', kind: 'points', label: D.marks.quake, symbol: 'hollow',
+      items: all.map((q): Point => ({
+        at: toMap(q.lon, q.lat), r: Math.max(3, ((q.mag ?? 5.5) - 5) * 4 + 1), m: mask(q, (i) => p.periods[i].quakes),
+        tip: D.tipQuake(q.name, formatDate(q.from), q.depth != null ? D.km(Math.round(q.depth)) : '', q.alert !== 'none' ? `PAGER: ${D.level(q.alert).toLowerCase()}` : ''),
+      })),
+    });
+  } else {
+    const seen = new Set<Hazard>();
+    for (const per of p.periods) for (const h of per.alerts) seen.add(h);
+    const symbols = { red: 'triangle', orange: 'diamond', green: 'dot' } as const;
+    for (const level of ['green', 'orange', 'red'] as const) {
+      const items = [...seen].filter((h) => h.alert === level).map((h): Point => ({
+        at: toMap(h.lon, h.lat), r: 3.5, m: mask(h, (i) => p.periods[i].alerts),
+        tip: D.tipAlert(h.name, D.levelAlert(level), daysText(h, formatDate), where(h), h.severity),
+      }));
+      if (items.length) overlays.push({ id: `alerts-${level}`, kind: 'points', label: D.marks[level], symbol: symbols[level], items });
+    }
+  }
+  const title = KIND_TEXT[p.id].title;
+  return {
+    id: `disasters-${p.id}`, scale: 'seq', axis: 'days', years: p.periods.map((x) => x.days), year: p.days, ticks: D.ticks,
+    missing: { none: D.none }, source: p.kind === 'EQ' ? 'GDACS; USGS' : 'GDACS',
+    text: {
+      ...(c.words as LayerFile['text']),
+      kicker: `${title} · {year}`, measure: '', shareLabel: D.figureLabel, none: D.noneIn,
+      withheld: MAP_TEXT.withheldBy, withheldWhy: '', prev: '{year}: {value}', rank: VIEWS_TEXT.rank(0, 1).replace('0', '{rank}').replace('1', '{of}'),
+      movedYear: D.movedDays,
+    },
+    tags: c.tags, names: c.names, hrefs: c.hrefs, dossiers: c.dossiers, slugs: c.slugs, notes: c.notes, blocs: c.blocs, data,
+    // Red marks last, so they sit on top.
+    overlays,
+  };
+}
+const placeNames = new Map(PLACES.map((x) => [x.id, x.name]));
+const nameOf2 = (id: string) => placeNames.get(id) ?? id;
+
 let defs: LayerDef[] | null = null;
 export function mapLayers(): LayerDef[] {
   defs ??= [
     ...mineralPages().map((p) => ({ id: `minerals-${p.id}`, view: `view:minerals:${p.id}`, topic: 'resources', build: () => mineralLayer(p) })),
     ...viewPages().map((p) => ({ id: `${p.family.id}-${p.id}`, view: `view:${p.family.id}:${p.id}`, topic: p.family.hub, build: () => indicatorLayer(p) })),
+    ...disasterPages().map((p) => ({ id: `disasters-${p.id}`, view: `view:disasters:${p.id}`, topic: 'climate', build: () => disasterLayer(p) })),
   ];
   return defs;
 }
