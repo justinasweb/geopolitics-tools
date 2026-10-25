@@ -63,7 +63,7 @@ function card(r: Route | null): Card {
     const p = mineralPage(r.id.split(':')[1])!;
     const y = p.latest;
     return {
-      kicker: MINERALS_VIEW.section, title: MINERALS_VIEW.title(p.title), figure: y.world ? `${amount(y.world)} ${p.unit}` : undefined,
+      kicker: MINERALS_VIEW.section, title: p.text.title(p.title), figure: y.world ? `${amount(y.world)} ${p.unit}` : undefined,
       caption: lede(p) ?? undefined, source: `${p.source}${y.estimated ? ', estimated' : ''}`,
       bars: listed(y).slice(0, 5).map((x) => ({ label: producerName(x), value: x.share!, text: shareText(x.share!) })),
     };

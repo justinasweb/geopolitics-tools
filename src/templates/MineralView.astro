@@ -16,7 +16,7 @@ import '../styles/atlas/bars.css';
 import '../styles/atlas/keyfigure.css';
 import '../styles/atlas/table.css';
 import '../styles/atlas/tools.css';
-import { MINERALS_VIEW as T, MAP_TEXT } from '../i18n/map.en';
+import { MAP_TEXT } from '../i18n/map.en';
 import { amount, concentration, lede, listed, mineralPage, mineralPages, nameOf, shareExact, shareText, summary, withheld, worldChange } from '../lib/minerals';
 import { refreshed, data } from '../lib/data';
 import { countryHref, paths, live } from '../lib/routes';
@@ -26,6 +26,7 @@ import { breadcrumbs } from '../lib/structured';
 
 interface Props { id: string }
 const p = mineralPage(Astro.props.id)!;
+const T = p.text;
 const all = mineralPages();
 const y = p.latest;
 const path = paths.mineral(p.id);
@@ -47,10 +48,17 @@ const est = (yr: number) => p.estimated.includes(yr);
 
 // The table: every producer of the latest year, with the year before and the change.
 const prevOf = (place: string | null, label: string) => prev?.producers.find((q) => (place ? q.place === place : q.label === label));
+// USGS's notes on a row's figures, numbered once per distinct note; a note on one year only says which year.
+const notes: string[] = [];
 const rows = y.producers.map((x) => {
   const q = prevOf(x.place, x.label);
   const ch = x.value !== null && q?.value ? x.value / q.value - 1 : null;
-  return { x, q, ch };
+  const said = x.note === (q?.note ?? null) || !prev ? [x.note] : [x.note && T.noteYear(y.year, x.note), q?.note && T.noteYear(prev.year, q.note)];
+  const marks = said.filter((n): n is string => Boolean(n)).map((n) => {
+    if (!notes.includes(n)) notes.push(n);
+    return notes.indexOf(n) + 1;
+  });
+  return { x, q, ch, marks };
 });
 const related = [
   ...listed(y).slice(0, 3).filter((x) => x.place && countryHref(x.place)).map((x) => ({ href: countryHref(x.place!)!, name: nameOf(x), note: DOSSIERS.includes(x.place!) ? T.dossier : T.countryPage })),
@@ -136,7 +144,7 @@ const yearStatus = Object.fromEntries(p.years.filter(est).map((yr) => [yr, 'esti
       <h2 class="gt-h2" id="table">{T.all}</h2>
       <div class="gt-tablewrap" style="--gt-table-h:none" tabindex="0" role="region" aria-label={T.tableLabel(p.title)}>
         <table class="gt-table" data-gt-sort>
-          <caption class="gt-caption">{T.caption(unitWord, rows.some(({ x, q }) => x.estimated || q?.estimated), worldNote)}</caption>
+          <caption class="gt-caption">{T.caption(unitWord, p.basis, rows.some(({ x, q }) => x.estimated || q?.estimated), worldNote, p.revisions)}</caption>
           <thead><tr>
             <th scope="col" data-key="n"><button type="button">{T.country}</button></th>
             <th scope="col" class="n" data-key="v" data-type="num" aria-sort="descending"><button type="button">{y.year}</button></th>
@@ -145,9 +153,9 @@ const yearStatus = Object.fromEntries(p.years.filter(est).map((yr) => [yr, 'esti
             {prev && <th scope="col" class="n" data-key="c" data-type="num"><button type="button">{T.change2}</button></th>}
           </tr></thead>
           <tbody>
-            {rows.map(({ x, q, ch }) => (
+            {rows.map(({ x, q, ch, marks }) => (
               <tr data-place={x.place ?? undefined}>
-                <th scope="row">{x.place && countryHref(x.place) ? <a href={countryHref(x.place)}>{nameOf(x)}</a> : nameOf(x)}</th>
+                <th scope="row">{x.place && countryHref(x.place) ? <a href={countryHref(x.place)}>{nameOf(x)}</a> : nameOf(x)}{marks.map((n) => <sup class="gt-fn"><a href={`#mv-note-${n}`} aria-label={`${T.notes} ${n}`}>{n}</a></sup>)}</th>
                 {x.withheld ? <td class="n gt-na" data-v="">{T.withheld}</td> : <td class="n" data-v={x.value}>{amount(x.value!)}{x.estimated && <abbr class="gt-yr" title={T.estTitle}>e</abbr>}</td>}
                 {x.share === null ? <td class="n gt-na" data-v="">–</td> : <td class="n" data-v={x.share}>{shareExact(x.share)}</td>}
                 {prev && (q?.withheld ? <td class="n gt-na" data-v="">{T.withheld}</td> : q?.value != null ? <td class="n" data-v={q.value}>{amount(q.value)}{q.estimated && <abbr class="gt-yr" title={T.estTitle}>e</abbr>}</td> : <td class="n gt-na" data-v="">–</td>)}
@@ -164,6 +172,12 @@ const yearStatus = Object.fromEntries(p.years.filter(est).map((yr) => [yr, 'esti
           )}
         </table>
       </div>
+      {notes.length > 0 && (
+        <div class="gt-mvnotes">
+          <h3 class="gt-label">{T.notes}</h3>
+          <ol class="gt-caption">{notes.map((n, i) => <li id={`mv-note-${i + 1}`}>{n}</li>)}</ol>
+        </div>
+      )}
       <SourceLine source={p.source} parts={[yearsText]} updated={updated} />
     </div>
     <aside class="gt-mvbelow__side">

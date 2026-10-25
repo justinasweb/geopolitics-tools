@@ -89,7 +89,9 @@ export const COUNTRY_TEXT = {
   backToTop: 'Back to top',
   mineralsHeading: 'What it dominates',
   mineralsMenu: 'Minerals',
-  mineralsBars: (c: string, year: number) => `${possessive(c)} share of world mine production, ${year}`,
+  mineralsBars: (c: string, year: number) => `${possessive(c)} share of world production, ${year}`,
+  /** After a mineral counted as primary production, not mine production (gallium). */
+  primary: ' (primary production)',
   mineralsLink: 'Critical minerals map',
   moreHeading: 'More figures',
   moreMenu: 'More figures',
@@ -116,6 +118,7 @@ export const COUNTRY_TEXT = {
 /** Profile summary sentences, each with its source and year in brackets. */
 export const SUMMARY = {
   mines: (c: string, parts: string[], src: string) => `${c} mines ${list(parts)} (${src}).`,
+  produces: (c: string, parts: string[], src: string) => `${c} produces ${list(parts)} (${src}).`,
   minePart: (share: string, mineral: string, first: boolean) => (first ? `${share} of the world’s ${mineral}` : `${share} of its ${mineral}`),
   people: (c: string, pop: string, popSrc: string, gdp: string | null, gdpSrc: string) =>
     gdp ? `${c} has ${pop} people (${popSrc}) and an economy of ${gdp} a year (${gdpSrc}).` : `${c} has ${pop} people (${popSrc}).`,
@@ -197,8 +200,8 @@ export const COMPARE_TEXT = {
   source: 'Source and year',
   overTime: 'Over time',
   sameScale: 'Both on the same scale.',
-  minerals: 'Share of world mine production',
-  mineralsFind: (year: number) => `Share of world mine production in ${year}, for minerals where either mines at least 1%.`,
+  minerals: 'Share of world production',
+  mineralsFind: (year: number) => `Share of world mine production (primary production for gallium) in ${year}, for minerals where either has at least 1%.`,
   others: 'Other comparisons',
   change: 'Change',
   colours: { USA: 'blue', CHN: 'orange', RUS: 'teal' } as Record<string, string>,

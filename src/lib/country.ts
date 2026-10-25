@@ -26,7 +26,7 @@ export const MINERAL_SHARE = 0.1;
 export const THIN_BELOW = 4;
 
 export interface Figure { id: string; value: number; year: number; rank: number; of: number; source: string }
-export interface MineralShare { id: string; label: string; share: number; year: number; estimated: boolean; rank: number; of: number }
+export interface MineralShare { id: string; label: string; share: number; year: number; estimated: boolean; rank: number; of: number; measure: 'mine' | 'primary' }
 
 const mineralsData = shared(loadMinerals);
 const gdacsData = shared((raw) => parseGdacs(raw.json('gdacs', 'events.json')));
@@ -50,7 +50,7 @@ export function figure(indId: string, placeId: string): Figure | null {
   return f ? { id: indId, ...f, source: sourceOf(indId) } : null;
 }
 
-/** Shares of world mine production of at least `min`, largest first. */
+/** Shares of world production (mine production; primary production for gallium) of at least `min`, largest first. */
 export function mineralShares(placeId: string, min = MINERAL_SHARE): MineralShare[] {
   const ms = mineralsData() ?? [];
   const out: MineralShare[] = [];
@@ -59,7 +59,7 @@ export function mineralShares(placeId: string, min = MINERAL_SHARE): MineralShar
     const i = producers.findIndex((p) => p.place === placeId);
     if (i < 0 || (producers[i].share ?? 0) < min) continue;
     const rank = producers.findIndex((p) => p.share === producers[i].share) + 1;
-    out.push({ id: m.id, label: m.label, share: producers[i].share!, year: m.year, estimated: m.estimated, rank, of: producers.length });
+    out.push({ id: m.id, label: m.label, share: producers[i].share!, year: m.year, estimated: m.estimated, rank, of: producers.length, measure: m.measure });
   }
   return out.sort((a, b) => b.share - a.share);
 }
@@ -124,8 +124,12 @@ function summaryFor(c: Place, figs: Figure[], minerals: MineralShare[], deps: De
   const out: string[] = [];
   const subject = inSentence(c.name, true);
   if (minerals.length) {
+    // Gallium is produced, not mined: it gets its own sentence.
     const top = minerals.slice(0, 3);
-    out.push(SUMMARY.mines(subject, top.map((m, i) => SUMMARY.minePart(formatShare(m.share), mineralName(m.id, m.label), i === 0)), `${SOURCE_SHORT['usgs-minerals']}, ${top[0].year}`));
+    const mined = top.filter((m) => m.measure === 'mine');
+    const made = top.filter((m) => m.measure === 'primary');
+    if (mined.length) out.push(SUMMARY.mines(subject, mined.map((m, i) => SUMMARY.minePart(formatShare(m.share), mineralName(m.id, m.label), i === 0)), `${SOURCE_SHORT['usgs-minerals']}, ${mined[0].year}`));
+    if (made.length) out.push(SUMMARY.produces(out.length ? 'It' : subject, made.map((m, i) => SUMMARY.minePart(formatShare(m.share), `primary ${mineralName(m.id, m.label)}`, i === 0)), `${SOURCE_SHORT['usgs-minerals']}, ${made[0].year}`));
   }
   const pop = figs.find((f) => f.id === 'population');
   const gdp = figs.find((f) => f.id === 'gdp');

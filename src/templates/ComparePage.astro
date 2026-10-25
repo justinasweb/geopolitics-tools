@@ -60,12 +60,12 @@ const charts = ['gdp', 'milpct'].map((id) => {
 }).filter((c) => c !== null);
 
 const mins = ids.map((p) => mineralShares(p, 0));
-// Minerals where either mines at least 1% of the world's output; the other's share is shown however small.
+// Minerals where either has at least 1% of the world's output; the other's share is shown however small.
 const mineralIds = [...new Set(mins.flat().filter((x) => x.share >= 0.01).map((x) => x.id))];
 const pairs = mineralIds.map((mid) => {
   const vals = mins.map((list) => list.find((x) => x.id === mid));
   const any = vals.find((v) => v)!;
-  return { id: mid, label: any.label, year: any.year, estimated: any.estimated, vals: vals.map((v) => v?.share ?? null) };
+  return { id: mid, label: any.label, year: any.year, estimated: any.estimated, measure: any.measure, vals: vals.map((v) => v?.share ?? null) };
 }).sort((x, y) => Math.max(...y.vals.map((v) => v ?? 0)) - Math.max(...x.vals.map((v) => v ?? 0)));
 const mineralYear = pairs[0]?.year;
 
@@ -134,7 +134,7 @@ const crumbs = [{ label: COUNTRY_TEXT.countries, href: paths.countries() }, { la
       <ul class="gt-pairs">
         {pairs.map((x) => (
           <li>
-            <span class="gt-pairs__m">{mineralName(x.id, x.label).replace(/^./, (ch) => ch.toUpperCase())}</span>
+            <span class="gt-pairs__m">{mineralName(x.id, x.label).replace(/^./, (ch) => ch.toUpperCase())}{x.measure === 'primary' && COUNTRY_TEXT.primary}</span>
             <ul>{x.vals.map((v, i) => <li class={CC[ids[i]]}><span class="gt-pairs__n">{nameOf(ids[i])}</span><span class="gt-pairs__t"><span class="gt-pairs__f" style={`width:${((v ?? 0) * 100).toFixed(1)}%`}></span></span><span class="gt-pairs__v">{v === null ? '–' : formatShare(v)}</span></li>)}</ul>
           </li>
         ))}
