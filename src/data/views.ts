@@ -52,6 +52,15 @@ export const VIEW_FAMILIES: ViewFamily[] = [
       { indicator: 'entitylist', scale: 'seq', sums: true },
     ],
   },
+  {
+    id: 'sanctions', hub: 'power', layers: [
+      // A target on two lists counts once for each, so the all-lists layer is listings, not distinct targets.
+      { indicator: 'sanctions', scale: 'seq', sums: true },
+      { indicator: 'sanctionsus', scale: 'seq', sums: true },
+      { indicator: 'sanctionseu', scale: 'seq', sums: true },
+      { indicator: 'sanctionsuk', scale: 'seq', sums: true },
+    ],
+  },
 ];
 
 /** Diverging class edges for a change relative to a country's own figure (co2trade): ±3%, ±10%, ±30%. */

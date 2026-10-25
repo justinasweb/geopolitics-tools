@@ -158,6 +158,12 @@ counts are view-only measures (`src/data/view-measures.ts`): no indicator page, 
 computing power map marks each known supercomputer, with a table of the largest. Chip and chipmaking-tool trade (the
 spec's `/ai/chips`) waits on UN Comtrade.
 
+## Sanctions (phase 5a)
+
+`/sanctions` (listings on the US SDN, EU and UK lists together, the registry's `sanctions`) and `/sanctions/{us,eu,uk}`
+(each list alone, view-only measures). The panel splits a country's listings by list, by kind of target and by the main
+programmes. Counts are of listings, so a target on two lists counts twice in the total; this is said next to the figure.
+
 ## Not done in this phase
 
 - Refining shares and trade flows on the minerals views: later phases, once their sources are in.

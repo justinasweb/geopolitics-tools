@@ -7,7 +7,7 @@ export const SECTION_SLUGS = {
   countries: 'countries', compare: 'compare', indicators: 'indicators', downloads: 'downloads',
   about: 'about', methodology: 'methodology', sources: 'sources', privacy: 'privacy', minerals: 'minerals',
   emissions: 'emissions', refugees: 'refugees', disasters: 'disasters', food: 'food', blocs: 'blocs',
-  space: 'space', ai: 'ai',
+  space: 'space', ai: 'ai', sanctions: 'sanctions',
 } as const;
 
 /** Map view layers after their section (/emissions/per-person), by registry id; the first layer of a section is the section itself (''). */
@@ -16,6 +16,7 @@ export const VIEW_SLUGS: Record<string, string> = {
   refout: '', refin: 'hosted', refinpc: 'per-person', idps: 'displaced',
   satellites: '', launches: 'launches',
   aicompute: '', aimodels: 'models', entitylist: 'export-controls',
+  sanctions: '', sanctionsus: 'us', sanctionseu: 'eu', sanctionsuk: 'uk',
 };
 
 /** Disaster kinds after /disasters; every kind together is the section itself. */

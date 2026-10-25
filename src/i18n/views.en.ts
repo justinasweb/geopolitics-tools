@@ -174,6 +174,48 @@ export const VIEW_TEXT: Record<string, FamilyText> = {
       },
     },
   },
+  sanctions: {
+    section: 'Sanctions',
+    pickerLabel: 'List',
+    layers: {
+      sanctions: {
+        pick: 'All three lists', title: 'Sanctions listings', sub: 'US, EU and UK lists', measure: 'listings', figureLabel: 'Listings',
+        legend: (y) => `Sanctions listings by country, ${y}`, worldLabel: 'Total, all countries',
+        lede: ({ top, value, share, top3, year }) => `${top} had ${value} listings on the US, EU and UK sanctions lists in ${year}, ${share} of those with a country${top3 ? `; the top three countries had ${top3}` : ''}.`,
+        total: (v, y) => `The three lists had ${v} listings with a country in ${y}.`,
+        bloc: (b, s, y) => `${s} of the listings were in ${b} members in ${y}.`,
+        caveat: 'Listings on the US Specially Designated Nationals list, the EU financial sanctions list and the UK Sanctions List. A target on two lists counts once for each. Each listing is a person, company, ship or aircraft, placed by the country of its first address, else its nationality. Counts show how many targets a list names, not how severe the measures are.',
+        description: (y) => `Sanctions listings by country, ${y}: how many people, companies, ships and aircraft are listed for each country, on a map and in a table. Source: US Treasury, EU, UK government.`,
+      },
+      sanctionsus: {
+        pick: 'US', title: 'US sanctions listings', sub: 'Specially Designated Nationals list', measure: 'listings', figureLabel: 'Listings',
+        legend: (y) => `US sanctions listings by country, ${y}`, worldLabel: 'Total, all countries',
+        lede: ({ top, value, share, top3, year }) => `${top} had ${value} listings on the US Specially Designated Nationals list in ${year}, ${share} of those with a country${top3 ? `; the top three countries had ${top3}` : ''}.`,
+        total: (v, y) => `The US list had ${v} listings with a country in ${y}.`,
+        bloc: (b, s, y) => `${s} of the listings were in ${b} members in ${y}.`,
+        caveat: 'The US Treasury’s Specially Designated Nationals list, as published in the US Consolidated Screening List. Export controls such as the Entity List are not included. Each listing is a person, company, ship or aircraft, placed by the country of its first address, else its nationality. Counts show how many targets a list names, not how severe the measures are.',
+        description: (y) => `US sanctions listings by country, ${y}: how many people, companies, ships and aircraft are listed for each country, on a map and in a table. Source: US Consolidated Screening List.`,
+      },
+      sanctionseu: {
+        pick: 'EU', title: 'EU sanctions listings', sub: 'consolidated financial sanctions list', measure: 'listings', figureLabel: 'Listings',
+        legend: (y) => `EU sanctions listings by country, ${y}`, worldLabel: 'Total, all countries',
+        lede: ({ top, value, share, top3, year }) => `${top} had ${value} listings on the EU financial sanctions list in ${year}, ${share} of those with a country${top3 ? `; the top three countries had ${top3}` : ''}.`,
+        total: (v, y) => `The EU list had ${v} listings with a country in ${y}.`,
+        bloc: (b, s, y) => `${s} of the listings were in ${b} members in ${y}.`,
+        caveat: 'The EU’s consolidated list of persons, groups and entities subject to financial sanctions. Each listing is a person, company, ship or aircraft, placed by the country of its first address, else its nationality. Counts show how many targets a list names, not how severe the measures are.',
+        description: (y) => `EU sanctions listings by country, ${y}: how many people, companies, ships and aircraft are listed for each country, on a map and in a table. Source: EU financial sanctions files.`,
+      },
+      sanctionsuk: {
+        pick: 'UK', title: 'UK sanctions listings', sub: 'UK Sanctions List', measure: 'listings', figureLabel: 'Listings',
+        legend: (y) => `UK sanctions listings by country, ${y}`, worldLabel: 'Total, all countries',
+        lede: ({ top, value, share, top3, year }) => `${top} had ${value} listings on the UK Sanctions List in ${year}, ${share} of those with a country${top3 ? `; the top three countries had ${top3}` : ''}.`,
+        total: (v, y) => `The UK list had ${v} listings with a country in ${y}.`,
+        bloc: (b, s, y) => `${s} of the listings were in ${b} members in ${y}.`,
+        caveat: 'The UK government’s Sanctions List of designations under UK law. Each listing is a person, company, ship or aircraft, placed by the country of its first address, else its nationality. Counts show how many targets a list names, not how severe the measures are.',
+        description: (y) => `UK sanctions listings by country, ${y}: how many people, companies, ships and aircraft are listed for each country, on a map and in a table. Source: UK Sanctions List.`,
+      },
+    },
+  },
 };
 
 /** UNHCR's three groups, in the refugees views' panel and table. */

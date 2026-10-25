@@ -26,6 +26,8 @@ import { sitesIn, spaceAsOf, workingBy } from '../space.ts';
 import { SPACE_TEXT } from '../../i18n/space.en.ts';
 import { clustersAt } from '../ai.ts';
 import { AI_TEXT } from '../../i18n/ai.en.ts';
+import { LISTS, sanctions } from '../../adapters/sanctions.ts';
+import { SANCTIONS_TEXT } from '../../i18n/sanctions.en.ts';
 import { anchors } from './basemap.ts';
 import type { Hazard } from '../../adapters/hazards.ts';
 import type { Entry, LayerFile, LayerYear, Overlay, PanelBlock, Point } from './types.ts';
@@ -203,7 +205,7 @@ function indicatorLayer(p: ViewPage): LayerFile {
     },
     tags: c.tags, names: c.names, hrefs: c.hrefs, dossiers: c.dossiers, slugs: c.slugs, notes, blocs: c.blocs, data,
     series: seriesOf(p.years.map((year) => Object.fromEntries(p.byYear[year].rows.map((r) => [r.id, r.value])))),
-    format: p.format, more: p.family.id === 'space' ? withSpace(viewMore(p)) : viewMore(p),
+    format: p.format, more: p.family.id === 'space' ? withSpace(viewMore(p)) : p.family.id === 'sanctions' ? withSanctions(viewMore(p), p.id) : viewMore(p),
     ...(p.id === 'launches' ? { overlays: [launchSites(p)] } : p.id === 'aicompute' ? { overlays: [aiClusters(p)] } : {}),
   };
 }
@@ -223,6 +225,31 @@ function withSpace(more: Record<string, PanelBlock[]>): Record<string, PanelBloc
         ...cs.map(([c, n]) => ({ name: S.names[c] ?? c, value: f(n), note: S.constellation })),
       ],
     }];
+  }
+  return out;
+}
+
+const sanctionsData = shared(sanctions);
+/** Sanctions: each country's listings by list, by kind of target, and the main programmes (of the layer's list). */
+function withSanctions(more: Record<string, PanelBlock[]>, layer: string): Record<string, PanelBlock[]> {
+  const S = SANCTIONS_TEXT;
+  const d = sanctionsData();
+  if (!d) return more;
+  const only = ({ sanctionsus: 'US', sanctionseu: 'EU', sanctionsuk: 'UK' } as Record<string, string>)[layer];
+  const f = (v: number) => formatValue(v, { kind: 'count' });
+  const out = { ...more };
+  for (const [id, c] of Object.entries(d.byPlace)) {
+    const progs = Object.entries(c.byProgramme).filter(([k]) => !only || k.startsWith(`${only}|`)).sort((a, b) => b[1] - a[1]);
+    out[id] = [
+      { label: S.byList, caption: S.byListCaption, rows: LISTS.map((l) => ({ name: S.list[l], value: f(c.byList[l]) })) },
+      ...(only ? [] : [{ label: S.byType, rows: (['person', 'entity', 'vessel', 'aircraft'] as const).filter((t) => c.byType[t]).map((t) => ({ name: S.type[t], value: f(c.byType[t]!) })) }]),
+      ...(progs.length ? [{
+        label: S.programmes, caption: S.programmesCaption,
+        rows: progs.slice(0, 5).map(([k, n]) => ({ name: only ? k.split('|')[1] : `${S.list[k.split('|')[0]]}: ${k.split('|')[1]}`, value: f(n) })),
+        more: progs.length > 5 ? S.morePrograms(progs.length - 5) : undefined,
+      }] : []),
+      ...(out[id] ?? []),
+    ];
   }
   return out;
 }
