@@ -13,3 +13,19 @@ Decisions put off for later. Each says what the question is, what the site does 
 - Show Russia's last reported figure (1.2 million, 2023), marked as an older year. This mixes years in the world total and the ranking.
 - Mark Russia on the hosted maps as "not reported since 2023" (hatched, like "withheld by source") instead of shading it by the small figure.
 - Use another source for Ukrainians in Russia, if one meets the source rules.
+
+## Submarine cables: TeleGeography licence (raised 25 Oct 2026)
+
+**The question.** The spec puts submarine cables at `/internet`. TeleGeography's Submarine Cable Map is the standard
+source, but its data now needs a paid annual licence (the old CC BY-NC-SA terms covered only a GitHub repository that
+was taken down in 2022). Justinas is asking TeleGeography for a price.
+
+**What the site does now.** `/internet` waits (`rootWaits` in src/data/views.ts); internet outages are live at
+`/internet/outages`. OpenStreetMap, the only open source tried, maps 819 cable ways, but 549 have no name and only 40
+cross between countries. Finland shows 287 (mostly short lake and archipelago cables) and the United States 7, so a map
+of cables by country, or of OSM's lines alone, would mislead.
+
+**Options.**
+- License TeleGeography, if the price fits, and build `/internet` from it.
+- Keep `/internet` waiting and look for another open source of cable routes and landings.
+- Show OSM's international cables only, with a caveat on coverage (judged too thin on 25 Oct 2026).
