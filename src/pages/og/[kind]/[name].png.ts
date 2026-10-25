@@ -19,6 +19,9 @@ import { VIEW_TEXT } from '../../../i18n/views.en';
 import { DISASTERS_TEXT, KIND_TEXT } from '../../../i18n/disasters.en';
 import { disasterPage } from '../../../lib/disasters';
 import { FOOD_TEXT } from '../../../i18n/food.en';
+import { BLOCS_TEXT, MEASURE_TEXT } from '../../../i18n/blocs.en';
+import { BLOC_TEXT } from '../../../i18n/map.en';
+import { blocPage, membershipCounts } from '../../../lib/blocview';
 import { foodPage, lede as foodLede, mt, netText, shareOf as foodShare } from '../../../lib/food';
 
 export const getStaticPaths = (() => {
@@ -81,6 +84,18 @@ function card(r: Route | null): Card {
       kicker: DISASTERS_TEXT.section, title: KIND_TEXT[p.id].title, figure: DISASTERS_TEXT.ogFigure(x.alerts.length), caption: DISASTERS_TEXT.ogCaption(x.days),
       source: `${short('gdacs')}, ${formatDate(x.from)} – ${formatDate(x.to)}`,
       bars: x.rows.slice(0, 5).map((y) => ({ label: nameOf(y.id), value: y.n, text: String(y.n) })),
+    };
+  }
+  if (r.kind === 'view' && r.id.startsWith('blocs:')) {
+    const id = r.id.split(':')[1];
+    if (id === 'all') {
+      const c = membershipCounts().slice(0, 5);
+      return { kicker: BLOCS_TEXT.hub, title: BLOCS_TEXT.allTitle, caption: BLOCS_TEXT.countLegend, bars: c.map((x) => ({ label: nameOf(x.id), value: x.n, text: String(x.n) })) };
+    }
+    const p = blocPage(id)!;
+    return {
+      kicker: BLOCS_TEXT.section, title: BLOC_TEXT[id] ?? id, figure: String(p.members.length), caption: BLOCS_TEXT.sub(p.members.length),
+      bars: p.shares.slice(0, 5).map((s) => ({ label: `${MEASURE_TEXT[s.id]}, ${s.year}`, value: s.share, text: formatShare(s.share) })),
     };
   }
   if (r.kind === 'view' && r.id.startsWith('food:')) {

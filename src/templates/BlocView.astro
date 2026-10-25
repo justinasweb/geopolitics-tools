@@ -1,0 +1,246 @@
+---
+// The blocs views: /blocs maps how many of the 19 groupings each country belongs to; /blocs/{bloc} maps one grouping's
+// members, with their combined share of the world and the groupings they share members with. Same template as the
+// other map views: the answer, the controls (a grouping picker and the bloc outline, which shows the overlap with a
+// second grouping), the map with its legend and panel, then the summary and tables. Memberships do not change by
+// year here; their history is the alliance history views.
+import Page from '../layouts/Page.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import SourceLine from '../components/SourceLine.astro';
+import Notice from '../components/Notice.astro';
+import ShareRow from '../components/ShareRow.astro';
+import MapStage from '../components/MapStage.astro';
+import MapControls from '../components/MapControls.astro';
+import '../styles/atlas/mapview.css';
+import '../styles/atlas/bars.css';
+import '../styles/atlas/keyfigure.css';
+import '../styles/atlas/table.css';
+import '../styles/atlas/tools.css';
+import { MAP_TEXT, BLOC_TEXT } from '../i18n/map.en';
+import { BLOC_ABOUT, BLOC_SHORT, blocIn, BLOCS_TEXT as B, MEASURE_IN, MEASURE_TEXT, MEMBER_NOTES } from '../i18n/blocs.en';
+import { MINERAL_TEXT, inSentence } from '../i18n/pages.en';
+import { BLOCS_CHECKED, BLOC_ORDER, blocs } from '../lib/blocs';
+import { blocPage, blocPages, blocsOf, membershipCounts, shareOn, valueOf, weightIn, type BlocShare } from '../lib/blocview';
+import { formatDate, formatValue } from '../lib/format';
+import { shareText } from '../lib/minerals';
+import { place } from '../lib/places';
+import { countryHref, live, route } from '../lib/routes';
+import { layerPath } from '../lib/map/layers';
+import { DOSSIERS } from '../lib/country';
+import { breadcrumbs } from '../lib/structured';
+
+interface Props { id: string }
+const { id } = Astro.props;
+const all = id === 'all';
+const p = all ? null : blocPage(id)!;
+const key = (b: string) => `view:blocs:${b}`;
+const path = route(key(id))!.path;
+const url = new URL(path, Astro.site).href;
+const checked = formatDate(BLOCS_CHECKED);
+const name = all ? B.allTitle : BLOC_TEXT[id] ?? id;
+const nameOf = (x: string) => place(x)?.name ?? x;
+const crumbs = [{ label: B.hub }, ...(all ? [] : [{ label: B.section, href: route(key('all'))!.path }]), { label: all ? B.section : name }];
+const memberships = blocs();
+const count = (v: number | null) => (v === null ? '–' : formatValue(v, { kind: 'count' }));
+const money = (v: number | null) => (v === null ? '–' : formatValue(v, { kind: 'money' }));
+const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+const mineralName = (s: BlocShare) => MINERAL_TEXT[s.id.slice(8)] ?? s.id.slice(8);
+const label = (s: BlocShare) => (s.id.startsWith('mineral:') ? cap(mineralName(s)) : MEASURE_TEXT[s.id]);
+
+// A grouping's page.
+const pop = p?.shares.find((s) => s.id === 'population');
+const gdp = p?.shares.find((s) => s.id === 'gdp');
+const counts = all ? membershipCounts() : [];
+const most = counts.filter((c) => c.n === counts[0]?.n);
+const answer = all
+  ? B.allLede(counts.length, most.map((c, i) => inSentence(nameOf(c.id), i === 0)), counts[0]?.n ?? 0)
+  : B.lede(name, p!.members.length, pop ? shareText(pop.share) : null, gdp ? shareText(gdp.share) : null, pop?.year ?? null);
+const summary = all ? [B.allSummary(BLOC_ORDER.length), B.scope] : [
+  BLOC_ABOUT[id],
+  [p!.shares.length ? B.summaryShares(name, p!.shares.slice(0, 4).map((s) => B.sharePart(shareText(s.share), MEASURE_IN[s.id], s.year))) : '',
+    p!.minerals.length ? B.summaryMinerals(p!.minerals.slice(0, 3).map((s) => B.mineralPart(shareText(s.share), mineralName(s)))) : '',
+    p!.overlaps.length ? B.summaryOverlap(p!.overlaps.slice(0, 4).map((o, i) => B.overlapPart(o.shared.length, blocIn(o.id, BLOC_TEXT[o.id] ?? o.id), i === 0))) : ''].filter(Boolean).join(' '),
+  B.scope,
+];
+const picker = ['all', ...BLOC_ORDER].filter((b) => live(key(b))).map((b) => ({ label: b === 'all' ? B.all : BLOC_TEXT[b] ?? b, href: live(key(b))!.path, current: b === id }));
+const notes = all ? [] : Object.entries(MEMBER_NOTES[id] ?? {}).map(([x, text]) => ({ id: x, text }));
+const noteNo = (x: string) => notes.findIndex((n) => n.id === x) + 1;
+const related = [
+  ...(all ? [] : [{ href: route(key('all'))!.path, name: B.allTitle, note: B.allLink }]),
+  ...(all ? [] : p!.byPopulation.slice(0, 3)).filter((x) => countryHref(x)).map((x) => ({ href: countryHref(x)!, name: nameOf(x), note: DOSSIERS.includes(x) ? B.dossier : B.countryPage })),
+  ...(all ? blocPages().slice(0, 4) : p!.overlaps.slice(0, 2).map((o) => blocPage(o.id)!)).filter((b) => live(key(b.id))).map((b) => ({ href: live(key(b.id))!.path, name: BLOC_TEXT[b.id] ?? b.id, note: B.sameView })),
+];
+const mapLabel = all ? B.allMapLabel(counts.slice(0, 3).map((c) => `${nameOf(c.id)} ${B.memberOf(c.n)}`).join(', ')) : B.mapLabel(name, p!.byPopulation.map(nameOf).join(', '));
+const shareBars = (ss: BlocShare[]) => ss.map((s) => ({ label: label(s), text: shareText(s.share), w: Math.min(100, s.share * 100), note: `${s.year}${s.have < s.of ? `, ${B.have(s.have, s.of).toLowerCase()}` : ''}` }));
+---
+<Page title={all ? B.allTitle : name} description={all ? B.allDescription : B.description(name)} hub="power" container="mv" image={route(key(id))!.image}
+  jsonld={[breadcrumbs(crumbs.map((c) => ({ label: c.label, href: c.href })))]}>
+  <div class="gt-mvhead">
+    <Breadcrumbs items={crumbs} />
+    <h1 class="gt-title gt-mvhead__t">{name} <span class="gt-mvhead__sub">{all ? B.allSub : B.sub(p!.members.length)}</span></h1>
+    <p class="gt-lede gt-mvhead__a">{answer}</p>
+    <SourceLine source={B.source} parts={[B.checked(checked)]} />
+  </div>
+
+  <MapControls pickerLabel={B.pickerLabel} picker={picker} pickerSelect years={[Number(BLOCS_CHECKED.slice(0, 4))]} year={Number(BLOCS_CHECKED.slice(0, 4))} />
+
+  <MapStage layer={layerPath(`blocs-${id}`)} label={mapLabel} title={name}
+    legend={all
+      ? { title: B.countLegend, scale: 'seq', ticks: B.countTicks, none: B.none }
+      : { title: B.legendMember, scale: 'seq', ticks: [], none: B.notMember, categories: [{ cls: 4, label: B.member }] }}>
+    <div data-panel="world" slot="panel">
+      <div class="gt-panel__head">
+        <div class="gt-panel__title"><span class="gt-kicker">{name} · {B.checked(checked)}</span><h2 class="gt-h3">{MAP_TEXT.world}</h2></div>
+      </div>
+      <div class="gt-panel__body">
+        {all ? (
+          <div class="gt-pgroup">
+            <span class="gt-label">{B.allTable}</span>
+            <ol class="gt-bars gt-bars--tight" aria-label={B.allTable}>
+              {BLOC_ORDER.map((b) => {
+                const n = memberships.get(b)!.length;
+                const max = Math.max(...[...memberships.values()].map((m) => m.length));
+                return <li><span class="gt-bars__name">{live(key(b)) ? <a href={live(key(b))!.path}>{BLOC_TEXT[b]}</a> : BLOC_TEXT[b]}</span><span class="gt-bars__track"><span class="gt-bars__fill" style={`width:${((100 * n) / max).toFixed(1)}%`}></span></span><span class="gt-bars__val">{n}</span></li>;
+              })}
+            </ol>
+          </div>
+        ) : (
+          <>
+            <div class="gt-pkf">
+              <span class="gt-pkf__label">{B.members}</span>
+              <span class="gt-pkf__num">{p!.members.length}</span>
+            </div>
+            {[{ label: B.sharesLabel, caption: B.sharesCaption, items: shareBars(p!.shares) }, { label: B.mineralsLabel, caption: B.mineralsCaption, items: shareBars(p!.minerals) }].map((g) => g.items.length > 0 && (
+              <div class="gt-pblock">
+                <div class="gt-pblock__head"><span class="gt-label">{g.label}</span><span class="gt-caption">{g.caption}</span></div>
+                <ul class="gt-prows">
+                  {g.items.map((x) => <li><span class="gt-prow__n">{x.label}<small>{x.note}</small></span><span class="gt-prow__v">{x.text}</span></li>)}
+                </ul>
+              </div>
+            ))}
+            {p!.overlaps.length > 0 && (
+              <div class="gt-pblock">
+                <div class="gt-pblock__head"><span class="gt-label">{B.overlapsLabel}</span></div>
+                <ul class="gt-prows">
+                  {p!.overlaps.slice(0, 8).map((o) => <li><span class="gt-prow__n">{live(key(o.id)) ? <a href={live(key(o.id))!.path}>{BLOC_TEXT[o.id]}</a> : BLOC_TEXT[o.id]}</span><span class="gt-prow__v">{o.shared.length} of {p!.members.length}</span></li>)}
+                </ul>
+              </div>
+            )}
+          </>
+        )}
+        <div class="gt-blocline" hidden><span class="gt-blocline__key" aria-hidden="true"></span><p></p></div>
+        <Notice>
+          <p>{all ? B.scope : BLOC_ABOUT[id]}</p>
+          <SourceLine source={all ? B.source : `${B.source}; ${B.shareSources}`} parts={[B.checked(checked)]} />
+        </Notice>
+      </div>
+    </div>
+  </MapStage>
+
+  <section class="gt-mvbelow" aria-labelledby="mv-sum">
+    <div class="gt-mvbelow__main">
+      <h2 class="gt-h2" id="mv-sum">{B.summary}</h2>
+      <div class="gt-prose">{summary.filter(Boolean).map((s) => <p>{s}</p>)}</div>
+      <SourceLine source={all ? B.source : `${B.source}; ${B.shareSources}`} parts={[B.checked(checked)]} />
+      {all ? (
+        <>
+          <h2 class="gt-h2" id="table">{B.allTable}</h2>
+          <div class="gt-tablewrap" style="--gt-table-h:none" tabindex="0" role="region" aria-label={B.allTable}>
+            <table class="gt-table" data-gt-sort>
+              <caption class="gt-caption">{B.allCaption(checked)}</caption>
+              <thead><tr>
+                <th scope="col" data-key="n"><button type="button">{B.bloc}</button></th>
+                <th scope="col" class="n" data-key="m" data-type="num" aria-sort="descending"><button type="button">{B.nMembers}</button></th>
+                <th scope="col" class="n" data-key="p" data-type="num"><button type="button">{B.population}, {B.ofWorld.toLowerCase()}</button></th>
+                <th scope="col" class="n" data-key="g" data-type="num"><button type="button">{B.gdp}, {B.ofWorld.toLowerCase()}</button></th>
+              </tr></thead>
+              <tbody>
+                {[...memberships].sort((a, b) => b[1].length - a[1].length).map(([b, m]) => {
+                  const sp = shareOn('population', m);
+                  const sg = shareOn('gdp', m);
+                  return (
+                    <tr>
+                      <th scope="row">{live(key(b)) ? <a href={live(key(b))!.path}>{BLOC_TEXT[b]}</a> : BLOC_TEXT[b]}</th>
+                      <td class="n" data-v={m.length}>{m.length}</td>
+                      <td class="n" data-v={sp?.share ?? ''}>{sp ? shareText(sp.share) : '–'}</td>
+                      <td class="n" data-v={sg?.share ?? ''}>{sg ? shareText(sg.share) : '–'}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          <h2 class="gt-h2" id="countries">{B.countryTable}</h2>
+          <div class="gt-tablewrap" style="--gt-table-h:560px" tabindex="0" role="region" aria-label={B.countryTable}>
+            <table class="gt-table" data-gt-sort>
+              <caption class="gt-caption">{B.countryCaption}</caption>
+              <thead><tr>
+                <th scope="col" data-key="n"><button type="button">{B.country}</button></th>
+                <th scope="col" class="n" data-key="c" data-type="num" aria-sort="descending"><button type="button">{B.groupings}</button></th>
+                <th scope="col" data-key="w" style="min-width:240px"><button type="button">{B.which}</button></th>
+              </tr></thead>
+              <tbody>
+                {counts.map((c) => (
+                  <tr data-place={c.id}>
+                    <th scope="row">{countryHref(c.id) ? <a href={countryHref(c.id)}>{nameOf(c.id)}</a> : nameOf(c.id)}</th>
+                    <td class="n" data-v={c.n}>{c.n}</td>
+                    <td>{blocsOf(c.id).map((b) => BLOC_SHORT[b] ?? BLOC_TEXT[b] ?? b).join(', ')}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      ) : (
+        <>
+          <h2 class="gt-h2" id="table">{B.members}</h2>
+          <div class="gt-tablewrap" style="--gt-table-h:none" tabindex="0" role="region" aria-label={`${name}: ${B.members.toLowerCase()}`}>
+            <table class="gt-table" data-gt-sort>
+              <caption class="gt-caption">{B.membersCaption(name, checked)}</caption>
+              <thead><tr>
+                <th scope="col" data-key="n"><button type="button">{B.country}</button></th>
+                <th scope="col" class="n" data-key="p" data-type="num" aria-sort="descending"><button type="button">{B.population}</button></th>
+                <th scope="col" class="n" data-key="s" data-type="num"><button type="button">{cap(B.weightPopLabel.toLowerCase())}</button></th>
+                <th scope="col" class="n" data-key="g" data-type="num"><button type="button">{B.gdp}</button></th>
+                <th scope="col" data-key="o" style="min-width:240px"><button type="button">{B.otherBlocs}</button></th>
+              </tr></thead>
+              <tbody>
+                {p!.byPopulation.map((m) => {
+                  const pv = valueOf('population', m);
+                  const w = weightIn('population', m, p!.members);
+                  const g = valueOf('gdp', m);
+                  return (
+                    <tr data-place={m}>
+                      <th scope="row">{countryHref(m) ? <a href={countryHref(m)}>{nameOf(m)}</a> : nameOf(m)}{noteNo(m) > 0 && <sup class="gt-fn"><a href={`#mv-note-${noteNo(m)}`} aria-label={`${B.notes} ${noteNo(m)}`}>{noteNo(m)}</a></sup>}</th>
+                      <td class="n" data-v={pv ?? ''}>{count(pv)}</td>
+                      <td class="n" data-v={w ?? ''}>{w === null ? '–' : shareText(w)}</td>
+                      <td class="n" data-v={g ?? ''}>{money(g)}</td>
+                      <td>{blocsOf(m).filter((b) => b !== id).map((b) => BLOC_SHORT[b] ?? BLOC_TEXT[b] ?? b).join(', ') || '–'}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          <SourceLine source={`${B.source}; World Bank`} parts={[B.checked(checked), pop ? String(pop.year) : ''].filter(Boolean)} />
+          {notes.length > 0 && (
+            <div class="gt-mvnotes">
+              <h3 class="gt-label">{B.notes}</h3>
+              <ol class="gt-caption">{notes.map((n, i) => <li id={`mv-note-${i + 1}`}><b>{nameOf(n.id)}:</b> {n.text}</li>)}</ol>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+    <aside class="gt-mvbelow__side">
+      <h2 class="gt-label">{B.related}</h2>
+      <ul class="gt-related">{related.map((r) => <li><a href={r.href}><span>{r.name}</span><small>{r.note}</small></a></li>)}</ul>
+      <div class="gt-mvbelow__share"><ShareRow url={url} text={answer} /></div>
+    </aside>
+  </section>
+</Page>
+
+<script>
+  import { initSortable } from '../scripts/table';
+  document.querySelectorAll<HTMLTableElement>('table[data-gt-sort]').forEach(initSortable);
+</script>

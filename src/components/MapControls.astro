@@ -16,6 +16,8 @@ import { BLOC_ORDER } from '../lib/blocs';
 interface Props {
   pickerLabel: string;
   picker: { label: string; href: string; current: boolean }[];
+  /** Offer the first picker as a select on desktop too (many pages, as on the blocs views). */
+  pickerSelect?: boolean;
   /** A second picker beside the first (food: the measure, after the commodity). */
   picker2?: { label: string; options: { label: string; href: string; current: boolean }[] };
   years: number[];
@@ -26,16 +28,27 @@ interface Props {
   /** Periods in place of years (disasters): `years` are then their lengths in days, and these their words. */
   periods?: { label: string; note?: string; options: Record<number, string> };
 }
-const { pickerLabel, picker, picker2, years, year, yearStatus = {}, blocs = true, periods } = Astro.props;
+const { pickerLabel, picker, pickerSelect, picker2, years, year, yearStatus = {}, blocs = true, periods } = Astro.props;
 const blocOptions = BLOC_ORDER.map((b) => ({ value: b, label: BLOC_TEXT[b] }));
 ---
 <div class:list={["gt-mvctl", { "gt-mvctl--stack": periods || picker2 }]} data-gt-mapctl>
   <div class="gt-mvctl__pickers">
     <div class="gt-mvctl__min">
-      <span class="gt-field__label gt-mvctl__lab" id="mv-picker-l">{pickerLabel}</span>
-      <nav class="gt-seg gt-mvseg" aria-labelledby="mv-picker-l">
-        {picker.map((o) => <a href={o.href} aria-current={o.current ? 'page' : undefined} data-keep-state>{o.label}</a>)}
-      </nav>
+      {pickerSelect ? (
+        <>
+          <label class="gt-field__label gt-mvctl__lab" for="mv-picker-d">{pickerLabel}</label>
+          <div class="gt-select gt-mvctl__pick"><select id="mv-picker-d" data-picker-select>
+            {picker.map((o) => <option value={o.href} selected={o.current}>{o.label}</option>)}
+          </select></div>
+        </>
+      ) : (
+        <>
+          <span class="gt-field__label gt-mvctl__lab" id="mv-picker-l">{pickerLabel}</span>
+          <nav class="gt-seg gt-mvseg" aria-labelledby="mv-picker-l">
+            {picker.map((o) => <a href={o.href} aria-current={o.current ? 'page' : undefined} data-keep-state>{o.label}</a>)}
+          </nav>
+        </>
+      )}
     </div>
     {picker2 && (
       <div class="gt-mvctl__min">
@@ -83,7 +96,7 @@ const blocOptions = BLOC_ORDER.map((b) => ({ value: b, label: BLOC_TEXT[b] }));
     </div>
   )}
   <button class="gt-btn gt-btn--quiet gt-mvcompact__f" type="button" aria-haspopup="dialog" data-open-filters>
-    <Icon name="filter" />{MAP_TEXT.filters}<span class="gt-mvcompact__n" data-filters-summary>{periods?.options[year] ?? year}</span>
+    <Icon name="filter" />{MAP_TEXT.filters}{years.length > 1 && <span class="gt-mvcompact__n" data-filters-summary>{periods?.options[year] ?? year}</span>}
   </button>
 </div>
 

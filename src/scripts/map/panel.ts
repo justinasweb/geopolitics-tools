@@ -110,7 +110,7 @@ export function countryPanelHtml(f: LayerFile, yearIndex: number, id: string, sh
     if (e[2] && !f.text.detailLabel) body.push(`<p class="gt-ptrend">${esc(e[2])}</p>`);
   }
   if (!f.axis) body.push(sparkHtml(f, id, fill(f.text.trend ?? f.text.shareLabel, { from: f.data[0].year, to: f.data.at(-1)!.year })));
-  if (e && e[0] > 0) body.push(rankingHtml(f, yearIndex, id, fill(f.text.ranking ?? '', { year: when(y) })));
+  if (e && e[0] > 0 && f.series) body.push(rankingHtml(f, yearIndex, id, fill(f.text.ranking ?? '', { year: when(y) })));
   for (const b of y.more?.[id] ?? []) body.push(blockHtml(b));
   for (const b of f.more?.[id] ?? []) body.push(blockHtml(b));
   if (f.notes[id]) body.push(`<div class="gt-notice gt-notice--inline" role="note">${INFO}<div class="gt-notice__body"><p>${esc(f.notes[id])}</p></div></div>`);

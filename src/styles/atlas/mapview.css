@@ -16,6 +16,7 @@
 .gt-mvctl { display: grid; grid-template-columns: minmax(0, auto) minmax(0, 1fr); gap: 12px 32px; align-items: end; padding: 14px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
 .gt-mvctl__pickers { display: flex; flex-wrap: wrap; gap: 12px 28px; min-width: 0; }
 .gt-mvctl__min { display: grid; gap: 6px; min-width: 0; }
+.gt-mvctl .gt-mvctl__pick { min-width: 260px; }
 .gt-mvctl__lab { font: 600 13px/18px var(--sans); }
 .gt-mvctl__row { display: flex; align-items: flex-end; gap: 12px 28px; justify-content: flex-end; flex-wrap: wrap; }
 .gt-mvctl__yr { width: 240px; }

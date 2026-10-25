@@ -3,7 +3,9 @@
 // registry. Each layer says which view it belongs to, so the Atlas panel can link to "See full page".
 import { MAP_TEXT, BLOC_TEXT, PANEL_TEXT as PT } from '../../i18n/map.en.ts';
 import { tagHtml } from '../tags.ts';
-import { blocs } from '../blocs.ts';
+import { BLOCS_CHECKED, blocs } from '../blocs.ts';
+import { blocPage, blocPages, blocsOf, countClass as blocCountClass, measureYear, membershipCounts, weightIn } from '../blocview.ts';
+import { BLOCS_TEXT, MEASURE_TEXT, MEMBER_NOTES } from '../../i18n/blocs.en.ts';
 import { DOSSIERS } from '../country.ts';
 import { PLACES, NOTES } from '../places.ts';
 import { countryHref, live } from '../routes.ts';
@@ -413,6 +415,66 @@ function foodMore(p: FoodPage): Record<string, PanelBlock[]> {
   return out;
 }
 
+/** A grouping's members (/blocs/{bloc}), or how many groupings each country belongs to (/blocs). Memberships do not change by year. */
+function blocLayer(id: string): LayerFile {
+  const c = common();
+  const B = BLOCS_TEXT;
+  const all = blocs();
+  const year = Number(BLOCS_CHECKED.slice(0, 4));
+  const label = B.checked(formatDate(BLOCS_CHECKED));
+  const name = id === 'all' ? B.allTitle : BLOC_TEXT[id] ?? id;
+  const v: Record<string, Entry> = {};
+  const bl: Record<string, string> = {};
+  const more: Record<string, PanelBlock[]> = {};
+  const groupsOf = (pl: string, except?: string) => blocsOf(pl).filter((b) => b !== except)
+    .map((b) => ({ name: BLOC_TEXT[b] ?? b, value: B.sub(all.get(b)!.length), href: live(`view:blocs:${b}`)?.path }));
+  let order: string[];
+  let series: Record<string, (number | null)[]> | undefined;
+  if (id === 'all') {
+    const counts = membershipCounts();
+    counts.forEach((r, i) => { v[r.id] = [blocCountClass(r.n), B.memberOf(r.n), '', 0, i + 1]; });
+    order = counts.map((r) => r.id);
+    series = Object.fromEntries(counts.map((r) => [r.id, [r.n]]));
+    for (const r of counts) more[r.id] = [{ label: B.itsBlocs, rows: groupsOf(r.id) }];
+    for (const [b, m] of all) bl[b] = B.allBlocLine(BLOC_TEXT[b] ?? b, m.length);
+  } else {
+    const p = blocPage(id)!;
+    order = p.byPopulation;
+    for (const m of p.members) {
+      const w = weightIn('population', m, p.members);
+      v[m] = [4, B.member, w !== null ? shareText(w) : '', 0, 0];
+      const rows = (['population', 'gdp', 'milusd', 'co2'] as const).map((k) => [k, weightIn(k, m, p.members)] as const)
+        .filter(([, x]) => x !== null).map(([k, x]) => ({ name: MEASURE_TEXT[k], value: shareText(x!), note: String(measureYear(k)) }));
+      more[m] = [...(rows.length ? [{ label: B.weightLabel, caption: B.weightCaption, rows }] : [])];
+    }
+    for (const pl of PLACES) {
+      const g = groupsOf(pl.id, id);
+      if (g.length) (more[pl.id] ??= []).push({ label: p.members.includes(pl.id) ? B.otherBlocs : B.itsBlocs, rows: g });
+    }
+    for (const [b, m] of all) {
+      if (b === id) continue;
+      const shared = m.filter((x) => p.members.includes(x));
+      bl[b] = B.overlapLine(BLOC_TEXT[b] ?? b, shared.length, m.length, name);
+    }
+  }
+  const notes = { ...c.notes };
+  if (id !== 'all') for (const [pl, n] of Object.entries(MEMBER_NOTES[id] ?? {})) notes[pl] = notes[pl] ? `${notes[pl]} ${n}` : n;
+  else for (const ns of Object.values(MEMBER_NOTES)) for (const [pl, n] of Object.entries(ns)) notes[pl] = notes[pl] ? `${notes[pl]} ${n}` : n;
+  return {
+    id: `blocs-${id}`, scale: 'seq', years: [year], year, ticks: id === 'all' ? B.countTicks : [],
+    missing: { none: id === 'all' ? B.none : B.notMember }, source: B.source,
+    text: {
+      ...(c.words as LayerFile['text']),
+      kicker: `${name} · {year}`, measure: '', shareLabel: id === 'all' ? B.groupings : B.membership, none: id === 'all' ? B.none : B.notMember,
+      withheld: MAP_TEXT.withheldBy, withheldWhy: '', prev: '{year}: {value}', rank: VIEWS_TEXT.rank(0, 1).replace('0', '{rank}').replace('1', '{of}'),
+      detailLabel: id === 'all' ? undefined : B.weightPopLabel, rankLabel: PT.rank, rankOf: PT.rankOf, ranking: B.ranking,
+    },
+    tags: c.tags, names: c.names, hrefs: c.hrefs, dossiers: c.dossiers, slugs: c.slugs, notes, blocs: c.blocs,
+    data: [{ year, label, legend: id === 'all' ? B.countLegend : B.legendMember, v, order, blocs: bl }],
+    ...(series ? { series, format: { kind: 'count' } as const } : {}), more,
+  };
+}
+
 const placeNames = new Map(PLACES.map((x) => [x.id, x.name]));
 const nameOf2 = (id: string) => placeNames.get(id) ?? id;
 
@@ -423,6 +485,7 @@ export function mapLayers(): LayerDef[] {
     ...viewPages().map((p) => ({ id: `${p.family.id}-${p.id}`, view: `view:${p.family.id}:${p.id}`, topic: p.family.hub, build: () => indicatorLayer(p) })),
     ...disasterPages().map((p) => ({ id: `disasters-${p.id}`, view: `view:disasters:${p.id}`, topic: 'climate', build: () => disasterLayer(p) })),
     ...foodPages().map((p) => ({ id: `food-${p.id}`, view: `view:food:${p.id}`, topic: 'resources', build: () => foodLayer(p) })),
+    ...['all', ...blocPages().map((b) => b.id)].map((id) => ({ id: `blocs-${id}`, view: `view:blocs:${id}`, topic: 'power', build: () => blocLayer(id) })),
   ];
   return defs;
 }
