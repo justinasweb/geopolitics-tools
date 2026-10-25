@@ -1,0 +1,28 @@
+---
+// Tooltip for a map or chart: name, value with what it measures, detail line, status, source and a hint.
+// For withheld or missing values pass `missing` and a sentence that explains it, instead of a value.
+import '../styles/atlas/tooltip.css';
+import StatusTag, { type Status } from './StatusTag.astro';
+
+interface Props {
+  name: string;
+  value?: string;
+  measure?: string;
+  detail?: string;
+  status?: Status;
+  missing?: string;
+  source: string;
+  hint?: string;
+}
+const { name, value, measure, detail, status, missing, source, hint } = Astro.props;
+---
+<div class="gt-tip" role="tooltip">
+  <span class="gt-tip__name">{name}</span>
+  {missing
+    ? <span class="gt-tip__val gt-tip__val--word">{missing}</span>
+    : <span class="gt-tip__val">{value}{measure && <small>{measure}</small>}</span>}
+  {detail && <span class:list={{ tnum: !missing }}>{detail}</span>}
+  {status && <StatusTag status={status} small />}
+  <span class="gt-tip__src">{source}</span>
+  {hint && <span class="gt-tip__hint">{hint}</span>}
+</div>

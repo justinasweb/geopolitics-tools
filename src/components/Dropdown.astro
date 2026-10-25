@@ -1,0 +1,22 @@
+---
+// A native <select> with a visible label: the most robust choice on phones and for screen readers.
+import '../styles/atlas/filters.css';
+
+interface Props {
+  id: string;
+  label: string;
+  options: { value: string; label: string }[];
+  value?: string;
+  disabled?: boolean;
+  small?: boolean;
+}
+const { id, label, options, value, disabled = false, small = false } = Astro.props;
+---
+<div class="gt-field">
+  <label for={id}>{label}</label>
+  <div class:list={['gt-select', { 'gt-select--sm': small }]}>
+    <select id={id} disabled={disabled}>
+      {options.map((o) => <option value={o.value} selected={o.value === value}>{o.label}</option>)}
+    </select>
+  </div>
+</div>

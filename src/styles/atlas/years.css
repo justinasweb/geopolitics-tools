@@ -1,0 +1,25 @@
+/* Atlas design system: Year slider.
+   Ported from the design system's bundle.css; colours and fonts come from tokens.css. */
+
+/* ---------- year slider ---------- */
+.gt-years { container-type: inline-size; display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; align-items: center; }
+.gt-play { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--brand); background: var(--brand); color: var(--on-brand); display: grid; place-items: center; cursor: pointer; grid-row: span 2; }
+.gt-play svg { width: 16px; height: 16px; fill: currentColor; }
+.gt-play:hover, .gt-play.is-hover { background: var(--brand-hover); }
+.gt-play:disabled { background: transparent; color: var(--ink-disabled); border-color: var(--ink-disabled); cursor: not-allowed; }
+.gt-years__head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.gt-years__now { font: 600 22px/28px var(--serif); font-variant-numeric: lining-nums tabular-nums; }
+.gt-years input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 28px; background: transparent; margin: 0; cursor: pointer; }
+.gt-years input[type=range]::-webkit-slider-runnable-track { height: 4px; background: linear-gradient(to right, var(--brand) var(--p, 50%), var(--rule-strong) var(--p, 50%)); }
+.gt-years input[type=range]::-moz-range-track { height: 4px; background: var(--rule-strong); }
+.gt-years input[type=range]::-moz-range-progress { height: 4px; background: var(--brand); }
+.gt-years input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; margin-top: -9px; border-radius: 50%; background: var(--paper-raised); border: 2px solid var(--brand); }
+.gt-years input[type=range]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: var(--paper-raised); border: 2px solid var(--brand); }
+.gt-years input[type=range]:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.gt-years input[type=range]:disabled { cursor: not-allowed; opacity: .5; }
+.gt-years__ticks { grid-column: 2; display: flex; justify-content: space-between; font: 400 13px/18px var(--sans); color: var(--ink-muted); font-variant-numeric: tabular-nums; }
+.gt-years__ticks span[data-est]::after { content: "e"; font-size: 11px; color: var(--accent); margin-left: 1px; }
+.gt-years__nowwrap { display: inline-flex; align-items: center; gap: 6px; }
+.gt-years--two .gt-years__ticks { justify-content: space-between; }
+.gt-years--noplay { grid-template-columns: minmax(0, 1fr); }
+.gt-years--noplay .gt-years__ticks { grid-column: 1; }

@@ -1,0 +1,12 @@
+/* Atlas design system: Status tags (Estimate, Projection, Preliminary, Not yet reported) and the Sample tag.
+   Ported from the design system's bundle.css; colours and fonts come from tokens.css. */
+
+/* ---------- status tags ---------- */
+.gt-tag { display: inline-flex; align-items: center; gap: 5px; height: 22px; padding: 0 7px; border-radius: 2px; font: 600 12px/1 var(--sans); letter-spacing: .02em; white-space: nowrap; vertical-align: middle; }
+.gt-tag svg { width: 11px; height: 11px; flex: none; }
+.gt-tag--estimate { background: var(--est-bg); color: var(--est-ink); }
+.gt-tag--projection { background: var(--proj-bg); color: var(--proj-ink); }
+.gt-tag--preliminary { background: var(--prelim-bg); color: var(--prelim-ink); }
+.gt-tag--notyet { background: transparent; color: var(--ink-muted); box-shadow: inset 0 0 0 1px var(--rule-strong); }
+.gt-tag--sm { height: 18px; padding: 0 5px; font-size: 11px; }
+.gt-tag--sample { background: transparent; color: var(--ink); border: 1px dashed var(--rule-strong); }

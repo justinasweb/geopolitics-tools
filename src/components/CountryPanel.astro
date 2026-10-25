@@ -1,0 +1,20 @@
+---
+// The panel for the country chosen on a map: a side panel on desktop, a bottom sheet on phone (`sheet`).
+// Slot: the panel body (facts, ranked bars, source line). Slot "foot": the links at the bottom.
+import '../styles/atlas/panel.css';
+import Icon from './Icon.astro';
+import { PANEL_TEXT } from '../i18n/en';
+
+interface Props { name: string; kicker?: string; sheet?: boolean }
+const { name, kicker, sheet = false } = Astro.props;
+const Tag = sheet ? 'section' : 'aside';
+---
+<Tag class={sheet ? 'gt-sheet' : 'gt-panel'} role={sheet ? 'dialog' : undefined} aria-label={name}>
+  {sheet && <button class="gt-sheet__grab" type="button" aria-label={PANEL_TEXT.grab}></button>}
+  <div class="gt-panel__head">
+    <div class="gt-panel__title">{kicker && <span class="gt-kicker">{kicker}</span>}<h3 class="gt-h3">{name}</h3></div>
+    <button class="gt-iconbtn" type="button" aria-label={PANEL_TEXT.close} data-gt-panel-close><Icon name="close" /></button>
+  </div>
+  <div class="gt-panel__body"><slot /></div>
+  {Astro.slots.has('foot') && <div class="gt-panel__foot"><slot name="foot" /></div>}
+</Tag>

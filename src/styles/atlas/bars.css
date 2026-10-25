@@ -1,0 +1,20 @@
+/* Atlas design system: Ranked bar list.
+   Ported from the design system's bundle.css; colours and fonts come from tokens.css. */
+
+/* ---------- ranked bar list ---------- */
+.gt-bars { display: grid; gap: 2px; margin: 0; padding: 0; list-style: none; font: 400 15px/22px var(--sans); }
+.gt-bars li { display: grid; grid-template-columns: minmax(72px, 9.5em) minmax(48px, 1fr) 3.6em; align-items: center; gap: 12px; min-height: 32px; padding: 0 4px; }
+.gt-bars li[data-selected="true"] { background: var(--brand-soft); }
+.gt-bars li.is-hover, .gt-bars li:hover { background: var(--paper-sunk); }
+.gt-bars__name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gt-bars__track { height: 12px; background: transparent; position: relative; }
+.gt-bars__fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--seq-5); border-radius: 0 2px 2px 0; min-width: 2px; }
+.gt-bars__val { text-align: right; font-variant-numeric: tabular-nums lining-nums; font-weight: 600; }
+.gt-bars__other .gt-bars__name, .gt-bars__other .gt-bars__val { color: var(--ink-muted); font-weight: 400; }
+.gt-bars__other .gt-bars__fill { background: var(--map-nodata); box-shadow: inset 0 0 0 1px var(--rule-strong); }
+.gt-bars__withheld .gt-bars__val { font-weight: 400; color: var(--ink-muted); font-size: 13px; }
+.gt-bars--tight { gap: 0; font-size: 14px; }
+.gt-bars--tight li { min-height: 28px; grid-template-columns: minmax(64px, 7.6em) minmax(48px, 1fr) 3.6em; }
+.gt-bars--wide li { grid-template-columns: minmax(72px, 9.5em) minmax(48px, 1fr) 5.6em; }
+.gt-bars__rest { display: block; height: 100%; background: var(--paper-sunk); box-shadow: inset 0 0 0 1px var(--rule); }
+.gt-bars__fill--prev { background: var(--seq-3) !important; }

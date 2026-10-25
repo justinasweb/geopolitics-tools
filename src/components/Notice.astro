@@ -1,0 +1,12 @@
+---
+// A caveat next to the figure it qualifies. Slot: one or two short sentences (<p>), optionally a .gt-caption source.
+import '../styles/atlas/notice.css';
+import Icon from './Icon.astro';
+
+interface Props { inline?: boolean }
+const { inline = false } = Astro.props;
+---
+<div class:list={['gt-notice', { 'gt-notice--inline': inline }]} role="note">
+  <Icon name="info" bare />
+  <div class="gt-notice__body"><slot /></div>
+</div>

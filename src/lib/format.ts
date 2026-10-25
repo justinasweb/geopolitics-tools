@@ -27,3 +27,12 @@ export function formatValue(v: number | null | undefined, f: Format, locale = 'e
       return `${sign}${n(a, f.digits ?? 0)}${f.unit ? ` ${f.unit}` : ''}`;
   }
 }
+
+/** "21 Oct 2026": the date style of source lines and key figures, read in UTC so a build anywhere gives the same
+ *  text. Day, short month, year in that order; en-US month names, because en-GB now writes "Sept". */
+export function formatDate(d: string | Date, locale = 'en-US'): string {
+  const parts = new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })
+    .formatToParts(typeof d === 'string' ? new Date(d) : d);
+  const get = (t: string) => parts.find((p) => p.type === t)?.value ?? '';
+  return `${get('day')} ${get('month')} ${get('year')}`;
+}

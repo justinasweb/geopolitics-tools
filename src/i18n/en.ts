@@ -81,3 +81,73 @@ export const FLOW_TEXT: Record<string, { label: string; verbs: [string, string] 
   chips: { label: 'Chips', verbs: ['Suppliers', 'Buyers'] },
   refugees: { label: 'Refugees', verbs: ['From', 'Hosted in'] },
 };
+
+// Main menu, header and footer (src/data/nav.ts). Hub names match the hub pages exactly.
+export const NAV_TEXT = {
+  hubs: {
+    resources: 'Resources', technology: 'Technology', climate: 'Climate and hazards',
+    security: 'Security and people', power: 'Power and alliances',
+  } as Record<string, string>,
+  views: {
+    minerals: ['Critical minerals', 'Lithium, rare earths, gallium, nickel…'],
+    oil: ['Oil', 'Production, use, trade, reserves'],
+    gas: ['Natural gas', 'Pipelines and LNG'],
+    electricity: ['Electricity', 'Power mix by source'],
+    food: ['Food and fertiliser', 'Wheat, maize, rice, soybeans, potash, phosphate'],
+    internet: ['Internet', 'Cables and outages'],
+    ai: ['AI and chips', 'Compute, models, chips'],
+    space: ['Space', 'Satellites and launches'],
+    emissions: ['Emissions', 'Total, per person, since 1750, imported'],
+    water: ['Water and dams', 'Stress today and in 2050'],
+    rivers: ['Disputed rivers', 'Nile, Indus, Mekong and more'],
+    disasters: ['Disasters', 'Earthquakes, cyclones, floods…'],
+    chokepoints: ['Chokepoints', 'Suez, Hormuz, Malacca…'],
+    ports: ['Ports', '60 tracked ports'],
+    conflict: ['Conflict', 'Events and fatalities'],
+    refugees: ['Refugees', 'Fled from, hosted, displaced'],
+    'food-crises': ['Food crises', 'Who faces acute hunger'],
+    arms: ['Arms transfers', 'Exporters and importers'],
+    sanctions: ['Sanctions', 'US, EU and UK lists'],
+    'chinese-lending': ['Chinese lending', 'By sector'],
+    blocs: ['Blocs', '19 groupings'],
+    'alliance-history': ['Alliance history', 'How blocs grew'],
+  } as Record<string, [string, string]>,
+  util: { countries: 'Countries', atlas: 'Atlas', explorer: 'Explorer' } as Record<string, string>,
+  footer: { about: 'About', methodology: 'Methodology', sources: 'Sources', privacy: 'Privacy' } as Record<string, string>,
+};
+
+export const UI_TEXT = {
+  home: 'geopolitics.tools home',
+  mainNav: 'Main',
+  menu: 'Menu',
+  openMenu: 'Open menu',
+  closeMenu: 'Close menu',
+  search: 'Search',
+  searchPlaceholder: 'Search countries, minerals, places',
+  breadcrumb: 'Breadcrumb',
+  onThisPage: 'On this page',
+  footerTagline: 'Data from official and research sources, updated daily.',
+  footerNav: 'About the site',
+  follow: 'Follow geopolitics.tools',
+  footerBase: (year: number) => `© ${year} geopolitics.tools · Each dataset keeps its source's licence · No cookies: our analytics are cookieless, so there is no consent banner.`,
+  copied: 'Copied',
+  copiedLive: 'Copied to clipboard',
+  copyFailed: 'Select and copy',
+  copyFailedLive: 'Copy failed',
+};
+
+export const STATUS_TEXT = {
+  estimate: 'Estimate', projection: 'Projection', preliminary: 'Preliminary', notyet: 'Not yet reported', sample: 'Sample',
+  sampleTitle: 'Illustrative figure, not real data',
+};
+
+export const SOURCE_TEXT = {
+  source: 'Source:', updated: 'Updated', cite: 'Copy citation', withheld: 'Withheld', noData: 'No data',
+  share: 'Share', copyLink: 'Copy link', shareOn: (p: string) => `Share on ${p}`,
+  since: (prev: string) => `since ${prev}`,
+};
+
+export const YEAR_TEXT = { year: 'Year', play: 'Play years', pause: 'Pause', estimate: 'estimate' };
+
+export const LEGEND_TEXT = { withheld: 'Withheld by source' };
+export const PANEL_TEXT = { close: 'Close panel', grab: 'Expand or collapse' };

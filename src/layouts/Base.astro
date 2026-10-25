@@ -1,4 +1,10 @@
 ---
+// The document shell: head, design tokens, self-hosted fonts and the .gt wrapper every Atlas component expects.
+import '../styles/tokens.css';
+import '../styles/fonts.css';
+import '../styles/atlas/base.css';
+import serifFont from '@fontsource-variable/newsreader/files/newsreader-latin-opsz-normal.woff2?url';
+import sansFont from '@fontsource-variable/source-sans-3/files/source-sans-3-latin-wght-normal.woff2?url';
 import { indexable, siteName } from '../lib/site';
 
 interface Props {
@@ -19,43 +25,11 @@ const canonical = new URL(Astro.url.pathname.replace(/\.html$/, '').replace(/\/i
     <link rel="canonical" href={canonical} />
     {(noindex || !indexable) && <meta name="robots" content="noindex" />}
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <style is:global>
-      /* Placeholder styles until the design system arrives in phase 2 (colours from tokens.json). */
-      :root {
-        --paper: #f7f6f2;
-        --ink: #1b2430;
-        --ink-muted: #5b6470;
-        --brand: #1f3550;
-        --accent: #8f5d00;
-        color-scheme: light;
-      }
-      body {
-        margin: 0;
-        background: var(--paper);
-        color: var(--ink);
-        font: 17px/27px 'Source Sans 3', 'Segoe UI', system-ui, sans-serif;
-      }
-      main {
-        max-width: 68ch;
-        margin: 0 auto;
-        padding: 64px 16px;
-      }
-      h1 {
-        font: 600 44px/50px Newsreader, Georgia, 'Times New Roman', serif;
-        letter-spacing: -0.015em;
-        margin: 0 0 16px;
-      }
-      @media (max-width: 759px) {
-        h1 { font-size: 32px; line-height: 38px; }
-      }
-      a { color: var(--brand); }
-      :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-      .muted { color: var(--ink-muted); }
-    </style>
+    <link rel="preload" href={serifFont} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={sansFont} as="font" type="font/woff2" crossorigin />
   </head>
-  <body>
-    <main>
-      <slot />
-    </main>
+  <body class="gt">
+    <slot />
+    <p id="gt-live" class="gt-vh" aria-live="polite"></p>
   </body>
 </html>

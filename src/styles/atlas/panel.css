@@ -1,0 +1,22 @@
+/* Atlas design system: Country panel and phone bottom sheet.
+   Ported from the design system's bundle.css; colours and fonts come from tokens.css. */
+
+/* ---------- country panel / bottom sheet ---------- */
+.gt-panel { container-type: inline-size; background: var(--paper-raised); border-left: 1px solid var(--rule); display: flex; flex-direction: column; min-height: 0; height: 100%; }
+.gt-panel__head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 20px 20px 12px; border-bottom: 1px solid var(--rule); }
+.gt-panel__body { padding: 16px 20px 20px; display: grid; gap: 18px; overflow: auto; }
+.gt-panel__facts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; margin: 0; }
+.gt-panel__facts dt { font: 400 13px/18px var(--sans); color: var(--ink-muted); }
+.gt-panel__facts dd { margin: 2px 0 0; font: 600 22px/26px var(--serif); font-variant-numeric: lining-nums tabular-nums; }
+.gt-panel__facts dd small { font: 400 13px/1 var(--sans); color: var(--ink-muted); }
+.gt-panel__foot { margin-top: auto; padding: 14px 20px; border-top: 1px solid var(--rule); display: flex; gap: 8px; flex-wrap: wrap; }
+.gt-sheet { background: var(--paper-raised); border-radius: 4px 4px 0 0; box-shadow: var(--shadow-pop); display: flex; flex-direction: column; }
+.gt-sheet__grab { display: grid; place-items: center; height: 24px; cursor: grab; border: 0; background: transparent; width: 100%; }
+.gt-sheet__grab::before { content: ""; width: 40px; height: 4px; border-radius: 2px; background: var(--rule-strong); }
+.gt-sheet .gt-panel__head { padding: 4px 16px 12px; }
+.gt-sheet .gt-panel__body { padding: 14px 16px 16px; }
+.gt-sheet .gt-panel__foot { padding: 12px 16px; }
+/* ---------- map card wrapper ---------- */
+.gt-mapcard { container-type: inline-size; background: var(--paper-raised); border-top: 2px solid var(--ink); }
+.gt-panel__title { display: grid; gap: 4px; }
+.gt-panel__tagdd { font-size: 15px; }

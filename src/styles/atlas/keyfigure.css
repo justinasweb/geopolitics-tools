@@ -1,0 +1,18 @@
+/* Atlas design system: Key figure.
+   Ported from the design system's bundle.css; colours and fonts come from tokens.css. */
+
+/* ---------- key figure ---------- */
+.gt-kf { container-type: inline-size; display: grid; gap: 8px; padding: 20px 0 16px; border-top: 2px solid var(--ink); min-width: 0; }
+.gt-kf__label { font: 600 15px/20px var(--sans); }
+.gt-kf__num { font: 600 56px/56px var(--serif); font-variation-settings: "opsz" 60; letter-spacing: -.02em; font-variant-numeric: lining-nums tabular-nums; display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.gt-kf__num small { font: 400 17px/1 var(--sans); letter-spacing: 0; color: var(--ink-muted); }
+.gt-kf__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; font: 400 13px/18px var(--sans); color: var(--ink-muted); }
+.gt-kf__change { display: inline-flex; align-items: center; gap: 4px; font: 600 13px/18px var(--sans); color: var(--ink); font-variant-numeric: tabular-nums; max-width: 100%; }
+.gt-kf__change svg { flex: none; align-self: flex-start; margin-top: 3px; width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2; }
+.gt-kf a.gt-kf__link { color: inherit; text-decoration: none; display: grid; gap: 8px; min-width: 0; }
+.gt-kf a.gt-kf__link:hover .gt-kf__label, .gt-kf a.gt-kf__link.is-hover .gt-kf__label { text-decoration: underline; }
+@container (max-width: 260px) { .gt-kf__num { font-size: 44px; line-height: 46px; } }
+@container (max-width: 200px) { .gt-kf__num { font-size: 34px; line-height: 38px; } }
+.gt-kf .gt-kf__link--static { display: grid; gap: 8px; }
+.gt-kfrow { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; }
+@container page (max-width: 759px) { .gt-kfrow { grid-template-columns: 1fr 1fr; gap: 0 16px; } }

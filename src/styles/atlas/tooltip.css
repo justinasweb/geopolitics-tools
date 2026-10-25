@@ -1,0 +1,12 @@
+/* Atlas design system: Map and chart tooltip.
+   Ported from the design system's bundle.css; colours and fonts come from tokens.css. */
+
+/* ---------- tooltip ---------- */
+.gt-tip { display: grid; gap: 4px; width: max-content; max-width: 260px; padding: 10px 12px; background: var(--tooltip-bg); color: var(--tooltip-ink); border-radius: 4px; box-shadow: var(--shadow-pop); font: 400 13px/18px var(--sans); pointer-events: none; }
+.gt-tip__name { font: 600 15px/20px var(--sans); }
+.gt-tip__val { font: 600 22px/26px var(--serif); font-variant-numeric: lining-nums tabular-nums; }
+.gt-tip__val small { font: 400 13px/1 var(--sans); color: var(--tooltip-muted); margin-left: 4px; }
+.gt-tip__src { color: var(--tooltip-muted); }
+.gt-tip__hint { color: var(--tooltip-muted); border-top: 1px solid color-mix(in srgb, var(--tooltip-muted) 40%, transparent); padding-top: 6px; margin-top: 2px; }
+.gt-tip .gt-tag { height: 18px; font-size: 11px; justify-self: start; }
+.gt-tip__val--word { font-size: 18px; }

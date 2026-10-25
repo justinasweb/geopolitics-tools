@@ -1,0 +1,14 @@
+/* Atlas design system: Share row.
+   Ported from the design system's bundle.css; colours and fonts come from tokens.css. */
+
+/* ---------- share row ---------- */
+.gt-share { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.gt-share__label { font: 600 13px/18px var(--sans); margin-right: 4px; }
+.gt-share button, .gt-share a { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 14px; border: 1px solid var(--rule-strong); background: var(--paper-raised); color: var(--ink); font: 600 14px/1 var(--sans); text-decoration: none; cursor: pointer; }
+.gt-share svg { width: 16px; height: 16px; }
+.gt-share svg.fill { fill: currentColor; stroke: none; }
+.gt-share .gt-share__icon { width: 40px; padding: 0; justify-content: center; }
+.gt-share .gt-share__icon svg { width: 17px; height: 17px; }
+.gt-share button:hover, .gt-share a:hover, .gt-share .is-hover { border-color: var(--ink); background: var(--paper-sunk); }
+.gt-share button[data-state="copied"] { border-color: var(--ink); }
+.gt-share button:disabled { color: var(--ink-disabled); border-color: var(--ink-disabled); background: transparent; cursor: not-allowed; }

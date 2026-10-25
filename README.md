@@ -24,8 +24,10 @@ Needs Node 24 (`.nvmrc`).
 
 | Path | What |
 |---|---|
-| `src/pages/` | Pages and generated files (`robots.txt`) |
-| `src/layouts/` | Page shell |
+| `src/pages/` | Pages and generated files (`robots.txt`); `/dev/components` shows every design component |
+| `src/components/`, `src/styles/`, `src/scripts/` | The Atlas design system in code (see [docs/design-system.md](docs/design-system.md)) |
+| `src/design/tokens.json` | Design tokens; `node scripts/tokens.ts` checks them and writes `src/styles/tokens.css` |
+| `src/layouts/` | Document shell (`Base`) and site page (`Page`: header, page container, footer) |
 | `src/holding/` | Temporary holding page served as the home page until launch |
 | `worker/` | The only server code: `/api/*` (health check now; correction form and review button later) |
 | `public/` | Files copied as-is (`_headers`, favicon, share image) |

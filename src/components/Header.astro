@@ -1,0 +1,76 @@
+---
+// Site header: logo, utility links, search and the main menu grouped by the five topic hubs. Under 760px of
+// container width it becomes a compact bar and the menu opens full-screen (a modal <dialog>, so focus stays
+// inside and Esc closes it). Behaviour: src/scripts/header.ts.
+import '../styles/atlas/header.css';
+import Icon from './Icon.astro';
+import Lockup from './Lockup.astro';
+import PhoneMenu from './PhoneMenu.astro';
+import { NAV_HUBS, NAV_UTIL } from '../data/nav';
+import { NAV_TEXT, UI_TEXT } from '../i18n/en';
+
+interface Props {
+  /** The hub this page belongs to, marked with aria-current on its menu button. */
+  current?: string;
+  /** Demo only (/dev/components): open one hub's panel. */
+  open?: string;
+  /** Prefix for element ids when a page shows more than one header (the components page). */
+  idPrefix?: string;
+}
+const { current, open, idPrefix = 'nav' } = Astro.props;
+const menuId = `${idPrefix}-menu`;
+---
+<header class="gt-header" data-gt-header>
+  <div class="gt-header__in">
+    <div class="gt-header__top">
+      <a class="gt-logo" href="/" aria-label={UI_TEXT.home}><Lockup /></a>
+      <div class="gt-header__util">
+        {NAV_UTIL.map((u) => <a href={u.path}>{NAV_TEXT.util[u.id]}</a>)}
+        <button class="gt-searchbtn" type="button" data-gt-search>
+          <Icon name="search" />{UI_TEXT.searchPlaceholder}<kbd>/</kbd>
+        </button>
+      </div>
+      <div class="gt-header__phone">
+        <button class="gt-iconbtn" type="button" aria-label={UI_TEXT.search} data-gt-search><Icon name="search" /></button>
+        <button class="gt-iconbtn" type="button" aria-label={UI_TEXT.openMenu} aria-expanded="false" aria-controls={menuId} data-gt-menu-open>
+          <Icon name="menu" />
+        </button>
+      </div>
+    </div>
+    <nav class="gt-nav" aria-label={UI_TEXT.mainNav}>
+      {NAV_HUBS.map((hub) => (
+        <div class="gt-nav__item">
+          <button
+            class="gt-nav__btn"
+            type="button"
+            aria-expanded={open === hub.id ? 'true' : 'false'}
+            aria-controls={`${idPrefix}-${hub.id}`}
+            aria-current={current === hub.id ? 'true' : undefined}
+          >
+            {NAV_TEXT.hubs[hub.id]}<Icon name="chevron" />
+          </button>
+          <div class="gt-mega" id={`${idPrefix}-${hub.id}`} hidden={open !== hub.id}>
+            <span class="gt-label">{NAV_TEXT.hubs[hub.id]}</span>
+            {hub.views.map((v) => (
+              <a href={v.path}><strong>{NAV_TEXT.views[v.id][0]}</strong><span>{NAV_TEXT.views[v.id][1]}</span></a>
+            ))}
+          </div>
+        </div>
+      ))}
+    </nav>
+  </div>
+  <dialog class="gt-menudialog" id={menuId} aria-label={UI_TEXT.menu}>
+    <PhoneMenu idPrefix={idPrefix} />
+  </dialog>
+</header>
+
+<script>
+  import { initHeader, bindSearchKey } from '../scripts/header';
+  document.querySelectorAll<HTMLElement>('[data-gt-header]').forEach(initHeader);
+  bindSearchKey();
+</script>
+
+<style is:global>
+  .gt-menudialog { position: fixed; inset: 0; width: 100%; height: 100%; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; background: var(--paper); overflow: auto; }
+  .gt-menudialog::backdrop { background: var(--scrim); }
+</style>

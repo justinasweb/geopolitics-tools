@@ -1,0 +1,31 @@
+---
+// The footer on every page: logo and tagline, the four site links, X and Telegram, and the base line that says
+// the site sets no cookies. Opens with the atlas double rule.
+import '../styles/atlas/footer.css';
+import Icon from './Icon.astro';
+import Lockup from './Lockup.astro';
+import { NAV_FOOTER, SOCIAL } from '../data/nav';
+import { NAV_TEXT, UI_TEXT } from '../i18n/en';
+
+const year = new Date().getFullYear();
+---
+<footer class="gt-footer">
+  <div class="gt-footer__in">
+    <div class="gt-footer__row">
+      <div class="gt-footer__brand">
+        <a class="gt-logo" href="/" aria-label={UI_TEXT.home}><Lockup /></a>
+        <p>{UI_TEXT.footerTagline}</p>
+      </div>
+      <div class="gt-footer__end">
+        <nav aria-label={UI_TEXT.footerNav}>
+          <ul class="gt-footer__links">{NAV_FOOTER.map((l) => <li><a href={l.path}>{NAV_TEXT.footer[l.id]}</a></li>)}</ul>
+        </nav>
+        <ul class="gt-footer__social" aria-label={UI_TEXT.follow}>
+          <li><a class="gt-social" href={SOCIAL.x} aria-label="X" title="X"><Icon name="x" /></a></li>
+          <li><a class="gt-social" href={SOCIAL.telegram} aria-label="Telegram" title="Telegram"><Icon name="telegram" /></a></li>
+        </ul>
+      </div>
+    </div>
+    <p class="gt-footer__base">{UI_TEXT.footerBase(year)}</p>
+  </div>
+</footer>

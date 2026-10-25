@@ -1,6 +1,7 @@
 // Fails the build if dist/ breaks a Cloudflare Workers static-assets limit (free plan: 20,000 files,
-// 25 MiB per file) or is missing a file the deploy relies on. Prints a size summary.
-import { readdirSync, statSync, existsSync, appendFileSync } from 'node:fs';
+// 25 MiB per file), is missing a file the deploy relies on, or a page outside /dev/ carries a Sample tag
+// (illustrative figures must never reach a live page). Prints a size summary.
+import { readdirSync, statSync, existsSync, appendFileSync, readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 
 const dir = process.argv[2] ?? 'dist';
@@ -21,6 +22,11 @@ walk(dir);
 const errors = [];
 if (files.length > MAX_FILES) errors.push(`${files.length} files, limit is ${MAX_FILES}`);
 for (const f of files) if (f.bytes > MAX_FILE_BYTES) errors.push(`${f.path} is ${(f.bytes / 2 ** 20).toFixed(1)} MiB, limit is 25 MiB`);
+for (const f of files) {
+  if (f.path.endsWith('.html') && !f.path.startsWith('dev/') && readFileSync(join(dir, f.path), 'utf8').includes('gt-tag--sample')) {
+    errors.push(`${f.path} shows a Sample tag: illustrative figures must not reach a live page`);
+  }
+}
 for (const r of REQUIRED) if (!existsSync(join(dir, r))) errors.push(`missing ${r}`);
 
 const total = files.reduce((s, f) => s + f.bytes, 0);

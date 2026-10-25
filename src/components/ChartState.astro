@@ -1,0 +1,34 @@
+---
+// What a chart or map area shows while its data loads, when a selection has no data, or when loading failed in the
+// reader's browser. Page text and numbers are server-rendered; only the chart area waits.
+// Slot (empty and error): the buttons or links that offer a way on.
+import '../styles/atlas/states.css';
+import Icon from './Icon.astro';
+
+interface Props {
+  state: 'loading' | 'empty' | 'error';
+  /** Loading: hidden label ("Loading lithium producers"). Empty and error: the heading. */
+  title: string;
+  text?: string;
+  /** Wrap in the chart box (paper card with the strong top rule). */
+  box?: boolean;
+}
+const { state, title, text, box = true } = Astro.props;
+const bars = [92, 70, 64, 40, 34, 22, 18, 12];
+---
+<div class:list={{ 'gt-chartbox': box }} aria-busy={state === 'loading' ? 'true' : undefined}>
+  {state === 'loading' ? (
+    <div class="gt-skel">
+      <span class="gt-vh">{title}</span>
+      <div class="gt-skel__bars">{bars.map((h) => <i style={`height:${h}%`} />)}</div>
+      <i style="width:60%" />
+    </div>
+  ) : (
+    <div class:list={['gt-state', { 'gt-state--error': state === 'error' }]} role={state === 'error' ? 'alert' : undefined}>
+      <Icon name={state === 'error' ? 'alert' : 'empty'} bare />
+      <h4>{title}</h4>
+      {text && <p>{text}</p>}
+      <div class="gt-state__actions"><slot /></div>
+    </div>
+  )}
+</div>

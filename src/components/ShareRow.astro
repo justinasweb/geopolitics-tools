@@ -1,0 +1,22 @@
+---
+// Copy link, share on X, share on Telegram. No counts, no tracking parameters. The shared text is the page's
+// headline sentence; the image comes from the page's og:image.
+import '../styles/atlas/share.css';
+import Icon from './Icon.astro';
+import { SOURCE_TEXT } from '../i18n/en';
+
+interface Props { url: string; text: string }
+const { url, text } = Astro.props;
+const q = `url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
+---
+<div class="gt-share">
+  <span class="gt-share__label">{SOURCE_TEXT.share}</span>
+  <button type="button" data-gt-copy={url}><Icon name="link" /><span data-label>{SOURCE_TEXT.copyLink}</span></button>
+  <a class="gt-share__icon" aria-label={SOURCE_TEXT.shareOn('X')} title={SOURCE_TEXT.shareOn('X')} href={`https://x.com/intent/post?${q}`}><Icon name="x" /></a>
+  <a class="gt-share__icon" aria-label={SOURCE_TEXT.shareOn('Telegram')} title={SOURCE_TEXT.shareOn('Telegram')} href={`https://t.me/share/url?${q}`}><Icon name="telegram" /></a>
+</div>
+
+<script>
+  import { initCopy } from '../scripts/copy';
+  initCopy();
+</script>
