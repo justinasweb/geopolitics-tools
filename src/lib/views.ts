@@ -5,7 +5,8 @@
 import { DIV_EDGES, VIEW_FAMILIES, type ViewFamily, type ViewLayer } from '../data/views.ts';
 import type { Format, Loaded } from '../data/indicators.ts';
 import { emissions } from '../adapters/owid.ts';
-import { VIEW_TEXT, VIEWS_TEXT as W, type LayerText } from '../i18n/views.en.ts';
+import { displacement } from '../adapters/unhcr.ts';
+import { PARTS_TEXT, PLACE_NOTES, VIEW_TEXT, VIEWS_TEXT as W, type LayerText } from '../i18n/views.en.ts';
 import { INDICATOR_TEXT } from '../i18n/en.ts';
 import { ANSWER, SOURCE_NOTE, SOURCE_SHORT, inSentence } from '../i18n/pages.en.ts';
 import { indicator, shared, sourceName } from './data.ts';
@@ -14,6 +15,7 @@ import { place } from './places.ts';
 import { breaks, classOf, counts, defaultYear, ranking, type Row } from './stats.ts';
 
 const emissionsData = shared(emissions);
+const unhcrData = shared(displacement);
 
 export interface ViewYear {
   year: number;
@@ -166,3 +168,36 @@ export const indicatorLabel = (p: ViewPage) => INDICATOR_TEXT[p.id]?.label ?? p.
 
 /** The source credit, as the indicator page writes it ("Global Carbon Budget", "UNHCR; World Bank population"). */
 export const creditOf = (p: ViewPage) => SOURCE_NOTE[p.id] ?? [p.loaded.indicator.source].flat().map((s) => SOURCE_SHORT[s] ?? sourceName(s)).join('; ');
+
+export interface Parts { refugees: number; asylum: number; oip: number }
+
+/** UNHCR's three groups behind a refugees figure (origin for "fled from", host for the hosted layers). */
+export function partsOf(p: ViewPage, id: string, year: number): Parts | null {
+  const d = unhcrData();
+  const src = p.id === 'refout' ? d?.originParts : p.id === 'refin' || p.id === 'refinpc' ? d?.hostParts : null;
+  if (!src) return null;
+  const g = (s: Record<string, Record<number, number>>) => s[id]?.[year] ?? 0;
+  const out = { refugees: g(src.refugees), asylum: g(src.asylum), oip: g(src.oip) };
+  return out.refugees + out.asylum + out.oip > 0 ? out : null;
+}
+
+/** Below this, a figure's make-up gets no note of its own (the table and panel still split it). */
+const NOTE_FROM = 100_000;
+
+/**
+ * A place's note on a view: the fixed notes (what the source leaves out), then, with `worked`, one worked out from the
+ * latest year's groups when most of a large figure is asylum seekers or others in need of protection.
+ */
+export function placeNote(p: ViewPage, id: string, worked = true): string | null {
+  const notes: string[] = [];
+  const fixed = PLACE_NOTES[p.id]?.[id];
+  if (fixed) notes.push(fixed);
+  const x = worked ? partsOf(p, id, p.year) : null;
+  if (x) {
+    const total = x.refugees + x.asylum + x.oip;
+    const share = (v: number) => formatValue(v / total, { kind: 'share' });
+    if (total >= NOTE_FROM && x.asylum / total > 0.5) notes.push(PARTS_TEXT.mostlyAsylum(share(x.asylum), p.year));
+    else if (total >= NOTE_FROM && x.oip / total > 0.5) notes.push(PARTS_TEXT.mostlyOip(share(x.oip), p.year));
+  }
+  return notes.length ? notes.join(' ') : null;
+}

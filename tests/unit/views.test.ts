@@ -65,4 +65,14 @@ describe('registry map views', () => {
       for (const s of V.summary(p)) expect(s).not.toMatch(/undefined|NaN/);
     }
   });
+  it('splits a refugees figure into the three groups UNHCR adds together', () => {
+    for (const id of ['refout', 'refin']) {
+      const p = V.viewPage(id)!;
+      for (const r of p.byYear[p.year].rows.slice(0, 5)) {
+        const x = V.partsOf(p, r.id, p.year)!;
+        expect(x.refugees + x.asylum + x.oip).toBeCloseTo(r.value, 0);
+      }
+    }
+    expect(V.partsOf(V.viewPage('co2')!, 'USA', 2020)).toBeNull();
+  });
 });

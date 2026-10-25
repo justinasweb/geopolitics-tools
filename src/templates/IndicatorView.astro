@@ -18,8 +18,8 @@ import '../styles/atlas/table.css';
 import '../styles/atlas/tools.css';
 import { MAP_TEXT } from '../i18n/map.en';
 import { NAV_TEXT } from '../i18n/en';
-import { VIEW_TEXT, VIEWS_TEXT as W } from '../i18n/views.en';
-import { creditOf, familyPages, lede, shareOf, summary, valueText, viewPage, worldChange, indicatorLabel } from '../lib/views';
+import { PARTS_TEXT as PX, VIEW_TEXT, VIEWS_TEXT as W } from '../i18n/views.en';
+import { creditOf, familyPages, lede, partsOf, placeNote, shareOf, summary, valueText, viewPage, worldChange, indicatorLabel } from '../lib/views';
 import { refreshed } from '../lib/data';
 import { formatValue } from '../lib/format';
 import { place } from '../lib/places';
@@ -52,8 +52,13 @@ const pct = (ch: number) => `${ch > 0 ? '+' : ch < 0 ? '−' : ''}${new Intl.Num
 const rows = y.rows.map((r) => {
   const q = prev?.rows.find((x) => x.id === r.id);
   const ch = !div && q && q.value ? r.value / q.value - 1 : null;
-  return { r, q, ch };
+  return { r, q, ch, parts: partsOf(p, r.id, p.year) };
 });
+// Refugees: the three groups UNHCR adds together, as columns; notes on single countries, numbered under the table.
+const hasParts = p.layer.sums && rows.some((x) => x.parts);
+const count = (v: number) => formatValue(v, { kind: 'count' });
+const notes = rows.map((x) => ({ id: x.r.id, text: placeNote(p, x.r.id, !hasParts) })).filter((n): n is { id: string; text: string } => !!n.text);
+const noteNo = (id: string) => notes.findIndex((n) => n.id === id) + 1;
 const top = y.rows.slice(0, 3);
 const related = [
   ...(indicatorHref(p.id) ? [{ href: indicatorHref(p.id)!, name: indicatorLabel(p), note: W.indicatorPage }] : []),
@@ -139,15 +144,19 @@ const bars = (rs: Row[], max: number) => rs.map((r) => ({ id: r.id, text: valueT
             {p.layer.sums && <th scope="col" class="n" data-key="s" data-type="num"><button type="button">{W.share}</button></th>}
             {prev && <th scope="col" class="n" data-key="q" data-type="num"><button type="button">{prev.year}</button></th>}
             {prev && !div && <th scope="col" class="n" data-key="c" data-type="num"><button type="button">{W.change}</button></th>}
+            {hasParts && <th scope="col" class="n" data-key="pr" data-type="num"><button type="button">{PX.refugees}</button></th>}
+            {hasParts && <th scope="col" class="n" data-key="pa" data-type="num"><button type="button">{PX.asylum}</button></th>}
+            {hasParts && <th scope="col" class="n" data-key="po" data-type="num"><button type="button">{PX.oipShort}</button></th>}
           </tr></thead>
           <tbody>
-            {rows.map(({ r, q, ch }) => (
+            {rows.map(({ r, q, ch, parts }) => (
               <tr data-place={r.id}>
-                <th scope="row">{countryHref(r.id) ? <a href={countryHref(r.id)}>{nameOf(r.id)}</a> : nameOf(r.id)}</th>
+                <th scope="row">{countryHref(r.id) ? <a href={countryHref(r.id)}>{nameOf(r.id)}</a> : nameOf(r.id)}{noteNo(r.id) > 0 && <sup class="gt-fn"><a href={`#mv-note-${noteNo(r.id)}`} aria-label={`${W.notes} ${noteNo(r.id)}`}>{noteNo(r.id)}</a></sup>}</th>
                 <td class="n" data-v={r.value}>{valueText(p, r.value)}</td>
                 {p.layer.sums && <td class="n" data-v={y.world ? r.value / y.world : ''}>{shareOf(r.value, y.world) ?? '–'}</td>}
                 {prev && (q ? <td class="n" data-v={q.value}>{valueText(p, q.value)}</td> : <td class="n gt-na" data-v="">–</td>)}
                 {prev && !div && (ch === null ? <td class="n gt-na" data-v="">–</td> : <td class="n" data-v={ch}><span class="gt-chg"><Icon name={Math.abs(ch) < 0.005 ? 'flat' : ch > 0 ? 'up' : 'down'} />{pct(ch)}</span></td>)}
+                {hasParts && (parts ? [parts.refugees, parts.asylum, parts.oip].map((v) => <td class="n" data-v={v}>{count(v)}</td>) : [0, 1, 2].map(() => <td class="n gt-na" data-v="">–</td>))}
               </tr>
             ))}
           </tbody>
@@ -156,11 +165,18 @@ const bars = (rs: Row[], max: number) => rs.map((r) => ({ id: r.id, text: valueT
               <td>{y.worldOwn ? W.worldRow : W.totalRow}</td><td class="n">{valueText(p, y.world)}</td><td class="n">100%</td>
               {prev && <td class="n">{prev.world !== null ? valueText(p, prev.world) : '–'}</td>}
               {prev && <td class="n">{worldChange(p, p.year) !== null && p.id !== 'co2cum' ? pct(worldChange(p, p.year)!) : '–'}</td>}
+              {hasParts && (['refugees', 'asylum', 'oip'] as const).map((k) => <td class="n">{count(rows.reduce((t, x) => t + (x.parts?.[k] ?? 0), 0))}</td>)}
             </tr></tfoot>
           )}
         </table>
       </div>
       <SourceLine source={source} parts={[prev ? `${prev.year} and ${p.year}` : String(p.year)]} updated={updated} />
+      {notes.length > 0 && (
+        <div class="gt-mvnotes">
+          <h3 class="gt-label">{W.notes}</h3>
+          <ol class="gt-caption">{notes.map((n, i) => <li id={`mv-note-${i + 1}`}><b>{nameOf(n.id)}:</b> {n.text}</li>)}</ol>
+        </div>
+      )}
     </div>
     <aside class="gt-mvbelow__side">
       <h2 class="gt-label">{W.related}</h2>

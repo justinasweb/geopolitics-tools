@@ -9,8 +9,8 @@ import { PLACES, NOTES } from '../places.ts';
 import { countryHref, live } from '../routes.ts';
 import { amount, listed, mineralPages, shareClass, shareText, withheld, nameOf, type MineralPage } from '../minerals.ts';
 import { list, inSentence } from '../../i18n/pages.en.ts';
-import { VIEWS_TEXT } from '../../i18n/views.en.ts';
-import { classFor, creditOf, familyPages, shareOf, valueText, viewPages, type ViewPage } from '../views.ts';
+import { PARTS_TEXT as PX, VIEWS_TEXT } from '../../i18n/views.en.ts';
+import { classFor, creditOf, familyPages, partsOf, placeNote, shareOf, valueText, viewPages, type ViewPage } from '../views.ts';
 import { shared } from '../data.ts';
 import { loadFlows } from '../../data/flows.ts';
 import { countClass, daysText, disasterPages, type DisasterPage } from '../disasters.ts';
@@ -162,8 +162,24 @@ function indicatorLayer(p: ViewPage): LayerFile {
       const share = p.layer.sums && p.text.bloc ? shareOf(inBloc.reduce((s, r) => s + r.value, 0), y.world) : null;
       bl[id] = !inBloc.length ? W.blocNone(name, year) : share ? p.text.bloc!(name, share, year) : W.blocCount(name, inBloc.length, members.length, year);
     }
-    return { year, legend: p.text.legend(year), v, order: y.rows.map((r) => r.id), blocs: bl };
+    // Refugees: the three groups UNHCR adds together, for each country, this year.
+    const more: Record<string, PanelBlock[]> = {};
+    for (const r of y.rows) {
+      const x = partsOf(p, r.id, year);
+      if (!x) continue;
+      const f = (v: number) => formatValue(v, { kind: 'count' });
+      more[r.id] = [{
+        label: PX.block(year), caption: PX.caption,
+        rows: [{ name: PX.refugees, value: f(x.refugees) }, { name: PX.asylum, value: f(x.asylum), note: PX.asylumNote }, { name: PX.oipShort, value: f(x.oip) }],
+      }];
+    }
+    return { year, legend: p.text.legend(year), v, order: y.rows.map((r) => r.id), blocs: bl, ...(Object.keys(more).length ? { more } : {}) };
   });
+  const notes = { ...c.notes };
+  for (const id of new Set(p.years.flatMap((yr) => p.byYear[yr].rows.map((r) => r.id)))) {
+    const n = placeNote(p, id);
+    if (n) notes[id] = notes[id] ? `${notes[id]} ${n}` : n;
+  }
   return {
     id: `${p.family.id}-${p.id}`, scale: p.layer.scale, years: p.years, year: p.year, ticks: p.ticks, ends: p.text.ends,
     missing: { none: W.noData }, source: creditOf(p),
@@ -175,7 +191,7 @@ function indicatorLayer(p: ViewPage): LayerFile {
       detailLabel: p.layer.sums ? PT.share : undefined, rankLabel: PT.rank, rankOf: PT.rankOf, statusLabel: PT.status,
       trend: PT.figureTrend(p.text.figureLabel), trendCaption: PT.trendCaption, ranking: PT.ranking,
     },
-    tags: c.tags, names: c.names, hrefs: c.hrefs, dossiers: c.dossiers, slugs: c.slugs, notes: c.notes, blocs: c.blocs, data,
+    tags: c.tags, names: c.names, hrefs: c.hrefs, dossiers: c.dossiers, slugs: c.slugs, notes, blocs: c.blocs, data,
     series: seriesOf(p.years.map((year) => Object.fromEntries(p.byYear[year].rows.map((r) => [r.id, r.value])))),
     format: p.format, more: viewMore(p),
   };

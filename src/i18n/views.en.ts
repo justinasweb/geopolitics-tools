@@ -123,6 +123,36 @@ export const VIEW_TEXT: Record<string, FamilyText> = {
   },
 };
 
+/** UNHCR's three groups, in the refugees views' panel and table. */
+export const PARTS_TEXT = {
+  block: (year: number) => `Who is counted, ${year}`,
+  caption: 'UNHCR adds three groups together',
+  refugees: 'Refugees',
+  asylum: 'Asylum seekers',
+  asylumNote: 'claims not yet decided',
+  oip: 'Others in need of international protection',
+  oipShort: 'Others in need of protection',
+  /** Notes worked out from the figures, for the latest year. */
+  mostlyAsylum: (share: string, year: number) => `${share} of the ${year} figure are asylum seekers whose claims were not yet decided (UNHCR).`,
+  mostlyOip: (share: string, year: number) => `${share} of the ${year} figure are counted as others in need of international protection rather than as refugees (UNHCR).`,
+};
+
+/** Notes on single places in the refugees views, by layer: what the figures leave out or why they change sharply. */
+export const PLACE_NOTES: Record<string, Record<string, string>> = {
+  refout: {
+    UKR: 'From 2024, UNHCR’s figures no longer include Ukrainians in Russia, whom it counted until 2023, so the total falls that year.',
+    AFG: 'The fall in 2025 follows returns and deportations of Afghans from Iran and Pakistan. From 2025 UNHCR also counts about a million Afghans as others in need of international protection.',
+    PSE: 'Palestinian refugees under the mandate of UNRWA, the UN agency for Palestine refugees, are not in UNHCR’s figures; UNRWA counts nearly 6 million.',
+  },
+  refin: {
+    RUS: 'From 2024, UNHCR’s figures no longer include Ukrainians in Russia, who made up most of the earlier total.',
+    IRN: 'The fall in 2025 follows returns and deportations of Afghans.',
+    PAK: 'The fall in 2025 follows returns and deportations of Afghans.',
+    LBN: 'UNHCR’s registered count; Lebanon’s government estimates a much larger number of Syrians in the country.',
+  },
+};
+PLACE_NOTES.refinpc = PLACE_NOTES.refin;
+
 /** Words every registry map view shares. */
 export const VIEWS_TEXT = {
   summary: 'Summary',
@@ -158,4 +188,5 @@ export const VIEWS_TEXT = {
   prevYear: (year: number, value: string) => `${year}: ${value}`,
   ofWorld: (share: string) => `${share} of world`,
   ofTotal: (share: string) => `${share} of the total`,
+  notes: 'Notes',
 };

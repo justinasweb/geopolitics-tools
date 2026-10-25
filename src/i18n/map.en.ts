@@ -185,7 +185,7 @@ export const PANEL_TEXT = {
   figureTrend: (label: string) => `${label}, {from}–{to}`,
   fledTo: (year: string) => `Main countries of asylum, ${year}`,
   cameFrom: (year: string) => `Main countries of origin, ${year}`,
-  partnersCaption: 'Refugees and others in need of international protection, as UNHCR counts them',
+  partnersCaption: 'Refugees, asylum seekers and others in need of international protection, as UNHCR counts them',
   ofTotal: (share: string) => `${share} of the total`,
   morePartners: (n: number) => `and ${n} more`,
 };
