@@ -20,3 +20,23 @@
 .gt-mapcard { container-type: inline-size; background: var(--paper-raised); border-top: 2px solid var(--ink); }
 .gt-panel__title { display: grid; gap: 4px; }
 .gt-panel__tagdd { font-size: 15px; }
+
+/* A selected place's panel: smaller fact values (absolute figures, the year before), blocks, the trend line, rows */
+.gt-panel__facts dd.gt-panel__dsmall { font-size: 17px; line-height: 24px; }
+.gt-pblock { display: grid; gap: 6px; padding-top: 12px; border-top: 1px solid var(--rule); }
+.gt-pblock__head { display: grid; gap: 2px; }
+.gt-pblock__cap { margin: 0; }
+.gt-spark { width: 100%; height: auto; display: block; font: 400 11px var(--sans); fill: var(--ink-muted); font-variant-numeric: tabular-nums; }
+.gt-spark__grid { stroke: var(--rule); stroke-width: 1; }
+.gt-spark__line { fill: none; stroke: var(--brand); stroke-width: 2; }
+.gt-spark__dot { fill: var(--brand); }
+.gt-prows { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; font: 400 14px/20px var(--sans); }
+.gt-prows li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: baseline; padding: 5px 0; border-bottom: 1px solid var(--rule); }
+.gt-prows li:last-child { border-bottom: 0; }
+.gt-prow__n small { display: block; color: var(--ink-muted); font-size: 13px; }
+.gt-prow__v { font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+.gt-bars--rank .gt-bars__rank { display: inline-block; min-width: 1.6em; color: var(--ink-muted); font-variant-numeric: tabular-nums; }
+.gt-bars--rank li[data-selected="true"] .gt-bars__name { font-weight: 600; }
+.gt-bars__gap { min-height: 14px !important; color: var(--ink-muted); }
+.gt-bars--rank li { grid-template-columns: minmax(64px, 8.6em) minmax(32px, 1fr) minmax(3.6em, max-content); }
+.gt-bars--rank .gt-bars__val { white-space: nowrap; }

@@ -1,22 +1,24 @@
 // The map layers: every shaded layer the site's maps can show, defined once as data (./types.ts) and written to
 // /map/<id>.json at build time. A map view page loads its layer file; the Atlas (phase 6) will list the same
 // registry. Each layer says which view it belongs to, so the Atlas panel can link to "See full page".
-import { MAP_TEXT, BLOC_TEXT } from '../../i18n/map.en.ts';
+import { MAP_TEXT, BLOC_TEXT, PANEL_TEXT as PT } from '../../i18n/map.en.ts';
 import { tagHtml } from '../tags.ts';
 import { blocs } from '../blocs.ts';
 import { DOSSIERS } from '../country.ts';
 import { PLACES, NOTES } from '../places.ts';
-import { countryHref } from '../routes.ts';
+import { countryHref, live } from '../routes.ts';
 import { amount, listed, mineralPages, shareClass, shareText, withheld, nameOf, type MineralPage } from '../minerals.ts';
 import { list, inSentence } from '../../i18n/pages.en.ts';
 import { VIEWS_TEXT } from '../../i18n/views.en.ts';
-import { classFor, creditOf, shareOf, valueText, viewPages, type ViewPage } from '../views.ts';
+import { classFor, creditOf, familyPages, shareOf, valueText, viewPages, type ViewPage } from '../views.ts';
+import { shared } from '../data.ts';
+import { loadFlows } from '../../data/flows.ts';
 import { countClass, daysText, disasterPages, type DisasterPage } from '../disasters.ts';
 import { DISASTERS_TEXT, KIND_TEXT } from '../../i18n/disasters.en.ts';
-import { formatDate } from '../format.ts';
+import { formatDate, formatValue } from '../format.ts';
 import { toMap } from './projection.ts';
 import type { Hazard } from '../../adapters/hazards.ts';
-import type { Entry, LayerFile, LayerYear, Overlay, Point } from './types.ts';
+import type { Entry, LayerFile, LayerYear, Overlay, PanelBlock, Point } from './types.ts';
 
 export interface LayerDef {
   id: string;
@@ -92,9 +94,38 @@ function mineralLayer(p: MineralPage): LayerFile {
       ...(c.words as LayerFile['text']),
       kicker: `${p.title} · {year}`, measure: MV.measure, shareLabel: MV.shareLabel, none: MV.notListed(0).replace('0', '{year}'),
       withheld: MV.withheldBy, withheldWhy: MV.withheldWhy(p.name), prev: MV.prevYear(0, '{detail}', '{value}').replace('0', '{year}'),
+      detailLabel: PT.production(p.measure), rankLabel: PT.rankListed, rankOf: PT.rankOf, statusLabel: PT.status,
+      trend: PT.shareTrend(p.measure), trendCaption: PT.trendCaption, ranking: PT.producers,
     },
     tags: c.tags, names: c.names, hrefs: c.hrefs, dossiers: c.dossiers, slugs: c.slugs, notes: withSourceNotes(c.notes, p), blocs: c.blocs, data,
+    series: seriesOf(p.years.map((year) => Object.fromEntries(listed(p.byYear[year]).filter((x) => x.place).reverse().map((x) => [x.place!, x.share!])))),
+    format: { kind: 'share' }, more: otherMinerals(p),
   };
+}
+
+/** Per place, one number per year (null where it has none), from each year's figures by place. */
+function seriesOf(byYear: Record<string, number>[]): Record<string, (number | null)[]> {
+  const out: Record<string, (number | null)[]> = {};
+  byYear.forEach((y, i) => {
+    for (const [id, v] of Object.entries(y)) (out[id] ??= Array(byYear.length).fill(null))[i] = v;
+  });
+  return out;
+}
+
+/** For each producer of this mineral: its share of the other minerals, in the latest year USGS lists. */
+function otherMinerals(p: MineralPage): Record<string, PanelBlock[]> {
+  const out: Record<string, PanelBlock[]> = {};
+  const others = mineralPages().filter((m) => m.id !== p.id);
+  const ids = new Set(p.years.flatMap((y) => listed(p.byYear[y]).map((x) => x.place).filter((x): x is string => !!x)));
+  for (const id of ids) {
+    const rows = others.flatMap((m) => {
+      const l = listed(m.latest);
+      const i = l.findIndex((x) => x.place === id);
+      return i < 0 ? [] : [{ share: l[i].share!, row: { name: m.title, value: shareText(l[i].share!), href: live(`view:minerals:${m.id}`)?.path, note: `${PT.rankNote(i + 1, l.length)}, ${m.latest.year}` } }];
+    }).sort((a, b) => b.share - a.share).map((x) => x.row);
+    if (rows.length) out[id] = [{ label: PT.otherMinerals, caption: PT.otherMineralsCaption, rows }];
+  }
+  return out;
 }
 
 /**
@@ -141,10 +172,46 @@ function indicatorLayer(p: ViewPage): LayerFile {
       kicker: `${p.text.title} · {year}`, measure: p.text.measure, shareLabel: p.text.figureLabel, none: W.notListed(0).replace('0', '{year}'),
       withheld: MAP_TEXT.withheldBy, withheldWhy: '', prev: W.prevYear(0, '{value}').replace('0', '{year}'),
       rank: W.rank(0, 1).replace('0', '{rank}').replace('1', '{of}'),
+      detailLabel: p.layer.sums ? PT.share : undefined, rankLabel: PT.rank, rankOf: PT.rankOf, statusLabel: PT.status,
+      trend: PT.figureTrend(p.text.figureLabel), trendCaption: PT.trendCaption, ranking: PT.ranking,
     },
     tags: c.tags, names: c.names, hrefs: c.hrefs, dossiers: c.dossiers, slugs: c.slugs, notes: c.notes, blocs: c.blocs, data,
+    series: seriesOf(p.years.map((year) => Object.fromEntries(p.byYear[year].rows.map((r) => [r.id, r.value])))),
+    format: p.format, more: viewMore(p),
   };
 }
+
+/** For each place on a registry view: its figures on the family's other layers, and for refugees its main partners. */
+function viewMore(p: ViewPage): Record<string, PanelBlock[]> {
+  const out: Record<string, PanelBlock[]> = {};
+  const others = familyPages(p.family.id).filter((o) => o.id !== p.id);
+  const fl = refugeeFlows();
+  const ids = new Set(p.years.flatMap((y) => p.byYear[y].rows.map((r) => r.id)));
+  for (const id of ids) {
+    const blocks: PanelBlock[] = [];
+    const rows = others.flatMap((o) => {
+      const y = o.byYear[o.year];
+      const i = y.rows.findIndex((r) => r.id === id);
+      return i < 0 ? [] : [{ name: o.text.title, value: valueText(o, y.rows[i].value), href: live(`view:${o.family.id}:${o.id}`)?.path, note: `${o.year}, ${VIEWS_TEXT.rank(i + 1, y.rows.length).toLowerCase()}` }];
+    });
+    if (rows.length) blocks.push({ label: PT.otherMeasures, caption: PT.otherMeasuresCaption, rows });
+    if (fl && (p.id === 'refout' || p.id === 'refin' || p.id === 'refinpc')) {
+      const out_ = p.id === 'refout';
+      const pairs = fl.pairs.filter((x) => (out_ ? x.from : x.to) === id && x.amount > 0).sort((a, b) => b.amount - a.amount);
+      const total = pairs.reduce((t, x) => t + x.amount, 0);
+      if (pairs.length) {
+        blocks.push({
+          label: out_ ? PT.fledTo(fl.period) : PT.cameFrom(fl.period), caption: PT.partnersCaption,
+          rows: pairs.slice(0, 5).map((x) => ({ name: nameOf2(out_ ? x.to : x.from), value: formatValue(x.amount, fl.format), note: PT.ofTotal(shareOf(x.amount, total) ?? '') })),
+          more: pairs.length > 5 ? PT.morePartners(pairs.length - 5) : undefined,
+        });
+      }
+    }
+    if (blocks.length) out[id] = blocks;
+  }
+  return out;
+}
+const refugeeFlows = shared((raw) => loadFlows(raw, 'refugees'));
 
 /** Alerts by country over the last 30, 90 and 365 days (GDACS), with the alerts (or, for earthquakes, USGS quakes) as marks. */
 function disasterLayer(p: DisasterPage): LayerFile {
@@ -161,7 +228,35 @@ function disasterLayer(p: DisasterPage): LayerFile {
       const n = per.alerts.filter((h) => h.places.some((x) => members.includes(x))).length;
       bl[id] = D.blocLine(BLOC_TEXT[id] ?? id, n, per.rows.filter((r) => members.includes(r.id)).length, per.days);
     }
-    return { year: per.days, label: D.last(per.days), legend: D.legend(per.days), v, order: per.rows.map((r) => r.id), blocs: bl };
+    // A selected country's own alerts in the period, by kind and newest first; on the earthquakes page its largest quakes.
+    const more: Record<string, PanelBlock[]> = {};
+    for (const r of per.rows) {
+      const mine = per.alerts.filter((h) => h.places.includes(r.id));
+      const blocks: PanelBlock[] = [];
+      if (!p.kind) {
+        const k = new Map<string, number>();
+        for (const h of mine) k.set(h.kind, (k.get(h.kind) ?? 0) + 1);
+        blocks.push({ label: D.kindsBlock, rows: [...k].sort((a, b) => b[1] - a[1]).map(([kind, n]) => ({ name: KIND_TEXT[kind].pick, value: String(n), href: live(`view:disasters:${kind}`)?.path })) });
+      }
+      blocks.push({
+        label: D.alertsBlock, caption: D.alertsCaption(per.days),
+        rows: mine.slice(0, 6).map((h) => ({ name: h.name, value: D.level(h.alert), note: daysText(h, formatDate) })),
+        more: mine.length > 6 ? D.andMore(mine.length - 6) : undefined,
+      });
+      more[r.id] = blocks;
+    }
+    if (p.kind === 'EQ') {
+      const byPlace = new Map<string, Hazard[]>();
+      for (const q of per.quakes) if (q.place) byPlace.set(q.place, [...(byPlace.get(q.place) ?? []), q]);
+      for (const [id, qs] of byPlace) {
+        (more[id] ??= []).push({
+          label: D.quakesBlock, caption: D.quakesCaption(per.days),
+          rows: qs.slice(0, 5).map((q) => ({ name: q.name.replace(/^M [\d.]+ - /, ''), value: `M ${q.mag!.toFixed(1)}`, note: formatDate(q.from) })),
+          more: qs.length > 5 ? D.andMore(qs.length - 5) : undefined,
+        });
+      }
+    }
+    return { year: per.days, label: D.last(per.days), legend: D.legend(per.days), v, order: per.rows.map((r) => r.id), blocs: bl, more };
   });
   // A mark shows in the periods whose list has it: bit i for period i.
   const mask = (h: Hazard, pick: (i: number) => Hazard[]) => p.periods.reduce((m, _, i) => (pick(i).includes(h) ? m | (1 << i) : m), 0);
@@ -197,8 +292,10 @@ function disasterLayer(p: DisasterPage): LayerFile {
       kicker: `${title} · {year}`, measure: '', shareLabel: D.figureLabel, none: D.noneIn,
       withheld: MAP_TEXT.withheldBy, withheldWhy: '', prev: '{year}: {value}', rank: VIEWS_TEXT.rank(0, 1).replace('0', '{rank}').replace('1', '{of}'),
       movedYear: D.movedDays,
+      detailLabel: D.byLevel, rankLabel: PT.rank, rankOf: PT.rankOf, ranking: D.rankingIn,
     },
     tags: c.tags, names: c.names, hrefs: c.hrefs, dossiers: c.dossiers, slugs: c.slugs, notes: c.notes, blocs: c.blocs, data,
+    series: seriesOf(p.periods.map((x) => Object.fromEntries(x.rows.map((r) => [r.id, r.n])))), format: { kind: 'count' },
     // Red marks last, so they sit on top.
     overlays,
   };
