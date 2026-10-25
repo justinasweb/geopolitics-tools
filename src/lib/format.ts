@@ -25,6 +25,10 @@ export function formatValue(v: number | null | undefined, f: Format, locale = 'e
       return `${sign}${n(a * 100, a < 0.1 ? 1 : 0)}%`;
     case 'number':
       return `${sign}${n(a, f.digits ?? 0)}${f.unit ? ` ${f.unit}` : ''}`;
+    case 'mt':
+      if (a >= 100) return `${sign}${n(a, 0)} Mt`;
+      if (a >= 1) return `${sign}${n(a, 1)} Mt`;
+      return `${sign}${n(a >= 0.001 ? Math.round(a * 1000) * 1000 : Math.round(a * 1e6), 0)} t`;
   }
 }
 
@@ -58,6 +62,7 @@ export function formatParts(v: number, f: Format, unit = '', locale = 'en'): { n
     case 'percent': return { num: `${sign}${n(a, f.digits ?? 1)}`, unit: unit.startsWith('%') ? unit : '%' };
     case 'share': return { num: `${sign}${n(a * 100, a < 0.1 ? 1 : 0)}`, unit: '%' };
     case 'number': return { num: `${sign}${n(a, f.digits ?? 0)}`, unit: f.unit ?? '' };
+    case 'mt': return a >= 1 ? { num: `${sign}${n(a, a >= 100 ? 0 : 1)}`, unit: 'Mt' } : { num: formatValue(v, f).replace(' t', ''), unit: 't' };
   }
 }
 

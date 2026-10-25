@@ -104,3 +104,19 @@ export function anchors(): Record<string, [number, number]> {
   }
   return Object.fromEntries([...best].map(([id, b]) => [id, b.at]));
 }
+
+/** A place's box in map coordinates, [[west, south], [east, north]]: its largest shape's, so far islands are left out. */
+export function boxOf(id: string): [[number, number], [number, number]] | null {
+  let best: { area: number; box: [[number, number], [number, number]] } | null = null;
+  for (const f of basemap().countries.features) {
+    if (f.properties.id !== id) continue;
+    for (const poly of f.geometry.coordinates) {
+      const xs = poly[0].map((p) => p[0]);
+      const ys = poly[0].map((p) => p[1]);
+      const box: [[number, number], [number, number]] = [[Math.min(...xs), Math.min(...ys)], [Math.max(...xs), Math.max(...ys)]];
+      const area = (box[1][0] - box[0][0]) * (box[1][1] - box[0][1]);
+      if (!best || area > best.area) best = { area, box };
+    }
+  }
+  return best?.box ?? null;
+}

@@ -78,7 +78,10 @@ export interface Prepared {
 export function prepare(kind: Kind, input: Input, now: Date, previous: string | null = null, allowShrink = false): Prepared {
   if (kind.how === 'raw' || kind.how === 'geojson') {
     if (!('text' in input)) throw new CheckError(`this kind takes the ${kind.how === 'raw' ? 'CSV' : 'GeoJSON'} file, not a workbook`);
-    if (kind.how === 'raw') return { body: input.text, rows: kind.check!(input.text), contentType: 'text/csv', added: [] };
+    if (kind.how === 'raw') {
+      const body = kind.convert ? kind.convert(input.text) : input.text;
+      return { body, rows: kind.check!(body), contentType: 'text/csv', added: [] };
+    }
     let json: { type?: string; features?: { properties?: Record<string, unknown> }[] };
     try {
       json = JSON.parse(input.text);
@@ -97,16 +100,19 @@ export function prepare(kind: Kind, input: Input, now: Date, previous: string | 
   const first = rows.next();
   const head = first.done ? [] : first.value.map((c) => c.trim());
   const columns = kind.columns ?? [];
-  const missing = columns.filter((c) => !head.includes(c));
+  // A kept column is read under its own name, else under the names the publisher has used for it: the first that is filled.
+  const at = (c: string) => [c, ...(kind.from?.[c] ?? [])].map((n) => head.indexOf(n)).filter((i) => i >= 0);
+  const missing = columns.filter((c) => !at(c).length && !kind.derived?.includes(c));
   if (missing.length) throw new CheckError(`missing columns: ${missing.join(', ')}\nColumns in the file: ${head.join(', ')}`);
   const cols = [...columns, ...(kind.added ?? [])];
-  const idx = cols.map((c) => head.indexOf(c));
+  const idx = cols.map(at);
   const out = [cols];
   for (const r of rows) {
     // A short CSV row is a broken line; a workbook simply leaves out trailing empty cells.
     if ('text' in input && r.length < head.length) continue;
     const row: Row = {};
-    cols.forEach((c, i) => { row[c] = idx[i] >= 0 ? (r[idx[i]] ?? '') : ''; });
+    cols.forEach((c, i) => { row[c] = idx[i].map((j) => r[j] ?? '').find((v) => v.trim()) ?? ''; });
+    if (kind.derive) kind.derive(row, Object.fromEntries(head.map((h, i) => [h, r[i] ?? ''])));
     if (cols.every((c) => !row[c].trim())) continue;
     if (kind.filter && !kind.filter(row, now)) continue;
     out.push(cols.map((c) => row[c]));

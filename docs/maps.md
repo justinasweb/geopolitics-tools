@@ -107,6 +107,100 @@ How the adapter (`src/adapters/minerals.ts`) reads them:
   map when it holds for every year. The tonnage basis ("lithium content") is in the table caption and the summary;
   USGS's note on revised figures for the year before is in the caption.
 
+## Disasters (phase 5a)
+
+/disasters shows every kind of GDACS alert by country; /disasters/{earthquakes, cyclones, floods, droughts, wildfires, volcanoes} one kind each (src/lib/disasters.ts, src/templates/DisasterView.astro).
+
+- **Periods, not years.** The slider is replaced by a choice of the last 30, 90 or 365 days (src/components/PeriodControl.astro, with the slider's contract). The layer file says `axis: "days"`, its `years` are the periods' lengths, each period has a `label` ("Last 30 days") that the panel, tooltip and kicker use, and the URL keeps the period in `?days=` (365, the default, is left out).
+- **What a period counts.** Orange and red alerts, in every period, so a longer period never shows fewer. GDACS keeps green (low-impact) alerts for 30 days only, so the 30-day map draws them as small dots and the panel gives their number, but they are not counted or shaded. An alert counts in a period if the event lasted into it, once for each country it names. Country pages count their past-year alerts with the same function (`alertsIn`), so the two always agree.
+- **Shading.** Alert counts in fixed classes: 1, 2–4, 5–9, 10–24, 25+. A country with no alert reads "No alerts", not "No data".
+- **Marks.** Alerts are drawn by level as shapes: red a filled triangle, orange a diamond, green a small dot (30 days only, not counted). Each mark carries a bit mask `m` of the periods it shows in, and the engine filters point overlays on it when the period changes. On the earthquakes page the marks are USGS earthquakes of magnitude 5.5 and over (hollow circles sized by magnitude), since GDACS lists the same quakes; the shading is still GDACS alerts.
+
+## Food and fertiliser (phase 5a)
+
+/food/{wheat, maize, rice, soybeans, potash, phosphate} shows production, /use and /trade after each (18 pages; src/lib/food.ts, src/templates/FoodView.astro). Two pickers: the commodity, and the measure.
+
+- **Data.** FAOSTAT, from 2015. Crop use is production plus imports minus exports (stock changes left out); a place FAOSTAT never lists for production grows none, and a missing export figure counts as none, because FAOSTAT leaves out years with no exports. Fertiliser use is FAOSTAT's agricultural use, in tonnes of nutrient (K2O, P2O5). Rice is milled rice throughout.
+- **Snapshot format.** Snapshots fetched before the fetcher took the API's row format hold FAOSTAT's own CSV columns (faostat/crops.csv, trade.csv, fertilizers.csv, matrix.csv, places by M49 code); the adapter reads either, so the pages work on today's snapshot and on the next fetch.
+- **Shading.** Production and use by share of the world, in the minerals' classes (under 1%, 1–5%, 5–10%, 10–25%, 25%+). Trade is exports minus imports on a diverging scale, net exporters at one end and net importers at the other; its edges are rounded (1, 2, 5) from that commodity's latest year and kept for every year.
+- **Years still coming in.** The default year is the latest with 90% of the best coverage. A place with a figure in one of the two years before but none yet is hatched "Not yet reported", with its last figure.
+- **Estimates and notes.** Figures FAOSTAT flags as its own estimate or imputation (flags E and I) carry the estimate tag and an "e" in the table; a use worked out from an estimate is one too. Most fertiliser figures are estimates. Notes on single places (Russia's trade since 2022, Morocco's 2024 phosphate exports, Belarus's potash) are in src/i18n/food.en.ts.
+- **Flows.** Crop trade maps draw the 20 largest importer-reported flows in the trade matrix's year as arcs, also listed in a table. FAOSTAT has no fertiliser trade matrix, so fertiliser trade maps have none (UN Comtrade, phase 5b).
+- **Panel.** A selected country's balance in the latest year (production, imports, exports, use, production as a share of use), its main suppliers and buyers (crops), and the same measure for the other five commodities.
+- **Not yet.** Prices (World Bank Pink Sheet) are not shown.
+
+## Blocs (phase 5a)
+
+/blocs maps how many of the 19 groupings each country belongs to; /blocs/{bloc} maps one grouping's members (src/lib/blocview.ts, src/templates/BlocView.astro). Members come from src/data/blocs.csv, as of the date it was last checked; the layer has one "year" and no slider. A grouping's share of the world adds up its members' figures (population, GDP, military spending, CO2, the four crops, and each mineral's mine production where members mine at least 1%) against the sum for every country with a figure, a year back where the latest is missing. "Outline a bloc" on a grouping's page shows its overlap with a second one. A line on what each grouping is, and notes on single memberships (Armenia in the CSTO), are in src/i18n/blocs.en.ts. Alliance history (/blocs/{bloc}/history) is not built yet.
+
+## Alliance history (phase 5a)
+
+`/blocs/{bloc}/history` for 11 groupings (NATO, EU, G7, G20, BRICS, SCO, ASEAN, OPEC, CSTO, Quad, OECD). Spans come from
+`src/data/bloc-history.csv` (`bloc,place,from,to`, years only, one row per membership; `to` is the year the country left), compiled
+by hand from each grouping's own member list and history, because Wikidata is not reachable from the build. A test checks that the
+spans still open match `src/data/blocs.csv`. The map shades, per year, who joined, who was a member, who left that year and who had
+left before; countries are drawn on today's borders (West Germany appears as Germany), and a note says so next to the map.
+Notes on changes that are not joins or exits (France and NATO's integrated command) are in `HISTORY_EVENTS`.
+
+## Space (phase 5a)
+
+`/space` (satellites in orbit by owning country) and `/space/launches` (orbital launches by the country of the launch
+site), both registry views (`src/data/views.ts`) on CelesTrak's catalogue. Launches set `fullYears`, so the running year
+is left out until it ends. Extras from `src/lib/space.ts`: each country's working satellites by orbit and constellation in
+the panel, the largest constellations under the satellites table, and a mark per launch site per year (sized by launches)
+with a sites table on the launches page. Satellites of international owners (ESA, Intelsat) count for no country.
+
+## AI and chips (phase 5a)
+
+`/ai` (share of known AI computing power, the registry's `aicompute`), `/ai/models` (notable models by country of the
+developer, Epoch AI) and `/ai/export-controls` (US Entity List entries by country, from the CSL). Models and Entity List
+counts are view-only measures (`src/data/view-measures.ts`): no indicator page, profile row or Compare column. The
+computing power map marks each known supercomputer, with a table of the largest. Chip and chipmaking-tool trade (the
+spec's `/ai/chips`) waits on UN Comtrade.
+
+## Sanctions (phase 5a)
+
+`/sanctions` (listings on the US SDN, EU and UK lists together, the registry's `sanctions`) and `/sanctions/{us,eu,uk}`
+(each list alone, view-only measures). The panel splits a country's listings by list, by kind of target and by the main
+programmes. Counts are of listings, so a target on two lists counts twice in the total; this is said next to the figure.
+
+## Water and dams (phase 5a)
+
+`/water` (WRI Aqueduct baseline water stress, fixed bands from the score: under 10% to over 80% withdrawn), `/water/2050`
+(business-as-usual projection) and `/water/from-abroad` (AQUASTAT dependency ratio, latest year per country). The water
+stress map marks dams in Global Dam Watch holding at least 1 km³, with a table of the largest. The importer reads the 2026
+AQUASTAT bulk file (countries by M49 code) and the GDW v1.0 attribute table (`GDW_barriers_v1_0.txt`, GRanD dams only;
+the dam's own position, else where it meets the river). The disputed rivers pages are not built yet.
+
+## Disputed rivers (phase 5a)
+
+`/water/rivers/{nile,indus,mekong,tigris-euphrates,brahmaputra,amu-darya,helmand,dnipro}`: the countries in each dispute
+(src/data/rivers.ts, from the prototype's list) shaded by water stress, with the river's large dams from Global Dam Watch.
+GDW names rivers in many spellings and gives a main basin for only a third of its dams, so a dam belongs to a river when
+it is in one of the dispute's countries and its river name matches the main stem or a large tributary, or its basin
+matches, less a short list of dams whose basin field is wrong. GDW 1.0 stops at about 2022, so the newest dams (Ethiopia's
+Renaissance dam among them) are missing, and it does not mark destroyed dams (Kakhovka); the caveat says so. Each river's
+summary is an AI draft for the owner to approve (D14) and comes in phase 7.
+
+## Chinese lending (phase 5a)
+
+`/chinese-lending` and `/chinese-lending/{energy,transport,mining,banking,other}`: AidData commitments 2000–2021 added up,
+in 2021 dollars, records recommended for aggregates only. The panel splits a country's total by sector and by aid-like or
+lending-like flows and lists its largest projects; the page lists the largest commitments. AidData 3.0 writes sectors in
+capitals, so the sector groups match without case.
+
+## Arms transfers (phase 5a)
+
+`/arms` (exporters) and `/arms/importers`: SIPRI deliveries of major arms as five-year totals, the way SIPRI compares
+them, with a picker for each five-year period the data covers. The import takes SIPRI's trade register (one row per
+deal) and turns it into supplier → recipient totals by year, splitting a deal's delivered value evenly across its
+delivery years (`registerToTable` in pipeline/sources/imported.ts). Totals over a deal's years are exact; single years
+are estimates, and the indicator pages say so. Only derived totals are shown, never the register's rows, and there is
+no download, as SIPRI's terms ask. The panel lists a country's main partners and, for importers, its suppliers split
+into the United States, China, Russia, European countries and others; the arcs and the table below the map show the
+largest flows. Each layer compares with the period before (`span` in src/data/views.ts), not an overlapping one, so
+supplier shifts show once the export reaches back at least ten years.
+
 ## Not done in this phase
 
 - Refining shares and trade flows on the minerals views: later phases, once their sources are in.

@@ -5,6 +5,8 @@
 // Everything a reader sees is already formatted and worded in the page's language at build time; the engine only
 // places it. Coordinates are map coordinates (Equal Earth drawn through Web Mercator, ./projection.ts).
 
+import type { Format } from '../../data/indicators.ts';
+
 export type Status = 'estimate' | 'projection' | 'preliminary';
 
 /**
@@ -15,7 +17,10 @@ export type Status = 'estimate' | 'projection' | 'preliminary';
 export type Entry = [cls: number, value: string, detail: string, status: Status | 0, rank: number];
 
 export interface LayerYear {
+  /** The year, or for a layer over periods (axis "days") the period's length in days. */
   year: number;
+  /** What the panel, tooltip and kicker say instead of the year ("Last 30 days"). */
+  label?: string;
   /** The year's own tag on the slider: the source marks it estimated or preliminary. */
   status?: Status;
   legend: string;
@@ -25,11 +30,25 @@ export interface LayerYear {
   order: string[];
   /** Panel line for each bloc this year ("BRICS members mined 35%…"). */
   blocs: Record<string, string>;
+  /** Blocks for a selected place that change with the year (a period's alerts). */
+  more?: Record<string, PanelBlock[]>;
 }
 
-export interface Arc { p: [number, number][]; w: number; tip: string }
+/** A short block in a selected place's panel: a label, optional caption, rows of name and value, a source line. */
+export interface PanelBlock {
+  label: string;
+  caption?: string;
+  rows: { name: string; value: string; href?: string; note?: string }[];
+  /** A line under the rows ("and 12 more"). */
+  more?: string;
+  source?: string;
+}
+
+/** `m`, as on a point: the years (by bit of their index) the arc shows in; 0 or none for every year. */
+export interface Arc { p: [number, number][]; w: number; tip: string; m?: number }
 export interface Line { p: [number, number][][]; tip: string }
-export interface Point { at: [number, number]; r?: number; tip: string }
+/** A point; `m` is a bit mask of the year indices it shows in (bit i for data[i]), 0 or none for all. */
+export interface Point { at: [number, number]; r?: number; tip: string; m?: number }
 export type Overlay =
   | { id: string; kind: 'arcs'; label: string; items: Arc[] }
   | { id: string; kind: 'lines'; label: string; dashed?: boolean; items: Line[] }
@@ -38,6 +57,8 @@ export type Overlay =
 export interface LayerFile {
   id: string;
   scale: 'seq' | 'div';
+  /** What the slider steps through: years (the default) or periods in days (?days= in the URL). */
+  axis?: 'days';
   years: number[];
   /** The year shown when the URL names none: the latest. */
   year: number;
@@ -60,6 +81,9 @@ export interface LayerFile {
     world: string; close: string; countryPage: string; dossier: string; inTable: string; hint: string; tapHint: string;
     note: string; disputed: string; selected: string; cleared: string; members: string; removeBloc: string;
     movedYear: string; keys: string;
+    /** The selected place's panel: fact labels, the trend's title ({from}, {to}) and caption ({first}, {from}, {last}, {to}), the ranking's title ({year}). */
+    detailLabel?: string; rankLabel?: string; rankOf?: string; statusLabel?: string;
+    trend?: string; trendCaption?: string; ranking?: string;
   };
   /** Status tags as HTML (their glyph and word). */
   tags: Record<Status, string>;
@@ -73,5 +97,15 @@ export interface LayerFile {
   notes: Record<string, string>;
   blocs: Record<string, { name: string; members: string[] }>;
   data: LayerYear[];
+  /**
+   * Each place's figure as a number, one per entry of `data` (null where it has none): the panel's trend line and
+   * its bars. Formatted in the browser with `format`.
+   */
+  series?: Record<string, (number | null)[]>;
+  format?: Format;
+  /** Blocks for a selected place that stay the same in every year (its other measures, its other minerals). */
+  more?: Record<string, PanelBlock[]>;
   overlays?: Overlay[];
+  /** Where the map starts and its reset button returns, in map coordinates; the whole world when left out. */
+  bounds?: [[number, number], [number, number]];
 }

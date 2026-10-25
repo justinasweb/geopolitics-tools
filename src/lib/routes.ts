@@ -6,7 +6,7 @@
 //
 // Map views, hubs and tools are registered but not live until their phase builds them; the menu and every link
 // skip routes that are not live, so nothing links to a page that does not exist.
-import { SECTION_SLUGS, INDICATOR_SLUGS, COMPARE_JOIN } from '../i18n/slugs.en.ts';
+import { SECTION_SLUGS, INDICATOR_SLUGS, COMPARE_JOIN, VIEW_SLUGS, DISASTER_SLUGS, FOOD_SLUGS, FOOD_LAYER_SLUGS, BLOC_SLUGS } from '../i18n/slugs.en.ts';
 import { NAV_HUBS, NAV_UTIL } from '../data/nav.ts';
 import { INDICATORS } from '../data/indicators.ts';
 import { countryModel, countryPages, DOSSIERS } from './country.ts';
@@ -14,6 +14,13 @@ import { data, changed } from './data.ts';
 import { indicatorModel } from './indicator.ts';
 import { PLACES, place } from './places.ts';
 import { mineralPages } from './minerals.ts';
+import { viewPages } from './views.ts';
+import { disasterPages } from './disasters.ts';
+import { foodPages } from './food.ts';
+import { blocPages } from './blocview.ts';
+import { BLOCS_CHECKED } from './blocs.ts';
+import { HISTORY_BLOCS } from './history.ts';
+import { riverIds } from './rivers.ts';
 
 export type Lang = 'en';
 export type Kind = 'countries' | 'country' | 'compare' | 'indicators' | 'indicator' | 'page' | 'sources' | 'view' | 'hub' | 'tool';
@@ -51,6 +58,18 @@ export const paths = {
   page: (id: keyof typeof SECTION_SLUGS) => `/${S[id]}`,
   image: (kind: string, name: string) => `/og/${kind}/${name}.png`,
   mineral: (id: string) => `/${S.minerals}/${id}`,
+  /** A registry map view: /emissions, /emissions/per-person. */
+  view: (family: keyof typeof SECTION_SLUGS, layer: string) => `/${S[family]}${VIEW_SLUGS[layer] ? `/${VIEW_SLUGS[layer]}` : ''}`,
+  /** Food and fertiliser: /food/wheat, /food/wheat/use, /food/soybeans/trade. */
+  food: (commodity: string, layer: string) => `/${S.food}/${FOOD_SLUGS[commodity]}${FOOD_LAYER_SLUGS[layer] ? `/${FOOD_LAYER_SLUGS[layer]}` : ''}`,
+  /** Blocs: /blocs, /blocs/nato. */
+  blocs: (bloc: string) => `/${S.blocs}${BLOC_SLUGS[bloc] ? `/${BLOC_SLUGS[bloc]}` : ''}`,
+  /** Alliance history: /blocs/nato/history. */
+  history: (bloc: string) => `/${S.blocs}/${BLOC_SLUGS[bloc]}/history`,
+  /** Disputed rivers: /water/rivers/nile. */
+  river: (id: string) => `/${S.water}/rivers/${id}`,
+  /** Disasters: /disasters, /disasters/earthquakes. */
+  disasters: (kind: string) => `/${S.disasters}${DISASTER_SLUGS[kind] ? `/${DISASTER_SLUGS[kind]}` : ''}`,
 };
 
 /** The Compare pairs: every pair of dossier countries, in a fixed order (United States, China, Russia). */
@@ -96,6 +115,60 @@ function build(): Route[] {
       aliases: i === 0 ? [`/${S.minerals}`] : [], id: `minerals:${m.id}`, image: paths.image('views', `minerals-${m.id}`), lastmod: changed('usgs-minerals'),
     });
   });
+
+  // Map views on registry measures (phase 5): the family's first layer is the section's own address.
+  for (const v of viewPages()) {
+    families.add(v.family.id);
+    out.push({
+      key: `view:${v.family.id}:${v.id}`, kind: 'view', lang, path: paths.view(v.family.id as keyof typeof SECTION_SLUGS, v.id), live: true, indexed: true,
+      aliases: [], id: `${v.family.id}:${v.id}`, image: paths.image('views', `${v.family.id}-${v.id}`), lastmod: changed([v.loaded.indicator.source].flat()[0]),
+    });
+  }
+
+  // Disasters (phase 5): every kind at /disasters, one kind at /disasters/{kind}.
+  for (const d of disasterPages()) {
+    families.add('disasters');
+    out.push({
+      key: `view:disasters:${d.id}`, kind: 'view', lang, path: paths.disasters(d.id), live: true, indexed: true,
+      aliases: [], id: `disasters:${d.id}`, image: paths.image('views', `disasters-${d.id.toLowerCase()}`), lastmod: changed('gdacs'),
+    });
+  }
+
+  // Food and fertiliser (phase 5): each commodity's production at /food/{commodity}, its use and trade after it.
+  foodPages().forEach((f, i) => {
+    families.add('food');
+    out.push({
+      key: `view:food:${f.id}`, kind: 'view', lang, path: paths.food(f.commodity, f.layer), live: true, indexed: true,
+      aliases: i === 0 ? [`/${S.food}`] : [], id: `food:${f.id}`, image: paths.image('views', `food-${f.id}`), lastmod: changed('faostat'),
+    });
+  });
+
+  // Blocs (phase 5): every grouping at /blocs, one at /blocs/{bloc}.
+  families.add('blocs');
+  for (const id of ['all', ...blocPages().map((b) => b.id)]) {
+    out.push({
+      key: `view:blocs:${id}`, kind: 'view', lang, path: paths.blocs(id), live: true, indexed: true,
+      aliases: [], id: `blocs:${id}`, image: paths.image('views', `blocs-${id}`), lastmod: BLOCS_CHECKED,
+    });
+  }
+
+  // Alliance history (phase 5): /blocs/{bloc}/history for the 11 groupings with one.
+  families.add('alliance-history');
+  for (const id of HISTORY_BLOCS) {
+    out.push({
+      key: `view:alliance-history:${id}`, kind: 'view', lang, path: paths.history(id), live: true, indexed: true,
+      aliases: [], id: `history:${id}`, image: paths.image('views', `history-${id}`), lastmod: BLOCS_CHECKED,
+    });
+  }
+
+  // Disputed rivers (phase 5): /water/rivers/{river} for the eight rivers.
+  families.add('rivers');
+  for (const id of riverIds()) {
+    out.push({
+      key: `view:rivers:${id}`, kind: 'view', lang, path: paths.river(id), live: true, indexed: true,
+      aliases: [], id: `rivers:${id}`, image: paths.image('views', `rivers-${id}`),
+    });
+  }
 
   // Not built yet (phases 5–8): registered so links, the menu and redirects know about them.
   for (const hub of NAV_HUBS) {

@@ -3,7 +3,18 @@
 // check that it is the right download. Imported files sit in the same state and snapshots as fetched
 // ones, under their own source id. Ported from the prototype's fetchers/import.php.
 import { CheckError, check } from '../lib/source.ts';
-import { parseCsv } from '../lib/csv.ts';
+import { csvRecords, parseCsv } from '../lib/csv.ts';
+import { matcher } from '../../src/adapters/core.ts';
+import { PLACES } from '../../src/lib/places.ts';
+
+/** The two AQUASTAT variables the water view reads. */
+const AQUASTAT_VARIABLES = ['Dependency ratio', 'Total renewable water resources per capita'];
+let m49: Map<string, string> | null = null;
+const iso3ByM49 = () => (m49 ??= new Map(PLACES.filter((p) => p.m49 && p.iso3).map((p) => [p.m49, p.iso3])));
+const iso3ByName = (name: string) => {
+  const id = matcher('gdw', 'name').match(name);
+  return id ? PLACES.find((p) => p.id === id)?.iso3 || id : '';
+};
 
 export interface ImportedSource {
   id: string;
@@ -27,9 +38,17 @@ export interface Kind {
   columns?: string[];
   /** Hand-kept fields not in the publisher's file, appended (and left empty when the file lacks them). */
   added?: string[];
+  /** Other names the publisher has used for a kept column, by kept column: the first one in the file is read. */
+  from?: Record<string, string[]>;
+  /** Kept columns worked out from the row (`derive`) rather than read, so the file need not have them. */
+  derived?: string[];
+  /** Fills the derived columns, before the filter runs. */
+  derive?: (row: Row, raw: Row) => void;
   filter?: (row: Row, now: Date) => boolean;
   /** For raw files: throws if it is the wrong file, returns the number of rows. */
   check?: (text: string) => number;
+  /** For raw files: turns another form the publisher offers into the saved one, before `check`. */
+  convert?: (text: string) => string;
 }
 
 export const IMPORTED: ImportedSource[] = [
@@ -45,6 +64,38 @@ export const IMPORTED: ImportedSource[] = [
 ];
 
 const country = (r: Row) => /^[A-Z]{3}$/.test(r.ISO3_code);
+
+/**
+ * SIPRI's trade register (one row per deal, with the TIV delivered in the chosen years and the years of delivery) as the
+ * supplier-and-recipient table the adapter reads. The TIV a deal delivered over several years is split evenly across them:
+ * totals over the register's years are exact, single years are an estimate.
+ */
+export function registerToTable(text: string): string {
+  if (!/^Recipient,Supplier,/m.test(text)) return text;
+  const rows = csvRecords(text.slice(text.search(/^Recipient,Supplier,/m)));
+  const range = /year range '(\d{4})' to '(\d{4})'/.exec(text);
+  const pairs = new Map<string, Record<number, number>>();
+  let [lo, hi] = range ? [Number(range[1]), Number(range[2])] : [Infinity, -Infinity];
+  for (const r of rows) {
+    const tiv = Number(r['SIPRI TIV of delivered weapons']);
+    const years = (r['Year(s) of delivery'] ?? '').split(/[;,]/).map((y) => Number(y.trim())).filter((y) => y > 1900);
+    if (!r.Recipient || !r.Supplier || !tiv || !years.length) continue;
+    const key = `${r.Supplier}\u0000${r.Recipient}`;
+    const by = pairs.get(key) ?? {};
+    for (const y of years) { by[y] = (by[y] ?? 0) + tiv / years.length; lo = Math.min(lo, y); hi = Math.max(hi, y); }
+    pairs.set(key, by);
+  }
+  const ys = Array.from({ length: hi - lo + 1 }, (_, i) => lo + i);
+  const q = (v: string) => (/[",]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v);
+  const lines = ['"SIPRI Arms Transfers Database"', `"TIV of arms exports by supplier and recipient, ${lo}-${hi}, from the trade register (years split evenly across a deal's deliveries)"`, '',
+    ['Supplier', 'Recipient', ...ys, 'Total'].join(',')];
+  for (const [key, by] of pairs) {
+    const [from, to] = key.split('\u0000');
+    const total = Object.values(by).reduce((a, b) => a + b, 0);
+    lines.push([q(from), q(to), ...ys.map((y) => (by[y] ? String(Math.round(by[y] * 100) / 100) : '')), String(Math.round(total * 100) / 100)].join(','));
+  }
+  return `${lines.join('\n')}\n`;
+}
 
 function sipriCheck(text: string) {
   check(/SIPRI/i.test(text.slice(0, 500)), 'this does not look like a SIPRI export (no "SIPRI" in its first lines)');
@@ -68,8 +119,8 @@ function treasuryHistoryCheck(text: string) {
 
 export const KINDS: Record<string, Kind> = {
   'sipri': {
-    source: 'sipri', save: 'tiv_2015-2025.csv', how: 'raw', check: sipriCheck,
-    about: 'SIPRI Arms Transfers Database: "TIV of arms exports by supplier and recipient" CSV export, five or more recent years',
+    source: 'sipri', save: 'tiv_2015-2025.csv', how: 'raw', check: sipriCheck, convert: registerToTable,
+    about: 'SIPRI Arms Transfers Database: the trade register CSV (all suppliers and recipients, five or more recent years), or a "TIV by supplier and recipient" table',
   },
   'wpp-total': {
     source: 'wpp', save: 'total_population.csv', how: 'csv',
@@ -124,14 +175,25 @@ export const KINDS: Record<string, Kind> = {
   },
   'aquastat': {
     source: 'aquastat', save: 'water_resources.csv', how: 'csv',
-    about: 'FAO AQUASTAT export: dependency ratio and renewable water per person, long format',
+    about: 'FAO AQUASTAT export or bulk download: dependency ratio and renewable water per person, long format (the bulk file names countries by M49 code)',
     columns: ['Area', 'ISO3', 'Variable', 'Year', 'Value', 'Unit'],
+    // The 2026 bulk download: Country and M49 in place of Area and ISO3, every variable (a million rows).
+    from: { Area: ['Country'] },
+    derived: ['ISO3'],
+    derive: (row, raw) => { row.ISO3 ||= iso3ByM49().get((raw.M49 ?? '').padStart(3, '0')) ?? ''; },
+    filter: (r) => AQUASTAT_VARIABLES.includes(r.Variable) && !!r.ISO3,
   },
   'gdw': {
     source: 'gdw', save: 'dams.csv', how: 'csv',
-    about: 'Global Dam Watch / GRanD dam attributes as CSV',
+    about: 'Global Dam Watch v1.0 barrier attributes (GDW_barriers_v1_0.txt from the shapefile zip), or GRanD attributes as CSV; large dams in GRanD only',
     columns: ['GRAND_ID', 'DAM_NAME', 'RIVER', 'MAIN_BASIN', 'COUNTRY', 'ISO3', 'YEAR', 'DAM_HGT_M', 'CAP_MCM', 'MAIN_USE', 'LONG_DD', 'LAT_DD'],
     added: ['STATUS'],
+    // GDW v1.0 names the year and position differently and gives countries by name only.
+    // The dam's own position where it has one, else where it meets the river.
+    from: { YEAR: ['YEAR_DAM'], LONG_DD: ['LONG_DAM', 'LONG_RIV'], LAT_DD: ['LAT_DAM', 'LAT_RIV'] },
+    derived: ['ISO3'],
+    derive: (row) => { row.ISO3 ||= iso3ByName(row.COUNTRY); },
+    filter: (r) => !!r.GRAND_ID.trim() && r.GRAND_ID !== '0' && Number(r.GRAND_ID) > 0,
   },
   'aiddata': {
     source: 'aiddata', save: 'gcdf_v3.csv', how: 'csv',

@@ -1,0 +1,14 @@
+---
+// A map mark's shape, drawn as the map draws it (src/scripts/map/engine.ts), for legends and lists: a shape, so a
+// mark never relies on colour alone.
+interface Props { symbol: 'dot' | 'hollow' | 'triangle' | 'diamond' | 'square' | 'arc' }
+const { symbol } = Astro.props;
+---
+<svg class="gt-mark" viewBox="0 0 16 16" aria-hidden="true">
+  {symbol === 'triangle' && <path d="M8 2.5 14 13.5H2z" fill="var(--ink)" stroke="var(--paper-raised)" stroke-width="1.2" />}
+  {symbol === 'diamond' && <path d="M8 1.8 14.2 8 8 14.2 1.8 8z" fill="var(--paper-raised)" stroke="var(--ink)" stroke-width="1.4" />}
+  {symbol === 'square' && <rect x="3.5" y="3.5" width="9" height="9" fill="var(--paper-raised)" stroke="var(--ink)" stroke-width="1.4" />}
+  {symbol === 'dot' && <circle cx="8" cy="8" r="3.6" fill="var(--accent)" stroke="var(--paper-raised)" stroke-width="1" />}
+  {symbol === 'arc' && <path d="M1.5 12.5Q8 1 14.5 12.5" fill="none" stroke="var(--ink)" stroke-opacity="0.7" stroke-width="2" stroke-linecap="round" />}
+  {symbol === 'hollow' && <circle cx="8" cy="8" r="5" fill="var(--paper-raised)" stroke="var(--accent)" stroke-width="1.8" />}
+</svg>

@@ -48,7 +48,9 @@ export function initMapView(root: HTMLElement): void {
 
   const isPhone = () => getComputedStyle(stageMap).display === 'none';
   const yi = () => Math.max(0, file?.years.indexOf(year) ?? 0);
-  const ctx = (): StateContext => ({ years: file!.years, latest: file!.year, slugs: file!.slugs, blocs: file!.blocs });
+  const ctx = (): StateContext => ({ years: file!.years, latest: file!.year, slugs: file!.slugs, blocs: file!.blocs, param: file!.axis ?? 'year' });
+  // What the page says for a year: the year itself, or a period's words ("Last 30 days").
+  const yearText = (y: number) => file?.data.find((d) => d.year === y)?.label ?? String(y);
 
   const say = (text: string) => {
     const live = document.getElementById('gt-live');
@@ -89,7 +91,7 @@ export function initMapView(root: HTMLElement): void {
     const changed = y !== year;
     year = y;
     for (const b of root.querySelectorAll<HTMLElement>('.gt-pyear[data-year]')) b.hidden = Number(b.dataset.year) !== y;
-    for (const t of root.querySelectorAll('[data-year-text]')) t.textContent = String(y);
+    for (const t of root.querySelectorAll('[data-year-text]')) t.textContent = yearText(y);
     if (file) for (const t of root.querySelectorAll('[data-legend-title]')) t.textContent = file.data[yi()].legend;
     if (slider && from !== 'slider' && slider.value !== String(y)) {
       slider.value = String(y);
@@ -100,7 +102,7 @@ export function initMapView(root: HTMLElement): void {
     if (selected && file) renderSelected();
     renderBloc();
     renderSummary();
-    if (changed) { saveUrl(); say(fill(file?.text.kicker ?? '{year}', { year: y })); }
+    if (changed) { saveUrl(); say(fill(file?.text.kicker ?? '{year}', { year: yearText(y) })); }
   }
 
   function setBloc(id: string | null) {
@@ -122,7 +124,7 @@ export function initMapView(root: HTMLElement): void {
     if (blocLine) $('p', blocLine)!.textContent = file.data[yi()].blocs[bloc!] ?? '';
   }
   function renderSummary() {
-    if (summary) summary.textContent = [String(year), bloc && file ? file.blocs[bloc].name : ''].filter(Boolean).join(' · ');
+    if (summary) summary.textContent = [yearText(year), bloc && file ? file.blocs[bloc].name : ''].filter(Boolean).join(' · ');
   }
 
   const inFull = () => full.open;
@@ -278,15 +280,15 @@ export function initMapView(root: HTMLElement): void {
   });
 
   // ---------- controls ----------
-  slider?.closest('[data-gt-years]')?.addEventListener('gt-change', (e) => setYear((e as CustomEvent<{ year: number }>).detail.year, 'slider'));
+  slider?.closest('[data-gt-years], [data-gt-periods]')?.addEventListener('gt-change', (e) => setYear((e as CustomEvent<{ year: number }>).detail.year, 'slider'));
   blocSelect?.addEventListener('change', () => setBloc(blocSelect.value || null));
   // Another mineral keeps the year, the country and the bloc (the year moves to the nearest one that page has).
   for (const a of document.querySelectorAll<HTMLAnchorElement>('a[data-keep-state]')) {
     a.addEventListener('click', () => { a.search = location.search; });
   }
-  document.querySelector<HTMLSelectElement>('[data-picker-select]')?.addEventListener('change', (e) => {
-    location.href = (e.target as HTMLSelectElement).value + location.search;
-  });
+  for (const sel of document.querySelectorAll<HTMLSelectElement>('[data-picker-select]')) {
+    sel.addEventListener('change', () => { location.href = sel.value + location.search; });
+  }
   if (filters) {
     document.querySelector('[data-open-filters]')?.addEventListener('click', () => {
       for (const r of filters.querySelectorAll<HTMLInputElement>('input[name="mv-fyear"]')) r.checked = Number(r.value) === year;
@@ -324,7 +326,7 @@ export function initMapView(root: HTMLElement): void {
       note.className = 'gt-years__note';
       note.setAttribute('role', 'status');
       note.textContent = moved;
-      (slider?.closest('[data-gt-years]') ?? world).append(note);
+      (slider?.closest('[data-gt-years], [data-gt-periods]') ?? world).append(note);
     }
   }, (e) => fail((e as Error).message));
 }

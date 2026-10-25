@@ -52,8 +52,17 @@ describe('route registry', () => {
   });
 
   it('keeps views, hubs and tools out of the build until their phase', () => {
-    // Phase 4 builds the critical minerals views; the rest wait for theirs.
-    for (const r of R.routes().filter((x) => ['view', 'hub', 'tool'].includes(x.kind))) expect(r.live).toBe(r.key.startsWith('view:minerals:'));
+    // Phase 4 builds the critical minerals views, phase 5 the views on registry measures; the rest wait for theirs.
+    const built = /^view:(minerals|emissions|refugees|disasters|food|blocs|alliance-history|space|ai|sanctions|internet|water|chinese-lending|arms|rivers):/;
+    for (const r of R.routes().filter((x) => ['view', 'hub', 'tool'].includes(x.kind))) expect(r.live).toBe(built.test(r.key));
+  });
+
+  it('builds the emissions and refugees views, each family’s first layer at the section’s own address', () => {
+    const paths = R.routes().filter((r) => /^view:(emissions|refugees):/.test(r.key)).map((r) => r.path).sort();
+    expect(paths).toEqual(['/emissions', '/emissions/imported', '/emissions/per-person', '/emissions/since-1750',
+      '/refugees', '/refugees/displaced', '/refugees/hosted', '/refugees/per-person']);
+    expect(R.viewHref('emissions')).toBe('/emissions');
+    expect(R.viewHref('refugees')).toBe('/refugees');
   });
 
   it('builds a view per mineral, with /minerals as an alias of the first', () => {

@@ -220,7 +220,11 @@ describe('layer files', () => {
     expect(tooltipHtml(L, y, null, 'Siachen <Glacier>')).toContain('Siachen &lt;Glacier&gt;');
     const panel = countryPanelHtml(L, L.data.length - 1, 'AUS');
     expect(panel).toContain('data-show-row="AUS"');
-    expect(panel).toContain(`1 of ${y.order.length} listed`);
+    expect(panel).toContain(`<dt>Rank among producers listed</dt><dd>1 <small>of ${y.order.length}</small>`);
+    // The trend over every year, the ranking with the place marked, and its other minerals.
+    expect(panel).toContain('class="gt-spark"');
+    expect(panel).toContain('<li data-selected="true">');
+    expect(panel).toContain('href="/minerals/');
     expect(countryPanelHtml(L, 0, 'FRA')).not.toContain('data-show-row');
   });
 });

@@ -1,0 +1,323 @@
+---
+// A map view on a registry measure (emissions, refugees), on the same template as the minerals views: the answer in
+// one sentence, the layer picker, year slider and bloc outline, the map with its legend and panel, then the
+// summary, every country and related links. All text, figures and the table are in the HTML; the map
+// (src/scripts/map/) loads after them and only on demand on phones.
+import Page from '../layouts/Page.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import SourceLine from '../components/SourceLine.astro';
+import Notice from '../components/Notice.astro';
+import ShareRow from '../components/ShareRow.astro';
+import MapStage from '../components/MapStage.astro';
+import MapControls from '../components/MapControls.astro';
+import Icon from '../components/Icon.astro';
+import '../styles/atlas/mapview.css';
+import '../styles/atlas/bars.css';
+import '../styles/atlas/keyfigure.css';
+import '../styles/atlas/table.css';
+import '../styles/atlas/tools.css';
+import { MAP_TEXT } from '../i18n/map.en';
+import { NAV_TEXT } from '../i18n/en';
+import { PARTS_TEXT as PX, VIEW_TEXT, VIEWS_TEXT as W } from '../i18n/views.en';
+import { creditOf, familyPages, lede, partsOf, placeNote, shareOf, summary, valueText, viewPage, worldChange, indicatorLabel, prevOf, yearText } from '../lib/views';
+import { refreshed } from '../lib/data';
+import { formatValue } from '../lib/format';
+import { place } from '../lib/places';
+import { countryHref, indicatorHref, live, route } from '../lib/routes';
+import { layerPath } from '../lib/map/layers';
+import { DOSSIERS } from '../lib/country';
+import { breadcrumbs } from '../lib/structured';
+import type { Row } from '../lib/stats';
+import { constellations, sitesIn, spaceAsOf } from '../lib/space';
+import { SPACE_TEXT as SP } from '../i18n/space.en';
+import { clustersAt } from '../lib/ai';
+import { AI_TEXT as AX } from '../i18n/ai.en';
+import { largeDams } from '../lib/dams';
+import { largestProjects } from '../lib/lending';
+import { DAMS_TEXT as DX, LENDING_TEXT as LX, RIVERS_TEXT as RV } from '../i18n/water.en';
+import { riverIds } from '../lib/rivers';
+import { formatDate } from '../lib/format';
+import { armsPeriod, armsPeriods } from '../lib/arms';
+import { ARMS_TEXT as RX } from '../i18n/arms.en';
+
+interface Props { id: string }
+const p = viewPage(Astro.props.id)!;
+const T = p.text;
+const fam = VIEW_TEXT[p.family.id];
+const key = (id: string) => `view:${p.family.id}:${id}`;
+const path = route(key(p.id))!.path;
+const url = new URL(path, Astro.site).href;
+const source = creditOf(p);
+const updated = refreshed([p.loaded.indicator.source].flat()[0]);
+const y = p.byYear[p.year];
+const prevYear = p.years.includes(prevOf(p, p.year)) ? prevOf(p, p.year) : null;
+const prev = prevYear ? p.byYear[prevYear] : null;
+const answer = lede(p);
+const nameOf = (id: string) => place(id)?.name ?? id;
+const when = T.period ? T.period(p.year) : String(p.year);
+const yearsText = p.layer.span ? `${p.years[0] - p.layer.span + 1}–${p.year}` : p.years.length > 1 ? `${p.years[0]}–${p.years.at(-1)}` : String(p.year);
+const crumbs = [{ label: NAV_TEXT.hubs[p.family.hub] }, { label: fam.section, href: route(key(familyPages(p.family.id)[0].id))!.path }, { label: T.title }];
+const div = p.layer.scale === 'div';
+const pct = (ch: number) => `${ch > 0 ? '+' : ch < 0 ? '−' : ''}${new Intl.NumberFormat('en', { maximumFractionDigits: 0 }).format(Math.abs(ch * 100))}%`;
+
+// The table: every country with a figure for the default year, the year before and the change.
+const rows = y.rows.map((r) => {
+  const q = prev?.rows.find((x) => x.id === r.id);
+  const ch = !div && q && q.value ? r.value / q.value - 1 : null;
+  return { r, q, ch, parts: partsOf(p, r.id, p.year) };
+});
+// Refugees: the three groups UNHCR adds together, as columns; notes on single countries, numbered under the table.
+const hasParts = p.layer.sums && rows.some((x) => x.parts);
+const count = (v: number) => formatValue(v, { kind: 'count' });
+const notes = rows.map((x) => ({ id: x.r.id, text: placeNote(p, x.r.id, !hasParts) })).filter((n): n is { id: string; text: string } => !!n.text);
+const noteNo = (id: string) => notes.findIndex((n) => n.id === id) + 1;
+const top = y.rows.slice(0, 3);
+const related = [
+  ...(indicatorHref(p.id) ? [{ href: indicatorHref(p.id)!, name: indicatorLabel(p), note: W.indicatorPage }] : []),
+  ...top.filter((r) => countryHref(r.id)).map((r) => ({ href: countryHref(r.id)!, name: nameOf(r.id), note: DOSSIERS.includes(r.id) ? W.dossier : W.countryPage })),
+  ...familyPages(p.family.id).filter((o) => o.id !== p.id && live(key(o.id))).slice(0, 2).map((o) => ({ href: live(key(o.id))!.path, name: o.text.title, note: W.sameView })),
+];
+const mapTop = (div ? [...y.rows.slice(0, 2), ...y.rows.slice(-2)] : top).map((r) => `${nameOf(r.id)} ${valueText(p, r.value)}`).join(', ');
+// Space: the largest constellations (satellites) or the launch sites (launches), under the country table.
+const cons = p.id === 'satellites' ? constellations() : [];
+const sites = p.id === 'launches' ? sitesIn(p.year) : [];
+const clusters = p.id === 'aicompute' ? clustersAt(p.year).slice(0, 20) : [];
+const dams = p.id === 'waterstress' ? largeDams().slice(0, 20) : [];
+const projects = p.family.id === 'chinese-lending' ? largestProjects(20, p.id === 'lendall' ? null : p.id.slice(4)) : [];
+const money = (v: number) => formatValue(v, { kind: 'money' });
+// Water: the disputed river pages.
+const rivers = p.family.id === 'water' ? riverIds().filter((r) => live(`view:rivers:${r}`)).map((r) => ({ href: live(`view:rivers:${r}`)!.path, name: RV.name[r] ?? r })) : [];
+// Arms: the largest flows of the period, with each flow's share of what the recipient imported.
+const armsNow = p.family.id === 'arms' ? armsPeriods().find((x) => x.end === p.year)?.pairs ?? [] : [];
+const flows = armsNow.slice(0, 20).map((x) => {
+  const into = armsNow.filter((q) => q.to === x.to).reduce((t, q) => t + q.amount, 0);
+  return { ...x, share: into ? formatValue(x.amount / into, { kind: 'share' }) : '' };
+});
+const tiv = (v: number) => formatValue(v, { kind: 'number' });
+const spaceDate = spaceAsOf() ? formatDate(spaceAsOf()!) : '';
+const bars = (rs: Row[], max: number) => rs.map((r) => ({ id: r.id, text: valueText(p, r.value), w: max ? (100 * Math.abs(r.value)) / max : 0 }));
+---
+<Page title={T.title} description={T.description(p.year)} hub={p.family.hub} container="mv" image={route(key(p.id))!.image}
+  jsonld={[breadcrumbs(crumbs.map((c) => ({ label: c.label, href: c.href })))]}>
+  <div class="gt-mvhead">
+    <Breadcrumbs items={crumbs} />
+    <h1 class="gt-title gt-mvhead__t">{T.title} <span class="gt-mvhead__sub">{T.sub}</span></h1>
+    {answer && <p class="gt-lede gt-mvhead__a">{answer}</p>}
+    <SourceLine source={source} parts={[when]} updated={updated} />
+  </div>
+
+  <MapControls
+    pickerLabel={fam.pickerLabel}
+    picker={familyPages(p.family.id).filter((o) => live(key(o.id))).map((o) => ({ label: o.text.pick, href: live(key(o.id))!.path, current: o.id === p.id }))}
+    years={p.years} year={p.year}
+    periods={p.layer.span ? { label: W.periodLabel(p.layer.span), options: Object.fromEntries(p.years.map((yr) => [yr, yearText(p, yr)])) } : undefined} />
+
+  <MapStage layer={layerPath(`${p.family.id}-${p.id}`)} label={`${T.legend(p.year)}. ${mapTop}. ${W.caption(p.year, null)}`} title={T.title}
+    legend={{ title: T.legend(p.year), scale: p.layer.scale, ticks: p.ticks, ends: T.ends, none: W.noData, ...(p.id === 'launches' ? { marks: [{ symbol: 'hollow', label: SP.sitesMark }] } : p.id === 'aicompute' ? { marks: [{ symbol: 'hollow', label: AX.mark }] } : p.id === 'waterstress' ? { marks: [{ symbol: 'triangle', label: DX.mark }] } : {}) }}>
+    <div data-panel="world" slot="panel">
+      <div class="gt-panel__head">
+        <div class="gt-panel__title"><span class="gt-kicker">{T.title} · <span data-year-text>{when}</span></span><h2 class="gt-h3">{MAP_TEXT.world}</h2></div>
+      </div>
+      <div class="gt-panel__body">
+        {p.years.map((yr) => {
+          const Y = p.byYear[yr];
+          const ch = worldChange(p, yr);
+          const max = Math.max(...Y.rows.map((r) => Math.abs(r.value)));
+          const groups = div
+            ? [{ label: W.importers, items: bars(Y.rows.filter((r) => r.value > 0).slice(0, 5), max) }, { label: W.exporters, items: bars(Y.rows.filter((r) => r.value < 0).reverse().slice(0, 5), max) }]
+            : [{ label: W.highest, items: bars(Y.rows.slice(0, 8), max) }];
+          return (
+            <div class="gt-pyear" data-year={yr} hidden={yr !== p.year}>
+              {Y.world !== null && T.worldLabel && (
+                <div class="gt-pkf">
+                  <span class="gt-pkf__label">{T.worldLabel}</span>
+                  <span class="gt-pkf__num">{valueText(p, Y.world)}</span>
+                  {ch !== null && p.id !== 'co2cum' && Y.world && (
+                    <span class="gt-pkf__meta"><span class="gt-kf__change"><Icon name={Math.abs(ch) < 0.005 ? 'flat' : ch > 0 ? 'up' : 'down'} />{Math.abs(ch) < 0.005 ? W.sameAs(yearText(p, prevOf(p, yr))) : W.change2(formatValue(Math.abs(ch), { kind: 'share' }), ch > 0, yearText(p, prevOf(p, yr)), valueText(p, p.byYear[prevOf(p, yr)].world!))}</span></span>
+                  )}
+                </div>
+              )}
+              {groups.map((g) => g.items.length > 0 && (
+                <div class="gt-pgroup">
+                  <span class="gt-label">{g.label}</span>
+                  <ol class="gt-bars gt-bars--tight" aria-label={`${g.label}, ${T.figureLabel.toLowerCase()}, ${yr}`}>
+                    {g.items.map((x) => (
+                      <li><span class="gt-bars__name"><button type="button" data-select={x.id}>{nameOf(x.id)}</button></span><span class="gt-bars__track"><span class="gt-bars__fill" style={`width:${x.w.toFixed(1)}%`}></span></span><span class="gt-bars__val">{x.text}</span></li>
+                    ))}
+                  </ol>
+                </div>
+              ))}
+            </div>
+          );
+        })}
+        <div class="gt-blocline" hidden><span class="gt-blocline__key" aria-hidden="true"></span><p></p></div>
+        <Notice>
+          <p>{T.caveat}</p>
+          <SourceLine source={source} parts={[yearsText]} updated={updated} />
+        </Notice>
+      </div>
+    </div>
+  </MapStage>
+
+  <section class="gt-mvbelow" aria-labelledby="mv-sum">
+    <div class="gt-mvbelow__main">
+      <h2 class="gt-h2" id="mv-sum">{W.summary}</h2>
+      <div class="gt-prose">{summary(p).map((s) => <p>{s}</p>)}</div>
+      <SourceLine source={source} parts={[when]} updated={updated} />
+      <h2 class="gt-h2" id="table">{W.all}</h2>
+      <div class="gt-tablewrap" style="--gt-table-h:560px" tabindex="0" role="region" aria-label={W.tableLabel(T.title)}>
+        <table class="gt-table" data-gt-sort>
+          <caption class="gt-caption">{W.caption(p.year, prev?.year ?? null)}</caption>
+          <thead><tr>
+            <th scope="col" data-key="n"><button type="button">{W.country}</button></th>
+            <th scope="col" class="n" data-key="v" data-type="num" aria-sort="descending"><button type="button">{when}</button></th>
+            {p.layer.sums && <th scope="col" class="n" data-key="s" data-type="num"><button type="button">{W.share}</button></th>}
+            {prev && <th scope="col" class="n" data-key="q" data-type="num"><button type="button">{yearText(p, prev.year)}</button></th>}
+            {prev && !div && <th scope="col" class="n" data-key="c" data-type="num"><button type="button">{W.change}</button></th>}
+            {hasParts && <th scope="col" class="n" data-key="pr" data-type="num"><button type="button">{PX.refugees}</button></th>}
+            {hasParts && <th scope="col" class="n" data-key="pa" data-type="num"><button type="button">{PX.asylum}</button></th>}
+            {hasParts && <th scope="col" class="n" data-key="po" data-type="num"><button type="button">{PX.oipShort}</button></th>}
+          </tr></thead>
+          <tbody>
+            {rows.map(({ r, q, ch, parts }) => (
+              <tr data-place={r.id}>
+                <th scope="row">{countryHref(r.id) ? <a href={countryHref(r.id)}>{nameOf(r.id)}</a> : nameOf(r.id)}{noteNo(r.id) > 0 && <sup class="gt-fn"><a href={`#mv-note-${noteNo(r.id)}`} aria-label={`${W.notes} ${noteNo(r.id)}`}>{noteNo(r.id)}</a></sup>}</th>
+                <td class="n" data-v={r.value}>{valueText(p, r.value)}</td>
+                {p.layer.sums && <td class="n" data-v={y.world ? r.value / y.world : ''}>{shareOf(r.value, y.world) ?? '–'}</td>}
+                {prev && (q ? <td class="n" data-v={q.value}>{valueText(p, q.value)}</td> : <td class="n gt-na" data-v="">–</td>)}
+                {prev && !div && (ch === null ? <td class="n gt-na" data-v="">–</td> : <td class="n" data-v={ch}><span class="gt-chg"><Icon name={Math.abs(ch) < 0.005 ? 'flat' : ch > 0 ? 'up' : 'down'} />{pct(ch)}</span></td>)}
+                {hasParts && (parts ? [parts.refugees, parts.asylum, parts.oip].map((v) => <td class="n" data-v={v}>{count(v)}</td>) : [0, 1, 2].map(() => <td class="n gt-na" data-v="">–</td>))}
+              </tr>
+            ))}
+          </tbody>
+          {y.world !== null && p.layer.sums && (
+            <tfoot><tr>
+              <td>{y.worldOwn ? W.worldRow : W.totalRow}</td><td class="n">{valueText(p, y.world)}</td><td class="n">100%</td>
+              {prev && <td class="n">{prev.world !== null ? valueText(p, prev.world) : '–'}</td>}
+              {prev && <td class="n">{worldChange(p, p.year) !== null && p.id !== 'co2cum' ? pct(worldChange(p, p.year)!) : '–'}</td>}
+              {hasParts && (['refugees', 'asylum', 'oip'] as const).map((k) => <td class="n">{count(rows.reduce((t, x) => t + (x.parts?.[k] ?? 0), 0))}</td>)}
+            </tr></tfoot>
+          )}
+        </table>
+      </div>
+      <SourceLine source={source} parts={[prev ? `${prev.year} and ${p.year}` : when]} updated={updated} />
+      {notes.length > 0 && (
+        <div class="gt-mvnotes">
+          <h3 class="gt-label">{W.notes}</h3>
+          <ol class="gt-caption">{notes.map((n, i) => <li id={`mv-note-${i + 1}`}><b>{nameOf(n.id)}:</b> {n.text}</li>)}</ol>
+        </div>
+      )}
+      {cons.length > 0 && (
+        <>
+          <h2 class="gt-h2" id="constellations">{SP.constellations}</h2>
+          <div class="gt-tablewrap" style="--gt-table-h:none" tabindex="0" role="region" aria-label={SP.constellations}>
+            <table class="gt-table">
+              <caption class="gt-caption">{SP.constellationsCaption(spaceDate)}</caption>
+              <thead><tr><th scope="col"><span class="gt-th">{SP.constellation}</span></th><th scope="col"><span class="gt-th">{SP.owner}</span></th><th scope="col" class="n"><span class="gt-th">{SP.count}</span></th></tr></thead>
+              <tbody>{cons.map((c) => <tr><th scope="row">{SP.names[c.id] ?? c.id}</th><td>{c.place ? nameOf(c.place) : SP.intl}</td><td class="n">{count(c.active)}</td></tr>)}</tbody>
+            </table>
+          </div>
+          <SourceLine source={source} parts={[spaceDate]} updated={updated} />
+        </>
+      )}
+      {clusters.length > 0 && (
+        <>
+          <h2 class="gt-h2" id="clusters">{AX.largest}</h2>
+          <div class="gt-tablewrap" style="--gt-table-h:560px" tabindex="0" role="region" aria-label={AX.largest}>
+            <table class="gt-table">
+              <caption class="gt-caption">{AX.largestCaption(clusters.length, p.year)}</caption>
+              <thead><tr>
+                <th scope="col"><span class="gt-th">{AX.name}</span></th><th scope="col"><span class="gt-th">{AX.country}</span></th>
+                <th scope="col" class="n"><span class="gt-th">{AX.power}</span></th><th scope="col" class="n"><span class="gt-th">{AX.since}</span></th>
+              </tr></thead>
+              <tbody>{clusters.map((c) => <tr><th scope="row">{c.name}{c.owner && <small class="gt-caption" style="display:block">{c.owner}</small>}</th><td>{nameOf(c.place)}</td><td class="n">{count(c.h100e)}</td><td class="n">{c.start.slice(0, 4)}</td></tr>)}</tbody>
+            </table>
+          </div>
+          <SourceLine source={source} parts={[String(p.year)]} updated={updated} />
+        </>
+      )}
+      {dams.length > 0 && (
+        <>
+          <h2 class="gt-h2" id="dams">{DX.largest}</h2>
+          <div class="gt-tablewrap" style="--gt-table-h:560px" tabindex="0" role="region" aria-label={DX.largest}>
+            <table class="gt-table">
+              <caption class="gt-caption">{DX.largestCaption(dams.length)}</caption>
+              <thead><tr>
+                <th scope="col"><span class="gt-th">{DX.dam}</span></th><th scope="col"><span class="gt-th">{DX.river}</span></th><th scope="col"><span class="gt-th">{DX.country}</span></th>
+                <th scope="col" class="n"><span class="gt-th">{DX.capacity}</span></th><th scope="col" class="n"><span class="gt-th">{DX.year}</span></th>
+              </tr></thead>
+              <tbody>{dams.map((d) => <tr><th scope="row">{d.name}</th><td>{d.river}</td><td>{d.place ? nameOf(d.place) : ''}</td><td class="n">{DX.km3(d.capacity ?? 0)}</td><td class="n">{d.year ?? '–'}</td></tr>)}</tbody>
+            </table>
+          </div>
+          <SourceLine source={DX.source} parts={[]} />
+        </>
+      )}
+      {projects.length > 0 && (
+        <>
+          <h2 class="gt-h2" id="projects">{LX.largest}</h2>
+          <div class="gt-tablewrap" style="--gt-table-h:560px" tabindex="0" role="region" aria-label={LX.largest}>
+            <table class="gt-table">
+              <caption class="gt-caption">{LX.largestCaption(projects.length)}</caption>
+              <thead><tr>
+                <th scope="col"><span class="gt-th">{LX.project}</span></th><th scope="col"><span class="gt-th">{LX.country}</span></th>
+                <th scope="col" class="n"><span class="gt-th">{LX.amount}</span></th><th scope="col" class="n"><span class="gt-th">{LX.year}</span></th>
+              </tr></thead>
+              <tbody>{projects.map((x) => <tr><th scope="row" style="font-weight:400">{x.title}</th><td>{nameOf(x.place)}</td><td class="n">{money(x.amount)}</td><td class="n">{x.year}</td></tr>)}</tbody>
+            </table>
+          </div>
+          <SourceLine source={source} parts={['2000–2021']} updated={updated} />
+        </>
+      )}
+      {flows.length > 0 && (
+        <>
+          <h2 class="gt-h2" id="flows">{RX.largest}</h2>
+          <div class="gt-tablewrap" style="--gt-table-h:560px" tabindex="0" role="region" aria-label={RX.largest}>
+            <table class="gt-table">
+              <caption class="gt-caption">{RX.largestCaption(flows.length, armsPeriod(p.year))}</caption>
+              <thead><tr>
+                <th scope="col"><span class="gt-th">{RX.supplier}</span></th><th scope="col"><span class="gt-th">{RX.recipient}</span></th>
+                <th scope="col" class="n"><span class="gt-th">{RX.amount}</span></th><th scope="col" class="n"><span class="gt-th">{RX.share}</span></th>
+              </tr></thead>
+              <tbody>{flows.map((x) => <tr><th scope="row">{nameOf(x.from)}</th><td>{nameOf(x.to)}</td><td class="n">{tiv(x.amount)}</td><td class="n">{x.share}</td></tr>)}</tbody>
+            </table>
+          </div>
+          <SourceLine source={source} parts={[armsPeriod(p.year)]} updated={updated} />
+        </>
+      )}
+      {sites.length > 0 && (
+        <>
+          <h2 class="gt-h2" id="sites">{SP.sites}</h2>
+          <div class="gt-tablewrap" style="--gt-table-h:none" tabindex="0" role="region" aria-label={SP.sites}>
+            <table class="gt-table" data-gt-sort>
+              <caption class="gt-caption">{SP.sitesCaption(p.year)}</caption>
+              <thead><tr>
+                <th scope="col" data-key="n"><button type="button">{SP.site}</button></th>
+                <th scope="col" data-key="c"><button type="button">{SP.country}</button></th>
+                <th scope="col" class="n" data-key="v" data-type="num" aria-sort="descending"><button type="button">{p.year}</button></th>
+                <th scope="col" class="n" data-key="t" data-type="num"><button type="button">{SP.since}</button></th>
+              </tr></thead>
+              <tbody>{sites.map((x) => <tr><th scope="row">{x.name}</th><td>{x.place ? nameOf(x.place) : SP.intl}</td><td class="n" data-v={x.n}>{count(x.n)}</td><td class="n" data-v={x.total}>{count(x.total)}</td></tr>)}</tbody>
+            </table>
+          </div>
+          <SourceLine source={source} parts={[String(p.year)]} updated={updated} />
+        </>
+      )}
+    </div>
+    <aside class="gt-mvbelow__side">
+      <h2 class="gt-label">{W.related}</h2>
+      <ul class="gt-related">{related.map((r) => <li><a href={r.href}><span>{r.name}</span><small>{r.note}</small></a></li>)}</ul>
+      {rivers.length > 0 && (
+        <>
+          <h2 class="gt-label">{RV.section}</h2>
+          <ul class="gt-related">{rivers.map((r) => <li><a href={r.href}><span>{r.name}</span></a></li>)}</ul>
+        </>
+      )}
+      <div class="gt-mvbelow__share"><ShareRow url={url} text={answer ?? T.title} /></div>
+    </aside>
+  </section>
+</Page>
+
+<script>
+  import { initSortable } from '../scripts/table';
+  document.querySelectorAll<HTMLTableElement>('table[data-gt-sort]').forEach(initSortable);
+</script>

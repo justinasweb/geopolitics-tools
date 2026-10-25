@@ -6,7 +6,7 @@ import { INDICATOR_TEXT } from '../../../i18n/en';
 import { COMPARE_TEXT, INDICATOR_PAGE, OG_TEXT, SOURCE_NOTE, SOURCE_SHORT, mineralName } from '../../../i18n/pages.en';
 import { countryModel } from '../../../lib/country';
 import { sourceName } from '../../../lib/data';
-import { formatShare, formatValue } from '../../../lib/format';
+import { formatDate, formatShare, formatValue } from '../../../lib/format';
 import { answerFor, indicatorModel } from '../../../lib/indicator';
 import { shareImage, type Card } from '../../../lib/og';
 import { place } from '../../../lib/places';
@@ -14,6 +14,18 @@ import { routes, type Route } from '../../../lib/routes';
 import { siteName } from '../../../lib/site';
 import { MINERALS_VIEW } from '../../../i18n/map.en';
 import { amount, lede, listed, mineralPage, nameOf as producerName, shareText } from '../../../lib/minerals';
+import { creditOf, lede as viewLede, valueText, viewPage } from '../../../lib/views';
+import { VIEW_TEXT } from '../../../i18n/views.en';
+import { DISASTERS_TEXT, KIND_TEXT } from '../../../i18n/disasters.en';
+import { disasterPage } from '../../../lib/disasters';
+import { FOOD_TEXT } from '../../../i18n/food.en';
+import { BLOCS_TEXT, HISTORY_TEXT, MEASURE_TEXT } from '../../../i18n/blocs.en';
+import { BLOC_TEXT } from '../../../i18n/map.en';
+import { blocPage, membershipCounts } from '../../../lib/blocview';
+import { historyPage } from '../../../lib/history';
+import { riverPage } from '../../../lib/rivers';
+import { RIVERS_TEXT } from '../../../i18n/water.en';
+import { foodPage, lede as foodLede, mt, netText, shareOf as foodShare } from '../../../lib/food';
 
 export const getStaticPaths = (() => {
   if (process.env.GT_FAST === '1') return [{ params: { kind: 'page', name: 'default' }, props: { route: null } }];
@@ -66,6 +78,69 @@ function card(r: Route | null): Card {
       kicker: MINERALS_VIEW.section, title: p.text.title(p.title), figure: y.world ? `${amount(y.world)} ${p.unit}` : undefined,
       caption: lede(p) ?? undefined, source: `${p.source}${y.estimated ? ', estimated' : ''}`,
       bars: listed(y).slice(0, 5).map((x) => ({ label: producerName(x), value: x.share!, text: shareText(x.share!) })),
+    };
+  }
+  if (r.kind === 'view' && r.id.startsWith('disasters:')) {
+    const p = disasterPage(r.id.split(':')[1])!;
+    const x = p.byDays[p.days];
+    return {
+      kicker: DISASTERS_TEXT.section, title: KIND_TEXT[p.id].title, figure: DISASTERS_TEXT.ogFigure(x.alerts.length), caption: DISASTERS_TEXT.ogCaption(x.days),
+      source: `${short('gdacs')}, ${formatDate(x.from)} – ${formatDate(x.to)}`,
+      bars: x.rows.slice(0, 5).map((y) => ({ label: nameOf(y.id), value: y.n, text: String(y.n) })),
+    };
+  }
+  if (r.kind === 'view' && r.id.startsWith('blocs:')) {
+    const id = r.id.split(':')[1];
+    if (id === 'all') {
+      const c = membershipCounts().slice(0, 5);
+      return { kicker: BLOCS_TEXT.hub, title: BLOCS_TEXT.allTitle, caption: BLOCS_TEXT.countLegend, bars: c.map((x) => ({ label: nameOf(x.id), value: x.n, text: String(x.n) })) };
+    }
+    const p = blocPage(id)!;
+    return {
+      kicker: BLOCS_TEXT.section, title: BLOC_TEXT[id] ?? id, figure: String(p.members.length), caption: BLOCS_TEXT.sub(p.members.length),
+      bars: p.shares.slice(0, 5).map((s) => ({ label: `${MEASURE_TEXT[s.id]}, ${s.year}`, value: s.share, text: formatShare(s.share) })),
+    };
+  }
+  if (r.kind === 'view' && r.id.startsWith('history:')) {
+    const id = r.id.split(':')[1];
+    const p = historyPage(id)!;
+    const name = BLOC_TEXT[id] ?? id;
+    const first = p.years[0];
+    const last = p.years.at(-1)!;
+    const steps = [...new Set([first, ...p.changes.filter((y) => y % 5 === 0 || y === p.changes.at(-1)), last])].slice(-5);
+    return {
+      kicker: HISTORY_TEXT.section, title: HISTORY_TEXT.title(name), figure: String(p.byYear[last].members.length), caption: HISTORY_TEXT.sub(first, last),
+      bars: steps.map((y) => ({ label: String(y), value: p.byYear[y].members.length, text: String(p.byYear[y].members.length) })),
+    };
+  }
+  if (r.kind === 'view' && r.id.startsWith('rivers:')) {
+    const id = r.id.split(':')[1];
+    const p = riverPage(id)!;
+    const dep = viewPage('waterdep');
+    const name = RIVERS_TEXT.name[id] ?? id;
+    return {
+      kicker: RIVERS_TEXT.section, title: RIVERS_TEXT.title(name), figure: String(p.dams.length), caption: RIVERS_TEXT.damsTitle,
+      bars: dep ? p.countries.filter((x) => x.fromAbroad !== null).map((x) => ({ label: `${nameOf(x.id)}, ${RIVERS_TEXT.fromAbroad.toLowerCase()}`, value: x.fromAbroad!, text: valueText(dep, x.fromAbroad!) })) : [],
+    };
+  }
+  if (r.kind === 'view' && r.id.startsWith('food:')) {
+    const p = foodPage(r.id.split(':')[1])!;
+    const y = p.byYear[p.year];
+    const trade = p.layer === 'trade';
+    const rows = trade ? [...y.rows.slice(0, 3), ...y.rows.slice(-2)] : y.rows.slice(0, 5);
+    return {
+      kicker: FOOD_TEXT.section, title: FOOD_TEXT.layer[p.layer].title(p.text.pick), caption: foodLede(p) ?? undefined, source: `${short('faostat')}, ${p.year}`,
+      bars: rows.map((x) => ({ label: nameOf(x.id), value: Math.abs(x.value), text: trade ? netText(x.value) : `${mt(x.value)} (${foodShare(x.value, y.world)})` })),
+    };
+  }
+  if (r.kind === 'view') {
+    const [family, id] = r.id.split(':');
+    const p = viewPage(id)!;
+    const y = p.byYear[p.year];
+    const rows = p.layer.scale === 'div' ? [...y.rows.slice(0, 3), ...y.rows.slice(-2)] : y.rows.slice(0, 5);
+    return {
+      kicker: VIEW_TEXT[family].section, title: p.text.title, caption: viewLede(p) ?? undefined, source: `${creditOf(p)}, ${p.year}`,
+      bars: rows.map((x) => ({ label: nameOf(x.id), value: Math.abs(x.value), text: valueText(p, x.value) })),
     };
   }
   return { kicker: OG_TEXT.pageKicker, title: TITLES[r.id || r.kind] ?? r.id };

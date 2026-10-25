@@ -14,7 +14,9 @@
 
 /* ---------- controls ---------- */
 .gt-mvctl { display: grid; grid-template-columns: minmax(0, auto) minmax(0, 1fr); gap: 12px 32px; align-items: end; padding: 14px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+.gt-mvctl__pickers { display: flex; flex-wrap: wrap; gap: 12px 28px; min-width: 0; }
 .gt-mvctl__min { display: grid; gap: 6px; min-width: 0; }
+.gt-mvctl .gt-mvctl__pick { min-width: 260px; }
 .gt-mvctl__lab { font: 600 13px/18px var(--sans); }
 .gt-mvctl__row { display: flex; align-items: flex-end; gap: 12px 28px; justify-content: flex-end; flex-wrap: wrap; }
 .gt-mvctl__yr { width: 240px; }
@@ -73,7 +75,9 @@
 .gt-pkf__num--word { font-size: 30px; line-height: 36px; }
 .gt-pkf__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; font: 400 13px/18px var(--sans); color: var(--ink-muted); }
 .gt-pgroup { display: grid; gap: 8px; }
-.gt-pgroup .gt-bars__name button { border: 0; background: none; padding: 0; font: inherit; color: var(--ink); cursor: pointer; text-align: left; text-decoration: underline; text-decoration-color: var(--rule-strong); text-underline-offset: 3px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+.gt-pgroup .gt-bars__name { display: flex; align-items: baseline; min-width: 0; }
+.gt-pgroup .gt-bars__sel { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gt-pgroup .gt-bars__name button { border: 0; background: none; padding: 0; font: inherit; color: var(--ink); cursor: pointer; text-align: left; text-decoration: underline; text-decoration-color: var(--rule-strong); text-underline-offset: 3px; min-width: 0; flex: 0 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .gt-pgroup .gt-bars__name button:hover { text-decoration-color: currentColor; }
 .gt-conc { display: grid; gap: 8px; padding: 12px 0 0; border-top: 1px solid var(--rule); }
 .gt-conc__head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
@@ -142,6 +146,7 @@
   .gt-mvctl { display: none; }
   .gt-mvcompact { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; position: sticky; top: 0; z-index: 4; background: var(--paper); padding: 8px 16px; margin: 0 -16px; width: auto; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
   .gt-mvcompact .gt-select { min-width: 0; }
+  .gt-mvcompact--two { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; }
   .gt-mvcompact__f { padding: 0 12px; }
   .gt-mvcompact__n { font-weight: 400; color: var(--ink-muted); font-size: 13px; }
   /* The map is not first on a phone: the panel reads inline, and "Show map" opens the map full screen. */
@@ -165,3 +170,19 @@
 .gt-mvnotes ol { margin: 4px 0 0; padding-left: 20px; }
 .gt-mvnotes li { margin-top: 2px; }
 .gt-mvnotes li:target { background: var(--brand-soft); }
+
+/* Periods in place of the year slider (disasters) */
+.gt-periods { display: grid; gap: 6px; min-width: 0; }
+.gt-periods__note { margin: 0; max-width: 40ch; }
+
+/* Disasters: alert levels with their mark, and the panel's list of alerts */
+.gt-dlevel { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+.gt-pkf__meta .gt-dlevel + .gt-dlevel { margin-left: 10px; }
+.gt-devents { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; font: 400 14px/20px var(--sans); }
+.gt-devents li { display: grid; grid-template-columns: 16px minmax(0, 1fr); gap: 8px; align-items: start; }
+.gt-devents .gt-mark { margin-top: 2px; }
+.gt-devents small { display: block; color: var(--ink-muted); font-size: 13px; }
+.gt-mvctl--stack { grid-template-columns: minmax(0, 1fr); }
+.gt-mvctl--stack .gt-mvctl__row { justify-content: flex-start; }
+.gt-dgreen { display: grid; grid-template-columns: 16px minmax(0, 1fr); gap: 5px; align-items: start; }
+.gt-dgreen .gt-mark { margin-top: 1px; }

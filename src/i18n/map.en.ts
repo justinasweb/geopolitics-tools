@@ -165,4 +165,29 @@ export const PRIMARY_VIEW: typeof MINERALS_VIEW = {
 };
 
 /** The words of a mineral's view, by what USGS measures for it. */
+/** Words in a selected place's panel on any map view (src/scripts/map/panel.ts). */
+export const PANEL_TEXT = {
+  rank: 'Rank',
+  rankListed: 'Rank among producers listed',
+  rankOf: 'of {of}',
+  status: 'Status',
+  production: (measure: 'mine' | 'primary') => (measure === 'primary' ? 'Primary production' : 'Mine production'),
+  shareTrend: (measure: 'mine' | 'primary') => `Share of world ${measure === 'primary' ? 'primary' : 'mine'} production, {from}–{to}`,
+  trendCaption: '{first} in {from}; {last} in {to}.',
+  producers: 'Producers listed, {year}',
+  ranking: 'Ranking, {year}',
+  otherMinerals: 'Its share of other minerals',
+  otherMineralsCaption: 'Share of world production, latest year USGS lists',
+  rankNote: (rank: number, of: number) => `${rank} of ${of} listed`,
+  otherMeasures: 'On the other measures',
+  otherMeasuresCaption: 'Latest year shown on each map',
+  share: 'Share',
+  figureTrend: (label: string) => `${label}, {from}–{to}`,
+  fledTo: (year: string) => `Main countries of asylum, ${year}`,
+  cameFrom: (year: string) => `Main countries of origin, ${year}`,
+  partnersCaption: 'Refugees, asylum seekers and others in need of international protection, as UNHCR counts them',
+  ofTotal: (share: string) => `${share} of the total`,
+  morePartners: (n: number) => `and ${n} more`,
+};
+
 export const mineralText = (measure: 'mine' | 'primary') => (measure === 'primary' ? PRIMARY_VIEW : MINERALS_VIEW);

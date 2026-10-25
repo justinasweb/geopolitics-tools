@@ -6,7 +6,39 @@
 export const SECTION_SLUGS = {
   countries: 'countries', compare: 'compare', indicators: 'indicators', downloads: 'downloads',
   about: 'about', methodology: 'methodology', sources: 'sources', privacy: 'privacy', minerals: 'minerals',
+  emissions: 'emissions', refugees: 'refugees', disasters: 'disasters', food: 'food', blocs: 'blocs',
+  space: 'space', ai: 'ai', sanctions: 'sanctions', internet: 'internet',
+  water: 'water', 'chinese-lending': 'chinese-lending', arms: 'arms',
 } as const;
+
+/** Map view layers after their section (/emissions/per-person), by registry id; the first layer of a section is the section itself (''). */
+export const VIEW_SLUGS: Record<string, string> = {
+  co2: '', co2pc: 'per-person', co2cum: 'since-1750', co2trade: 'imported',
+  refout: '', refin: 'hosted', refinpc: 'per-person', idps: 'displaced',
+  satellites: '', launches: 'launches',
+  aicompute: '', aimodels: 'models', entitylist: 'export-controls',
+  outages: 'outages',
+  waterstress: '', waterstress2050: '2050', waterdep: 'from-abroad',
+  lendall: '', lendenergy: 'energy', lendtransport: 'transport', lendindustry: 'mining', lendbanking: 'banking', lendother: 'other',
+  armsexp5: '', armsimp5: 'importers',
+  sanctions: '', sanctionsus: 'us', sanctionseu: 'eu', sanctionsuk: 'uk',
+};
+
+/** Disaster kinds after /disasters; every kind together is the section itself. */
+export const DISASTER_SLUGS: Record<string, string> = {
+  all: '', EQ: 'earthquakes', TC: 'cyclones', FL: 'floods', DR: 'droughts', WF: 'wildfires', VO: 'volcanoes',
+};
+
+/** Food and fertiliser: the commodity after /food, then the measure; production is the commodity's own address. */
+export const FOOD_SLUGS: Record<string, string> = { wheat: 'wheat', maize: 'maize', rice: 'rice', soy: 'soybeans', potash: 'potash', phosphate: 'phosphate' };
+export const FOOD_LAYER_SLUGS: Record<string, string> = { production: '', use: 'use', trade: 'trade' };
+
+/** Groupings after /blocs; every grouping together is the section itself. */
+export const BLOC_SLUGS: Record<string, string> = {
+  all: '', brics: 'brics', g7: 'g7', g20: 'g20', eu: 'eu', nato: 'nato', opec: 'opec', 'opec-plus': 'opec-plus', asean: 'asean',
+  sco: 'sco', oecd: 'oecd', apec: 'apec', rcep: 'rcep', 'unsc-p5': 'un-security-council', quad: 'quad', aukus: 'aukus',
+  usmca: 'usmca', csto: 'csto', eaeu: 'eurasian-economic-union', cis: 'cis',
+};
 
 /** Joins two country slugs on a Compare page: /compare/united-states-vs-china. */
 export const COMPARE_JOIN = '-vs-';

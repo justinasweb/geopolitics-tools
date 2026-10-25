@@ -9,9 +9,15 @@ type Item = Record<string, unknown> & { year: number; coo_iso?: string | null; c
 
 const people = (r: Item) => (num(r.refugees) ?? 0) + (num(r.asylum_seekers) ?? 0) + (num(r.oip) ?? 0);
 
+/** The three groups the people figures add up: refugees, asylum seekers, others in need of international protection. */
+export interface Parts { refugees: Series; asylum: Series; oip: Series }
+
 export interface Displacement {
   origin: Series;
   host: Series;
+  /** The origin and host figures by group. */
+  originParts: Parts;
+  hostParts: Parts;
   idps: Series;
   returned: Series;
   pairs: { year: number; from: string; to: string; people: number }[];
@@ -19,17 +25,25 @@ export interface Displacement {
 
 export function parseUnhcr(byOrigin: { items: Item[] }, byHost: { items: Item[] }, pairs: { items: Item[] }): Displacement {
   const m = matcher('unhcr', 'iso3');
-  const out: Displacement = { origin: {}, host: {}, idps: {}, returned: {}, pairs: [] };
+  const parts = (): Parts => ({ refugees: {}, asylum: {}, oip: {} });
+  const out: Displacement = { origin: {}, host: {}, originParts: parts(), hostParts: parts(), idps: {}, returned: {}, pairs: [] };
+  const split = (p: Parts, id: string, r: Item) => {
+    put(p.refugees, id, r.year, num(r.refugees) ?? 0, true);
+    put(p.asylum, id, r.year, num(r.asylum_seekers) ?? 0, true);
+    put(p.oip, id, r.year, num(r.oip) ?? 0, true);
+  };
   for (const r of byOrigin.items) {
     const id = r.coo_iso && m.match(r.coo_iso);
     if (!id) continue;
     put(out.origin, id, r.year, people(r), true);
+    split(out.originParts, id, r);
     put(out.returned, id, r.year, num(r.returned_refugees), true);
   }
   for (const r of byHost.items) {
     const id = r.coa_iso && m.match(r.coa_iso);
     if (!id) continue;
     put(out.host, id, r.year, people(r), true);
+    split(out.hostParts, id, r);
     const idps = num(r.idps);
     if (idps) put(out.idps, id, r.year, idps, true);
   }

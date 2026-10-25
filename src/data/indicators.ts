@@ -27,7 +27,9 @@ export type Group = 'economy' | 'people' | 'energy' | 'food' | 'climate' | 'secu
 export const GROUPS: Group[] = ['economy', 'people', 'energy', 'food', 'climate', 'security', 'tech', 'influence'];
 
 /** How a value is written: money in US$, a count, a percentage (value 12.5 → 12.5%), a share (0.125 → 12.5%), or a number with a unit. */
-export type Format = { kind: 'money' } | { kind: 'count' } | { kind: 'percent'; digits?: number } | { kind: 'share' } | { kind: 'number'; digits?: number; unit?: string };
+export type Format = { kind: 'money' } | { kind: 'count' } | { kind: 'percent'; digits?: number } | { kind: 'share' } | { kind: 'number'; digits?: number; unit?: string }
+  /** Million tonnes, written in tonnes below one million ("148 Mt", "12.3 Mt", "540,000 t"). */
+  | { kind: 'mt' };
 
 export interface Indicator {
   id: string;

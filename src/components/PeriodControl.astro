@@ -1,0 +1,41 @@
+---
+// A choice of periods in place of the year slider (disasters: the last 30, 90 or 365 days), with the slider's contract
+// so the map view script treats it the same: a hidden #id input holds the value, and a choice fires `gt-change` with
+// { year } (the period's days) on the [data-gt-periods] wrapper. A note under it can say what a period counts.
+import '../styles/atlas/filters.css';
+import '../styles/atlas/years.css';
+
+interface Props {
+  id: string;
+  label: string;
+  options: { value: number; label: string }[];
+  value: number;
+  note?: string;
+}
+const { id, label, options, value, note } = Astro.props;
+---
+<div class="gt-periods" data-gt-periods>
+  <span class="gt-label" id={`${id}-l`}>{label}</span>
+  <div class="gt-seg" role="group" aria-labelledby={`${id}-l`}>
+    {options.map((o) => <button type="button" value={o.value} aria-pressed={o.value === value ? 'true' : 'false'}>{o.label}</button>)}
+  </div>
+  <input id={id} type="hidden" value={value} />
+  {note && <p class="gt-caption gt-periods__note">{note}</p>}
+</div>
+
+<script>
+  for (const el of document.querySelectorAll<HTMLElement>('[data-gt-periods]')) {
+    const input = el.querySelector('input')!;
+    const buttons = [...el.querySelectorAll<HTMLButtonElement>('button')];
+    const show = () => { for (const b of buttons) b.setAttribute('aria-pressed', String(b.value === input.value)); };
+    for (const b of buttons) {
+      b.addEventListener('click', () => {
+        input.value = b.value;
+        show();
+        el.dispatchEvent(new CustomEvent('gt-change', { detail: { year: Number(b.value) }, bubbles: true }));
+      });
+    }
+    // The map view script sets the value when the period changes elsewhere (the URL, the phone filter sheet).
+    input.addEventListener('input', show);
+  }
+</script>

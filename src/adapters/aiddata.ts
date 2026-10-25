@@ -4,14 +4,15 @@
 import { csvRecords } from '../../pipeline/lib/csv.ts';
 import { type Raw, type Series, matcher, num, put } from './core.ts';
 
+/** AidData's sectors grouped for the lending views, by sector name in lower case (version 3.0 writes them in capitals). */
 export const SECTOR_GROUPS: Record<string, string> = {
-  'Energy': 'energy',
-  'Transport and storage': 'transport',
-  'Industry, mining, construction': 'industry',
-  'Banking and financial services': 'banking',
+  'energy': 'energy',
+  'transport and storage': 'transport',
+  'industry, mining, construction': 'industry',
+  'banking and financial services': 'banking',
 };
 
-export interface Project { title: string; year: number; sector: string; lender: string; amount: number; status: string; type: string }
+export interface Project { title: string; year: number; sector: string; group: string; lender: string; amount: number; status: string; type: string }
 
 export interface Lending {
   byYear: Series;
@@ -34,11 +35,12 @@ export function parseAidData(text: string): Lending {
     if (!id || !y || !amount || amount <= 0) continue;
     years.add(y);
     put(out.byYear, id, y, amount, true);
-    add((out.bySector[id] ??= {}), SECTOR_GROUPS[r['Sector Name']] ?? 'other', amount);
+    const group = SECTOR_GROUPS[r['Sector Name'].toLowerCase()] ?? 'other';
+    add((out.bySector[id] ??= {}), group, amount);
     add((out.byClass[id] ??= {}), r['Flow Class'], amount);
-    (out.top[id] ??= []).push({ title: r.Title, year: y, sector: r['Sector Name'], lender: r['Funding Agencies'], amount, status: r.Status, type: r['Flow Type'] });
+    (out.top[id] ??= []).push({ title: r.Title, year: y, sector: r['Sector Name'], group, lender: r['Funding Agencies'], amount, status: r.Status, type: r['Flow Type'] });
   }
-  for (const [id, list] of Object.entries(out.top)) out.top[id] = list.sort((a, b) => b.amount - a.amount).slice(0, 5);
+  for (const [id, list] of Object.entries(out.top)) out.top[id] = list.sort((a, b) => b.amount - a.amount).slice(0, 25);
   out.years = [...years].sort((a, b) => a - b);
   return out;
 }

@@ -1,21 +1,23 @@
 // A map view's state in the URL: ?year=2024&country=australia&bloc=nato (site map: "A country selected inside a
 // map view is a view state too"). The canonical stays the path without the query, so states never compete with
-// the page. Defaults are left out, so the plain view keeps its plain address.
+// the page. Defaults are left out, so the plain view keeps its plain address. A layer over periods rather than years
+// (disasters) keeps its period in ?days= instead.
 
 export interface ViewState { year?: number; country?: string; bloc?: string }
-export interface StateContext { years: number[]; latest: number; slugs: Record<string, string>; blocs: Record<string, unknown> }
+export interface StateContext { years: number[]; latest: number; slugs: Record<string, string>; blocs: Record<string, unknown>; param?: 'year' | 'days' }
 
 /** The nearest year the layer has: a year the source does not cover moves to the closest one it does. */
 export function nearestYear(years: number[], want: number): number {
   return years.reduce((best, y) => (Math.abs(y - want) < Math.abs(best - want) || (Math.abs(y - want) === Math.abs(best - want) && y > best) ? y : best), years[0]);
 }
 
-/** Reads ?year, ?country (a place slug, or an id for old links) and ?bloc; unknown values are dropped. */
+/** Reads ?year (or ?days), ?country (a place slug, or an id for old links) and ?bloc; unknown values are dropped. */
 export function readState(search: string, ctx: StateContext): ViewState & { askedYear?: number } {
   const q = new URLSearchParams(search);
   const out: ViewState & { askedYear?: number } = {};
-  const y = Number(q.get('year'));
-  if (q.get('year') && Number.isInteger(y)) {
+  const key = ctx.param ?? 'year';
+  const y = Number(q.get(key));
+  if (q.get(key) && Number.isInteger(y)) {
     out.year = nearestYear(ctx.years, y);
     if (out.year !== y) out.askedYear = y;
   }
@@ -34,7 +36,7 @@ export function readState(search: string, ctx: StateContext): ViewState & { aske
 export function writeState(url: URL, s: ViewState, ctx: StateContext): URL {
   const u = new URL(url.href);
   const set = (k: string, v: string | undefined) => (v ? u.searchParams.set(k, v) : u.searchParams.delete(k));
-  set('year', s.year !== undefined && s.year !== ctx.latest ? String(s.year) : undefined);
+  set(ctx.param ?? 'year', s.year !== undefined && s.year !== ctx.latest ? String(s.year) : undefined);
   set('country', s.country ? ctx.slugs[s.country] ?? s.country.toLowerCase() : undefined);
   set('bloc', s.bloc || undefined);
   return u;

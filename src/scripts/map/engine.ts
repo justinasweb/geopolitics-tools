@@ -99,11 +99,13 @@ export function createMap(container: HTMLElement, base: Basemap, layer: LayerFil
   const T = readTokens();
   const scale = layer.scale === 'seq' ? 5 : 7;
   const colours = Array.from({ length: scale }, (_, i) => T[`--${layer.scale}-${i + 1}` as Token]);
+  // Where the map starts and the reset button returns: the layer's own area (a disputed river), else the world.
+  const home = layer.bounds ?? WORLD_BOUNDS;
 
   const map = new maplibregl.Map({
     container,
     style: { version: 8, sources: {}, layers: [{ id: 'sea', type: 'background', paint: { 'background-color': T['--paper-sunk'] } }] },
-    bounds: WORLD_BOUNDS, fitBoundsOptions: { padding: 16 },
+    bounds: home, fitBoundsOptions: { padding: 16 },
     renderWorldCopies: false, dragRotate: false, pitchWithRotate: false, touchPitch: false, maxPitch: 0, maxZoom: 5,
     // The whole world is 512 px wide at zoom 0; a phone needs less to show all of it. MapLibre's own limit keeps
     // the world as tall as the screen, which crops a tall phone map; this one only keeps the centre on the world.
@@ -172,6 +174,7 @@ export function createMap(container: HTMLElement, base: Basemap, layer: LayerFil
       map.addLayer({ id: 'selected', type: 'line', source: 'countries', filter: ['==', ['get', 'id'], ''], paint: { 'line-color': T['--accent'], 'line-width': 2.5 } });
       addOverlays(layer.overlays ?? []);
       ready = true;
+      showMarks();
       paint();
       on.ready();
     } catch (e) {
@@ -183,13 +186,20 @@ export function createMap(container: HTMLElement, base: Basemap, layer: LayerFil
   map.on('error', (e) => { if (!ready) on.error(e.error?.message ?? 'map error'); });
 
   const overlayLayers: string[] = [];
+  // Overlays whose marks show in some years (or periods) only: filtered on the mark's bit for the year.
+  const masked: string[] = [];
+  const showMarks = () => {
+    const bit = 2 ** year;
+    for (const id of masked) map.setFilter(id, ['any', ['==', ['get', 'm'], 0], ['==', ['%', ['floor', ['/', ['get', 'm'], bit]], 2], 1]]);
+  };
   function addOverlays(list: Overlay[]) {
     const widths = (max: number): Expr => ['interpolate', ['linear'], ['get', 'w'], 0, 0.8, max || 1, 6];
     for (const o of list) {
       const src = `ov-${o.id}`;
       if (o.kind === 'arcs') {
         const max = Math.max(0, ...o.items.map((a) => a.w));
-        map.addSource(src, { type: 'geojson', data: { type: 'FeatureCollection', features: o.items.map((a) => ({ type: 'Feature', properties: { w: a.w, tip: a.tip }, geometry: { type: 'LineString', coordinates: a.p } })) } });
+        map.addSource(src, { type: 'geojson', data: { type: 'FeatureCollection', features: o.items.map((a) => ({ type: 'Feature', properties: { w: a.w, tip: a.tip, m: a.m ?? 0 }, geometry: { type: 'LineString', coordinates: a.p } })) } });
+        if (o.items.some((a) => a.m)) masked.push(src);
         map.addLayer({ id: src, type: 'line', source: src, layout: { 'line-cap': 'round' }, paint: { 'line-color': T['--ink'], 'line-opacity': 0.55, 'line-width': widths(max) } });
       } else if (o.kind === 'lines') {
         map.addSource(src, { type: 'geojson', data: { type: 'FeatureCollection', features: o.items.map((l) => ({ type: 'Feature', properties: { tip: l.tip }, geometry: { type: 'MultiLineString', coordinates: l.p } })) } });
@@ -198,7 +208,8 @@ export function createMap(container: HTMLElement, base: Basemap, layer: LayerFil
           paint: o.dashed ? { 'line-color': T['--accent'], 'line-width': 1.6, 'line-dasharray': [3, 2] } : { 'line-color': T['--brand'], 'line-width': 1.4, 'line-opacity': 0.85 },
         });
       } else {
-        map.addSource(src, { type: 'geojson', data: { type: 'FeatureCollection', features: o.items.map((p) => ({ type: 'Feature', properties: { r: p.r ?? 5, tip: p.tip }, geometry: { type: 'Point', coordinates: p.at } })) } });
+        map.addSource(src, { type: 'geojson', data: { type: 'FeatureCollection', features: o.items.map((p) => ({ type: 'Feature', properties: { r: p.r ?? 5, tip: p.tip, m: p.m ?? 0 }, geometry: { type: 'Point', coordinates: p.at } })) } });
+        if (o.items.some((p) => p.m)) masked.push(src);
         if (o.symbol === 'dot' || o.symbol === 'hollow') {
           const hollow = o.symbol === 'hollow';
           map.addLayer({
@@ -272,7 +283,7 @@ export function createMap(container: HTMLElement, base: Basemap, layer: LayerFil
   }
 
   return {
-    setYear(i) { year = i; paint(); },
+    setYear(i) { year = i; paint(); if (ready) showMarks(); },
     select(id) {
       selected = id;
       if (ready) map.setFilter('selected', ['==', ['get', 'id'], id ?? '']);
@@ -283,12 +294,12 @@ export function createMap(container: HTMLElement, base: Basemap, layer: LayerFil
       const opts = { duration: reduced() ? 0 : 300 };
       if (how === 'in') map.zoomIn(opts);
       else if (how === 'out') map.zoomOut(opts);
-      else map.fitBounds(WORLD_BOUNDS, { padding: fitPad, ...opts });
+      else map.fitBounds(home, { padding: fitPad, ...opts });
     },
     frame({ top, bottom }) {
       const pad = { top, bottom, left: 12, right: 12 };
       fitPad = pad;
-      map.fitBounds(WORLD_BOUNDS, { padding: pad, duration: reduced() ? 0 : 300 });
+      map.fitBounds(home, { padding: pad, duration: reduced() ? 0 : 300 });
     },
     resize() { map.resize(); },
     pointOf(id) {
