@@ -4,11 +4,12 @@
 import '../styles/atlas/header.css';
 import Icon from './Icon.astro';
 import Lockup from './Lockup.astro';
-import { NAV_HUBS, NAV_UTIL } from '../data/nav';
+import { menu } from '../lib/menu';
 import { NAV_TEXT, UI_TEXT } from '../i18n/en';
 
-interface Props { open?: string; idPrefix?: string }
-const { open, idPrefix = 'nav' } = Astro.props;
+interface Props { open?: string; idPrefix?: string; full?: boolean }
+const { open, idPrefix = 'nav', full = false } = Astro.props;
+const { hubs, util } = menu(full);
 ---
 <div class="gt-menu">
   <div class="gt-menu__bar">
@@ -20,12 +21,12 @@ const { open, idPrefix = 'nav' } = Astro.props;
       <Icon name="search" /><span class="gt-vh">{UI_TEXT.search}</span>
       <input id={`${idPrefix}-q`} type="search" placeholder={UI_TEXT.searchPlaceholder} />
     </label>
-    {NAV_HUBS.map((hub) => (
+    {hubs.map((hub) => (
       <details open={open === hub.id}>
         <summary>{NAV_TEXT.hubs[hub.id]}</summary>
         <ul>{hub.views.map((v) => <li><a href={v.path}>{NAV_TEXT.views[v.id][0]}</a></li>)}</ul>
       </details>
     ))}
-    <div class="gt-menu__tools">{NAV_UTIL.map((u) => <a href={u.path}>{NAV_TEXT.util[u.id]}</a>)}</div>
+    <div class="gt-menu__tools">{util.map((u) => <a href={u.path}>{NAV_TEXT.util[u.id]}</a>)}</div>
   </div>
 </div>

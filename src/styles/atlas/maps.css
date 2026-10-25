@@ -1,0 +1,14 @@
+/* Atlas design system: static maps drawn at build time (locator and small choropleth).
+   World shape styles ported from the design system's bundle.css; colours and fonts come from tokens.css. */
+
+.gt-world { position: relative; }
+.gt-world__svg { display: block; width: 100%; height: 100%; max-height: 100%; }
+.gt-world__c { stroke: var(--map-border); stroke-width: .5; vector-effect: non-scaling-stroke; cursor: pointer; }
+.gt-world__c.is-hov { stroke: var(--ink); stroke-width: 1.2; }
+.gt-world__c.is-muted { fill-opacity: .32; }
+.gt-world__selline { fill: none; stroke: var(--accent); stroke-width: 2.5; vector-effect: non-scaling-stroke; pointer-events: none; }
+.gt-world__hovline { fill: none; stroke: var(--ink); stroke-width: 1.6; vector-effect: non-scaling-stroke; pointer-events: none; }
+.gt-world__ring { fill: none; stroke: var(--accent); stroke-width: 2.5; vector-effect: non-scaling-stroke; }
+.gt-world__c { cursor: default; }
+.gt-smap__sea { fill: var(--paper-sunk); }
+.gt-smap { display: block; width: 100%; height: 100%; }

@@ -1,0 +1,30 @@
+---
+// Numbered "On this page" menu for country pages and long reads: sticky in a left column on desktop
+// (nav.gt-cpmenu, the section in view marked by src/scripts/toc.ts), a sticky "Jump to" bar on phone.
+import '../styles/atlas/country.css';
+import Icon from './Icon.astro';
+import { COUNTRY_TEXT } from '../i18n/pages.en';
+
+interface Props { items: { id: string; label: string }[] }
+const { items } = Astro.props;
+---
+<nav class="gt-cpmenu" aria-label={COUNTRY_TEXT.onThisPage} data-gt-toc>
+  <span class="gt-label">{COUNTRY_TEXT.onThisPage}</span>
+  <ol>{items.map((it, i) => <li><a href={`#${it.id}`} aria-current={i === 0 ? 'true' : undefined}><span class="gt-cpmenu__n">{i + 1}</span>{it.label}</a></li>)}</ol>
+  <a class="gt-cpmenu__top" href="#top">{COUNTRY_TEXT.backToTop}</a>
+</nav>
+<div class="gt-jumpbar">
+  <details>
+    <summary class="gt-btn gt-btn--quiet gt-jumpbar__b">{COUNTRY_TEXT.jumpTo} <span class="gt-jumpbar__l">{items[0]?.label}</span><Icon name="chevron" /></summary>
+    <ol class="gt-jumpsheet__list">{items.map((it, i) => <li><a href={`#${it.id}`}><span class="gt-cpmenu__n">{i + 1}</span>{it.label}</a></li>)}</ol>
+  </details>
+</div>
+
+<script>
+  import { initToc } from '../scripts/toc';
+  document.querySelectorAll<HTMLElement>('.gt-cpmenu[data-gt-toc]').forEach(initToc);
+  // Close the phone sheet after a jump.
+  document.querySelectorAll<HTMLDetailsElement>('.gt-jumpbar details').forEach((d) => {
+    d.addEventListener('click', (e) => { if ((e.target as HTMLElement).closest('a')) d.open = false; });
+  });
+</script>

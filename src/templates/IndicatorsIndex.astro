@@ -1,0 +1,45 @@
+---
+// The indicators index: every measure by group, with its source, latest common year and how many places report
+// it. Measures still waiting on a source are listed without a link, with the reason, so the list is complete.
+import Page from '../layouts/Page.astro';
+import DataTable from '../components/DataTable.astro';
+import '../styles/atlas/longread.css';
+import '../styles/atlas/site.css';
+import { INDICATORS, type Group } from '../data/indicators';
+import { GROUP_TEXT, INDICATOR_TEXT } from '../i18n/en';
+import { INDICATOR_PAGE as T, SOURCE_SHORT } from '../i18n/pages.en';
+import { indicatorModel } from '../lib/indicator';
+import { sourceName } from '../lib/data';
+import { indicatorHref, paths } from '../lib/routes';
+import { breadcrumbs } from '../lib/structured';
+
+const all = Object.values(INDICATORS);
+const live = all.filter((i) => indicatorHref(i.id));
+const groups = [...new Set(all.map((i) => i.group))] as Group[];
+const srcOf = (s: string | string[]) => (Array.isArray(s) ? s : [s]).map((x) => SOURCE_SHORT[x] ?? sourceName(x)).join('; ');
+---
+<Page title={T.indexTitle} description={T.indexDescription} image={paths.image('page', 'indicators')} jsonld={[breadcrumbs([{ label: T.indexTitle }])]}>
+  <header class="gt-lrhead">
+    <h1 class="gt-title">{T.indexTitle}</h1>
+    <p class="gt-lede">{T.indexLede(live.length)}</p>
+  </header>
+  <div class="gt-cindex">
+    {groups.map((g) => (
+      <section class="gt-cindex__sec" aria-labelledby={`g-${g}`}>
+        <h2 class="gt-h2" id={`g-${g}`}>{GROUP_TEXT[g]}</h2>
+        <DataTable label={GROUP_TEXT[g]} compact height="none"
+          columns={[{ key: 'm', label: T.measureCol }, { key: 's', label: T.sourceCol }, { key: 'y', label: T.latest, num: true }, { key: 'n', label: T.countries, num: true }]}
+          rows={all.filter((i) => i.group === g).map((i) => {
+            const m = indicatorModel(i.id);
+            const href = indicatorHref(i.id);
+            return [
+              { v: INDICATOR_TEXT[i.id].label, href },
+              srcOf(i.source),
+              m && !i.static ? { v: m.year, text: String(m.year) } : m ? { v: null, note: T.noYear } : { v: null, note: i.pending ? T.pending : T.notInSnapshot },
+              m ? m.reporting : null,
+            ];
+          })} />
+      </section>
+    ))}
+  </div>
+</Page>

@@ -1,0 +1,74 @@
+---
+// "Dependencies at a glance" (DependencyTable design): one row per resource with a dependence tag (glyph and
+// words, colour a second cue), the position in words and the main partners. A table on desktop, stacked rows on
+// phone; rows with no data say so.
+import '../styles/atlas/country.css';
+import '../styles/atlas/table.css';
+import type { DepRow, DepTag } from '../lib/dependence';
+import { DEP_TEXT, RESOURCE_TEXT } from '../i18n/pages.en';
+import { formatShare } from '../lib/format';
+import { place } from '../lib/places';
+import { countryHref } from '../lib/routes';
+
+interface Props { rows: DepRow[]; label: string }
+const { rows, label } = Astro.props;
+
+const GLYPH: Record<DepTag, string> = {
+  most: '<path d="M1 3h7M1 9h7" stroke="currentColor" stroke-width="1.6"/><path d="M7 1l3 2-3 2zM7 7l3 2-3 2z" fill="currentColor"/><rect x="11" y="1" width="4" height="10" fill="currentColor"/>',
+  some: '<path d="M1 6h7" stroke="currentColor" stroke-width="1.6"/><path d="M7 4l3 2-3 2z" fill="currentColor"/><rect x="11.5" y="1.5" width="3" height="9" fill="none" stroke="currentColor" stroke-width="1.4"/>',
+  self: '<path d="M2 4h12M2 8h12" stroke="currentColor" stroke-width="1.6"/>',
+  exp: '<rect x="1" y="1" width="4" height="10" fill="currentColor"/><path d="M6 6h7" stroke="currentColor" stroke-width="1.6"/><path d="M12 4l3 2-3 2z" fill="currentColor"/>',
+};
+const TAGS: DepTag[] = ['most', 'some', 'self', 'exp'];
+const nameOf = (id: string) => place(id)?.name ?? id;
+
+function position(r: DepRow): string {
+  const noun = RESOURCE_TEXT[r.resource].noun;
+  if (r.state === 'pending') return DEP_TEXT.noData;
+  if (r.state === 'none') return r.resource === 'arms' && r.period ? DEP_TEXT.noImports(r.period) : DEP_TEXT.noRow;
+  if (r.main) return DEP_TEXT.mainSupplier(nameOf(r.main.id), formatShare(r.main.share));
+  if (r.noUse) return DEP_TEXT.noUse(noun);
+  if (r.tag === 'exp' || (r.reliance !== undefined && r.reliance < 0 && r.exportShare !== undefined)) return DEP_TEXT.exports(formatShare(r.exportShare ?? 0));
+  if (r.reliance !== undefined && r.reliance >= 0.995) return DEP_TEXT.importsAll(noun);
+  return DEP_TEXT.imports(formatShare(Math.max(0, r.reliance ?? 0)), noun);
+}
+const partners = (r: DepRow) => r.partners.map((id) => ({ id, name: nameOf(id), href: countryHref(id) }));
+---
+<div class="gt-legend__extra gt-depkey" aria-label={DEP_TEXT.keyLabel}>
+  {TAGS.map((t) => <span><span class:list={['gt-deptag', `gt-deptag--${t}`]}><svg viewBox="0 0 16 12" aria-hidden="true" set:html={GLYPH[t]} />{DEP_TEXT.tags[t]}</span></span>)}
+</div>
+<div class="gt-tablewrap gt-deps" style="--gt-table-h:none" tabindex="0" role="region" aria-label={label}>
+  <table class="gt-table">
+    <caption class="gt-caption">{DEP_TEXT.caption}</caption>
+    <thead><tr>{DEP_TEXT.columns.map((c) => <th scope="col"><span class="gt-th">{c}</span></th>)}</tr></thead>
+    <tbody>
+      {rows.map((r) => (
+        <tr>
+          <th scope="row">{RESOURCE_TEXT[r.resource].label}</th>
+          <td>
+            {r.tag && !r.main ? (
+              <span class:list={['gt-deptag', `gt-deptag--${r.tag}`]}><svg viewBox="0 0 16 12" aria-hidden="true" set:html={GLYPH[r.tag]} />{DEP_TEXT.tags[r.tag]}</span>
+            ) : r.resource === 'arms' || r.resource === 'chips' ? (
+              <span class="gt-depna" title={DEP_TEXT.concentrationTitle}><span aria-hidden="true">–</span><span class="gt-vh">{DEP_TEXT.concentrationOnly}</span></span>
+            ) : <span class="gt-depna" aria-hidden="true">–</span>}
+          </td>
+          <td class:list={{ 'gt-muted': r.state !== 'ok' }}>{position(r)}</td>
+          <td>
+            {partners(r).length ? (
+              <>{partners(r).map((p, i) => <>{i > 0 && ', '}{p.href ? <a href={p.href}>{p.name}</a> : p.name}</>)}{r.buyers && ` ${DEP_TEXT.buyersTag}`}</>
+            ) : <span class="gt-muted">–</span>}
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+<ul class="gt-deplist" aria-label={label}>
+  {rows.map((r) => (
+    <li>
+      <span class="gt-deplist__h">{RESOURCE_TEXT[r.resource].label}{r.tag && !r.main && <span class:list={['gt-deptag', `gt-deptag--${r.tag}`]}><svg viewBox="0 0 16 12" aria-hidden="true" set:html={GLYPH[r.tag]} />{DEP_TEXT.tags[r.tag]}</span>}</span>
+      <p class:list={{ 'gt-muted': r.state !== 'ok' }}>{position(r)}</p>
+      {partners(r).length > 0 && <p class="gt-caption">{DEP_TEXT.partners}: {partners(r).map((p) => p.name).join(', ')}{r.buyers && ` ${DEP_TEXT.buyersTag}`}</p>}
+    </li>
+  ))}
+</ul>

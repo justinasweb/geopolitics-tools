@@ -65,7 +65,7 @@
 /* document */
 html { background: var(--paper); }
 body.gt { margin: 0; background: var(--paper); min-height: 100vh; display: flex; flex-direction: column; }
-body.gt > main { flex: 1; }
+body.gt > main { flex: 1; width: 100%; box-sizing: border-box; }
 .gt-page--wide { max-width: 1440px; }
 .gt-pagehead { display: grid; gap: 10px; }
 .gt-prose { max-width: var(--grid-text); }

@@ -1,0 +1,13 @@
+---
+// One figure inside a country-page section: what it is, the number with its unit set smaller, and a caption with
+// the period and source (CountrySection design, .gt-cpstat).
+import '../styles/atlas/country.css';
+
+interface Props { label?: string; num: string; unit?: string; caption?: string }
+const { label, num, unit = '', caption } = Astro.props;
+---
+<div class="gt-cpstat">
+  <span class="gt-cpstat__l">{label}</span>
+  <span class="gt-cpstat__n">{num}<small>{unit}</small></span>
+  {caption && <span class="gt-caption">{caption}<slot /></span>}
+</div>

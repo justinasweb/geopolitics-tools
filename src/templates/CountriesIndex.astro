@@ -1,0 +1,72 @@
+---
+// The countries index: the three dossiers and their comparisons first, a search box, then every country and
+// territory page A to Z. Places with no figure from any source have no page and are not listed.
+import Page from '../layouts/Page.astro';
+import CountrySearch from '../components/CountrySearch.astro';
+import '../styles/atlas/site.css';
+import '../styles/atlas/longread.css';
+import '../styles/atlas/country.css';
+import { COUNTRIES_INDEX as T, COUNTRY_TEXT, COMPARE_TEXT } from '../i18n/pages.en';
+import { countryPages, DOSSIERS } from '../lib/country';
+import { place } from '../lib/places';
+import { paths, routes } from '../lib/routes';
+import { breadcrumbs } from '../lib/structured';
+
+const pages = countryPages();
+const territories = pages.filter((m) => m.place.kind === 'territory').length;
+const dossiers = DOSSIERS.map((id) => pages.find((m) => m.place.id === id)).filter((m) => m !== undefined);
+const compares = routes().filter((r) => r.kind === 'compare' && r.live).map((r) => {
+  const [a, b] = r.id.split(',').map((id) => place(id)!.name);
+  return { href: r.path, label: COMPARE_TEXT.title(a, b) };
+});
+const letter = (s: string) => s.normalize('NFKD')[0].toUpperCase();
+const groups = new Map<string, typeof pages>();
+for (const m of pages) {
+  const l = letter(m.place.name);
+  if (!groups.has(l)) groups.set(l, []);
+  groups.get(l)!.push(m);
+}
+const options = pages.map((m) => ({ name: m.place.name, note: m.place.kind === 'territory' ? T.territory : undefined, href: paths.country(m.place.id) }));
+---
+<Page title={T.title} description={T.description} image={paths.image('page', 'countries')} jsonld={[breadcrumbs([{ label: T.title }])]}>
+  <header class="gt-lrhead">
+    <h1 class="gt-title">{T.title}</h1>
+    <p class="gt-lede">{T.lede(pages.length, territories)}</p>
+  </header>
+
+  <div class="gt-cindex">
+    <CountrySearch id="country-find" label={T.find} options={options} placeholder={T.find} />
+
+    {dossiers.length > 0 && (
+      <section aria-labelledby="dossiers-h" class="gt-cindex__sec">
+        <h2 class="gt-h2" id="dossiers-h">{T.dossiers}</h2>
+        <p class="gt-caption">{T.dossiersLede}</p>
+        <ul class="gt-mapgrid">
+          {dossiers.map((m) => <li><a href={paths.country(m.place.id)}><span class="gt-mapgrid__hub">{COUNTRY_TEXT.kindDossier}</span><span class="gt-mapgrid__t">{m.place.name}</span><span class="gt-mapgrid__go">{m.summary[0]}</span></a></li>)}
+        </ul>
+        {compares.length > 0 && (
+          <ul class="gt-cplinks">{compares.map((c) => <li><a href={c.href}>{c.label} <span aria-hidden="true">→</span></a></li>)}</ul>
+        )}
+      </section>
+    )}
+
+    <section aria-labelledby="az-h" class="gt-cindex__sec">
+      <h2 class="gt-h2" id="az-h">{T.az}</h2>
+      <nav class="gt-cindex__letters" aria-label={T.jump}>{[...groups.keys()].map((l) => <a href={`#letter-${l}`}>{l}</a>)}</nav>
+      {[...groups].map(([l, ms]) => (
+        <div class="gt-cindex__group" id={`letter-${l}`}>
+          <h3 class="gt-h3">{l}</h3>
+          <ul class="gt-cindex__list">
+            {ms.map((m) => (
+              <li>
+                <a href={paths.country(m.place.id)}>{m.place.name}</a>
+                {m.place.kind === 'territory' && <span class="gt-caption"> · {T.territory}</span>}
+                {m.thin && <span class="gt-caption"> · {T.fewSources}</span>}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </section>
+  </div>
+</Page>

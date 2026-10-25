@@ -1,0 +1,31 @@
+---
+// A map drawn at build time (src/lib/mapsvg.ts): the world shaded by class for indicator pages, or a locator
+// with one place selected for country pages. Colour is never the only cue: the legend names each class, and the
+// table beside the map holds every value.
+import '../styles/atlas/maps.css';
+import { locatorMap, worldMap } from '../lib/mapsvg';
+
+interface Props {
+  label: string;
+  /** World map: class index (0–4) per place id; places left out are drawn as no data. */
+  classes?: Record<string, number>;
+  /** Locator map: the place to centre and select. */
+  select?: string;
+}
+const { label, classes, select } = Astro.props;
+const SEQ = ['var(--seq-1)', 'var(--seq-2)', 'var(--seq-3)', 'var(--seq-4)', 'var(--seq-5)'];
+const loc = select ? locatorMap(select) : null;
+const map = loc ?? worldMap(1000);
+const fill = (id: string | null) => {
+  if (select) return id === select ? 'var(--seq-4)' : 'var(--paper-raised)';
+  const c = id ? classes?.[id] : undefined;
+  return c === undefined ? 'var(--map-nodata)' : SEQ[c];
+};
+const selected = select ? map.paths.filter((p) => p.id === select) : [];
+---
+<svg class="gt-world__svg gt-smap" viewBox={`0 0 ${map.width} ${map.height}`} preserveAspectRatio="xMidYMid meet" role="img" aria-label={label}>
+  <rect class="gt-smap__sea" width={map.width} height={map.height} />
+  {map.paths.map((p) => <path class="gt-world__c" d={p.d} fill={fill(p.id)} />)}
+  {selected.map((p) => <path class="gt-world__selline" d={p.d} />)}
+  {loc?.ring && <circle class="gt-world__ring" cx={loc.ring.x} cy={loc.ring.y} r={loc.ring.r} />}
+</svg>

@@ -1,0 +1,30 @@
+---
+// A population pyramid for one year, drawn at build time: men to the left, women to the right, five-year age
+// groups from the bottom. Men solid, women outlined, and both named above their side, so colour is not the cue.
+import '../styles/atlas/country.css';
+import type { AgeGroup } from '../adapters/wpp';
+import { DOSSIER_TEXT } from '../i18n/pages.en';
+
+interface Props { label: string; groups: AgeGroup[] }
+const { label, groups } = Astro.props;
+const W = 420, top = 22, row = 11, mid = W / 2, gap = 18, side = mid - gap - 4;
+const H = top + groups.length * row + 22;
+const max = Math.max(...groups.flatMap((g) => [g.male, g.female])) || 1;
+const w = (v: number) => (v / max) * side;
+const y = (i: number) => top + (groups.length - 1 - i) * row;
+const millions = (v: number) => new Intl.NumberFormat('en', { maximumFractionDigits: 0 }).format(v / 1e6);
+---
+<svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={label}>
+  <text class="gt-pyr__h" x={mid - gap} y={12} text-anchor="end">{DOSSIER_TEXT.men}</text>
+  <text class="gt-pyr__h" x={mid + gap} y={12}>{DOSSIER_TEXT.women}</text>
+  {groups.map((g, i) => (
+    <g>
+      <rect class="gt-pyr__m" x={mid - gap - w(g.male)} y={y(i)} width={w(g.male)} height={row - 2} />
+      <rect class="gt-pyr__f" x={mid + gap} y={y(i)} width={w(g.female)} height={row - 2} />
+      {i % 2 === 0 && <text class="gt-pyr__age" x={mid} y={y(i) + row - 3} text-anchor="middle">{g.start}</text>}
+    </g>
+  ))}
+  <text x={4} y={H - 4}>{millions(max)}m</text>
+  <text x={mid} y={H - 4} text-anchor="middle">0</text>
+  <text x={W - 4} y={H - 4} text-anchor="end">{millions(max)}m</text>
+</svg>

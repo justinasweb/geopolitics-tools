@@ -1,0 +1,85 @@
+---
+// The Sources page (SourcesPage design), generated on each build from the source registry, the licence table and
+// the last snapshot: every source with what it feeds, its licence, whether pages offer a download, how often we
+// check it, when it was last refreshed and its status (a glyph and a word for each). Corrections at the bottom.
+import Page from '../layouts/Page.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import SideMenu from '../components/SideMenu.astro';
+import Notice from '../components/Notice.astro';
+import '../styles/atlas/longread.css';
+import '../styles/atlas/tools.css';
+import '../styles/atlas/country.css';
+import '../styles/atlas/table.css';
+import { LONGREAD_TEXT, SOURCES_PAGE as T } from '../i18n/pages.en';
+import { formatDate } from '../lib/format';
+import { corrections, sourceRows, type SourceState } from '../lib/sources';
+import { paths } from '../lib/routes';
+import { breadcrumbs } from '../lib/structured';
+
+const GLYPH: Record<SourceState, string> = {
+  live: '<circle cx="6" cy="6" r="4.5" fill="currentColor"/>',
+  delayed: '<path d="M6 1.2 11 10.5H1z" fill="currentColor"/>',
+  key: '<circle cx="4" cy="6" r="2.6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M6.4 6H11M9.4 6v2.4M11 6v1.8" fill="none" stroke="currentColor" stroke-width="1.6"/>',
+  manual: '<rect x="1.8" y="1.8" width="8.4" height="8.4" fill="none" stroke="currentColor" stroke-width="1.6"/>',
+  soon: '<circle cx="6" cy="6" r="4.4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="2 1.6"/>',
+};
+const ORDER: SourceState[] = ['live', 'delayed', 'key', 'manual', 'soon'];
+const rows = sourceRows().sort((a, b) => ORDER.indexOf(a.state) - ORDER.indexOf(b.state) || a.name.localeCompare(b.name, 'en'));
+const count = (s: SourceState) => rows.filter((r) => r.state === s).length;
+const fixes = corrections();
+const download = (r: (typeof rows)[number]) => (!r.licence ? T.toConfirm : r.licence.downloads === 'yes' ? T.yes : T.shownOnly);
+const licence = (r: (typeof rows)[number]) => (!r.licence ? T.toConfirm : r.licence.status === 'checked' ? r.licence.licence : r.licence.status === 'permission asked' ? T.permissionAsked : T.toConfirm);
+const crumbs = [{ label: LONGREAD_TEXT.home, href: '/' }, { label: T.title }];
+const items = [{ id: 'licences', label: T.licencesHeading }, { id: 'late', label: T.lateHeading }, { id: 'corrections', label: T.corrections }];
+---
+<Page title={T.title} description={T.description} container="tl" mainClass="gt-lr gt-lr--wide" image={paths.image('page', 'sources')} jsonld={[breadcrumbs(crumbs)]}>
+  <header class="gt-tlhead gt-lrhead">
+    <Breadcrumbs items={crumbs} />
+    <span class="gt-kicker">{T.kicker}</span>
+    <h1 class="gt-title">{T.title}</h1>
+    <p class="gt-lede">{T.lede(rows.length)}</p>
+  </header>
+  <div class="gt-lrtool" id="all-sources">
+    <Notice><p>{T.downloadsLine}</p></Notice>
+    <p class="gt-srckey">{ORDER.filter(count).map((s) => <span><span class:list={['gt-sdot', `gt-sdot--${s}`]}><svg viewBox="0 0 12 12" aria-hidden="true" set:html={GLYPH[s]} />{T.status[s]}</span><small>{T.statusWhy[s]} · {count(s)}</small></span>)}</p>
+    <div class="gt-tablewrap gt-srctbl" style="--gt-table-h:none" tabindex="0" role="region" aria-label={T.tableLabel}>
+      <table class="gt-table">
+        <caption class="gt-caption">{T.caption}</caption>
+        <thead><tr>{Object.values(T.columns).map((c) => <th scope="col"><span class="gt-th">{c}</span></th>)}</tr></thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr>
+              <th scope="row">{r.licence?.terms ? <a href={r.licence.terms} rel="noopener">{r.name}</a> : r.name}</th>
+              <td>{r.feeds.slice(0, 6).join(', ')}{r.feeds.length > 6 ? ', …' : ''}</td>
+              <td title={r.licence?.licence}>{licence(r)}</td>
+              <td>{download(r)}</td>
+              <td>{r.every}</td>
+              <td class="n">{r.last ? formatDate(r.last) : T.never}</td>
+              <td><span class:list={['gt-sdot', `gt-sdot--${r.state}`]} title={r.why}><svg viewBox="0 0 12 12" aria-hidden="true" set:html={GLYPH[r.state]} />{T.status[r.state]}</span></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="gt-cpbody gt-lrbody">
+    <SideMenu items={items} />
+    <div class="gt-prose">
+      <section class="gt-lrsec" id="licences"><h2 class="gt-h2">{T.licencesHeading}</h2>{T.licencesBody.map((p) => <p>{p}</p>)}</section>
+      <section class="gt-lrsec" id="late"><h2 class="gt-h2">{T.lateHeading}</h2>{T.lateBody.map((p) => <p>{p}</p>)}</section>
+      <section class="gt-lrsec" id="corrections">
+        <h2 class="gt-h2">{T.corrections}</h2>
+        <p>{T.correctionsLede}</p>
+        {fixes.length ? (
+          <div class="gt-tablewrap gt-corrtbl" style="--gt-table-h:none">
+            <table class="gt-table gt-table--compact">
+              <thead><tr>{T.correctionsCols.map((c) => <th scope="col"><span class="gt-th">{c}</span></th>)}</tr></thead>
+              <tbody>{fixes.map((f) => <tr><td class="tnum">{formatDate(f.date)}</td><th scope="row">{f.page}</th><td>{f.what}</td></tr>)}</tbody>
+            </table>
+          </div>
+        ) : <p class="gt-corrempty">{T.noCorrections}</p>}
+        <p class="gt-caption">{T.report}</p>
+      </section>
+    </div>
+  </div>
+</Page>

@@ -1,0 +1,151 @@
+---
+// Compare two dossier countries (ComparePage design): key figures side by side with "Higher" on the larger value,
+// both countries over time on one scale, and shares of world mine production in pairs. Each country keeps its
+// colour and marker everywhere and is named next to every line and bar, so colour is never the only cue.
+import Page from '../layouts/Page.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import CpSection from '../components/CpSection.astro';
+import LineChart from '../components/LineChart.astro';
+import ShareRow from '../components/ShareRow.astro';
+import '../styles/atlas/country.css';
+import '../styles/atlas/table.css';
+import { INDICATORS } from '../data/indicators';
+import { INDICATOR_TEXT } from '../i18n/en';
+import { COMPARE_TEXT as T, COUNTRY_TEXT, SOURCE_SHORT, mineralName, inSentence } from '../i18n/pages.en';
+import { countryModel, figure, mineralShares } from '../lib/country';
+import { seriesOf } from '../lib/dossier';
+import { formatParts, formatShare } from '../lib/format';
+import { countryHref, indicatorHref, paths, routes } from '../lib/routes';
+import { sourceName } from '../lib/data';
+import { breadcrumbs } from '../lib/structured';
+
+interface Props { a: string; b: string }
+const { a, b } = Astro.props;
+const ma = countryModel(a)!;
+const mb = countryModel(b)!;
+const ids = [a, b];
+const nameOf = (id: string) => (id === a ? ma : mb).place.name;
+const CC: Record<string, string> = { USA: 'gt-cc--us', CHN: 'gt-cc--cn', RUS: 'gt-cc--ru' };
+const MARK: Record<string, string> = { USA: '<rect x="2" y="2" width="8" height="8"/>', CHN: '<path d="M6 1.5 10.8 10H1.2z"/>', RUS: '<circle cx="6" cy="6" r="4.5"/>' };
+const title = T.title(ma.place.name, mb.place.name);
+const path = paths.compare(a, b);
+const url = new URL(path, Astro.site).href;
+
+const MEASURES = ['gdp', 'population', 'gdppc', 'growth', 'inflation', 'reserves', 'milpct', 'milusd', 'armsexp', 'armsimp', 'co2', 'co2pc', 'satellites', 'launches', 'aicompute', 'lex', 'median'];
+const rows = MEASURES.map((id) => ({ id, f: ids.map((p) => figure(id, p)) })).filter((r) => r.f.some((x) => x !== null));
+const unitOf = (id: string) => {
+  const f = rows.find((r) => r.id === id)!.f.find((x) => x !== null)!;
+  return formatParts(f.value, INDICATORS[id].format, INDICATOR_TEXT[id].unit).unit;
+};
+// Both values in the row's unit, so "US$30.5 trillion" and "US$1.2 trillion" read on one scale.
+const shown = (id: string, v: number) => {
+  const p = formatParts(v, INDICATORS[id].format, INDICATOR_TEXT[id].unit);
+  return p.unit === unitOf(id) ? p.num : `${p.num} ${p.unit}`;
+};
+const higher = (r: typeof rows[number]) => (r.f[0] && r.f[1] && r.f[0].value !== r.f[1].value ? (r.f[0].value > r.f[1].value ? 0 : 1) : -1);
+const srcYear = (r: typeof rows[number]) => {
+  const f = r.f.filter((x) => x !== null);
+  const years = [...new Set(f.map((x) => x!.year))];
+  return `${SOURCE_SHORT[f[0]!.source] ?? sourceName(f[0]!.source)}, ${years.join(' and ')}`;
+};
+
+const charts = ['gdp', 'milpct'].map((id) => {
+  const s = ids.map((p) => seriesOf(id, p));
+  if (s.some((x) => !x)) return null;
+  const from = Math.max(...s.map((x) => x!.years[0]));
+  const to = Math.min(...s.map((x) => x!.years.at(-1)!));
+  if (to - from < 2) return null;
+  const years = Array.from({ length: to - from + 1 }, (_, i) => from + i);
+  return { id, years, lines: ids.map((p, i) => ({ label: nameOf(p), cls: CC[p], values: years.map((y) => s[i]!.values[s[i]!.years.indexOf(y)] ?? null) })) };
+}).filter((c) => c !== null);
+
+const mins = ids.map((p) => mineralShares(p, 0));
+// Minerals where either mines at least 1% of the world's output; the other's share is shown however small.
+const mineralIds = [...new Set(mins.flat().filter((x) => x.share >= 0.01).map((x) => x.id))];
+const pairs = mineralIds.map((mid) => {
+  const vals = mins.map((list) => list.find((x) => x.id === mid));
+  const any = vals.find((v) => v)!;
+  return { id: mid, label: any.label, year: any.year, estimated: any.estimated, vals: vals.map((v) => v?.share ?? null) };
+}).sort((x, y) => Math.max(...y.vals.map((v) => v ?? 0)) - Math.max(...x.vals.map((v) => v ?? 0)));
+const mineralYear = pairs[0]?.year;
+
+const others = routes().filter((r) => r.kind === 'compare' && r.live && r.path !== path).map((r) => {
+  const [x, y] = r.id.split(',');
+  return { href: r.path, label: T.title(countryModel(x)!.place.name, countryModel(y)!.place.name) };
+});
+const crumbs = [{ label: COUNTRY_TEXT.countries, href: paths.countries() }, { label: T.kicker }, { label: `${ma.place.name} and ${mb.place.name}` }];
+---
+<Page title={title} description={T.description(ma.place.name, mb.place.name)} container="cp" mainClass="gt-cmp" image={paths.image('compare', path.split('/').at(-1)!)} jsonld={[breadcrumbs(crumbs)]}>
+  <header class="gt-cmphead">
+    <Breadcrumbs items={crumbs} />
+    <h1 class="gt-title gt-cphead__t">{inSentence(ma.place.name, true)} and {inSentence(mb.place.name)}</h1>
+    <p class="gt-lede">{T.lede(inSentence(ma.place.name, true), inSentence(mb.place.name))}</p>
+    <div class="gt-ckey">
+      {ids.map((p) => <a class:list={['gt-cchip', CC[p]]} href={countryHref(p)}><svg viewBox="0 0 12 12" aria-hidden="true" set:html={MARK[p]} /><b>{nameOf(p)}</b><span class="gt-cchip__col">{T.colours[p]}</span></a>)}
+    </div>
+    <ShareRow url={url} text={title} />
+  </header>
+
+  <CpSection n={1} id="kf" heading={T.keyHeading}>
+    <div class="gt-tablewrap gt-cmptblwrap" style="--gt-table-h:none" tabindex="0" role="region" aria-label={T.keyHeading}>
+      <table class="gt-table gt-cmptbl">
+        <caption class="gt-caption">{T.higherNote}</caption>
+        <thead><tr>
+          <th scope="col"><span class="gt-th">{T.measure}</span></th>
+          {ids.map((p) => <th scope="col" class="n"><span class="gt-th"><span class:list={['gt-cchip', CC[p]]}><svg viewBox="0 0 12 12" aria-hidden="true" set:html={MARK[p]} /><b>{nameOf(p)}</b><span class="gt-cchip__col">{T.colours[p]}</span></span></span></th>)}
+          <th scope="col"><span class="gt-th">{T.source}</span></th>
+        </tr></thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr>
+              <th scope="row">{indicatorHref(r.id) ? <a href={indicatorHref(r.id)}>{INDICATOR_TEXT[r.id].label}</a> : INDICATOR_TEXT[r.id].label}{unitOf(r.id) && <small>{unitOf(r.id)}</small>}</th>
+              {r.f.map((f, i) => <td class:list={['n', { 'is-high': higher(r) === i }]}>{f ? shown(r.id, f.value) : '–'}{higher(r) === i && <span class="gt-higher">{T.higher}</span>}</td>)}
+              <td class="gt-cmptbl__s">{srcYear(r)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <ul class="gt-cmprows" aria-label={T.keyHeading}>
+      {rows.map((r) => (
+        <li>
+          <div class="gt-cmprows__h"><b>{INDICATOR_TEXT[r.id].label}</b><span class="gt-caption">{unitOf(r.id)}</span></div>
+          <ul>{r.f.map((f, i) => <li class={CC[ids[i]]}><span class="gt-cmprows__n"><span class:list={['gt-cchip', CC[ids[i]]]}><svg viewBox="0 0 12 12" aria-hidden="true" set:html={MARK[ids[i]]} /><b>{nameOf(ids[i])}</b></span></span><span class="gt-cmprows__v">{f ? shown(r.id, f.value) : '–'}</span>{higher(r) === i && <span class="gt-higher">{T.higher}</span>}</li>)}</ul>
+          <span class="gt-caption">{srcYear(r)}</span>
+        </li>
+      ))}
+    </ul>
+  </CpSection>
+
+  {charts.length > 0 && (
+    <div class="gt-cmp2">
+      {charts.map((c, i) => (
+        <CpSection n={2 + i} id={`over-${c.id}`} heading={`${INDICATOR_TEXT[c.id].label}: ${T.overTime.toLowerCase()}`} find={T.sameScale}
+          source={{ source: sourceName(INDICATORS[c.id].source as string), parts: [`${c.years[0]}–${c.years.at(-1)}`] }}>
+          <LineChart label={`${INDICATOR_TEXT[c.id].label}, ${ma.place.name} and ${mb.place.name}, ${c.years[0]}–${c.years.at(-1)}`} years={c.years} lines={c.lines} format={INDICATORS[c.id].format} height={280} />
+        </CpSection>
+      ))}
+    </div>
+  )}
+
+  {pairs.length > 0 && (
+    <CpSection n={2 + charts.length} id="minerals" heading={T.minerals} find={T.mineralsFind(mineralYear!)}
+      source={{ source: sourceName('usgs-minerals'), parts: [`${mineralYear}${pairs.some((x) => x.estimated) ? ', estimated' : ''}`], status: pairs.some((x) => x.estimated) ? 'estimate' : undefined }}>
+      <ul class="gt-pairs">
+        {pairs.map((x) => (
+          <li>
+            <span class="gt-pairs__m">{mineralName(x.id, x.label).replace(/^./, (ch) => ch.toUpperCase())}</span>
+            <ul>{x.vals.map((v, i) => <li class={CC[ids[i]]}><span class="gt-pairs__n">{nameOf(ids[i])}</span><span class="gt-pairs__t"><span class="gt-pairs__f" style={`width:${((v ?? 0) * 100).toFixed(1)}%`}></span></span><span class="gt-pairs__v">{v === null ? '–' : formatShare(v)}</span></li>)}</ul>
+          </li>
+        ))}
+      </ul>
+    </CpSection>
+  )}
+
+  {others.length > 0 && (
+    <section class="gt-cpsec" aria-labelledby="others-h">
+      <header class="gt-cpsec__head"><h2 class="gt-h2" id="others-h">{T.others}</h2></header>
+      <ul class="gt-cplinks">{others.map((o) => <li><a href={o.href}>{o.label} <span aria-hidden="true">→</span></a></li>)}</ul>
+    </section>
+  )}
+</Page>

@@ -119,14 +119,14 @@ const typeStyles = tokens.type.groups.flatMap((g) => g.styles.map((s) => ({ ...s
     <section id="page-frame" class="dev__sec">
       <h2 class="gt-h2">Page frame</h2>
       <div class="dev__cell"><span class="dev__cap">Header · desktop (click a group; Esc closes)</span>
-        <div class="dev__desk"><Header idPrefix="h1" current="resources" /></div>
+        <div class="dev__desk"><Header full idPrefix="h1" current="resources" /></div>
       </div>
       <div class="dev__cell dev__deskonly"><span class="dev__cap">Header · Resources menu open</span>
-        <div class="dev__desk" style="min-height:400px"><Header idPrefix="h2" open="resources" /></div>
+        <div class="dev__desk" style="min-height:400px"><Header full idPrefix="h2" open="resources" /></div>
       </div>
       <div class="dev__row">
-        <div class="dev__cell"><span class="dev__cap">Phone 390 · compact header</span><div class="dev__phone"><Header idPrefix="h3" /></div></div>
-        <div class="dev__cell"><span class="dev__cap">Phone 390 · menu, Resources open</span><div class="dev__phone"><PhoneMenu idPrefix="pm" open="resources" /></div></div>
+        <div class="dev__cell"><span class="dev__cap">Phone 390 · compact header</span><div class="dev__phone"><Header full idPrefix="h3" /></div></div>
+        <div class="dev__cell"><span class="dev__cap">Phone 390 · menu, Resources open</span><div class="dev__phone"><PhoneMenu full idPrefix="pm" open="resources" /></div></div>
       </div>
       <div class="dev__cell"><span class="dev__cap">Footer · desktop</span><div class="dev__desk"><Footer /></div></div>
       <div class="dev__cell"><span class="dev__cap">Footer · phone 390</span><div class="dev__phone"><Footer /></div></div>

@@ -1,0 +1,360 @@
+---
+// A country page (IndonesiaProfile, ThinProfile and ChinaDossier designs): header with the template summary and a
+// locator map, key figures with world rank, a numbered menu, then one section per thing a source reports. The
+// three dossiers add money, people, technology and climate sections. A place few sources cover gets the "few
+// sources" box and is not indexed. Nothing is shown for a section with no data.
+import Page from '../layouts/Page.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import StaticMap from '../components/StaticMap.astro';
+import SideMenu from '../components/SideMenu.astro';
+import CpSection from '../components/CpSection.astro';
+import CpStat from '../components/CpStat.astro';
+import DependencyTable from '../components/DependencyTable.astro';
+import DataTable from '../components/DataTable.astro';
+import LineChart from '../components/LineChart.astro';
+import Pyramid from '../components/Pyramid.astro';
+import Notice from '../components/Notice.astro';
+import SourceLine from '../components/SourceLine.astro';
+import ShareRow from '../components/ShareRow.astro';
+import StatusTag from '../components/StatusTag.astro';
+import Icon from '../components/Icon.astro';
+import '../styles/atlas/country.css';
+import '../styles/atlas/bars.css';
+import { INDICATORS } from '../data/indicators';
+import { INDICATOR_TEXT, SOURCE_TEXT } from '../i18n/en';
+import {
+  BLOCK_TEXT, COUNTRY_TEXT, DEP_TEXT, DOSSIER_TEXT, RESOURCE_TEXT, SOURCE_SHORT, inSentence, list, mineralName, ordinal,
+} from '../i18n/pages.en';
+import { countryModel, countrySources, DOSSIERS, type Figure } from '../lib/country';
+import { dossierFor } from '../lib/dossier';
+import { data, sourceName } from '../lib/data';
+import { formatDate, formatParts, formatShare, formatValue } from '../lib/format';
+import { notesFor, place } from '../lib/places';
+import { countryHref, indicatorHref, live, paths } from '../lib/routes';
+import { breadcrumbs, country as countryLd } from '../lib/structured';
+
+interface Props { id: string }
+const m = countryModel(Astro.props.id)!;
+const p = m.place;
+const name = p.name;
+const subject = inSentence(name, true);
+const url = new URL(paths.country(p.id), Astro.site).href;
+const kind = m.dossier ? COUNTRY_TEXT.kindDossier : p.kind === 'territory' ? COUNTRY_TEXT.kindTerritory : COUNTRY_TEXT.kindProfile;
+const updated = formatDate(m.updated);
+
+const label = (id: string) => INDICATOR_TEXT[id].short ?? INDICATOR_TEXT[id].label;
+const parts = (f: Figure) => formatParts(f.value, INDICATORS[f.id].format, INDICATOR_TEXT[f.id].unit);
+const projected = (f: Figure) => INDICATORS[f.id].projectedAfter !== undefined && f.year > INDICATORS[f.id].projectedAfter!;
+const short = (s: string) => SOURCE_SHORT[s] ?? sourceName(s);
+const statCaption = (f: Figure, rank = true) => [String(f.year), rank && f.of > 1 ? `${ordinal(f.rank)} of ${f.of}` : '', short(f.source)].filter(Boolean).join(' · ');
+const nameOf = (id: string) => place(id)?.name ?? id;
+
+// Dependencies: the finding names the most telling rows.
+const okDeps = m.deps.filter((d) => d.state === 'ok');
+const findDeps = (() => {
+  const bits: string[] = [];
+  const most = okDeps.filter((d) => d.tag === 'most').sort((a, b) => (b.reliance ?? 0) - (a.reliance ?? 0))[0];
+  if (most && most.reliance !== undefined) bits.push(most.reliance >= 0.995 ? DEP_TEXT.findImportAll(RESOURCE_TEXT[most.resource].noun) : DEP_TEXT.findImport(formatShare(most.reliance), RESOURCE_TEXT[most.resource].noun));
+  const exp = okDeps.find((d) => d.tag === 'exp');
+  if (exp) bits.push(DEP_TEXT.findExport(RESOURCE_TEXT[exp.resource].noun));
+  if (bits.length) return DEP_TEXT.find(subject, bits);
+  const self = okDeps.filter((d) => d.tag === 'self').map((d) => RESOURCE_TEXT[d.resource].noun);
+  return self.length ? DEP_TEXT.findSelf(subject, list(self)) : undefined;
+})();
+const depYears = [...new Set(okDeps.map((d) => d.period ?? String(d.year)).filter(Boolean))].sort();
+const depSourceNames = [...new Set(okDeps.map((d) => short(d.source)))].sort();
+
+const mineralYear = m.minerals[0]?.year;
+const blocks = m.blocks;
+const disasterParts = blocks.disasters ? Object.entries(blocks.disasters.byKind).sort((a, b) => b[1] - a[1]).map(([k, n]) => `${n} ${(BLOCK_TEXT.kinds[k] ?? [k, k])[n === 1 ? 0 : 1]}`) : [];
+const hasBlocks = Boolean(blocks.refugees || blocks.disasters || blocks.emissions || blocks.sanctions || blocks.lending);
+
+const buildYear = Number(data().snapshot.created.slice(0, 4));
+const d = m.dossier ? dossierFor(p.id, buildYear) : null;
+const pop = m.allFigures.find((f) => f.id === 'population');
+
+// Sections, in page order; the menu numbers follow them.
+const sections: { id: string; label: string }[] = [];
+const add = (id: string, menu: string, when: unknown) => { if (when) sections.push({ id, label: menu }); return sections.length; };
+const nDeps = add('deps', COUNTRY_TEXT.depsMenu, okDeps.length);
+const nMin = add('minerals', COUNTRY_TEXT.mineralsMenu, m.minerals.length);
+const nMoney = add('money', DOSSIER_TEXT.moneyMenu, d?.money);
+const nPeople = add('people', DOSSIER_TEXT.peopleMenu, d?.people);
+const nTech = add('tech', DOSSIER_TEXT.techMenu, d?.tech);
+const nClimate = add('climate', DOSSIER_TEXT.climateMenu, d?.climate);
+const nMore = add('more', COUNTRY_TEXT.moreMenu, hasBlocks);
+const nAll = add('all', COUNTRY_TEXT.allMenu, m.allFigures.length);
+
+const compareLinks = m.dossier ? DOSSIERS.filter((o) => o !== p.id).map((o) => {
+  const r = live(`compare:${[p.id, o].sort((a, b) => DOSSIERS.indexOf(a) - DOSSIERS.indexOf(b)).join(',')}`);
+  return r ? { href: r.path, label: COUNTRY_TEXT.compare(nameOf(o)) } : null;
+}).filter((x): x is { href: string; label: string } => x !== null) : [];
+const links = [...compareLinks, { href: paths.countries(), label: COUNTRY_TEXT.allCountries }];
+
+// The few-sources box: which of the sources country pages use have something for this place.
+const allSources = countrySources();
+const covered = m.sources.map((s) => s.source);
+const notCovered = allSources.filter((s) => !covered.includes(s));
+const notes = covered.flatMap((s) => notesFor(s, p.id).map((n) => ({ source: s, note: n.note })));
+const uniqueNotes = [...new Map(notes.map((n) => [n.note, n])).values()];
+
+const crumbs = [{ label: COUNTRY_TEXT.countries, href: paths.countries() }, { label: name }];
+const description = `${m.summary[0]} ${kind} with sources: key figures, dependencies${m.minerals.length ? ', minerals' : ''} and more.`.slice(0, 300);
+const citation = COUNTRY_TEXT.citation(name, kind, url, Number(m.updated.slice(0, 4)), formatDate(m.updated).replace(/^(\d+) (\w+)/, (_, dd, mm) => `${dd} ${mm}`));
+---
+<Page title={`${name}: ${kind.toLowerCase()}`} description={description} noindex={m.thin} container="cp" mainClass={m.thin ? 'gt-cp--thin' : undefined}
+  image={paths.image('countries', p.slug)} jsonld={[countryLd(name, paths.country(p.id), p.kind === 'territory' ? 'territory' : 'country', p.iso3), breadcrumbs(crumbs)]}>
+    <header class="gt-cphead">
+      <div class="gt-cphead__text">
+        <Breadcrumbs items={crumbs} />
+        <span class="gt-cphead__kind">{kind} · {COUNTRY_TEXT.updated(updated)}</span>
+        <h1 class="gt-title gt-cphead__t">{name}</h1>
+        <div class="gt-prose gt-cphead__sum">
+          <p>{m.summary.join(' ')}</p>
+          <p class="gt-caption">{COUNTRY_TEXT.auto}</p>
+        </div>
+        <dl class="gt-cpfacts">
+          {pop && <div><dt>{COUNTRY_TEXT.facts.population}</dt><dd>{formatValue(pop.value, INDICATORS.population.format)} <span class="gt-caption">({pop.year})</span></dd></div>}
+          {p.kind === 'territory' && p.parent && <div><dt>{COUNTRY_TEXT.facts.administered}</dt><dd>{countryHref(p.parent) ? <a href={countryHref(p.parent)}>{nameOf(p.parent)}</a> : nameOf(p.parent)}</dd></div>}
+          {p.status && <div><dt>{COUNTRY_TEXT.facts.status}</dt><dd>{p.status}</dd></div>}
+        </dl>
+        <ul class="gt-cplinks">{links.map((l) => <li><a href={l.href}>{l.label} <span aria-hidden="true">→</span></a></li>)}</ul>
+      </div>
+      <div class="gt-cphead__map">
+        <div class="gt-cploc"><StaticMap label={COUNTRY_TEXT.locator(name)} select={p.id} /></div>
+        <p class="gt-caption">{COUNTRY_TEXT.boundaries}</p>
+      </div>
+    </header>
+
+    {m.figures.length > 0 && (
+      <ul class="gt-cpkf" aria-label={COUNTRY_TEXT.keyFigures}>
+        {m.figures.map((f) => (
+          <li class="gt-cpkf__i">
+            <span class="gt-cpkf__label">{indicatorHref(f.id) ? <a href={indicatorHref(f.id)}>{label(f.id)}</a> : label(f.id)}</span>
+            <span class="gt-cpkf__num">{parts(f).num}<small>{parts(f).unit}</small></span>
+            {f.of > 1 && <span class="gt-rank"><b>{ordinal(f.rank)}</b> of {f.of}</span>}
+            <span class="gt-cpkf__src">{short(f.source)} · {f.year}{projected(f) && <StatusTag status="projection" small />}</span>
+          </li>
+        ))}
+      </ul>
+    )}
+
+    <div class="gt-cpbody">
+      {sections.length > 0 && <SideMenu items={sections} />}
+      <div class="gt-cpmain">
+        {m.thin && (
+          <section class="gt-cpfew" aria-labelledby="few-h">
+            <div class="gt-cpfew__icon" aria-hidden="true"><Icon name="info" /></div>
+            <div class="gt-cpfew__body">
+              <h2 class="gt-h3" id="few-h">{COUNTRY_TEXT.fewHeading}</h2>
+              <p>{COUNTRY_TEXT.fewBody(inSentence(name), covered.length, allSources.length)}</p>
+              <div class="gt-cpfew__cols">
+                <div><span class="gt-label">{COUNTRY_TEXT.fewCovered}</span><ul class="gt-cpcheck">{covered.map((s) => <li class="is-yes"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 6.5 5 9l5-6" /></svg>{sourceName(s)}</li>)}</ul></div>
+                <div><span class="gt-label">{COUNTRY_TEXT.fewNot}</span><ul class="gt-cpcheck">{notCovered.map((s) => <li class="is-no"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 3l6 6M9 3 3 9" /></svg>{sourceName(s)}</li>)}</ul></div>
+              </div>
+              <p class="gt-caption">{COUNTRY_TEXT.fewSuggest}</p>
+            </div>
+          </section>
+        )}
+
+        {okDeps.length > 0 && (
+          <CpSection n={nDeps} id="deps" heading={DEP_TEXT.heading} find={findDeps}
+            source={{ source: depSourceNames.join('; '), parts: depYears.length ? [depYears.length > 1 ? `${depYears[0]}–${depYears.at(-1)}` : depYears[0]] : [], updated: m.updated }}
+            link={live('tool:dependencies') ? { href: live('tool:dependencies')!.path, label: DEP_TEXT.link } : undefined}>
+            <DependencyTable rows={m.deps} label={`${name}: ${DEP_TEXT.heading.toLowerCase()}`} />
+          </CpSection>
+        )}
+
+        {m.minerals.length > 0 && (
+          <CpSection n={nMin} id="minerals" heading={COUNTRY_TEXT.mineralsHeading} find={m.summary.find((s) => s.includes(' mines ')) ?? undefined}
+            source={{ source: sourceName('usgs-minerals'), parts: [`${mineralYear}${m.minerals.some((x) => x.estimated) ? ', estimated' : ''}`], updated: m.updated, status: m.minerals.some((x) => x.estimated) ? 'estimate' : undefined }}
+            link={live('view:minerals') ? { href: live('view:minerals')!.path, label: COUNTRY_TEXT.mineralsLink } : undefined}>
+            <ol class="gt-bars gt-bars--tight gt-cpbars" aria-label={COUNTRY_TEXT.mineralsBars(name, mineralYear!)}>
+              {m.minerals.map((x) => (
+                <li>
+                  <span class="gt-bars__name">{mineralName(x.id, x.label).replace(/^./, (c) => c.toUpperCase())}</span>
+                  <span class="gt-bars__track"><span class="gt-bars__fill" style={`width:${(x.share * 100).toFixed(1)}%`}></span><span class="gt-bars__rest" style={`width:${(100 - x.share * 100).toFixed(1)}%`}></span></span>
+                  <span class="gt-bars__val">{formatShare(x.share)}</span>
+                </li>
+              ))}
+            </ol>
+          </CpSection>
+        )}
+
+        {d?.money && (
+          <CpSection n={nMoney} id="money" heading={DOSSIER_TEXT.money}
+            find={m.figures.find((f) => f.id === 'gdp') ? DOSSIER_TEXT.moneyFind(name, formatValue(m.figures.find((f) => f.id === 'gdp')!.value, INDICATORS.gdp.format), m.figures.find((f) => f.id === 'gdp')!.year) : undefined}>
+            <div class="gt-cpgrid">
+              {d.money.gdp && (
+                <div class="gt-cpsub">
+                  <h3 class="gt-h3">{INDICATOR_TEXT.gdp.label}, {d.money.gdp.years[0]}–{d.money.gdp.years.at(-1)}</h3>
+                  <LineChart label={DOSSIER_TEXT.gdpChart(name)} years={d.money.gdp.years} lines={[{ label: 'GDP', values: d.money.gdp.values, noLabel: true }]} format={INDICATORS.gdp.format} />
+                  <SourceLine source={sourceName('worldbank')} parts={[`${d.money.gdp.years[0]}–${d.money.gdp.years.at(-1)}`]} updated={m.updated} />
+                </div>
+              )}
+              <div class="gt-cpstack">
+                {d.money.stats.length > 0 && (
+                  <div class="gt-cpstats">{d.money.stats.map((f) => <CpStat label={label(f.id)} num={parts(f).num} unit={parts(f).unit} caption={statCaption(f)} />)}</div>
+                )}
+                {d.money.treasuries && (
+                  <div class="gt-cpsub">
+                    <h3 class="gt-h3">{DOSSIER_TEXT.treasuries}</h3>
+                    <CpStat label={DOSSIER_TEXT.treasuries} num={`US$${new Intl.NumberFormat('en').format(Math.round(d.money.treasuries.value))}`} unit="bn"
+                      caption={DOSSIER_TEXT.treasuriesNote(d.money.treasuries.month, d.money.treasuries.prev !== null ? `US$${new Intl.NumberFormat('en').format(Math.round(d.money.treasuries.prev))}bn` : null)} />
+                    <SourceLine source={sourceName('treasury')} parts={[d.money.treasuries.month]} updated={m.updated} />
+                  </div>
+                )}
+              </div>
+            </div>
+          </CpSection>
+        )}
+
+        {d?.people && (
+          <CpSection n={nPeople} id="people" heading={DOSSIER_TEXT.people}
+            find={pop ? DOSSIER_TEXT.peopleFind(name, formatValue(pop.value, INDICATORS.population.format), pop.year) : undefined}>
+            <div class="gt-cpgrid">
+              {d.people.years.length > 1 && (
+                <div class="gt-cpsub">
+                  <h3 class="gt-h3">{INDICATOR_TEXT.population.label}, {d.people.years[0]}–{d.people.years.at(-1)}</h3>
+                  <LineChart label={DOSSIER_TEXT.popChart(name)} years={d.people.years} lines={[{ label: DOSSIER_TEXT.popProjection, values: d.people.medium, noLabel: true }]}
+                    format={INDICATORS.population.format} projectedAfter={d.people.lastEstimate} band={d.people.band ?? undefined} />
+                  <div class="gt-legend__extra"><span>{DOSSIER_TEXT.projection}: {DOSSIER_TEXT.popProjection.toLowerCase()}, after {d.people.lastEstimate}</span>{d.people.band && <span><i class="gt-sw gt-lc__bandkey"></i>{DOSSIER_TEXT.popRange}</span>}</div>
+                  <SourceLine source={sourceName('wpp')} updated={m.updated} status="projection" />
+                </div>
+              )}
+              {d.people.pyramid && (
+                <div class="gt-cpsub">
+                  <h3 class="gt-h3">{DOSSIER_TEXT.pyramid(name)}, {d.people.pyramid.year}</h3>
+                  <figure class="gt-pyr">
+                    <Pyramid label={`${DOSSIER_TEXT.pyramid(name)}, ${d.people.pyramid.year}`} groups={d.people.pyramid.groups} />
+                    <figcaption class="gt-caption">{DOSSIER_TEXT.pyramidCaption(d.people.pyramid.year > d.people.lastEstimate)}</figcaption>
+                  </figure>
+                </div>
+              )}
+            </div>
+            {(d.people.stats.length > 0 || d.people.old !== null) && (
+              <div class="gt-cpstats">
+                {d.people.stats.map((f) => <CpStat label={label(f.id)} num={parts(f).num} unit={parts(f).unit} caption={statCaption(f)} />)}
+                {d.people.old !== null && <CpStat label={DOSSIER_TEXT.aged65} num={formatShare(d.people.old).replace('%', '')} unit="%" caption={`${d.people.oldYear} · ${short('wpp')}`} />}
+              </div>
+            )}
+          </CpSection>
+        )}
+
+        {d?.tech && (
+          <CpSection n={nTech} id="tech" heading={DOSSIER_TEXT.tech}
+            find={d.tech.stats.find((f) => f.id === 'satellites') ? DOSSIER_TEXT.techFind(inSentence(name), formatValue(d.tech.stats.find((f) => f.id === 'satellites')!.value, INDICATORS.satellites.format), d.tech.stats.find((f) => f.id === 'satellites')!.year) : undefined}>
+            <div class="gt-cpstats">
+              {d.tech.stats.map((f) => <CpStat label={label(f.id)} num={parts(f).num} unit={parts(f).unit} caption={statCaption(f)} />)}
+              {d.tech.models && <CpStat label={DOSSIER_TEXT.models} num={String(d.tech.models.value)} caption={`${d.tech.models.year} · ${short('epoch')}`} />}
+            </div>
+          </CpSection>
+        )}
+
+        {d?.climate && (
+          <CpSection n={nClimate} id="climate" heading={DOSSIER_TEXT.climate}
+            find={d.climate.stats.find((f) => f.id === 'co2') ? DOSSIER_TEXT.climateFind(subject, formatValue(d.climate.stats.find((f) => f.id === 'co2')!.value, INDICATORS.co2.format), d.climate.stats.find((f) => f.id === 'co2')!.year) : undefined}>
+            {d.climate.co2 && (
+              <div class="gt-cpsub">
+                <h3 class="gt-h3">{DOSSIER_TEXT.co2Chart(name)}, {d.climate.co2.years[0]}–{d.climate.co2.years.at(-1)}</h3>
+                <LineChart label={DOSSIER_TEXT.co2Chart(name)} years={d.climate.co2.years} lines={[{ label: 'CO2', values: d.climate.co2.values, noLabel: true }]} format={INDICATORS.co2.format} />
+                <SourceLine source={sourceName('owid')} parts={[`${d.climate.co2.years[0]}–${d.climate.co2.years.at(-1)}`]} updated={m.updated} />
+              </div>
+            )}
+            <div class="gt-cpstats">{d.climate.stats.map((f) => <CpStat label={label(f.id)} num={parts(f).num} unit={parts(f).unit} caption={statCaption(f)} />)}</div>
+          </CpSection>
+        )}
+
+        {hasBlocks && (
+          <section class="gt-cpsec" id="more" aria-labelledby="more-h">
+            <header class="gt-cpsec__head"><span class="gt-cpsec__n">{nMore}</span><h2 class="gt-h2" id="more-h">{COUNTRY_TEXT.moreHeading}</h2></header>
+            <p class="gt-cpsec__find">{COUNTRY_TEXT.moreFind(inSentence(name))}</p>
+            <div class="gt-cpblocks">
+              {blocks.refugees && (
+                <article class="gt-cpblock">
+                  <h3 class="gt-h3">{BLOCK_TEXT.refugees}</h3>
+                  {blocks.refugees.hosted && <CpStat num={formatValue(blocks.refugees.hosted.value, INDICATORS.refin.format)} caption={BLOCK_TEXT.hosted(blocks.refugees.hosted.year)} />}
+                  {blocks.refugees.from && <CpStat num={formatValue(blocks.refugees.from.value, INDICATORS.refout.format)} caption={BLOCK_TEXT.fledFrom(blocks.refugees.from.year)} />}
+                  <SourceLine source={sourceName('unhcr')} parts={[String((blocks.refugees.hosted ?? blocks.refugees.from)!.year)]} />
+                </article>
+              )}
+              {blocks.disasters && (
+                <article class="gt-cpblock">
+                  <h3 class="gt-h3">{BLOCK_TEXT.disasters}</h3>
+                  {blocks.disasters.count > 0
+                    ? <CpStat num={String(blocks.disasters.count)} caption={BLOCK_TEXT.alerts(disasterParts)} />
+                    : <p class="gt-caption">{BLOCK_TEXT.noAlerts}</p>}
+                  <SourceLine source={sourceName('gdacs')} parts={[BLOCK_TEXT.pastYear(formatDate(blocks.disasters.from), formatDate(blocks.disasters.to))]} />
+                </article>
+              )}
+              {blocks.emissions && (
+                <article class="gt-cpblock">
+                  <h3 class="gt-h3">{BLOCK_TEXT.emissions}</h3>
+                  <CpStat num={parts(blocks.emissions).num} unit={parts(blocks.emissions).unit} caption={BLOCK_TEXT.co2pc(blocks.emissions.year, ordinal(blocks.emissions.rank), blocks.emissions.of)} />
+                  <SourceLine source={sourceName('owid')} parts={[String(blocks.emissions.year)]} />
+                </article>
+              )}
+              {blocks.sanctions && (
+                <article class="gt-cpblock">
+                  <h3 class="gt-h3">{BLOCK_TEXT.sanctions}</h3>
+                  {blocks.sanctions.listings
+                    ? <CpStat num={new Intl.NumberFormat('en').format(blocks.sanctions.listings.total)} caption={BLOCK_TEXT.listings((['US', 'EU', 'UK'] as const).filter((k) => blocks.sanctions!.listings!.byList[k]).map((k) => BLOCK_TEXT.listPart(k, new Intl.NumberFormat('en').format(blocks.sanctions!.listings!.byList[k]))))} />
+                    : <p class="gt-caption">{BLOCK_TEXT.noListings}</p>}
+                  <p class="gt-caption">{BLOCK_TEXT.sanctionsNote}</p>
+                  <SourceLine source={['csl', 'eu-sanctions', 'uk-sanctions'].map(short).join('; ')} updated={m.updated} />
+                </article>
+              )}
+              {blocks.lending && (
+                <article class="gt-cpblock">
+                  <h3 class="gt-h3">{BLOCK_TEXT.lending}</h3>
+                  <CpStat num={formatParts(blocks.lending.total, INDICATORS.chinaloans.format).num} unit={formatParts(blocks.lending.total, INDICATORS.chinaloans.format).unit} caption={BLOCK_TEXT.lent(blocks.lending.from, blocks.lending.to)} />
+                  <SourceLine source={sourceName('aiddata')} parts={[`${blocks.lending.from}–${blocks.lending.to}`]} />
+                </article>
+              )}
+            </div>
+          </section>
+        )}
+
+        {m.allFigures.length > 0 && (
+          <CpSection n={nAll} id="all" heading={COUNTRY_TEXT.allHeading} find={COUNTRY_TEXT.allFind(inSentence(name), m.allFigures.length)}>
+            <DataTable label={COUNTRY_TEXT.allLabel(name)} compact height="none"
+              columns={[
+                { key: 'measure', label: COUNTRY_TEXT.allColumns.measure },
+                { key: 'value', label: COUNTRY_TEXT.allColumns.value, num: true },
+                { key: 'year', label: COUNTRY_TEXT.allColumns.year, num: true },
+                { key: 'rank', label: COUNTRY_TEXT.allColumns.rank, num: true },
+                { key: 'source', label: COUNTRY_TEXT.allColumns.source },
+              ]}
+              rows={m.allFigures.map((f) => [
+                { v: INDICATOR_TEXT[f.id].label, href: indicatorHref(f.id) },
+                { v: f.value, text: formatValue(f.value, INDICATORS[f.id].format), status: projected(f) ? 'projection' : undefined },
+                { v: f.year, text: String(f.year) },
+                f.of > 1 ? { v: f.rank, text: `${ordinal(f.rank)} of ${f.of}` } : null,
+                short(f.source),
+              ])} />
+          </CpSection>
+        )}
+
+        {uniqueNotes.length > 0 && (
+          <Notice>
+            <p><b>{COUNTRY_TEXT.coverage}.</b> {uniqueNotes.map((n) => `${n.note} (${short(n.source)}).`).join(' ')}</p>
+          </Notice>
+        )}
+
+        <section class="gt-cpsources" aria-labelledby="srcs">
+          <h2 class="gt-h2" id="srcs">{COUNTRY_TEXT.sourcesHeading}</h2>
+          <ul class="gt-cpsources__list">{m.sources.map((s) => <li><b>{sourceName(s.source)}</b><span>{s.feeds.slice(0, 6).join(', ')}{s.feeds.length > 6 ? ', …' : ''}</span></li>)}</ul>
+          <div class="gt-cpsources__row">
+            <p class="gt-source"><span>{COUNTRY_TEXT.pageUpdated(updated)}</span><span class="gt-source__sep" aria-hidden="true">·</span><a href={paths.page('methodology')}>{COUNTRY_TEXT.howWeMeasure}</a></p>
+            <button class="gt-cite" type="button" data-gt-copy={citation}><Icon name="copy" /><span data-label>{SOURCE_TEXT.cite}</span></button>
+          </div>
+          <ShareRow url={url} text={`${name}: ${kind.toLowerCase()}`} />
+        </section>
+      </div>
+    </div>
+</Page>
+
+<script>
+  import { initCopy } from '../scripts/copy';
+  initCopy();
+</script>
