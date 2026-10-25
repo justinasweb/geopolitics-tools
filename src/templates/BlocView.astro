@@ -66,6 +66,7 @@ const picker = ['all', ...BLOC_ORDER].filter((b) => live(key(b))).map((b) => ({ 
 const notes = all ? [] : Object.entries(MEMBER_NOTES[id] ?? {}).map(([x, text]) => ({ id: x, text }));
 const noteNo = (x: string) => notes.findIndex((n) => n.id === x) + 1;
 const related = [
+  ...(all || !live(`view:alliance-history:${id}`) ? [] : [{ href: live(`view:alliance-history:${id}`)!.path, name: B.history, note: B.historyNote(name) }]),
   ...(all ? [] : [{ href: route(key('all'))!.path, name: B.allTitle, note: B.allLink }]),
   ...(all ? [] : p!.byPopulation.slice(0, 3)).filter((x) => countryHref(x)).map((x) => ({ href: countryHref(x)!, name: nameOf(x), note: DOSSIERS.includes(x) ? B.dossier : B.countryPage })),
   ...(all ? blocPages().slice(0, 4) : p!.overlaps.slice(0, 2).map((o) => blocPage(o.id)!)).filter((b) => live(key(b.id))).map((b) => ({ href: live(key(b.id))!.path, name: BLOC_TEXT[b.id] ?? b.id, note: B.sameView })),

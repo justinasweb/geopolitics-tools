@@ -133,6 +133,15 @@ How the adapter (`src/adapters/minerals.ts`) reads them:
 
 /blocs maps how many of the 19 groupings each country belongs to; /blocs/{bloc} maps one grouping's members (src/lib/blocview.ts, src/templates/BlocView.astro). Members come from src/data/blocs.csv, as of the date it was last checked; the layer has one "year" and no slider. A grouping's share of the world adds up its members' figures (population, GDP, military spending, CO2, the four crops, and each mineral's mine production where members mine at least 1%) against the sum for every country with a figure, a year back where the latest is missing. "Outline a bloc" on a grouping's page shows its overlap with a second one. A line on what each grouping is, and notes on single memberships (Armenia in the CSTO), are in src/i18n/blocs.en.ts. Alliance history (/blocs/{bloc}/history) is not built yet.
 
+## Alliance history (phase 5a)
+
+`/blocs/{bloc}/history` for 11 groupings (NATO, EU, G7, G20, BRICS, SCO, ASEAN, OPEC, CSTO, Quad, OECD). Spans come from
+`src/data/bloc-history.csv` (`bloc,place,from,to`, years only, one row per membership; `to` is the year the country left), compiled
+by hand from each grouping's own member list and history, because Wikidata is not reachable from the build. A test checks that the
+spans still open match `src/data/blocs.csv`. The map shades, per year, who joined, who was a member, who left that year and who had
+left before; countries are drawn on today's borders (West Germany appears as Germany), and a note says so next to the map.
+Notes on changes that are not joins or exits (France and NATO's integrated command) are in `HISTORY_EVENTS`.
+
 ## Not done in this phase
 
 - Refining shares and trade flows on the minerals views: later phases, once their sources are in.

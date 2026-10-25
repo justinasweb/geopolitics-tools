@@ -19,9 +19,10 @@ import { VIEW_TEXT } from '../../../i18n/views.en';
 import { DISASTERS_TEXT, KIND_TEXT } from '../../../i18n/disasters.en';
 import { disasterPage } from '../../../lib/disasters';
 import { FOOD_TEXT } from '../../../i18n/food.en';
-import { BLOCS_TEXT, MEASURE_TEXT } from '../../../i18n/blocs.en';
+import { BLOCS_TEXT, HISTORY_TEXT, MEASURE_TEXT } from '../../../i18n/blocs.en';
 import { BLOC_TEXT } from '../../../i18n/map.en';
 import { blocPage, membershipCounts } from '../../../lib/blocview';
+import { historyPage } from '../../../lib/history';
 import { foodPage, lede as foodLede, mt, netText, shareOf as foodShare } from '../../../lib/food';
 
 export const getStaticPaths = (() => {
@@ -96,6 +97,18 @@ function card(r: Route | null): Card {
     return {
       kicker: BLOCS_TEXT.section, title: BLOC_TEXT[id] ?? id, figure: String(p.members.length), caption: BLOCS_TEXT.sub(p.members.length),
       bars: p.shares.slice(0, 5).map((s) => ({ label: `${MEASURE_TEXT[s.id]}, ${s.year}`, value: s.share, text: formatShare(s.share) })),
+    };
+  }
+  if (r.kind === 'view' && r.id.startsWith('history:')) {
+    const id = r.id.split(':')[1];
+    const p = historyPage(id)!;
+    const name = BLOC_TEXT[id] ?? id;
+    const first = p.years[0];
+    const last = p.years.at(-1)!;
+    const steps = [...new Set([first, ...p.changes.filter((y) => y % 5 === 0 || y === p.changes.at(-1)), last])].slice(-5);
+    return {
+      kicker: HISTORY_TEXT.section, title: HISTORY_TEXT.title(name), figure: String(p.byYear[last].members.length), caption: HISTORY_TEXT.sub(first, last),
+      bars: steps.map((y) => ({ label: String(y), value: p.byYear[y].members.length, text: String(p.byYear[y].members.length) })),
     };
   }
   if (r.kind === 'view' && r.id.startsWith('food:')) {

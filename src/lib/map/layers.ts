@@ -5,7 +5,8 @@ import { MAP_TEXT, BLOC_TEXT, PANEL_TEXT as PT } from '../../i18n/map.en.ts';
 import { tagHtml } from '../tags.ts';
 import { BLOCS_CHECKED, blocs } from '../blocs.ts';
 import { blocPage, blocPages, blocsOf, countClass as blocCountClass, measureYear, membershipCounts, weightIn } from '../blocview.ts';
-import { BLOCS_TEXT, MEASURE_TEXT, MEMBER_NOTES } from '../../i18n/blocs.en.ts';
+import { BLOCS_TEXT, HISTORY_TEXT, MEASURE_TEXT, MEMBER_NOTES } from '../../i18n/blocs.en.ts';
+import { HISTORY_BLOCS, STATUS_CLASS, historyPage, spanText, statusIn } from '../history.ts';
 import { DOSSIERS } from '../country.ts';
 import { PLACES, NOTES } from '../places.ts';
 import { countryHref, live } from '../routes.ts';
@@ -475,6 +476,41 @@ function blocLayer(id: string): LayerFile {
   };
 }
 
+/** A grouping's members year by year since its founding: joined that year, member, left that year, former member. */
+function historyLayer(id: string): LayerFile {
+  const c = common();
+  const H = HISTORY_TEXT;
+  const p = historyPage(id)!;
+  const name = BLOC_TEXT[id] ?? id;
+  const today = blocs();
+  const data: LayerYear[] = p.years.map((year) => {
+    const v: Record<string, Entry> = {};
+    for (const pl of p.ever) {
+      const st = statusIn(p.spans, pl, year);
+      if (st) v[pl] = [STATUS_CLASS[st], H.status[st], H.since(spanText(p.spans, pl)), 0, 0];
+    }
+    const members = p.byYear[year].members;
+    const bl: Record<string, string> = {};
+    for (const [b, m] of today) bl[b] = H.blocLine(BLOC_TEXT[b] ?? b, m.filter((x) => members.includes(x)).length, m.length, name, year);
+    return { year, legend: H.legend(year), v, order: members, blocs: bl };
+  });
+  const more: Record<string, PanelBlock[]> = {};
+  for (const pl of p.ever) {
+    more[pl] = [{ label: H.spans, rows: p.spans.filter((s) => s.place === pl).map((s) => ({ name: `${H.joined} ${s.from}`, value: s.to === null ? H.status.member : `${H.left} ${s.to}` })) }];
+  }
+  return {
+    id: `history-${id}`, scale: 'seq', years: p.years, year: p.years.at(-1)!, ticks: [],
+    missing: { none: H.notMember }, source: H.source,
+    text: {
+      ...(c.words as LayerFile['text']),
+      kicker: `${name} · {year}`, measure: '', shareLabel: H.membership, none: H.notMember,
+      withheld: MAP_TEXT.withheldBy, withheldWhy: '', prev: '{year}: {value}', rank: VIEWS_TEXT.rank(0, 1).replace('0', '{rank}').replace('1', '{of}'),
+      detailLabel: H.spans, statusLabel: PT.status,
+    },
+    tags: c.tags, names: c.names, hrefs: c.hrefs, dossiers: c.dossiers, slugs: c.slugs, notes: c.notes, blocs: c.blocs, data, more,
+  };
+}
+
 const placeNames = new Map(PLACES.map((x) => [x.id, x.name]));
 const nameOf2 = (id: string) => placeNames.get(id) ?? id;
 
@@ -485,6 +521,7 @@ export function mapLayers(): LayerDef[] {
     ...viewPages().map((p) => ({ id: `${p.family.id}-${p.id}`, view: `view:${p.family.id}:${p.id}`, topic: p.family.hub, build: () => indicatorLayer(p) })),
     ...disasterPages().map((p) => ({ id: `disasters-${p.id}`, view: `view:disasters:${p.id}`, topic: 'climate', build: () => disasterLayer(p) })),
     ...foodPages().map((p) => ({ id: `food-${p.id}`, view: `view:food:${p.id}`, topic: 'resources', build: () => foodLayer(p) })),
+    ...HISTORY_BLOCS.map((id) => ({ id: `history-${id}`, view: `view:alliance-history:${id}`, topic: 'power', build: () => historyLayer(id) })),
     ...['all', ...blocPages().map((b) => b.id)].map((id) => ({ id: `blocs-${id}`, view: `view:blocs:${id}`, topic: 'power', build: () => blocLayer(id) })),
   ];
   return defs;

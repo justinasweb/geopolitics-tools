@@ -19,6 +19,7 @@ import { disasterPages } from './disasters.ts';
 import { foodPages } from './food.ts';
 import { blocPages } from './blocview.ts';
 import { BLOCS_CHECKED } from './blocs.ts';
+import { HISTORY_BLOCS } from './history.ts';
 
 export type Lang = 'en';
 export type Kind = 'countries' | 'country' | 'compare' | 'indicators' | 'indicator' | 'page' | 'sources' | 'view' | 'hub' | 'tool';
@@ -62,6 +63,8 @@ export const paths = {
   food: (commodity: string, layer: string) => `/${S.food}/${FOOD_SLUGS[commodity]}${FOOD_LAYER_SLUGS[layer] ? `/${FOOD_LAYER_SLUGS[layer]}` : ''}`,
   /** Blocs: /blocs, /blocs/nato. */
   blocs: (bloc: string) => `/${S.blocs}${BLOC_SLUGS[bloc] ? `/${BLOC_SLUGS[bloc]}` : ''}`,
+  /** Alliance history: /blocs/nato/history. */
+  history: (bloc: string) => `/${S.blocs}/${BLOC_SLUGS[bloc]}/history`,
   /** Disasters: /disasters, /disasters/earthquakes. */
   disasters: (kind: string) => `/${S.disasters}${DISASTER_SLUGS[kind] ? `/${DISASTER_SLUGS[kind]}` : ''}`,
 };
@@ -143,6 +146,15 @@ function build(): Route[] {
     out.push({
       key: `view:blocs:${id}`, kind: 'view', lang, path: paths.blocs(id), live: true, indexed: true,
       aliases: [], id: `blocs:${id}`, image: paths.image('views', `blocs-${id}`), lastmod: BLOCS_CHECKED,
+    });
+  }
+
+  // Alliance history (phase 5): /blocs/{bloc}/history for the 11 groupings with one.
+  families.add('alliance-history');
+  for (const id of HISTORY_BLOCS) {
+    out.push({
+      key: `view:alliance-history:${id}`, kind: 'view', lang, path: paths.history(id), live: true, indexed: true,
+      aliases: [], id: `history:${id}`, image: paths.image('views', `history-${id}`), lastmod: BLOCS_CHECKED,
     });
   }
 

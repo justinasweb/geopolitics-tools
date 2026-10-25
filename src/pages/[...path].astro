@@ -14,6 +14,7 @@ import IndicatorView from '../templates/IndicatorView.astro';
 import DisasterView from '../templates/DisasterView.astro';
 import FoodView from '../templates/FoodView.astro';
 import BlocView from '../templates/BlocView.astro';
+import HistoryView from '../templates/HistoryView.astro';
 import { BUILT_KINDS, routes, type Route } from '../lib/routes';
 
 export const getStaticPaths = (() =>
@@ -34,4 +35,5 @@ const [a, b] = route.id.split(',');
 {route.kind === 'view' && route.id.startsWith('disasters:') && <DisasterView id={route.id.split(':')[1]} />}
 {route.kind === 'view' && route.id.startsWith('food:') && <FoodView id={route.id.split(':')[1]} />}
 {route.kind === 'view' && route.id.startsWith('blocs:') && <BlocView id={route.id.split(':')[1]} />}
-{route.kind === 'view' && !/^(minerals|disasters|food|blocs):/.test(route.id) && <IndicatorView id={route.id.split(':')[1]} />}
+{route.kind === 'view' && route.id.startsWith('history:') && <HistoryView id={route.id.split(':')[1]} />}
+{route.kind === 'view' && !/^(minerals|disasters|food|blocs|history):/.test(route.id) && <IndicatorView id={route.id.split(':')[1]} />}

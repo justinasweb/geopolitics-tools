@@ -93,6 +93,7 @@ export const BLOCS_TEXT = {
   weightLabel: 'Its share of the grouping',
   weightCaption: 'Of the members’ combined total',
   history: 'Membership history',
+  historyNote: (bloc: string) => `Who joined and left ${bloc}, year by year`,
   // The tables.
   summary: 'Summary',
   members: 'Members',
@@ -133,3 +134,94 @@ export const MEASURE_IN: Record<string, string> = {
   wheatprod: 'wheat', maizeprod: 'maize', riceprod: 'rice', soyprod: 'soybeans',
 };
 
+
+/** Changes that are not joins or exits, by grouping and year: hand-written, from the groupings' own histories. */
+export const HISTORY_EVENTS: Record<string, Record<number, string>> = {
+  nato: {
+    1955: 'West Germany joined. Countries are drawn on today’s borders, so it appears as Germany.',
+    1966: 'France left NATO’s integrated military command; it stayed a member of the alliance.',
+    1974: 'Greece left the integrated military command; it returned in 1980.',
+    1980: 'Greece returned to the integrated military command.',
+    1990: 'Germany reunified, and the former East Germany became part of NATO with it.',
+    2009: 'France returned to the integrated military command.',
+  },
+  eu: {
+    1958: 'The European Economic Community began. The European Union was founded on it in 1993.',
+    1973: 'Denmark, Ireland and the United Kingdom joined.',
+    1990: 'Germany reunified, and the former East Germany became part of the community with it.',
+    1993: 'The Maastricht Treaty came into force, founding the European Union.',
+    2016: 'The United Kingdom voted to leave in a referendum.',
+    2020: 'The United Kingdom left on 31 January.',
+  },
+  g7: {
+    1975: 'France, West Germany, Italy, Japan, the United Kingdom and the United States held the first summit.',
+    1997: 'With Russia, the group met as the G8.',
+    2014: 'Russia was suspended after its annexation of Crimea, and the group met as the G7 again.',
+  },
+  g20: {
+    1999: 'Finance ministers and central bank governors first met as the G20.',
+    2008: 'Leaders held the first G20 summit.',
+    2023: 'The African Union became a member; it is not a country, so it is not on the map.',
+  },
+  brics: {
+    2009: 'Brazil, Russia, India and China held the first summit.',
+    2024: 'Egypt, Ethiopia, Iran and the United Arab Emirates joined. Saudi Arabia was invited in 2023 but has not confirmed that it joined, so it is not shown.',
+    2025: 'Indonesia joined.',
+  },
+  sco: {
+    1996: 'China, Kazakhstan, Kyrgyzstan, Russia and Tajikistan first met as the Shanghai Five.',
+    2001: 'The Shanghai Cooperation Organisation was founded, with Uzbekistan joining.',
+  },
+  asean: { 2025: 'Timor-Leste was admitted.' },
+  opec: {
+    2016: 'Indonesia rejoined in January and suspended its membership again in November.',
+    2024: 'Angola left.',
+  },
+  csto: {
+    1992: 'The Collective Security Treaty was signed.',
+    1999: 'Azerbaijan, Georgia and Uzbekistan did not renew the treaty.',
+    2002: 'The treaty’s members founded the Collective Security Treaty Organization.',
+    2012: 'Uzbekistan suspended its membership.',
+    2024: 'Armenia froze its participation; it has not left.',
+  },
+  quad: {
+    2008: 'Australia withdrew, and the four countries stopped meeting.',
+    2017: 'The four countries revived the dialogue.',
+  },
+  oecd: { 1961: 'The OECD replaced the Organisation for European Economic Co-operation.' },
+};
+
+export const HISTORY_TEXT = {
+  section: 'Alliance history',
+  pickerLabel: 'Grouping',
+  title: (bloc: string) => `${bloc}: membership history`,
+  sub: (from: number, to: number) => `${from}–${to}`,
+  lede: (bloc: string, first: number, n0: number, n: number, last: number, changes: number) =>
+    `${bloc} began in ${first} with ${n0} member${n0 === 1 ? '' : 's'} and had ${n} in ${last}; membership changed in ${changes} year${changes === 1 ? '' : 's'}.`,
+  description: (bloc: string, from: number) => `${bloc} membership year by year since ${from}: who joined, who left, on a map with a timeline.`,
+  status: { joined: 'Joined that year', member: 'Member', left: 'Left that year', former: 'Former member' } as Record<string, string>,
+  notMember: 'Not a member',
+  legend: (y: number) => `Membership, ${y}`,
+  since: (span: string) => `Member ${span}`,
+  membership: 'Membership',
+  spans: 'Membership years',
+  members: 'Members',
+  joined: 'Joined',
+  left: 'Left',
+  note: 'Note',
+  changesIn: (y: number) => `Changes in ${y}`,
+  noChange: 'No one joined or left.',
+  timeline: 'Timeline',
+  timelineCaption: (bloc: string) => `Every year in which a country joined or left ${bloc}, with notes on other changes.`,
+  everTable: 'Every country that has been a member',
+  everCaption: 'Years of membership; a dash after a year means it is still a member.',
+  year: 'Year',
+  country: 'Country',
+  count: 'Members',
+  mapLabel: (bloc: string, y: number, n: number) => `World map: members of ${bloc} in ${y}, ${n} countries. The timeline below lists every change.`,
+  caveat: 'Countries are drawn on today’s borders. Years are those of accession or exit as the grouping records them; a year is not the exact date.',
+  source: 'The groupings’ own member lists and histories',
+  blocLine: (other: string, k: number, n: number, bloc: string, y: number) => (k ? `${k} of today’s ${n} ${other} members were in ${bloc} in ${y}.` : `None of today’s ${other} members were in ${bloc} in ${y}.`),
+  today: 'Members today',
+  history: 'Membership history',
+};
