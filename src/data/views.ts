@@ -12,6 +12,8 @@ export interface ViewLayer {
   sums: boolean;
   /** The source's latest year is still running (launches): the view stops at the last full year. */
   fullYears?: boolean;
+  /** Fixed class edges, for scores with named bands (water stress); the layer's words give the ticks. */
+  edges?: number[];
 }
 
 export interface ViewFamily {
@@ -52,6 +54,24 @@ export const VIEW_FAMILIES: ViewFamily[] = [
       // A model from labs in two countries counts for each, so countries' figures do not add up to a world total.
       { indicator: 'aimodels', scale: 'seq', sums: false, fullYears: true },
       { indicator: 'entitylist', scale: 'seq', sums: true },
+    ],
+  },
+  {
+    id: 'water', hub: 'climate', layers: [
+      // Aqueduct's score bands: 0–1 low, 1–2 low to medium, 2–3 medium to high, 3–4 high, 4–5 extremely high.
+      { indicator: 'waterstress', scale: 'seq', sums: false, edges: [1, 2, 3, 4] },
+      { indicator: 'waterstress2050', scale: 'seq', sums: false, edges: [1, 2, 3, 4] },
+      { indicator: 'waterdep', scale: 'seq', sums: false },
+    ],
+  },
+  {
+    id: 'chinese-lending', hub: 'power', layers: [
+      { indicator: 'lendall', scale: 'seq', sums: true },
+      { indicator: 'lendenergy', scale: 'seq', sums: true },
+      { indicator: 'lendtransport', scale: 'seq', sums: true },
+      { indicator: 'lendindustry', scale: 'seq', sums: true },
+      { indicator: 'lendbanking', scale: 'seq', sums: true },
+      { indicator: 'lendother', scale: 'seq', sums: true },
     ],
   },
   {

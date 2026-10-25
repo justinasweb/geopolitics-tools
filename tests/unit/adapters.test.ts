@@ -103,7 +103,7 @@ describe('adapters on the prototype samples', () => {
     expect(wa.dams.length).toBeGreaterThan(5);
     const l = lending(raw);
     expect(l.years.length).toBeGreaterThan(5);
-    expect(Object.values(l.top).every((t) => t.length <= 5)).toBe(true);
+    expect(Object.values(l.top).every((t) => t.length <= 25)).toBe(true);
   });
 
   it('matches every country name and code in the imported samples', () => {

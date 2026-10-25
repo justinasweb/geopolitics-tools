@@ -164,6 +164,21 @@ spec's `/ai/chips`) waits on UN Comtrade.
 (each list alone, view-only measures). The panel splits a country's listings by list, by kind of target and by the main
 programmes. Counts are of listings, so a target on two lists counts twice in the total; this is said next to the figure.
 
+## Water and dams (phase 5a)
+
+`/water` (WRI Aqueduct baseline water stress, fixed bands from the score: under 10% to over 80% withdrawn), `/water/2050`
+(business-as-usual projection) and `/water/from-abroad` (AQUASTAT dependency ratio, latest year per country). The water
+stress map marks dams in Global Dam Watch holding at least 1 km³, with a table of the largest. The importer reads the 2026
+AQUASTAT bulk file (countries by M49 code) and the GDW v1.0 attribute table (`GDW_barriers_v1_0.txt`, GRanD dams only;
+the dam's own position, else where it meets the river). The disputed rivers pages are not built yet.
+
+## Chinese lending (phase 5a)
+
+`/chinese-lending` and `/chinese-lending/{energy,transport,mining,banking,other}`: AidData commitments 2000–2021 added up,
+in 2021 dollars, records recommended for aggregates only. The panel splits a country's total by sector and by aid-like or
+lending-like flows and lists its largest projects; the page lists the largest commitments. AidData 3.0 writes sectors in
+capitals, so the sector groups match without case.
+
 ## Not done in this phase
 
 - Refining shares and trade flows on the minerals views: later phases, once their sources are in.

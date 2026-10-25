@@ -4,6 +4,17 @@
 // ones, under their own source id. Ported from the prototype's fetchers/import.php.
 import { CheckError, check } from '../lib/source.ts';
 import { parseCsv } from '../lib/csv.ts';
+import { matcher } from '../../src/adapters/core.ts';
+import { PLACES } from '../../src/lib/places.ts';
+
+/** The two AQUASTAT variables the water view reads. */
+const AQUASTAT_VARIABLES = ['Dependency ratio', 'Total renewable water resources per capita'];
+let m49: Map<string, string> | null = null;
+const iso3ByM49 = () => (m49 ??= new Map(PLACES.filter((p) => p.m49 && p.iso3).map((p) => [p.m49, p.iso3])));
+const iso3ByName = (name: string) => {
+  const id = matcher('gdw', 'name').match(name);
+  return id ? PLACES.find((p) => p.id === id)?.iso3 || id : '';
+};
 
 export interface ImportedSource {
   id: string;
@@ -27,6 +38,12 @@ export interface Kind {
   columns?: string[];
   /** Hand-kept fields not in the publisher's file, appended (and left empty when the file lacks them). */
   added?: string[];
+  /** Other names the publisher has used for a kept column, by kept column: the first one in the file is read. */
+  from?: Record<string, string[]>;
+  /** Kept columns worked out from the row (`derive`) rather than read, so the file need not have them. */
+  derived?: string[];
+  /** Fills the derived columns, before the filter runs. */
+  derive?: (row: Row, raw: Row) => void;
   filter?: (row: Row, now: Date) => boolean;
   /** For raw files: throws if it is the wrong file, returns the number of rows. */
   check?: (text: string) => number;
@@ -124,14 +141,25 @@ export const KINDS: Record<string, Kind> = {
   },
   'aquastat': {
     source: 'aquastat', save: 'water_resources.csv', how: 'csv',
-    about: 'FAO AQUASTAT export: dependency ratio and renewable water per person, long format',
+    about: 'FAO AQUASTAT export or bulk download: dependency ratio and renewable water per person, long format (the bulk file names countries by M49 code)',
     columns: ['Area', 'ISO3', 'Variable', 'Year', 'Value', 'Unit'],
+    // The 2026 bulk download: Country and M49 in place of Area and ISO3, every variable (a million rows).
+    from: { Area: ['Country'] },
+    derived: ['ISO3'],
+    derive: (row, raw) => { row.ISO3 ||= iso3ByM49().get((raw.M49 ?? '').padStart(3, '0')) ?? ''; },
+    filter: (r) => AQUASTAT_VARIABLES.includes(r.Variable) && !!r.ISO3,
   },
   'gdw': {
     source: 'gdw', save: 'dams.csv', how: 'csv',
-    about: 'Global Dam Watch / GRanD dam attributes as CSV',
+    about: 'Global Dam Watch v1.0 barrier attributes (GDW_barriers_v1_0.txt from the shapefile zip), or GRanD attributes as CSV; large dams in GRanD only',
     columns: ['GRAND_ID', 'DAM_NAME', 'RIVER', 'MAIN_BASIN', 'COUNTRY', 'ISO3', 'YEAR', 'DAM_HGT_M', 'CAP_MCM', 'MAIN_USE', 'LONG_DD', 'LAT_DD'],
     added: ['STATUS'],
+    // GDW v1.0 names the year and position differently and gives countries by name only.
+    // The dam's own position where it has one, else where it meets the river.
+    from: { YEAR: ['YEAR_DAM'], LONG_DD: ['LONG_DAM', 'LONG_RIV'], LAT_DD: ['LAT_DAM', 'LAT_RIV'] },
+    derived: ['ISO3'],
+    derive: (row) => { row.ISO3 ||= iso3ByName(row.COUNTRY); },
+    filter: (r) => !!r.GRAND_ID.trim() && r.GRAND_ID !== '0' && Number(r.GRAND_ID) > 0,
   },
   'aiddata': {
     source: 'aiddata', save: 'gcdf_v3.csv', how: 'csv',

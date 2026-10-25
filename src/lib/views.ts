@@ -106,7 +106,7 @@ function buildPage(family: ViewFamily, layer: ViewLayer): ViewPage | null {
     byYear[y] = { year: y, rows, ...worldOf(layer, y, rows) };
   }
   const format = loaded.indicator.format;
-  const edges = layer.scale === 'div' ? DIV_EDGES : seqEdges(byYear[year].rows);
+  const edges = layer.edges ?? (layer.scale === 'div' ? DIV_EDGES : seqEdges(byYear[year].rows));
   const f = (v: number) => formatValue(v, format);
   // Ticks name ranges once, with their unit ("1–7 Mt"). A diverging scale's ticks are sizes, the same on both
   // sides ("10–30%"); its two ends say the direction.
@@ -115,9 +115,12 @@ function buildPage(family: ViewFamily, layer: ViewLayer): ViewPage | null {
   const n = (v: number) => Math.round(Math.abs(v) * 100);
   const [d1, d2, d3] = [n(edges[3]), n(edges[4]), n(edges[5])];
   const side = [`${d3}%+`, `${d2}–${d3}%`, `${d1}–${d2}%`];
-  const ticks = layer.scale === 'div'
+  const named = VIEW_TEXT[family.id].layers[layer.indicator].ticks;
+  const ticks = named ?? (layer.scale === 'div'
     ? [...side, `±${d1}%`, ...[...side].reverse()]
-    : [`under ${f(edges[0])}`, ...edges.slice(0, 3).map((x, i) => `${bare(x)}–${f(edges[i + 1])}`), `${f(edges[3])}+`];
+    // Money ranges are too long for the legend ("$430 m–$1.4 bn"), so each class names its lower bound.
+    : format.kind === 'money' ? [`<${f(edges[0])}`, ...edges.map((x) => `${f(x)}+`)]
+    : [`under ${f(edges[0])}`, ...edges.slice(0, 3).map((x, i) => `${bare(x)}–${f(edges[i + 1])}`), `${f(edges[3])}+`]);
   return {
     family, layer, id: layer.indicator, text: VIEW_TEXT[family.id].layers[layer.indicator], format, loaded,
     years, year, byYear, edges, ticks,
@@ -153,6 +156,8 @@ export function lede(p: ViewPage, year = p.year): string | null {
   return p.text.lede({
     top: inSentence(nameOf(top.id), true), topIn: inSentence(nameOf(top.id)), value: valueText(p, top.value), share: shareOf(top.value, y.world) ?? undefined, top3, year,
     world: y.world !== null && !p.layer.sums ? valueText(p, y.world) : undefined,
+    // Banded layers: how many places are in the top band, of how many.
+    ...(p.layer.edges ? { up: y.rows.filter((r) => r.value >= p.edges[3]).length, of: y.rows.length } : {}),
   });
 }
 
@@ -175,7 +180,7 @@ export function summary(p: ViewPage, year = p.year): string[] {
   } else {
     first.push(W.topNoShare(y.rows.slice(0, 3).map((r) => W.topPart(inSentence(nameOf(r.id)), valueText(p, r.value), null))));
   }
-  const second = [W.coverage(y.rows.length, year), ...(ANSWER[p.id]?.caveats ?? [])];
+  const second = [W.coverage(y.rows.length, p.text.period ? p.text.period(year) : year), ...(ANSWER[p.id]?.caveats ?? [])];
   return [first.join(' '), second.join(' ')];
 }
 

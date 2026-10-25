@@ -29,6 +29,9 @@ import { AI_TEXT } from '../../i18n/ai.en.ts';
 import { LISTS, sanctions } from '../../adapters/sanctions.ts';
 import { SANCTIONS_TEXT } from '../../i18n/sanctions.en.ts';
 import { type Outage, outages } from '../../adapters/digital.ts';
+import { largeDams } from '../dams.ts';
+import { lendingOf } from '../lending.ts';
+import { DAMS_TEXT, LENDING_TEXT } from '../../i18n/water.en.ts';
 import { anchors } from './basemap.ts';
 import type { Hazard } from '../../adapters/hazards.ts';
 import type { Entry, LayerFile, LayerYear, Overlay, PanelBlock, Point } from './types.ts';
@@ -186,7 +189,7 @@ function indicatorLayer(p: ViewPage): LayerFile {
         rows: [{ name: PX.refugees, value: f(x.refugees) }, { name: PX.asylum, value: f(x.asylum), note: PX.asylumNote }, { name: PX.oipShort, value: f(x.oip) }],
       }];
     }
-    return { year, legend: p.text.legend(year), v, order: y.rows.map((r) => r.id), blocs: bl, ...(Object.keys(more).length ? { more } : {}) };
+    return { year, ...(p.text.period ? { label: p.text.period(year) } : {}), legend: p.text.legend(year), v, order: y.rows.map((r) => r.id), blocs: bl, ...(Object.keys(more).length ? { more } : {}) };
   });
   const notes = { ...c.notes };
   for (const id of new Set(p.years.flatMap((yr) => p.byYear[yr].rows.map((r) => r.id)))) {
@@ -198,7 +201,7 @@ function indicatorLayer(p: ViewPage): LayerFile {
     missing: { none: W.noData }, source: creditOf(p),
     text: {
       ...(c.words as LayerFile['text']),
-      kicker: `${p.text.title} · {year}`, measure: p.text.measure, shareLabel: p.text.figureLabel, none: W.notListed(0).replace('0', '{year}'),
+      kicker: `${p.text.title} · ${p.text.period ? p.text.period(p.year) : '{year}'}`, measure: p.text.measure, shareLabel: p.text.figureLabel, none: W.notListed(0).replace('0', '{year}'),
       withheld: MAP_TEXT.withheldBy, withheldWhy: '', prev: W.prevYear(0, '{value}').replace('0', '{year}'),
       rank: W.rank(0, 1).replace('0', '{rank}').replace('1', '{of}'),
       detailLabel: p.layer.sums ? PT.share : undefined, rankLabel: PT.rank, rankOf: PT.rankOf, statusLabel: PT.status,
@@ -206,8 +209,8 @@ function indicatorLayer(p: ViewPage): LayerFile {
     },
     tags: c.tags, names: c.names, hrefs: c.hrefs, dossiers: c.dossiers, slugs: c.slugs, notes, blocs: c.blocs, data,
     series: seriesOf(p.years.map((year) => Object.fromEntries(p.byYear[year].rows.map((r) => [r.id, r.value])))),
-    format: p.format, more: p.family.id === 'space' ? withSpace(viewMore(p)) : p.family.id === 'sanctions' ? withSanctions(viewMore(p), p.id) : p.id === 'outages' ? withOutages(viewMore(p)) : viewMore(p),
-    ...(p.id === 'launches' ? { overlays: [launchSites(p)] } : p.id === 'aicompute' ? { overlays: [aiClusters(p)] } : {}),
+    format: p.format, more: p.family.id === 'space' ? withSpace(viewMore(p)) : p.family.id === 'sanctions' ? withSanctions(viewMore(p), p.id) : p.id === 'outages' ? withOutages(viewMore(p)) : p.family.id === 'chinese-lending' ? withLending(viewMore(p), p.id) : viewMore(p),
+    ...(p.id === 'launches' ? { overlays: [launchSites(p)] } : p.id === 'aicompute' ? { overlays: [aiClusters(p)] } : p.id === 'waterstress' ? { overlays: [damMarks()] } : {}),
   };
 }
 
@@ -226,6 +229,36 @@ function withSpace(more: Record<string, PanelBlock[]>): Record<string, PanelBloc
         ...cs.map(([c, n]) => ({ name: S.names[c] ?? c, value: f(n), note: S.constellation })),
       ],
     }];
+  }
+  return out;
+}
+
+/** Water stress: the largest dams, those holding at least 1 km³, sized by reservoir. */
+function damMarks(): Overlay {
+  const D = DAMS_TEXT;
+  const items: Point[] = largeDams(1000).map((d) => ({
+    at: toMap(d.lon!, d.lat!), r: Math.min(12, 2 + Math.sqrt((d.capacity ?? 0) / 1000) * 0.9),
+    tip: D.tip(d.name, d.river, d.place ? nameOf2(d.place) : '', d.year ? String(d.year) : '', D.km3(d.capacity ?? 0)),
+  }));
+  return { id: 'dams', kind: 'points', label: D.mark, symbol: 'triangle', items };
+}
+
+/** Chinese lending: each country's commitments by sector and kind of flow, and its largest projects (of the layer's sector). */
+function withLending(more: Record<string, PanelBlock[]>, layer: string): Record<string, PanelBlock[]> {
+  const T = LENDING_TEXT;
+  const l = lendingOf();
+  if (!l) return more;
+  const group = layer === 'lendall' ? null : layer.slice(4);
+  const f = (v: number) => formatValue(v, { kind: 'money' });
+  const out = { ...more };
+  for (const [id, by] of Object.entries(l.bySector)) {
+    const projects = (l.top[id] ?? []).filter((x) => !group || x.group === group).slice(0, 5);
+    out[id] = [
+      { label: T.bySector, caption: T.bySectorCaption, rows: Object.entries(by).sort((a, b) => b[1] - a[1]).map(([k, v]) => ({ name: T.sector[k] ?? k, value: f(v) })) },
+      { label: T.byClass, caption: T.byClassCaption, rows: Object.entries(l.byClass[id] ?? {}).sort((a, b) => b[1] - a[1]).map(([k, v]) => ({ name: T.flow[k] ?? k, value: f(v) })) },
+      ...(projects.length ? [{ label: T.projects, caption: T.projectsCaption, rows: projects.map((x) => ({ name: x.title, value: f(x.amount), note: String(x.year) })) }] : []),
+      ...(out[id] ?? []),
+    ];
   }
   return out;
 }

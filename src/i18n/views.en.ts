@@ -26,6 +26,10 @@ export interface LayerText {
   bloc?: (bloc: string, share: string, year: number) => string;
   /** The diverging scale's two ends. */
   ends?: [string, string];
+  /** Named class ticks, for layers with fixed bands. */
+  ticks?: string[];
+  /** What a single-year layer's figures cover, where the year alone would mislead ("2000–2021", "last 12 months"). */
+  period?: (year: number) => string;
   /** The caveat in the panel. */
   caveat: string;
   /** The page's meta description. */
@@ -174,12 +178,99 @@ export const VIEW_TEXT: Record<string, FamilyText> = {
       },
     },
   },
+  water: {
+    section: 'Water',
+    pickerLabel: 'Measure',
+    layers: {
+      waterstress: {
+        pick: 'Water stress today', title: 'Water stress', sub: 'by country', measure: 'out of 5', figureLabel: 'Water stress score',
+        legend: () => 'Water stress: share of available water withdrawn each year (low to extremely high)', ticks: ['Under 10%', '10–20%', '20–40%', '40–80%', 'Over 80%'],
+        lede: ({ up, of }) => `${up} of ${of} countries face extremely high water stress: each year they use more than 80% of the water available to them.`,
+        caveat: 'WRI Aqueduct’s baseline water stress: the share of renewable surface and ground water withdrawn each year, as a score from 0 to 5 (low, under 10%, to extremely high, over 80%). A country’s score averages its river basins, which can differ a great deal. Dots are large dams.',
+        description: () => 'Water stress by country, with large dams: how much of the available water each country withdraws, on a map and in a table. Sources: WRI Aqueduct, Global Dam Watch.',
+      },
+      waterstress2050: {
+        pick: 'In 2050', title: 'Water stress in 2050', sub: 'projected, by country', measure: 'out of 5', figureLabel: 'Water stress score, 2050',
+        legend: () => 'Water stress projected for 2050: share of available water withdrawn each year', ticks: ['Under 10%', '10–20%', '20–40%', '40–80%', 'Over 80%'],
+        lede: ({ up, of }) => `On current trends, ${up} of ${of} countries would face extremely high water stress in 2050.`,
+        caveat: 'WRI Aqueduct’s projection for 2050 under its business-as-usual scenario, in which emissions and water demand keep growing on current trends. It is a projection, not a forecast.',
+        description: () => 'Water stress by country projected for 2050, on a map and in a table. Source: WRI Aqueduct.',
+      },
+      waterdep: {
+        pick: 'From abroad', title: 'Water from abroad', sub: 'share of renewable water', measure: 'from abroad', figureLabel: 'Water from abroad',
+        legend: (y) => `Share of renewable water that flows in from other countries, ${y}`,
+        lede: ({ topIn, value, year }) => `In ${year}, ${topIn} got the largest share of its renewable water from other countries: ${value}.`,
+        caveat: 'FAO AQUASTAT’s dependency ratio: the share of a country’s renewable water that flows in from upstream countries. A high share means the country depends on its neighbours’ use of rivers it shares.',
+        description: (y) => `Share of each country’s renewable water that comes from abroad, ${y}, on a map and in a table. Source: FAO AQUASTAT.`,
+      },
+    },
+  },
+  'chinese-lending': {
+    section: 'Chinese lending',
+    pickerLabel: 'Sector',
+    layers: {
+      lendall: {
+        pick: 'All sectors', title: 'Chinese loans and grants', sub: 'by recipient country', period: (y) => `2000–${y}`, measure: 'committed', figureLabel: 'Committed, 2000–2021',
+        legend: (y) => `Chinese loans and grants, 2000–${y}, US$ (2021 prices)`, worldLabel: 'Total, all countries',
+        lede: ({ top, value, share, top3, year }) => `${top} received ${value} in loans and grants from China between 2000 and ${year}, ${share} of the total${top3 ? `; the top three countries received ${top3}` : ''}.`,
+        total: (v, y) => `China committed ${v} in loans and grants to the countries AidData covers between 2000 and ${y}, in 2021 dollars.`,
+        bloc: (b, s, y) => `${s} of it went to ${b} members, 2000–${y}.`,
+        caveat: 'Loans and grants China committed, in constant 2021 US dollars: what was agreed, not what was paid out or repaid. Counts only the records AidData recommends for totals, 2000–2021. Most of the money is loans at near-market rates rather than aid.',
+        description: (y) => `Chinese loans and grants by country, 2000–${y}: commitments from China on a map and in a table, with the largest projects. Source: AidData.`,
+      },
+      lendenergy: {
+        pick: 'Energy', title: 'Chinese lending for energy', sub: 'by recipient country', period: (y) => `2000–${y}`, measure: 'committed', figureLabel: 'Energy, committed',
+        legend: (y) => `Chinese lending for energy, 2000–${y}, US$ (2021 prices)`, worldLabel: 'Total, all countries',
+        lede: ({ top, value, share, top3, year }) => `${top} received ${value} for energy from China between 2000 and ${year}, ${share} of the total${top3 ? `; the top three countries received ${top3}` : ''}.`,
+        total: (v, y) => `China committed ${v} for energy to the countries AidData covers between 2000 and ${y}, in 2021 dollars.`,
+        bloc: (b, s, y) => `${s} of it went to ${b} members, 2000–${y}.`,
+        caveat: 'Loans and grants China committed, in constant 2021 US dollars: what was agreed, not what was paid out or repaid. Counts only the records AidData recommends for totals, 2000–2021. Energy covers power plants, grids, oil and gas.',
+        description: (y) => `Chinese lending for energy by country, 2000–${y}: commitments from China on a map and in a table, with the largest projects. Source: AidData.`,
+      },
+      lendtransport: {
+        pick: 'Transport', title: 'Chinese lending for transport', sub: 'by recipient country', period: (y) => `2000–${y}`, measure: 'committed', figureLabel: 'Transport, committed',
+        legend: (y) => `Chinese lending for transport, 2000–${y}, US$ (2021 prices)`, worldLabel: 'Total, all countries',
+        lede: ({ top, value, share, top3, year }) => `${top} received ${value} for transport from China between 2000 and ${year}, ${share} of the total${top3 ? `; the top three countries received ${top3}` : ''}.`,
+        total: (v, y) => `China committed ${v} for transport to the countries AidData covers between 2000 and ${y}, in 2021 dollars.`,
+        bloc: (b, s, y) => `${s} of it went to ${b} members, 2000–${y}.`,
+        caveat: 'Loans and grants China committed, in constant 2021 US dollars: what was agreed, not what was paid out or repaid. Counts only the records AidData recommends for totals, 2000–2021. Transport covers roads, railways, ports and airports, and storage.',
+        description: (y) => `Chinese lending for transport by country, 2000–${y}: commitments from China on a map and in a table, with the largest projects. Source: AidData.`,
+      },
+      lendindustry: {
+        pick: 'Industry and mining', title: 'Chinese lending for industry and mining', sub: 'by recipient country', period: (y) => `2000–${y}`, measure: 'committed', figureLabel: 'Industry and mining, committed',
+        legend: (y) => `Chinese lending for industry and mining, 2000–${y}, US$ (2021 prices)`, worldLabel: 'Total, all countries',
+        lede: ({ top, value, share, top3, year }) => `${top} received ${value} for industry, mining and construction from China between 2000 and ${year}, ${share} of the total${top3 ? `; the top three countries received ${top3}` : ''}.`,
+        total: (v, y) => `China committed ${v} for industry, mining and construction to the countries AidData covers between 2000 and ${y}, in 2021 dollars.`,
+        bloc: (b, s, y) => `${s} of it went to ${b} members, 2000–${y}.`,
+        caveat: 'Loans and grants China committed, in constant 2021 US dollars: what was agreed, not what was paid out or repaid. Counts only the records AidData recommends for totals, 2000–2021. Industry and mining follows AidData’s sector for industry, mining and construction.',
+        description: (y) => `Chinese lending for industry and mining by country, 2000–${y}: commitments from China on a map and in a table, with the largest projects. Source: AidData.`,
+      },
+      lendbanking: {
+        pick: 'Banking', title: 'Chinese lending to banks', sub: 'by recipient country', period: (y) => `2000–${y}`, measure: 'committed', figureLabel: 'Banking, committed',
+        legend: (y) => `Chinese lending to banks, 2000–${y}, US$ (2021 prices)`, worldLabel: 'Total, all countries',
+        lede: ({ top, value, share, top3, year }) => `${top} received ${value} for banking and finance from China between 2000 and ${year}, ${share} of the total${top3 ? `; the top three countries received ${top3}` : ''}.`,
+        total: (v, y) => `China committed ${v} for banking and finance to the countries AidData covers between 2000 and ${y}, in 2021 dollars.`,
+        bloc: (b, s, y) => `${s} of it went to ${b} members, 2000–${y}.`,
+        caveat: 'Loans and grants China committed, in constant 2021 US dollars: what was agreed, not what was paid out or repaid. Counts only the records AidData recommends for totals, 2000–2021. Banking covers loans to central and commercial banks, including currency swaps and rescue lending.',
+        description: (y) => `Chinese lending to banks by country, 2000–${y}: commitments from China on a map and in a table, with the largest projects. Source: AidData.`,
+      },
+      lendother: {
+        pick: 'Other sectors', title: 'Chinese lending for other sectors', sub: 'by recipient country', period: (y) => `2000–${y}`, measure: 'committed', figureLabel: 'Other sectors, committed',
+        legend: (y) => `Chinese lending for other sectors, 2000–${y}, US$ (2021 prices)`, worldLabel: 'Total, all countries',
+        lede: ({ top, value, share, top3, year }) => `${top} received ${value} for other sectors from China between 2000 and ${year}, ${share} of the total${top3 ? `; the top three countries received ${top3}` : ''}.`,
+        total: (v, y) => `China committed ${v} for other sectors to the countries AidData covers between 2000 and ${y}, in 2021 dollars.`,
+        bloc: (b, s, y) => `${s} of it went to ${b} members, 2000–${y}.`,
+        caveat: 'Loans and grants China committed, in constant 2021 US dollars: what was agreed, not what was paid out or repaid. Counts only the records AidData recommends for totals, 2000–2021. Other sectors include government budgets, health, education, communications and debt relief.',
+        description: (y) => `Chinese lending for other sectors by country, 2000–${y}: commitments from China on a map and in a table, with the largest projects. Source: AidData.`,
+      },
+    },
+  },
   internet: {
     section: 'Internet',
     pickerLabel: 'Measure',
     layers: {
       outages: {
-        pick: 'Outages', title: 'Internet outages', sub: 'by country, last 12 months', measure: 'outages', figureLabel: 'Outages, last 12 months',
+        pick: 'Outages', period: () => 'last 12 months', title: 'Internet outages', sub: 'by country, last 12 months', measure: 'outages', figureLabel: 'Outages, last 12 months',
         legend: () => 'Internet outages detected in the last 12 months', worldLabel: 'Total, all countries',
         lede: ({ top, value, share }) => `${top} had ${value} internet outages in the last 12 months, the most of any country and ${share} of those IODA detected.`,
         total: (v) => `IODA detected ${v} country-level internet outages in the last 12 months.`,
@@ -291,7 +382,7 @@ export const VIEWS_TEXT = {
   highest: 'Highest',
   importers: 'Consume more than they emit',
   exporters: 'Emit more than they consume',
-  coverage: (n: number, y: number) => `${n} countries and territories have a figure for ${y}.`,
+  coverage: (n: number, y: number | string) => `${n} countries and territories have a figure for ${typeof y === 'number' || /^\d/.test(y) ? y : `the ${y}`}.`,
   changeIn: (pct: string, more: boolean, prev: number) => `${pct} ${more ? 'more' : 'less'} than in ${prev}`,
   change2: (pct: string, more: boolean, prev: number, value: string) => `${pct} ${more ? 'more' : 'less'} than ${prev} (${value})`,
   sameAs: (prev: number) => `Same as ${prev}`,
