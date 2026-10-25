@@ -1,4 +1,4 @@
-// The map views drawn from the indicator registry (src/data/indicators.ts): each family is one section of the site
+// The map views drawn from the indicator registry (src/data/indicators.ts, plus ./view-measures.ts): each family is one section of the site
 // (/emissions, /refugees, /space) and each of its layers one page, the first at the section's own address. A layer names
 // the registry measure it maps, so its figures are the same ones the indicator and country pages show. Words are in
 // src/i18n/views.en.ts and slugs in src/i18n/slugs.en.ts; this file holds no text.
@@ -42,6 +42,14 @@ export const VIEW_FAMILIES: ViewFamily[] = [
     id: 'space', hub: 'technology', layers: [
       { indicator: 'satellites', scale: 'seq', sums: true },
       { indicator: 'launches', scale: 'seq', sums: true, fullYears: true },
+    ],
+  },
+  {
+    id: 'ai', hub: 'technology', layers: [
+      { indicator: 'aicompute', scale: 'seq', sums: false },
+      // A model from labs in two countries counts for each, so countries' figures do not add up to a world total.
+      { indicator: 'aimodels', scale: 'seq', sums: false, fullYears: true },
+      { indicator: 'entitylist', scale: 'seq', sums: true },
     ],
   },
 ];

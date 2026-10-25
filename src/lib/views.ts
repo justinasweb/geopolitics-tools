@@ -9,7 +9,9 @@ import { displacement } from '../adapters/unhcr.ts';
 import { PARTS_TEXT, PLACE_NOTES, VIEW_TEXT, VIEWS_TEXT as W, type LayerText } from '../i18n/views.en.ts';
 import { INDICATOR_TEXT } from '../i18n/en.ts';
 import { ANSWER, SOURCE_NOTE, SOURCE_SHORT, inSentence } from '../i18n/pages.en.ts';
-import { indicator, refreshed, shared, sourceName } from './data.ts';
+import { indicator, refreshed, shared, sourceName, tryLoad } from './data.ts';
+import { VIEW_MEASURES } from '../data/view-measures.ts';
+import { yearsOf } from '../adapters/core.ts';
 import { formatValue } from './format.ts';
 import { place } from './places.ts';
 import { breaks, classOf, counts, defaultYear, ranking, type Row } from './stats.ts';
@@ -77,15 +79,24 @@ function worldOf(layer: ViewLayer, year: number, rows: Row[]): { world: number |
   return { world: null, worldOwn: false };
 }
 
+/** A measure only the views show (../data/view-measures.ts), loaded like a registry one. */
+function viewMeasure(id: string): Loaded | null {
+  const d = VIEW_MEASURES[id];
+  if (!d) return null;
+  const fetched = Number(refreshed([d.source].flat()[0])?.slice(0, 4));
+  const values = tryLoad((raw) => d.load(raw, fetched));
+  return values && Object.keys(values).length ? { indicator: { ...d, load: undefined }, values, years: yearsOf(values) } : null;
+}
+
 function buildPage(family: ViewFamily, layer: ViewLayer): ViewPage | null {
-  const loaded = indicator(layer.indicator);
+  const loaded = indicator(layer.indicator) ?? viewMeasure(layer.indicator);
   if (!loaded) return null;
   // A running year (launches so far this year) is left out: it would read as a fall.
   const running = layer.fullYears ? Number(refreshed([loaded.indicator.source].flat()[0])?.slice(0, 4)) : NaN;
   const c = counts(loaded);
   if (running) for (const y of [...c.keys()]) if (y >= running) c.delete(y);
-  const usual = defaultYear(loaded);
-  const year = usual !== undefined && usual >= running ? Math.max(...c.keys()) : usual;
+  // Counts of events (launches, models) are complete once the year ends, so the latest full year is the default.
+  const year = layer.fullYears ? Math.max(...c.keys()) : defaultYear(loaded);
   if (year === undefined || !c.size) return null;
   // Years up to the default one with at least half its coverage, so the slider never lands on a near-empty map.
   const years = [...c.keys()].filter((y) => y <= year && c.get(y)! >= 0.5 * c.get(year)!).sort((a, b) => a - b);

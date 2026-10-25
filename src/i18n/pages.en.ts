@@ -370,6 +370,7 @@ export const SOURCE_NOTE: Record<string, string> = {
   milpct: 'World Bank, from SIPRI data', milusd: 'World Bank, from SIPRI data',
   unemployment: 'World Bank, from ILO modelled estimates', refinpc: 'UNHCR; World Bank population',
   gdppc: 'World Bank', sanctions: 'US CSL; EU sanctions list; UK Sanctions List',
+  entitylist: 'US Consolidated Screening List (Entity List)',
 };
 
 export const COUNTRIES_INDEX = {

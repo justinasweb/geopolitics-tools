@@ -24,6 +24,8 @@ import { FOOD_NOTES, FOOD_TEXT } from '../../i18n/food.en.ts';
 import { arcXY, toMap } from './projection.ts';
 import { sitesIn, spaceAsOf, workingBy } from '../space.ts';
 import { SPACE_TEXT } from '../../i18n/space.en.ts';
+import { clustersAt } from '../ai.ts';
+import { AI_TEXT } from '../../i18n/ai.en.ts';
 import { anchors } from './basemap.ts';
 import type { Hazard } from '../../adapters/hazards.ts';
 import type { Entry, LayerFile, LayerYear, Overlay, PanelBlock, Point } from './types.ts';
@@ -202,7 +204,7 @@ function indicatorLayer(p: ViewPage): LayerFile {
     tags: c.tags, names: c.names, hrefs: c.hrefs, dossiers: c.dossiers, slugs: c.slugs, notes, blocs: c.blocs, data,
     series: seriesOf(p.years.map((year) => Object.fromEntries(p.byYear[year].rows.map((r) => [r.id, r.value])))),
     format: p.format, more: p.family.id === 'space' ? withSpace(viewMore(p)) : viewMore(p),
-    ...(p.id === 'launches' ? { overlays: [launchSites(p)] } : {}),
+    ...(p.id === 'launches' ? { overlays: [launchSites(p)] } : p.id === 'aicompute' ? { overlays: [aiClusters(p)] } : {}),
   };
 }
 
@@ -223,6 +225,15 @@ function withSpace(more: Record<string, PanelBlock[]>): Record<string, PanelBloc
     }];
   }
   return out;
+}
+
+/** AI computing power: a mark for each known supercomputer with a location, sized by its power. */
+function aiClusters(p: ViewPage): Overlay {
+  const items: Point[] = clustersAt(p.year).filter((c) => c.lat !== null && c.lon !== null).map((c) => ({
+    at: toMap(c.lon!, c.lat!), r: Math.min(14, 2.5 + Math.sqrt(c.h100e / 1000)),
+    tip: AI_TEXT.tip(c.name, c.owner, formatValue(c.h100e, { kind: 'count' }), c.start.slice(0, 4)),
+  }));
+  return { id: 'clusters', kind: 'points', label: AI_TEXT.mark, symbol: 'hollow', items };
 }
 
 /** Launches: a mark for each site in each year it launched, sized by its launches that year. */

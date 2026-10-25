@@ -30,6 +30,8 @@ import { breadcrumbs } from '../lib/structured';
 import type { Row } from '../lib/stats';
 import { constellations, sitesIn, spaceAsOf } from '../lib/space';
 import { SPACE_TEXT as SP } from '../i18n/space.en';
+import { clustersAt } from '../lib/ai';
+import { AI_TEXT as AX } from '../i18n/ai.en';
 import { formatDate } from '../lib/format';
 
 interface Props { id: string }
@@ -72,6 +74,7 @@ const mapTop = (div ? [...y.rows.slice(0, 2), ...y.rows.slice(-2)] : top).map((r
 // Space: the largest constellations (satellites) or the launch sites (launches), under the country table.
 const cons = p.id === 'satellites' ? constellations() : [];
 const sites = p.id === 'launches' ? sitesIn(p.year) : [];
+const clusters = p.id === 'aicompute' ? clustersAt(p.year).slice(0, 20) : [];
 const spaceDate = spaceAsOf() ? formatDate(spaceAsOf()!) : '';
 const bars = (rs: Row[], max: number) => rs.map((r) => ({ id: r.id, text: valueText(p, r.value), w: max ? (100 * Math.abs(r.value)) / max : 0 }));
 ---
@@ -90,7 +93,7 @@ const bars = (rs: Row[], max: number) => rs.map((r) => ({ id: r.id, text: valueT
     years={p.years} year={p.year} />
 
   <MapStage layer={layerPath(`${p.family.id}-${p.id}`)} label={`${T.legend(p.year)}. ${mapTop}. ${W.caption(p.year, null)}`} title={T.title}
-    legend={{ title: T.legend(p.year), scale: p.layer.scale, ticks: p.ticks, ends: T.ends, none: W.noData, ...(p.id === 'launches' ? { marks: [{ symbol: 'hollow', label: SP.sitesMark }] } : {}) }}>
+    legend={{ title: T.legend(p.year), scale: p.layer.scale, ticks: p.ticks, ends: T.ends, none: W.noData, ...(p.id === 'launches' ? { marks: [{ symbol: 'hollow', label: SP.sitesMark }] } : p.id === 'aicompute' ? { marks: [{ symbol: 'hollow', label: AX.mark }] } : {}) }}>
     <div data-panel="world" slot="panel">
       <div class="gt-panel__head">
         <div class="gt-panel__title"><span class="gt-kicker">{T.title} · <span data-year-text>{p.year}</span></span><h2 class="gt-h3">{MAP_TEXT.world}</h2></div>
@@ -195,6 +198,22 @@ const bars = (rs: Row[], max: number) => rs.map((r) => ({ id: r.id, text: valueT
             </table>
           </div>
           <SourceLine source={source} parts={[spaceDate]} updated={updated} />
+        </>
+      )}
+      {clusters.length > 0 && (
+        <>
+          <h2 class="gt-h2" id="clusters">{AX.largest}</h2>
+          <div class="gt-tablewrap" style="--gt-table-h:560px" tabindex="0" role="region" aria-label={AX.largest}>
+            <table class="gt-table">
+              <caption class="gt-caption">{AX.largestCaption(clusters.length, p.year)}</caption>
+              <thead><tr>
+                <th scope="col"><span class="gt-th">{AX.name}</span></th><th scope="col"><span class="gt-th">{AX.country}</span></th>
+                <th scope="col" class="n"><span class="gt-th">{AX.power}</span></th><th scope="col" class="n"><span class="gt-th">{AX.since}</span></th>
+              </tr></thead>
+              <tbody>{clusters.map((c) => <tr><th scope="row">{c.name}{c.owner && <small class="gt-caption" style="display:block">{c.owner}</small>}</th><td>{nameOf(c.place)}</td><td class="n">{count(c.h100e)}</td><td class="n">{c.start.slice(0, 4)}</td></tr>)}</tbody>
+            </table>
+          </div>
+          <SourceLine source={source} parts={[String(p.year)]} updated={updated} />
         </>
       )}
       {sites.length > 0 && (

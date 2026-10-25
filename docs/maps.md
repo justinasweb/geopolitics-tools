@@ -150,6 +150,14 @@ is left out until it ends. Extras from `src/lib/space.ts`: each country's workin
 the panel, the largest constellations under the satellites table, and a mark per launch site per year (sized by launches)
 with a sites table on the launches page. Satellites of international owners (ESA, Intelsat) count for no country.
 
+## AI and chips (phase 5a)
+
+`/ai` (share of known AI computing power, the registry's `aicompute`), `/ai/models` (notable models by country of the
+developer, Epoch AI) and `/ai/export-controls` (US Entity List entries by country, from the CSL). Models and Entity List
+counts are view-only measures (`src/data/view-measures.ts`): no indicator page, profile row or Compare column. The
+computing power map marks each known supercomputer, with a table of the largest. Chip and chipmaking-tool trade (the
+spec's `/ai/chips`) waits on UN Comtrade.
+
 ## Not done in this phase
 
 - Refining shares and trade flows on the minerals views: later phases, once their sources are in.

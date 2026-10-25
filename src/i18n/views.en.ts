@@ -1,4 +1,4 @@
-// English words for the map views drawn from the indicator registry (src/data/views.ts): emissions, refugees and space.
+// English words for the map views drawn from the indicator registry (src/data/views.ts): emissions, refugees, space and AI.
 // Same rules as pages.en.ts: templates take figures already formatted and return plain sentences, plain verbs, no
 // adjectives that judge, and a sentence whose figure is missing is left out. Another language is another file with
 // the same keys.
@@ -142,6 +142,35 @@ export const VIEW_TEXT: Record<string, FamilyText> = {
         bloc: (b, s, y) => `${s} of them went up from ${b} members in ${y}.`,
         caveat: 'Launches that put at least one satellite in orbit, counted for the country of the launch site, not the rocket’s maker or the customer. Failed launches are not in the catalogue. The current year is left out until it ends.',
         description: (y) => `Orbital launches by country of the launch site, up to ${y}, on a map and in a table, with the launch sites. Source: CelesTrak.`,
+      },
+    },
+  },
+  ai: {
+    section: 'AI and chips',
+    pickerLabel: 'Measure',
+    layers: {
+      aicompute: {
+        pick: 'Computing power', title: 'AI computing power', sub: 'share by country', measure: 'of known AI computing power', figureLabel: 'Share of AI computing power',
+        legend: (y) => `Share of known AI supercomputer power, end of ${y}`,
+        lede: ({ topIn, value, year }) => `At the end of ${year}, ${topIn} had ${value} of the computing power of the AI supercomputers Epoch AI knows of.`,
+        caveat: 'Each country’s share of the computing power, in H100 equivalents, of the AI supercomputers Epoch AI has found in operation. Many private clusters are not public, so the shares are of known systems only.',
+        description: (y) => `Share of AI computing power by country, end of ${y}: known AI supercomputers on a map and in a table. Source: Epoch AI.`,
+      },
+      aimodels: {
+        pick: 'Notable models', title: 'Notable AI models', sub: 'by country of the developer', measure: 'notable models', figureLabel: 'Notable AI models',
+        legend: (y) => `Notable AI models published, ${y}`,
+        lede: ({ topIn, value, year }) => `In ${year}, labs in ${topIn} published the most notable AI models: ${value}.`,
+        caveat: 'Models Epoch AI counts as notable, for their results, citations or size, by the country of the organisation that made them. A model made by labs in two countries counts once for each. The current year is left out until it ends.',
+        description: (y) => `Notable AI models by country of the developer, up to ${y}, on a map and in a table. Source: Epoch AI.`,
+      },
+      entitylist: {
+        pick: 'Export controls', title: 'US export controls on companies and bodies', sub: 'Entity List entries by country', measure: 'entries', figureLabel: 'Entity List entries',
+        legend: (y) => `US Entity List entries by country, ${y}`, worldLabel: 'Total, all countries',
+        lede: ({ top, value, share, top3, year }) => `${top} had ${value} entries on the US Entity List in ${year}, ${share} of the total${top3 ? `; the top three countries had ${top3}` : ''}.`,
+        total: (v, y) => `The US Entity List had ${v} entries with a country in ${y}.`,
+        bloc: (b, s, y) => `${s} of the entries were in ${b} members in ${y}.`,
+        caveat: 'The Entity List names companies, research bodies and people that need a US licence to receive US goods and technology, including chips and chipmaking tools. It is an export control, not a sanction. Entries are counted by the country of their address.',
+        description: (y) => `US Entity List entries by country, ${y}: who needs a licence to get US chips and technology, on a map and in a table. Source: US Consolidated Screening List.`,
       },
     },
   },
