@@ -73,6 +73,10 @@ check(health.status === 200 && (await health.json()).ok === true, `/api/health a
 const favicon = await get('/favicon.svg');
 check(favicon.status === 200, `favicon loads (got ${favicon.status})`);
 check(home.headers.get('x-content-type-options') === 'nosniff', 'security headers from _headers are applied');
+for (const [path, res] of [['/', home], ['/robots.txt', robots], ['/favicon.svg', favicon]]) {
+  const tag = /noindex/.test(res.headers.get('x-robots-tag') ?? '');
+  check(tag !== expectIndexable, `${path} ${expectIndexable ? 'has no' : 'sends an'} X-Robots-Tag: noindex header`);
+}
 
 mkdirSync(out, { recursive: true });
 // SwiftShader gives headless Chromium the WebGL the map needs.
