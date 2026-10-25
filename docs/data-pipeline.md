@@ -131,6 +131,10 @@ node pipeline/import.ts wpp-age WPP2024_PopulationByAge5GroupSex_Medium.csv.gz -
 | USGS Mineral Commodity Summaries | `usgs` (one file per edition, so older ones can be added) | Each January |
 | US Treasury holdings, history | `treasury-history` | Built once |
 
+Without a local copy of the repository, the **import** workflow does the same with the repository's secrets: Actions
+tab → import → Run workflow, with the kind and the file's download address (and `name` when the address does not end
+in the file's own name, as USGS needs `MCS2026_Commodities_Data.csv`).
+
 It takes the file as downloaded: CSV, JSON or an Excel workbook (the sheet with the needed columns is found, or name
 it with `--sheet=`), gzipped or zipped (`--entry=` picks the file when a zip holds several); Windows text is turned
 into UTF-8. It stops with the file's own columns listed if one it needs is missing, keeps only the needed columns,
