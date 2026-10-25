@@ -4,6 +4,7 @@
 // what it could not match so the build can report it. Data stays with the unit the source reports:
 // nothing here moves figures between places.
 import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { parseCsv } from '../../pipeline/lib/csv.ts';
 
 export type Kind = 'country' | 'territory' | 'historical' | 'other';
@@ -58,9 +59,10 @@ export interface CoverageNote {
 /** Kinds of code; `code` is a source's own list (CelesTrak's owner codes), matched only through codes.csv. */
 export type System = 'iso3' | 'iso2' | 'm49' | 'name' | 'code';
 
-const dir = new URL('../data/places/', import.meta.url);
+// Read from the repository root, not next to this module: the build bundles modules into dist/.
+const dir = join(process.cwd(), 'src/data/places');
 const table = (file: string) => {
-  const [head, ...rows] = parseCsv(readFileSync(new URL(file, dir), 'utf8'));
+  const [head, ...rows] = parseCsv(readFileSync(join(dir, file), 'utf8'));
   return rows.map((r) => Object.fromEntries(head.map((h, i) => [h, (r[i] ?? '').trim()])));
 };
 

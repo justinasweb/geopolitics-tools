@@ -4,6 +4,7 @@
 // Northern Cyprus have their own shapes there but their points go to Somalia and Cyprus, and the
 // Siachen Glacier to no country. Used where a source gives coordinates but no country (USGS quakes).
 import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { matcher } from '../adapters/core.ts';
 
 type Ring = [number, number][];
@@ -12,7 +13,7 @@ interface Shape { id: string | null; code: string; bbox: [number, number, number
 let shapes: Shape[] | null = null;
 
 function load(): Shape[] {
-  const json = JSON.parse(readFileSync(new URL('../data/geo/ne_50m_admin0.json', import.meta.url), 'utf8')) as {
+  const json = JSON.parse(readFileSync(join(process.cwd(), 'src/data/geo/ne_50m_admin0.json'), 'utf8')) as {
     features: { properties: { adm0_a3: string }; geometry: { type: 'Polygon' | 'MultiPolygon'; coordinates: unknown } }[];
   };
   const m = matcher('naturalearth', 'iso3');

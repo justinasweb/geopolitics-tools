@@ -1,0 +1,45 @@
+---
+// A long-read page written in Markdown (LongRead and MethodologyPage designs): kicker, title, lede, a numbered
+// menu of its sections, the text, and a footer saying where the page is kept. Until the owner approves a draft,
+// the page carries the draft banner.
+import { getEntry, render } from 'astro:content';
+import Page from '../layouts/Page.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import SideMenu from '../components/SideMenu.astro';
+import Notice from '../components/Notice.astro';
+import '../styles/atlas/longread.css';
+import '../styles/atlas/tools.css';
+import '../styles/atlas/country.css';
+import '../styles/atlas/table.css';
+import { DRAFT_BANNER, LONGREAD_TEXT as T, SOURCES_PAGE } from '../i18n/pages.en';
+import { formatDate } from '../lib/format';
+import { paths } from '../lib/routes';
+import { breadcrumbs } from '../lib/structured';
+
+interface Props { id: string }
+const entry = (await getEntry('pages', Astro.props.id))!;
+const { Content, headings } = await render(entry);
+const d = entry.data;
+const words = (entry.body ?? '').split(/\s+/).length;
+const items = headings.filter((h) => h.depth === 2).map((h) => ({ id: h.slug, label: h.text }));
+const crumbs = [{ label: T.home, href: '/' }, { label: d.title }];
+---
+<Page title={d.title} description={d.description} container="tl" mainClass="gt-lr" fromData={false} image={paths.image('page', Astro.props.id)} jsonld={[breadcrumbs(crumbs)]}>
+  <header class="gt-tlhead gt-lrhead">
+    <Breadcrumbs items={crumbs} />
+    <span class="gt-kicker">{d.kicker}</span>
+    <h1 class="gt-title">{d.title}</h1>
+    <p class="gt-lede">{d.lede}</p>
+    <p class="gt-source"><span>{T.changed(formatDate(d.updated))} · {T.read(Math.max(1, Math.round(words / 230)))}</span></p>
+    {!d.approved && <Notice><p>{DRAFT_BANNER}</p></Notice>}
+  </header>
+  <div class="gt-cpbody gt-lrbody">
+    {items.length > 1 && <SideMenu items={items} />}
+    <div class="gt-prose">
+      <div class="gt-lrmd"><Content /></div>
+      <footer class="gt-lrfoot">
+        <p class="gt-source"><span>{T.kept}</span><span class="gt-source__sep" aria-hidden="true">·</span><span>{T.changed(formatDate(d.updated))}</span><span class="gt-source__sep" aria-hidden="true">·</span><a href={`${paths.page('sources')}#corrections`}>{SOURCES_PAGE.corrections}</a></p>
+      </footer>
+    </div>
+  </div>
+</Page>

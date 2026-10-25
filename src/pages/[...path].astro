@@ -1,0 +1,27 @@
+---
+// Every generated page, from the route registry (src/lib/routes.ts): the path comes from the registry, the
+// template from the route's kind. Routes that are not live yet (map views, hubs, tools) are not built.
+import type { GetStaticPaths } from 'astro';
+import CountriesIndex from '../templates/CountriesIndex.astro';
+import CountryPage from '../templates/CountryPage.astro';
+import ComparePage from '../templates/ComparePage.astro';
+import IndicatorsIndex from '../templates/IndicatorsIndex.astro';
+import IndicatorPage from '../templates/IndicatorPage.astro';
+import LongRead from '../templates/LongRead.astro';
+import SourcesPage from '../templates/SourcesPage.astro';
+import { BUILT_KINDS, routes, type Route } from '../lib/routes';
+
+export const getStaticPaths = (() =>
+  routes().filter((r) => r.live && BUILT_KINDS.includes(r.kind))
+    .map((r) => ({ params: { path: r.path.slice(1) }, props: { route: r } }))) satisfies GetStaticPaths;
+
+const { route } = Astro.props as { route: Route };
+const [a, b] = route.id.split(',');
+---
+{route.kind === 'countries' && <CountriesIndex />}
+{route.kind === 'country' && <CountryPage id={route.id} />}
+{route.kind === 'compare' && <ComparePage a={a} b={b} />}
+{route.kind === 'indicators' && <IndicatorsIndex />}
+{route.kind === 'indicator' && <IndicatorPage id={route.id} />}
+{route.kind === 'page' && <LongRead id={route.id} />}
+{route.kind === 'sources' && <SourcesPage />}

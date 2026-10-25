@@ -1,0 +1,28 @@
+---
+// One section of a country page (CountrySection design): number and heading, a one-sentence finding, the visual
+// (slot), then the source line and a link to the full view when that view is live.
+import '../styles/atlas/country.css';
+import SourceLine from './SourceLine.astro';
+import type { Status } from './StatusTag.astro';
+
+interface Props {
+  n: number;
+  id: string;
+  heading: string;
+  find?: string;
+  source?: { source: string; parts?: string[]; updated?: string; status?: Status; citation?: string };
+  link?: { href: string; label: string };
+}
+const { n, id, heading, find, source, link } = Astro.props;
+---
+<section class="gt-cpsec" id={id} aria-labelledby={`${id}-h`}>
+  <header class="gt-cpsec__head"><span class="gt-cpsec__n">{n}</span><h2 class="gt-h2" id={`${id}-h`}>{heading}</h2></header>
+  {find && <p class="gt-cpsec__find">{find}</p>}
+  <div class="gt-cpsec__vis"><slot /></div>
+  {(source || link) && (
+    <div class="gt-cpsec__foot">
+      {source && <SourceLine {...source} />}
+      {link && <a class="gt-cpsec__link" href={link.href}>{link.label} <span aria-hidden="true">→</span></a>}
+    </div>
+  )}
+</section>

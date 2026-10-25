@@ -7,7 +7,7 @@ import { join, relative } from 'node:path';
 const dir = process.argv[2] ?? 'dist';
 const MAX_FILES = 20_000;
 const MAX_FILE_BYTES = 25 * 1024 * 1024;
-const REQUIRED = ['index.html', '404.html', 'robots.txt', '_headers'];
+const REQUIRED = ['index.html', '404.html', 'robots.txt', '_headers', '_redirects', 'sitemap.xml'];
 
 const files = [];
 const walk = (d) => {
@@ -22,8 +22,10 @@ walk(dir);
 const errors = [];
 if (files.length > MAX_FILES) errors.push(`${files.length} files, limit is ${MAX_FILES}`);
 for (const f of files) if (f.bytes > MAX_FILE_BYTES) errors.push(`${f.path} is ${(f.bytes / 2 ** 20).toFixed(1)} MiB, limit is 25 MiB`);
+// A sample-data build (npm run build:sample) is for local work and pull requests from forks, never a deploy.
+const allowSample = process.env.ALLOW_SAMPLE === '1';
 for (const f of files) {
-  if (f.path.endsWith('.html') && !f.path.startsWith('dev/') && readFileSync(join(dir, f.path), 'utf8').includes('gt-tag--sample')) {
+  if (!allowSample && f.path.endsWith('.html') && !f.path.startsWith('dev/') && readFileSync(join(dir, f.path), 'utf8').includes('gt-tag--sample')) {
     errors.push(`${f.path} shows a Sample tag: illustrative figures must not reach a live page`);
   }
 }

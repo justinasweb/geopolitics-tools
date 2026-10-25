@@ -1,6 +1,7 @@
 // Downloads one data snapshot's raw files for the site build or local work:
 //   node pipeline/pull.ts [--store=r2 | dir:<path>] [--snapshot=<id>] [--out=data/raw]
-// Without --snapshot it takes latest.json. Writes <out>/<source>/<file> and <out>/snapshot.json,
+// Without --snapshot it takes latest.json. Writes <out>/<source>/<file>, <out>/snapshot.json and the
+// public <out>/status.json,
 // and checks every file against its recorded SHA-256. Rolling the site's data back is a build
 // with an earlier --snapshot.
 import { createHash } from 'node:crypto';
@@ -33,4 +34,7 @@ for (const [source, s] of Object.entries(snap.sources)) {
   }
 }
 writeFileSync(join(out, 'snapshot.json'), JSON.stringify(snap, null, 2));
+// The runner's public status (Live / Delayed per source), for the Sources page; older stores may not have one.
+const status = await stores.snapshots.get('status.json');
+if (status) writeFileSync(join(out, 'status.json'), status);
 console.log(`Snapshot ${snap.id}: ${files} files from ${Object.keys(snap.sources).length} sources in ${out}/`);

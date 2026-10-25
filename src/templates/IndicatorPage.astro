@@ -1,0 +1,178 @@
+---
+// An indicator page (IndicatorPage design): the answer in one sentence, the definition and source, every country
+// ranked (the common year for all, or the latest available up to two years back), a map of the same year, the
+// coverage note, the trend, caveats, related measures and the CSV where the licence allows it. A measure fewer
+// than INDEX_MIN_PLACES places report is built but not indexed.
+import Page from '../layouts/Page.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import SourceLine from '../components/SourceLine.astro';
+import SegmentedControl from '../components/SegmentedControl.astro';
+import StaticMap from '../components/StaticMap.astro';
+import MapLegend from '../components/MapLegend.astro';
+import LineChart from '../components/LineChart.astro';
+import Notice from '../components/Notice.astro';
+import ShareRow from '../components/ShareRow.astro';
+import StatusTag from '../components/StatusTag.astro';
+import Icon from '../components/Icon.astro';
+import '../styles/atlas/tools.css';
+import '../styles/atlas/table.css';
+import '../styles/atlas/filters.css';
+import '../styles/atlas/country.css';
+import { INDICATORS } from '../data/indicators';
+import { GROUP_TEXT, INDICATOR_TEXT } from '../i18n/en';
+import { ANSWER, DEFINITION, INDICATOR_PAGE as T, RELATED, SOURCE_NOTE, SOURCE_SHORT, list } from '../i18n/pages.en';
+import { answerFor, csvAllowed, indicatorModel } from '../lib/indicator';
+import { licenceOf, refreshed, sourceName } from '../lib/data';
+import { formatValue } from '../lib/format';
+import { place } from '../lib/places';
+import { breaks, classOf, type Row } from '../lib/stats';
+import { countryHref, indicatorHref, paths } from '../lib/routes';
+import { breadcrumbs, dataset } from '../lib/structured';
+
+interface Props { id: string }
+const { id } = Astro.props;
+const m = indicatorModel(id)!;
+const ind = m.indicator;
+const text = INDICATOR_TEXT[id];
+const fmt = ind.format;
+const label = text.label;
+const path = paths.indicator(id);
+const url = new URL(path, Astro.site).href;
+const nameOf = (pid: string) => place(pid)?.name ?? pid;
+const credit = SOURCE_NOTE[id] ?? m.sources.map((s) => SOURCE_SHORT[s] ?? sourceName(s)).join('; ');
+const sourceFull = m.sources.map(sourceName).join('; ');
+const updated = refreshed(m.source);
+const projected = (y: number) => ind.projectedAfter !== undefined && y > ind.projectedAfter;
+
+const answer = answerFor(m);
+
+const yearText = String(m.year);
+const behind = m.latest.filter((r) => r.year < m.year).length;
+const max = Math.max(...m.latest.map((r) => Math.abs(r.value))) || 1;
+
+// The map: five quantile classes of the common year.
+const b = breaks(m.common.map((r) => r.value));
+const classes = b.length === 4 ? Object.fromEntries(m.common.map((r) => [r.id, classOf(r.value, b)])) : null;
+const ticks = b.length === 4 ? [`under ${formatValue(b[0], fmt)}`, ...b.slice(0, 3).map((x, i) => `${formatValue(x, fmt)}–${formatValue(b[i + 1], fmt)}`), `${formatValue(b[3], fmt)}+`] : [];
+
+const trend = m.trend;
+const trendLines = trend.years.length > 2 ? [
+  ...trend.top.map((t, i) => ({ label: nameOf(t.id), values: t.values, cls: `gt-ser-${i + 1}` })),
+  { label: T.median, values: trend.median, cls: 'gt-ser-med', dashed: true },
+] : [];
+const medVals = trend.median.filter((v): v is number => v !== null);
+const trendFind = medVals.length > 1 ? T.trendFind(formatValue(Math.min(...medVals), fmt), formatValue(Math.max(...medVals), fmt), trend.years[0], trend.years.at(-1)!) : undefined;
+
+const related = [...new Set([...(RELATED[id] ?? []), ...Object.values(INDICATORS).filter((x) => x.group === ind.group && x.id !== id).map((x) => x.id)])]
+  .filter((r) => r !== id && indicatorHref(r)).slice(0, 5);
+const lic = licenceOf(m.source);
+const csv = csvAllowed(m) ? paths.csv(id) : null;
+const crumbs = [{ label: T.indexTitle, href: paths.indicators() }, { label: GROUP_TEXT[ind.group] }, { label }];
+const description = T.description(label, ind.static ? undefined : m.year, credit);
+const years = m.loaded.years;
+
+---
+<Page title={T.shareText(label)} description={description} noindex={!m.indexed} container="tl" image={paths.image('indicators', path.split('/').at(-1)!)}
+  jsonld={[dataset({ name: `${label} by country`, description: DEFINITION[id] ?? description, path, creator: sourceFull, licenceUrl: lic?.terms, variable: label, unit: text.unit, csv: csv ?? undefined, updated, years: years.length ? [Math.min(...years), Math.max(...years)] : undefined }), breadcrumbs(crumbs)]}>
+  <header class="gt-tlhead">
+    <Breadcrumbs items={crumbs} />
+    <h1 class="gt-title gt-tlhead__t">{label}{text.unit && !['US$', 'people'].includes(text.unit) && <span class="gt-mvhead__sub"> {text.unit}</span>}</h1>
+    {answer && <p class="gt-lede gt-tlhead__a">{answer}</p>}
+    <p class="gt-tldef"><b>{T.definition}</b> {DEFINITION[id] ?? text.note} <a href={paths.page('methodology')}>{T.methodology}</a></p>
+    <SourceLine source={credit} parts={ind.static ? [] : [yearText]} updated={updated} status={projected(m.year) ? 'projection' : undefined} />
+  </header>
+
+  <div class="gt-indgrid">
+    <div class="gt-indgrid__a">
+      <section class="gt-tlsec gt-indrank" aria-labelledby="ranked-h">
+        <h2 class="gt-h2" id="ranked-h">{T.ranked}</h2>
+        <div class="gt-indctl">
+          {!ind.static && behind > 0 && <SegmentedControl label={T.yearShown} options={[{ value: 'common', label: T.forAll(m.year) }, { value: 'latest', label: T.latestAvailable }]} value="common" />}
+          <div class="gt-field gt-indctl__find"><label class="gt-vh" for="ind-find">{T.find}</label><input class="gt-input" id="ind-find" type="search" placeholder={T.find} data-gt-rowfind /></div>
+          {csv && <a class="gt-btn gt-btn--quiet" href={csv} download><Icon name="download" />{T.download} CSV</a>}
+        </div>
+        {[['common', m.common], ...(!ind.static && behind > 0 ? [['latest', m.latest]] : [])].map(([view, rows]) => (
+          <div class="gt-tablewrap gt-ranktbl" style="--gt-table-h:560px" tabindex="0" role="region" aria-label={T.tableLabel(label)} data-view={view} hidden={view !== 'common'}>
+            <table class="gt-table">
+              <caption class="gt-caption">{view === 'common' ? (ind.static ? T.coverageStatic(m.common.length) : T.captionCommon(m.year)) : T.captionLatest(behind, m.year)}</caption>
+              <thead><tr>
+                <th scope="col" class="n" data-key="rank" data-type="num"><button type="button">{T.rank}</button></th>
+                <th scope="col" data-key="country"><button type="button">{T.country}</button></th>
+                <th scope="col" class="n" data-key="value" data-type="num" aria-sort="descending"><button type="button">{text.short ?? label}</button></th>
+                {!ind.static && <th scope="col" class="n" data-key="year" data-type="num"><button type="button">{T.year}</button></th>}
+              </tr></thead>
+              <tbody>
+                {(rows as Row[]).map((r) => (
+                  <tr data-name={nameOf(r.id).toLowerCase()}>
+                    <td class="n gt-rk" data-v={r.rank}>{r.rank}</td>
+                    <th scope="row">{countryHref(r.id) ? <a href={countryHref(r.id)}>{nameOf(r.id)}</a> : nameOf(r.id)}</th>
+                    <td class="n" data-v={r.value}><span class="gt-inbar" style={`--w:${Math.max(0, (r.value / max) * 100).toFixed(1)}%`}></span><b>{formatValue(r.value, fmt)}</b></td>
+                    {!ind.static && <td class="n" data-v={r.year}><span class:list={['gt-yr', { 'gt-oldyr': r.year < m.year }]}>{r.year}</span>{projected(r.year) && <StatusTag status="projection" small />}</td>}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ))}
+      </section>
+    </div>
+    <div class="gt-indgrid__b">
+      {classes && (
+        <figure class="gt-indmap">
+          <div class="gt-indmap__box"><StaticMap label={T.mapLabel(label, m.year)} classes={classes} /></div>
+          <MapLegend title={ind.static ? label : T.mapTitle(text.short ?? label, m.year)} scale="seq" ticks={ticks} />
+        </figure>
+      )}
+      <Notice>
+        <p>{ind.static ? T.coverageStatic(m.reporting) : <><b>{T.coverage(m.reporting, m.possible, m.year)}</b> {m.reporting < m.possible && T.coverageRest}</>}</p>
+        {m.preliminary.length > 0 && <p>{T.preliminary(list(m.preliminary.map(String)))}</p>}
+        {ind.projectedAfter !== undefined && <p>{T.projections(ind.projectedAfter)}</p>}
+      </Notice>
+    </div>
+  </div>
+
+  <div class="gt-indgrid">
+    {trendLines.length > 0 ? (
+      <section class="gt-tlsec" aria-labelledby="trend-h">
+        <h2 class="gt-h2" id="trend-h">{T.overTime}</h2>
+        {trendFind && <p class="gt-cpsec__find">{trendFind}</p>}
+        <LineChart label={`${label}, ${trend.years[0]}–${trend.years.at(-1)}`} years={trend.years} lines={trendLines} format={fmt} projectedAfter={ind.projectedAfter} zero={ind.scale === 'log'} />
+        <p class="gt-caption">{T.trendCaption(m.year)}</p>
+        <SourceLine source={credit} parts={[`${trend.years[0]}–${trend.years.at(-1)}`]} updated={updated} />
+      </section>
+    ) : <div />}
+    <aside class="gt-indside">
+      {ANSWER[id]?.caveats && (
+        <section><h2 class="gt-label">{T.caveats}</h2><ul class="gt-caveats">{ANSWER[id].caveats!.map((c) => <li>{c}</li>)}</ul></section>
+      )}
+      {related.length > 0 && (
+        <section><h2 class="gt-label">{T.related}</h2><ul class="gt-related">{related.map((r) => <li><a href={indicatorHref(r)}><span>{INDICATOR_TEXT[r].label}</span><small>{T.relatedIndicator}</small></a></li>)}</ul></section>
+      )}
+      <div class="gt-dlbox">
+        <h2 class="gt-label">{T.download}</h2>
+        {csv ? (
+          <>
+            <a class="gt-btn gt-btn--quiet" href={csv} download><Icon name="download" />{T.downloadCsv}</a>
+            <p class="gt-caption">{T.downloadNote(m.sources.map((s) => licenceOf(s)?.licence ?? '').filter(Boolean).join('; '), m.sources.map((s) => licenceOf(s)?.credit ?? sourceName(s)).join('; '))}</p>
+          </>
+        ) : <p class="gt-caption">{T.shownOnly}</p>}
+      </div>
+      <ShareRow url={url} text={T.shareText(label)} />
+    </aside>
+  </div>
+</Page>
+
+<script>
+  import { initSortable } from '../scripts/table';
+  document.querySelectorAll<HTMLTableElement>('.gt-ranktbl table').forEach(initSortable);
+  // The year view: "2024 for all" or "Latest available".
+  document.querySelectorAll<HTMLElement>('[data-gt-seg]').forEach((seg) => seg.addEventListener('gt-change', (e) => {
+    const v = (e as CustomEvent<{ value: string }>).detail.value;
+    document.querySelectorAll<HTMLElement>('.gt-ranktbl[data-view]').forEach((t) => { t.hidden = t.dataset.view !== v; });
+  }));
+  // Find a country: filter the rows by name.
+  document.querySelectorAll<HTMLInputElement>('[data-gt-rowfind]').forEach((input) => input.addEventListener('input', () => {
+    const q = input.value.trim().toLowerCase();
+    document.querySelectorAll<HTMLTableRowElement>('.gt-ranktbl tbody tr').forEach((r) => { r.hidden = Boolean(q) && !(r.dataset.name ?? '').includes(q); });
+  }));
+</script>

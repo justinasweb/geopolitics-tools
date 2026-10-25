@@ -6,7 +6,7 @@ Everything runs in GitHub Actions (`.github/workflows/ci.yml`). Nothing is deplo
 
 | Event | Jobs |
 |---|---|
-| Pull request opened or updated | **check** (lint, type check, unit tests, build, file-limit check, local serve with `wrangler dev` plus browser checks at 1440 and 390 px), **secrets** (gitleaks over the history), then **preview**: deploys a Cloudflare Preview named `pr-<number>`, posts its link on the PR and runs the same checks against it |
+| Pull request opened or updated | **check** (lint, type check, unit tests, pull the latest data snapshot from R2, build, file-limit check, local serve with `wrangler dev` plus browser checks at 1440 and 390 px), **secrets** (gitleaks over the history), then **preview**: deploys a Cloudflare Preview named `pr-<number>`, posts its link on the PR and runs the same checks against it |
 | Push to `main` (a merged PR) | **check**, **secrets**, then **production**: makes sure the R2 buckets exist, runs `wrangler deploy` and checks the live site |
 | Pull request closed | **cleanup**: deletes that PR's Preview |
 

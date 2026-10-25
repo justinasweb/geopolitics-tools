@@ -1,9 +1,45 @@
 ---
+// The 404 page: says plainly there is no page here, suggests the nearest country or indicator page by its address,
+// and links to the home page and the indexes. Old hash links (/#/country/RUS) that land here are moved on.
 import Page from '../layouts/Page.astro';
+import '../styles/atlas/site.css';
+import '../styles/atlas/country.css';
+import { NOT_FOUND as T } from '../i18n/pages.en';
+import { hashRedirectScript, paths, routes } from '../lib/routes';
+
+const targets = routes().filter((r) => r.live && (r.kind === 'country' || r.kind === 'indicator' || r.kind === 'page' || r.kind === 'sources'))
+  .map((r) => [r.path, r.path.split('/').at(-1)!]);
 ---
-<Page title="Page not found" description="There is no page at this address." noindex>
-  <div class="gt-pagehead">
-    <h1 class="gt-title">Page not found</h1>
-    <p class="gt-lede">There is no page at this address. Go to the <a href="/">home page</a> or the <a href="/countries">countries index</a>.</p>
+<Page title={T.title} description={T.description} noindex fromData={false}>
+  <script is:inline set:html={hashRedirectScript()} />
+  <div class="gt-404">
+    <h1 class="gt-title">{T.title}</h1>
+    <p class="gt-lede">{T.lede}</p>
+    <p class="gt-404__dym" hidden>{T.dym} <a href="/"></a>?</p>
+    <ul class="gt-cplinks">
+      <li><a href="/">{T.home} <span aria-hidden="true">→</span></a></li>
+      <li><a href={paths.countries()}>{T.countries} <span aria-hidden="true">→</span></a></li>
+      <li><a href={paths.indicators()}>{T.indicators} <span aria-hidden="true">→</span></a></li>
+    </ul>
   </div>
+  <script is:inline define:vars={{ targets }}>
+    // "Did you mean": the page whose last path part is closest to this address's (edit distance).
+    const want = location.pathname.split('/').filter(Boolean).pop()?.toLowerCase().replace(/\.html$/, '') ?? '';
+    const dist = (a, b) => {
+      const d = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)]);
+      for (let j = 1; j <= b.length; j++) d[0][j] = j;
+      for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++) d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+      return d[a.length][b.length];
+    };
+    if (want) {
+      const best = targets.map(([path, slug]) => [path, slug, dist(want, slug)]).sort((x, y) => x[2] - y[2])[0];
+      if (best && best[2] <= Math.max(2, Math.floor(best[1].length / 3))) {
+        const p = document.querySelector('.gt-404__dym');
+        const a = p.querySelector('a');
+        a.href = best[0];
+        a.textContent = best[0];
+        p.hidden = false;
+      }
+    }
+  </script>
 </Page>

@@ -11,7 +11,7 @@
 // kept with an empty ISO3 code. Each bulk file is a zip of a CSV; the trade matrix is about 50
 // million rows, so the zips are saved to disk and read as streams, the matrix twice.
 // FAOSTAT's matrix has no fertiliser rows in practice: potash and phosphate flows come from UN Comtrade.
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createInterface } from 'node:readline';
@@ -35,7 +35,9 @@ export const DOMAINS: Record<string, Domain> = {
   TM: { zip: 'Trade_DetailedTradeMatrix_E_All_Data_(Normalized).zip', save: 'TM_matrix.json', title: 'Detailed trade matrix', items: [...CROPS, ...NUTRIENTS], elements: [5610], matrix: true },
 };
 
-const M49: Record<string, string> = JSON.parse(readFileSync(new URL('../reference/m49-iso3.json', import.meta.url), 'utf8'));
+// Next to this module when the pipeline runs; from the repository root when the site build bundles it (Sources page).
+const M49_FILE = new URL('../reference/m49-iso3.json', import.meta.url);
+const M49: Record<string, string> = JSON.parse(readFileSync(existsSync(M49_FILE) ? M49_FILE : join(process.cwd(), 'pipeline/reference/m49-iso3.json'), 'utf8'));
 /** FAOSTAT writes M49 codes as '004 (with a quote, so spreadsheets keep the zeros). */
 export const m49 = (code: string) => code.trim().replace(/^'/, '').padStart(3, '0');
 const iso = (code: string) => M49[m49(code)];
