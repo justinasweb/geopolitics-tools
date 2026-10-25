@@ -1,0 +1,66 @@
+# Imports a file for a source with no API (docs/data-pipeline.md, "Importing a file"), the same as
+# `node pipeline/import.ts <kind> <file> --store=r2` but with the repository's Cloudflare secrets:
+# Actions tab → import → Run workflow, with the file's download address.
+name: import
+on:
+  workflow_dispatch:
+    inputs:
+      kind:
+        description: What the file is
+        type: choice
+        options: [usgs, sipri, wpp-total, wpp-indicators, wpp-age, gem-coal, gem-nuclear, gem-lng, gem-pipelines, aqueduct-baseline, aqueduct-future, aquastat, gdw, aiddata, treasury-history]
+      url:
+        description: The file's download address (a direct link, not a web page)
+        required: true
+      name:
+        description: Save it under this file name first, when the link does not end in it (USGS needs MCS2026_Commodities_Data.csv)
+        required: false
+      entry:
+        description: The file to read inside a zip holding several (--entry)
+        required: false
+      sheet:
+        description: The workbook sheet to read (--sheet)
+        required: false
+      allow_shrink:
+        description: Accept far fewer rows than the last import (--allow-shrink)
+        type: boolean
+        default: false
+permissions:
+  contents: read
+concurrency:
+  # Shares the state in R2 with the hourly data run, so the two never overlap.
+  group: data
+  cancel-in-progress: false
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v7
+      # The pipeline uses only Node's own modules, so there is nothing to install.
+      - uses: actions/setup-node@v7
+        with: { node-version-file: .nvmrc }
+      - name: Download the file
+        id: get
+        env:
+          URL: ${{ inputs.url }}
+          NAME: ${{ inputs.name }}
+        run: |
+          name="${NAME:-$(basename "${URL%%\?*}")}"
+          case "$name" in */*|.*|'') echo "::error::Give a plain file name in \"name\"."; exit 1;; esac
+          mkdir -p download
+          curl -fsSL --retry 3 -A 'geopolitics.tools import' -o "download/$name" "$URL"
+          ls -l "download/$name"
+          echo "file=download/$name" >> "$GITHUB_OUTPUT"
+      - name: Import it into R2 and publish a snapshot
+        env:
+          KIND: ${{ inputs.kind }}
+          FILE: ${{ steps.get.outputs.file }}
+          ENTRY: ${{ inputs.entry }}
+          SHEET: ${{ inputs.sheet }}
+          SHRINK: ${{ inputs.allow_shrink && '--allow-shrink' || '' }}
+        run: node pipeline/import.ts "$KIND" "$FILE" --store=r2 ${ENTRY:+"--entry=$ENTRY"} ${SHEET:+"--sheet=$SHEET"} $SHRINK

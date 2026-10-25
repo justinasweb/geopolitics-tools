@@ -27,7 +27,7 @@ CI uses the sample build only for pull requests from forks, which get no Cloudfl
 | --- | --- |
 | `key` | Stable internal id: `country:DEU`, `indicator:milpct`, `compare:USA,CHN`, `page:about`. Slugs can change; keys do not |
 | `path` | The address in each language (English only at launch, at the root) |
-| `live` | Built and linked. Map views, hubs and tools are registered but not live until their phase, so the menu and every link skip them |
+| `live` | Built and linked. Map views (the critical minerals views from phase 4 on), hubs and tools are registered but not live until their phase, so the menu and every link skip them |
 | `indexed` | In the sitemap and without `noindex` |
 | `aliases` | Old or alternative addresses, answered with a 301 (`/countries/usa`, `/compare/china-vs-united-states`) |
 | `image`, `lastmod` | Share image, and when the page's data last changed (sitemap) |
@@ -84,5 +84,4 @@ theme colours: kicker, title, the headline figure or answer, up to five bars, an
 
 - Dossier summaries drafted with AI from a facts file (addendum, D15): the dossiers use the template summary for now.
 - The age pyramid's year slider: the pyramid shows one year.
-- Links to map views with the country selected: they appear when the views are built.
 - Redeploying when new data arrives: today pages refresh on the next deploy.

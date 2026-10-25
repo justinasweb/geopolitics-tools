@@ -1,0 +1,44 @@
+---
+// Hidden map engine page: the first map layer (lithium) with every overlay kind (flow arcs, dashed and solid lines, dots and
+// symbols), to check events over the sea, tooltips and drawing. Not linked anywhere, noindex, disallowed in robots.txt.
+import Page from '../../layouts/Page.astro';
+import MapStage from '../../components/MapStage.astro';
+import { demoOverlays } from '../../lib/map/overlays';
+import { mapLayers } from '../../lib/map/layers';
+import { MINERALS_VIEW as T, MAP_TEXT } from '../../i18n/map.en';
+
+const overlays = demoOverlays();
+// The first layer the snapshot has; none until a source with a map view is in it.
+const hasLayer = mapLayers().length > 0;
+const key: Record<string, string> = { arcs: 'gt-ovkey--arc', lines: 'gt-ovkey--line', points: 'gt-ovkey--dot' };
+---
+<Page title="Map engine" description="The map engine with every overlay kind, for checking." noindex container="mv">
+  <div class="gt-mvhead">
+    <h1 class="gt-title gt-mvhead__t">Map engine <span class="gt-mvhead__sub">overlays</span></h1>
+    <p class="gt-lede gt-mvhead__a">The first map layer with every overlay kind on top. Hover or tap a mark, over land or sea.</p>
+  </div>
+  {!hasLayer && <p>No map layer in this snapshot: the map views' sources are not in it yet.</p>}
+  {hasLayer && <MapStage layer="/dev/map.json" label="Map engine test: a map layer with overlays" title="Map engine"
+    legend={{ title: T.legendTitle(2025), scale: 'seq', ticks: T.ticks, none: T.notListedLegend, withheld: true }}>
+    <div data-panel="world" slot="panel">
+      <div class="gt-panel__head"><div class="gt-panel__title"><span class="gt-kicker">Overlays</span><h2 class="gt-h3">{MAP_TEXT.world}</h2></div></div>
+      <div class="gt-panel__body">
+        <ul class="gt-ovlist">
+          {overlays.map((o) => <li><i class:list={['gt-ovkey', o.kind === 'lines' && o.dashed ? 'gt-ovkey--dash' : key[o.kind], o.kind === 'points' && o.symbol === 'diamond' && 'gt-ovkey--diamond']}></i>{o.label} <small>({o.items.length})</small></li>)}
+        </ul>
+        {overlays.length === 0 && <p>No overlay sources in this snapshot.</p>}
+      </div>
+    </div>
+  </MapStage>}
+</Page>
+
+<style>
+  .gt-ovlist { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; font: 400 15px/22px var(--sans); }
+  .gt-ovlist li { display: flex; gap: 10px; align-items: center; }
+  .gt-ovlist small { color: var(--ink-muted); }
+  .gt-ovkey { flex: none; width: 24px; height: 0; border-top: 3px solid var(--ink); opacity: .7; }
+  .gt-ovkey--line { border-top: 2px solid var(--brand); }
+  .gt-ovkey--dash { border-top: 2px dashed var(--accent); }
+  .gt-ovkey--dot { width: 12px; height: 12px; border: 1px solid var(--paper-raised); border-radius: 50%; background: var(--accent); }
+  .gt-ovkey--diamond { width: 11px; height: 11px; border: 2px solid var(--ink); border-radius: 0; background: var(--paper-raised); transform: rotate(45deg); opacity: 1; }
+</style>

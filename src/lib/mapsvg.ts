@@ -5,19 +5,14 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { matcher } from '../adapters/core.ts';
+import { equalEarth } from './map/projection.ts';
 
 type Ring = [number, number][];
 interface Shape { id: string | null; polys: Ring[][] }
 
-const A1 = 1.340264, A2 = -0.081106, A3 = 0.000893, A4 = 0.003796, M = Math.sqrt(3) / 2;
-
-/** Equal Earth, in units where the world is about 5.41 wide and 2.63 high. */
+/** Equal Earth with y growing downwards, as SVG wants it. */
 export function project(lon: number, lat: number): [number, number] {
-  const l = (lon * Math.PI) / 180;
-  const t = Math.asin(M * Math.sin((lat * Math.PI) / 180));
-  const t2 = t * t, t6 = t2 * t2 * t2;
-  const x = (l * Math.cos(t)) / (M * (A1 + 3 * A2 * t2 + t6 * (7 * A3 + 9 * A4 * t2)));
-  const y = t * (A1 + A2 * t2 + t6 * (A3 + A4 * t2));
+  const [x, y] = equalEarth(lon, lat);
   return [x, -y];
 }
 

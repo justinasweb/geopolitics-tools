@@ -13,12 +13,13 @@ import { countryModel, countryPages, DOSSIERS } from './country.ts';
 import { data, changed } from './data.ts';
 import { indicatorModel } from './indicator.ts';
 import { PLACES, place } from './places.ts';
+import { mineralPages } from './minerals.ts';
 
 export type Lang = 'en';
 export type Kind = 'countries' | 'country' | 'compare' | 'indicators' | 'indicator' | 'page' | 'sources' | 'view' | 'hub' | 'tool';
 
-/** The kinds this phase builds (src/pages/[...path].astro); views, hubs and tools come in later phases. */
-export const BUILT_KINDS: Kind[] = ['countries', 'country', 'compare', 'indicators', 'indicator', 'page', 'sources'];
+/** The kinds built so far (src/pages/[...path].astro); hubs and tools come in later phases. */
+export const BUILT_KINDS: Kind[] = ['countries', 'country', 'compare', 'indicators', 'indicator', 'page', 'sources', 'view'];
 
 export interface Route {
   /** Stable internal key: "country:DEU", "indicator:milpct", "page:about". Slugs can change; keys do not. */
@@ -49,6 +50,7 @@ export const paths = {
   csv: (id: string) => `/${S.downloads}/${INDICATOR_SLUGS[id]}.csv`,
   page: (id: keyof typeof SECTION_SLUGS) => `/${S[id]}`,
   image: (kind: string, name: string) => `/og/${kind}/${name}.png`,
+  mineral: (id: string) => `/${S.minerals}/${id}`,
 };
 
 /** The Compare pairs: every pair of dossier countries, in a fixed order (United States, China, Russia). */
@@ -84,10 +86,21 @@ function build(): Route[] {
   for (const id of STATIC_PAGES) out.push({ key: `page:${id}`, kind: 'page', lang, path: paths.page(id), live: true, indexed: true, aliases: [], id, image: paths.image('page', id) });
   out.push({ key: 'page:sources', kind: 'sources', lang, path: paths.page('sources'), live: true, indexed: true, aliases: [], id: 'sources', image: paths.image('page', 'sources'), lastmod: snapshotDate });
 
-  // Not built yet (phases 4–8): registered so links, the menu and redirects know about them.
+  // Map views (phase 4 onwards). A view family's pages have keys "view:<family>:<page>"; the family's own address
+  // (/minerals) redirects to its first page (spec, "Fixes from the review").
+  const families = new Set<string>();
+  mineralPages().forEach((m, i) => {
+    families.add('minerals');
+    out.push({
+      key: `view:minerals:${m.id}`, kind: 'view', lang, path: paths.mineral(m.id), live: true, indexed: true,
+      aliases: i === 0 ? [`/${S.minerals}`] : [], id: `minerals:${m.id}`, image: paths.image('views', `minerals-${m.id}`), lastmod: changed('usgs-minerals'),
+    });
+  });
+
+  // Not built yet (phases 5–8): registered so links, the menu and redirects know about them.
   for (const hub of NAV_HUBS) {
     out.push({ key: `hub:${hub.id}`, kind: 'hub', lang, path: hub.path, live: false, indexed: false, aliases: [], id: hub.id });
-    for (const v of hub.views) out.push({ key: `view:${v.id}`, kind: 'view', lang, path: v.path, live: false, indexed: false, aliases: [], id: v.id });
+    for (const v of hub.views) if (!families.has(v.id)) out.push({ key: `view:${v.id}`, kind: 'view', lang, path: v.path, live: false, indexed: false, aliases: [], id: v.id });
   }
   for (const u of NAV_UTIL) if (u.id !== 'countries') out.push({ key: `tool:${u.id}`, kind: 'tool', lang, path: u.path, live: false, indexed: false, aliases: [], id: u.id });
   return out;
@@ -130,6 +143,13 @@ export function live(key: string): Route | undefined {
   return r?.live ? r : undefined;
 }
 export const route = (key: string) => (keyMap ??= byKey()).get(key);
+
+/** A view family's first live page (/minerals → /minerals/lithium), or the view itself if it is one page. */
+export function viewHref(family: string): string | undefined {
+  const own = live(`view:${family}`);
+  if (own) return own.path;
+  return routes().find((r) => r.live && r.key.startsWith(`view:${family}:`))?.path;
+}
 
 /** A place's page, if it has one. */
 export const countryHref = (id: string) => live(`country:${id}`)?.path;

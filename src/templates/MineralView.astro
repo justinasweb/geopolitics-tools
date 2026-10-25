@@ -1,0 +1,179 @@
+---
+// A critical minerals map view (LithiumMapView design): the answer in one sentence, the mineral picker, year slider
+// and bloc outline, the map with its legend and panel, then the summary, every producer and related links. All text,
+// figures and the table are in the HTML; the map (src/scripts/map/) loads after them and only on demand on phones.
+import Page from '../layouts/Page.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import SourceLine from '../components/SourceLine.astro';
+import StatusTag from '../components/StatusTag.astro';
+import Notice from '../components/Notice.astro';
+import ShareRow from '../components/ShareRow.astro';
+import MapStage from '../components/MapStage.astro';
+import MapControls from '../components/MapControls.astro';
+import Icon from '../components/Icon.astro';
+import '../styles/atlas/mapview.css';
+import '../styles/atlas/bars.css';
+import '../styles/atlas/table.css';
+import '../styles/atlas/tools.css';
+import { MINERALS_VIEW as T, MAP_TEXT } from '../i18n/map.en';
+import { amount, concentration, lede, listed, mineralPage, mineralPages, nameOf, shareExact, shareText, summary, withheld, worldChange } from '../lib/minerals';
+import { refreshed, data } from '../lib/data';
+import { countryHref, paths, live } from '../lib/routes';
+import { layerPath } from '../lib/map/layers';
+import { DOSSIERS } from '../lib/country';
+import { breadcrumbs } from '../lib/structured';
+
+interface Props { id: string }
+const p = mineralPage(Astro.props.id)!;
+const all = mineralPages();
+const y = p.latest;
+const path = paths.mineral(p.id);
+const url = new URL(path, Astro.site).href;
+const updated = refreshed('usgs-minerals');
+const answer = lede(p);
+const yearsText = T.years(p.years, p.estimated);
+const version = (data().snapshot.sources['usgs-minerals']?.changed ?? updated ?? data().snapshot.created).slice(0, 10);
+const citation = T.citation(p.edition, p.name, yearsText, url.replace(/^https:\/\//, ''), version);
+const crumbs = [{ label: T.hub }, { label: T.section, href: paths.mineral(all[0].id) }, { label: p.title }];
+const prevYear = p.years.length > 1 ? p.years.at(-2)! : null;
+const prev = prevYear ? p.byYear[prevYear] : null;
+const unitWord = T.unitWord(p.unit === 'kg');
+const w = withheld(y);
+const worldNote = w.length && y.world
+  ? T.worldExcludes(w.map(nameOf).join(' and '), [y, prev].filter(Boolean).map((x) => `${amount(x!.world!)} ${p.unit} in ${x!.year}`).join(', '))
+  : '';
+const est = (yr: number) => p.estimated.includes(yr);
+
+// The table: every producer of the latest year, with the year before and the change.
+const prevOf = (place: string | null, label: string) => prev?.producers.find((q) => (place ? q.place === place : q.label === label));
+const rows = y.producers.map((x) => {
+  const q = prevOf(x.place, x.label);
+  const ch = x.value !== null && q?.value ? x.value / q.value - 1 : null;
+  return { x, q, ch };
+});
+const related = [
+  ...listed(y).slice(0, 3).filter((x) => x.place && countryHref(x.place)).map((x) => ({ href: countryHref(x.place!)!, name: nameOf(x), note: DOSSIERS.includes(x.place!) ? T.dossier : T.countryPage })),
+  ...all.filter((m) => m.id !== p.id && live(`view:minerals:${m.id}`)).slice(0, 2).map((m) => ({ href: paths.mineral(m.id), name: m.title, note: T.sameView })),
+];
+const mapTop = listed(y).slice(0, 3).map((x) => `${nameOf(x)} ${shareText(x.share!)}`).join(', ');
+const yearStatus = Object.fromEntries(p.years.filter(est).map((yr) => [yr, 'estimate' as const]));
+---
+<Page title={T.title(p.title)} description={T.description(p.name, y.year)} hub="resources" container="mv" image={paths.image('views', `minerals-${p.id}`)}
+  jsonld={[breadcrumbs(crumbs.map((c) => ({ label: c.label, href: c.href })))]}>
+  <div class="gt-mvhead">
+    <Breadcrumbs items={crumbs} />
+    <h1 class="gt-title gt-mvhead__t">{p.title} <span class="gt-mvhead__sub">{T.sub}</span></h1>
+    {answer && <p class="gt-lede gt-mvhead__a">{answer}</p>}
+    <SourceLine source={p.source} parts={[T.figures(y.year, y.estimated)]} status={y.estimated ? 'estimate' : undefined} updated={updated} citation={citation} />
+  </div>
+
+  <MapControls
+    pickerLabel={T.mineral}
+    picker={all.filter((m) => live(`view:minerals:${m.id}`)).map((m) => ({ label: m.title, href: paths.mineral(m.id), current: m.id === p.id }))}
+    years={p.years} year={y.year} yearStatus={yearStatus} />
+
+  <MapStage layer={layerPath(`minerals-${p.id}`)} label={T.mapLabel(p.name, y.year, mapTop)} title={p.title}
+    legend={{ title: T.legendTitle(y.year), scale: 'seq', ticks: T.ticks, none: T.notListedLegend, withheld: w.length > 0 }}>
+    <div data-panel="world" slot="panel">
+      <div class="gt-panel__head">
+        <div class="gt-panel__title"><span class="gt-kicker">{p.title} · <span data-year-text>{y.year}</span></span><h2 class="gt-h3">{MAP_TEXT.world}</h2></div>
+      </div>
+      <div class="gt-panel__body">
+        {p.years.map((yr) => {
+          const Y = p.byYear[yr];
+          const ch = worldChange(Y);
+          const c = concentration(Y.hhi);
+          const shown = [...listed(Y).slice(0, 8), ...withheld(Y)];
+          const max = listed(Y)[0]?.share ?? 1;
+          return (
+            <div class="gt-pyear" data-year={yr} hidden={yr !== y.year}>
+              {Y.world && (
+                <div class="gt-pkf">
+                  <span class="gt-pkf__label">{T.worldLabel}</span>
+                  <span class="gt-pkf__num">{amount(Y.world)}<small>{p.unit}</small></span>
+                  <span class="gt-pkf__meta">
+                    {ch !== null && Y.worldPrev && <span class="gt-kf__change"><Icon name={Math.abs(ch) < 0.005 ? 'flat' : ch > 0 ? 'up' : 'down'} />{Math.abs(ch) < 0.005 ? T.sameAs(yr - 1) : T.change(shareText(Math.abs(ch)), ch > 0, yr - 1, `${amount(Y.worldPrev)} ${p.unit}`)}</span>}
+                    {Y.estimated && <StatusTag status="estimate" small />}
+                  </span>
+                </div>
+              )}
+              <div class="gt-conc">
+                <div class="gt-conc__head"><span class="gt-label">{T.concentration}</span><span class="gt-conc__now">{T.conc[c]}</span></div>
+                <ol class="gt-conc__scale" aria-label={`${T.concentration}: ${T.conc[c]}`}>
+                  {(['low', 'moderate', 'high'] as const).map((k) => <li aria-current={k === c ? 'true' : undefined}><span class="gt-conc__bar"></span><span class="gt-conc__lab">{T.conc[k]}</span></li>)}
+                </ol>
+                <p class="gt-caption gt-conc__note">{T.concNote(amount(Y.hhi))} <a href={paths.page('methodology')}>{T.howMeasured}</a></p>
+              </div>
+              <div class="gt-pgroup">
+                <span class="gt-label">{T.producers}</span>
+                <ol class="gt-bars gt-bars--tight" aria-label={T.producersLabel(p.name, yr)}>
+                  {shown.map((x) => {
+                    const name = x.place ? <button type="button" data-select={x.place}>{nameOf(x)}</button> : nameOf(x);
+                    return x.withheld
+                      ? <li class="gt-bars__withheld"><span class="gt-bars__name">{name}</span><span class="gt-bars__track"><span class="gt-sw gt-sw--withheld" style="width:16px;height:12px;display:block"></span></span><span class="gt-bars__val">{T.withheld}</span></li>
+                      : <li><span class="gt-bars__name">{name}</span><span class="gt-bars__track"><span class="gt-bars__fill" style={`width:${((100 * x.share!) / max).toFixed(1)}%`}></span></span><span class="gt-bars__val">{shareText(x.share!)}</span></li>;
+                  })}
+                </ol>
+              </div>
+            </div>
+          );
+        })}
+        <div class="gt-blocline" hidden><span class="gt-blocline__key" aria-hidden="true"></span><p></p></div>
+        <Notice>
+          <p>{T.caveat}</p>
+          <SourceLine source={p.source} parts={[T.figures(y.year, y.estimated)]} updated={updated} />
+        </Notice>
+      </div>
+    </div>
+  </MapStage>
+
+  <section class="gt-mvbelow" aria-labelledby="mv-sum">
+    <div class="gt-mvbelow__main">
+      <h2 class="gt-h2" id="mv-sum">{T.summary}</h2>
+      <div class="gt-prose">{summary(p).map((s) => <p>{s}</p>)}</div>
+      <SourceLine source={p.source} parts={[yearsText]} updated={updated} citation={citation} />
+      <h2 class="gt-h2" id="table">{T.all}</h2>
+      <div class="gt-tablewrap" style="--gt-table-h:none" tabindex="0" role="region" aria-label={T.tableLabel(p.title)}>
+        <table class="gt-table" data-gt-sort>
+          <caption class="gt-caption">{T.caption(unitWord, rows.some(({ x, q }) => x.estimated || q?.estimated), worldNote)}</caption>
+          <thead><tr>
+            <th scope="col" data-key="n"><button type="button">{T.country}</button></th>
+            <th scope="col" class="n" data-key="v" data-type="num" aria-sort="descending"><button type="button">{y.year}</button></th>
+            <th scope="col" class="n" data-key="s" data-type="num"><button type="button">{T.share}</button></th>
+            {prev && <th scope="col" class="n" data-key="q" data-type="num"><button type="button">{prev.year}</button></th>}
+            {prev && <th scope="col" class="n" data-key="c" data-type="num"><button type="button">{T.change2}</button></th>}
+          </tr></thead>
+          <tbody>
+            {rows.map(({ x, q, ch }) => (
+              <tr data-place={x.place ?? undefined}>
+                <th scope="row">{x.place && countryHref(x.place) ? <a href={countryHref(x.place)}>{nameOf(x)}</a> : nameOf(x)}</th>
+                {x.withheld ? <td class="n gt-na" data-v="">{T.withheld}</td> : <td class="n" data-v={x.value}>{amount(x.value!)}{x.estimated && <abbr class="gt-yr" title={T.estTitle}>e</abbr>}</td>}
+                {x.share === null ? <td class="n gt-na" data-v="">–</td> : <td class="n" data-v={x.share}>{shareExact(x.share)}</td>}
+                {prev && (q?.withheld ? <td class="n gt-na" data-v="">{T.withheld}</td> : q?.value != null ? <td class="n" data-v={q.value}>{amount(q.value)}{q.estimated && <abbr class="gt-yr" title={T.estTitle}>e</abbr>}</td> : <td class="n gt-na" data-v="">–</td>)}
+                {prev && (ch === null ? <td class="n gt-na" data-v="">–</td> : <td class="n" data-v={ch}><span class="gt-chg"><Icon name={Math.abs(ch) < 0.005 ? 'flat' : ch > 0 ? 'up' : 'down'} />{ch > 0 ? '+' : ch < 0 ? '−' : ''}{new Intl.NumberFormat('en', { maximumFractionDigits: 0 }).format(Math.abs(ch * 100))}%</span></td>)}
+              </tr>
+            ))}
+          </tbody>
+          {y.world && (
+            <tfoot><tr>
+              <td>{T.worldRow}</td><td class="n">{amount(y.world)}</td><td class="n">100%</td>
+              {prev && <td class="n">{prev.world ? amount(prev.world) : '–'}</td>}
+              {prev && <td class="n">{worldChange(y) !== null ? `${worldChange(y)! >= 0 ? '+' : '−'}${new Intl.NumberFormat('en', { maximumFractionDigits: 0 }).format(Math.abs(worldChange(y)! * 100))}%` : '–'}</td>}
+            </tr></tfoot>
+          )}
+        </table>
+      </div>
+      <SourceLine source={p.source} parts={[yearsText]} updated={updated} />
+    </div>
+    <aside class="gt-mvbelow__side">
+      <h2 class="gt-label">{T.related}</h2>
+      <ul class="gt-related">{related.map((r) => <li><a href={r.href}><span>{r.name}</span><small>{r.note}</small></a></li>)}</ul>
+      <div class="gt-mvbelow__share"><ShareRow url={url} text={answer ?? T.title(p.title)} /></div>
+    </aside>
+  </section>
+</Page>
+
+<script>
+  import { initSortable } from '../scripts/table';
+  document.querySelectorAll<HTMLTableElement>('table[data-gt-sort]').forEach(initSortable);
+</script>

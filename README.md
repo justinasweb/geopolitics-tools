@@ -26,9 +26,10 @@ Needs Node 24 (`.nvmrc`).
 
 | Path | What |
 |---|---|
-| `src/pages/` | Pages and generated files (`robots.txt`, `sitemap.xml`, share images, CSVs); `/dev/components` shows every design component |
+| `src/pages/` | Pages and generated files (`robots.txt`, `sitemap.xml`, share images, CSVs, map files); `/dev/components` shows every design component, `/dev/map` every map overlay |
 | `src/lib/routes.ts` | The route registry: every page, its path, redirects and whether it is built and indexed (see [docs/page-engine.md](docs/page-engine.md)) |
-| `src/templates/` | Page templates: country, Compare, indicator, long read, Sources |
+| `src/templates/` | Page templates: country, Compare, indicator, long read, Sources, map views |
+| `src/lib/map/`, `src/scripts/map/` | The map engine: basemap, layer files, overlays, and the MapLibre island (see [docs/maps.md](docs/maps.md)) |
 | `src/content/pages/` | About, Methodology and Privacy in Markdown |
 | `src/i18n/` | Words, sentence templates and slugs, one file per language |
 | `src/components/`, `src/styles/`, `src/scripts/` | The Atlas design system in code (see [docs/design-system.md](docs/design-system.md)) |

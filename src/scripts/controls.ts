@@ -118,6 +118,7 @@ function years(el: HTMLElement) {
   const update = () => {
     r.style.setProperty('--p', `${((+r.value - +r.min) / (+r.max - +r.min)) * 100}%`);
     if (now) now.textContent = r.value;
+    for (const t of el.querySelectorAll<HTMLElement>('[data-tag-year]')) t.hidden = t.dataset.tagYear !== r.value;
     r.setAttribute('aria-valuetext', r.value + (est.includes(r.value) ? `, ${YEAR_TEXT.estimate}` : ''));
     emit(el, 'gt-change', { year: +r.value });
   };

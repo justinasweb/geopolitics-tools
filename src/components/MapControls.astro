@@ -1,0 +1,92 @@
+---
+// The control row above a map view (MapControls design). Desktop: the view family's pages as a segmented row of
+// links, the year slider with play, and "Outline a bloc". Phone: a sticky row with a native select for the page
+// and a Filters button that opens a sheet with the year and the bloc. The map view script (src/scripts/map/view.ts)
+// keeps both in step and in the URL.
+import '../styles/atlas/mapview.css';
+import '../styles/atlas/filters.css';
+import YearSlider from './YearSlider.astro';
+import Icon from './Icon.astro';
+import type { Status } from './StatusTag.astro';
+import { MAP_TEXT, BLOC_TEXT } from '../i18n/map.en';
+import { YEAR_TEXT } from '../i18n/en';
+import { BLOC_ORDER } from '../lib/blocs';
+
+interface Props {
+  pickerLabel: string;
+  picker: { label: string; href: string; current: boolean }[];
+  years: number[];
+  year: number;
+  yearStatus?: Record<number, Status>;
+  /** Offer the bloc outline (default true). */
+  blocs?: boolean;
+}
+const { pickerLabel, picker, years, year, yearStatus = {}, blocs = true } = Astro.props;
+const blocOptions = BLOC_ORDER.map((b) => ({ value: b, label: BLOC_TEXT[b] }));
+---
+<div class="gt-mvctl" data-gt-mapctl>
+  <div class="gt-mvctl__min">
+    <span class="gt-field__label gt-mvctl__lab" id="mv-picker-l">{pickerLabel}</span>
+    <nav class="gt-seg gt-mvseg" aria-labelledby="mv-picker-l">
+      {picker.map((o) => <a href={o.href} aria-current={o.current ? 'page' : undefined} data-keep-state>{o.label}</a>)}
+    </nav>
+  </div>
+  <div class="gt-mvctl__row">
+    {years.length > 1 && (
+      <div class="gt-mvctl__yr">
+        <YearSlider id="mv-year" min={years[0]} max={years.at(-1)!} value={year} estimated={Object.keys(yearStatus).map(Number)} tags={yearStatus} />
+      </div>
+    )}
+    {blocs && (
+      <div class="gt-field">
+        <label for="mv-bloc">{MAP_TEXT.outline}</label>
+        <div class="gt-select"><select id="mv-bloc" data-bloc-select>
+          <option value="">{MAP_TEXT.noBloc}</option>
+          {blocOptions.map((o) => <option value={o.value}>{o.label}</option>)}
+        </select></div>
+      </div>
+    )}
+  </div>
+</div>
+
+<div class="gt-mvcompact">
+  <div class="gt-select">
+    <label class="gt-vh" for="mv-picker-p">{pickerLabel}</label>
+    <select id="mv-picker-p" data-picker-select>
+      {picker.map((o) => <option value={o.href} selected={o.current}>{o.label}</option>)}
+    </select>
+  </div>
+  <button class="gt-btn gt-btn--quiet gt-mvcompact__f" type="button" aria-haspopup="dialog" data-open-filters>
+    <Icon name="filter" />{MAP_TEXT.filters}<span class="gt-mvcompact__n" data-filters-summary>{year}</span>
+  </button>
+</div>
+
+<dialog class="gt-fsheet" aria-labelledby="mv-filters-t" data-filters>
+  <div class="gt-fsheet__bar">
+    <h2 class="gt-h3" id="mv-filters-t">{MAP_TEXT.filters}</h2>
+    <button class="gt-iconbtn" type="button" aria-label={MAP_TEXT.closeFilters} data-close-filters><Icon name="close" /></button>
+  </div>
+  <div class="gt-fsheet__body">
+    {years.length > 1 && (
+      <fieldset>
+        <legend class="gt-label">{YEAR_TEXT.year}</legend>
+        {[...years].reverse().map((yr) => (
+          <label class="gt-fsheet__opt"><input type="radio" name="mv-fyear" value={yr} checked={yr === year} />{yr}{yearStatus[yr] && <span class="gt-caption">({YEAR_TEXT.estimate})</span>}</label>
+        ))}
+      </fieldset>
+    )}
+    {blocs && (
+      <div class="gt-field">
+        <label for="mv-fbloc">{MAP_TEXT.outline}</label>
+        <div class="gt-select"><select id="mv-fbloc">
+          <option value="">{MAP_TEXT.noBloc}</option>
+          {blocOptions.map((o) => <option value={o.value}>{o.label}</option>)}
+        </select></div>
+      </div>
+    )}
+  </div>
+  <div class="gt-fsheet__foot">
+    <button class="gt-btn gt-btn--quiet" type="button" data-reset-filters>{MAP_TEXT.reset2}</button>
+    <button class="gt-btn" type="button" data-apply-filters>{MAP_TEXT.showResults}</button>
+  </div>
+</dialog>
