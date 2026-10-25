@@ -265,3 +265,6 @@
 .gt-cpnotes { display: grid; gap: 4px; }
 /* A source line next to a link takes the free width (it is a size container, so it has no width of its own). */
 .gt-cpsec__foot > .gt-source, .gt-cpsources__row > .gt-source { flex: 1 1 320px; }
+.gt-jumpbar summary.gt-jumpbar__b { display: flex; align-items: center; min-height: 44px; }
+.gt-jumpbar__b > svg { width: 12px; height: 12px; margin-left: auto; flex: none; fill: none; stroke: currentColor; stroke-width: 1.6; }
+.gt-jumpbar details[open] .gt-jumpbar__b > svg { transform: rotate(180deg); }

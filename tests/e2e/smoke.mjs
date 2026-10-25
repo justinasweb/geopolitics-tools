@@ -45,7 +45,17 @@ check([301, 307, 308].includes(html.status) && new URL(html.headers.get('locatio
 
 const missing = await get('/does-not-exist');
 check(missing.status === 404, `unknown address returns 404 (got ${missing.status})`);
-check(/Page not found/.test(await missing.text()), 'unknown address shows the 404 page');
+check(/not on the map/.test(await missing.text()), 'unknown address shows the 404 page');
+
+// Generated pages (phase 3): the indexes, a dossier, Compare, an indicator, the long reads, and the 301s.
+for (const path of ['/countries', '/countries/united-states', '/compare/united-states-vs-china', '/indicators', '/indicators/gdp', '/methodology', '/sources', '/sitemap.xml']) {
+  const res = await get(path);
+  check(res.status === 200, `${path} returns 200 (got ${res.status})`);
+}
+for (const [from, to] of [['/countries/usa', '/countries/united-states'], ['/compare/china-vs-united-states', '/compare/united-states-vs-china']]) {
+  const res = await get(from);
+  check(res.status === 301 && new URL(res.headers.get('location') ?? '', base).pathname === to, `${from} redirects to ${to} (got ${res.status})`);
+}
 
 const robots = await get('/robots.txt');
 const robotsText = await robots.text();
@@ -70,6 +80,15 @@ for (const [name, viewport] of [['desktop', { width: 1440, height: 900 }], ['pho
   check(!sideways, `${name}: no sideways scroll`);
   check(errors.length === 0, `${name}: no console errors${errors.length ? ` (${errors.join('; ')})` : ''}`);
   await page.screenshot({ path: `${out}/home-${name}.png`, fullPage: true });
+
+  // A dossier, Compare and an indicator page: no errors, nothing wider than the screen.
+  for (const [shot, path] of [['dossier', '/countries/china'], ['compare', '/compare/united-states-vs-china'], ['indicator', '/indicators/gdp']]) {
+    errors.length = 0;
+    await page.goto(`${base}${path}`, { waitUntil: 'networkidle' });
+    check(!(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth)), `${name}: ${path} has no sideways scroll`);
+    check(errors.length === 0, `${name}: ${path} has no console errors${errors.length ? ` (${errors.join('; ')})` : ''}`);
+    await page.screenshot({ path: `${out}/${shot}-${name}.png`, fullPage: true });
+  }
 
   // The design system's components page (hidden, noindex): renders without errors or sideways scroll.
   errors.length = 0;

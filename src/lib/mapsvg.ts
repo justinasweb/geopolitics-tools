@@ -48,7 +48,7 @@ interface View { x: number; y: number; w: number; h: number; width: number }
 
 function pathOf(s: Shape, v: View): string {
   const k = v.width / v.w;
-  const tol = 0.7 / k;
+  const tol = 1 / k;
   const parts: string[] = [];
   for (const poly of s.polys) {
     for (const ring of poly) {
@@ -58,7 +58,16 @@ function pathOf(s: Shape, v: View): string {
       if ((maxX - minX) * k < 0.8 && (maxY - minY) * k < 0.8) continue;
       const pts = thin(ring, tol);
       if (pts.length < 4) continue;
-      parts.push(`M${pts.map(([x, y]) => `${((x - v.x) * k).toFixed(1)} ${((y - v.y) * k).toFixed(1)}`).join('L')}Z`);
+      // Whole units, relative moves, repeated points dropped: a fraction of the size, the same drawing at this scale.
+      let d = '';
+      let px = 0, py = 0, n = 0;
+      for (const [x, y] of pts) {
+        const ix = Math.round((x - v.x) * k), iy = Math.round((y - v.y) * k);
+        if (n && ix === px && iy === py) continue;
+        d += n ? `l${ix - px} ${iy - py}` : `M${ix} ${iy}`;
+        px = ix; py = iy; n++;
+      }
+      if (n >= 3) parts.push(`${d}z`);
     }
   }
   return parts.join('');
