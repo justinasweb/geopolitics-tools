@@ -159,3 +159,9 @@
 @media (prefers-reduced-motion: reduce) {
   .gt-mapcanvas * { transition: none !important; }
 }
+
+/* USGS's notes on single figures, under the producers table. */
+.gt-mvnotes { margin-top: 12px; }
+.gt-mvnotes ol { margin: 4px 0 0; padding-left: 20px; }
+.gt-mvnotes li { margin-top: 2px; }
+.gt-mvnotes li:target { background: var(--brand-soft); }

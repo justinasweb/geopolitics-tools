@@ -81,8 +81,33 @@ USGS adapter on the real MCS 2026 format, share classes, the layer file, the too
 `tests/e2e/smoke.mjs` opens `/minerals/lithium?country=australia` at desktop and phone width, checks the map draws
 and the panel opens, and on the phone opens the full-screen map.
 
+## The eight minerals (checked in phase 5a)
+
+All eight views read the world production table of each chapter in the USGS data release (MCS 2026), checked
+against the chapters themselves:
+
+| Mineral | What USGS counts | Note |
+|---|---|---|
+| Lithium | Mine production, lithium content | The United States is withheld; the world total leaves it out |
+| Cobalt | Mine production, cobalt content | |
+| Rare earths | Mine production, rare-earth-oxide equivalent | China's figure is its production quota; several figures are estimated from China's import data |
+| Gallium | **Primary** (low-purity) production, gallium content | Not mined on its own (a by-product of bauxite and zinc processing), so its view says "produces", not "mines" |
+| Natural graphite | Mine production, tonnes (no content basis given) | |
+| Nickel | Mine production, nickel content | |
+| Palladium | Mine production, platinum-group-metal content | |
+| Tungsten | Mine production, tungsten content | |
+
+How the adapter (`src/adapters/minerals.ts`) reads them:
+
+- **Shares** are of the world total, or of the countries plus USGS's own "Other countries" figure when those add up to
+  more (USGS rounds world totals, to 190,000 t for palladium in 2025 when its parts add to 194,100 t).
+- **"—" means zero.** A country USGS lists with "—" (the United States for gallium, graphite and tungsten) produced
+  none, so it is not listed, ranked or shaded as a producer.
+- **Notes.** USGS's note on a single figure is kept ("Production quota; …") and shown in the table's notes, and on the
+  map when it holds for every year. The tonnage basis ("lithium content") is in the table caption and the summary;
+  USGS's note on revised figures for the year before is in the caption.
+
 ## Not done in this phase
 
-- The other seven minerals are built from the same template; their figures are checked in phase 5a.
 - Refining shares and trade flows on the minerals views: later phases, once their sources are in.
 - The Atlas (one map, every layer): it reads these layer files when it is built.

@@ -31,3 +31,7 @@ th[aria-sort="ascending"] .gt-sort .up, th[aria-sort="descending"] .gt-sort .dow
 .gt-table--compact tbody th, .gt-table--compact td { vertical-align: top; }
 .gt-table.gt-table--compact tbody th { padding: 6px 8px 6px 0; font: 600 14px/20px var(--sans); }
 .gt-table--compact tbody th small { display: block; font: 400 12px/16px var(--sans); color: var(--ink-muted); }
+/* A note mark after a row's name, pointing to the notes under the table. */
+.gt-fn { margin-left: 3px; font: 600 11px/1 var(--sans); }
+.gt-fn a { color: var(--ink-muted); text-decoration: none; }
+.gt-fn a:hover, .gt-fn a:focus-visible { color: var(--brand); text-decoration: underline; }

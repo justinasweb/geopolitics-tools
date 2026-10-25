@@ -1,7 +1,7 @@
 // The map layers: every shaded layer the site's maps can show, defined once as data (./types.ts) and written to
 // /map/<id>.json at build time. A map view page loads its layer file; the Atlas (phase 6) will list the same
 // registry. Each layer says which view it belongs to, so the Atlas panel can link to "See full page".
-import { MAP_TEXT, MINERALS_VIEW as MV, BLOC_TEXT } from '../../i18n/map.en.ts';
+import { MAP_TEXT, BLOC_TEXT } from '../../i18n/map.en.ts';
 import { tagHtml } from '../tags.ts';
 import { blocs } from '../blocs.ts';
 import { DOSSIERS } from '../country.ts';
@@ -54,6 +54,7 @@ function common(): Pick<LayerFile, 'tags' | 'names' | 'hrefs' | 'dossiers' | 'sl
 /** A mineral's share of world mine production, by country and year (USGS). */
 function mineralLayer(p: MineralPage): LayerFile {
   const c = common();
+  const MV = p.text;
   const memberships = blocs();
   const data: LayerYear[] = p.years.map((year) => {
     const y = p.byYear[year];
@@ -85,8 +86,23 @@ function mineralLayer(p: MineralPage): LayerFile {
       kicker: `${p.title} · {year}`, measure: MV.measure, shareLabel: MV.shareLabel, none: MV.notListed(0).replace('0', '{year}'),
       withheld: MV.withheldBy, withheldWhy: MV.withheldWhy(p.name), prev: MV.prevYear(0, '{detail}', '{value}').replace('0', '{year}'),
     },
-    tags: c.tags, names: c.names, hrefs: c.hrefs, dossiers: c.dossiers, slugs: c.slugs, notes: c.notes, blocs: c.blocs, data,
+    tags: c.tags, names: c.names, hrefs: c.hrefs, dossiers: c.dossiers, slugs: c.slugs, notes: withSourceNotes(c.notes, p), blocs: c.blocs, data,
   };
+}
+
+/**
+ * The place notes plus USGS's own note on a place's figure, when it says the same in every year the place is listed
+ * (the layer's notes are not per year; a note on one year only is in the table under the map).
+ */
+function withSourceNotes(notes: Record<string, string>, p: MineralPage): Record<string, string> {
+  const out = { ...notes };
+  const byPlace = new Map<string, (string | null)[]>();
+  for (const year of p.years) for (const x of p.byYear[year].producers) if (x.place) byPlace.set(x.place, [...(byPlace.get(x.place) ?? []), x.note]);
+  for (const [place, said] of byPlace) {
+    const n = said[0];
+    if (n && said.every((x) => x === n)) out[place] = out[place] ? `${out[place]} ${n}` : n;
+  }
+  return out;
 }
 
 let defs: LayerDef[] | null = null;

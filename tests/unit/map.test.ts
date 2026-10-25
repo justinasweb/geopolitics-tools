@@ -119,6 +119,64 @@ describe('USGS minerals, real format (MCS 2026)', () => {
     expect(Math.round(li.byYear[2025].hhi)).toBe(2024);
     expect(concentration(li.byYear[2025].hhi)).toBe('high');
   });
+  // Checked against the chapters of Mineral Commodity Summaries 2026 (phase 5a): the eight minerals, their leading
+  // producers, world totals, what the tonnage counts, and the rows the shares must handle.
+  const by = (id: string) => ms.find((m) => m.id === id)!;
+  const p = (id: string, place: string, year = 2025) => by(id).byYear[year].producers.find((x) => x.place === place);
+
+  it('reads all eight minerals, in the site order', () => {
+    expect(ms.map((m) => m.id)).toEqual(['lithium', 'cobalt', 'rare-earths', 'gallium', 'graphite', 'nickel', 'palladium', 'tungsten']);
+    for (const m of ms) expect(m.years).toEqual([2024, 2025]);
+  });
+
+  it('has the leading producers and world totals USGS publishes', () => {
+    const top = Object.fromEntries(ms.map((m) => [m.id, [m.byYear[2025].producers[0].place, m.byYear[2025].producers[0].value, m.byYear[2025].world]]));
+    expect(top).toEqual({
+      lithium: ['AUS', 92000, 290000], cobalt: ['COD', 230000, 310000], 'rare-earths': ['CHN', 270000, 390000], gallium: ['CHN', 900000, 900000],
+      graphite: ['CHN', 1400000, 1800000], nickel: ['IDN', 2600000, 3900000], palladium: ['RUS', 84000, 190000], tungsten: ['CHN', 67000, 85000],
+    });
+    expect(p('cobalt', 'COD', 2024)?.value).toBe(226000);
+    expect(p('palladium', 'ZAF', 2024)?.value).toBe(82600);
+    expect(by('rare-earths').byYear[2024].world).toBe(380000);
+  });
+
+  it('counts "Other countries" as USGS reports it, and shares of whichever is larger, the parts or the rounded total', () => {
+    expect(by('cobalt').byYear[2025].other.value).toBe(9100);
+    // 230,000 of 314,600 (the countries plus 9,100 other), not of the rounded 310,000.
+    expect(p('cobalt', 'COD')!.share).toBeCloseTo(230000 / 314600, 6);
+    // Palladium's parts (194,100) pass the rounded world total (190,000).
+    expect(p('palladium', 'RUS')!.share).toBeCloseTo(84000 / 194100, 6);
+    for (const m of ms) for (const y of m.years) {
+      const sum = m.byYear[y].producers.reduce((s, x) => s + (x.share ?? 0), 0);
+      expect(sum).toBeLessThanOrEqual(1 + 1e-9);
+    }
+  });
+
+  it('leaves out countries USGS lists with zero production (—)', () => {
+    expect(p('gallium', 'USA')).toBeUndefined();
+    expect(p('tungsten', 'USA')).toBeUndefined();
+    expect(p('tungsten', 'KAZ', 2024)).toBeUndefined();
+    expect(p('tungsten', 'KAZ')?.value).toBe(2400);
+    for (const id of ['CAN', 'GRL', 'ZAF', 'TZA']) expect(p('rare-earths', id)).toBeUndefined();
+    for (const m of ms) for (const y of m.years) for (const x of m.byYear[y].producers) expect(x.withheld || x.small || (x.value ?? 0) > 0).toBe(true);
+  });
+
+  it('says what is measured and what the tonnage counts', () => {
+    expect(ms.filter((m) => m.measure === 'primary').map((m) => m.id)).toEqual(['gallium']);
+    expect(Object.fromEntries(ms.map((m) => [m.id, m.basis]))).toEqual({
+      lithium: 'lithium content', cobalt: 'cobalt content', 'rare-earths': 'rare-earth-oxide equivalent', gallium: 'gallium content',
+      graphite: null, nickel: 'nickel content', palladium: 'platinum-group-metal content', tungsten: 'tungsten content',
+    });
+    expect(by('nickel').revisions).toBe('Production in 2024 for Canada was revised significantly based on a Government report.');
+    expect(by('gallium').revisions).toBeNull();
+  });
+
+  it('keeps the notes on single figures, without the estimate marker', () => {
+    expect(p('rare-earths', 'CHN', 2024)?.note).toBe('Production quota; does not include undocumented production.');
+    expect(p('rare-earths', 'MMR')?.note).toBe('Estimated based on reported import data for China. Source: Trade Data Monitor Inc.');
+    expect(p('cobalt', 'COD')?.note).toBeNull();
+    expect(li.byYear[2025].worldNote).toBe('Excludes U.S. production.');
+  });
 });
 
 describe('share classes and words', () => {

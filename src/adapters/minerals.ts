@@ -32,6 +32,8 @@ export interface Producer {
   place: string | null; label: string; value: number | null; share: number | null; prevValue: number | null; withheld: boolean; small: boolean;
   /** USGS marks this figure as estimated ("Estimated." in the notes, or an "Estimated" detail). */
   estimated: boolean;
+  /** The release's own note on this figure ("Production quota; does not include undocumented production."). */
+  note: string | null;
 }
 
 export interface MineralYear {
@@ -49,10 +51,48 @@ export interface MineralYear {
   topShare: number | null;
   /** Largest first. */
   producers: Producer[];
+  /** "Other countries": the release's own figure when it has one, else what the world total leaves. */
   other: { value: number | null; share: number | null };
+  /** The release's note on the world total ("Excludes U.S. production."). */
+  worldNote: string | null;
 }
 
-export interface Mineral extends MineralYear { years: number[]; byYear: Record<number, MineralYear>; history: Record<string, { year: number; share: number | null }[]> }
+export interface Mineral extends MineralYear {
+  years: number[];
+  byYear: Record<number, MineralYear>;
+  history: Record<string, { year: number; share: number | null }[]>;
+  /** What is measured: mine production, or primary (smelter or refinery) production where nothing is mined as such (gallium). */
+  measure: 'mine' | 'primary';
+  /** What the figures count, from the chapter's "(Data in metric tons, lithium content, …)": "lithium content". */
+  basis: string | null;
+  /** The chapter's note on revised production figures, as USGS words it. */
+  revisions: string | null;
+}
+
+/**
+ * A row's note without the estimate marker USGS puts first ("Estimated. -- Overseas territory of France." →
+ * "Overseas territory of France."); null when nothing else is said.
+ */
+export function cleanNote(n: string | undefined): string | null {
+  const parts = String(n ?? '').split(/\s+--\s+/).map((x) => x.trim()).filter((x) => x && !/^(estimated|reported)\.?$/i.test(x));
+  return parts.length ? parts.join(' ') : null;
+}
+
+/**
+ * "(Data in metric tons, lithium content, unless otherwise specified)" → "lithium content", without abbreviations
+ * ("rare-earth-oxide (REO) equivalent" → "rare-earth-oxide equivalent"); null for plain weight.
+ */
+export function basisOf(otherNotes: string | undefined): string | null {
+  const m = /\(Data in [^,]+?(?:, (.+?))?,? unless otherwise specified\)/i.exec(otherNotes ?? '');
+  return m?.[1]?.replace(/\s*\([A-Z]+\)/g, '').trim() || null;
+}
+
+/** The sentences of the chapter's notes that say 2024 production was revised. */
+export function revisionsOf(otherNotes: string | undefined): string | null {
+  const s = String(otherNotes ?? '').split(/\s+--\s+/).flatMap((x) => x.split(/(?<=\.)\s+(?=[A-Z])/))
+    .filter((x) => /revis/i.test(x) && /production/i.test(x) && !/^reserves/i.test(x.trim()));
+  return s.length ? s.join(' ') : null;
+}
 
 /** "Mine production" if there is one, else a production statistic with a world row, else any production statistic. */
 function chooseStatistic(rows: Row[]): string | null {
@@ -90,17 +130,21 @@ function buildYear(label: string, rows: Row[], year: string, prevYear: string | 
   const countryRows = [...cur.values()].filter((r) => !isAggregate(r.Country) && r.Country.trim() !== '');
   const parsed = countryRows.map((r) => ({ r, ...parseValue(r.Value) }));
   const known = parsed.reduce((s, p) => s + (p.value ?? 0), 0);
-  // The world total is rounded, so listed countries can add up to a little more; shares never pass 100%.
-  const denom = Math.max(world ?? 0, known) || null;
+  const otherRow = [...cur.values()].find((r) => isOther(r.Country));
+  const reportedOther = otherRow ? parseValue(otherRow.Value).value : null;
+  // The world total is the countries plus "Other countries", rounded (to 900,000 or 1,800,000), so the parts can
+  // add up to more than it; shares are of whichever is larger, so they never pass 100%.
+  const denom = Math.max(world ?? 0, known + (reportedOther ?? 0)) || null;
   const producers = parsed
-    .filter((p) => p.value != null || p.withheld)
+    // "—" is zero: USGS lists the country (often the United States) as producing none, so it is not a producer.
+    .filter((p) => p.withheld || p.small || (p.value != null && p.value > 0))
     .map(({ r, value, withheld, small }) => ({
       place: m.match(r.Country), label: r.Country.trim(), value, share: value != null && denom ? value / denom : null,
       prevValue: prev.has(r.Country) ? parseValue(prev.get(r.Country)!.Value).value : null, withheld: Boolean(withheld), small: Boolean(small),
-      estimated: isEstimated(r),
+      estimated: isEstimated(r), note: cleanNote(r.Notes),
     }))
     .sort((a, b) => (b.value ?? -1) - (a.value ?? -1));
-  const otherValue = denom != null ? Math.max(0, denom - known) : null;
+  const otherValue = reportedOther ?? (denom != null ? Math.max(0, denom - known) : null);
   const worldRow = [...cur.values()].find((r) => isWorld(r.Country));
   const sample = countryRows[0] ?? worldRow ?? ({} as Row);
   return {
@@ -108,10 +152,11 @@ function buildYear(label: string, rows: Row[], year: string, prevYear: string | 
     world, worldPrev: prev.size ? worldOf(prev) : null,
     hhi: Math.round(producers.reduce((s, p) => s + (p.share ? (p.share * 100) ** 2 : 0), 0)),
     topShare: producers[0]?.share ?? null, producers, other: { value: otherValue, share: denom && otherValue != null ? otherValue / denom : null },
+    worldNote: worldRow ? cleanNote(worldRow.Notes) : null,
   };
 }
 
-function buildMineral(label: string, rows: Row[]): Mineral {
+function buildMineral(label: string, rows: Row[], statistic: string): Mineral {
   const years = [...new Set(rows.map((r) => r.Year))].filter(Boolean).sort();
   const byYear: Record<number, MineralYear> = {};
   years.forEach((y, i) => { byYear[Number(y)] = buildYear(label, rows, y, i > 0 ? years[i - 1] : null); });
@@ -119,7 +164,11 @@ function buildMineral(label: string, rows: Row[]): Mineral {
   for (const y of years) {
     for (const p of byYear[Number(y)].producers) if (p.place) (history[p.place] ??= []).push({ year: Number(y), share: p.withheld ? null : p.share });
   }
-  return { ...byYear[Number(years.at(-1))], years: years.map(Number), byYear, history };
+  const notes = rows.find((r) => r['Other notes'])?.['Other notes'];
+  return {
+    ...byYear[Number(years.at(-1))], years: years.map(Number), byYear, history,
+    measure: /^primary/i.test(statistic) ? 'primary' : 'mine', basis: basisOf(notes), revisions: revisionsOf(notes),
+  };
 }
 
 /**
@@ -149,8 +198,8 @@ export function parseMinerals(text: string): Mineral[] {
     // Some chapters split one statistic by detail (platinum-group metals → Palladium, Platinum).
     const details = [...new Set(prod.map((r) => r.Statistics_detail).filter((d) => !isEstimateMarker(d)))];
     if (details.length > 1) {
-      for (const d of details) all.push(buildMineral(lower.includes(d.toLowerCase()) ? d : `${commodity}: ${d}`, prod.filter((r) => r.Statistics_detail === d)));
-    } else all.push(buildMineral(commodity, prod));
+      for (const d of details) all.push(buildMineral(lower.includes(d.toLowerCase()) ? d : `${commodity}: ${d}`, prod.filter((r) => r.Statistics_detail === d), stat));
+    } else all.push(buildMineral(commodity, prod, stat));
   }
   const usable = all.filter((x) => x.producers.length >= 2);
   const shown = usable.filter((x) => lower.includes(x.label.toLowerCase())).sort((a, b) => lower.indexOf(a.label.toLowerCase()) - lower.indexOf(b.label.toLowerCase()));

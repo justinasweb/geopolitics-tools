@@ -3,7 +3,7 @@
 // template sentences. The page template, the map layer files and the share images all read this.
 import { minerals as loadMinerals, type Mineral, type MineralYear, type Producer } from '../adapters/minerals.ts';
 import { MINERAL_TEXT, inSentence, list } from '../i18n/pages.en.ts';
-import { MINERALS_VIEW as T } from '../i18n/map.en.ts';
+import { mineralText } from '../i18n/map.en.ts';
 import { shared } from './data.ts';
 import { formatValue } from './format.ts';
 import { place } from './places.ts';
@@ -25,8 +25,8 @@ export function shareText(s: number): string {
   if (p > 0 && p < 0.05) return '<0.1%';
   return `${new Intl.NumberFormat('en', { maximumFractionDigits: p >= 10 ? 0 : 1 }).format(p)}%`;
 }
-/** A share as the table shows it: one decimal ("31.7%"). */
-export const shareExact = (s: number) => `${new Intl.NumberFormat('en', { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(s * 100)}%`;
+/** A share as the table shows it: one decimal ("31.7%", "<0.1%"). */
+export const shareExact = (s: number) => (s > 0 && s < 0.0005 ? '<0.1%' : `${new Intl.NumberFormat('en', { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(s * 100)}%`);
 
 export const nameOf = (p: Producer) => (p.place ? place(p.place)?.name ?? p.label : p.label);
 const count = (v: number) => formatValue(v, { kind: 'count' }).replace(/ (m|bn)$/, (_, u) => ` ${u === 'm' ? 'million' : 'billion'}`);
@@ -48,6 +48,14 @@ export interface MineralPage {
   latest: MineralYear;
   byYear: Record<number, MineralYear>;
   mineral: Mineral;
+  /** Mine production, or primary production (gallium); the view's words follow it. */
+  measure: Mineral['measure'];
+  /** What the tonnage counts ("lithium content"), as USGS says. */
+  basis: string | null;
+  /** USGS's note on revised figures for the year before. */
+  revisions: string | null;
+  /** The view's words for this mineral's measure. */
+  text: ReturnType<typeof mineralText>;
 }
 
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
@@ -64,6 +72,7 @@ export function mineralPages(): MineralPage[] {
       id: m.id, title: cap(name), name, unit: /kilogram/i.test(m.unit) ? 'kg' : 't', edition,
       source: `USGS Mineral Commodity Summaries ${edition}`,
       years: m.years, estimated: m.years.filter((y) => m.byYear[y].estimated), latest: m.byYear[m.years.at(-1)!], byYear: m.byYear, mineral: m,
+      measure: m.measure, basis: m.basis, revisions: m.revisions, text: mineralText(m.measure),
     };
   });
   return cache;
@@ -83,23 +92,25 @@ export function worldChange(y: MineralYear): number | null {
 export function lede(p: MineralPage, y = p.latest): string | null {
   const l = listed(y);
   if (!l.length) return null;
-  const top3 = l.length >= 3 ? l.slice(0, 3).reduce((s, x) => s + (x.share ?? 0), 0) : null;
-  return T.lede(inSentence(nameOf(l[0]), true), shareText(l[0].share!), p.name, top3 !== null ? shareText(top3) : undefined);
+  // "The top three" says something only when more than three countries are listed (gallium has three).
+  const top3 = l.length > 3 ? l.slice(0, 3).reduce((s, x) => s + (x.share ?? 0), 0) : null;
+  return p.text.lede(inSentence(nameOf(l[0]), true), shareText(l[0].share!), p.name, top3 !== null ? shareText(top3) : undefined);
 }
 
 /** The summary paragraphs: the world total and change, the top producers, who follows, withheld producers, scope. */
 export function summary(p: MineralPage, y = p.latest): string[] {
+  const T = p.text;
   const l = listed(y);
   const unit = p.unit === 'kg' ? 'kilograms' : 'tonnes';
   const ch = worldChange(y);
   const first: string[] = [];
   if (y.world) {
     const change = ch === null ? null : Math.abs(ch) < 0.005 ? null : T.changeIn(shareText(Math.abs(ch)), ch > 0, y.year - 1);
-    first.push(T.total(count(y.world), unit, p.name, y.year, change, y.estimated));
+    first.push(T.total(count(y.world), unit, p.name, p.basis, y.year, change, y.estimated));
   }
   const top = l.slice(0, 3);
   if (top.length) {
-    const together = top.length === 3 ? shareText(top.reduce((s, x) => s + (x.share ?? 0), 0)) : null;
+    const together = top.length === 3 && l.length > 3 ? shareText(top.reduce((s, x) => s + (x.share ?? 0), 0)) : null;
     first.push(T.top(top.map((x, i) => T.topPart(inSentence(nameOf(x), i === 0), amount(x.value!), p.unit, shareText(x.share!), i === 0)), together));
   }
   const next = l.slice(3, 5);
