@@ -371,6 +371,7 @@ export const SOURCE_NOTE: Record<string, string> = {
   unemployment: 'World Bank, from ILO modelled estimates', refinpc: 'UNHCR; World Bank population',
   gdppc: 'World Bank', sanctions: 'US CSL; EU sanctions list; UK Sanctions List',
   entitylist: 'US Consolidated Screening List (Entity List)',
+  outages: 'IODA (Georgia Tech)',
   sanctionsus: 'US CSL (SDN list)', sanctionseu: 'EU sanctions list', sanctionsuk: 'UK Sanctions List',
 };
 

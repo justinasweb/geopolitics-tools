@@ -21,8 +21,8 @@ describe('registry map views', () => {
         expect(VIEW_TEXT[f.id].layers[l.indicator]).toBeDefined();
         expect(VIEW_SLUGS[l.indicator]).toBeDefined();
       }
-      expect(f.layers.filter((l) => VIEW_SLUGS[l.indicator] === '')).toHaveLength(1);
-      expect(VIEW_SLUGS[f.layers[0].indicator]).toBe('');
+      expect(f.layers.filter((l) => VIEW_SLUGS[l.indicator] === '')).toHaveLength(f.rootWaits ? 0 : 1);
+      if (!f.rootWaits) expect(VIEW_SLUGS[f.layers[0].indicator]).toBe('');
     }
   });
 

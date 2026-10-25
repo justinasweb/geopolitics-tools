@@ -75,7 +75,9 @@
 .gt-pkf__num--word { font-size: 30px; line-height: 36px; }
 .gt-pkf__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; font: 400 13px/18px var(--sans); color: var(--ink-muted); }
 .gt-pgroup { display: grid; gap: 8px; }
-.gt-pgroup .gt-bars__name button { border: 0; background: none; padding: 0; font: inherit; color: var(--ink); cursor: pointer; text-align: left; text-decoration: underline; text-decoration-color: var(--rule-strong); text-underline-offset: 3px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+.gt-pgroup .gt-bars__name { display: flex; align-items: baseline; min-width: 0; }
+.gt-pgroup .gt-bars__sel { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gt-pgroup .gt-bars__name button { border: 0; background: none; padding: 0; font: inherit; color: var(--ink); cursor: pointer; text-align: left; text-decoration: underline; text-decoration-color: var(--rule-strong); text-underline-offset: 3px; min-width: 0; flex: 0 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .gt-pgroup .gt-bars__name button:hover { text-decoration-color: currentColor; }
 .gt-conc { display: grid; gap: 8px; padding: 12px 0 0; border-top: 1px solid var(--rule); }
 .gt-conc__head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }

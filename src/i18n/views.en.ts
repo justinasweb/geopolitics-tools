@@ -174,6 +174,21 @@ export const VIEW_TEXT: Record<string, FamilyText> = {
       },
     },
   },
+  internet: {
+    section: 'Internet',
+    pickerLabel: 'Measure',
+    layers: {
+      outages: {
+        pick: 'Outages', title: 'Internet outages', sub: 'by country, last 12 months', measure: 'outages', figureLabel: 'Outages, last 12 months',
+        legend: () => 'Internet outages detected in the last 12 months', worldLabel: 'Total, all countries',
+        lede: ({ top, value, share }) => `${top} had ${value} internet outages in the last 12 months, the most of any country and ${share} of those IODA detected.`,
+        total: (v) => `IODA detected ${v} country-level internet outages in the last 12 months.`,
+        bloc: (b, s) => `${s} of the outages were in ${b} members.`,
+        caveat: 'Outages that IODA, at Georgia Tech, detected from drops in internet traffic signals for a whole country. It reports when an outage happened, not why: power cuts, cable damage and shutdowns ordered by governments all count, and one long disruption can show as several outages.',
+        description: () => 'Internet outages by country over the last 12 months, on a map and in a table, with each country’s most recent outages. Source: IODA (Georgia Tech).',
+      },
+    },
+  },
   sanctions: {
     section: 'Sanctions',
     pickerLabel: 'List',
@@ -293,4 +308,13 @@ export const VIEWS_TEXT = {
   ofWorld: (share: string) => `${share} of world`,
   ofTotal: (share: string) => `${share} of the total`,
   notes: 'Notes',
+};
+
+/** The internet outages panel: a country's latest outages. */
+export const OUTAGE_TEXT = {
+  recent: 'Latest outages',
+  recentCaption: 'Start (UTC) and how long IODA saw the drop.',
+  last30: (n: number) => `${n} in the last 30 days`,
+  hours: (h: number) => (h < 1 ? `${Math.max(1, Math.round(h * 60))} min` : h < 48 ? `${Math.round(h)} h` : `${Math.round(h / 24)} days`),
+  more: (n: number) => `and ${n} earlier`,
 };

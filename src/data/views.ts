@@ -18,6 +18,8 @@ export interface ViewFamily {
   id: string;
   /** The topic hub it belongs to, for the breadcrumbs and the Atlas. */
   hub: string;
+  /** The layer for the section's own address waits on a source (internet cables), so every layer has its own. */
+  rootWaits?: boolean;
   layers: ViewLayer[];
 }
 
@@ -50,6 +52,12 @@ export const VIEW_FAMILIES: ViewFamily[] = [
       // A model from labs in two countries counts for each, so countries' figures do not add up to a world total.
       { indicator: 'aimodels', scale: 'seq', sums: false, fullYears: true },
       { indicator: 'entitylist', scale: 'seq', sums: true },
+    ],
+  },
+  {
+    // Cables, at /internet, wait on a source with fuller coverage than OpenStreetMap's.
+    id: 'internet', hub: 'technology', rootWaits: true, layers: [
+      { indicator: 'outages', scale: 'seq', sums: true },
     ],
   },
   {

@@ -12,7 +12,7 @@ import { PLACES, NOTES } from '../places.ts';
 import { countryHref, live } from '../routes.ts';
 import { amount, listed, mineralPages, shareClass, shareText, withheld, nameOf, type MineralPage } from '../minerals.ts';
 import { list, inSentence } from '../../i18n/pages.en.ts';
-import { PARTS_TEXT as PX, VIEWS_TEXT } from '../../i18n/views.en.ts';
+import { OUTAGE_TEXT, PARTS_TEXT as PX, VIEWS_TEXT } from '../../i18n/views.en.ts';
 import { classFor, creditOf, familyPages, partsOf, placeNote, shareOf, valueText, viewPages, type ViewPage } from '../views.ts';
 import { shared } from '../data.ts';
 import { loadFlows } from '../../data/flows.ts';
@@ -28,6 +28,7 @@ import { clustersAt } from '../ai.ts';
 import { AI_TEXT } from '../../i18n/ai.en.ts';
 import { LISTS, sanctions } from '../../adapters/sanctions.ts';
 import { SANCTIONS_TEXT } from '../../i18n/sanctions.en.ts';
+import { type Outage, outages } from '../../adapters/digital.ts';
 import { anchors } from './basemap.ts';
 import type { Hazard } from '../../adapters/hazards.ts';
 import type { Entry, LayerFile, LayerYear, Overlay, PanelBlock, Point } from './types.ts';
@@ -205,7 +206,7 @@ function indicatorLayer(p: ViewPage): LayerFile {
     },
     tags: c.tags, names: c.names, hrefs: c.hrefs, dossiers: c.dossiers, slugs: c.slugs, notes, blocs: c.blocs, data,
     series: seriesOf(p.years.map((year) => Object.fromEntries(p.byYear[year].rows.map((r) => [r.id, r.value])))),
-    format: p.format, more: p.family.id === 'space' ? withSpace(viewMore(p)) : p.family.id === 'sanctions' ? withSanctions(viewMore(p), p.id) : viewMore(p),
+    format: p.format, more: p.family.id === 'space' ? withSpace(viewMore(p)) : p.family.id === 'sanctions' ? withSanctions(viewMore(p), p.id) : p.id === 'outages' ? withOutages(viewMore(p)) : viewMore(p),
     ...(p.id === 'launches' ? { overlays: [launchSites(p)] } : p.id === 'aicompute' ? { overlays: [aiClusters(p)] } : {}),
   };
 }
@@ -225,6 +226,26 @@ function withSpace(more: Record<string, PanelBlock[]>): Record<string, PanelBloc
         ...cs.map(([c, n]) => ({ name: S.names[c] ?? c, value: f(n), note: S.constellation })),
       ],
     }];
+  }
+  return out;
+}
+
+const outageData = shared(outages);
+/** Outages: each country's latest outages, newest first. */
+function withOutages(more: Record<string, PanelBlock[]>): Record<string, PanelBlock[]> {
+  const O = OUTAGE_TEXT;
+  const all = outageData() ?? [];
+  const latest = all[0]?.start ?? '';
+  const cut = new Date(Date.parse(latest) - 30 * 86_400_000).toISOString();
+  const by = new Map<string, Outage[]>();
+  for (const o of all) by.set(o.place, [...(by.get(o.place) ?? []), o]);
+  const out = { ...more };
+  for (const [id, os] of by) {
+    out[id] = [{
+      label: O.recent, caption: `${O.recentCaption} ${O.last30(os.filter((o) => o.start >= cut).length)}.`,
+      rows: os.slice(0, 5).map((o) => ({ name: `${formatDate(o.start.slice(0, 10))}, ${o.start.slice(11, 16)}`, value: O.hours(o.hours) })),
+      more: os.length > 5 ? O.more(os.length - 5) : undefined,
+    }, ...(out[id] ?? [])];
   }
   return out;
 }

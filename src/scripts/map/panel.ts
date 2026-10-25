@@ -73,7 +73,7 @@ export function rankingHtml(f: LayerFile, yearIndex: number, id: string, label: 
     if (k > 0 && i - idx[k - 1] > 1) rows.push('<li class="gt-bars__gap" aria-hidden="true"><span>…</span></li>');
     const pid = y.order[i];
     const w = max ? (100 * num(pid)) / max : 0;
-    rows.push(`<li${pid === id ? ' data-selected="true"' : ''}><span class="gt-bars__name"><span class="gt-bars__rank">${i + 1}</span>${pid === id ? esc(nameOf(f, pid)) : `<button type="button" data-select="${esc(pid)}">${esc(nameOf(f, pid))}</button>`}</span>`
+    rows.push(`<li${pid === id ? ' data-selected="true"' : ''}><span class="gt-bars__name"><span class="gt-bars__rank">${i + 1}</span>${pid === id ? `<span class="gt-bars__sel">${esc(nameOf(f, pid))}</span>` : `<button type="button" data-select="${esc(pid)}">${esc(nameOf(f, pid))}</button>`}</span>`
       + `<span class="gt-bars__track"><span class="gt-bars__fill" style="width:${w.toFixed(1)}%"></span></span><span class="gt-bars__val">${esc(y.v[pid]?.[1] ?? '')}</span></li>`);
   });
   return `<div class="gt-pblock gt-pgroup"><span class="gt-label">${esc(label)}</span><ol class="gt-bars gt-bars--tight gt-bars--rank" aria-label="${esc(label)}">${rows.join('')}</ol></div>`;
