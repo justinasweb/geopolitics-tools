@@ -116,6 +116,19 @@ How the adapter (`src/adapters/minerals.ts`) reads them:
 - **Shading.** Alert counts in fixed classes: 1, 2–4, 5–9, 10–24, 25+. A country with no alert reads "No alerts", not "No data".
 - **Marks.** Alerts are drawn by level as shapes: red a filled triangle, orange a diamond, green a small dot (30 days only, not counted). Each mark carries a bit mask `m` of the periods it shows in, and the engine filters point overlays on it when the period changes. On the earthquakes page the marks are USGS earthquakes of magnitude 5.5 and over (hollow circles sized by magnitude), since GDACS lists the same quakes; the shading is still GDACS alerts.
 
+## Food and fertiliser (phase 5a)
+
+/food/{wheat, maize, rice, soybeans, potash, phosphate} shows production, /use and /trade after each (18 pages; src/lib/food.ts, src/templates/FoodView.astro). Two pickers: the commodity, and the measure.
+
+- **Data.** FAOSTAT, from 2015. Crop use is production plus imports minus exports (stock changes left out); a place FAOSTAT never lists for production grows none, and a missing export figure counts as none, because FAOSTAT leaves out years with no exports. Fertiliser use is FAOSTAT's agricultural use, in tonnes of nutrient (K2O, P2O5). Rice is milled rice throughout.
+- **Snapshot format.** Snapshots fetched before the fetcher took the API's row format hold FAOSTAT's own CSV columns (faostat/crops.csv, trade.csv, fertilizers.csv, matrix.csv, places by M49 code); the adapter reads either, so the pages work on today's snapshot and on the next fetch.
+- **Shading.** Production and use by share of the world, in the minerals' classes (under 1%, 1–5%, 5–10%, 10–25%, 25%+). Trade is exports minus imports on a diverging scale, net exporters at one end and net importers at the other; its edges are rounded (1, 2, 5) from that commodity's latest year and kept for every year.
+- **Years still coming in.** The default year is the latest with 90% of the best coverage. A place with a figure in one of the two years before but none yet is hatched "Not yet reported", with its last figure.
+- **Estimates and notes.** Figures FAOSTAT flags as its own estimate or imputation (flags E and I) carry the estimate tag and an "e" in the table; a use worked out from an estimate is one too. Most fertiliser figures are estimates. Notes on single places (Russia's trade since 2022, Morocco's 2024 phosphate exports, Belarus's potash) are in src/i18n/food.en.ts.
+- **Flows.** Crop trade maps draw the 20 largest importer-reported flows in the trade matrix's year as arcs, also listed in a table. FAOSTAT has no fertiliser trade matrix, so fertiliser trade maps have none (UN Comtrade, phase 5b).
+- **Panel.** A selected country's balance in the latest year (production, imports, exports, use, production as a share of use), its main suppliers and buyers (crops), and the same measure for the other five commodities.
+- **Not yet.** Prices (World Bank Pink Sheet) are not shown.
+
 ## Not done in this phase
 
 - Refining shares and trade flows on the minerals views: later phases, once their sources are in.

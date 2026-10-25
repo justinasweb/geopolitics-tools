@@ -286,9 +286,9 @@ export function initMapView(root: HTMLElement): void {
   for (const a of document.querySelectorAll<HTMLAnchorElement>('a[data-keep-state]')) {
     a.addEventListener('click', () => { a.search = location.search; });
   }
-  document.querySelector<HTMLSelectElement>('[data-picker-select]')?.addEventListener('change', (e) => {
-    location.href = (e.target as HTMLSelectElement).value + location.search;
-  });
+  for (const sel of document.querySelectorAll<HTMLSelectElement>('[data-picker-select]')) {
+    sel.addEventListener('change', () => { location.href = sel.value + location.search; });
+  }
   if (filters) {
     document.querySelector('[data-open-filters]')?.addEventListener('click', () => {
       for (const r of filters.querySelectorAll<HTMLInputElement>('input[name="mv-fyear"]')) r.checked = Number(r.value) === year;

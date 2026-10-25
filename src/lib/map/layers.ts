@@ -16,7 +16,10 @@ import { loadFlows } from '../../data/flows.ts';
 import { countClass, daysText, disasterPages, type DisasterPage } from '../disasters.ts';
 import { DISASTERS_TEXT, KIND_TEXT } from '../../i18n/disasters.en.ts';
 import { formatDate, formatValue } from '../format.ts';
-import { toMap } from './projection.ts';
+import { TOP_FLOWS, balanceOf, estimated as foodEstimated, classFor as foodClass, foodPages, mt, netText, shareOf as foodShare, sourceOf, valueText as foodValue, type FoodPage } from '../food.ts';
+import { FOOD_NOTES, FOOD_TEXT } from '../../i18n/food.en.ts';
+import { arcXY, toMap } from './projection.ts';
+import { anchors } from './basemap.ts';
 import type { Hazard } from '../../adapters/hazards.ts';
 import type { Entry, LayerFile, LayerYear, Overlay, PanelBlock, Point } from './types.ts';
 
@@ -316,6 +319,100 @@ function disasterLayer(p: DisasterPage): LayerFile {
     overlays,
   };
 }
+/** A commodity's production, use or net trade by country and year (FAOSTAT); on a crop's trade map, its largest flows. */
+function foodLayer(p: FoodPage): LayerFile {
+  const c = common();
+  const F = FOOD_TEXT;
+  const L = F.layer[p.layer];
+  const T = p.text;
+  const trade = p.layer === 'trade';
+  const memberships = blocs();
+  const data: LayerYear[] = p.years.map((year) => {
+    const y = p.byYear[year];
+    const v: Record<string, Entry> = {};
+    y.rows.forEach((r, i) => {
+      const est = foodEstimated(p, r.id, year) ? 'estimate' : 0;
+      v[r.id] = trade ? [foodClass(p, r.value, y.world), netText(r.value), '', est, i + 1] : [foodClass(p, r.value, y.world), foodShare(r.value, y.world) ?? '', mt(r.value), est, i + 1];
+    });
+    for (const n of y.notYet) v[n.id] = [-1, F.notYet, F.lastFigure(n.year, foodValue(p, n.value)), 0, 0];
+    const bl: Record<string, string> = {};
+    for (const [id, members] of memberships) {
+      const name = BLOC_TEXT[id] ?? id;
+      const inBloc = y.rows.filter((r) => members.includes(r.id));
+      const sum = inBloc.reduce((t, r) => t + r.value, 0);
+      bl[id] = !inBloc.length ? F.blocNone(name, year)
+        : trade ? F.bloc.trade(name, mt(Math.abs(sum)), sum >= 0, T.name, year)
+        : F.bloc[p.layer as 'production' | 'use'](name, foodShare(sum, y.world) ?? '', T.name, year);
+    }
+    return { year, legend: L.legend(year), v, order: y.rows.map((r) => r.id), blocs: bl };
+  });
+  const overlays: Overlay[] = [];
+  if (p.flows.length && p.flowYear) {
+    const at = anchors();
+    const items = p.flows.filter((f) => at[f.from] && at[f.to]).slice(0, TOP_FLOWS)
+      .map((f) => ({ p: arcXY(at[f.from], at[f.to]), w: f.amount, tip: F.flowTip(nameOf2(f.from), nameOf2(f.to), mt(f.amount), p.flowYear!) }));
+    overlays.push({ id: 'flows', kind: 'arcs', label: F.flowsLabel(p.flowYear), items });
+  }
+  return {
+    id: `food-${p.id}`, scale: trade ? 'div' : 'seq', years: p.years, year: p.year, ticks: p.ticks, ends: trade ? F.ends : undefined,
+    missing: { none: F.none, notyet: data.some((d) => Object.values(d.v).some((e) => e[0] === -1)) ? F.notYetLegend : undefined }, source: sourceOf(p),
+    text: {
+      ...(c.words as LayerFile['text']),
+      kicker: `${L.title(T.pick)} · {year}`, measure: L.measure, shareLabel: trade ? L.figure : F.share, none: F.notListed(0).replace('0', '{year}'),
+      withheld: MAP_TEXT.withheldBy, withheldWhy: '', prev: '{year}: {value}', rank: VIEWS_TEXT.rank(0, 1).replace('0', '{rank}').replace('1', '{of}'),
+      detailLabel: trade ? undefined : L.figure, rankLabel: F.rank, rankOf: F.rankOf, statusLabel: F.status,
+      trend: F.trend(L.figure), trendCaption: F.trendCaption, ranking: F.ranking,
+    },
+    tags: c.tags, names: c.names, hrefs: c.hrefs, dossiers: c.dossiers, slugs: c.slugs, notes: withFoodNotes(c.notes, p.id), blocs: c.blocs, data,
+    series: seriesOf(p.years.map((year) => Object.fromEntries(p.byYear[year].rows.map((r) => [r.id, r.value])))),
+    format: { kind: 'mt' }, more: foodMore(p),
+    ...(overlays.length ? { overlays } : {}),
+  };
+}
+
+function withFoodNotes(notes: Record<string, string>, id: string): Record<string, string> {
+  const out = { ...notes };
+  for (const [place, n] of Object.entries(FOOD_NOTES[id] ?? {})) out[place] = out[place] ? `${out[place]} ${n}` : n;
+  return out;
+}
+
+/** For each place on a food view: its balance in the latest year, its main partners (crops), and the same measure for the other commodities. */
+function foodMore(p: FoodPage): Record<string, PanelBlock[]> {
+  const F = FOOD_TEXT;
+  const out: Record<string, PanelBlock[]> = {};
+  const others = foodPages().filter((o) => o.layer === p.layer && o.commodity !== p.commodity);
+  const ids = new Set(p.years.flatMap((y) => p.byYear[y].rows.map((r) => r.id)));
+  const flows = p.crop ? foodPages().find((o) => o.commodity === p.commodity && o.layer === 'trade') : undefined;
+  for (const id of ids) {
+    const blocks: PanelBlock[] = [];
+    const b = balanceOf(p, id, p.year);
+    const rows = ([['production', F.production], ['imports', F.imports], ['exports', F.exports], ['use', F.use]] as const)
+      .filter(([k]) => b[k] !== undefined).map(([k, name]) => ({ name, value: mt(b[k]!) }));
+    if (b.production !== undefined && b.use) rows.push({ name: F.selfSufficiency, value: formatValue(b.production / b.use, { kind: 'share' }) });
+    if (rows.length) blocks.push({ label: F.balanceBlock(p.year), caption: p.crop ? F.balanceCaption : F.balanceCaptionFert, rows });
+    if (flows?.flowYear) {
+      for (const [dir, label] of [['to', F.suppliers(flows.flowYear)], ['from', F.buyers(flows.flowYear)]] as const) {
+        const mine = flows.flows.filter((f) => f[dir] === id);
+        const total = mine.reduce((t, f) => t + f.amount, 0);
+        if (!mine.length) continue;
+        blocks.push({
+          label, caption: F.partnersCaption,
+          rows: mine.slice(0, 5).map((f) => ({ name: nameOf2(dir === 'to' ? f.from : f.to), value: mt(f.amount), note: F.ofListed(shareText(f.amount / total)) })),
+          more: mine.length > 5 ? F.morePartners(mine.length - 5) : undefined,
+        });
+      }
+    }
+    const other = others.flatMap((o) => {
+      const y = o.byYear[o.year];
+      const i = y.rows.findIndex((r) => r.id === id);
+      return i < 0 ? [] : [{ name: o.text.pick, value: foodValue(o, y.rows[i].value), href: live(`view:food:${o.id}`)?.path, note: F.rankNote(i + 1, y.rows.length, o.year) }];
+    });
+    if (other.length) blocks.push({ label: F.otherBlock(F.layer[p.layer].figure), caption: F.otherCaption, rows: other });
+    if (blocks.length) out[id] = blocks;
+  }
+  return out;
+}
+
 const placeNames = new Map(PLACES.map((x) => [x.id, x.name]));
 const nameOf2 = (id: string) => placeNames.get(id) ?? id;
 
@@ -325,6 +422,7 @@ export function mapLayers(): LayerDef[] {
     ...mineralPages().map((p) => ({ id: `minerals-${p.id}`, view: `view:minerals:${p.id}`, topic: 'resources', build: () => mineralLayer(p) })),
     ...viewPages().map((p) => ({ id: `${p.family.id}-${p.id}`, view: `view:${p.family.id}:${p.id}`, topic: p.family.hub, build: () => indicatorLayer(p) })),
     ...disasterPages().map((p) => ({ id: `disasters-${p.id}`, view: `view:disasters:${p.id}`, topic: 'climate', build: () => disasterLayer(p) })),
+    ...foodPages().map((p) => ({ id: `food-${p.id}`, view: `view:food:${p.id}`, topic: 'resources', build: () => foodLayer(p) })),
   ];
   return defs;
 }

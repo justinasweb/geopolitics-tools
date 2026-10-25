@@ -6,7 +6,7 @@
 //
 // Map views, hubs and tools are registered but not live until their phase builds them; the menu and every link
 // skip routes that are not live, so nothing links to a page that does not exist.
-import { SECTION_SLUGS, INDICATOR_SLUGS, COMPARE_JOIN, VIEW_SLUGS, DISASTER_SLUGS } from '../i18n/slugs.en.ts';
+import { SECTION_SLUGS, INDICATOR_SLUGS, COMPARE_JOIN, VIEW_SLUGS, DISASTER_SLUGS, FOOD_SLUGS, FOOD_LAYER_SLUGS } from '../i18n/slugs.en.ts';
 import { NAV_HUBS, NAV_UTIL } from '../data/nav.ts';
 import { INDICATORS } from '../data/indicators.ts';
 import { countryModel, countryPages, DOSSIERS } from './country.ts';
@@ -16,6 +16,7 @@ import { PLACES, place } from './places.ts';
 import { mineralPages } from './minerals.ts';
 import { viewPages } from './views.ts';
 import { disasterPages } from './disasters.ts';
+import { foodPages } from './food.ts';
 
 export type Lang = 'en';
 export type Kind = 'countries' | 'country' | 'compare' | 'indicators' | 'indicator' | 'page' | 'sources' | 'view' | 'hub' | 'tool';
@@ -55,6 +56,8 @@ export const paths = {
   mineral: (id: string) => `/${S.minerals}/${id}`,
   /** A registry map view: /emissions, /emissions/per-person. */
   view: (family: keyof typeof SECTION_SLUGS, layer: string) => `/${S[family]}${VIEW_SLUGS[layer] ? `/${VIEW_SLUGS[layer]}` : ''}`,
+  /** Food and fertiliser: /food/wheat, /food/wheat/use, /food/soybeans/trade. */
+  food: (commodity: string, layer: string) => `/${S.food}/${FOOD_SLUGS[commodity]}${FOOD_LAYER_SLUGS[layer] ? `/${FOOD_LAYER_SLUGS[layer]}` : ''}`,
   /** Disasters: /disasters, /disasters/earthquakes. */
   disasters: (kind: string) => `/${S.disasters}${DISASTER_SLUGS[kind] ? `/${DISASTER_SLUGS[kind]}` : ''}`,
 };
@@ -120,6 +123,15 @@ function build(): Route[] {
       aliases: [], id: `disasters:${d.id}`, image: paths.image('views', `disasters-${d.id.toLowerCase()}`), lastmod: changed('gdacs'),
     });
   }
+
+  // Food and fertiliser (phase 5): each commodity's production at /food/{commodity}, its use and trade after it.
+  foodPages().forEach((f, i) => {
+    families.add('food');
+    out.push({
+      key: `view:food:${f.id}`, kind: 'view', lang, path: paths.food(f.commodity, f.layer), live: true, indexed: true,
+      aliases: i === 0 ? [`/${S.food}`] : [], id: `food:${f.id}`, image: paths.image('views', `food-${f.id}`), lastmod: changed('faostat'),
+    });
+  });
 
   // Not built yet (phases 5–8): registered so links, the menu and redirects know about them.
   for (const hub of NAV_HUBS) {

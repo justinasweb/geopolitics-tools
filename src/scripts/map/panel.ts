@@ -19,6 +19,8 @@ export function tooltipHtml(f: LayerFile, y: LayerYear, id: string | null, fallb
   const parts = [`<span class="gt-tip__name">${esc(name)}</span>`];
   if (!e) parts.push(`<span class="gt-tip__val gt-tip__val--word">${esc(fill(f.text.none, { year: when(y) }))}</span>`);
   else if (e[0] === 0) parts.push(`<span class="gt-tip__val gt-tip__val--word">${esc(f.text.withheld)}</span>`, `<span>${esc(f.text.withheldWhy)}</span>`);
+  // Not yet reported: the word, then the last figure and its year.
+  else if (e[0] === -1) parts.push(`<span class="gt-tip__val gt-tip__val--word">${esc(e[1])}</span>`, `<span class="tnum">${esc(e[2])}</span>`);
   else {
     parts.push(`<span class="gt-tip__val">${esc(e[1])}<small>${esc(f.text.measure)}</small></span>`);
     if (e[2]) parts.push(`<span class="tnum">${esc(e[2])} · ${when(y)}</span>`);

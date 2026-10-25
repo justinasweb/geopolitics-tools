@@ -18,6 +18,8 @@ import { creditOf, lede as viewLede, valueText, viewPage } from '../../../lib/vi
 import { VIEW_TEXT } from '../../../i18n/views.en';
 import { DISASTERS_TEXT, KIND_TEXT } from '../../../i18n/disasters.en';
 import { disasterPage } from '../../../lib/disasters';
+import { FOOD_TEXT } from '../../../i18n/food.en';
+import { foodPage, lede as foodLede, mt, netText, shareOf as foodShare } from '../../../lib/food';
 
 export const getStaticPaths = (() => {
   if (process.env.GT_FAST === '1') return [{ params: { kind: 'page', name: 'default' }, props: { route: null } }];
@@ -79,6 +81,16 @@ function card(r: Route | null): Card {
       kicker: DISASTERS_TEXT.section, title: KIND_TEXT[p.id].title, figure: DISASTERS_TEXT.ogFigure(x.alerts.length), caption: DISASTERS_TEXT.ogCaption(x.days),
       source: `${short('gdacs')}, ${formatDate(x.from)} – ${formatDate(x.to)}`,
       bars: x.rows.slice(0, 5).map((y) => ({ label: nameOf(y.id), value: y.n, text: String(y.n) })),
+    };
+  }
+  if (r.kind === 'view' && r.id.startsWith('food:')) {
+    const p = foodPage(r.id.split(':')[1])!;
+    const y = p.byYear[p.year];
+    const trade = p.layer === 'trade';
+    const rows = trade ? [...y.rows.slice(0, 3), ...y.rows.slice(-2)] : y.rows.slice(0, 5);
+    return {
+      kicker: FOOD_TEXT.section, title: FOOD_TEXT.layer[p.layer].title(p.text.pick), caption: foodLede(p) ?? undefined, source: `${short('faostat')}, ${p.year}`,
+      bars: rows.map((x) => ({ label: nameOf(x.id), value: Math.abs(x.value), text: trade ? netText(x.value) : `${mt(x.value)} (${foodShare(x.value, y.world)})` })),
     };
   }
   if (r.kind === 'view') {
