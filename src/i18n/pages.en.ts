@@ -283,7 +283,7 @@ export const ANSWER: Record<string, { verb: string; caveats?: string[] }> = {
   co2: { verb: 'emitted the most CO2', caveats: ['Fossil fuels and cement only; land use and other greenhouse gases are not included.'] },
   co2pc: { verb: 'emitted the most CO2 per person' },
   co2cum: { verb: 'has emitted the most CO2 since 1750' },
-  co2trade: { verb: 'had the largest emissions in its imports relative to its own', caveats: ['Consumption-based figures end two years before the others.'] },
+  co2trade: { verb: 'had the largest emissions in its imports relative to its own', caveats: ['Consumption-based figures end earlier than the others and cover fewer countries.'] },
   waterstress: { verb: 'had the highest water stress', caveats: ['A country score averages basins that can differ a great deal.'] },
   waterdep: { verb: 'got the largest share of its water from abroad' },
   milpct: { verb: 'spent the largest share of its GDP on its military', caveats: ['Figures for countries at war, or with large off-budget spending, are SIPRI estimates and carry the most uncertainty.', 'A rising share can mean more spending or a smaller economy.'] },

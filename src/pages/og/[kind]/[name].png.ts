@@ -14,6 +14,8 @@ import { routes, type Route } from '../../../lib/routes';
 import { siteName } from '../../../lib/site';
 import { MINERALS_VIEW } from '../../../i18n/map.en';
 import { amount, lede, listed, mineralPage, nameOf as producerName, shareText } from '../../../lib/minerals';
+import { creditOf, lede as viewLede, valueText, viewPage } from '../../../lib/views';
+import { VIEW_TEXT } from '../../../i18n/views.en';
 
 export const getStaticPaths = (() => {
   if (process.env.GT_FAST === '1') return [{ params: { kind: 'page', name: 'default' }, props: { route: null } }];
@@ -66,6 +68,16 @@ function card(r: Route | null): Card {
       kicker: MINERALS_VIEW.section, title: p.text.title(p.title), figure: y.world ? `${amount(y.world)} ${p.unit}` : undefined,
       caption: lede(p) ?? undefined, source: `${p.source}${y.estimated ? ', estimated' : ''}`,
       bars: listed(y).slice(0, 5).map((x) => ({ label: producerName(x), value: x.share!, text: shareText(x.share!) })),
+    };
+  }
+  if (r.kind === 'view') {
+    const [family, id] = r.id.split(':');
+    const p = viewPage(id)!;
+    const y = p.byYear[p.year];
+    const rows = p.layer.scale === 'div' ? [...y.rows.slice(0, 3), ...y.rows.slice(-2)] : y.rows.slice(0, 5);
+    return {
+      kicker: VIEW_TEXT[family].section, title: p.text.title, caption: viewLede(p) ?? undefined, source: `${creditOf(p)}, ${p.year}`,
+      bars: rows.map((x) => ({ label: nameOf(x.id), value: Math.abs(x.value), text: valueText(p, x.value) })),
     };
   }
   return { kicker: OG_TEXT.pageKicker, title: TITLES[r.id || r.kind] ?? r.id };

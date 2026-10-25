@@ -9,6 +9,8 @@ import { PLACES, NOTES } from '../places.ts';
 import { countryHref } from '../routes.ts';
 import { amount, listed, mineralPages, shareClass, shareText, withheld, nameOf, type MineralPage } from '../minerals.ts';
 import { list, inSentence } from '../../i18n/pages.en.ts';
+import { VIEWS_TEXT } from '../../i18n/views.en.ts';
+import { classFor, creditOf, shareOf, valueText, viewPages, type ViewPage } from '../views.ts';
 import type { Entry, LayerFile, LayerYear, Overlay } from './types.ts';
 
 export interface LayerDef {
@@ -105,9 +107,46 @@ function withSourceNotes(notes: Record<string, string>, p: MineralPage): Record<
   return out;
 }
 
+/** A registry measure by country and year (emissions, refugees): its classes are fixed across years (../views.ts). */
+function indicatorLayer(p: ViewPage): LayerFile {
+  const c = common();
+  const W = VIEWS_TEXT;
+  const memberships = blocs();
+  const data: LayerYear[] = p.years.map((year) => {
+    const y = p.byYear[year];
+    const v: Record<string, Entry> = {};
+    y.rows.forEach((r, i) => {
+      const share = p.layer.sums ? shareOf(r.value, y.world) : null;
+      v[r.id] = [classFor(p, r.value), valueText(p, r.value), share ? (y.worldOwn ? W.ofWorld(share) : W.ofTotal(share)) : '', 0, i + 1];
+    });
+    const bl: Record<string, string> = {};
+    for (const [id, members] of memberships) {
+      const name = BLOC_TEXT[id] ?? id;
+      const inBloc = y.rows.filter((r) => members.includes(r.id));
+      const share = p.layer.sums && p.text.bloc ? shareOf(inBloc.reduce((s, r) => s + r.value, 0), y.world) : null;
+      bl[id] = !inBloc.length ? W.blocNone(name, year) : share ? p.text.bloc!(name, share, year) : W.blocCount(name, inBloc.length, members.length, year);
+    }
+    return { year, legend: p.text.legend(year), v, order: y.rows.map((r) => r.id), blocs: bl };
+  });
+  return {
+    id: `${p.family.id}-${p.id}`, scale: p.layer.scale, years: p.years, year: p.year, ticks: p.ticks, ends: p.text.ends,
+    missing: { none: W.noData }, source: creditOf(p),
+    text: {
+      ...(c.words as LayerFile['text']),
+      kicker: `${p.text.title} · {year}`, measure: p.text.measure, shareLabel: p.text.figureLabel, none: W.notListed(0).replace('0', '{year}'),
+      withheld: MAP_TEXT.withheldBy, withheldWhy: '', prev: W.prevYear(0, '{value}').replace('0', '{year}'),
+      rank: W.rank(0, 1).replace('0', '{rank}').replace('1', '{of}'),
+    },
+    tags: c.tags, names: c.names, hrefs: c.hrefs, dossiers: c.dossiers, slugs: c.slugs, notes: c.notes, blocs: c.blocs, data,
+  };
+}
+
 let defs: LayerDef[] | null = null;
 export function mapLayers(): LayerDef[] {
-  defs ??= mineralPages().map((p) => ({ id: `minerals-${p.id}`, view: `view:minerals:${p.id}`, topic: 'resources', build: () => mineralLayer(p) }));
+  defs ??= [
+    ...mineralPages().map((p) => ({ id: `minerals-${p.id}`, view: `view:minerals:${p.id}`, topic: 'resources', build: () => mineralLayer(p) })),
+    ...viewPages().map((p) => ({ id: `${p.family.id}-${p.id}`, view: `view:${p.family.id}:${p.id}`, topic: p.family.hub, build: () => indicatorLayer(p) })),
+  ];
   return defs;
 }
 

@@ -9,7 +9,8 @@ export type Co2Field = keyof typeof CO2_FIELDS;
 
 export interface Emissions {
   byField: Record<Co2Field, Series>;
-  world: Record<number, { co2: number | null; cum: number | null }>;
+  /** The World row: totals include international aviation and shipping, which no country is given. */
+  world: Record<number, { co2: number | null; cum: number | null; pc: number | null }>;
   /** Last year with consumption-based figures, which lag the territorial ones. */
   consumptionLast: number | null;
 }
@@ -21,10 +22,10 @@ export function parseOwidCo2(text: string): Emissions {
     const y = Number(r.year);
     if (!y) continue;
     if (!r.iso_code) {
-      if (r.country === 'World') out.world[y] = { co2: num(r.co2), cum: num(r.cumulative_co2) };
+      if (r.country === 'World') out.world[y] = { co2: num(r.co2), cum: num(r.cumulative_co2), pc: num(r.co2_per_capita) };
       continue;
     }
-    if (r.iso_code === 'OWID_WRL') { out.world[y] = { co2: num(r.co2), cum: num(r.cumulative_co2) }; continue; }
+    if (r.iso_code === 'OWID_WRL') { out.world[y] = { co2: num(r.co2), cum: num(r.cumulative_co2), pc: num(r.co2_per_capita) }; continue; }
     const id = m.match(r.iso_code);
     if (!id) continue;
     for (const [k, col] of Object.entries(CO2_FIELDS)) put(out.byField[k as Co2Field], id, y, num(r[col]));
