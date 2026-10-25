@@ -20,10 +20,17 @@ const hz = (id: string, alert: Hazard['alert'], places: string[]): Hazard => ({
 });
 
 describe('disasters', () => {
-  it('counts green alerts over 30 days only, since GDACS keeps them no longer', () => {
-    expect(D.levelsFor(30)).toContain('green');
-    expect(D.levelsFor(90)).toEqual(['red', 'orange']);
-    expect(D.levelsFor(365)).toEqual(['red', 'orange']);
+  it('counts orange and red alerts in every period, and keeps green ones (30 days only) apart', () => {
+    expect(D.COUNTED).toEqual(['red', 'orange']);
+    const all = D.disasterPage('all')!;
+    for (const x of all.periods) {
+      expect(x.alerts.every((h) => h.alert === 'orange' || h.alert === 'red')).toBe(true);
+      expect(x.green.every((h) => h.alert === 'green')).toBe(true);
+      if (x.days > D.GREEN_DAYS) expect(x.green).toHaveLength(0);
+    }
+    // A longer period never counts fewer alerts than a shorter one.
+    const n = all.periods.map((x) => x.alerts.length);
+    expect(n).toEqual([...n].sort((a, b) => a - b));
   });
 
   it('counts an alert once for each country it names', () => {
@@ -51,7 +58,6 @@ describe('disasters', () => {
 
   it('keeps each period to its levels, and a kind page to its kind', () => {
     const all = D.disasterPage('all')!;
-    for (const x of all.periods.slice(1)) expect(x.alerts.every((h) => h.alert === 'orange' || h.alert === 'red')).toBe(true);
     // Orange and red alerts in a shorter period are all in the longer ones.
     const ids = (days: number) => new Set(all.byDays[days].alerts.map((h) => h.id));
     for (const id of ids(90)) expect(ids(365).has(id)).toBe(true);

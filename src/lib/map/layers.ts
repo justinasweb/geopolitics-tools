@@ -237,7 +237,7 @@ function disasterLayer(p: DisasterPage): LayerFile {
   const data: LayerYear[] = p.periods.map((per) => {
     const v: Record<string, Entry> = {};
     per.rows.forEach((r, i) => {
-      v[r.id] = [countClass(r.n), D.alerts(r.n), D.levelParts(r.red, r.orange, per.days <= 30 ? r.green : null), 0, i + 1];
+      v[r.id] = [countClass(r.n), D.alerts(r.n), D.levelParts(r.red, r.orange, null), 0, i + 1];
     });
     const bl: Record<string, string> = {};
     for (const [id, members] of memberships) {
@@ -289,11 +289,11 @@ function disasterLayer(p: DisasterPage): LayerFile {
     });
   } else {
     const seen = new Set<Hazard>();
-    for (const per of p.periods) for (const h of per.alerts) seen.add(h);
+    for (const per of p.periods) for (const h of [...per.alerts, ...per.green]) seen.add(h);
     const symbols = { red: 'triangle', orange: 'diamond', green: 'dot' } as const;
     for (const level of ['green', 'orange', 'red'] as const) {
       const items = [...seen].filter((h) => h.alert === level).map((h): Point => ({
-        at: toMap(h.lon, h.lat), r: 3.5, m: mask(h, (i) => p.periods[i].alerts),
+        at: toMap(h.lon, h.lat), r: 3.5, m: mask(h, (i) => (level === 'green' ? p.periods[i].green : p.periods[i].alerts)),
         tip: D.tipAlert(h.name, D.levelAlert(level), daysText(h, formatDate), where(h), h.severity),
       }));
       if (items.length) overlays.push({ id: `alerts-${level}`, kind: 'points', label: D.marks[level], symbol: symbols[level], items });

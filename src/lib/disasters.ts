@@ -1,7 +1,8 @@
 // The disasters map view (/disasters, /disasters/{kind}), worked out once per page: GDACS alerts by country over the
 // last 30, 90 and 365 days, and, on the earthquakes page, USGS earthquakes of magnitude 5.5 and over. GDACS keeps
-// green alerts for 30 days and orange and red ones for 365 (docs/data-pipeline.md), so 30 days counts every level
-// and the longer periods orange and red only. Earthquake marks come from USGS alone: GDACS lists the same quakes.
+// green alerts for 30 days and orange and red ones for 365 (docs/data-pipeline.md), so every period counts orange
+// and red alerts only, and the green ones of the last 30 days are drawn
+// as marks but not counted. Earthquake marks come from USGS alone: GDACS lists the same quakes.
 // Country pages count alerts with the same rule (alertsIn), so a profile and the map agree.
 import { parseGdacs, parseQuakes, type Alert, type Hazard, type HazardKind } from '../adapters/hazards.ts';
 import { data, refreshed, shared } from './data.ts';
@@ -17,8 +18,10 @@ export const COUNT_EDGES = [2, 5, 10, 25];
 const gdacsData = shared((raw) => parseGdacs(raw.json('gdacs', 'events.json')));
 const quakeData = shared((raw) => parseQuakes(raw.json('usgs-quakes', 'earthquakes.json')));
 
-/** The alert levels a period counts. */
-export const levelsFor = (days: number): Alert[] => (days <= 30 ? ['red', 'orange', 'green'] : ['red', 'orange']);
+/** The alert levels every period counts: orange and red, which GDACS keeps for a year. */
+export const COUNTED: Alert[] = ['red', 'orange'];
+/** Green alerts are kept for this many days: periods this short also draw them, uncounted. */
+export const GREEN_DAYS = 30;
 
 /** The last day the alerts cover: the day GDACS was last fetched. */
 export const lastDay = () => (refreshed('gdacs') ?? data().snapshot.created).slice(0, 10);
@@ -38,8 +41,10 @@ export interface Period {
   days: number;
   from: string;
   to: string;
-  levels: Alert[];
+  /** Orange and red alerts, newest first: what the period counts. */
   alerts: Hazard[];
+  /** Green alerts in the period (30 days only), drawn as marks but not counted. */
+  green: Hazard[];
   /** Countries named in an alert, most first. An alert counts once for each country it names. */
   rows: CountryCount[];
   /** USGS earthquakes of magnitude 5.5 and over (earthquakes page only), largest first. */
@@ -78,10 +83,10 @@ function buildPage(id: DisasterId): DisasterPage | null {
   const quakes = kind === 'EQ' ? quakeData() ?? [] : [];
   const periods = PERIODS.map((days) => {
     const from = firstDay(to, days);
-    const levels = levelsFor(days);
-    const alerts = alertsIn(from, to, levels, kind);
+    const alerts = alertsIn(from, to, COUNTED, kind);
+    const green = days <= GREEN_DAYS ? alertsIn(from, to, ['green'], kind) : [];
     return {
-      days, from, to, levels, alerts, rows: countRows(alerts),
+      days, from, to, alerts, green, rows: countRows(alerts),
       quakes: quakes.filter((q) => inPeriod(q, from, to)).sort((a, b) => (b.mag ?? 0) - (a.mag ?? 0) || b.from.localeCompare(a.from)),
     };
   });

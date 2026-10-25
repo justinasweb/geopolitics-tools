@@ -36,11 +36,12 @@ export const DISASTERS_TEXT = {
   /** Where a year would be: the panel kicker, the tooltip, the phone filter summary. */
   last: (days: number) => `Last ${days} days`,
   lastIn: (days: number) => `the last ${days} days`,
-  /** Which alerts a period counts: GDACS keeps green alerts for 30 days only. */
-  levels: (days: number) => (days <= 30 ? 'green, orange and red' : 'orange and red only'),
+  /** Which alerts a period counts. */
+  levels: 'orange and red alerts',
   movedDays: 'There is no {want}-day view; showing the last {got} days, the nearest one.',
-  periodNote: 'GDACS keeps green alerts for 30 days, so 90 and 365 days count orange and red alerts only.',
-  legend: (days: number) => (days <= 30 ? `Alerts per country, last ${days} days` : `Orange and red alerts per country, last ${days} days`),
+  periodNote: 'Counts are orange and red alerts. GDACS keeps green (low-impact) alerts for 30 days only, so they are drawn as dots on the 30-day map but not counted.',
+  greenNote: (n: string) => `Also ${n} green (low-impact) alert${n === '1' ? '' : 's'}, drawn as dots and not counted.`,
+  legend: (days: number) => `Orange and red alerts per country, last ${days} days`,
   ticks: ['1', '2–4', '5–9', '10–24', '25+'],
   none: 'No alerts',
   noneIn: 'No alerts in this period',
@@ -52,12 +53,12 @@ export const DISASTERS_TEXT = {
   levelParts: (red: number, orange: number, green: number | null) => [
     red ? `${red} red` : '', orange ? `${orange} orange` : '', green ? `${green} green` : '',
   ].filter(Boolean).join(', '),
-  marks: { red: 'Red alert', orange: 'Orange alert', green: 'Green alert (30 days only)', quake: 'Earthquake, magnitude 5.5+ (size by magnitude)' },
+  marks: { red: 'Red alert', orange: 'Orange alert', green: 'Green alert (30 days only, not counted)', quake: 'Earthquake, magnitude 5.5+ (size by magnitude)' },
   /** The answer under the title. */
-  lede: (p: { days: number; n: string; red: number; forKind: string; top?: string; topN?: string; levels: string }) =>
+  lede: (p: { days: number; n: string; red: number; forKind: string; top?: string; topN?: string }) =>
     p.n === '0'
-      ? `GDACS issued no ${p.days <= 30 ? '' : 'orange or red '}alerts${p.forKind} in the last ${p.days} days.`
-      : `In the last ${p.days} days, GDACS issued ${p.n} ${p.days <= 30 ? '' : 'orange and red '}alert${p.n === '1' ? '' : 's'}${p.forKind}${p.red ? `, ${p.red} of them red` : ''}.`
+      ? `GDACS issued no orange or red alerts${p.forKind} in the last ${p.days} days.`
+      : `In the last ${p.days} days, GDACS issued ${p.n} orange and red alert${p.n === '1' ? '' : 's'}${p.forKind}${p.red ? `, ${p.red} of them red` : ''}.`
         + (p.top ? ` ${p.top} was named in the most alerts: ${p.topN}.` : ''),
   quakes: (n: string, days: number, largest?: { mag: string; place: string; date: string }) =>
     `USGS recorded ${n} earthquake${n === '1' ? '' : 's'} of magnitude 5.5 and over in the last ${days} days${largest ? `; the largest, magnitude ${largest.mag}, was ${largest.place} on ${largest.date}` : ''}.`,
@@ -85,7 +86,7 @@ export const DISASTERS_TEXT = {
   summary: 'Summary',
   all: 'All countries',
   tableLabel: (title: string) => `${title}, every country named`,
-  caption: (days: number[]) => `Every country named in an alert in the last ${days.at(-1)} days. ${days[0]} days: all alerts; ${days.slice(1).join(' and ')} days: orange and red.`,
+  caption: (days: number[]) => `Every country named in an orange or red alert in the last ${days.at(-1)} days, with its count over ${days.slice(0, -1).join(' and ')} days.`,
   country: 'Country',
   col: (days: number) => `${days} days`,
   red: (days: number) => `Red, ${days} days`,

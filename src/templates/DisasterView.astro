@@ -53,7 +53,7 @@ function ledeFor(q: DisasterPage, days: number): string {
   const tie = top && x.rows[1]?.n === top.n;
   return D.lede({
     days, n: num(x.alerts.length), red: x.alerts.filter((h) => h.alert === 'red').length, forKind: KIND_TEXT[q.id].forKind,
-    top: top && !tie ? inSentence(nameOf(top.id), true) : undefined, topN: top ? num(top.n) : undefined, levels: D.levels(days),
+    top: top && !tie ? inSentence(nameOf(top.id), true) : undefined, topN: top ? num(top.n) : undefined,
   });
 }
 const quakeLine = (days: number) => {
@@ -67,7 +67,7 @@ const answer = [ledeFor(p, p.days), quakes ? quakeLine(p.days) : ''].filter(Bool
 const kinds = byKind(per.alerts);
 const summary = [
   [ledeFor(p, p.days), !p.kind && kinds.length > 1 ? D.byKind(kinds.map(([k, n]) => D.kindPart(n, kindName(k, n)))) : '', per.rows.length ? D.countries(per.rows.length) : '', quakes ? quakeLine(p.days) : ''].filter(Boolean).join(' '),
-  [ledeFor(p, 30), D.periodNote].join(' '),
+  [ledeFor(p, 30), !quakes && p.byDays[30].green.length ? D.greenNote(num(p.byDays[30].green.length)) : '', D.periodNote].filter(Boolean).join(' '),
   [D.caveat, D.counting, quakes ? D.quakeNote : ''].filter(Boolean).join(' '),
 ];
 
@@ -119,9 +119,10 @@ const mapTop = per.rows.slice(0, 3).map((r) => `${nameOf(r.id)} ${D.alerts(r.n)}
                 <span class="gt-pkf__label">{D.keyLabel(x.days)}</span>
                 <span class="gt-pkf__num">{num(x.alerts.length)}</span>
                 <span class="gt-pkf__meta">
-                  {x.levels.map((l) => <span class="gt-dlevel"><MarkIcon symbol={symbols[l]} />{count(l)} {D.level(l).toLowerCase()}</span>)}
+                  {(['red', 'orange'] as const).map((l) => <span class="gt-dlevel"><MarkIcon symbol={symbols[l]} />{count(l)} {D.level(l).toLowerCase()}</span>)}
                 </span>
-                <span class="gt-caption">{range(x)} · {D.levels(x.days)}</span>
+                <span class="gt-caption">{range(x)} · {D.levels}</span>
+                {!quakes && x.green.length > 0 && <span class="gt-caption gt-dgreen"><MarkIcon symbol="dot" />{D.greenNote(num(x.green.length))}</span>}
               </div>
               {x.rows.length > 0 && (
                 <div class="gt-pgroup">
@@ -144,7 +145,7 @@ const mapTop = per.rows.slice(0, 3).map((r) => `${nameOf(r.id)} ${D.alerts(r.n)}
                 <div class="gt-pgroup">
                   <span class="gt-label">{D.latest}</span>
                   <ul class="gt-devents">
-                    {x.alerts.filter((h) => h.alert !== 'green').concat(x.alerts.filter((h) => h.alert === 'green')).slice(0, 5).map((h) => (
+                    {x.alerts.slice(0, 5).map((h) => (
                       <li><MarkIcon symbol={symbols[h.alert]} /><span><b>{h.name}</b><small>{D.levelAlert(h.alert)} · {daysText(h, formatDate)}</small></span></li>
                     ))}
                   </ul>

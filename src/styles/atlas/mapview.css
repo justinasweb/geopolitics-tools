@@ -179,3 +179,5 @@
 .gt-devents small { display: block; color: var(--ink-muted); font-size: 13px; }
 .gt-mvctl--stack { grid-template-columns: minmax(0, 1fr); }
 .gt-mvctl--stack .gt-mvctl__row { justify-content: flex-start; }
+.gt-dgreen { display: grid; grid-template-columns: 16px minmax(0, 1fr); gap: 5px; align-items: start; }
+.gt-dgreen .gt-mark { margin-top: 1px; }
