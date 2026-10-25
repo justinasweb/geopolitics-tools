@@ -29,3 +29,9 @@ of cables by country, or of OSM's lines alone, would mislead.
 - License TeleGeography, if the price fits, and build `/internet` from it.
 - Keep `/internet` waiting and look for another open source of cable routes and landings.
 - Show OSM's international cables only, with a caveat on coverage (judged too thin on 25 Oct 2026).
+
+**Checked and ruled out (25 Oct 2026).** All three take their modern cables from TeleGeography, so they need its licence too:
+lintaojlu/submarine_cable_information (crawled from TeleGeography's site), map.kmcd.dev (TeleGeography for current
+cables, no licence stated) and EMODnet's schematic cables (TeleGeography's 2014 data, EU waters only, reuse needs
+PriMetrica's written consent). EMODnet's separate "actual routes" layer, from European national sources, may be open but
+covers European seas only.
