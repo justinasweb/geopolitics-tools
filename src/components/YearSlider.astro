@@ -3,6 +3,7 @@
 // reduced motion. Estimated years carry a small "e" on the axis and in the announced value.
 import '../styles/atlas/years.css';
 import { YEAR_TEXT } from '../i18n/en';
+import StatusTag, { type Status } from './StatusTag.astro';
 
 interface Props {
   id: string;
@@ -15,16 +16,23 @@ interface Props {
   estimated?: number[];
   play?: boolean;
   disabled?: boolean;
+  /** A status tag shown next to the readout for these years (map views: "Estimate" on USGS's estimated years). */
+  tags?: Record<number, Status>;
 }
-const { id, min, max, value = max, estimated = [], play = true, disabled = false } = Astro.props;
+const { id, min, max, value = max, estimated = [], play = true, disabled = false, tags } = Astro.props;
 const step = Math.max(1, Math.ceil((max - min) / 5));
 const ticks = Astro.props.ticks ?? Array.from({ length: Math.floor((max - min) / step) + 1 }, (_, i) => max - (Math.floor((max - min) / step) - i) * step);
 ---
-<div class:list={["gt-years", { "gt-years--noplay": !play }]} data-gt-years data-est={estimated.join(' ')}>
+<div class:list={["gt-years", { "gt-years--noplay": !play, "gt-years--two": max - min === 1 }]} data-gt-years data-est={estimated.join(' ')}>
   {play && <button class="gt-play" type="button" aria-label={YEAR_TEXT.play} disabled={disabled}></button>}
   <div class="gt-years__head">
     <label class="gt-label" for={id}>{YEAR_TEXT.year}</label>
-    <span class="gt-years__now" aria-hidden="true">{value}</span>
+    {tags ? (
+      <span class="gt-years__nowwrap">
+        <span class="gt-years__now" aria-hidden="true">{value}</span>
+        {Object.entries(tags).map(([y, st]) => <span data-tag-year={y} hidden={Number(y) !== value}><StatusTag status={st} small /></span>)}
+      </span>
+    ) : <span class="gt-years__now" aria-hidden="true">{value}</span>}
   </div>
   <input id={id} type="range" min={min} max={max} step="1" value={value} disabled={disabled} />
   <div class="gt-years__ticks">{ticks.map((t) => <span data-est={estimated.includes(t) ? '' : undefined}>{t}</span>)}</div>

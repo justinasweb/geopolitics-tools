@@ -52,7 +52,16 @@ describe('route registry', () => {
   });
 
   it('keeps views, hubs and tools out of the build until their phase', () => {
-    for (const r of R.routes().filter((x) => ['view', 'hub', 'tool'].includes(x.kind))) expect(r.live).toBe(false);
+    // Phase 4 builds the critical minerals views; the rest wait for theirs.
+    for (const r of R.routes().filter((x) => ['view', 'hub', 'tool'].includes(x.kind))) expect(r.live).toBe(r.key.startsWith('view:minerals:'));
+  });
+
+  it('builds a view per mineral, with /minerals as an alias of the first', () => {
+    const views = R.routes().filter((r) => r.key.startsWith('view:minerals:'));
+    expect(views.map((r) => r.path)).toContain('/minerals/lithium');
+    expect(views.every((r) => r.live && r.indexed && r.path === R.paths.mineral(r.key.split(':')[2]))).toBe(true);
+    expect(R.routes().some((r) => r.aliases?.includes('/minerals'))).toBe(true);
+    expect(R.viewHref('minerals')).toBe(views[0].path);
   });
 
   it('has a slug for every indicator and section, all different', () => {

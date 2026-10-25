@@ -15,6 +15,8 @@ const isWorld = (c: string) => /^world\b/i.test(c.trim());
 const isAggregate = (c: string) => /^(world|other countries|total|rest of world)/i.test(c.trim());
 const isOther = (c: string) => /^(other countries|rest of world)/i.test(c.trim());
 const isEstimateMarker = (d: string | undefined) => /^(estimated?|e|preliminary|)$/i.test((d ?? '').trim());
+/** Each row says whether its figure is estimated: in the notes ("Estimated."), or as the detail in older files. */
+const isEstimated = (r: Row | undefined) => Boolean(r) && (/^estimated?\b/i.test((r!.Statistics_detail ?? '').trim()) || /^estimated\b/i.test((r!.Notes ?? '').trim()));
 export const slug = (s: string) => s.toLowerCase().replace(/\(.*?\)/g, '').replace(/:/g, ' ').trim().replace(/[^a-z0-9]+/g, '-');
 
 export function parseValue(raw: string | undefined): { value: number | null; withheld?: boolean; small?: boolean } {
@@ -26,7 +28,11 @@ export function parseValue(raw: string | undefined): { value: number | null; wit
   return { value: v !== '' && Number.isFinite(n) ? n : null };
 }
 
-export interface Producer { place: string | null; label: string; value: number | null; share: number | null; prevValue: number | null; withheld: boolean; small: boolean }
+export interface Producer {
+  place: string | null; label: string; value: number | null; share: number | null; prevValue: number | null; withheld: boolean; small: boolean;
+  /** USGS marks this figure as estimated ("Estimated." in the notes, or an "Estimated" detail). */
+  estimated: boolean;
+}
 
 export interface MineralYear {
   id: string;
@@ -34,6 +40,7 @@ export interface MineralYear {
   label: string;
   unit: string;
   year: number;
+  /** The world total is an estimate (or, without a world row, any listed figure is). */
   estimated: boolean;
   world: number | null;
   worldPrev: number | null;
@@ -90,12 +97,14 @@ function buildYear(label: string, rows: Row[], year: string, prevYear: string | 
     .map(({ r, value, withheld, small }) => ({
       place: m.match(r.Country), label: r.Country.trim(), value, share: value != null && denom ? value / denom : null,
       prevValue: prev.has(r.Country) ? parseValue(prev.get(r.Country)!.Value).value : null, withheld: Boolean(withheld), small: Boolean(small),
+      estimated: isEstimated(r),
     }))
     .sort((a, b) => (b.value ?? -1) - (a.value ?? -1));
   const otherValue = denom != null ? Math.max(0, denom - known) : null;
-  const sample = countryRows[0] ?? [...cur.values()].find((r) => isWorld(r.Country)) ?? ({} as Row);
+  const worldRow = [...cur.values()].find((r) => isWorld(r.Country));
+  const sample = countryRows[0] ?? worldRow ?? ({} as Row);
   return {
-    id: slug(label), label, unit: sample.Unit ?? '', year: Number(year), estimated: /estimat/i.test(`${sample.Statistics_detail ?? ''} ${sample.Notes ?? ''}`),
+    id: slug(label), label, unit: sample.Unit ?? '', year: Number(year), estimated: worldRow ? isEstimated(worldRow) : producers.some((p) => p.estimated),
     world, worldPrev: prev.size ? worldOf(prev) : null,
     hhi: Math.round(producers.reduce((s, p) => s + (p.share ? (p.share * 100) ** 2 : 0), 0)),
     topShare: producers[0]?.share ?? null, producers, other: { value: otherValue, share: denom && otherValue != null ? otherValue / denom : null },
@@ -123,7 +132,7 @@ function normalise(all: Row[]): Row[] {
   if (!all.some((r) => /^world/i.test(r.Section ?? ''))) return all;
   return all.filter((r) => /^world/i.test(r.Section ?? '')).map((r) => {
     const detail = (r.Statistics_detail ?? '').replace(/[:,]\s*rounded\s*$/i, '').trim();
-    return detail ? { ...r, Statistics: detail, Statistics_detail: '' } : r;
+    return detail && !isEstimateMarker(detail) ? { ...r, Statistics: detail, Statistics_detail: '' } : r;
   });
 }
 

@@ -77,6 +77,8 @@ const pop = m.allFigures.find((f) => f.id === 'population');
 const sections: { id: string; label: string }[] = [];
 const add = (id: string, menu: string, when: unknown) => { if (when) sections.push({ id, label: menu }); return sections.length; };
 const nDeps = add('deps', COUNTRY_TEXT.depsMenu, okDeps.length);
+// A mineral's map view, opened with this country selected.
+const mineralView = (id?: string) => (id && live(`view:minerals:${id}`) ? `${live(`view:minerals:${id}`)!.path}?country=${p.slug}` : undefined);
 const nMin = add('minerals', COUNTRY_TEXT.mineralsMenu, m.minerals.length);
 const nMoney = add('money', DOSSIER_TEXT.moneyMenu, d?.money);
 const nPeople = add('people', DOSSIER_TEXT.peopleMenu, d?.people);
@@ -168,11 +170,11 @@ const citation = COUNTRY_TEXT.citation(name, kind, url, Number(m.updated.slice(0
         {m.minerals.length > 0 && (
           <CpSection n={nMin} id="minerals" heading={COUNTRY_TEXT.mineralsHeading} find={m.summary.find((s) => s.includes(' mines ')) ?? undefined}
             source={{ source: sourceName('usgs-minerals'), parts: [`${mineralYear}${m.minerals.some((x) => x.estimated) ? ', estimated' : ''}`], updated: m.updated, status: m.minerals.some((x) => x.estimated) ? 'estimate' : undefined }}
-            link={live('view:minerals') ? { href: live('view:minerals')!.path, label: COUNTRY_TEXT.mineralsLink } : undefined}>
+            link={mineralView(m.minerals[0]?.id) ? { href: mineralView(m.minerals[0].id)!, label: COUNTRY_TEXT.mineralsLink } : undefined}>
             <ol class="gt-bars gt-bars--tight gt-cpbars" aria-label={COUNTRY_TEXT.mineralsBars(name, mineralYear!)}>
               {m.minerals.map((x) => (
                 <li>
-                  <span class="gt-bars__name">{mineralName(x.id, x.label).replace(/^./, (c) => c.toUpperCase())}</span>
+                  <span class="gt-bars__name">{mineralView(x.id) ? <a href={mineralView(x.id)}>{mineralName(x.id, x.label).replace(/^./, (c) => c.toUpperCase())}</a> : mineralName(x.id, x.label).replace(/^./, (c) => c.toUpperCase())}</span>
                   <span class="gt-bars__track"><span class="gt-bars__fill" style={`width:${(x.share * 100).toFixed(1)}%`}></span><span class="gt-bars__rest" style={`width:${(100 - x.share * 100).toFixed(1)}%`}></span></span>
                   <span class="gt-bars__val">{formatShare(x.share)}</span>
                 </li>

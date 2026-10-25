@@ -33,14 +33,15 @@ Page frame: `Header` (mega menu; full-screen phone menu in a modal dialog), `Pho
 `Breadcrumbs`, `PageToc`, `Icon`. Sources and status: `SourceLine`, `StatusTag` (also Sample), `Notice`. Data display:
 `KeyFigure` (in a `.gt-kfrow`), `RankedBars`, `DataTable`, `ChartState`, buttons (`.gt-btn`, `.gt-btn--quiet`).
 Filters: `SegmentedControl`, `Dropdown`, `CountrySearch`, `Chips`, `YearSlider`. Maps: `MapLegend`, `MapTooltip`,
-`CountryPanel` + `PanelFacts`. Actions: `ShareRow`.
+`CountryPanel` + `PanelFacts`; the interactive map view's `MapControls` and `MapStage` (phase 4, see
+[maps.md](maps.md)). Actions: `ShareRow`.
 
 Controls tell the page what changed with bubbling events: `gt-change` (segmented control, chips, year slider) and `gt-pick`
 (country search). The header's search buttons and the `/` key send `gt-search`, which site search (phase 8) will answer.
 
 ## Not in this phase
 
-Page-specific blocks from design batches 2–7 (homepage hero and sections, This week cards, map view stage, country page
+Page-specific blocks from design batches 2–7 (homepage hero and sections, This week cards, country page
 blocks, Explorer, Dependencies, Supply chains, Bloc overlap, hubs, long-read pages, Atlas, share images) are built with
 the pages that use them in phases 3–8, from the same `bundle.css`. The main menu lists every wave 1 view until phase 3's
 route registry can hide views that are not live.

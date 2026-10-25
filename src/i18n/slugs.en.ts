@@ -5,7 +5,7 @@
 /** Section names: the first part of a path. */
 export const SECTION_SLUGS = {
   countries: 'countries', compare: 'compare', indicators: 'indicators', downloads: 'downloads',
-  about: 'about', methodology: 'methodology', sources: 'sources', privacy: 'privacy',
+  about: 'about', methodology: 'methodology', sources: 'sources', privacy: 'privacy', minerals: 'minerals',
 } as const;
 
 /** Joins two country slugs on a Compare page: /compare/united-states-vs-china. */

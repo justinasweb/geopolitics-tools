@@ -1,7 +1,7 @@
 ---
 // A site page: header, the page container, footer. The container is .gt-page (the 1200px measure), .gt-cp
-// (country pages and Compare) or .gt-tl (data tools and indicator pages); each is the "page" container that phone
-// layouts respond to.
+// (country pages and Compare), .gt-tl (data tools and indicator pages) or .gt-mv (map views); each is the "page"
+// container that phone layouts respond to.
 import Base from './Base.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
@@ -16,7 +16,7 @@ interface Props {
   hub?: string;
   /** Use a wider page container (map views, tools) instead of the 1200px measure. */
   wide?: boolean;
-  container?: 'page' | 'cp' | 'tl';
+  container?: 'page' | 'cp' | 'tl' | 'mv';
   image?: string;
   jsonld?: object[];
   /** The page shows figures from the data snapshot (so a sample build marks it). */

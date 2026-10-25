@@ -1,0 +1,77 @@
+// The shape of a map layer file (/map/<layer>.json), written at build time by ./layers.ts and read by the map
+// engine in the browser (src/scripts/map/). A layer is data, not code: the same file serves its map view page and,
+// later, the Atlas (addendum, section 3), so a layer is defined once.
+//
+// Everything a reader sees is already formatted and worded in the page's language at build time; the engine only
+// places it. Coordinates are map coordinates (Equal Earth drawn through Web Mercator, ./projection.ts).
+
+export type Status = 'estimate' | 'projection' | 'preliminary';
+
+/**
+ * One place's entry for a year: [class, value, detail, status, rank].
+ * Class: 1–5 on a sequential scale, 1–7 on a diverging one; 0 withheld by the source; -1 not yet reported.
+ * Value is the figure the map shades by ("32%"), detail the absolute figure ("92,000 t"); rank is among places listed.
+ */
+export type Entry = [cls: number, value: string, detail: string, status: Status | 0, rank: number];
+
+export interface LayerYear {
+  year: number;
+  /** The year's own tag on the slider: the source marks it estimated or preliminary. */
+  status?: Status;
+  legend: string;
+  /** By internal place id. A place left out has no figure for the year ("No production listed"). */
+  v: Record<string, Entry>;
+  /** Places with a figure, in rank order: what N and P step through. */
+  order: string[];
+  /** Panel line for each bloc this year ("BRICS members mined 35%…"). */
+  blocs: Record<string, string>;
+}
+
+export interface Arc { p: [number, number][]; w: number; tip: string }
+export interface Line { p: [number, number][][]; tip: string }
+export interface Point { at: [number, number]; r?: number; tip: string }
+export type Overlay =
+  | { id: string; kind: 'arcs'; label: string; items: Arc[] }
+  | { id: string; kind: 'lines'; label: string; dashed?: boolean; items: Line[] }
+  | { id: string; kind: 'points'; label: string; symbol: 'dot' | 'hollow' | 'triangle' | 'diamond' | 'square'; items: Point[] };
+
+export interface LayerFile {
+  id: string;
+  scale: 'seq' | 'div';
+  years: number[];
+  /** The year shown when the URL names none: the latest. */
+  year: number;
+  ticks: string[];
+  /** Diverging scales: what each end means. */
+  ends?: [string, string];
+  /** Legend words for the shapes without a class. */
+  missing: { none: string; withheld?: string; notyet?: string };
+  source: string;
+  /** Words with {placeholders}, filled in by the engine. */
+  text: {
+    kicker: string;        // "Lithium · {year}"
+    measure: string;       // "of world mine production"
+    shareLabel: string;    // "Share of world mine production"
+    none: string;          // "No production listed for {year}"
+    withheld: string;      // "Withheld by source"
+    withheldWhy: string;   // one sentence
+    prev: string;          // "{year}: {detail} ({value})"
+    rank: string;          // "{rank} of {of} listed"
+    world: string; close: string; countryPage: string; dossier: string; inTable: string; hint: string; tapHint: string;
+    note: string; disputed: string; selected: string; cleared: string; members: string; removeBloc: string;
+    movedYear: string; keys: string;
+  };
+  /** Status tags as HTML (their glyph and word). */
+  tags: Record<Status, string>;
+  names: Record<string, string>;
+  /** Country pages and dossiers that exist. */
+  hrefs: Record<string, string>;
+  dossiers: string[];
+  /** URL slugs of places, for ?country= */
+  slugs: Record<string, string>;
+  /** One-line notes for disputed places (territories policy, section 4). */
+  notes: Record<string, string>;
+  blocs: Record<string, { name: string; members: string[] }>;
+  data: LayerYear[];
+  overlays?: Overlay[];
+}

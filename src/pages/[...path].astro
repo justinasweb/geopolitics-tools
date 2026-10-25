@@ -9,6 +9,7 @@ import IndicatorsIndex from '../templates/IndicatorsIndex.astro';
 import IndicatorPage from '../templates/IndicatorPage.astro';
 import LongRead from '../templates/LongRead.astro';
 import SourcesPage from '../templates/SourcesPage.astro';
+import MineralView from '../templates/MineralView.astro';
 import { BUILT_KINDS, routes, type Route } from '../lib/routes';
 
 export const getStaticPaths = (() =>
@@ -25,3 +26,4 @@ const [a, b] = route.id.split(',');
 {route.kind === 'indicator' && <IndicatorPage id={route.id} />}
 {route.kind === 'page' && <LongRead id={route.id} />}
 {route.kind === 'sources' && <SourcesPage />}
+{route.kind === 'view' && route.id.startsWith('minerals:') && <MineralView id={route.id.slice('minerals:'.length)} />}

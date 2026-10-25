@@ -13,3 +13,8 @@ formats by a one-off script:
 
 Names are placeholders and the figures are illustrative. The real formats are checked by the pull
 request live check, which runs the adapters on the files it fetches (`pipeline/adapter-check.ts`).
+
+`usgs-minerals/MCS2026_Commodities_Data.csv` is different: a slice of the real file USGS publishes with
+Mineral Commodity Summaries 2026 (the lithium and gallium rows), kept to
+test the real format: per-row "Estimated." notes, withheld figures and the "Excludes U.S. production."
+world total. Figures in it are USGS's own.

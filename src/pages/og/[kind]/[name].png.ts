@@ -11,6 +11,8 @@ import { shareImage, type Card } from '../../../lib/og';
 import { place } from '../../../lib/places';
 import { routes, type Route } from '../../../lib/routes';
 import { siteName } from '../../../lib/site';
+import { MINERALS_VIEW } from '../../../i18n/map.en';
+import { amount, lede, listed, mineralPage, nameOf as producerName, shareText } from '../../../lib/minerals';
 
 export const getStaticPaths = (() => {
   const out = routes().filter((r) => r.live && r.image).map((r) => {
@@ -53,6 +55,15 @@ function card(r: Route | null): Card {
       kicker: OG_TEXT.compareKicker, title: COMPARE_TEXT.title(nameOf(a), nameOf(b)),
       caption: gdp.every(Boolean) ? `GDP, ${gdp[0]!.year}` : undefined, source: gdp.every(Boolean) ? short(gdp[0]!.source) : undefined,
       bars: gdp.every(Boolean) ? [a, b].map((p, i) => ({ label: nameOf(p), value: gdp[i]!.value, text: formatValue(gdp[i]!.value, INDICATORS.gdp.format) })) : [],
+    };
+  }
+  if (r.kind === 'view' && r.id.startsWith('minerals:')) {
+    const p = mineralPage(r.id.split(':')[1])!;
+    const y = p.latest;
+    return {
+      kicker: MINERALS_VIEW.section, title: MINERALS_VIEW.title(p.title), figure: y.world ? `${amount(y.world)} ${p.unit}` : undefined,
+      caption: lede(p) ?? undefined, source: `${p.source}${y.estimated ? ', estimated' : ''}`,
+      bars: listed(y).slice(0, 5).map((x) => ({ label: producerName(x), value: x.share!, text: shareText(x.share!) })),
     };
   }
   return { kicker: OG_TEXT.pageKicker, title: TITLES[r.id || r.kind] ?? r.id };
