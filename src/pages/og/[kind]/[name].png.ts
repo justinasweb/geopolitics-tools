@@ -23,6 +23,8 @@ import { BLOCS_TEXT, HISTORY_TEXT, MEASURE_TEXT } from '../../../i18n/blocs.en';
 import { BLOC_TEXT } from '../../../i18n/map.en';
 import { blocPage, membershipCounts } from '../../../lib/blocview';
 import { historyPage } from '../../../lib/history';
+import { riverPage } from '../../../lib/rivers';
+import { RIVERS_TEXT } from '../../../i18n/water.en';
 import { foodPage, lede as foodLede, mt, netText, shareOf as foodShare } from '../../../lib/food';
 
 export const getStaticPaths = (() => {
@@ -109,6 +111,16 @@ function card(r: Route | null): Card {
     return {
       kicker: HISTORY_TEXT.section, title: HISTORY_TEXT.title(name), figure: String(p.byYear[last].members.length), caption: HISTORY_TEXT.sub(first, last),
       bars: steps.map((y) => ({ label: String(y), value: p.byYear[y].members.length, text: String(p.byYear[y].members.length) })),
+    };
+  }
+  if (r.kind === 'view' && r.id.startsWith('rivers:')) {
+    const id = r.id.split(':')[1];
+    const p = riverPage(id)!;
+    const dep = viewPage('waterdep');
+    const name = RIVERS_TEXT.name[id] ?? id;
+    return {
+      kicker: RIVERS_TEXT.section, title: RIVERS_TEXT.title(name), figure: String(p.dams.length), caption: RIVERS_TEXT.damsTitle,
+      bars: dep ? p.countries.filter((x) => x.fromAbroad !== null).map((x) => ({ label: `${nameOf(x.id)}, ${RIVERS_TEXT.fromAbroad.toLowerCase()}`, value: x.fromAbroad!, text: valueText(dep, x.fromAbroad!) })) : [],
     };
   }
   if (r.kind === 'view' && r.id.startsWith('food:')) {

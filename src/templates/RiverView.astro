@@ -1,0 +1,150 @@
+---
+// A disputed river (/water/rivers/{river}): the countries in the dispute shaded by water stress, with the river's
+// large dams as marks; the panel gives each country's figures and dams. Below: the countries and the dams as tables.
+// The river's summary is an AI draft approved by the owner (development plan, D14) and waits for phase 7.
+import Page from '../layouts/Page.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import SourceLine from '../components/SourceLine.astro';
+import Notice from '../components/Notice.astro';
+import ShareRow from '../components/ShareRow.astro';
+import MapStage from '../components/MapStage.astro';
+import MapControls from '../components/MapControls.astro';
+import '../styles/atlas/mapview.css';
+import '../styles/atlas/bars.css';
+import '../styles/atlas/keyfigure.css';
+import '../styles/atlas/table.css';
+import '../styles/atlas/tools.css';
+import { MAP_TEXT } from '../i18n/map.en';
+import { NAV_TEXT } from '../i18n/en';
+import { list } from '../i18n/pages.en';
+import { DAMS_TEXT as DX, RIVERS_TEXT as R } from '../i18n/water.en';
+import { riverIds, riverPage } from '../lib/rivers';
+import { creditOf, valueText, viewPage } from '../lib/views';
+import { refreshed } from '../lib/data';
+import { place } from '../lib/places';
+import { countryHref, live, route } from '../lib/routes';
+import { layerPath } from '../lib/map/layers';
+import { breadcrumbs } from '../lib/structured';
+
+interface Props { id: string }
+const { id } = Astro.props;
+const p = riverPage(id)!;
+const ws = viewPage('waterstress')!;
+const later = viewPage('waterstress2050');
+const dep = viewPage('waterdep');
+const key = (r: string) => `view:rivers:${r}`;
+const path = route(key(id))!.path;
+const url = new URL(path, Astro.site).href;
+const name = R.name[id] ?? id;
+const title = R.title(name);
+const nameOf = (x: string) => place(x)?.name ?? x;
+const countries = list(p.river.countries.map(nameOf));
+const most = [...p.countries].filter((x) => x.fromAbroad !== null).sort((a, b) => b.fromAbroad! - a.fromAbroad!)[0];
+const answer = most && dep ? R.lede(name, countries, p.dams.length, nameOf(most.id), valueText(dep, most.fromAbroad!)) : null;
+const crumbs = [{ label: NAV_TEXT.hubs.climate }, { label: R.section, href: live('view:water:waterstress')?.path }, { label: name }];
+const picker = riverIds().filter((r) => live(key(r))).map((r) => ({ label: R.name[r] ?? r, href: live(key(r))!.path, current: r === id }));
+const source = R.source;
+const updated = refreshed('gdw');
+const cell = (page: typeof ws | undefined, v: number | null) => (page && v !== null ? valueText(page, v) : '–');
+const related = [
+  ...(live('view:water:waterstress') ? [{ href: live('view:water:waterstress')!.path, name: R.allStress, note: ws.text.title }] : []),
+  ...p.river.countries.filter((c) => countryHref(c)).slice(0, 3).map((c) => ({ href: countryHref(c)!, name: nameOf(c), note: MAP_TEXT.countryPage })),
+];
+const largest = p.dams[0];
+---
+<Page title={title} description={R.description(name, countries)} hub="climate" container="mv" image={route(key(id))!.image}
+  jsonld={[breadcrumbs(crumbs.map((c) => ({ label: c.label, href: c.href })))]}>
+  <div class="gt-mvhead">
+    <Breadcrumbs items={crumbs} />
+    <h1 class="gt-title gt-mvhead__t">{title} <span class="gt-mvhead__sub">{R.sub}</span></h1>
+    {answer && <p class="gt-lede gt-mvhead__a">{answer}</p>}
+    <SourceLine source={creditOf(ws)} parts={[String(ws.year)]} updated={updated} />
+  </div>
+
+  <MapControls pickerLabel={R.pickerLabel} picker={picker} pickerSelect years={[ws.year]} year={ws.year} />
+
+  <MapStage layer={layerPath(`rivers-${id}`)} label={R.mapLabel(name, countries)} title={title}
+    legend={{ title: R.legend, scale: 'seq', ticks: ws.ticks, none: R.notInDispute, marks: [{ symbol: 'triangle', label: DX.mark }] }}>
+    <div data-panel="world" slot="panel">
+      <div class="gt-panel__head">
+        <div class="gt-panel__title"><span class="gt-kicker">{R.section}</span><h2 class="gt-h3">{name}</h2></div>
+      </div>
+      <div class="gt-panel__body">
+        <div class="gt-pkf">
+          <span class="gt-pkf__label">{R.damsTitle}</span>
+          <span class="gt-pkf__num">{p.dams.length}</span>
+          {largest && <span class="gt-pkf__meta">{largest.name}, {largest.capacity ? DX.km3(largest.capacity) : ''}</span>}
+        </div>
+        <div class="gt-pblock gt-pgroup">
+          <div class="gt-pblock__head"><span class="gt-label">{R.countries}</span><span class="gt-caption">{R.stress}, {ws.text.measure}</span></div>
+          <ol class="gt-bars gt-bars--tight" aria-label={`${R.countries}, ${R.stress.toLowerCase()}`}>
+            {p.countries.map((x) => (
+              <li><span class="gt-bars__name"><button type="button" data-select={x.id}>{nameOf(x.id)}</button></span><span class="gt-bars__track"><span class="gt-bars__fill" style={`width:${(((x.stress ?? 0) / 5) * 100).toFixed(1)}%`}></span></span><span class="gt-bars__val">{cell(ws, x.stress)}</span></li>
+            ))}
+          </ol>
+        </div>
+        <div class="gt-blocline" hidden><span class="gt-blocline__key" aria-hidden="true"></span><p></p></div>
+        <Notice>
+          <p>{R.caveat}</p>
+          <SourceLine source={source} parts={[String(ws.year)]} updated={updated} />
+        </Notice>
+      </div>
+    </div>
+  </MapStage>
+
+  <section class="gt-mvbelow" aria-labelledby="mv-sum">
+    <div class="gt-mvbelow__main">
+      <h2 class="gt-h2" id="mv-sum">{R.countries}</h2>
+      <div class="gt-tablewrap" style="--gt-table-h:none" tabindex="0" role="region" aria-label={R.countries}>
+        <table class="gt-table">
+          <caption class="gt-caption">{R.countriesCaption(name)}</caption>
+          <thead><tr>
+            <th scope="col"><span class="gt-th">{R.country}</span></th>
+            <th scope="col" class="n"><span class="gt-th">{R.stress}</span></th>
+            <th scope="col" class="n"><span class="gt-th">{R.stress2050}</span></th>
+            <th scope="col" class="n"><span class="gt-th">{R.fromAbroad}</span></th>
+            <th scope="col" class="n"><span class="gt-th">{R.damsCol}</span></th>
+          </tr></thead>
+          <tbody>
+            {p.countries.map((x) => (
+              <tr data-place={x.id}>
+                <th scope="row">{countryHref(x.id) ? <a href={countryHref(x.id)}>{nameOf(x.id)}</a> : nameOf(x.id)}</th>
+                <td class="n">{cell(ws, x.stress)}</td><td class="n">{cell(later, x.stress2050)}</td><td class="n">{cell(dep, x.fromAbroad)}</td><td class="n">{x.dams}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <SourceLine source={source} parts={[String(ws.year)]} updated={updated} />
+      <h2 class="gt-h2" id="dams">{R.damsTitle}</h2>
+      {p.dams.length === 0 ? <p>{R.noDams}</p> : (
+        <div class="gt-tablewrap" style="--gt-table-h:560px" tabindex="0" role="region" aria-label={R.damsTitle}>
+          <table class="gt-table" data-gt-sort>
+            <caption class="gt-caption">{R.damsCaption(name, p.dams.length)}</caption>
+            <thead><tr>
+              <th scope="col" data-key="d"><button type="button">{DX.dam}</button></th>
+              <th scope="col" data-key="r"><button type="button">{DX.river}</button></th>
+              <th scope="col" data-key="c"><button type="button">{DX.country}</button></th>
+              <th scope="col" class="n" data-key="v" data-type="num" aria-sort="descending"><button type="button">{DX.capacity}</button></th>
+              <th scope="col" class="n" data-key="y" data-type="num"><button type="button">{DX.year}</button></th>
+            </tr></thead>
+            <tbody>{p.dams.map((d) => <tr><th scope="row">{d.name}</th><td>{d.river}</td><td>{d.place ? nameOf(d.place) : ''}</td><td class="n" data-v={d.capacity ?? ''}>{d.capacity ? DX.km3(d.capacity) : '–'}</td><td class="n" data-v={d.year ?? ''}>{d.year ?? '–'}</td></tr>)}</tbody>
+          </table>
+        </div>
+      )}
+      <SourceLine source={DX.source} parts={[]} updated={updated} />
+    </div>
+    <aside class="gt-mvbelow__side">
+      <h2 class="gt-label">{R.related}</h2>
+      <ul class="gt-related">{related.map((r) => <li><a href={r.href}><span>{r.name}</span><small>{r.note}</small></a></li>)}</ul>
+      <h2 class="gt-label">{R.others}</h2>
+      <ul class="gt-related">{picker.filter((o) => !o.current).map((o) => <li><a href={o.href}><span>{o.label}</span></a></li>)}</ul>
+      {answer && <div class="gt-mvbelow__share"><ShareRow url={url} text={answer} /></div>}
+    </aside>
+  </section>
+</Page>
+
+<script>
+  import { initSortable } from '../scripts/table';
+  document.querySelectorAll<HTMLTableElement>('table[data-gt-sort]').forEach(initSortable);
+</script>

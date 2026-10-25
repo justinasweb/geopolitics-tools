@@ -172,6 +172,16 @@ stress map marks dams in Global Dam Watch holding at least 1 km³, with a table 
 AQUASTAT bulk file (countries by M49 code) and the GDW v1.0 attribute table (`GDW_barriers_v1_0.txt`, GRanD dams only;
 the dam's own position, else where it meets the river). The disputed rivers pages are not built yet.
 
+## Disputed rivers (phase 5a)
+
+`/water/rivers/{nile,indus,mekong,tigris-euphrates,brahmaputra,amu-darya,helmand,dnipro}`: the countries in each dispute
+(src/data/rivers.ts, from the prototype's list) shaded by water stress, with the river's large dams from Global Dam Watch.
+GDW names rivers in many spellings and gives a main basin for only a third of its dams, so a dam belongs to a river when
+it is in one of the dispute's countries and its river name matches the main stem or a large tributary, or its basin
+matches, less a short list of dams whose basin field is wrong. GDW 1.0 stops at about 2022, so the newest dams (Ethiopia's
+Renaissance dam among them) are missing, and it does not mark destroyed dams (Kakhovka); the caveat says so. Each river's
+summary is an AI draft for the owner to approve (D14) and comes in phase 7.
+
 ## Chinese lending (phase 5a)
 
 `/chinese-lending` and `/chinese-lending/{energy,transport,mining,banking,other}`: AidData commitments 2000–2021 added up,

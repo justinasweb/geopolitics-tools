@@ -99,11 +99,13 @@ export function createMap(container: HTMLElement, base: Basemap, layer: LayerFil
   const T = readTokens();
   const scale = layer.scale === 'seq' ? 5 : 7;
   const colours = Array.from({ length: scale }, (_, i) => T[`--${layer.scale}-${i + 1}` as Token]);
+  // Where the map starts and the reset button returns: the layer's own area (a disputed river), else the world.
+  const home = layer.bounds ?? WORLD_BOUNDS;
 
   const map = new maplibregl.Map({
     container,
     style: { version: 8, sources: {}, layers: [{ id: 'sea', type: 'background', paint: { 'background-color': T['--paper-sunk'] } }] },
-    bounds: WORLD_BOUNDS, fitBoundsOptions: { padding: 16 },
+    bounds: home, fitBoundsOptions: { padding: 16 },
     renderWorldCopies: false, dragRotate: false, pitchWithRotate: false, touchPitch: false, maxPitch: 0, maxZoom: 5,
     // The whole world is 512 px wide at zoom 0; a phone needs less to show all of it. MapLibre's own limit keeps
     // the world as tall as the screen, which crops a tall phone map; this one only keeps the centre on the world.
@@ -292,12 +294,12 @@ export function createMap(container: HTMLElement, base: Basemap, layer: LayerFil
       const opts = { duration: reduced() ? 0 : 300 };
       if (how === 'in') map.zoomIn(opts);
       else if (how === 'out') map.zoomOut(opts);
-      else map.fitBounds(WORLD_BOUNDS, { padding: fitPad, ...opts });
+      else map.fitBounds(home, { padding: fitPad, ...opts });
     },
     frame({ top, bottom }) {
       const pad = { top, bottom, left: 12, right: 12 };
       fitPad = pad;
-      map.fitBounds(WORLD_BOUNDS, { padding: pad, duration: reduced() ? 0 : 300 });
+      map.fitBounds(home, { padding: pad, duration: reduced() ? 0 : 300 });
     },
     resize() { map.resize(); },
     pointOf(id) {

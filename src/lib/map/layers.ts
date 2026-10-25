@@ -31,8 +31,10 @@ import { SANCTIONS_TEXT } from '../../i18n/sanctions.en.ts';
 import { type Outage, outages } from '../../adapters/digital.ts';
 import { largeDams } from '../dams.ts';
 import { lendingOf } from '../lending.ts';
-import { DAMS_TEXT, LENDING_TEXT } from '../../i18n/water.en.ts';
-import { anchors } from './basemap.ts';
+import { DAMS_TEXT, LENDING_TEXT, RIVERS_TEXT } from '../../i18n/water.en.ts';
+import { riverIds, riverPage } from '../rivers.ts';
+import { viewPage } from '../views.ts';
+import { anchors, boxOf } from './basemap.ts';
 import { armsPeriod, armsPeriods, supplierMix, SPAN } from '../arms.ts';
 import { ARMS_TEXT } from '../../i18n/arms.en.ts';
 import type { Pair } from '../../data/flows.ts';
@@ -690,6 +692,70 @@ function historyLayer(id: string): LayerFile {
   };
 }
 
+/** A disputed river: its countries shaded by water stress, as on /water, with the river's large dams as marks. */
+function riverLayer(id: string): LayerFile {
+  const c = common();
+  const R = RIVERS_TEXT;
+  const p = riverPage(id)!;
+  const ws = viewPage('waterstress')!;
+  const name = R.name[id] ?? id;
+  const v: Record<string, Entry> = {};
+  const more: Record<string, PanelBlock[]> = {};
+  const order = [...p.countries].filter((x) => x.stress !== null).sort((a, b) => b.stress! - a.stress!).map((x) => x.id);
+  for (const x of p.countries) {
+    if (x.stress !== null) v[x.id] = [classFor(ws, x.stress), valueText(ws, x.stress), '', 0, order.indexOf(x.id) + 1];
+    const later = viewPage('waterstress2050');
+    const dep = viewPage('waterdep');
+    const dams = p.dams.filter((d) => d.place === x.id);
+    more[x.id] = [
+      {
+        label: R.onRiver(name),
+        rows: [
+          ...(later && x.stress2050 !== null ? [{ name: R.stress2050, value: valueText(later, x.stress2050) }] : []),
+          ...(dep && x.fromAbroad !== null ? [{ name: R.fromAbroad, value: valueText(dep, x.fromAbroad) }] : []),
+          { name: R.damsCol, value: String(dams.length) },
+        ],
+      },
+      ...(dams.length ? [{
+        label: R.damsHere, caption: R.damsHereCaption,
+        rows: dams.slice(0, 5).map((d) => ({ name: d.name, value: d.capacity ? DAMS_TEXT.km3(d.capacity) : '–', note: [d.river, d.year].filter(Boolean).join(', ') })),
+        more: dams.length > 5 ? PT.morePartners(dams.length - 5) : undefined,
+      }] : []),
+    ];
+  }
+  const items: Point[] = p.dams.filter((d) => d.lon !== null && d.lat !== null).map((d) => ({
+    at: toMap(d.lon!, d.lat!), r: Math.min(12, 3 + Math.sqrt((d.capacity ?? 0) / 1000) * 0.9),
+    tip: DAMS_TEXT.tip(d.name, d.river, d.place ? nameOf2(d.place) : '', d.year ? String(d.year) : '', DAMS_TEXT.km3(d.capacity ?? 0)),
+  }));
+  // The map starts on the dispute: its dams and its countries, but not the whole of a country as wide as China or Russia.
+  const pts = items.map((x) => x.at);
+  for (const c of p.river.countries) {
+    const b = boxOf(c);
+    if (b && b[1][0] - b[0][0] < 40) pts.push(...b);
+  }
+  // More room to the south-west, where the legend sits over the map.
+  const pad = 3;
+  const bounds: [[number, number], [number, number]] | undefined = pts.length ? [
+    [Math.min(...pts.map((x) => x[0])) - pad * 3, Math.min(...pts.map((x) => x[1])) - pad * 3],
+    [Math.max(...pts.map((x) => x[0])) + pad, Math.max(...pts.map((x) => x[1])) + pad],
+  ] : undefined;
+  const bl: Record<string, string> = {};
+  for (const [b, members] of blocs()) bl[b] = R.blocLine(BLOC_TEXT[b] ?? b, members.filter((m) => p.river.countries.includes(m)).length, members.length);
+  return {
+    id: `rivers-${id}`, scale: 'seq', years: [ws.year], year: ws.year, ticks: ws.ticks,
+    missing: { none: R.notInDispute }, source: R.source,
+    text: {
+      ...(c.words as LayerFile['text']),
+      kicker: `${name} · ${ws.text.figureLabel}`, measure: ws.text.measure, shareLabel: ws.text.figureLabel, none: R.notInDispute,
+      withheld: MAP_TEXT.withheldBy, withheldWhy: '', prev: '{year}: {value}', rank: VIEWS_TEXT.rank(0, 1).replace('0', '{rank}').replace('1', '{of}'),
+      rankLabel: PT.rank, rankOf: PT.rankOf,
+    },
+    tags: c.tags, names: c.names, hrefs: c.hrefs, dossiers: c.dossiers, slugs: c.slugs, notes: c.notes, blocs: c.blocs,
+    data: [{ year: ws.year, legend: R.legend, v, order, blocs: bl }], more,
+    overlays: [{ id: 'dams', kind: 'points', label: DAMS_TEXT.mark, symbol: 'triangle', items }], bounds,
+  };
+}
+
 const placeNames = new Map(PLACES.map((x) => [x.id, x.name]));
 const nameOf2 = (id: string) => placeNames.get(id) ?? id;
 
@@ -700,6 +766,7 @@ export function mapLayers(): LayerDef[] {
     ...viewPages().map((p) => ({ id: `${p.family.id}-${p.id}`, view: `view:${p.family.id}:${p.id}`, topic: p.family.hub, build: () => indicatorLayer(p) })),
     ...disasterPages().map((p) => ({ id: `disasters-${p.id}`, view: `view:disasters:${p.id}`, topic: 'climate', build: () => disasterLayer(p) })),
     ...foodPages().map((p) => ({ id: `food-${p.id}`, view: `view:food:${p.id}`, topic: 'resources', build: () => foodLayer(p) })),
+    ...riverIds().map((id) => ({ id: `rivers-${id}`, view: `view:rivers:${id}`, topic: 'climate', build: () => riverLayer(id) })),
     ...HISTORY_BLOCS.map((id) => ({ id: `history-${id}`, view: `view:alliance-history:${id}`, topic: 'power', build: () => historyLayer(id) })),
     ...['all', ...blocPages().map((b) => b.id)].map((id) => ({ id: `blocs-${id}`, view: `view:blocs:${id}`, topic: 'power', build: () => blocLayer(id) })),
   ];

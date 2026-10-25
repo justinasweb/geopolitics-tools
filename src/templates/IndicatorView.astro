@@ -34,7 +34,8 @@ import { clustersAt } from '../lib/ai';
 import { AI_TEXT as AX } from '../i18n/ai.en';
 import { largeDams } from '../lib/dams';
 import { largestProjects } from '../lib/lending';
-import { DAMS_TEXT as DX, LENDING_TEXT as LX } from '../i18n/water.en';
+import { DAMS_TEXT as DX, LENDING_TEXT as LX, RIVERS_TEXT as RV } from '../i18n/water.en';
+import { riverIds } from '../lib/rivers';
 import { formatDate } from '../lib/format';
 import { armsPeriod, armsPeriods } from '../lib/arms';
 import { ARMS_TEXT as RX } from '../i18n/arms.en';
@@ -84,6 +85,8 @@ const clusters = p.id === 'aicompute' ? clustersAt(p.year).slice(0, 20) : [];
 const dams = p.id === 'waterstress' ? largeDams().slice(0, 20) : [];
 const projects = p.family.id === 'chinese-lending' ? largestProjects(20, p.id === 'lendall' ? null : p.id.slice(4)) : [];
 const money = (v: number) => formatValue(v, { kind: 'money' });
+// Water: the disputed river pages.
+const rivers = p.family.id === 'water' ? riverIds().filter((r) => live(`view:rivers:${r}`)).map((r) => ({ href: live(`view:rivers:${r}`)!.path, name: RV.name[r] ?? r })) : [];
 // Arms: the largest flows of the period, with each flow's share of what the recipient imported.
 const armsNow = p.family.id === 'arms' ? armsPeriods().find((x) => x.end === p.year)?.pairs ?? [] : [];
 const flows = armsNow.slice(0, 20).map((x) => {
@@ -303,6 +306,12 @@ const bars = (rs: Row[], max: number) => rs.map((r) => ({ id: r.id, text: valueT
     <aside class="gt-mvbelow__side">
       <h2 class="gt-label">{W.related}</h2>
       <ul class="gt-related">{related.map((r) => <li><a href={r.href}><span>{r.name}</span><small>{r.note}</small></a></li>)}</ul>
+      {rivers.length > 0 && (
+        <>
+          <h2 class="gt-label">{RV.section}</h2>
+          <ul class="gt-related">{rivers.map((r) => <li><a href={r.href}><span>{r.name}</span></a></li>)}</ul>
+        </>
+      )}
       <div class="gt-mvbelow__share"><ShareRow url={url} text={answer ?? T.title} /></div>
     </aside>
   </section>

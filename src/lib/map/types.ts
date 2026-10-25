@@ -106,4 +106,6 @@ export interface LayerFile {
   /** Blocks for a selected place that stay the same in every year (its other measures, its other minerals). */
   more?: Record<string, PanelBlock[]>;
   overlays?: Overlay[];
+  /** Where the map starts and its reset button returns, in map coordinates; the whole world when left out. */
+  bounds?: [[number, number], [number, number]];
 }

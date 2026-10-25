@@ -20,6 +20,7 @@ import { foodPages } from './food.ts';
 import { blocPages } from './blocview.ts';
 import { BLOCS_CHECKED } from './blocs.ts';
 import { HISTORY_BLOCS } from './history.ts';
+import { riverIds } from './rivers.ts';
 
 export type Lang = 'en';
 export type Kind = 'countries' | 'country' | 'compare' | 'indicators' | 'indicator' | 'page' | 'sources' | 'view' | 'hub' | 'tool';
@@ -65,6 +66,8 @@ export const paths = {
   blocs: (bloc: string) => `/${S.blocs}${BLOC_SLUGS[bloc] ? `/${BLOC_SLUGS[bloc]}` : ''}`,
   /** Alliance history: /blocs/nato/history. */
   history: (bloc: string) => `/${S.blocs}/${BLOC_SLUGS[bloc]}/history`,
+  /** Disputed rivers: /water/rivers/nile. */
+  river: (id: string) => `/${S.water}/rivers/${id}`,
   /** Disasters: /disasters, /disasters/earthquakes. */
   disasters: (kind: string) => `/${S.disasters}${DISASTER_SLUGS[kind] ? `/${DISASTER_SLUGS[kind]}` : ''}`,
 };
@@ -155,6 +158,15 @@ function build(): Route[] {
     out.push({
       key: `view:alliance-history:${id}`, kind: 'view', lang, path: paths.history(id), live: true, indexed: true,
       aliases: [], id: `history:${id}`, image: paths.image('views', `history-${id}`), lastmod: BLOCS_CHECKED,
+    });
+  }
+
+  // Disputed rivers (phase 5): /water/rivers/{river} for the eight rivers.
+  families.add('rivers');
+  for (const id of riverIds()) {
+    out.push({
+      key: `view:rivers:${id}`, kind: 'view', lang, path: paths.river(id), live: true, indexed: true,
+      aliases: [], id: `rivers:${id}`, image: paths.image('views', `rivers-${id}`),
     });
   }
 
