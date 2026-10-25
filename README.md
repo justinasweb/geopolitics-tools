@@ -4,7 +4,9 @@ Maps and charts from free official and research data on resources, trade, securi
 who depends on whom, for what.
 
 Static site built with [Astro](https://astro.build) and served by a Cloudflare Worker with static assets.
-Until launch the home page is the holding page in `src/holding/index.html`, and every page is `noindex`.
+Until launch the production home page is the holding page in `src/holding/index.html`, and every page is `noindex`.
+Local and Preview builds show a development index of every built page at `/` instead (`SITE_HOLDING=true` gives the
+holding page locally).
 
 ## Commands
 
@@ -37,7 +39,7 @@ Needs Node 24 (`.nvmrc`).
 | `src/components/`, `src/styles/`, `src/scripts/` | The Atlas design system in code (see [docs/design-system.md](docs/design-system.md)) |
 | `src/design/tokens.json` | Design tokens; `node scripts/tokens.ts` checks them and writes `src/styles/tokens.css` |
 | `src/layouts/` | Document shell (`Base`) and site page (`Page`: header, page container, footer) |
-| `src/holding/` | Temporary holding page served as the home page until launch |
+| `src/holding/` | Temporary holding page served as the production home page until launch |
 | `worker/` | The only server code: `/api/*` (health check now; correction form and review button later) |
 | `public/` | Files copied as-is (`_headers`, favicon, share image) |
 | `scripts/` | Build helpers |

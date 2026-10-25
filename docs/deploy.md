@@ -44,7 +44,8 @@ build; 100 Previews per Worker, oldest deleted automatically.
   Without it the Preview check notices the Access login page and skips.
 - Repository variables (optional): `PRODUCTION_URL` (set to `https://geopolitics.tools` once the domain points at the
   Worker; until then the workers.dev address is used), `SITE_INDEXABLE` (`true` at launch: removes `noindex` and
-  opens `robots.txt`).
+  opens `robots.txt`), `SITE_HOLDING` (`false` at launch: production stops serving the holding page as
+  the home page; until then production builds get it and pull request builds get the development index).
 
 ## R2 buckets
 

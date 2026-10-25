@@ -1,0 +1,55 @@
+---
+// The home page until launch. Production (SITE_HOLDING=true) serves the holding page (src/holding/index.html,
+// one self-contained file from the Brand directions work) as-is, plus the site-wide noindex tag while the site
+// is not indexable. Local and Preview builds show an index of every built page instead.
+import Page from '../layouts/Page.astro';
+import holding from '../holding/index.html?raw';
+import { holdingHome, indexable } from '../lib/site';
+import { hashRedirectScript, routes, type Route } from '../lib/routes';
+import { DOSSIERS } from '../lib/country';
+
+if (holdingHome) {
+  // Old prototype links (/#/country/RUS) land here; move them to their pages.
+  const withHash = holding.replace('<head>', `<head>\n<script>${hashRedirectScript()}</script>`);
+  const html = indexable ? withHash : withHash.replace('<head>', '<head>\n<meta name="robots" content="noindex">');
+  return new Response(html, { headers: { 'Content-Type': 'text/html; charset=utf-8' } });
+}
+
+const built = routes().filter((r) => r.live);
+const of = (kind: Route['kind']) => built.filter((r) => r.kind === kind);
+const groups: { title: string; items: Route[] }[] = [
+  { title: 'Indexes and long reads', items: [...of('countries'), ...of('indicators'), ...of('sources'), ...of('page')] },
+  { title: 'Map views', items: of('view') },
+  { title: 'Dossiers', items: of('country').filter((r) => DOSSIERS.includes(r.id)) },
+  { title: 'Compare', items: of('compare') },
+  { title: 'Indicators', items: of('indicator') },
+];
+const dev = ['/dev/components', '/dev/map', '/does-not-exist'];
+const notLive = routes().filter((r) => !r.live).length;
+---
+<Page title="Development index" description="Every page built so far, for local and Preview builds." noindex fromData={false}>
+  <header class="dx-head">
+    <span class="gt-kicker">Local and Preview builds only</span>
+    <h1 class="gt-title">Development index</h1>
+    <p class="gt-lede">Every page built so far. In production this address shows the holding page until launch. {of('country').length} country pages in all (through Countries); {notLive} registered pages are not built yet.</p>
+  </header>
+  {groups.filter((g) => g.items.length).map((g) => (
+    <section class="dx-group">
+      <h2>{g.title} <span>{g.items.length}</span></h2>
+      <ul>{g.items.map((r) => <li><a href={r.path}>{r.path}</a></li>)}</ul>
+    </section>
+  ))}
+  <section class="dx-group">
+    <h2>Development pages</h2>
+    <ul>{dev.map((p) => <li><a href={p}>{p}</a></li>)}</ul>
+  </section>
+</Page>
+
+<style>
+  .dx-head { display: grid; gap: 12px; padding: 40px 0 24px; }
+  .dx-group { border-top: 1px solid var(--rule); padding: 16px 0 24px; }
+  .dx-group h2 { margin: 0 0 12px; font: 600 13px/18px var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-muted); }
+  .dx-group h2 span { font-weight: 400; }
+  .dx-group ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 4px 24px; }
+  .dx-group a { display: inline-flex; align-items: center; min-height: 32px; font: 400 15px/22px var(--sans); overflow-wrap: anywhere; }
+</style>

@@ -50,10 +50,10 @@ h1 { margin: 0; font: 600 64px/68px var(--serif); letter-spacing: -.015em; font-
 .topics span { font-size: 15px; line-height: 22px; color: var(--ink-muted); }
 .contact { border-top: 1px solid var(--rule); padding-top: 24px; padding-bottom: 48px; display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 6fr); gap: 24px 48px; }
 .contact p { margin: 0; }
-.links { display: flex; flex-wrap: wrap; gap: 8px 24px; margin: 0; padding: 0; list-style: none; }
-.links a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-weight: 600; }
-  .links .h { font-weight: 400; color: var(--ink-muted); }
-.links svg { width: 18px; height: 18px; fill: currentColor; }
+.links { display: flex; gap: 4px; margin: 0 0 0 -11px; padding: 0; list-style: none; }
+.social { display: inline-grid; place-items: center; width: 44px; height: 44px; color: var(--ink); border: 1px solid transparent; }
+.social svg { width: 18px; height: 18px; fill: currentColor; }
+.social:hover { border-color: #8a8f96; background: var(--paper-sunk); }
 footer { border-top: 3px double var(--ink); }
 footer .wrap { padding-top: 16px; padding-bottom: 24px; font-size: 14px; line-height: 20px; color: var(--ink-muted); }
 @media (max-width: 1023px) {
@@ -95,8 +95,8 @@ footer .wrap { padding-top: 16px; padding-bottom: 24px; font-size: 14px; line-he
   <div><h2 id="t-contact">Get in touch</h2><p>Questions, data suggestions or early feedback: <a href="mailto:data@geopolitics.tools">data@geopolitics.tools</a></p></div>
   <div><h2>Follow</h2>
    <ul class="links">
-    <li><a href="https://x.com/geopolitools" rel="me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.8 3h3.1l-6.8 7.8L22 21h-6.2l-4.9-6.4L5.3 21H2.2l7.3-8.3L1.9 3h6.4l4.4 5.8zm-1.1 16.2h1.7L7.4 4.7H5.6z"/></svg>X <span class="h">@geopolitools</span></a></li>
-    <li><a href="https://t.me/geopolitools" rel="me"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.4 3.6 2.9 10.7c-1.3.5-1.2 1.2-.2 1.5l4.7 1.5 1.8 5.6c.2.6.4.8.9.8.4 0 .6-.2.9-.4l2.3-2.2 4.7 3.5c.9.5 1.5.2 1.7-.8l3.1-14.6c.3-1.3-.5-1.9-1.4-1.5zM9.2 13.4l9-5.7c.4-.3.8-.1.5.2l-7.4 6.7-.3 3.4z"/></svg>Telegram <span class="h">@geopolitools</span></a></li>
+    <li><a class="social" href="https://x.com/geopolitools" rel="me" aria-label="X" title="X"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.24 2.25h3.31l-7.23 8.26 8.5 11.24h-6.65l-5.21-6.82-5.97 6.82H1.68l7.73-8.84L1.25 2.25h6.83l4.71 6.23zm-1.16 17.52h1.83L7.08 4.13H5.12z"/></svg></a></li>
+    <li><a class="social" href="https://t.me/geopolitools" rel="me" aria-label="Telegram" title="Telegram"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.9 4.3 18.7 19.4c-.2 1-.9 1.3-1.7.8l-4.8-3.5-2.3 2.2c-.3.3-.5.5-1 .5l.3-4.9 8.9-8c.4-.3-.1-.5-.6-.2L6.5 13.2l-4.7-1.5c-1-.3-1-1 .2-1.5L20.5 3.1c.9-.3 1.6.2 1.4 1.2z"/></svg></a></li>
    </ul>
   </div>
  </div></section>
