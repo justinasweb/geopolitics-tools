@@ -121,7 +121,7 @@ const typeStyles = tokens.type.groups.flatMap((g) => g.styles.map((s) => ({ ...s
       <div class="dev__cell"><span class="dev__cap">Header · desktop (click a group; Esc closes)</span>
         <div class="dev__desk"><Header idPrefix="h1" current="resources" /></div>
       </div>
-      <div class="dev__cell"><span class="dev__cap">Header · Resources menu open</span>
+      <div class="dev__cell dev__deskonly"><span class="dev__cap">Header · Resources menu open</span>
         <div class="dev__desk" style="min-height:400px"><Header idPrefix="h2" open="resources" /></div>
       </div>
       <div class="dev__row">
@@ -170,8 +170,8 @@ const typeStyles = tokens.type.groups.flatMap((g) => g.styles.map((s) => ({ ...s
 
     <section id="data-display" class="dev__sec">
       <h2 class="gt-h2">Data display</h2>
-      <div class="dev__cell"><span class="dev__cap">Key figures · four across</span>
-        <div class="gt-kfrow">{kfs.map((k) => <KeyFigure {...k} period="2025" status="estimate" source={USGS} href="/minerals/lithium" />)}</div>
+      <div class="dev__cell"><span class="dev__cap">Key figures · four across (two on phones)</span>
+        <div style="container: page / inline-size"><div class="gt-kfrow">{kfs.map((k) => <KeyFigure {...k} period="2025" status="estimate" source={USGS} href="/minerals/lithium" />)}</div></div>
       </div>
       <div class="dev__row">
         <div class="dev__cell" style="width:260px"><span class="dev__cap">Not a link, with unit</span>
@@ -314,11 +314,13 @@ const typeStyles = tokens.type.groups.flatMap((g) => g.styles.map((s) => ({ ...s
   .dev__split { display: grid; grid-template-columns: minmax(0, 1fr) 390px; gap: 40px; align-items: start; }
   .dev__three { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
   .dev__line { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  /* The open mega menu only exists at desktop widths; on a phone the demo would be an empty box. */
+  @media (max-width: 759px) { .dev__deskonly { display: none; } }
   .dev__desk { border: 1px solid var(--rule); background: var(--paper); container: page / inline-size; }
   .dev__phone { width: 390px; max-width: min(100%, calc(100vw - 32px)); border: 1px solid var(--rule); background: var(--paper); overflow: hidden; container: page / inline-size; }
   .dev__pad { padding: 16px; }
   .dev__logo { padding: 24px; background: var(--paper-raised); border: 1px solid var(--rule); }
-  .dev__logo :global(svg) { height: 40px; width: auto; display: block; }
+  .dev__logo :global(svg) { width: min(100%, 324px); height: auto; display: block; }
   .dev__panel { width: 400px; height: 560px; border: 1px solid var(--rule); }
   .dev__list { margin: 0; padding-left: 20px; }
   .dev__swatches { display: flex; flex-wrap: wrap; gap: 12px; }

@@ -6,7 +6,7 @@
 .gt-header__in { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
 .gt-header__top { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 64px; }
 .gt-logo { display: inline-flex; align-items: center; color: var(--ink); text-decoration: none !important; }
-.gt-logo img, .gt-logo svg { height: 28px; width: auto; display: block; }
+.gt-logo img, .gt-logo svg { height: 28px; width: auto; max-width: 100%; display: block; }
 .gt-header__util { display: flex; align-items: center; gap: 4px; }
 .gt-header__util a { font: 600 15px/1 var(--sans); color: var(--ink); text-decoration: none; padding: 12px; }
 .gt-header__util a:hover, .gt-header__util a.is-hover { text-decoration: underline; }

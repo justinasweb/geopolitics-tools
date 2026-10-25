@@ -5,6 +5,9 @@
 .gt-source { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; font: 400 13px/18px var(--sans); color: var(--ink-muted); }
 .gt-source b { font-weight: 600; color: var(--ink); }
 .gt-source__sep { color: var(--rule-strong); }
+/* On narrow lines the items wrap and a separator would dangle at a line end, so drop them there. */
+.gt-source { container-type: inline-size; }
+@container (max-width: 479px) { .gt-source__sep { display: none; } }
 .gt-cite { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 0 10px; border: 1px solid var(--rule-strong); background: transparent; color: var(--brand); font: 600 13px/1 var(--sans); cursor: pointer; border-radius: 2px; }
 .gt-cite .gt-ico { width: 14px; height: 14px; }
 .gt-cite:hover, .gt-cite.is-hover { background: var(--brand-soft); border-color: var(--brand); }
