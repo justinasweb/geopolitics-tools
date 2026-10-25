@@ -1,4 +1,4 @@
-// English words for the map views drawn from the indicator registry (src/data/views.ts): emissions and refugees.
+// English words for the map views drawn from the indicator registry (src/data/views.ts): emissions, refugees and space.
 // Same rules as pages.en.ts: templates take figures already formatted and return plain sentences, plain verbs, no
 // adjectives that judge, and a sentence whose figure is missing is left out. Another language is another file with
 // the same keys.
@@ -121,6 +121,30 @@ export const VIEW_TEXT: Record<string, FamilyText> = {
       },
     },
   },
+  space: {
+    section: 'Space',
+    pickerLabel: 'Measure',
+    layers: {
+      satellites: {
+        pick: 'Satellites', title: 'Satellites in orbit', sub: 'by owning country', measure: 'in orbit', figureLabel: 'Satellites in orbit',
+        legend: (y) => `Satellites in orbit, working or not, ${y}`, worldLabel: 'Total, all countries',
+        lede: ({ top, value, share, top3, year }) => `${top} owned ${value} of the satellites in orbit in ${year}, ${share} of those owned by a single country${top3 ? `; the top three countries owned ${top3}` : ''}.`,
+        total: (v, y, ch) => `Countries owned ${v} satellites in orbit in ${y}${ch ? `, ${ch}` : ''}.`,
+        bloc: (b, s, y) => `${b} members owned ${s} of them in ${y}.`,
+        caveat: 'Satellites in orbit, working or not, by owning country, as CelesTrak’s catalogue records them. Satellites of international bodies and operators, such as ESA and Intelsat, are not given to any country. The latest year counts what was in orbit on the day the catalogue was read.',
+        description: (y) => `Satellites in orbit by owning country, up to ${y}: each country’s count and share, on a map and in a table. Source: CelesTrak.`,
+      },
+      launches: {
+        pick: 'Launches', title: 'Orbital launches', sub: 'by country of the launch site', measure: 'launches', figureLabel: 'Orbital launches',
+        legend: (y) => `Orbital launches, ${y}`, worldLabel: 'Total, all countries',
+        lede: ({ topIn, value, share, top3, year }) => `In ${year}, ${value} orbital launches went up from ${topIn}, ${share} of the world’s${top3 ? `; the top three countries made ${top3}` : ''}.`,
+        total: (v, y, ch) => `There were ${v} orbital launches from countries’ sites in ${y}${ch ? `, ${ch}` : ''}.`,
+        bloc: (b, s, y) => `${s} of them went up from ${b} members in ${y}.`,
+        caveat: 'Launches that put at least one satellite in orbit, counted for the country of the launch site, not the rocket’s maker or the customer. Failed launches are not in the catalogue. The current year is left out until it ends.',
+        description: (y) => `Orbital launches by country of the launch site, up to ${y}, on a map and in a table, with the launch sites. Source: CelesTrak.`,
+      },
+    },
+  },
 };
 
 /** UNHCR's three groups, in the refugees views' panel and table. */
@@ -152,6 +176,15 @@ export const PLACE_NOTES: Record<string, Record<string, string>> = {
   },
 };
 PLACE_NOTES.refinpc = PLACE_NOTES.refin;
+PLACE_NOTES.satellites = {
+  RUS: 'Soviet satellites still in orbit count for Russia from 1992, as CelesTrak records them under one owner code.',
+  USA: 'Most of the total is SpaceX’s Starlink constellation.',
+};
+PLACE_NOTES.launches = {
+  NZL: 'Launches from Mahia are by Rocket Lab, a US company, and count for New Zealand because the site is there.',
+  FRA: 'Launches from Kourou, in French Guiana, count for France; most are European Space Agency or Arianespace missions.',
+  RUS: 'Launches from Baikonur, in Kazakhstan, count for Russia, which leases and runs the site.',
+};
 
 /** Words every registry map view shares. */
 export const VIEWS_TEXT = {

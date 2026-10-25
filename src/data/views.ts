@@ -1,5 +1,5 @@
 // The map views drawn from the indicator registry (src/data/indicators.ts): each family is one section of the site
-// (/emissions, /refugees) and each of its layers one page, the first at the section's own address. A layer names
+// (/emissions, /refugees, /space) and each of its layers one page, the first at the section's own address. A layer names
 // the registry measure it maps, so its figures are the same ones the indicator and country pages show. Words are in
 // src/i18n/views.en.ts and slugs in src/i18n/slugs.en.ts; this file holds no text.
 
@@ -10,6 +10,8 @@ export interface ViewLayer {
   scale: 'seq' | 'div';
   /** Countries' values add up to a world total, so the page can give shares of it (not true of per-person values). */
   sums: boolean;
+  /** The source's latest year is still running (launches): the view stops at the last full year. */
+  fullYears?: boolean;
 }
 
 export interface ViewFamily {
@@ -34,6 +36,12 @@ export const VIEW_FAMILIES: ViewFamily[] = [
       { indicator: 'refin', scale: 'seq', sums: true },
       { indicator: 'refinpc', scale: 'seq', sums: false },
       { indicator: 'idps', scale: 'seq', sums: true },
+    ],
+  },
+  {
+    id: 'space', hub: 'technology', layers: [
+      { indicator: 'satellites', scale: 'seq', sums: true },
+      { indicator: 'launches', scale: 'seq', sums: true, fullYears: true },
     ],
   },
 ];

@@ -441,7 +441,7 @@ export const DEFINITION: Record<string, string> = {
   hunger: 'People in IPC Phase 3 (crisis) or worse in the latest analysis.',
   hungershare: 'The share of the analysed population in IPC Phase 3 (crisis) or worse.',
   satellites: 'Payloads in orbit at the end of the year, counted by owning country, whether working or not.',
-  launches: 'Orbital launch attempts in the year, counted for the country of the launch site.',
+  launches: 'Orbital launches in the year that put at least one satellite in orbit, counted for the country of the launch site.',
   aicompute: 'The country’s share of the computing power of known AI supercomputers in operation, in H100-equivalents.',
   sanctions: 'Listings on the US Consolidated Screening List, the EU financial sanctions list and the UK Sanctions List that give the country as an address or nationality.',
   chinaloans: 'Loans and grants committed by Chinese government and state-owned lenders, in constant 2021 US dollars.',

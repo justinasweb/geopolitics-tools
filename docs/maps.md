@@ -142,6 +142,14 @@ spans still open match `src/data/blocs.csv`. The map shades, per year, who joine
 left before; countries are drawn on today's borders (West Germany appears as Germany), and a note says so next to the map.
 Notes on changes that are not joins or exits (France and NATO's integrated command) are in `HISTORY_EVENTS`.
 
+## Space (phase 5a)
+
+`/space` (satellites in orbit by owning country) and `/space/launches` (orbital launches by the country of the launch
+site), both registry views (`src/data/views.ts`) on CelesTrak's catalogue. Launches set `fullYears`, so the running year
+is left out until it ends. Extras from `src/lib/space.ts`: each country's working satellites by orbit and constellation in
+the panel, the largest constellations under the satellites table, and a mark per launch site per year (sized by launches)
+with a sites table on the launches page. Satellites of international owners (ESA, Intelsat) count for no country.
+
 ## Not done in this phase
 
 - Refining shares and trade flows on the minerals views: later phases, once their sources are in.

@@ -22,6 +22,8 @@ import { formatDate, formatValue } from '../format.ts';
 import { TOP_FLOWS, balanceOf, estimated as foodEstimated, classFor as foodClass, foodPages, mt, netText, shareOf as foodShare, sourceOf, valueText as foodValue, type FoodPage } from '../food.ts';
 import { FOOD_NOTES, FOOD_TEXT } from '../../i18n/food.en.ts';
 import { arcXY, toMap } from './projection.ts';
+import { sitesIn, spaceAsOf, workingBy } from '../space.ts';
+import { SPACE_TEXT } from '../../i18n/space.en.ts';
 import { anchors } from './basemap.ts';
 import type { Hazard } from '../../adapters/hazards.ts';
 import type { Entry, LayerFile, LayerYear, Overlay, PanelBlock, Point } from './types.ts';
@@ -199,8 +201,38 @@ function indicatorLayer(p: ViewPage): LayerFile {
     },
     tags: c.tags, names: c.names, hrefs: c.hrefs, dossiers: c.dossiers, slugs: c.slugs, notes, blocs: c.blocs, data,
     series: seriesOf(p.years.map((year) => Object.fromEntries(p.byYear[year].rows.map((r) => [r.id, r.value])))),
-    format: p.format, more: viewMore(p),
+    format: p.format, more: p.family.id === 'space' ? withSpace(viewMore(p)) : viewMore(p),
+    ...(p.id === 'launches' ? { overlays: [launchSites(p)] } : {}),
   };
+}
+
+/** Space: each country's working satellites now, by orbit and constellation, after its other blocks. */
+function withSpace(more: Record<string, PanelBlock[]>): Record<string, PanelBlock[]> {
+  const S = SPACE_TEXT;
+  const date = formatDate(spaceAsOf() ?? '');
+  const f = (v: number) => formatValue(v, { kind: 'count' });
+  const out = { ...more };
+  for (const [id, w] of workingBy()) {
+    const cs = Object.entries(w.constellations).sort((a, b) => b[1] - a[1]);
+    out[id] = [...(out[id] ?? []), {
+      label: `${S.working}: ${f(w.active)}`, caption: S.workingCaption(date),
+      rows: [
+        ...(['leo', 'meo', 'geo'] as const).filter((k) => w.orbits[k]).map((k) => ({ name: S.orbit[k], value: f(w.orbits[k]) })),
+        ...cs.map(([c, n]) => ({ name: S.names[c] ?? c, value: f(n), note: S.constellation })),
+      ],
+    }];
+  }
+  return out;
+}
+
+/** Launches: a mark for each site in each year it launched, sized by its launches that year. */
+function launchSites(p: ViewPage): Overlay {
+  const S = SPACE_TEXT;
+  const items: Point[] = p.years.flatMap((year, i) => sitesIn(year).map((x) => ({
+    at: toMap(x.lon, x.lat), r: Math.min(14, 3 + Math.sqrt(x.n) * 1.4), m: 2 ** i,
+    tip: S.siteTip(x.name, formatValue(x.n, { kind: 'count' }), year),
+  })));
+  return { id: 'sites', kind: 'points', label: S.sitesMark, symbol: 'hollow', items };
 }
 
 /** For each place on a registry view: its figures on the family's other layers, and for refugees its main partners. */

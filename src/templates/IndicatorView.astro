@@ -28,6 +28,9 @@ import { layerPath } from '../lib/map/layers';
 import { DOSSIERS } from '../lib/country';
 import { breadcrumbs } from '../lib/structured';
 import type { Row } from '../lib/stats';
+import { constellations, sitesIn, spaceAsOf } from '../lib/space';
+import { SPACE_TEXT as SP } from '../i18n/space.en';
+import { formatDate } from '../lib/format';
 
 interface Props { id: string }
 const p = viewPage(Astro.props.id)!;
@@ -66,6 +69,10 @@ const related = [
   ...familyPages(p.family.id).filter((o) => o.id !== p.id && live(key(o.id))).slice(0, 2).map((o) => ({ href: live(key(o.id))!.path, name: o.text.title, note: W.sameView })),
 ];
 const mapTop = (div ? [...y.rows.slice(0, 2), ...y.rows.slice(-2)] : top).map((r) => `${nameOf(r.id)} ${valueText(p, r.value)}`).join(', ');
+// Space: the largest constellations (satellites) or the launch sites (launches), under the country table.
+const cons = p.id === 'satellites' ? constellations() : [];
+const sites = p.id === 'launches' ? sitesIn(p.year) : [];
+const spaceDate = spaceAsOf() ? formatDate(spaceAsOf()!) : '';
 const bars = (rs: Row[], max: number) => rs.map((r) => ({ id: r.id, text: valueText(p, r.value), w: max ? (100 * Math.abs(r.value)) / max : 0 }));
 ---
 <Page title={T.title} description={T.description(p.year)} hub={p.family.hub} container="mv" image={route(key(p.id))!.image}
@@ -83,7 +90,7 @@ const bars = (rs: Row[], max: number) => rs.map((r) => ({ id: r.id, text: valueT
     years={p.years} year={p.year} />
 
   <MapStage layer={layerPath(`${p.family.id}-${p.id}`)} label={`${T.legend(p.year)}. ${mapTop}. ${W.caption(p.year, null)}`} title={T.title}
-    legend={{ title: T.legend(p.year), scale: p.layer.scale, ticks: p.ticks, ends: T.ends, none: W.noData }}>
+    legend={{ title: T.legend(p.year), scale: p.layer.scale, ticks: p.ticks, ends: T.ends, none: W.noData, ...(p.id === 'launches' ? { marks: [{ symbol: 'hollow', label: SP.sitesMark }] } : {}) }}>
     <div data-panel="world" slot="panel">
       <div class="gt-panel__head">
         <div class="gt-panel__title"><span class="gt-kicker">{T.title} · <span data-year-text>{p.year}</span></span><h2 class="gt-h3">{MAP_TEXT.world}</h2></div>
@@ -176,6 +183,37 @@ const bars = (rs: Row[], max: number) => rs.map((r) => ({ id: r.id, text: valueT
           <h3 class="gt-label">{W.notes}</h3>
           <ol class="gt-caption">{notes.map((n, i) => <li id={`mv-note-${i + 1}`}><b>{nameOf(n.id)}:</b> {n.text}</li>)}</ol>
         </div>
+      )}
+      {cons.length > 0 && (
+        <>
+          <h2 class="gt-h2" id="constellations">{SP.constellations}</h2>
+          <div class="gt-tablewrap" style="--gt-table-h:none" tabindex="0" role="region" aria-label={SP.constellations}>
+            <table class="gt-table">
+              <caption class="gt-caption">{SP.constellationsCaption(spaceDate)}</caption>
+              <thead><tr><th scope="col"><span class="gt-th">{SP.constellation}</span></th><th scope="col"><span class="gt-th">{SP.owner}</span></th><th scope="col" class="n"><span class="gt-th">{SP.count}</span></th></tr></thead>
+              <tbody>{cons.map((c) => <tr><th scope="row">{SP.names[c.id] ?? c.id}</th><td>{c.place ? nameOf(c.place) : SP.intl}</td><td class="n">{count(c.active)}</td></tr>)}</tbody>
+            </table>
+          </div>
+          <SourceLine source={source} parts={[spaceDate]} updated={updated} />
+        </>
+      )}
+      {sites.length > 0 && (
+        <>
+          <h2 class="gt-h2" id="sites">{SP.sites}</h2>
+          <div class="gt-tablewrap" style="--gt-table-h:none" tabindex="0" role="region" aria-label={SP.sites}>
+            <table class="gt-table" data-gt-sort>
+              <caption class="gt-caption">{SP.sitesCaption(p.year)}</caption>
+              <thead><tr>
+                <th scope="col" data-key="n"><button type="button">{SP.site}</button></th>
+                <th scope="col" data-key="c"><button type="button">{SP.country}</button></th>
+                <th scope="col" class="n" data-key="v" data-type="num" aria-sort="descending"><button type="button">{p.year}</button></th>
+                <th scope="col" class="n" data-key="t" data-type="num"><button type="button">{SP.since}</button></th>
+              </tr></thead>
+              <tbody>{sites.map((x) => <tr><th scope="row">{x.name}</th><td>{x.place ? nameOf(x.place) : SP.intl}</td><td class="n" data-v={x.n}>{count(x.n)}</td><td class="n" data-v={x.total}>{count(x.total)}</td></tr>)}</tbody>
+            </table>
+          </div>
+          <SourceLine source={source} parts={[String(p.year)]} updated={updated} />
+        </>
       )}
     </div>
     <aside class="gt-mvbelow__side">

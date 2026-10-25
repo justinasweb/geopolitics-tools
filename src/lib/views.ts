@@ -9,7 +9,7 @@ import { displacement } from '../adapters/unhcr.ts';
 import { PARTS_TEXT, PLACE_NOTES, VIEW_TEXT, VIEWS_TEXT as W, type LayerText } from '../i18n/views.en.ts';
 import { INDICATOR_TEXT } from '../i18n/en.ts';
 import { ANSWER, SOURCE_NOTE, SOURCE_SHORT, inSentence } from '../i18n/pages.en.ts';
-import { indicator, shared, sourceName } from './data.ts';
+import { indicator, refreshed, shared, sourceName } from './data.ts';
 import { formatValue } from './format.ts';
 import { place } from './places.ts';
 import { breaks, classOf, counts, defaultYear, ranking, type Row } from './stats.ts';
@@ -79,9 +79,14 @@ function worldOf(layer: ViewLayer, year: number, rows: Row[]): { world: number |
 
 function buildPage(family: ViewFamily, layer: ViewLayer): ViewPage | null {
   const loaded = indicator(layer.indicator);
-  const year = loaded ? defaultYear(loaded) : undefined;
-  if (!loaded || year === undefined) return null;
+  if (!loaded) return null;
+  // A running year (launches so far this year) is left out: it would read as a fall.
+  const running = layer.fullYears ? Number(refreshed([loaded.indicator.source].flat()[0])?.slice(0, 4)) : NaN;
   const c = counts(loaded);
+  if (running) for (const y of [...c.keys()]) if (y >= running) c.delete(y);
+  const usual = defaultYear(loaded);
+  const year = usual !== undefined && usual >= running ? Math.max(...c.keys()) : usual;
+  if (year === undefined || !c.size) return null;
   // Years up to the default one with at least half its coverage, so the slider never lands on a near-empty map.
   const years = [...c.keys()].filter((y) => y <= year && c.get(y)! >= 0.5 * c.get(year)!).sort((a, b) => a - b);
   const byYear: Record<number, ViewYear> = {};
