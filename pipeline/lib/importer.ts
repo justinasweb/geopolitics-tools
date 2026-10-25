@@ -78,7 +78,10 @@ export interface Prepared {
 export function prepare(kind: Kind, input: Input, now: Date, previous: string | null = null, allowShrink = false): Prepared {
   if (kind.how === 'raw' || kind.how === 'geojson') {
     if (!('text' in input)) throw new CheckError(`this kind takes the ${kind.how === 'raw' ? 'CSV' : 'GeoJSON'} file, not a workbook`);
-    if (kind.how === 'raw') return { body: input.text, rows: kind.check!(input.text), contentType: 'text/csv', added: [] };
+    if (kind.how === 'raw') {
+      const body = kind.convert ? kind.convert(input.text) : input.text;
+      return { body, rows: kind.check!(body), contentType: 'text/csv', added: [] };
+    }
     let json: { type?: string; features?: { properties?: Record<string, unknown> }[] };
     try {
       json = JSON.parse(input.text);

@@ -43,6 +43,8 @@ export interface FamilyText {
 }
 
 const fossil = 'from fossil fuels and cement';
+const armsPeriod = (y: number) => `${y - 4}–${y}`;
+const armsCaveat = 'SIPRI’s trend-indicator value measures the military capability of major weapons delivered, not the price paid, so it is not money. Deliveries are lumpy, so figures are five-year totals. Small arms, ammunition and transfers to or from groups that are not states are left out.';
 
 export const VIEW_TEXT: Record<string, FamilyText> = {
   emissions: {
@@ -265,6 +267,30 @@ export const VIEW_TEXT: Record<string, FamilyText> = {
       },
     },
   },
+  arms: {
+    section: 'Arms transfers',
+    pickerLabel: 'Side',
+    layers: {
+      armsexp5: {
+        pick: 'Exporters', title: 'Arms exports', sub: 'by supplier, five-year totals', period: armsPeriod, measure: 'exported', figureLabel: 'Major arms exported',
+        legend: (y) => `Major arms exported, ${armsPeriod(y)}, SIPRI trend-indicator value (millions)`, worldLabel: 'Total, all suppliers',
+        lede: ({ top, share, top3, year }) => `${top} supplied ${share} of the major arms delivered between ${year - 4} and ${year}${top3 ? `; the top three exporters supplied ${top3}` : ''}.`,
+        total: (v, y) => `Countries delivered major arms worth ${v} in SIPRI’s trend-indicator value between ${y - 4} and ${y}.`,
+        bloc: (b, s, y) => `${b} members supplied ${s} of them, ${armsPeriod(y)}.`,
+        caveat: armsCaveat,
+        description: (y) => `Arms exports by country, ${armsPeriod(y)}: five-year totals of major weapons delivered, on a map and in a table, with the largest flows. Source: SIPRI.`,
+      },
+      armsimp5: {
+        pick: 'Importers', title: 'Arms imports', sub: 'by recipient, five-year totals', period: armsPeriod, measure: 'imported', figureLabel: 'Major arms imported',
+        legend: (y) => `Major arms imported, ${armsPeriod(y)}, SIPRI trend-indicator value (millions)`, worldLabel: 'Total, all recipients',
+        lede: ({ top, share, top3, year }) => `${top} received ${share} of the major arms delivered between ${year - 4} and ${year}${top3 ? `; the top three importers received ${top3}` : ''}.`,
+        total: (v, y) => `Countries received major arms worth ${v} in SIPRI’s trend-indicator value between ${y - 4} and ${y}.`,
+        bloc: (b, s, y) => `${b} members received ${s} of them, ${armsPeriod(y)}.`,
+        caveat: armsCaveat,
+        description: (y) => `Arms imports by country, ${armsPeriod(y)}: five-year totals of major weapons received, with each country’s main suppliers, on a map and in a table. Source: SIPRI.`,
+      },
+    },
+  },
   internet: {
     section: 'Internet',
     pickerLabel: 'Measure',
@@ -383,9 +409,10 @@ export const VIEWS_TEXT = {
   importers: 'Consume more than they emit',
   exporters: 'Emit more than they consume',
   coverage: (n: number, y: number | string) => `${n} countries and territories have a figure for ${typeof y === 'number' || /^\d/.test(y) ? y : `the ${y}`}.`,
-  changeIn: (pct: string, more: boolean, prev: number) => `${pct} ${more ? 'more' : 'less'} than in ${prev}`,
-  change2: (pct: string, more: boolean, prev: number, value: string) => `${pct} ${more ? 'more' : 'less'} than ${prev} (${value})`,
-  sameAs: (prev: number) => `Same as ${prev}`,
+  changeIn: (pct: string, more: boolean, prev: number | string) => `${pct} ${more ? 'more' : 'less'} than in ${prev}`,
+  change2: (pct: string, more: boolean, prev: number | string, value: string) => `${pct} ${more ? 'more' : 'less'} than ${prev} (${value})`,
+  periodLabel: (years: number) => `${years}-year period`,
+  sameAs: (prev: number | string) => `Same as ${prev}`,
   top: (parts: string[], together: string | null) => `${parts.join(', ').replace(/, ([^,]*)$/, ' and $1')}${together ? `; together, ${together} of the world total` : ''}.`,
   topPart: (name: string, value: string, share: string | null) => `${name} ${value}${share ? ` (${share})` : ''}`,
   topNoShare: (parts: string[]) => `The highest: ${parts.join(', ').replace(/, ([^,]*)$/, ' and $1')}.`,

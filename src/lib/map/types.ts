@@ -44,7 +44,8 @@ export interface PanelBlock {
   source?: string;
 }
 
-export interface Arc { p: [number, number][]; w: number; tip: string }
+/** `m`, as on a point: the years (by bit of their index) the arc shows in; 0 or none for every year. */
+export interface Arc { p: [number, number][]; w: number; tip: string; m?: number }
 export interface Line { p: [number, number][][]; tip: string }
 /** A point; `m` is a bit mask of the year indices it shows in (bit i for data[i]), 0 or none for all. */
 export interface Point { at: [number, number]; r?: number; tip: string; m?: number }

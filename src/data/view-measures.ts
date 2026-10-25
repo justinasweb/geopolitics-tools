@@ -1,6 +1,6 @@
 // Measures that only the map views show (no indicator page, profile row or Compare column): the AI and chips
 // view's notable models and US Entity List counts, each sanctions list on its own,
-// internet outages, water stress in 2050 and Chinese lending by sector. Same shape as the registry (./indicators.ts); `load` also gets
+// internet outages, water stress in 2050, Chinese lending by sector and five-year arms totals. Same shape as the registry (./indicators.ts); `load` also gets
 // the year the source was fetched, for lists that hold only what is current.
 import type { Raw, Series } from '../adapters/core.ts';
 import { put } from '../adapters/core.ts';
@@ -9,6 +9,8 @@ import { outages } from '../adapters/digital.ts';
 import { water } from '../adapters/water.ts';
 import { lending } from '../adapters/aiddata.ts';
 import { type List, sanctions } from '../adapters/sanctions.ts';
+import { arms } from '../adapters/sipri.ts';
+import { periodEnds, totalsBy, windowPairs } from '../lib/arms.ts';
 import type { Indicator } from './indicators.ts';
 
 export interface ViewMeasure extends Omit<Indicator, 'load'> { load: (raw: Raw, fetched: number) => Series }
@@ -34,6 +36,14 @@ const lent = (group: string | null) => (raw: Raw): Series => {
   return out;
 };
 const money = { kind: 'money' } as const;
+
+/** Arms exports ('from') or imports ('to') over the five years ending in each year, dated at the last year. */
+const fiveYears = (side: 'from' | 'to') => (raw: Raw): Series => {
+  const a = arms(raw);
+  const out: Series = {};
+  for (const end of periodEnds(a.years)) for (const [id, v] of Object.entries(totalsBy(windowPairs(a.pairs, end), side))) put(out, id, end, v);
+  return out;
+};
 
 export const VIEW_MEASURES: Record<string, ViewMeasure> = {
   aimodels: { id: 'aimodels', group: 'tech', source: 'epoch', format: { kind: 'count' }, scale: 'linear', load: (raw) => ai(raw).models },
@@ -69,6 +79,8 @@ export const VIEW_MEASURES: Record<string, ViewMeasure> = {
   lendindustry: { id: 'lendindustry', group: 'influence', source: 'aiddata', format: money, scale: 'log', static: true, load: lent('industry') },
   lendbanking: { id: 'lendbanking', group: 'influence', source: 'aiddata', format: money, scale: 'log', static: true, load: lent('banking') },
   lendother: { id: 'lendother', group: 'influence', source: 'aiddata', format: money, scale: 'log', static: true, load: lent('other') },
+  armsexp5: { id: 'armsexp5', group: 'security', source: 'sipri', format: { kind: 'number', unit: 'TIV m' }, scale: 'log', load: fiveYears('from') },
+  armsimp5: { id: 'armsimp5', group: 'security', source: 'sipri', format: { kind: 'number', unit: 'TIV m' }, scale: 'log', load: fiveYears('to') },
   sanctionsus: { id: 'sanctionsus', group: 'influence', source: 'csl', format: { kind: 'count' }, scale: 'log', static: true, load: onList('US') },
   sanctionseu: { id: 'sanctionseu', group: 'influence', source: 'eu-sanctions', format: { kind: 'count' }, scale: 'log', static: true, load: onList('EU') },
   sanctionsuk: { id: 'sanctionsuk', group: 'influence', source: 'uk-sanctions', format: { kind: 'count' }, scale: 'log', static: true, load: onList('UK') },

@@ -3,7 +3,7 @@
 // check that it is the right download. Imported files sit in the same state and snapshots as fetched
 // ones, under their own source id. Ported from the prototype's fetchers/import.php.
 import { CheckError, check } from '../lib/source.ts';
-import { parseCsv } from '../lib/csv.ts';
+import { csvRecords, parseCsv } from '../lib/csv.ts';
 import { matcher } from '../../src/adapters/core.ts';
 import { PLACES } from '../../src/lib/places.ts';
 
@@ -47,6 +47,8 @@ export interface Kind {
   filter?: (row: Row, now: Date) => boolean;
   /** For raw files: throws if it is the wrong file, returns the number of rows. */
   check?: (text: string) => number;
+  /** For raw files: turns another form the publisher offers into the saved one, before `check`. */
+  convert?: (text: string) => string;
 }
 
 export const IMPORTED: ImportedSource[] = [
@@ -62,6 +64,38 @@ export const IMPORTED: ImportedSource[] = [
 ];
 
 const country = (r: Row) => /^[A-Z]{3}$/.test(r.ISO3_code);
+
+/**
+ * SIPRI's trade register (one row per deal, with the TIV delivered in the chosen years and the years of delivery) as the
+ * supplier-and-recipient table the adapter reads. The TIV a deal delivered over several years is split evenly across them:
+ * totals over the register's years are exact, single years are an estimate.
+ */
+export function registerToTable(text: string): string {
+  if (!/^Recipient,Supplier,/m.test(text)) return text;
+  const rows = csvRecords(text.slice(text.search(/^Recipient,Supplier,/m)));
+  const range = /year range '(\d{4})' to '(\d{4})'/.exec(text);
+  const pairs = new Map<string, Record<number, number>>();
+  let [lo, hi] = range ? [Number(range[1]), Number(range[2])] : [Infinity, -Infinity];
+  for (const r of rows) {
+    const tiv = Number(r['SIPRI TIV of delivered weapons']);
+    const years = (r['Year(s) of delivery'] ?? '').split(/[;,]/).map((y) => Number(y.trim())).filter((y) => y > 1900);
+    if (!r.Recipient || !r.Supplier || !tiv || !years.length) continue;
+    const key = `${r.Supplier}\u0000${r.Recipient}`;
+    const by = pairs.get(key) ?? {};
+    for (const y of years) { by[y] = (by[y] ?? 0) + tiv / years.length; lo = Math.min(lo, y); hi = Math.max(hi, y); }
+    pairs.set(key, by);
+  }
+  const ys = Array.from({ length: hi - lo + 1 }, (_, i) => lo + i);
+  const q = (v: string) => (/[",]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v);
+  const lines = ['"SIPRI Arms Transfers Database"', `"TIV of arms exports by supplier and recipient, ${lo}-${hi}, from the trade register (years split evenly across a deal's deliveries)"`, '',
+    ['Supplier', 'Recipient', ...ys, 'Total'].join(',')];
+  for (const [key, by] of pairs) {
+    const [from, to] = key.split('\u0000');
+    const total = Object.values(by).reduce((a, b) => a + b, 0);
+    lines.push([q(from), q(to), ...ys.map((y) => (by[y] ? String(Math.round(by[y] * 100) / 100) : '')), String(Math.round(total * 100) / 100)].join(','));
+  }
+  return `${lines.join('\n')}\n`;
+}
 
 function sipriCheck(text: string) {
   check(/SIPRI/i.test(text.slice(0, 500)), 'this does not look like a SIPRI export (no "SIPRI" in its first lines)');
@@ -85,8 +119,8 @@ function treasuryHistoryCheck(text: string) {
 
 export const KINDS: Record<string, Kind> = {
   'sipri': {
-    source: 'sipri', save: 'tiv_2015-2025.csv', how: 'raw', check: sipriCheck,
-    about: 'SIPRI Arms Transfers Database: "TIV of arms exports by supplier and recipient" CSV export, five or more recent years',
+    source: 'sipri', save: 'tiv_2015-2025.csv', how: 'raw', check: sipriCheck, convert: registerToTable,
+    about: 'SIPRI Arms Transfers Database: the trade register CSV (all suppliers and recipients, five or more recent years), or a "TIV by supplier and recipient" table',
   },
   'wpp-total': {
     source: 'wpp', save: 'total_population.csv', how: 'csv',

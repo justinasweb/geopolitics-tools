@@ -12,6 +12,8 @@ export interface ViewLayer {
   sums: boolean;
   /** The source's latest year is still running (launches): the view stops at the last full year. */
   fullYears?: boolean;
+  /** Each figure is a total over this many years (arms, five), so it is compared with the period before, not the year before. */
+  span?: number;
   /** Fixed class edges, for scores with named bands (water stress); the layer's words give the ticks. */
   edges?: number[];
 }
@@ -72,6 +74,13 @@ export const VIEW_FAMILIES: ViewFamily[] = [
       { indicator: 'lendindustry', scale: 'seq', sums: true },
       { indicator: 'lendbanking', scale: 'seq', sums: true },
       { indicator: 'lendother', scale: 'seq', sums: true },
+    ],
+  },
+  {
+    // Five-year totals, as SIPRI compares them (../lib/arms.ts).
+    id: 'arms', hub: 'security', layers: [
+      { indicator: 'armsexp5', scale: 'seq', sums: true, span: 5 },
+      { indicator: 'armsimp5', scale: 'seq', sums: true, span: 5 },
     ],
   },
   {

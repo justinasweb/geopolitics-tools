@@ -112,6 +112,8 @@ function buildPage(family: ViewFamily, layer: ViewLayer): ViewPage | null {
   // sides ("10–30%"); its two ends say the direction.
   const unitOf = format.kind === 'number' && format.unit ? ` ${format.unit}` : '';
   const bare = (v: number) => f(v).replace(unitOf, '');
+  // A long unit ("TIV m") does not fit five ticks; the legend title gives it instead.
+  const t = unitOf.length > 3 ? bare : f;
   const n = (v: number) => Math.round(Math.abs(v) * 100);
   const [d1, d2, d3] = [n(edges[3]), n(edges[4]), n(edges[5])];
   const side = [`${d3}%+`, `${d2}–${d3}%`, `${d1}–${d2}%`];
@@ -120,7 +122,7 @@ function buildPage(family: ViewFamily, layer: ViewLayer): ViewPage | null {
     ? [...side, `±${d1}%`, ...[...side].reverse()]
     // Money ranges are too long for the legend ("$430 m–$1.4 bn"), so each class names its lower bound.
     : format.kind === 'money' ? [`<${f(edges[0])}`, ...edges.map((x) => `${f(x)}+`)]
-    : [`under ${f(edges[0])}`, ...edges.slice(0, 3).map((x, i) => `${bare(x)}–${f(edges[i + 1])}`), `${f(edges[3])}+`]);
+    : [`under ${t(edges[0])}`, ...edges.slice(0, 3).map((x, i) => `${bare(x)}–${t(edges[i + 1])}`), `${t(edges[3])}+`]);
   return {
     family, layer, id: layer.indicator, text: VIEW_TEXT[family.id].layers[layer.indicator], format, loaded,
     years, year, byYear, edges, ticks,
@@ -136,10 +138,15 @@ export function viewPages(): ViewPage[] {
 export const viewPage = (id: string) => viewPages().find((p) => p.id === id);
 export const familyPages = (family: string) => viewPages().filter((p) => p.family.id === family);
 
-/** The change in the world figure from the year before, as a share, when both years have one. */
+/** The year the figures are compared with: the year before, or for totals over several years the period before. */
+export const prevOf = (p: ViewPage, y: number) => y - (p.layer.span ?? 1);
+/** A year as the layer names it ("2021–2025" for a five-year total). */
+export const yearText = (p: ViewPage, y: number) => (p.text.period ? p.text.period(y) : String(y));
+
+/** The change in the world figure from the year (or period) before, as a share, when both have one. */
 export function worldChange(p: ViewPage, y: number): number | null {
   const a = p.byYear[y]?.world;
-  const b = p.byYear[y - 1]?.world;
+  const b = p.byYear[prevOf(p, y)]?.world;
   return a && b ? a / b - 1 : null;
 }
 
@@ -167,7 +174,7 @@ export function summary(p: ViewPage, year = p.year): string[] {
   const first: string[] = [];
   const ch = worldChange(p, year);
   if (y.world !== null && p.text.total) {
-    const change = ch === null || p.id === 'co2cum' ? null : Math.abs(ch) < 0.005 ? null : W.changeIn(formatValue(Math.abs(ch), { kind: 'share' }), ch > 0, year - 1);
+    const change = ch === null || p.id === 'co2cum' ? null : Math.abs(ch) < 0.005 ? null : W.changeIn(formatValue(Math.abs(ch), { kind: 'share' }), ch > 0, yearText(p, prevOf(p, year)));
     first.push(p.text.total(valueText(p, y.world), year, change));
   }
   if (p.layer.scale === 'div') {

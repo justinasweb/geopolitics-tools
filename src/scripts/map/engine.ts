@@ -184,7 +184,7 @@ export function createMap(container: HTMLElement, base: Basemap, layer: LayerFil
   map.on('error', (e) => { if (!ready) on.error(e.error?.message ?? 'map error'); });
 
   const overlayLayers: string[] = [];
-  // Point overlays whose marks show in some years (or periods) only: filtered on the mark's bit for the year.
+  // Overlays whose marks show in some years (or periods) only: filtered on the mark's bit for the year.
   const masked: string[] = [];
   const showMarks = () => {
     const bit = 2 ** year;
@@ -196,7 +196,8 @@ export function createMap(container: HTMLElement, base: Basemap, layer: LayerFil
       const src = `ov-${o.id}`;
       if (o.kind === 'arcs') {
         const max = Math.max(0, ...o.items.map((a) => a.w));
-        map.addSource(src, { type: 'geojson', data: { type: 'FeatureCollection', features: o.items.map((a) => ({ type: 'Feature', properties: { w: a.w, tip: a.tip }, geometry: { type: 'LineString', coordinates: a.p } })) } });
+        map.addSource(src, { type: 'geojson', data: { type: 'FeatureCollection', features: o.items.map((a) => ({ type: 'Feature', properties: { w: a.w, tip: a.tip, m: a.m ?? 0 }, geometry: { type: 'LineString', coordinates: a.p } })) } });
+        if (o.items.some((a) => a.m)) masked.push(src);
         map.addLayer({ id: src, type: 'line', source: src, layout: { 'line-cap': 'round' }, paint: { 'line-color': T['--ink'], 'line-opacity': 0.55, 'line-width': widths(max) } });
       } else if (o.kind === 'lines') {
         map.addSource(src, { type: 'geojson', data: { type: 'FeatureCollection', features: o.items.map((l) => ({ type: 'Feature', properties: { tip: l.tip }, geometry: { type: 'MultiLineString', coordinates: l.p } })) } });

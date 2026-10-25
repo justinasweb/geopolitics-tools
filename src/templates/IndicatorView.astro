@@ -19,7 +19,7 @@ import '../styles/atlas/tools.css';
 import { MAP_TEXT } from '../i18n/map.en';
 import { NAV_TEXT } from '../i18n/en';
 import { PARTS_TEXT as PX, VIEW_TEXT, VIEWS_TEXT as W } from '../i18n/views.en';
-import { creditOf, familyPages, lede, partsOf, placeNote, shareOf, summary, valueText, viewPage, worldChange, indicatorLabel } from '../lib/views';
+import { creditOf, familyPages, lede, partsOf, placeNote, shareOf, summary, valueText, viewPage, worldChange, indicatorLabel, prevOf, yearText } from '../lib/views';
 import { refreshed } from '../lib/data';
 import { formatValue } from '../lib/format';
 import { place } from '../lib/places';
@@ -36,6 +36,8 @@ import { largeDams } from '../lib/dams';
 import { largestProjects } from '../lib/lending';
 import { DAMS_TEXT as DX, LENDING_TEXT as LX } from '../i18n/water.en';
 import { formatDate } from '../lib/format';
+import { armsPeriod, armsPeriods } from '../lib/arms';
+import { ARMS_TEXT as RX } from '../i18n/arms.en';
 
 interface Props { id: string }
 const p = viewPage(Astro.props.id)!;
@@ -47,12 +49,12 @@ const url = new URL(path, Astro.site).href;
 const source = creditOf(p);
 const updated = refreshed([p.loaded.indicator.source].flat()[0]);
 const y = p.byYear[p.year];
-const prevYear = p.years.includes(p.year - 1) ? p.year - 1 : null;
+const prevYear = p.years.includes(prevOf(p, p.year)) ? prevOf(p, p.year) : null;
 const prev = prevYear ? p.byYear[prevYear] : null;
 const answer = lede(p);
 const nameOf = (id: string) => place(id)?.name ?? id;
 const when = T.period ? T.period(p.year) : String(p.year);
-const yearsText = p.years.length > 1 ? `${p.years[0]}–${p.years.at(-1)}` : String(p.year);
+const yearsText = p.layer.span ? `${p.years[0] - p.layer.span + 1}–${p.year}` : p.years.length > 1 ? `${p.years[0]}–${p.years.at(-1)}` : String(p.year);
 const crumbs = [{ label: NAV_TEXT.hubs[p.family.hub] }, { label: fam.section, href: route(key(familyPages(p.family.id)[0].id))!.path }, { label: T.title }];
 const div = p.layer.scale === 'div';
 const pct = (ch: number) => `${ch > 0 ? '+' : ch < 0 ? '−' : ''}${new Intl.NumberFormat('en', { maximumFractionDigits: 0 }).format(Math.abs(ch * 100))}%`;
@@ -82,6 +84,13 @@ const clusters = p.id === 'aicompute' ? clustersAt(p.year).slice(0, 20) : [];
 const dams = p.id === 'waterstress' ? largeDams().slice(0, 20) : [];
 const projects = p.family.id === 'chinese-lending' ? largestProjects(20, p.id === 'lendall' ? null : p.id.slice(4)) : [];
 const money = (v: number) => formatValue(v, { kind: 'money' });
+// Arms: the largest flows of the period, with each flow's share of what the recipient imported.
+const armsNow = p.family.id === 'arms' ? armsPeriods().find((x) => x.end === p.year)?.pairs ?? [] : [];
+const flows = armsNow.slice(0, 20).map((x) => {
+  const into = armsNow.filter((q) => q.to === x.to).reduce((t, q) => t + q.amount, 0);
+  return { ...x, share: into ? formatValue(x.amount / into, { kind: 'share' }) : '' };
+});
+const tiv = (v: number) => formatValue(v, { kind: 'number' });
 const spaceDate = spaceAsOf() ? formatDate(spaceAsOf()!) : '';
 const bars = (rs: Row[], max: number) => rs.map((r) => ({ id: r.id, text: valueText(p, r.value), w: max ? (100 * Math.abs(r.value)) / max : 0 }));
 ---
@@ -97,7 +106,8 @@ const bars = (rs: Row[], max: number) => rs.map((r) => ({ id: r.id, text: valueT
   <MapControls
     pickerLabel={fam.pickerLabel}
     picker={familyPages(p.family.id).filter((o) => live(key(o.id))).map((o) => ({ label: o.text.pick, href: live(key(o.id))!.path, current: o.id === p.id }))}
-    years={p.years} year={p.year} />
+    years={p.years} year={p.year}
+    periods={p.layer.span ? { label: W.periodLabel(p.layer.span), options: Object.fromEntries(p.years.map((yr) => [yr, yearText(p, yr)])) } : undefined} />
 
   <MapStage layer={layerPath(`${p.family.id}-${p.id}`)} label={`${T.legend(p.year)}. ${mapTop}. ${W.caption(p.year, null)}`} title={T.title}
     legend={{ title: T.legend(p.year), scale: p.layer.scale, ticks: p.ticks, ends: T.ends, none: W.noData, ...(p.id === 'launches' ? { marks: [{ symbol: 'hollow', label: SP.sitesMark }] } : p.id === 'aicompute' ? { marks: [{ symbol: 'hollow', label: AX.mark }] } : p.id === 'waterstress' ? { marks: [{ symbol: 'triangle', label: DX.mark }] } : {}) }}>
@@ -120,7 +130,7 @@ const bars = (rs: Row[], max: number) => rs.map((r) => ({ id: r.id, text: valueT
                   <span class="gt-pkf__label">{T.worldLabel}</span>
                   <span class="gt-pkf__num">{valueText(p, Y.world)}</span>
                   {ch !== null && p.id !== 'co2cum' && Y.world && (
-                    <span class="gt-pkf__meta"><span class="gt-kf__change"><Icon name={Math.abs(ch) < 0.005 ? 'flat' : ch > 0 ? 'up' : 'down'} />{Math.abs(ch) < 0.005 ? W.sameAs(yr - 1) : W.change2(formatValue(Math.abs(ch), { kind: 'share' }), ch > 0, yr - 1, valueText(p, p.byYear[yr - 1].world!))}</span></span>
+                    <span class="gt-pkf__meta"><span class="gt-kf__change"><Icon name={Math.abs(ch) < 0.005 ? 'flat' : ch > 0 ? 'up' : 'down'} />{Math.abs(ch) < 0.005 ? W.sameAs(yearText(p, prevOf(p, yr))) : W.change2(formatValue(Math.abs(ch), { kind: 'share' }), ch > 0, yearText(p, prevOf(p, yr)), valueText(p, p.byYear[prevOf(p, yr)].world!))}</span></span>
                   )}
                 </div>
               )}
@@ -159,7 +169,7 @@ const bars = (rs: Row[], max: number) => rs.map((r) => ({ id: r.id, text: valueT
             <th scope="col" data-key="n"><button type="button">{W.country}</button></th>
             <th scope="col" class="n" data-key="v" data-type="num" aria-sort="descending"><button type="button">{when}</button></th>
             {p.layer.sums && <th scope="col" class="n" data-key="s" data-type="num"><button type="button">{W.share}</button></th>}
-            {prev && <th scope="col" class="n" data-key="q" data-type="num"><button type="button">{prev.year}</button></th>}
+            {prev && <th scope="col" class="n" data-key="q" data-type="num"><button type="button">{yearText(p, prev.year)}</button></th>}
             {prev && !div && <th scope="col" class="n" data-key="c" data-type="num"><button type="button">{W.change}</button></th>}
             {hasParts && <th scope="col" class="n" data-key="pr" data-type="num"><button type="button">{PX.refugees}</button></th>}
             {hasParts && <th scope="col" class="n" data-key="pa" data-type="num"><button type="button">{PX.asylum}</button></th>}
@@ -253,6 +263,22 @@ const bars = (rs: Row[], max: number) => rs.map((r) => ({ id: r.id, text: valueT
             </table>
           </div>
           <SourceLine source={source} parts={['2000–2021']} updated={updated} />
+        </>
+      )}
+      {flows.length > 0 && (
+        <>
+          <h2 class="gt-h2" id="flows">{RX.largest}</h2>
+          <div class="gt-tablewrap" style="--gt-table-h:560px" tabindex="0" role="region" aria-label={RX.largest}>
+            <table class="gt-table">
+              <caption class="gt-caption">{RX.largestCaption(flows.length, armsPeriod(p.year))}</caption>
+              <thead><tr>
+                <th scope="col"><span class="gt-th">{RX.supplier}</span></th><th scope="col"><span class="gt-th">{RX.recipient}</span></th>
+                <th scope="col" class="n"><span class="gt-th">{RX.amount}</span></th><th scope="col" class="n"><span class="gt-th">{RX.share}</span></th>
+              </tr></thead>
+              <tbody>{flows.map((x) => <tr><th scope="row">{nameOf(x.from)}</th><td>{nameOf(x.to)}</td><td class="n">{tiv(x.amount)}</td><td class="n">{x.share}</td></tr>)}</tbody>
+            </table>
+          </div>
+          <SourceLine source={source} parts={[armsPeriod(p.year)]} updated={updated} />
         </>
       )}
       {sites.length > 0 && (

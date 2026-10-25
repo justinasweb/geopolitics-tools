@@ -33,8 +33,11 @@ import { largeDams } from '../dams.ts';
 import { lendingOf } from '../lending.ts';
 import { DAMS_TEXT, LENDING_TEXT } from '../../i18n/water.en.ts';
 import { anchors } from './basemap.ts';
+import { armsPeriod, armsPeriods, supplierMix, SPAN } from '../arms.ts';
+import { ARMS_TEXT } from '../../i18n/arms.en.ts';
+import type { Pair } from '../../data/flows.ts';
 import type { Hazard } from '../../adapters/hazards.ts';
-import type { Entry, LayerFile, LayerYear, Overlay, PanelBlock, Point } from './types.ts';
+import type { Arc, Entry, LayerFile, LayerYear, Overlay, PanelBlock, Point } from './types.ts';
 
 export interface LayerDef {
   id: string;
@@ -189,6 +192,7 @@ function indicatorLayer(p: ViewPage): LayerFile {
         rows: [{ name: PX.refugees, value: f(x.refugees) }, { name: PX.asylum, value: f(x.asylum), note: PX.asylumNote }, { name: PX.oipShort, value: f(x.oip) }],
       }];
     }
+    if (p.family.id === 'arms') Object.assign(more, armsBlocks(p.id === 'armsexp5', year, y.rows.map((r) => r.id)));
     return { year, ...(p.text.period ? { label: p.text.period(year) } : {}), legend: p.text.legend(year), v, order: y.rows.map((r) => r.id), blocs: bl, ...(Object.keys(more).length ? { more } : {}) };
   });
   const notes = { ...c.notes };
@@ -210,7 +214,7 @@ function indicatorLayer(p: ViewPage): LayerFile {
     tags: c.tags, names: c.names, hrefs: c.hrefs, dossiers: c.dossiers, slugs: c.slugs, notes, blocs: c.blocs, data,
     series: seriesOf(p.years.map((year) => Object.fromEntries(p.byYear[year].rows.map((r) => [r.id, r.value])))),
     format: p.format, more: p.family.id === 'space' ? withSpace(viewMore(p)) : p.family.id === 'sanctions' ? withSanctions(viewMore(p), p.id) : p.id === 'outages' ? withOutages(viewMore(p)) : p.family.id === 'chinese-lending' ? withLending(viewMore(p), p.id) : viewMore(p),
-    ...(p.id === 'launches' ? { overlays: [launchSites(p)] } : p.id === 'aicompute' ? { overlays: [aiClusters(p)] } : p.id === 'waterstress' ? { overlays: [damMarks()] } : {}),
+    ...(p.id === 'launches' ? { overlays: [launchSites(p)] } : p.id === 'aicompute' ? { overlays: [aiClusters(p)] } : p.id === 'waterstress' ? { overlays: [damMarks()] } : p.family.id === 'arms' ? { overlays: [armsArcs(p)] } : {}),
   };
 }
 
@@ -231,6 +235,57 @@ function withSpace(more: Record<string, PanelBlock[]>): Record<string, PanelBloc
     }];
   }
   return out;
+}
+
+/** Arms: for each place, its main partners over the period and, for importers, its suppliers by group (now and, when
+ * the data reaches back far enough, in the period before). */
+function armsBlocks(exports: boolean, end: number, ids: string[]): Record<string, PanelBlock[]> {
+  const A = ARMS_TEXT;
+  const periods = armsPeriods();
+  const now = periods.find((x) => x.end === end)?.pairs;
+  if (!now) return {};
+  const before = periods.find((x) => x.end === end - SPAN)?.pairs;
+  const f = (v: number) => formatValue(v, { kind: 'number', unit: 'TIV m' });
+  const pct = (v: number) => shareOf(v, 1) ?? '';
+  const out: Record<string, PanelBlock[]> = {};
+  for (const id of ids) {
+    const mine = now.filter((x) => (exports ? x.from : x.to) === id);
+    const total = mine.reduce((t, x) => t + x.amount, 0);
+    const blocks: PanelBlock[] = [];
+    if (mine.length) {
+      blocks.push({
+        label: exports ? A.buyers(armsPeriod(end)) : A.suppliers(armsPeriod(end)), caption: A.partnersCaption(exports),
+        rows: mine.slice(0, 5).map((x) => ({ name: nameOf2(exports ? x.to : x.from), value: f(x.amount), note: A.ofTotal(shareOf(x.amount, total) ?? '') })),
+        more: mine.length > 5 ? A.morePartners(mine.length - 5) : undefined,
+      });
+    }
+    const mix = exports ? [] : supplierMix(now, id);
+    if (mix.length) {
+      const was = before ? supplierMix(before, id) : [];
+      blocks.push({
+        label: A.mix(armsPeriod(end)), caption: A.mixCaption,
+        rows: mix.map((g) => {
+          const w = was.find((x) => x.group === g.group);
+          return { name: A.group[g.group], value: pct(g.share), note: before ? A.then(pct(w?.share ?? 0), armsPeriod(end - SPAN)) : undefined };
+        }),
+      });
+    }
+    if (blocks.length) out[id] = blocks;
+  }
+  return out;
+}
+
+/** Arms: the largest flows of each period as arcs, shown with the period they belong to. */
+function armsArcs(p: ViewPage): Overlay {
+  const at = anchors();
+  const items: Arc[] = armsPeriods().filter((x) => p.years.includes(x.end)).flatMap((x) => {
+    const bit = 2 ** p.years.indexOf(x.end);
+    return x.pairs.filter((q: Pair) => at[q.from] && at[q.to]).slice(0, 15).map((q) => ({
+      p: arcXY(at[q.from], at[q.to]), w: q.amount, m: bit,
+      tip: ARMS_TEXT.arcTip(nameOf2(q.from), nameOf2(q.to), formatValue(q.amount, { kind: 'number', unit: 'TIV m' }), armsPeriod(x.end)),
+    }));
+  });
+  return { id: 'arms', kind: 'arcs', label: ARMS_TEXT.arcs, items };
 }
 
 /** Water stress: the largest dams, those holding at least 1 km³, sized by reservoir. */

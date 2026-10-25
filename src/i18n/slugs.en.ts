@@ -8,7 +8,7 @@ export const SECTION_SLUGS = {
   about: 'about', methodology: 'methodology', sources: 'sources', privacy: 'privacy', minerals: 'minerals',
   emissions: 'emissions', refugees: 'refugees', disasters: 'disasters', food: 'food', blocs: 'blocs',
   space: 'space', ai: 'ai', sanctions: 'sanctions', internet: 'internet',
-  water: 'water', 'chinese-lending': 'chinese-lending',
+  water: 'water', 'chinese-lending': 'chinese-lending', arms: 'arms',
 } as const;
 
 /** Map view layers after their section (/emissions/per-person), by registry id; the first layer of a section is the section itself (''). */
@@ -20,6 +20,7 @@ export const VIEW_SLUGS: Record<string, string> = {
   outages: 'outages',
   waterstress: '', waterstress2050: '2050', waterdep: 'from-abroad',
   lendall: '', lendenergy: 'energy', lendtransport: 'transport', lendindustry: 'mining', lendbanking: 'banking', lendother: 'other',
+  armsexp5: '', armsimp5: 'importers',
   sanctions: '', sanctionsus: 'us', sanctionseu: 'eu', sanctionsuk: 'uk',
 };
 
