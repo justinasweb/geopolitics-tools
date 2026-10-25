@@ -1,4 +1,5 @@
 // Share images for every live page that names one in the route registry (og:image), plus the site default.
+// GT_FAST=1 (npm run build:fast, for local work) builds only the default, since rendering every card is the slowest part of a build.
 import type { APIRoute, GetStaticPaths } from 'astro';
 import { INDICATORS } from '../../../data/indicators';
 import { INDICATOR_TEXT } from '../../../i18n/en';
@@ -15,6 +16,7 @@ import { MINERALS_VIEW } from '../../../i18n/map.en';
 import { amount, lede, listed, mineralPage, nameOf as producerName, shareText } from '../../../lib/minerals';
 
 export const getStaticPaths = (() => {
+  if (process.env.GT_FAST === '1') return [{ params: { kind: 'page', name: 'default' }, props: { route: null } }];
   const out = routes().filter((r) => r.live && r.image).map((r) => {
     const [, , kind, file] = r.image!.split('/');
     return { params: { kind, name: file.replace(/\.png$/, '') }, props: { route: r as Route | null } };

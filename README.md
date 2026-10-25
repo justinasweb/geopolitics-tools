@@ -16,8 +16,10 @@ Needs Node 24 (`.nvmrc`).
 | `npm run dev` | Local dev server with live reload (http://localhost:4321) |
 | `npm run data:pull` | Download the latest data snapshot from R2 into `data/raw/` (needs the Cloudflare keys) |
 | `npm run build` | Build every page from `data/raw/` to `dist/` and check it against Cloudflare's file limits |
+| `npm run build:fast` | Local build without the share images (only the default one) and without the file-limit check: about 2.5× faster. Never deploy it |
 | `npm run build:sample` | Build from the prototype's sample files instead (marked Sample on every page; never deployed) |
 | `npm run serve` | Serve `dist/` exactly as Cloudflare will (clean URLs, 404 page, `/api/*`) at http://localhost:8787 |
+| `npm run serve:fast` | `build:fast`, then `serve` |
 | `npm run check` | Lint, type check and unit tests |
 | `npm run test:e2e` | Route and browser checks against `BASE` (default http://localhost:8787) |
 | `node pipeline/run.ts --only=<source>` | Fetch one data source into `.data/` (see [docs/data-pipeline.md](docs/data-pipeline.md)) |

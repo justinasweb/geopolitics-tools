@@ -8,7 +8,9 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build && node scripts/check-dist.mjs",
+    "build:fast": "GT_FAST=1 astro build",
     "serve": "wrangler dev --port 8787",
+    "serve:fast": "npm run build:fast && npm run serve",
     "lint": "eslint .",
     "typecheck": "astro check && tsc -p worker",
     "test": "vitest run",
