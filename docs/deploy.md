@@ -34,7 +34,8 @@ build; 100 Previews per Worker, oldest deleted automatically.
 
 ## Configuration
 
-- `wrangler.jsonc`: Worker name `geopolitics-tools`, assets from `dist/`, `/api/*` runs `worker/index.ts` first,
+- `wrangler.jsonc`: Worker name `geopolitics-tools`, served on the custom domain `geopolitics.tools` (and on
+  workers.dev, which CI checks use), assets from `dist/`, `/api/*` runs `worker/index.ts` first,
   unknown addresses get `404.html` with status 404, `/page.html` redirects to `/page`.
 - Repository secrets: `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` (set; the data pipeline uses them for R2 too),
   `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` (data alerts), and `GH_DISPATCH_TOKEN` (a fine-grained token for
@@ -46,6 +47,18 @@ build; 100 Previews per Worker, oldest deleted automatically.
   Worker; until then the workers.dev address is used), `SITE_INDEXABLE` (`true` at launch: removes `noindex` and
   opens `robots.txt`), `SITE_HOLDING` (`false` at launch: production stops serving the holding page as
   the home page; until then production builds get it and pull request builds get the development index).
+
+## Before launch: noindex everywhere
+
+Until `SITE_INDEXABLE` is `true`, every build, production and Previews alike, carries three signals:
+
+- `X-Robots-Tag: noindex` on every file (added to `_headers` at build time by `astro.config.mjs`; `/api/` sets its own),
+- `<meta name="robots" content="noindex">` on every page, including the holding page,
+- `robots.txt` with `Disallow: /`.
+
+The browser checks (`tests/e2e/smoke.mjs`) fail if any of them is missing, so a deploy that loses one shows red.
+`www.geopolitics.tools` is not connected; a Cloudflare Redirect Rule (www to the bare domain) is the planned way
+to cover it.
 
 ## R2 buckets
 

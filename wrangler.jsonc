@@ -5,6 +5,10 @@
   "name": "geopolitics-tools",
   "main": "worker/index.ts",
   "compatibility_date": "2026-10-24",
+  // The production domain (its DNS zone is on this Cloudflare account). The first deploy with it creates the DNS
+  // record and certificate; it stops with an error, changing nothing, if another record already uses the name.
+  // workers.dev stays on for CI checks; it is noindex like everything else until launch.
+  "routes": [{ "pattern": "geopolitics.tools", "custom_domain": true }],
   "workers_dev": true,
   "preview_urls": true,
   "assets": {
