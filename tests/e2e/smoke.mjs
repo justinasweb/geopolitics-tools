@@ -52,12 +52,13 @@ for (const path of ['/countries', '/countries/united-states', '/compare/united-s
   const res = await get(path);
   check(res.status === 200, `${path} returns 200 (got ${res.status})`);
 }
-// The map engine (phase 4): the lithium view, its layer file and the basemap.
-for (const path of ['/minerals/lithium', '/map/minerals-lithium.json', '/geo/basemap.json']) {
-  const res = await get(path);
-  check(res.status === 200, `${path} returns 200 (got ${res.status})`);
-}
-for (const [from, to] of [['/countries/usa', '/countries/united-states'], ['/compare/china-vs-united-states', '/compare/united-states-vs-china'], ['/minerals', '/minerals/lithium']]) {
+// The map engine (phase 4): the basemap, and the lithium view with its layer file when the snapshot has USGS
+// minerals (an imported source: until its file is imported, the views are not built).
+check((await get('/geo/basemap.json')).status === 200, '/geo/basemap.json returns 200');
+const minerals = (await get('/map/minerals-lithium.json')).status === 200;
+if (minerals) check((await get('/minerals/lithium')).status === 200, '/minerals/lithium returns 200');
+else console.log('skip /minerals/lithium: USGS minerals are not in this snapshot');
+for (const [from, to] of [['/countries/usa', '/countries/united-states'], ['/compare/china-vs-united-states', '/compare/united-states-vs-china'], ...(minerals ? [['/minerals', '/minerals/lithium']] : [])]) {
   const res = await get(from);
   check(res.status === 301 && new URL(res.headers.get('location') ?? '', base).pathname === to, `${from} redirects to ${to} (got ${res.status})`);
 }
@@ -98,20 +99,22 @@ for (const [name, viewport] of [['desktop', { width: 1440, height: 900 }], ['pho
 
   // The lithium map view, opened on a country: the map draws, the panel shows the country, the URL keeps it.
   errors.length = 0;
-  await page.goto(`${base}/minerals/lithium?country=australia`, { waitUntil: 'networkidle' });
-  check(!(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth)), `${name}: /minerals/lithium has no sideways scroll`);
-  check((await page.textContent('[data-panel="country"] h2'))?.trim() === 'Australia', `${name}: ?country=australia opens Australia's panel`);
-  if (name === 'phone') await page.click('[data-show-map]');
-  else await page.locator('.gt-stage').scrollIntoViewIfNeeded();
-  const drawn = await page.waitForSelector('[data-map-state="loading"][hidden]', { state: 'attached', timeout: 30_000 }).then(() => true, () => false);
-  const failed = await page.isVisible('[data-map-state="error"]');
-  check(drawn && !failed, `${name}: the map loads${failed ? ' (it shows its error state)' : ''}`);
-  const size = await page.evaluate(() => { const c = [...document.querySelectorAll('.maplibregl-canvas')].find((x) => x.offsetParent); return c ? c.getBoundingClientRect().height : 0; });
-  check(size > 300, `${name}: the map fills its frame (${Math.round(size)} px high)`);
-  if (name === 'phone') check(await page.evaluate(() => document.querySelector('[data-mapfull]').open), 'phone: Show map opens the full-screen map');
-  await page.waitForTimeout(800);
-  check(errors.length === 0, `${name}: /minerals/lithium has no console errors${errors.length ? ` (${errors.join('; ')})` : ''}`);
-  await page.screenshot({ path: `${out}/minerals-${name}.png` });
+  if (minerals) {
+    await page.goto(`${base}/minerals/lithium?country=australia`, { waitUntil: 'networkidle' });
+    check(!(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth)), `${name}: /minerals/lithium has no sideways scroll`);
+    check((await page.textContent('[data-panel="country"] h2'))?.trim() === 'Australia', `${name}: ?country=australia opens Australia's panel`);
+    if (name === 'phone') await page.click('[data-show-map]');
+    else await page.locator('.gt-stage').scrollIntoViewIfNeeded();
+    const drawn = await page.waitForSelector('[data-map-state="loading"][hidden]', { state: 'attached', timeout: 30_000 }).then(() => true, () => false);
+    const failed = await page.isVisible('[data-map-state="error"]');
+    check(drawn && !failed, `${name}: the map loads${failed ? ' (it shows its error state)' : ''}`);
+    const size = await page.evaluate(() => { const c = [...document.querySelectorAll('.maplibregl-canvas')].find((x) => x.offsetParent); return c ? c.getBoundingClientRect().height : 0; });
+    check(size > 300, `${name}: the map fills its frame (${Math.round(size)} px high)`);
+    if (name === 'phone') check(await page.evaluate(() => document.querySelector('[data-mapfull]').open), 'phone: Show map opens the full-screen map');
+    await page.waitForTimeout(800);
+    check(errors.length === 0, `${name}: /minerals/lithium has no console errors${errors.length ? ` (${errors.join('; ')})` : ''}`);
+    await page.screenshot({ path: `${out}/minerals-${name}.png` });
+  }
 
   // The design system's components page (hidden, noindex): renders without errors or sideways scroll.
   errors.length = 0;

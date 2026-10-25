@@ -1,20 +1,24 @@
 ---
-// Hidden map engine page: the lithium layer with every overlay kind (flow arcs, dashed and solid lines, dots and
+// Hidden map engine page: the first map layer (lithium) with every overlay kind (flow arcs, dashed and solid lines, dots and
 // symbols), to check events over the sea, tooltips and drawing. Not linked anywhere, noindex, disallowed in robots.txt.
 import Page from '../../layouts/Page.astro';
 import MapStage from '../../components/MapStage.astro';
 import { demoOverlays } from '../../lib/map/overlays';
+import { mapLayers } from '../../lib/map/layers';
 import { MINERALS_VIEW as T, MAP_TEXT } from '../../i18n/map.en';
 
 const overlays = demoOverlays();
+// The first layer the snapshot has; none until a source with a map view is in it.
+const hasLayer = mapLayers().length > 0;
 const key: Record<string, string> = { arcs: 'gt-ovkey--arc', lines: 'gt-ovkey--line', points: 'gt-ovkey--dot' };
 ---
 <Page title="Map engine" description="The map engine with every overlay kind, for checking." noindex container="mv">
   <div class="gt-mvhead">
     <h1 class="gt-title gt-mvhead__t">Map engine <span class="gt-mvhead__sub">overlays</span></h1>
-    <p class="gt-lede gt-mvhead__a">Lithium shares with every overlay kind on top. Hover or tap a mark, over land or sea.</p>
+    <p class="gt-lede gt-mvhead__a">The first map layer with every overlay kind on top. Hover or tap a mark, over land or sea.</p>
   </div>
-  <MapStage layer="/dev/map.json" label="Map engine test: lithium shares with overlays" title="Map engine"
+  {!hasLayer && <p>No map layer in this snapshot: the map views' sources are not in it yet.</p>}
+  {hasLayer && <MapStage layer="/dev/map.json" label="Map engine test: a map layer with overlays" title="Map engine"
     legend={{ title: T.legendTitle(2025), scale: 'seq', ticks: T.ticks, none: T.notListedLegend, withheld: true }}>
     <div data-panel="world" slot="panel">
       <div class="gt-panel__head"><div class="gt-panel__title"><span class="gt-kicker">Overlays</span><h2 class="gt-h3">{MAP_TEXT.world}</h2></div></div>
@@ -25,7 +29,7 @@ const key: Record<string, string> = { arcs: 'gt-ovkey--arc', lines: 'gt-ovkey--l
         {overlays.length === 0 && <p>No overlay sources in this snapshot.</p>}
       </div>
     </div>
-  </MapStage>
+  </MapStage>}
 </Page>
 
 <style>
