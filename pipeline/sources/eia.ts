@@ -66,7 +66,9 @@ const source: Source = {
       check(data.every((r) => 'period' in r && 'countryRegionId' in r && 'activityName' in r), `${name}: rows lack period, countryRegionId or activityName; the format changed`);
       for (const [p, a, u] of SERIES[kind]) {
         const n = new Set(data.filter((r) => String(r.productId) === p && String(r.activityId) === a && r.unit === u).map((r) => r.countryRegionId)).size;
-        check(n >= 80, `${name}: product ${p}, activity ${a} (${u}) has only ${n} countries`);
+        // On a miss, say what the API did send for that product, so a renamed unit or activity shows in the log.
+        const seen = () => [...new Set(got.filter((r) => String(r.productId) === p).map((r) => `${r.activityId}/${r.unit}`))].join(', ') || 'none';
+        check(n >= 80, `${name}: product ${p}, activity ${a} (${u}) has only ${n} countries; product ${p} rows came as ${seen()} (${got.length} rows in all)`);
       }
       guardShrink(ctx, name, data.length, await ctx.previous(name), (prev) => (JSON.parse(prev) as Answer).response?.data?.length ?? 0, 0.8);
       const latest = data.reduce((m, r) => (String(r.period) > m ? String(r.period) : m), '');
