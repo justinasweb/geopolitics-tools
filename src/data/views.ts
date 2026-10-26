@@ -14,6 +14,8 @@ export interface ViewLayer {
   fullYears?: boolean;
   /** Each figure is a total over this many years (arms, five), so it is compared with the period before, not the year before. */
   span?: number;
+  /** The figures are shares of a country's own total (electricity), so changes are in percentage points. */
+  points?: boolean;
   /** Fixed class edges, for scores with named bands (water stress); the layer's words give the ticks. */
   edges?: number[];
 }
@@ -28,6 +30,16 @@ export interface ViewFamily {
 }
 
 export const VIEW_FAMILIES: ViewFamily[] = [
+  {
+    // Shares of each country's own generation, so they do not add up; the world figure is Ember's world mix (../lib/views.ts).
+    id: 'electricity', hub: 'resources', layers: [
+      { indicator: 'lowcarbon', scale: 'seq', sums: false, points: true, edges: [0.2, 0.4, 0.6, 0.8] },
+      { indicator: 'windsolar', scale: 'seq', sums: false, points: true, edges: [0.05, 0.1, 0.2, 0.3] },
+      { indicator: 'coalpower', scale: 'seq', sums: false, points: true, edges: [0.2, 0.4, 0.6, 0.8] },
+      { indicator: 'gaspower', scale: 'seq', sums: false, points: true, edges: [0.2, 0.4, 0.6, 0.8] },
+      { indicator: 'nuclearpower', scale: 'seq', sums: false, points: true, edges: [0.05, 0.15, 0.3, 0.5] },
+    ],
+  },
   {
     id: 'emissions', hub: 'climate', layers: [
       { indicator: 'co2', scale: 'seq', sums: true },

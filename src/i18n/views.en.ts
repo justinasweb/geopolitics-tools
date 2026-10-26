@@ -43,10 +43,58 @@ export interface FamilyText {
 }
 
 const fossil = 'from fossil fuels and cement';
+const power5 = ['Under 20%', '20–40%', '40–60%', '60–80%', '80% or more'];
+const powerCaveat = 'Shares of the electricity generated inside each country, before trade in electricity. A small system can reach a high share with one large plant. Changes are in percentage points.';
 const armsPeriod = (y: number) => `${y - 4}–${y}`;
 const armsCaveat = 'SIPRI’s trend-indicator value measures the military capability of major weapons delivered, not the price paid, so it is not money. Deliveries are lumpy, so figures are five-year totals. Small arms, ammunition and transfers to or from groups that are not states are left out.';
 
 export const VIEW_TEXT: Record<string, FamilyText> = {
+  electricity: {
+    section: 'Electricity',
+    pickerLabel: 'Source',
+    layers: {
+      lowcarbon: {
+        pick: 'Low-carbon', title: 'Low-carbon electricity', sub: 'share of each country’s generation', measure: 'of its electricity', figureLabel: 'Low-carbon share',
+        legend: (y) => `Share of electricity from nuclear and renewables, ${y}`, worldLabel: 'World, low-carbon share', ticks: power5,
+        lede: ({ world, up, of, year }) => `${world ? `Low-carbon sources made ${world} of the world’s electricity in ${year}. ` : ''}${up} of ${of} countries got 80% or more of theirs from them.`,
+        total: (v, y, ch) => `Nuclear and renewables made ${v} of the world’s electricity in ${y}${ch ? `, ${ch}` : ''}.`,
+        caveat: `Low-carbon counts nuclear, hydro, wind, solar, bioenergy and other renewables. ${powerCaveat}`,
+        description: (y) => `Share of electricity from nuclear and renewables by country, ${y}, with each country’s power mix since 2000. Source: Ember.`,
+      },
+      windsolar: {
+        pick: 'Wind and solar', title: 'Electricity from wind and solar', sub: 'share of each country’s generation', measure: 'of its electricity', figureLabel: 'Wind and solar share',
+        legend: (y) => `Share of electricity from wind and solar, ${y}`, worldLabel: 'World, wind and solar share', ticks: ['Under 5%', '5–10%', '10–20%', '20–30%', '30% or more'],
+        lede: ({ world, up, of, year }) => `${world ? `Wind and solar made ${world} of the world’s electricity in ${year}. ` : ''}${up} of ${of} countries got 30% or more of theirs from them.`,
+        total: (v, y, ch) => `Wind and solar made ${v} of the world’s electricity in ${y}${ch ? `, ${ch}` : ''}.`,
+        caveat: powerCaveat,
+        description: (y) => `Share of electricity from wind and solar by country, ${y}, on a map and in a table. Source: Ember.`,
+      },
+      coalpower: {
+        pick: 'Coal', title: 'Electricity from coal', sub: 'share of each country’s generation', measure: 'of its electricity', figureLabel: 'Coal share',
+        legend: (y) => `Share of electricity from coal, ${y}`, worldLabel: 'World, coal share', ticks: power5,
+        lede: ({ world, up, of, year }) => `${world ? `Coal made ${world} of the world’s electricity in ${year}. ` : ''}${up} of ${of} countries got 80% or more of theirs from coal.`,
+        total: (v, y, ch) => `Coal made ${v} of the world’s electricity in ${y}${ch ? `, ${ch}` : ''}.`,
+        caveat: powerCaveat,
+        description: (y) => `Share of electricity from coal by country, ${y}, on a map and in a table. Source: Ember.`,
+      },
+      gaspower: {
+        pick: 'Gas', title: 'Electricity from gas', sub: 'share of each country’s generation', measure: 'of its electricity', figureLabel: 'Gas share',
+        legend: (y) => `Share of electricity from natural gas, ${y}`, worldLabel: 'World, gas share', ticks: power5,
+        lede: ({ world, up, of, year }) => `${world ? `Natural gas made ${world} of the world’s electricity in ${year}. ` : ''}${up} of ${of} countries got 80% or more of theirs from gas.`,
+        total: (v, y, ch) => `Natural gas made ${v} of the world’s electricity in ${y}${ch ? `, ${ch}` : ''}.`,
+        caveat: `Natural gas only; oil and other fossil fuels are counted apart. ${powerCaveat}`,
+        description: (y) => `Share of electricity from natural gas by country, ${y}, on a map and in a table. Source: Ember.`,
+      },
+      nuclearpower: {
+        pick: 'Nuclear', title: 'Electricity from nuclear', sub: 'share of each country’s generation', measure: 'of its electricity', figureLabel: 'Nuclear share',
+        legend: (y) => `Share of electricity from nuclear power, ${y}`, worldLabel: 'World, nuclear share', ticks: ['Under 5%', '5–15%', '15–30%', '30–50%', '50% or more'],
+        lede: ({ world, up, of, year }) => `${world ? `Nuclear power made ${world} of the world’s electricity in ${year}. ` : ''}${up} of ${of} countries got half or more of theirs from it.`,
+        total: (v, y, ch) => `Nuclear power made ${v} of the world’s electricity in ${y}${ch ? `, ${ch}` : ''}.`,
+        caveat: `Countries with no nuclear plant have a share of 0%. ${powerCaveat}`,
+        description: (y) => `Share of electricity from nuclear power by country, ${y}, on a map and in a table. Source: Ember.`,
+      },
+    },
+  },
   emissions: {
     section: 'Emissions',
     pickerLabel: 'Measure',
@@ -411,6 +459,8 @@ export const VIEWS_TEXT = {
   coverage: (n: number, y: number | string) => `${n} countries and territories have a figure for ${typeof y === 'number' || /^\d/.test(y) ? y : `the ${y}`}.`,
   changeIn: (pct: string, more: boolean, prev: number | string) => `${pct} ${more ? 'more' : 'less'} than in ${prev}`,
   change2: (pct: string, more: boolean, prev: number | string, value: string) => `${pct} ${more ? 'more' : 'less'} than ${prev} (${value})`,
+  points: (n: string) => `${n} pts`,
+  pointsLong: (n: string) => `${n} percentage points`,
   periodLabel: (years: number) => `${years}-year period`,
   sameAs: (prev: number | string) => `Same as ${prev}`,
   top: (parts: string[], together: string | null) => `${parts.join(', ').replace(/, ([^,]*)$/, ' and $1')}${together ? `; together, ${together} of the world total` : ''}.`,

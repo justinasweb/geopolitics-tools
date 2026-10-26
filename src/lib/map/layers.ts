@@ -39,6 +39,8 @@ import { viewPage } from '../views.ts';
 import { anchors, boxOf } from './basemap.ts';
 import { armsPeriod, armsPeriods, supplierMix, SPAN } from '../arms.ts';
 import { ARMS_TEXT } from '../../i18n/arms.en.ts';
+import { groupsOf, mixOf } from '../electricity.ts';
+import { POWER_TEXT } from '../../i18n/electricity.en.ts';
 import type { Pair } from '../../data/flows.ts';
 import type { Hazard } from '../../adapters/hazards.ts';
 import type { Arc, Entry, LayerFile, LayerYear, Overlay, PanelBlock, Point } from './types.ts';
@@ -217,7 +219,7 @@ function indicatorLayer(p: ViewPage): LayerFile {
     },
     tags: c.tags, names: c.names, hrefs: c.hrefs, dossiers: c.dossiers, slugs: c.slugs, notes, blocs: c.blocs, data,
     series: seriesOf(p.years.map((year) => Object.fromEntries(p.byYear[year].rows.map((r) => [r.id, r.value])))),
-    format: p.format, more: p.family.id === 'space' ? withSpace(viewMore(p)) : p.family.id === 'sanctions' ? withSanctions(viewMore(p), p.id) : p.id === 'outages' ? withOutages(viewMore(p)) : p.family.id === 'chinese-lending' ? withLending(viewMore(p), p.id) : viewMore(p),
+    format: p.format, more: p.family.id === 'space' ? withSpace(viewMore(p)) : p.family.id === 'sanctions' ? withSanctions(viewMore(p), p.id) : p.id === 'outages' ? withOutages(viewMore(p)) : p.family.id === 'chinese-lending' ? withLending(viewMore(p), p.id) : p.family.id === 'electricity' ? withMix(viewMore(p), p) : viewMore(p),
     ...(p.id === 'launches' ? { overlays: [launchSites(p)] } : p.id === 'aicompute' ? { overlays: [aiClusters(p)] } : p.id === 'waterstress' ? { overlays: [damMarks()] } : p.family.id === 'arms' ? { overlays: [armsArcs(p)] } : {}),
   };
 }
@@ -243,6 +245,26 @@ function withSpace(more: Record<string, PanelBlock[]>): Record<string, PanelBloc
 
 /** Arms: for each place, its main partners over the period and, for importers, its suppliers by group (now and, when
  * the data reaches back far enough, in the period before). */
+/** Electricity: each country's power mix in the default year, in seven groups, largest first, after its other blocks.
+ *  One year only: a mix for every year and country would make the layer file several megabytes. */
+function withMix(more: Record<string, PanelBlock[]>, p: ViewPage): Record<string, PanelBlock[]> {
+  const P = POWER_TEXT;
+  const twh = (v: number) => P.twhValue(formatValue(v, { kind: 'number', digits: v < 10 ? 1 : 0 }));
+  const out = { ...more };
+  for (const { id } of p.byYear[p.year].rows) {
+    const m = mixOf(id, p.year);
+    if (!m?.total) continue;
+    out[id] = [...(out[id] ?? []), {
+      label: P.mix(p.year), caption: P.mixCaption,
+      rows: [
+        ...groupsOf(m).map((g) => ({ name: P.group[g.group], value: formatValue(g.share, { kind: 'share' }), note: twh(g.twh) })),
+        { name: P.total, value: twh(m.total) },
+      ],
+    }];
+  }
+  return out;
+}
+
 function armsBlocks(exports: boolean, end: number, ids: string[]): Record<string, PanelBlock[]> {
   const A = ARMS_TEXT;
   const periods = armsPeriods();

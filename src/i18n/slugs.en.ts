@@ -8,11 +8,12 @@ export const SECTION_SLUGS = {
   about: 'about', methodology: 'methodology', sources: 'sources', privacy: 'privacy', minerals: 'minerals',
   emissions: 'emissions', refugees: 'refugees', disasters: 'disasters', food: 'food', blocs: 'blocs',
   space: 'space', ai: 'ai', sanctions: 'sanctions', internet: 'internet',
-  water: 'water', 'chinese-lending': 'chinese-lending', arms: 'arms', oil: 'oil', gas: 'gas',
+  water: 'water', 'chinese-lending': 'chinese-lending', arms: 'arms', oil: 'oil', gas: 'gas', electricity: 'electricity',
 } as const;
 
 /** Map view layers after their section (/emissions/per-person), by registry id; the first layer of a section is the section itself (''). */
 export const VIEW_SLUGS: Record<string, string> = {
+  lowcarbon: '', windsolar: 'wind-solar', coalpower: 'coal', gaspower: 'gas', nuclearpower: 'nuclear',
   co2: '', co2pc: 'per-person', co2cum: 'since-1750', co2trade: 'imported',
   refout: '', refin: 'hosted', refinpc: 'per-person', idps: 'displaced',
   satellites: '', launches: 'launches',

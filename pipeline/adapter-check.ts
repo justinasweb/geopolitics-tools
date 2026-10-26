@@ -15,6 +15,7 @@ import { prices } from '../src/adapters/prices.ts';
 import { treasuryHistory, treasuryHolders } from '../src/adapters/treasury.ts';
 import { oilPrices } from '../src/adapters/eia.ts';
 import { comtrade } from '../src/adapters/comtrade.ts';
+import { ember } from '../src/adapters/ember.ts';
 import { FLOWS, loadFlows } from '../src/data/flows.ts';
 import { INDICATORS, latestYear, registry } from '../src/data/indicators.ts';
 
@@ -60,6 +61,7 @@ const VIEWS: [string, () => string][] = [
   ['treasury', () => `${treasuryHolders(raw).holders.length} holders to ${treasuryHolders(raw).months[0]}`],
   ['oil prices', () => { const p = oilPrices(raw); return `${p.brent.length} Brent months to ${p.brent.at(-1)?.date}, ${p.wti.length} WTI`; }],
   ['comtrade', () => { const r = comtrade(raw); return `${r.length} rows, ${new Set(r.map((x) => x.reporter)).size} reporters, ${[...new Set(r.map((x) => x.year))].sort().join(' ')}`; }],
+  ['electricity', () => { const e = ember(raw); return `${Object.keys(e.mix).length} countries, world ${Object.keys(e.world).length ? 'from Ember' : 'added up'}`; }],
   ['treasury history', () => `${Object.keys(treasuryHistory(raw)).length} places`],
 ];
 for (const [name, f] of VIEWS) {

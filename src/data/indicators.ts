@@ -23,6 +23,7 @@ import { space } from '../adapters/celestrak.ts';
 import { ai, computeAt } from '../adapters/epoch.ts';
 import { LISTS, listingsAt, sanctions } from '../adapters/sanctions.ts';
 import { gas, oil } from '../adapters/eia.ts';
+import { ember, powerSeries } from '../adapters/ember.ts';
 
 export type Group = 'economy' | 'people' | 'energy' | 'food' | 'climate' | 'security' | 'tech' | 'influence';
 export const GROUPS: Group[] = ['economy', 'people', 'energy', 'food', 'climate', 'security', 'tech', 'influence'];
@@ -67,6 +68,7 @@ const aiOf = once(ai);
 const sanctionsOf = once(sanctions);
 const oilOf = once(oil);
 const gasOf = once(gas);
+const powerOf = once(ember);
 const staticYear = (values: Record<string, number | null>, year: number): Series => {
   const out: Series = {};
   for (const [id, v] of Object.entries(values)) put(out, id, year, v);
@@ -115,10 +117,10 @@ const LIST: Indicator[] = [
   { id: 'oiluse', group: 'energy', source: 'eia', format: unit('kb/d'), scale: 'log', load: (raw) => oilOf(raw).consumption },
   { id: 'gasprod', group: 'energy', source: 'eia', format: unit('bcm', 1), scale: 'log', load: (raw) => gasOf(raw).production },
   { id: 'gasuse', group: 'energy', source: 'eia', format: unit('bcm', 1), scale: 'log', load: (raw) => gasOf(raw).consumption },
-  { id: 'power', group: 'energy', source: 'ember', format: unit('TWh'), scale: 'log', pending: 'Ember, waiting for an API key' },
-  { id: 'lowcarbon', group: 'energy', source: 'ember', format: share, scale: 'linear', pending: 'Ember, waiting for an API key' },
-  { id: 'coalpower', group: 'energy', source: 'ember', format: share, scale: 'linear', pending: 'Ember, waiting for an API key' },
-  { id: 'windsolar', group: 'energy', source: 'ember', format: share, scale: 'linear', pending: 'Ember, waiting for an API key' },
+  { id: 'power', group: 'energy', source: 'ember', format: unit('TWh'), scale: 'log', load: (raw) => powerSeries(powerOf(raw), 'total') },
+  { id: 'lowcarbon', group: 'energy', source: 'ember', format: share, scale: 'linear', load: (raw) => powerSeries(powerOf(raw), 'lowcarbon') },
+  { id: 'coalpower', group: 'energy', source: 'ember', format: share, scale: 'linear', load: (raw) => powerSeries(powerOf(raw), 'coal') },
+  { id: 'windsolar', group: 'energy', source: 'ember', format: share, scale: 'linear', load: (raw) => powerSeries(powerOf(raw), 'windsolar') },
   // Food
   ...CROPS.flatMap((c): Indicator[] => [
     { id: `${c}prod`, group: 'food', source: 'faostat', format: unit('Mt', 1), scale: 'log', load: (raw) => foodOf(raw).crops[c].production },

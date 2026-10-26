@@ -135,7 +135,9 @@ describe('indicator registry and flows', () => {
     expect(latestYear(gdppc)).toBe(2024);
     expect(r.load('waterstress').indicator.static).toBe(true);
     expect(r.get('oilprod').USA[2024]).toBeGreaterThan(10_000);
-    expect(() => r.get('power')).toThrow(/waiting for an API key/);
+    expect(r.get('power').CHN[2024]).toBeGreaterThan(5000);
+    expect(r.get('lowcarbon').FRA[2024]).toBeGreaterThan(0.8);
+    expect(() => r.get('hunger')).toThrow(/waiting for an API key/);
     for (const id of ['co2pc', 'wheatprod', 'armsimp', 'chinaloans', 'popun', 'refin', 'refinpc']) expect(Object.keys(r.get(id)).length, id).toBeGreaterThan(0);
   });
 

@@ -17,6 +17,7 @@ import usgsQuakes from '../../../pipeline/sources/usgs-quakes.ts';
 import worldbank, { INDICATORS } from '../../../pipeline/sources/worldbank.ts';
 import comtrade, { plan, trim } from '../../../pipeline/sources/comtrade.ts';
 import eia, { SERIES as EIA_SERIES } from '../../../pipeline/sources/eia.ts';
+import ember, { SERIES as EMBER_SERIES } from '../../../pipeline/sources/ember.ts';
 import { createHttp } from '../../../pipeline/lib/http.ts';
 import { ctxFor, fakeHttp, type Route } from './helpers.ts';
 
@@ -307,5 +308,31 @@ describe('eia', () => {
 
   it('refuses a price series that stopped updating', async () => {
     await expect(eia.fetch({ ...ctxFor(fakeHttp(routes(false))), now: new Date('2026-02-10T00:00:00Z'), env })).rejects.toThrow(/RWTC ends in 2024-04/);
+  });
+});
+
+describe('ember', () => {
+  const env = { EMBER_API_KEY: 'k' };
+  const gen = (n: number, year: string, entity?: string) => Array.from({ length: n }, (_, i) => [...EMBER_SERIES, 'Fossil'].map((series) => ({
+    entity: entity ?? `Place ${i}`, entity_code: entity ? null : iso(i), is_aggregate_entity: Boolean(entity), date: year, series,
+    is_aggregate_series: series === 'Fossil', generation_twh: 10, share_of_generation_pct: 10,
+  }))).flat();
+  const routes = (n = 200, year = '2025'): Route[] => [
+    [/entity=World/, () => ({ stats: {}, data: [...gen(1, '2024', 'World'), ...gen(1, '2025', 'World'), ...Array.from({ length: 10 }, (_, i) => gen(1, String(2010 + i), 'World')).flat()] })],
+    [/is_aggregate_entity=false/, () => ({ stats: {}, data: gen(n, year) })],
+  ];
+
+  it('saves countries and the world in the API format, without aggregate series', async () => {
+    const r = await ember.fetch({ ...ctxFor(fakeHttp(routes())), now: new Date('2026-10-10T00:00:00Z'), env });
+    expect(r.files.map((f) => f.name)).toEqual(['electricity_generation_yearly.json', 'electricity_generation_world.json']);
+    const d = JSON.parse(body(r, 'electricity_generation_yearly.json')).data;
+    expect(d).toHaveLength(200 * 9);
+    expect(d.some((x: { series: string }) => x.series === 'Fossil')).toBe(false);
+    expect(r.dataTo).toBe('2025');
+  });
+
+  it('refuses too few countries or a series that stopped updating', async () => {
+    await expect(ember.fetch({ ...ctxFor(fakeHttp(routes(100))), now: new Date('2026-10-10T00:00:00Z'), env })).rejects.toThrow(/only 100 countries/);
+    await expect(ember.fetch({ ...ctxFor(fakeHttp(routes(200, '2022'))), now: new Date('2026-10-10T00:00:00Z'), env })).rejects.toThrow(/latest year is 2022/);
   });
 });

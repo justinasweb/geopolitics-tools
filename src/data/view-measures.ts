@@ -1,6 +1,6 @@
 // Measures that only the map views show (no indicator page, profile row or Compare column): the AI and chips
 // view's notable models and US Entity List counts, each sanctions list on its own,
-// internet outages, water stress in 2050, Chinese lending by sector and five-year arms totals. Same shape as the registry (./indicators.ts); `load` also gets
+// internet outages, electricity from gas and nuclear, water stress in 2050, Chinese lending by sector and five-year arms totals. Same shape as the registry (./indicators.ts); `load` also gets
 // the year the source was fetched, for lists that hold only what is current.
 import type { Raw, Series } from '../adapters/core.ts';
 import { put } from '../adapters/core.ts';
@@ -10,6 +10,7 @@ import { water } from '../adapters/water.ts';
 import { lending } from '../adapters/aiddata.ts';
 import { type List, sanctions } from '../adapters/sanctions.ts';
 import { arms } from '../adapters/sipri.ts';
+import { ember, powerSeries } from '../adapters/ember.ts';
 import { periodEnds, totalsBy, windowPairs } from '../lib/arms.ts';
 import type { Indicator } from './indicators.ts';
 
@@ -83,5 +84,8 @@ export const VIEW_MEASURES: Record<string, ViewMeasure> = {
   armsimp5: { id: 'armsimp5', group: 'security', source: 'sipri', format: { kind: 'number', unit: 'TIV m' }, scale: 'log', load: fiveYears('to') },
   sanctionsus: { id: 'sanctionsus', group: 'influence', source: 'csl', format: { kind: 'count' }, scale: 'log', static: true, load: onList('US') },
   sanctionseu: { id: 'sanctionseu', group: 'influence', source: 'eu-sanctions', format: { kind: 'count' }, scale: 'log', static: true, load: onList('EU') },
+  // Electricity from gas and from nuclear, as shares of generation (Ember); coal, low-carbon and wind and solar are registry measures.
+  gaspower: { id: 'gaspower', group: 'energy', source: 'ember', format: { kind: 'share' }, scale: 'linear', load: (raw) => powerSeries(ember(raw), 'gas') },
+  nuclearpower: { id: 'nuclearpower', group: 'energy', source: 'ember', format: { kind: 'share' }, scale: 'linear', load: (raw) => powerSeries(ember(raw), 'nuclear') },
   sanctionsuk: { id: 'sanctionsuk', group: 'influence', source: 'uk-sanctions', format: { kind: 'count' }, scale: 'log', static: true, load: onList('UK') },
 };
