@@ -4,9 +4,9 @@
 
 /* ---------- page ---------- */
 .gt-mv { container: page / inline-size; max-width: 1440px; margin: 0 auto; padding: 20px 24px 72px; display: grid; gap: 20px; }
-.gt-mv > * { width: 100%; max-width: 1200px; margin-inline: auto; }
+.gt-mv > * { width: 100%; max-width: var(--content-max); margin-inline: auto; }
 .gt-mv > .gt-stage { max-width: 1392px; }
-.gt-mvhead { display: grid; gap: 10px; max-width: 1200px; }
+.gt-mvhead { display: grid; gap: 10px; max-width: var(--content-max); }
 .gt-mvhead .gt-crumbs { margin-bottom: 2px; }
 .gt-mvhead__t { font-size: 44px; line-height: 50px; }
 .gt-mvhead__sub { font-weight: 400; color: var(--ink-muted); font-size: .7em; letter-spacing: 0; }
@@ -38,6 +38,8 @@
 .gt-mapcanvas .maplibregl-canvas:focus-visible { outline: 2px solid var(--focus); outline-offset: -4px; }
 .gt-mapcanvas .maplibregl-ctrl-attrib { font: 400 11px/16px var(--sans); background: color-mix(in srgb, var(--paper-raised) 85%, transparent); }
 .gt-mapcanvas .maplibregl-ctrl-attrib a { color: var(--ink-muted); }
+/* MapLibre pads the compact box to 24px for its button; a 20px line centres the text in it. */
+.gt-mapcanvas .maplibregl-ctrl-attrib-inner { line-height: 20px; }
 .gt-stage__leg { position: absolute; left: 16px; bottom: 16px; z-index: 2; width: 400px; max-width: calc(100% - 32px); padding: 12px 14px; background: color-mix(in srgb, var(--paper-raised) 92%, transparent); border: 1px solid var(--rule); display: grid; gap: 8px; }
 .gt-mapleg .gt-legend__title { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .gt-stage__borders { margin: 0; font: 400 12px/16px var(--sans); color: var(--ink-muted); }
@@ -102,7 +104,7 @@
 .gt-pyear { display: grid; gap: 20px; }
 
 /* ---------- below the map ---------- */
-.gt-mvbelow { display: grid; grid-template-columns: minmax(0, 8fr) minmax(0, 4fr); gap: 48px; margin-top: 28px; max-width: 1200px; }
+.gt-mvbelow { display: grid; grid-template-columns: minmax(0, 8fr) minmax(0, 4fr); gap: 48px; margin-top: 28px; max-width: var(--content-max); }
 .gt-mvbelow__main { display: grid; gap: 16px; align-content: start; min-width: 0; }
 .gt-mvbelow__main .gt-h2 { border-top: 3px double var(--ink); padding-top: 14px; margin: 0; }
 .gt-mvbelow__main .gt-h2 ~ .gt-h2 { margin-top: 20px; }

@@ -35,6 +35,9 @@ before and without the map script.
 - **Loading.** `src/scripts/map/view.ts` fetches the layer file at once. MapLibre (about 280 KB gzipped, plus its
   worker) and the basemap load only when the map is shown: on desktop when the stage nears the screen, on a phone
   when "Show map" opens it full screen. If the map cannot load (no WebGL), the stage says so and points to the table.
+- **Opening view.** A map opens on the lived-in world (`HOME_BOUNDS` in `src/lib/map/projection.ts`: Alaska to
+  Australia's east coast, 56°S to 80°N), not the whole 180°W–180°E strip, so countries fill the frame; reset returns
+  there. A layer with its own `bounds` (a disputed river) opens on that instead.
 - **Controls.** The mineral picker is a row of links (each mineral is its own page; a phone gets a select). The year
   slider plays through the years; estimated years carry the Estimate tag. "Outline a bloc" draws the members'
   borders and adds one sentence to the panel ("BRICS members mined 35%…"). On a phone, year and bloc sit in a

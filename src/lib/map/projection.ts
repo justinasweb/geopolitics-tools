@@ -39,6 +39,16 @@ export const WORLD_BOUNDS: [[number, number], [number, number]] = [
   [180, mapLatOfY(equalEarth(0, 84)[1])],
 ];
 
+/**
+ * Where a map opens and where reset returns: the lived-in world, from the tip of Alaska to the east coast of Australia
+ * and from 56°S to 80°N. Open ocean and the far Arctic are left out so the countries fill the frame; the rest is a
+ * drag or a zoom away (WORLD_BOUNDS still limits how far).
+ */
+export const HOME_BOUNDS: [[number, number], [number, number]] = [
+  [toMap(-168, 65)[0], mapLatOfY(equalEarth(0, -56)[1])],
+  [toMap(154, -28)[0], mapLatOfY(equalEarth(0, 80)[1])],
+];
+
 /** Map coordinates back to Equal Earth units: the inverse of the second step of toMap. */
 export function fromMap(lng: number, lat: number): [number, number] {
   return [(lng / 180) * X_MAX, (X_MAX / Math.PI) * Math.log(Math.tan(Math.PI / 4 + (lat * Math.PI) / 360))];

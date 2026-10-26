@@ -11,7 +11,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 // The worker is a self-contained file; ?url makes the bundler copy it as it is and give its hashed address
 // (07-platform-test.md, finding 3: a bundled worker silently fails to draw).
 import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
-import { WORLD_BOUNDS } from '../../lib/map/projection';
+import { HOME_BOUNDS, WORLD_BOUNDS } from '../../lib/map/projection';
 import type { LayerFile, Overlay } from '../../lib/map/types';
 
 maplibregl.setWorkerUrl(workerUrl);
@@ -99,8 +99,8 @@ export function createMap(container: HTMLElement, base: Basemap, layer: LayerFil
   const T = readTokens();
   const scale = layer.scale === 'seq' ? 5 : 7;
   const colours = Array.from({ length: scale }, (_, i) => T[`--${layer.scale}-${i + 1}` as Token]);
-  // Where the map starts and the reset button returns: the layer's own area (a disputed river), else the world.
-  const home = layer.bounds ?? WORLD_BOUNDS;
+  // Where the map starts and the reset button returns: the layer's own area (a disputed river), else the lived-in world.
+  const home = layer.bounds ?? HOME_BOUNDS;
 
   const map = new maplibregl.Map({
     container,

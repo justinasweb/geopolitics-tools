@@ -86,28 +86,38 @@ export function worldMap(width = 1000) {
 }
 
 /**
- * A locator map: the place and its neighbours, cropped around its largest polygon to a 4:3 frame. Places too small
- * to see at that scale get a ring (`ring`, in the map's units) so they can be found.
+ * A locator map: the place and its neighbours in a 4:3 frame, zoomed so the place fills about the same share of the
+ * frame whatever its size; a small island state is drawn as large as a big country. The frame is set by the largest
+ * polygon and the place's other polygons near it (an island chain), so far-off territories do not shrink the main
+ * one to a dot. A place still too small to see at the closest zoom gets a ring (`ring`, in the map's units).
  */
 export function locatorMap(id: string, width = 400, height = 300) {
   shapes ??= load();
   const own = shapes.filter((s) => s.id === id);
   if (!own.length) return null;
-  // The largest ring decides the frame, so far-off islands do not shrink the main territory to a dot.
-  let best: Ring | null = null;
-  let bestArea = -1;
+  const boxes: [number, number, number, number, number][] = [];
   for (const s of own) for (const poly of s.polys) {
     const r = poly[0];
     let a = 0;
     for (let i = 0, j = r.length - 1; i < r.length; j = i++) a += (r[j][0] + r[i][0]) * (r[j][1] - r[i][1]);
-    if (Math.abs(a) > bestArea) { bestArea = Math.abs(a); best = r; }
+    const xs = r.map((p) => p[0]), ys = r.map((p) => p[1]);
+    boxes.push([Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys), Math.abs(a)]);
   }
-  const xs = best!.map((p) => p[0]), ys = best!.map((p) => p[1]);
-  const [bx0, bx1, by0, by1] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)];
-  const minSpan = 0.18;
+  boxes.sort((p, q) => q[4] - p[4]);
+  // Polygons within REACH of the largest (about 4°, Equal Earth units) join the frame: Tonga's islands, not Hawaii.
+  const REACH = 0.07;
+  let [bx0, bx1, by0, by1] = boxes[0];
+  const [l0, l1, t0, t1] = boxes[0];
+  for (const [x0, x1, y0, y1] of boxes.slice(1)) {
+    if (x1 < l0 - REACH || x0 > l1 + REACH || y1 < t0 - REACH || y0 > t1 + REACH) continue;
+    bx0 = Math.min(bx0, x0); bx1 = Math.max(bx1, x1); by0 = Math.min(by0, y0); by1 = Math.max(by1, y1);
+  }
+  // The place takes up about 60% of the frame's width or height. The floor (about 2°) stops a speck from filling it
+  // with the coarse outline of a few-kilometre island.
+  const minSpan = 0.03, pad = 1.7;
   const cx = (bx0 + bx1) / 2, cy = (by0 + by1) / 2;
-  let w = Math.max(bx1 - bx0, minSpan) * 2.2;
-  let h = Math.max(by1 - by0, minSpan) * 2.2;
+  let w = Math.max(bx1 - bx0, minSpan) * pad;
+  let h = Math.max(by1 - by0, minSpan) * pad;
   if (w / h > width / height) h = (w * height) / width; else w = (h * width) / height;
   const v: View = { x: cx - w / 2, y: cy - h / 2, w, h, width };
   const paths = shapes.map((s) => ({ id: s.id, d: pathOf(s, v) })).filter((p) => p.d);

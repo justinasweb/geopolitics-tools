@@ -71,6 +71,7 @@
   --border-strong: 2px;
   --border-double: 3px;
   --grid-max: 1200px;
+  --content-max: calc(var(--grid-max) - 2 * var(--grid-gutter));
   --grid-columns: 12;
   --grid-gutter: 24px;
   --grid-columns-phone: 4;

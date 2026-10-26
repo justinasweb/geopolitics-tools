@@ -2,7 +2,7 @@
    Ported from the design system's bundle.css; colours and fonts come from tokens.css. */
 
 .gt-cp { container: page / inline-size; max-width: 1440px; margin: 0 auto; padding: 20px 24px 72px; display: grid; gap: 28px; }
-.gt-cp > * { width: 100%; max-width: 1200px; margin-inline: auto; min-width: 0; }
+.gt-cp > * { width: 100%; max-width: var(--content-max); margin-inline: auto; min-width: 0; }
 .gt-th { display: block; padding: 10px 12px; }
 .gt-cphead { display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 48px; align-items: start; }
 .gt-cphead__text { display: grid; gap: 14px; min-width: 0; }
@@ -32,7 +32,7 @@
 .gt-rank { font: 400 14px/20px var(--sans); color: var(--ink-muted); }
 .gt-rank b { font-weight: 600; color: var(--ink); }
 .gt-cpkf__src { font: 400 12px/18px var(--sans); color: var(--ink-muted); display: flex; flex-wrap: wrap; gap: 4px 6px; align-items: center; }
-.gt-cpbody { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 48px; align-items: start; max-width: 1200px; }
+.gt-cpbody { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 48px; align-items: start; max-width: var(--content-max); }
 .gt-cpmenu { position: sticky; top: 16px; display: grid; gap: 10px; padding-top: 4px; }
 .gt-cpmenu ol { list-style: none; margin: 0; padding: 0; display: grid; border-left: 1px solid var(--rule); }
 .gt-cpmenu a { display: flex; gap: 10px; align-items: baseline; padding: 8px 12px; margin-left: -1px; border-left: 2px solid transparent; font: 500 15px/20px var(--sans); color: var(--ink-muted); text-decoration: none; }
