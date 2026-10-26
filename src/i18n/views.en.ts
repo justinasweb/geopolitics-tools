@@ -39,16 +39,42 @@ export interface LayerText {
 export interface FamilyText {
   section: string;
   pickerLabel: string;
+  /** What the map and legend call a country with no figure, where "No data" would mislead (food crises: no analysis is not no hunger). */
+  none?: string;
   layers: Record<string, LayerText>;
 }
 
 const fossil = 'from fossil fuels and cement';
+const hungerCaveat = 'IPC and Cadre Harmonisé analyses cover the countries and areas that ask for them, often part of a country, for a few months; each country’s figure is its latest analysis starting in the year. A country with no analysis is shown as such: that does not mean no one there is hungry.';
 const power5 = ['Under 20%', '20–40%', '40–60%', '60–80%', '80% or more'];
 const powerCaveat = 'Shares of the electricity generated inside each country, before trade in electricity. A small system can reach a high share with one large plant. Changes are in percentage points.';
 const armsPeriod = (y: number) => `${y - 4}–${y}`;
 const armsCaveat = 'SIPRI’s trend-indicator value measures the military capability of major weapons delivered, not the price paid, so it is not money. Deliveries are lumpy, so figures are five-year totals. Small arms, ammunition and transfers to or from groups that are not states are left out.';
 
 export const VIEW_TEXT: Record<string, FamilyText> = {
+  'food-crises': {
+    section: 'Food crises',
+    pickerLabel: 'Measure',
+    none: 'No IPC analysis',
+    layers: {
+      hunger: {
+        pick: 'People', title: 'People in food crisis', sub: 'IPC Phase 3 or worse, by country', measure: 'in Phase 3 or worse', figureLabel: 'People in Phase 3 or worse',
+        legend: (y) => `People in food crisis or worse (IPC Phase 3+), latest analysis in ${y}`, worldLabel: 'Total, countries analysed',
+        lede: ({ top, value, share, top3, year }) => `${top} had the most people in food crisis or worse in its latest analysis of ${year}: ${value}, ${share} of the total in countries analysed${top3 ? `; the top three had ${top3}` : ''}.`,
+        total: (v, y, ch) => `Analyses in ${y} counted ${v} people in food crisis or worse${ch ? `, ${ch}` : ''}.`,
+        bloc: (b, s, y) => `${b} members had ${s} of them in ${y}.`,
+        caveat: hungerCaveat,
+        description: (y) => `People in food crisis or worse (IPC Phase 3+) by country, ${y}, from IPC and Cadre Harmonisé analyses, on a map and in a table. Source: IPC.`,
+      },
+      hungershare: {
+        pick: 'Share', title: 'Share in food crisis', sub: 'of the people analysed, by country', measure: 'of the people analysed', figureLabel: 'Share in Phase 3 or worse',
+        legend: (y) => `Share of the people analysed in IPC Phase 3 or worse, ${y}`, ticks: ['Under 5%', '5–10%', '10–20%', '20–30%', '30% or more'],
+        lede: ({ up, of, year }) => `In ${up} of the ${of} countries analysed in ${year}, 30% or more of the people analysed were in food crisis or worse.`,
+        caveat: `${hungerCaveat} The share is of the people analysed, which can be less than the whole population.`,
+        description: (y) => `Share of people in food crisis or worse (IPC Phase 3+) by country, ${y}, on a map and in a table. Source: IPC.`,
+      },
+    },
+  },
   electricity: {
     section: 'Electricity',
     pickerLabel: 'Source',

@@ -19,6 +19,7 @@ import comtrade, { plan, trim } from '../../../pipeline/sources/comtrade.ts';
 import eia, { SERIES as EIA_SERIES } from '../../../pipeline/sources/eia.ts';
 import ember, { SERIES as EMBER_SERIES } from '../../../pipeline/sources/ember.ts';
 import ucdp from '../../../pipeline/sources/ucdp.ts';
+import ipc from '../../../pipeline/sources/ipc.ts';
 import { createHttp } from '../../../pipeline/lib/http.ts';
 import { ctxFor, fakeHttp, type Route } from './helpers.ts';
 
@@ -373,5 +374,20 @@ describe('ucdp', () => {
     expect(seen.some((u) => u.includes('/25.1?'))).toBe(false);
     expect(seen.some((u) => u.includes('/25.0.3?'))).toBe(false);
     expect(JSON.parse(body(r, 'gedevents_25.0.3.json')).TotalCount).toBe(1);
+  });
+});
+
+describe('ipc', () => {
+  const env = { IPC_API_KEY: 'k' };
+  const an = (n: number) => Array.from({ length: n }, (_, i) => ({ anl_id: i, country: iso(i).slice(0, 2), condition: 'A', from: `2026-0${1 + (i % 9)}`, to: '2026-12', phase3plus_population: 1000 }));
+
+  it('saves the acute analyses in the API format', async () => {
+    const r = await ipc.fetch({ ...ctxFor(fakeHttp([[/country\?format=json&type=A&key=k/, () => [...an(40), { anl_id: 99, country: 'XX', condition: 'C', from: '2026-01', phase3plus_population: 1 }]]])), env });
+    expect(JSON.parse(body(r, 'country.json'))).toHaveLength(40);
+    expect(r.dataTo).toBe('2026-09');
+  });
+
+  it('refuses too few countries', async () => {
+    await expect(ipc.fetch({ ...ctxFor(fakeHttp([[/country/, () => an(10)]])), env })).rejects.toThrow(/only 10 countries/);
   });
 });

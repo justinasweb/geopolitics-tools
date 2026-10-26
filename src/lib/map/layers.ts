@@ -12,7 +12,7 @@ import { PLACES, NOTES } from '../places.ts';
 import { countryHref, live } from '../routes.ts';
 import { amount, listed, mineralPages, shareClass, shareText, withheld, nameOf, type MineralPage } from '../minerals.ts';
 import { list, inSentence } from '../../i18n/pages.en.ts';
-import { OUTAGE_TEXT, PARTS_TEXT as PX, VIEWS_TEXT } from '../../i18n/views.en.ts';
+import { OUTAGE_TEXT, PARTS_TEXT as PX, VIEW_TEXT, VIEWS_TEXT } from '../../i18n/views.en.ts';
 import { classFor, creditOf, familyPages, partsOf, placeNote, shareOf, valueText, viewPages, type ViewPage } from '../views.ts';
 import { shared } from '../data.ts';
 import { loadFlows } from '../../data/flows.ts';
@@ -42,6 +42,8 @@ import { ARMS_TEXT } from '../../i18n/arms.en.ts';
 import { groupsOf, mixOf } from '../electricity.ts';
 import { cells, conflictPage, deathClass, VIOLENCE } from '../conflict.ts';
 import { CONFLICT_TEXT, monthText } from '../../i18n/conflict.en.ts';
+import { latestAnalyses, monthSpan } from '../hunger.ts';
+import { HUNGER_TEXT } from '../../i18n/hunger.en.ts';
 import { POWER_TEXT } from '../../i18n/electricity.en.ts';
 import type { Pair } from '../../data/flows.ts';
 import type { Hazard } from '../../adapters/hazards.ts';
@@ -210,7 +212,7 @@ function indicatorLayer(p: ViewPage): LayerFile {
   }
   return {
     id: `${p.family.id}-${p.id}`, scale: p.layer.scale, years: p.years, year: p.year, ticks: p.ticks, ends: p.text.ends,
-    missing: { none: W.noData }, source: creditOf(p),
+    missing: { none: VIEW_TEXT[p.family.id].none ?? W.noData }, source: creditOf(p),
     text: {
       ...(c.words as LayerFile['text']),
       kicker: `${p.text.title} · ${p.text.period ? p.text.period(p.year) : '{year}'}`, measure: p.text.measure, shareLabel: p.text.figureLabel, none: W.notListed(0).replace('0', '{year}'),
@@ -221,7 +223,7 @@ function indicatorLayer(p: ViewPage): LayerFile {
     },
     tags: c.tags, names: c.names, hrefs: c.hrefs, dossiers: c.dossiers, slugs: c.slugs, notes, blocs: c.blocs, data,
     series: seriesOf(p.years.map((year) => Object.fromEntries(p.byYear[year].rows.map((r) => [r.id, r.value])))),
-    format: p.format, more: p.family.id === 'space' ? withSpace(viewMore(p)) : p.family.id === 'sanctions' ? withSanctions(viewMore(p), p.id) : p.id === 'outages' ? withOutages(viewMore(p)) : p.family.id === 'chinese-lending' ? withLending(viewMore(p), p.id) : p.family.id === 'electricity' ? withMix(viewMore(p), p) : viewMore(p),
+    format: p.format, more: p.family.id === 'space' ? withSpace(viewMore(p)) : p.family.id === 'sanctions' ? withSanctions(viewMore(p), p.id) : p.id === 'outages' ? withOutages(viewMore(p)) : p.family.id === 'chinese-lending' ? withLending(viewMore(p), p.id) : p.family.id === 'electricity' ? withMix(viewMore(p), p) : p.family.id === 'food-crises' ? withPhases(viewMore(p)) : viewMore(p),
     ...(p.id === 'launches' ? { overlays: [launchSites(p)] } : p.id === 'aicompute' ? { overlays: [aiClusters(p)] } : p.id === 'waterstress' ? { overlays: [damMarks()] } : p.family.id === 'arms' ? { overlays: [armsArcs(p)] } : {}),
   };
 }
@@ -247,6 +249,20 @@ function withSpace(more: Record<string, PanelBlock[]>): Record<string, PanelBloc
 
 /** Arms: for each place, its main partners over the period and, for importers, its suppliers by group (now and, when
  * the data reaches back far enough, in the period before). */
+/** Food crises: each country's latest IPC or Cadre Harmonisé analysis, people by phase, after its other blocks. */
+function withPhases(more: Record<string, PanelBlock[]>): Record<string, PanelBlock[]> {
+  const H = HUNGER_TEXT;
+  const out = { ...more };
+  for (const [id, a] of latestAnalyses()) {
+    const f = (v: number) => formatValue(v, { kind: 'count' });
+    out[id] = [...(out[id] ?? []), {
+      label: H.latest, caption: H.latestCaption(a.system, monthSpan(a.from, a.to), f(a.analysed)),
+      rows: ([5, 4, 3, 2, 1] as const).map((k) => ({ name: H.phase[k], value: f(a.phases[k - 1]), note: a.analysed ? formatValue(a.phases[k - 1] / a.analysed, { kind: 'share' }) : undefined })),
+    }];
+  }
+  return out;
+}
+
 /** Electricity: each country's power mix in the default year, in seven groups, largest first, after its other blocks.
  *  One year only: a mix for every year and country would make the layer file several megabytes. */
 function withMix(more: Record<string, PanelBlock[]>, p: ViewPage): Record<string, PanelBlock[]> {

@@ -17,6 +17,7 @@ import { oilPrices } from '../src/adapters/eia.ts';
 import { comtrade } from '../src/adapters/comtrade.ts';
 import { ember } from '../src/adapters/ember.ts';
 import { ged } from '../src/adapters/ucdp.ts';
+import { ipc } from '../src/adapters/ipc.ts';
 import { FLOWS, loadFlows } from '../src/data/flows.ts';
 import { INDICATORS, latestYear, registry } from '../src/data/indicators.ts';
 
@@ -64,6 +65,7 @@ const VIEWS: [string, () => string][] = [
   ['comtrade', () => { const r = comtrade(raw); return `${r.length} rows, ${new Set(r.map((x) => x.reporter)).size} reporters, ${[...new Set(r.map((x) => x.year))].sort().join(' ')}`; }],
   ['electricity', () => { const e = ember(raw); return `${Object.keys(e.mix).length} countries, world ${Object.keys(e.world).length ? 'from Ember' : 'added up'}`; }],
   ['conflict', () => { const e = ged(raw); return `${e.length} events, ${e[0]?.month}–${e.at(-1)?.month}, ${e.filter((x) => !x.place).length} unplaced, ${e.filter((x) => x.candidate).length} preliminary`; }],
+  ['food crises', () => { const a = ipc(raw); return `${a.length} analyses, ${new Set(a.map((x) => x.place)).size} countries, latest from ${a.at(-1)?.from}`; }],
   ['treasury history', () => `${Object.keys(treasuryHistory(raw)).length} places`],
 ];
 for (const [name, f] of VIEWS) {

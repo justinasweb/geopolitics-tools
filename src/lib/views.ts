@@ -148,6 +148,7 @@ export const yearText = (p: ViewPage, y: number) => (p.text.period ? p.text.peri
 
 /** The change in the world figure from the year (or period) before, as a share (in points for share layers), when both have one. */
 export function worldChange(p: ViewPage, y: number): number | null {
+  if (p.layer.noTotalChange) return null;
   const a = p.byYear[y]?.world;
   const b = p.byYear[prevOf(p, y)]?.world;
   return a == null || b == null ? null : p.layer.points ? a - b : a && b ? a / b - 1 : null;

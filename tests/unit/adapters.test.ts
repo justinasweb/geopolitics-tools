@@ -137,7 +137,8 @@ describe('indicator registry and flows', () => {
     expect(r.get('oilprod').USA[2024]).toBeGreaterThan(10_000);
     expect(r.get('power').CHN[2024]).toBeGreaterThan(5000);
     expect(r.get('lowcarbon').FRA[2024]).toBeGreaterThan(0.8);
-    expect(() => r.get('hunger')).toThrow(/waiting for an API key/);
+    expect(r.get('hunger').SDN[2025]).toBeGreaterThan(1e6);
+    expect(r.get('hungershare').SDN[2025]).toBeLessThan(1);
     for (const id of ['co2pc', 'wheatprod', 'armsimp', 'chinaloans', 'popun', 'refin', 'refinpc']) expect(Object.keys(r.get(id)).length, id).toBeGreaterThan(0);
   });
 

@@ -40,6 +40,8 @@ import { formatDate } from '../lib/format';
 import { armsPeriod, armsPeriods } from '../lib/arms';
 import { ARMS_TEXT as RX } from '../i18n/arms.en';
 import { groupsOf, worldMix } from '../lib/electricity';
+import { catastrophe, monthSpan } from '../lib/hunger';
+import { HUNGER_TEXT as HG } from '../i18n/hunger.en';
 import { POWER_TEXT as PW } from '../i18n/electricity.en';
 
 interface Props { id: string }
@@ -85,6 +87,8 @@ const mapTop = (div ? [...y.rows.slice(0, 2), ...y.rows.slice(-2)] : top).map((r
 const cons = p.id === 'satellites' ? constellations() : [];
 // Electricity: the world's power mix in the default year, under the country table.
 const wmix = p.family.id === 'electricity' ? worldMix(p.year) : null;
+// Food crises: countries whose latest analysis counts people in catastrophe.
+const cat = p.family.id === 'food-crises' ? catastrophe() : [];
 const twh = (v: number) => formatValue(v, { kind: 'number', digits: v < 10 ? 1 : 0 });
 const sites = p.id === 'launches' ? sitesIn(p.year) : [];
 const clusters = p.id === 'aicompute' ? clustersAt(p.year).slice(0, 20) : [];
@@ -119,7 +123,7 @@ const bars = (rs: Row[], max: number) => rs.map((r) => ({ id: r.id, text: valueT
     periods={p.layer.span ? { label: W.periodLabel(p.layer.span), options: Object.fromEntries(p.years.map((yr) => [yr, yearText(p, yr)])) } : undefined} />
 
   <MapStage layer={layerPath(`${p.family.id}-${p.id}`)} label={`${T.legend(p.year)}. ${mapTop}. ${W.caption(p.year, null)}`} title={T.title}
-    legend={{ title: T.legend(p.year), scale: p.layer.scale, ticks: p.ticks, ends: T.ends, none: W.noData, ...(p.id === 'launches' ? { marks: [{ symbol: 'hollow', label: SP.sitesMark }] } : p.id === 'aicompute' ? { marks: [{ symbol: 'hollow', label: AX.mark }] } : p.id === 'waterstress' ? { marks: [{ symbol: 'triangle', label: DX.mark }] } : {}) }}>
+    legend={{ title: T.legend(p.year), scale: p.layer.scale, ticks: p.ticks, ends: T.ends, none: fam.none ?? W.noData, ...(p.id === 'launches' ? { marks: [{ symbol: 'hollow', label: SP.sitesMark }] } : p.id === 'aicompute' ? { marks: [{ symbol: 'hollow', label: AX.mark }] } : p.id === 'waterstress' ? { marks: [{ symbol: 'triangle', label: DX.mark }] } : {}) }}>
     <div data-panel="world" slot="panel">
       <div class="gt-panel__head">
         <div class="gt-panel__title"><span class="gt-kicker">{T.title} · <span data-year-text>{when}</span></span><h2 class="gt-h3">{MAP_TEXT.world}</h2></div>
@@ -212,6 +216,19 @@ const bars = (rs: Row[], max: number) => rs.map((r) => ({ id: r.id, text: valueT
           <h3 class="gt-label">{W.notes}</h3>
           <ol class="gt-caption">{notes.map((n, i) => <li id={`mv-note-${i + 1}`}><b>{nameOf(n.id)}:</b> {n.text}</li>)}</ol>
         </div>
+      )}
+      {cat.length > 0 && (
+        <>
+          <h2 class="gt-h2" id="phase5">{HG.catastrophe}</h2>
+          <div class="gt-tablewrap" style="--gt-table-h:none" tabindex="0" role="region" aria-label={HG.catastrophe}>
+            <table class="gt-table">
+              <caption class="gt-caption">{HG.catastropheCaption}</caption>
+              <thead><tr><th scope="col">{HG.country}</th><th scope="col">{HG.period}</th><th scope="col" class="n">{HG.people5}</th><th scope="col" class="n">{HG.people3}</th></tr></thead>
+              <tbody>{cat.map((a) => <tr><th scope="row">{countryHref(a.place) ? <a href={countryHref(a.place)}>{nameOf(a.place)}</a> : nameOf(a.place)}</th><td>{monthSpan(a.from, a.to)}</td><td class="n">{count(a.phases[4])}</td><td class="n">{count(a.crisis)}</td></tr>)}</tbody>
+            </table>
+          </div>
+          <SourceLine source={source} updated={updated} />
+        </>
       )}
       {wmix && (
         <>

@@ -25,6 +25,7 @@ import { LISTS, listingsAt, sanctions } from '../adapters/sanctions.ts';
 import { gas, oil } from '../adapters/eia.ts';
 import { ember, powerSeries } from '../adapters/ember.ts';
 import { deathsByYear, ged } from '../adapters/ucdp.ts';
+import { hungerSeries, ipc } from '../adapters/ipc.ts';
 
 export type Group = 'economy' | 'people' | 'energy' | 'food' | 'climate' | 'security' | 'tech' | 'influence';
 export const GROUPS: Group[] = ['economy', 'people', 'energy', 'food', 'climate', 'security', 'tech', 'influence'];
@@ -70,6 +71,7 @@ const sanctionsOf = once(sanctions);
 const oilOf = once(oil);
 const gasOf = once(gas);
 const powerOf = once(ember);
+const ipcOf = once(ipc);
 const staticYear = (values: Record<string, number | null>, year: number): Series => {
   const out: Series = {};
   for (const [id, v] of Object.entries(values)) put(out, id, year, v);
@@ -144,8 +146,8 @@ const LIST: Indicator[] = [
   { id: 'conflictdeaths', group: 'security', source: 'ucdp', format: count, scale: 'log', load: (raw) => deathsByYear(ged(raw)) },
   { id: 'armsimp', group: 'security', source: 'sipri', format: unit('TIV m'), scale: 'log', load: armsBy('to') },
   { id: 'armsexp', group: 'security', source: 'sipri', format: unit('TIV m'), scale: 'log', load: armsBy('from') },
-  { id: 'hunger', group: 'security', source: 'ipc', format: count, scale: 'log', pending: 'IPC, waiting for an API key' },
-  { id: 'hungershare', group: 'security', source: 'ipc', format: share, scale: 'linear', pending: 'IPC, waiting for an API key' },
+  { id: 'hunger', group: 'security', source: 'ipc', format: count, scale: 'log', load: (raw) => hungerSeries(ipcOf(raw), 'people') },
+  { id: 'hungershare', group: 'security', source: 'ipc', format: share, scale: 'linear', load: (raw) => hungerSeries(ipcOf(raw), 'share') },
   // Technology and space
   { id: 'satellites', group: 'tech', source: 'celestrak', format: count, scale: 'log', load: (raw) => spaceOf(raw).inOrbit },
   { id: 'launches', group: 'tech', source: 'celestrak', format: count, scale: 'linear', load: (raw) => spaceOf(raw).launches },

@@ -16,6 +16,8 @@ export interface ViewLayer {
   span?: number;
   /** The figures are shares of a country's own total (electricity), so changes are in percentage points. */
   points?: boolean;
+  /** The countries counted change from year to year (food crises), so the total's change says nothing and is left out. */
+  noTotalChange?: boolean;
   /** Fixed class edges, for scores with named bands (water stress); the layer's words give the ticks. */
   edges?: number[];
 }
@@ -38,6 +40,13 @@ export const VIEW_FAMILIES: ViewFamily[] = [
       { indicator: 'coalpower', scale: 'seq', sums: false, points: true, edges: [0.2, 0.4, 0.6, 0.8] },
       { indicator: 'gaspower', scale: 'seq', sums: false, points: true, edges: [0.2, 0.4, 0.6, 0.8] },
       { indicator: 'nuclearpower', scale: 'seq', sums: false, points: true, edges: [0.05, 0.15, 0.3, 0.5] },
+    ],
+  },
+  {
+    // The latest analysis starting in each year; countries without one are not counted, which is not the same as no hunger.
+    id: 'food-crises', hub: 'security', layers: [
+      { indicator: 'hunger', scale: 'seq', sums: true, noTotalChange: true },
+      { indicator: 'hungershare', scale: 'seq', sums: false, edges: [0.05, 0.1, 0.2, 0.3] },
     ],
   },
   {
