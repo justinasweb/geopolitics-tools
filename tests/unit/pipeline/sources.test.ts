@@ -16,7 +16,7 @@ import unhcr, { foldPairs, num } from '../../../pipeline/sources/unhcr.ts';
 import usgsQuakes from '../../../pipeline/sources/usgs-quakes.ts';
 import worldbank, { INDICATORS } from '../../../pipeline/sources/worldbank.ts';
 import comtrade, { plan, trim } from '../../../pipeline/sources/comtrade.ts';
-import eia, { SERIES as EIA_SERIES } from '../../../pipeline/sources/eia.ts';
+import eia from '../../../pipeline/sources/eia.ts';
 import ember, { SERIES as EMBER_SERIES } from '../../../pipeline/sources/ember.ts';
 import ucdp from '../../../pipeline/sources/ucdp.ts';
 import ipc from '../../../pipeline/sources/ipc.ts';
