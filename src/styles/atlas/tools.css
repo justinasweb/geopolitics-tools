@@ -2,7 +2,7 @@
    Ported from the design system's bundle.css; colours and fonts come from tokens.css. */
 
 .gt-tl { container: page / inline-size; max-width: 1440px; margin: 0 auto; padding: 20px 24px 72px; display: grid; gap: 28px; }
-main.gt-tl > *, .gt-tl > * { width: 100%; max-width: 1200px; margin-inline: auto; min-width: 0; }
+main.gt-tl > *, .gt-tl > * { width: 100%; max-width: var(--content-max); margin-inline: auto; min-width: 0; }
 .gt-tlhead { display: grid; gap: 10px; }
 .gt-tlhead__t { margin: 0; }
 .gt-tlhead__a { margin: 0; max-width: 820px; display: flex; flex-wrap: wrap; gap: 6px 8px; align-items: center; }

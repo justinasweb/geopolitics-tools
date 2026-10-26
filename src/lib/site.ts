@@ -8,3 +8,11 @@ export const siteName = 'geopolitics.tools';
 // built pages instead, so the work in progress can be clicked through. CI sets SITE_HOLDING=true for production
 // builds; at launch the repository variable SITE_HOLDING is set to `false` (and the dev index goes).
 export const holdingHome = process.env.SITE_HOLDING === 'true';
+
+// Fathom Analytics, cookieless (see the privacy page). The tag goes on every page, but Fathom counts visits only on
+// the production domain and ignores every other host (workers.dev, Previews, localhost). Until launch that domain
+// serves only the holding page, so only the holding page is counted; after launch, every page is. No ID, no tag.
+export const fathomSiteId = 'DNBPMMDA';
+export const fathomTag = fathomSiteId
+  ? `<script src="https://cdn.usefathom.com/script.js" data-site="${fathomSiteId}" data-included-domains="${siteName}" defer></script>`
+  : '';

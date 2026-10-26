@@ -64,6 +64,13 @@ The workers.dev address and Previews keep every page, so CI can check them; they
 `www.geopolitics.tools` is not connected; a Cloudflare Redirect Rule (www to the bare domain) is the planned way
 to cover it.
 
+## Analytics
+
+Fathom (cookieless, site `DNBPMMDA`, set in `src/lib/site.ts`) is tagged on every page and on the holding page,
+with `data-included-domains="geopolitics.tools"`: Fathom counts visits only there, never on workers.dev, Previews
+or localhost. Until launch that domain serves only the holding page, so only it is counted; at launch every page
+is, with no change.
+
 ## R2 buckets
 
 Created by the production job if missing:

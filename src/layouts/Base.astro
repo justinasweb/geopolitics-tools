@@ -8,7 +8,7 @@ import '../styles/atlas/base.css';
 import serifFont from '@fontsource-variable/newsreader/files/newsreader-latin-opsz-normal.woff2?url';
 import sansFont from '@fontsource-variable/source-sans-3/files/source-sans-3-latin-wght-normal.woff2?url';
 import StatusTag from '../components/StatusTag.astro';
-import { indexable, siteName } from '../lib/site';
+import { fathomTag, indexable, siteName } from '../lib/site';
 import { organization } from '../lib/structured';
 import { SAMPLE_BANNER } from '../i18n/pages.en';
 
@@ -54,6 +54,7 @@ const ld = [organization(), ...jsonld];
     <link rel="preload" href={serifFont} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={sansFont} as="font" type="font/woff2" crossorigin />
     <script type="application/ld+json" set:html={JSON.stringify(ld.length === 1 ? ld[0] : ld)} />
+    <Fragment set:html={fathomTag} />
   </head>
   <body class="gt">
     {sample && (
