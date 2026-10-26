@@ -44,6 +44,10 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: node pipeline/pull.ts --store=r2 --out=data/raw
+      # Every indicator and flow on the latest real files, with each adapter's unmatched codes (pipeline/adapter-check.ts).
+      - name: Adapters on the latest data
+        if: steps.data.outcome == 'success'
+        run: node pipeline/adapter-check.ts data/raw
       - name: Build
         run: ${{ steps.data.outcome == 'success' && 'npm run build' || 'npm run build:sample' }}
       - uses: actions/upload-artifact@v7
