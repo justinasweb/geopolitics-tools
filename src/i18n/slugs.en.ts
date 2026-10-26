@@ -18,7 +18,7 @@ export const VIEW_SLUGS: Record<string, string> = {
   co2: '', co2pc: 'per-person', co2cum: 'since-1750', co2trade: 'imported',
   refout: '', refin: 'hosted', refinpc: 'per-person', idps: 'displaced',
   satellites: '', launches: 'launches',
-  aicompute: '', aimodels: 'models', entitylist: 'export-controls',
+  aicompute: '', aimodels: 'models', entitylist: 'export-controls', chipimports: 'chips', chipmachines: 'chip-machines',
   outages: 'outages',
   waterstress: '', waterstress2050: '2050', waterdep: 'from-abroad',
   lendall: '', lendenergy: 'energy', lendtransport: 'transport', lendindustry: 'mining', lendbanking: 'banking', lendother: 'other',

@@ -26,7 +26,7 @@ import { ENERGY_TEXT } from '../../i18n/energy.en.ts';
 import { arcXY, toMap } from './projection.ts';
 import { sitesIn, spaceAsOf, workingBy } from '../space.ts';
 import { SPACE_TEXT } from '../../i18n/space.en.ts';
-import { clustersAt } from '../ai.ts';
+import { CHIP_LAYERS, chipFlowsFor, clustersAt } from '../ai.ts';
 import { AI_TEXT } from '../../i18n/ai.en.ts';
 import { LISTS, sanctions } from '../../adapters/sanctions.ts';
 import { SANCTIONS_TEXT } from '../../i18n/sanctions.en.ts';
@@ -223,8 +223,8 @@ function indicatorLayer(p: ViewPage): LayerFile {
     },
     tags: c.tags, names: c.names, hrefs: c.hrefs, dossiers: c.dossiers, slugs: c.slugs, notes, blocs: c.blocs, data,
     series: seriesOf(p.years.map((year) => Object.fromEntries(p.byYear[year].rows.map((r) => [r.id, r.value])))),
-    format: p.format, more: p.family.id === 'space' ? withSpace(viewMore(p)) : p.family.id === 'sanctions' ? withSanctions(viewMore(p), p.id) : p.id === 'outages' ? withOutages(viewMore(p)) : p.family.id === 'chinese-lending' ? withLending(viewMore(p), p.id) : p.family.id === 'electricity' ? withMix(viewMore(p), p) : p.family.id === 'food-crises' ? withPhases(viewMore(p)) : viewMore(p),
-    ...(p.id === 'launches' ? { overlays: [launchSites(p)] } : p.id === 'aicompute' ? { overlays: [aiClusters(p)] } : p.id === 'waterstress' ? { overlays: [damMarks()] } : p.family.id === 'arms' ? { overlays: [armsArcs(p)] } : {}),
+    format: p.format, more: p.family.id === 'space' ? withSpace(viewMore(p)) : p.family.id === 'sanctions' ? withSanctions(viewMore(p), p.id) : p.id === 'outages' ? withOutages(viewMore(p)) : p.family.id === 'chinese-lending' ? withLending(viewMore(p), p.id) : p.family.id === 'electricity' ? withMix(viewMore(p), p) : p.family.id === 'food-crises' ? withPhases(viewMore(p)) : CHIP_LAYERS[p.id] ? withSuppliers(viewMore(p), p) : viewMore(p),
+    ...(p.id === 'launches' ? { overlays: [launchSites(p)] } : p.id === 'aicompute' ? { overlays: [aiClusters(p)] } : p.id === 'waterstress' ? { overlays: [damMarks()] } : p.family.id === 'arms' ? { overlays: [armsArcs(p)] } : CHIP_LAYERS[p.id] ? { overlays: [chipArcs(p)] } : {}),
   };
 }
 
@@ -330,6 +330,35 @@ function armsArcs(p: ViewPage): Overlay {
     }));
   });
   return { id: 'arms', kind: 'arcs', label: ARMS_TEXT.arcs, items };
+}
+
+const chipFlowsOf = (p: ViewPage) => chipFlowsFor(p.id);
+
+/** Chips: each year's 20 largest flows, supplier to buyer, shown in their year. */
+function chipArcs(p: ViewPage): Overlay {
+  const at = anchors();
+  const all = chipFlowsOf(p);
+  const items: Arc[] = p.years.flatMap((year, i) => all.filter((f) => f.year === year && at[f.from] && at[f.to]).slice(0, 20).map((f) => ({
+    p: arcXY(at[f.from], at[f.to]), w: f.amount, m: 2 ** i,
+    tip: AI_TEXT.arcTip(nameOf2(f.from), nameOf2(f.to), formatValue(f.amount, { kind: 'money' }), year),
+  })));
+  return { id: p.id, kind: 'arcs', label: AI_TEXT.arcs, items };
+}
+
+/** Chips: a buyer's main suppliers in the latest year, after its other blocks. */
+function withSuppliers(more: Record<string, PanelBlock[]>, p: ViewPage): Record<string, PanelBlock[]> {
+  const all = chipFlowsOf(p).filter((f) => f.year === p.year);
+  const out = { ...more };
+  for (const id of new Set(all.map((f) => f.to))) {
+    const mine = all.filter((f) => f.to === id);
+    const total = mine.reduce((t, f) => t + f.amount, 0);
+    out[id] = [...(out[id] ?? []), {
+      label: AI_TEXT.suppliers(p.year), caption: AI_TEXT.suppliersCaption,
+      rows: mine.slice(0, 5).map((f) => ({ name: nameOf2(f.from), value: formatValue(f.amount, { kind: 'money' }), note: shareOf(f.amount, total) ?? undefined })),
+      more: mine.length > 5 ? AI_TEXT.moreSuppliers(mine.length - 5) : undefined,
+    }];
+  }
+  return out;
 }
 
 /** Water stress: the largest dams, those holding at least 1 km³, sized by reservoir. */

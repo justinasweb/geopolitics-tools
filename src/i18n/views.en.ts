@@ -46,6 +46,7 @@ export interface FamilyText {
 
 const fossil = 'from fossil fuels and cement';
 const hungerCaveat = 'IPC and Cadre Harmonisé analyses cover the countries and areas that ask for them, often part of a country, for a few months; each country’s figure is its latest analysis starting in the year. A country with no analysis is shown as such: that does not mean no one there is hungry.';
+const chipsCaveat = (what: string) => `Imports of ${what} as the importing countries report them to UN Comtrade, at their value in US dollars. Chips cross borders several times as they are made, tested and packaged, so imports count some chips more than once. Taiwan does not report to Comtrade; its sales show in its partners’ imports.`;
 const power5 = ['Under 20%', '20–40%', '40–60%', '60–80%', '80% or more'];
 const powerCaveat = 'Shares of the electricity generated inside each country, before trade in electricity. A small system can reach a high share with one large plant. Changes are in percentage points.';
 const armsPeriod = (y: number) => `${y - 4}–${y}`;
@@ -251,6 +252,24 @@ export const VIEW_TEXT: Record<string, FamilyText> = {
         bloc: (b, s, y) => `${s} of the entries were in ${b} members in ${y}.`,
         caveat: 'The Entity List names companies, research bodies and people that need a US licence to receive US goods and technology, including chips and chipmaking tools. It is an export control, not a sanction. Entries are counted by the country of their address.',
         description: (y) => `US Entity List entries by country, ${y}: who needs a licence to get US chips and technology, on a map and in a table. Source: US Consolidated Screening List.`,
+      },
+      chipimports: {
+        pick: 'Chip imports', title: 'Chip imports', sub: 'integrated circuits, by importer', measure: 'of chip imports reported', figureLabel: 'Chip imports',
+        legend: (y) => `Imports of integrated circuits, US dollars, ${y}`, worldLabel: 'Total, importers reporting',
+        lede: ({ top, value, share, top3, year }) => `${top} reported ${value} of chip imports in ${year}, ${share} of the total reported${top3 ? `; the top three importers ${top3}` : ''}.`,
+        total: (v, y, ch) => `Importers reported ${v} of chip imports in ${y}${ch ? `, ${ch}` : ''}.`,
+        bloc: (b, s, y) => `${b} members reported ${s} of chip imports in ${y}.`,
+        caveat: chipsCaveat('integrated circuits (HS 8542)'),
+        description: (y) => `Imports of integrated circuits by country, ${y}, with the largest flows from supplier to buyer, on a map and in a table. Source: UN Comtrade.`,
+      },
+      chipmachines: {
+        pick: 'Chipmaking machines', title: 'Chipmaking machine imports', sub: 'by importer', measure: 'of machine imports reported', figureLabel: 'Chipmaking machine imports',
+        legend: (y) => `Imports of chipmaking machines, US dollars, ${y}`, worldLabel: 'Total, importers reporting',
+        lede: ({ top, value, share, top3, year }) => `${top} reported ${value} of chipmaking machine imports in ${year}, ${share} of the total reported${top3 ? `; the top three importers ${top3}` : ''}.`,
+        total: (v, y, ch) => `Importers reported ${v} of chipmaking machine imports in ${y}${ch ? `, ${ch}` : ''}.`,
+        bloc: (b, s, y) => `${b} members reported ${s} of them in ${y}.`,
+        caveat: chipsCaveat('machines for making semiconductors and chips (HS 8486)'),
+        description: (y) => `Imports of chipmaking machines by country, ${y}, with the largest flows from supplier to buyer, on a map and in a table. Source: UN Comtrade.`,
       },
     },
   },

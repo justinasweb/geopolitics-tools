@@ -77,6 +77,9 @@ export const VIEW_FAMILIES: ViewFamily[] = [
       // A model from labs in two countries counts for each, so countries' figures do not add up to a world total.
       { indicator: 'aimodels', scale: 'seq', sums: false, fullYears: true },
       { indicator: 'entitylist', scale: 'seq', sums: true },
+      // Imports as their importers report them to UN Comtrade, in US dollars.
+      { indicator: 'chipimports', scale: 'seq', sums: true },
+      { indicator: 'chipmachines', scale: 'seq', sums: true },
     ],
   },
   {
