@@ -50,7 +50,7 @@ export interface Line { p: [number, number][][]; tip: string }
 /** A point; `m` is a bit mask of the year indices it shows in (bit i for data[i]), 0 or none for all. */
 export interface Point { at: [number, number]; r?: number; tip: string; m?: number }
 export type Overlay =
-  | { id: string; kind: 'arcs'; label: string; items: Arc[] }
+  | { id: string; kind: 'arcs'; label: string; dashed?: boolean; items: Arc[] }
   | { id: string; kind: 'lines'; label: string; dashed?: boolean; items: Line[] }
   | { id: string; kind: 'points'; label: string; symbol: 'dot' | 'hollow' | 'triangle' | 'diamond' | 'square'; items: Point[] };
 

@@ -200,7 +200,10 @@ export function createMap(container: HTMLElement, base: Basemap, layer: LayerFil
         const max = Math.max(0, ...o.items.map((a) => a.w));
         map.addSource(src, { type: 'geojson', data: { type: 'FeatureCollection', features: o.items.map((a) => ({ type: 'Feature', properties: { w: a.w, tip: a.tip, m: a.m ?? 0 }, geometry: { type: 'LineString', coordinates: a.p } })) } });
         if (o.items.some((a) => a.m)) masked.push(src);
-        map.addLayer({ id: src, type: 'line', source: src, layout: { 'line-cap': 'round' }, paint: { 'line-color': T['--ink'], 'line-opacity': 0.55, 'line-width': widths(max) } });
+        map.addLayer({
+          id: src, type: 'line', source: src, layout: { 'line-cap': o.dashed ? 'butt' : 'round' },
+          paint: { 'line-color': T['--ink'], 'line-opacity': 0.55, 'line-width': widths(max), ...(o.dashed ? { 'line-dasharray': [2, 1.5] } : {}) },
+        });
       } else if (o.kind === 'lines') {
         map.addSource(src, { type: 'geojson', data: { type: 'FeatureCollection', features: o.items.map((l) => ({ type: 'Feature', properties: { tip: l.tip }, geometry: { type: 'MultiLineString', coordinates: l.p } })) } });
         map.addLayer({

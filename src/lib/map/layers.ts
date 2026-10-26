@@ -21,6 +21,8 @@ import { DISASTERS_TEXT, KIND_TEXT } from '../../i18n/disasters.en.ts';
 import { formatDate, formatValue } from '../format.ts';
 import { TOP_FLOWS, balanceOf, estimated as foodEstimated, classFor as foodClass, foodPages, mt, netText, shareOf as foodShare, sourceOf, valueText as foodValue, type FoodPage } from '../food.ts';
 import { FOOD_NOTES, FOOD_TEXT } from '../../i18n/food.en.ts';
+import { TOP_FLOWS as ENERGY_TOP, amount as energyAmount, balanceOf as energyBalance, classFor as energyClass, energyPages, shareOf as energyShare, valueText as energyValue, type EnergyPage } from '../energy.ts';
+import { ENERGY_TEXT } from '../../i18n/energy.en.ts';
 import { arcXY, toMap } from './projection.ts';
 import { sitesIn, spaceAsOf, workingBy } from '../space.ts';
 import { SPACE_TEXT } from '../../i18n/space.en.ts';
@@ -554,6 +556,104 @@ function foodLayer(p: FoodPage): LayerFile {
   };
 }
 
+/** Oil or gas production, consumption, net trade or reserves by country and year (EIA); on a trade map, Comtrade's largest flows. */
+function energyLayer(p: EnergyPage): LayerFile {
+  const c = common();
+  const E = ENERGY_TEXT;
+  const L = E.layer[p.layer];
+  const T = p.text;
+  const trade = p.layer === 'trade';
+  const a = (v: number) => energyAmount(p.fuel, p.layer, v);
+  const memberships = blocs();
+  const data: LayerYear[] = p.years.map((year) => {
+    const y = p.byYear[year];
+    const v: Record<string, Entry> = {};
+    y.rows.forEach((r, i) => {
+      v[r.id] = trade ? [energyClass(p, r.value, y.world), energyValue(p, r.value), '', 0, i + 1] : [energyClass(p, r.value, y.world), energyShare(r.value, y.world) ?? '', a(r.value), 0, i + 1];
+    });
+    for (const n of y.notYet) v[n.id] = [-1, E.notYet, E.lastFigure(n.year, energyValue(p, n.value)), 0, 0];
+    const bl: Record<string, string> = {};
+    for (const [id, members] of memberships) {
+      const name = BLOC_TEXT[id] ?? id;
+      const inBloc = y.rows.filter((r) => members.includes(r.id));
+      const sum = inBloc.reduce((t, r) => t + r.value, 0);
+      bl[id] = !inBloc.length ? E.blocNone(name, year)
+        : trade ? E.bloc.trade(name, a(Math.abs(sum)), sum >= 0, T.name, year)
+        : E.bloc[p.layer as 'production' | 'consumption' | 'reserves'](name, energyShare(sum, y.world) ?? '', T.name, year);
+    }
+    return { year, legend: trade ? E.layer.trade.legend(year, E.tradeUnit[p.fuel]) : L.legend(year), v, order: y.rows.map((r) => r.id), blocs: bl };
+  });
+  const overlays: Overlay[] = [];
+  if (p.flows.length && p.flowYear) {
+    const at = anchors();
+    const kinds = p.fuel === 'gas' ? (['pipe', 'lng'] as const) : ([undefined] as const);
+    for (const kind of kinds) {
+      const items = p.flows.filter((f) => f.kind === kind && at[f.from] && at[f.to]).slice(0, ENERGY_TOP)
+        .map((f) => ({ p: arcXY(at[f.from], at[f.to]), w: f.amount, tip: E.flowTip(nameOf2(f.from), nameOf2(f.to), energyAmount(p.fuel, 'production', f.amount), p.flowYear!, kind && E.kind[kind]) }));
+      if (!items.length) continue;
+      const label = kind === 'pipe' ? E.pipeLabel(p.flowYear) : kind === 'lng' ? E.lngLabel(p.flowYear) : E.flowsLabel(p.flowYear);
+      overlays.push({ id: `flows-${kind ?? 'all'}`, kind: 'arcs', label, ...(kind === 'lng' ? { dashed: true } : {}), items });
+    }
+  }
+  const unit = p.layer === 'reserves' ? (p.fuel === 'oil' ? 'bn barrels' : 'tcm') : p.fuel === 'oil' ? 'kb/d' : 'bcm';
+  return {
+    id: `energy-${p.id}`, scale: trade ? 'div' : 'seq', years: p.years, year: p.year, ticks: p.ticks, ends: trade ? E.ends : undefined,
+    missing: { none: E.none, notyet: data.some((d) => Object.values(d.v).some((e) => e[0] === -1)) ? E.notYetLegend : undefined },
+    source: overlays.length ? `${E.source}; ${E.sourceFlows(p.fuel)}` : E.source,
+    text: {
+      ...(c.words as LayerFile['text']),
+      kicker: `${L.title(T.pick)} · {year}`, measure: L.measure, shareLabel: trade ? L.figure : E.share, none: E.notListed(0).replace('0', '{year}'),
+      withheld: MAP_TEXT.withheldBy, withheldWhy: '', prev: '{year}: {value}', rank: VIEWS_TEXT.rank(0, 1).replace('0', '{rank}').replace('1', '{of}'),
+      detailLabel: trade ? undefined : L.figure, rankLabel: E.rank, rankOf: E.rankOf, statusLabel: E.status,
+      trend: E.trend(L.figure), trendCaption: E.trendCaption, ranking: E.ranking,
+    },
+    tags: c.tags, names: c.names, hrefs: c.hrefs, dossiers: c.dossiers, slugs: c.slugs, notes: c.notes, blocs: c.blocs, data,
+    series: seriesOf(p.years.map((year) => Object.fromEntries(p.byYear[year].rows.map((r) => [r.id, r.value])))),
+    format: { kind: 'number', unit, digits: p.layer === 'reserves' || p.fuel === 'gas' ? 1 : 0 }, more: energyMore(p),
+    ...(overlays.length ? { overlays } : {}),
+  };
+}
+
+/** For each place on an oil or gas view: its figures in the default year, its main partners (trade maps), and the other fuel. */
+function energyMore(p: EnergyPage): Record<string, PanelBlock[]> {
+  const E = ENERGY_TEXT;
+  const out: Record<string, PanelBlock[]> = {};
+  const others = energyPages().filter((o) => o.fuel !== p.fuel && o.layer === p.layer);
+  const ids = new Set(p.years.flatMap((y) => p.byYear[y].rows.map((r) => r.id)));
+  for (const id of ids) {
+    const blocks: PanelBlock[] = [];
+    const b = energyBalance(p, id, p.year);
+    const rows: { name: string; value: string }[] = [];
+    if (b.production !== undefined) rows.push({ name: E.production, value: energyAmount(p.fuel, 'production', b.production) });
+    if (b.liquids !== undefined) rows.push({ name: E.liquids, value: energyAmount(p.fuel, 'production', b.liquids) });
+    if (b.consumption !== undefined) rows.push({ name: E.consumption, value: energyAmount(p.fuel, 'consumption', b.consumption) });
+    if (b.net !== undefined) rows.push({ name: E.netTrade, value: E.net(energyAmount(p.fuel, 'trade', Math.abs(b.net)), b.net >= 0) });
+    if (b.reserves !== undefined) rows.push({ name: E.reserves, value: energyAmount(p.fuel, 'reserves', b.reserves) });
+    if (b.reserveYears !== undefined) rows.push({ name: E.reserveYears, value: E.years(String(Math.round(b.reserveYears))) });
+    if (rows.length) blocks.push({ label: E.balanceBlock(p.year), caption: E.balanceCaption, rows });
+    if (p.flowYear) {
+      for (const [dir, label] of [['to', E.suppliers(p.flowYear)], ['from', E.buyers(p.flowYear)]] as const) {
+        const mine = p.flows.filter((f) => f[dir] === id);
+        const total = mine.reduce((t, f) => t + f.amount, 0);
+        if (!mine.length) continue;
+        blocks.push({
+          label, caption: E.partnersCaption,
+          rows: mine.slice(0, 5).map((f) => ({ name: `${nameOf2(dir === 'to' ? f.from : f.to)}${f.kind ? ` (${E.kind[f.kind]})` : ''}`, value: energyAmount(p.fuel, 'production', f.amount), note: E.ofListed(shareText(f.amount / total)) })),
+          more: mine.length > 5 ? E.morePartners(mine.length - 5) : undefined,
+        });
+      }
+    }
+    const other = others.flatMap((o) => {
+      const y = o.byYear[o.year];
+      const i = y.rows.findIndex((r) => r.id === id);
+      return i < 0 ? [] : [{ name: E.layer[o.layer].figure, value: energyValue(o, y.rows[i].value), href: live(`view:${o.fuel}:${o.layer}`)?.path, note: E.rankNote(i + 1, y.rows.length, o.year) }];
+    });
+    if (other.length) blocks.push({ label: E.otherBlock(others[0].text.pick), caption: E.otherCaption, rows: other });
+    if (blocks.length) out[id] = blocks;
+  }
+  return out;
+}
+
 function withFoodNotes(notes: Record<string, string>, id: string): Record<string, string> {
   const out = { ...notes };
   for (const [place, n] of Object.entries(FOOD_NOTES[id] ?? {})) out[place] = out[place] ? `${out[place]} ${n}` : n;
@@ -766,6 +866,7 @@ export function mapLayers(): LayerDef[] {
     ...viewPages().map((p) => ({ id: `${p.family.id}-${p.id}`, view: `view:${p.family.id}:${p.id}`, topic: p.family.hub, build: () => indicatorLayer(p) })),
     ...disasterPages().map((p) => ({ id: `disasters-${p.id}`, view: `view:disasters:${p.id}`, topic: 'climate', build: () => disasterLayer(p) })),
     ...foodPages().map((p) => ({ id: `food-${p.id}`, view: `view:food:${p.id}`, topic: 'resources', build: () => foodLayer(p) })),
+    ...energyPages().map((p) => ({ id: `energy-${p.id}`, view: `view:${p.fuel}:${p.layer}`, topic: 'resources', build: () => energyLayer(p) })),
     ...riverIds().map((id) => ({ id: `rivers-${id}`, view: `view:rivers:${id}`, topic: 'climate', build: () => riverLayer(id) })),
     ...HISTORY_BLOCS.map((id) => ({ id: `history-${id}`, view: `view:alliance-history:${id}`, topic: 'power', build: () => historyLayer(id) })),
     ...['all', ...blocPages().map((b) => b.id)].map((id) => ({ id: `blocs-${id}`, view: `view:blocs:${id}`, topic: 'power', build: () => blocLayer(id) })),

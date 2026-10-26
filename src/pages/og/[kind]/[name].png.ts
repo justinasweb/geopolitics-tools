@@ -26,6 +26,8 @@ import { historyPage } from '../../../lib/history';
 import { riverPage } from '../../../lib/rivers';
 import { RIVERS_TEXT } from '../../../i18n/water.en';
 import { foodPage, lede as foodLede, mt, netText, shareOf as foodShare } from '../../../lib/food';
+import { amount as energyAmount, energyPage, lede as energyLede, shareOf as energyShare, valueText as energyValue } from '../../../lib/energy';
+import { ENERGY_TEXT } from '../../../i18n/energy.en';
 
 export const getStaticPaths = (() => {
   if (process.env.GT_FAST === '1') return [{ params: { kind: 'page', name: 'default' }, props: { route: null } }];
@@ -131,6 +133,16 @@ function card(r: Route | null): Card {
     return {
       kicker: FOOD_TEXT.section, title: FOOD_TEXT.layer[p.layer].title(p.text.pick), caption: foodLede(p) ?? undefined, source: `${short('faostat')}, ${p.year}`,
       bars: rows.map((x) => ({ label: nameOf(x.id), value: Math.abs(x.value), text: trade ? netText(x.value) : `${mt(x.value)} (${foodShare(x.value, y.world)})` })),
+    };
+  }
+  if (r.kind === 'view' && r.id.startsWith('energy:')) {
+    const p = energyPage(r.id.split(':')[1])!;
+    const y = p.byYear[p.year];
+    const trade = p.layer === 'trade';
+    const rows = trade ? [...y.rows.slice(0, 3), ...y.rows.slice(-2)] : y.rows.slice(0, 5);
+    return {
+      kicker: p.text.pick, title: ENERGY_TEXT.layer[p.layer].title(p.text.pick), caption: energyLede(p) ?? undefined, source: `${short('eia')}, ${p.year}`,
+      bars: rows.map((x) => ({ label: nameOf(x.id), value: Math.abs(x.value), text: trade ? energyValue(p, x.value) : `${energyAmount(p.fuel, p.layer, x.value)} (${energyShare(x.value, y.world)})` })),
     };
   }
   if (r.kind === 'view') {

@@ -8,7 +8,7 @@ export const SECTION_SLUGS = {
   about: 'about', methodology: 'methodology', sources: 'sources', privacy: 'privacy', minerals: 'minerals',
   emissions: 'emissions', refugees: 'refugees', disasters: 'disasters', food: 'food', blocs: 'blocs',
   space: 'space', ai: 'ai', sanctions: 'sanctions', internet: 'internet',
-  water: 'water', 'chinese-lending': 'chinese-lending', arms: 'arms',
+  water: 'water', 'chinese-lending': 'chinese-lending', arms: 'arms', oil: 'oil', gas: 'gas',
 } as const;
 
 /** Map view layers after their section (/emissions/per-person), by registry id; the first layer of a section is the section itself (''). */
@@ -32,6 +32,9 @@ export const DISASTER_SLUGS: Record<string, string> = {
 /** Food and fertiliser: the commodity after /food, then the measure; production is the commodity's own address. */
 export const FOOD_SLUGS: Record<string, string> = { wheat: 'wheat', maize: 'maize', rice: 'rice', soy: 'soybeans', potash: 'potash', phosphate: 'phosphate' };
 export const FOOD_LAYER_SLUGS: Record<string, string> = { production: '', use: 'use', trade: 'trade' };
+
+/** Oil and gas: the measure after /oil or /gas; production is the section's own address. */
+export const ENERGY_LAYER_SLUGS: Record<string, string> = { production: '', consumption: 'consumption', trade: 'trade', reserves: 'reserves' };
 
 /** Groupings after /blocs; every grouping together is the section itself. */
 export const BLOC_SLUGS: Record<string, string> = {
