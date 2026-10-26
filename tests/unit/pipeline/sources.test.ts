@@ -124,6 +124,21 @@ describe('gdacs', () => {
     expect(n).toBe(3);
   });
 
+  it('asks only for the last 3 days of green alerts when a saved copy has the rest, and the whole month at 00 UTC', async () => {
+    const saved = JSON.stringify({ type: 'FeatureCollection', features: [feature(900, 'Green'), { ...feature(901, 'Green'), properties: { ...feature(901, 'Green').properties, fromdate: '2026-08-01T00:00:00', todate: '2026-08-02T00:00:00' } }] });
+    const routes: Route[] = [[/orange/, () => ({ features: Array.from({ length: 12 }, (_, i) => feature(i, 'Red')) })], [/green.*pagenumber=1$/, () => ({ features: [feature(500, 'Green')] })]];
+    const calls: string[] = [];
+    const r = await gdacs.fetch(ctxFor(fakeHttp(routes, calls), { 'events.json': saved }));
+    expect(calls.find((c) => /green/.test(c))).toMatch(/fromDate=2026-10-21&/);
+    // The saved alert from this month is kept; the one older than 30 days is dropped.
+    const ids = JSON.parse(body(r, 'events.json')).features.map((f: { properties: { eventid: number } }) => f.properties.eventid);
+    expect(ids).toEqual(expect.arrayContaining([500, 900]));
+    expect(ids).not.toContain(901);
+    const nightly: string[] = [];
+    await gdacs.fetch(ctxFor(fakeHttp(routes, nightly), { 'events.json': saved }, new Date('2026-10-24T00:41:00Z')));
+    expect(nightly.find((c) => /green/.test(c))).toMatch(/fromDate=2026-09-24&/);
+  });
+
   it('treats a 404 for a page past the end as the end', async () => {
     const r = await gdacs.fetch(ctxFor(fakeHttp([[/orange.*pagenumber=1$/, () => ({ features: Array.from({ length: 100 }, (_, i) => feature(i, 'Red')) })], [/green.*pagenumber=1$/, () => ({ features: [] })]])));
     expect(r.rows).toBe(100);
@@ -242,6 +257,22 @@ describe('ioda', () => {
     const r = await ioda.fetch(ctxFor(fakeHttp([[/outages\/events/, () => ({ type: 'outages.events', requestParameters: { until: 1 }, data: events })]], calls)));
     expect(calls).toHaveLength(13);
     expect(JSON.parse(body(r, 'outage_events.json'))).toEqual({ type: 'outages.events', data: events });
+  });
+
+  it('asks only for the last 30 days when a saved copy has the rest of the year, and the whole year at 00 UTC', async () => {
+    const now = new Date('2026-10-24T12:00:00Z');
+    const t = Math.floor(now.getTime() / 1000);
+    const old = Array.from({ length: 60 }, (_, i) => ({ location: 'country/AA', start: t - 200 * 86_400 + i, duration: 60 }));
+    const expired = { location: 'country/BB', start: t - 400 * 86_400, duration: 60 };
+    const recent = { location: 'country/CC', start: t - 86_400, duration: 60 };
+    const saved = JSON.stringify({ type: 'outages.events', data: [expired, ...old] });
+    const calls: string[] = [];
+    const r = await ioda.fetch(ctxFor(fakeHttp([[/outages\/events/, () => ({ type: 'outages.events', data: [recent] })]], calls), { 'outage_events.json': saved }, now));
+    expect(calls).toHaveLength(1);
+    expect(JSON.parse(body(r, 'outage_events.json')).data).toEqual([...old, recent]);
+    const nightly: string[] = [];
+    await ioda.fetch(ctxFor(fakeHttp([[/outages\/events/, () => ({ type: 'outages.events', data: [...old, recent] })]], nightly), { 'outage_events.json': saved }, new Date('2026-10-24T00:41:00Z')));
+    expect(nightly).toHaveLength(13);
   });
 });
 

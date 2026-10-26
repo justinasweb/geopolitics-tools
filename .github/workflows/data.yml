@@ -2,9 +2,10 @@
 #   every hour            fetch whatever is due, keep what passes its checks in R2, alert on problems
 #   run by hand           same, with optional --only / --force (Actions tab → data → Run workflow),
 #                         or only a Telegram test message
-#   pull request          live check: every enabled source against the real service, saved only
-#                         inside the run, the adapters run on what came back, plus an R2 write
-#                         test; nothing the site uses is touched
+#   pull request          (pipeline changes only) live check: every enabled source against the real
+#                         service, saved only inside the run, the adapters run on what came back,
+#                         plus an R2 write test; nothing the site uses is touched. Adapter and place
+#                         code changes are checked by ci instead, on the latest snapshot.
 name: data
 on:
   schedule:
@@ -27,7 +28,7 @@ on:
         type: boolean
         default: false
   pull_request:
-    paths: ['pipeline/**', 'src/adapters/**', 'src/data/**', 'src/lib/places.ts', '.github/workflows/data.yml']
+    paths: ['pipeline/**', '.github/workflows/data.yml']
 permissions:
   contents: read
 concurrency:

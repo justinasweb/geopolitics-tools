@@ -19,6 +19,9 @@ How source data gets from 33 public sources into the site. Phase 1 of the develo
   Worker has an hourly Cron Trigger (minute 41, `worker/watch.ts`): if no data run started in the last 50 minutes it
   starts one through the GitHub API, and if the published `status.json` is more than 6 hours old it alerts on
   Telegram (decision D11).
+- **New data reaches the site only on a deploy** (a merge, or Run workflow on ci). The hourly run publishes snapshots
+  but rebuilds nothing. Open question for launch: rebuild automatically (say once a day, when a snapshot changed),
+  or keep rebuilds manual.
 - **Alerts go to Telegram** when a source fails twice in a row or goes past its freshness deadline, then at most once a
   day while the problem lasts, and once more when it works again. The run also fails, so GitHub's failed-run email is a
   backup.
@@ -65,9 +68,9 @@ back separately, from Cloudflare's deployments.
 
 | Source | Every | Deadline | Saves |
 |---|---|---|---|
-| GDACS disaster alerts | 1 hour | 3 days | Orange and red alerts for 365 days, green for 30 |
+| GDACS disaster alerts | 1 hour | 3 days | Orange and red alerts for 365 days, green for 30 (each hour asks for the last 3 days of green and keeps the rest; the 00 UTC run asks for all 30) |
 | USGS earthquakes | 1 hour | 3 days | Magnitude 5.5+ for 365 days |
-| IODA internet outages | 1 hour | 3 days | Country outage events for 365 days |
+| IODA internet outages | 1 hour | 3 days | Country outage events for 365 days (each hour asks for the last 30 days and keeps the rest; the 00 UTC run asks for the year) |
 | CelesTrak SATCAT | 1 day | 10 days | The whole satellite catalogue |
 | US Consolidated Screening List | 1 day | 10 days | All records, trimmed to list, programmes, country, dates |
 | EU sanctions list | 1 day | 10 days | Entity rows: type, programme, dates, countries |
@@ -116,7 +119,9 @@ NPK blends).
 On GitHub: Actions → **data** → Run workflow, with optional sources and "force". Every pull request that touches
 `pipeline/` runs all enabled sources against the real services (saved only inside that run) and an R2 write test.
 It fails on a failed check or a client error (a wrong address, a changed format); network trouble and server errors
-on the source's side only show as a warning, since the hourly run retries them anyway.
+on the source's side only show as a warning, since the hourly run retries them anyway. Pull requests that change only
+adapters or place codes skip the live fetch: ci's check job runs the adapters on the latest snapshot it pulls for the
+build (`node pipeline/adapter-check.ts data/raw`), which takes seconds and spends no API quota.
 
 Every fetcher takes its address from an environment variable when set (`WORLDBANK_BASE`, `GDACS_BASE`,
 `USGS_EQ_BASE`, `UNHCR_BASE`, `IODA_BASE`, `TIC_URL`, `OWID_URL`, `CELESTRAK_URL`, `CSL_URL`, `EU_FSF_URL`,
@@ -177,4 +182,5 @@ Errors are written without query strings, so an API key in an address never reac
    fetcher against the real service.
 4. The adapter that reads the file goes in `src/adapters/`. The live check also runs every indicator and flow on the
    files it fetched (`node pipeline/adapter-check.ts <dir>`, which works on any folder `pipeline/pull.ts` wrote) and
-   prints each adapter's unmatched codes; add those to `src/data/places/codes.csv`.
+   prints each adapter's unmatched codes; add those to `src/data/places/codes.csv`. Every ci run does the same on the
+   latest snapshot.
