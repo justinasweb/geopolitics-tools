@@ -24,6 +24,7 @@ import { ai, computeAt } from '../adapters/epoch.ts';
 import { LISTS, listingsAt, sanctions } from '../adapters/sanctions.ts';
 import { gas, oil } from '../adapters/eia.ts';
 import { ember, powerSeries } from '../adapters/ember.ts';
+import { deathsByYear, ged } from '../adapters/ucdp.ts';
 
 export type Group = 'economy' | 'people' | 'energy' | 'food' | 'climate' | 'security' | 'tech' | 'influence';
 export const GROUPS: Group[] = ['economy', 'people', 'energy', 'food', 'climate', 'security', 'tech', 'influence'];
@@ -140,7 +141,7 @@ const LIST: Indicator[] = [
   // Security
   { id: 'milpct', group: 'security', source: 'worldbank', format: pct(1), scale: 'linear', load: wb('MS.MIL.XPND.GD.ZS') },
   { id: 'milusd', group: 'security', source: 'worldbank', format: money, scale: 'log', load: wb('MS.MIL.XPND.CD') },
-  { id: 'conflictdeaths', group: 'security', source: 'ucdp', format: count, scale: 'log', pending: 'UCDP, waiting for an API token' },
+  { id: 'conflictdeaths', group: 'security', source: 'ucdp', format: count, scale: 'log', load: (raw) => deathsByYear(ged(raw)) },
   { id: 'armsimp', group: 'security', source: 'sipri', format: unit('TIV m'), scale: 'log', load: armsBy('to') },
   { id: 'armsexp', group: 'security', source: 'sipri', format: unit('TIV m'), scale: 'log', load: armsBy('from') },
   { id: 'hunger', group: 'security', source: 'ipc', format: count, scale: 'log', pending: 'IPC, waiting for an API key' },

@@ -190,7 +190,7 @@ export function createMap(container: HTMLElement, base: Basemap, layer: LayerFil
   const masked: string[] = [];
   const showMarks = () => {
     const bit = 2 ** year;
-    for (const id of masked) map.setFilter(id, ['any', ['==', ['get', 'm'], 0], ['==', ['%', ['floor', ['/', ['get', 'm'], bit]], 2], 1]]);
+    for (const id of masked) map.setFilter(id, ['any', ['all', ['==', ['get', 'i'], -1], ['any', ['==', ['get', 'm'], 0], ['==', ['%', ['floor', ['/', ['get', 'm'], bit]], 2], 1]]], ['==', ['get', 'i'], year]]);
   };
   function addOverlays(list: Overlay[]) {
     const widths = (max: number): Expr => ['interpolate', ['linear'], ['get', 'w'], 0, 0.8, max || 1, 6];
@@ -198,7 +198,7 @@ export function createMap(container: HTMLElement, base: Basemap, layer: LayerFil
       const src = `ov-${o.id}`;
       if (o.kind === 'arcs') {
         const max = Math.max(0, ...o.items.map((a) => a.w));
-        map.addSource(src, { type: 'geojson', data: { type: 'FeatureCollection', features: o.items.map((a) => ({ type: 'Feature', properties: { w: a.w, tip: a.tip, m: a.m ?? 0 }, geometry: { type: 'LineString', coordinates: a.p } })) } });
+        map.addSource(src, { type: 'geojson', data: { type: 'FeatureCollection', features: o.items.map((a) => ({ type: 'Feature', properties: { w: a.w, tip: a.tip, m: a.m ?? 0, i: -1 }, geometry: { type: 'LineString', coordinates: a.p } })) } });
         if (o.items.some((a) => a.m)) masked.push(src);
         map.addLayer({
           id: src, type: 'line', source: src, layout: { 'line-cap': o.dashed ? 'butt' : 'round' },
@@ -211,8 +211,8 @@ export function createMap(container: HTMLElement, base: Basemap, layer: LayerFil
           paint: o.dashed ? { 'line-color': T['--accent'], 'line-width': 1.6, 'line-dasharray': [3, 2] } : { 'line-color': T['--brand'], 'line-width': 1.4, 'line-opacity': 0.85 },
         });
       } else {
-        map.addSource(src, { type: 'geojson', data: { type: 'FeatureCollection', features: o.items.map((p) => ({ type: 'Feature', properties: { r: p.r ?? 5, tip: p.tip, m: p.m ?? 0 }, geometry: { type: 'Point', coordinates: p.at } })) } });
-        if (o.items.some((p) => p.m)) masked.push(src);
+        map.addSource(src, { type: 'geojson', data: { type: 'FeatureCollection', features: o.items.map((p) => ({ type: 'Feature', properties: { r: p.r ?? 5, tip: p.tip, m: p.m ?? 0, i: p.i ?? -1 }, geometry: { type: 'Point', coordinates: p.at } })) } });
+        if (o.items.some((p) => p.m || p.i !== undefined)) masked.push(src);
         if (o.symbol === 'dot' || o.symbol === 'hollow') {
           const hollow = o.symbol === 'hollow';
           map.addLayer({

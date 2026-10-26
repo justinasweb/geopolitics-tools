@@ -18,6 +18,7 @@ import worldbank, { INDICATORS } from '../../../pipeline/sources/worldbank.ts';
 import comtrade, { plan, trim } from '../../../pipeline/sources/comtrade.ts';
 import eia, { SERIES as EIA_SERIES } from '../../../pipeline/sources/eia.ts';
 import ember, { SERIES as EMBER_SERIES } from '../../../pipeline/sources/ember.ts';
+import ucdp from '../../../pipeline/sources/ucdp.ts';
 import { createHttp } from '../../../pipeline/lib/http.ts';
 import { ctxFor, fakeHttp, type Route } from './helpers.ts';
 
@@ -334,5 +335,43 @@ describe('ember', () => {
   it('refuses too few countries or a series that stopped updating', async () => {
     await expect(ember.fetch({ ...ctxFor(fakeHttp(routes(100))), now: new Date('2026-10-10T00:00:00Z'), env })).rejects.toThrow(/only 100 countries/);
     await expect(ember.fetch({ ...ctxFor(fakeHttp(routes(200, '2022'))), now: new Date('2026-10-10T00:00:00Z'), env })).rejects.toThrow(/latest year is 2022/);
+  });
+});
+
+describe('ucdp', () => {
+  const env = { UCDP_TOKEN: 't' };
+  const ev = (n: number, month: string) => Array.from({ length: n }, (_, i) => ({ id: i, type_of_violence: 1, country_id: 369, latitude: 48, longitude: 37, date_start: `${month}-02 00:00:00.000`, best: 3, dyad_name: 'dropped' }));
+  // 26.1 is not out yet; 25.1 is, in two pages; Candidate releases 25.0.1–12 and 26.0.1–9.
+  const routes = (seen: string[]): Route[] => [
+    [/./, (url: string, init?: RequestInit) => {
+      seen.push(url);
+      if ((init?.headers as Record<string, string>)['x-ucdp-access-token'] !== 't') return new Response('', { status: 401 });
+      const v = /gedevents\/([\d.]+)/.exec(url)![1];
+      if (v === '26.1') return new Response('', { status: 404 });
+      if (v === '25.1') return url.includes('page=1') ? { TotalCount: 1500, NextPageUrl: '', Result: ev(500, '2024-12') } : { TotalCount: 1500, NextPageUrl: 'http://x/api/gedevents/25.1?page=1', Result: ev(1000, '2024-11') };
+      const [y, , m] = v.split('.').map(Number);
+      if (y === 26 && m > 9) return new Response('', { status: 404 });
+      return { TotalCount: 10, NextPageUrl: '', Result: ev(10, `20${y}-${String(m).padStart(2, '0')}`) };
+    }],
+  ];
+
+  it('takes the latest yearly release and the Candidate months after it, with the token in a header', async () => {
+    const seen: string[] = [];
+    const r = await ucdp.fetch({ ...ctxFor(fakeHttp(routes(seen))), now: new Date('2026-10-20T00:00:00Z'), env });
+    expect(r.files.map((f) => f.name)).toEqual(['gedevents_25.1.json', ...Array.from({ length: 12 }, (_, i) => `gedevents_25.0.${i + 1}.json`), ...Array.from({ length: 9 }, (_, i) => `gedevents_26.0.${i + 1}.json`)]);
+    const g = JSON.parse(body(r, 'gedevents_25.1.json'));
+    expect(g.TotalCount).toBe(1500);
+    expect(g.Result[0].dyad_name).toBeUndefined();
+    expect(r.dataTo).toBe('2026-09');
+    expect(seen.some((u) => u.startsWith('https://x/api/gedevents/25.1?page=1'))).toBe(true);
+  });
+
+  it('carries over releases it already has', async () => {
+    const seen: string[] = [];
+    const prev = { 'gedevents_25.1.json': JSON.stringify({ TotalCount: 1200, Result: ev(1200, '2024-10') }), 'gedevents_25.0.3.json': JSON.stringify({ TotalCount: 1, Result: ev(1, '2025-03') }) };
+    const r = await ucdp.fetch({ ...ctxFor(fakeHttp(routes(seen)), prev), now: new Date('2026-10-20T00:00:00Z'), env });
+    expect(seen.some((u) => u.includes('/25.1?'))).toBe(false);
+    expect(seen.some((u) => u.includes('/25.0.3?'))).toBe(false);
+    expect(JSON.parse(body(r, 'gedevents_25.0.3.json')).TotalCount).toBe(1);
   });
 });

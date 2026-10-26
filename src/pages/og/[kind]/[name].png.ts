@@ -18,6 +18,8 @@ import { creditOf, lede as viewLede, valueText, viewPage } from '../../../lib/vi
 import { VIEW_TEXT } from '../../../i18n/views.en';
 import { DISASTERS_TEXT, KIND_TEXT } from '../../../i18n/disasters.en';
 import { disasterPage } from '../../../lib/disasters';
+import { conflictPage } from '../../../lib/conflict';
+import { CONFLICT_TEXT, monthText } from '../../../i18n/conflict.en';
 import { FOOD_TEXT } from '../../../i18n/food.en';
 import { BLOCS_TEXT, HISTORY_TEXT, MEASURE_TEXT } from '../../../i18n/blocs.en';
 import { BLOC_TEXT } from '../../../i18n/map.en';
@@ -89,6 +91,16 @@ function card(r: Route | null): Card {
       kicker: DISASTERS_TEXT.section, title: KIND_TEXT[p.id].title, figure: DISASTERS_TEXT.ogFigure(x.alerts.length), caption: DISASTERS_TEXT.ogCaption(x.days),
       source: `${short('gdacs')}, ${formatDate(x.from)} – ${formatDate(x.to)}`,
       bars: x.rows.slice(0, 5).map((y) => ({ label: nameOf(y.id), value: y.n, text: String(y.n) })),
+    };
+  }
+  if (r.kind === 'view' && r.id.startsWith('conflict:')) {
+    const p = conflictPage()!;
+    const m = p.byMonth[p.month];
+    const f = (v: number) => formatValue(v, { kind: 'count' });
+    return {
+      kicker: CONFLICT_TEXT.section, title: CONFLICT_TEXT.title, figure: CONFLICT_TEXT.deaths(f(m.deaths12)), caption: CONFLICT_TEXT.in12(monthText(m.n, true)),
+      source: `${short('ucdp')}, ${monthText(m.n)}${m.preliminary ? `, ${CONFLICT_TEXT.preliminary.toLowerCase()}` : ''}`,
+      bars: m.rows.slice(0, 5).map((y) => ({ label: nameOf(y.id), value: y.deaths, text: f(y.deaths) })),
     };
   }
   if (r.kind === 'view' && r.id.startsWith('blocs:')) {

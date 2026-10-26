@@ -27,13 +27,16 @@ interface Props {
   blocs?: boolean;
   /** Periods in place of years (disasters): `years` are then their lengths in days, and these their words. */
   periods?: { label: string; note?: string; options: Record<number, string> };
+  /** Steps that are not years (conflict months): their words and the slider's label. Statuses then show as tags only. */
+  steps?: { label: string; labels: Record<number, string>; statusWord?: string };
 }
-const { pickerLabel, picker, pickerSelect, picker2, years, year, yearStatus = {}, blocs = true, periods } = Astro.props;
+const { pickerLabel, picker, pickerSelect, picker2, years, year, yearStatus = {}, blocs = true, periods, steps } = Astro.props;
+const stepWord = (v: number) => periods?.options[v] ?? steps?.labels[v] ?? v;
 const blocOptions = BLOC_ORDER.map((b) => ({ value: b, label: BLOC_TEXT[b] }));
 ---
 <div class:list={["gt-mvctl", { "gt-mvctl--stack": periods || picker2 }]} data-gt-mapctl>
   <div class="gt-mvctl__pickers">
-    <div class="gt-mvctl__min">
+    {picker.length > 0 && <div class="gt-mvctl__min">
       {pickerSelect ? (
         <>
           <label class="gt-field__label gt-mvctl__lab" for="mv-picker-d">{pickerLabel}</label>
@@ -49,7 +52,7 @@ const blocOptions = BLOC_ORDER.map((b) => ({ value: b, label: BLOC_TEXT[b] }));
           </nav>
         </>
       )}
-    </div>
+    </div>}
     {picker2 && (
       <div class="gt-mvctl__min">
         <span class="gt-field__label gt-mvctl__lab" id="mv-picker2-l">{picker2.label}</span>
@@ -65,7 +68,7 @@ const blocOptions = BLOC_ORDER.map((b) => ({ value: b, label: BLOC_TEXT[b] }));
     )}
     {!periods && years.length > 1 && (
       <div class="gt-mvctl__yr">
-        <YearSlider id="mv-year" min={years[0]} max={years.at(-1)!} value={year} estimated={Object.keys(yearStatus).map(Number)} tags={yearStatus} />
+        <YearSlider id="mv-year" min={years[0]} max={years.at(-1)!} value={year} estimated={steps ? [] : Object.keys(yearStatus).map(Number)} tags={yearStatus} labels={steps?.labels} label={steps?.label} />
       </div>
     )}
     {blocs && (
@@ -80,13 +83,13 @@ const blocOptions = BLOC_ORDER.map((b) => ({ value: b, label: BLOC_TEXT[b] }));
   </div>
 </div>
 
-<div class:list={["gt-mvcompact", { "gt-mvcompact--two": picker2 }]}>
-  <div class="gt-select">
+<div class:list={["gt-mvcompact", { "gt-mvcompact--two": picker2, "gt-mvcompact--one": !picker.length }]}>
+  {picker.length > 0 && <div class="gt-select">
     <label class="gt-vh" for="mv-picker-p">{pickerLabel}</label>
     <select id="mv-picker-p" data-picker-select>
       {picker.map((o) => <option value={o.href} selected={o.current}>{o.label}</option>)}
     </select>
-  </div>
+  </div>}
   {picker2 && (
     <div class="gt-select">
       <label class="gt-vh" for="mv-picker2-p">{picker2.label}</label>
@@ -96,7 +99,7 @@ const blocOptions = BLOC_ORDER.map((b) => ({ value: b, label: BLOC_TEXT[b] }));
     </div>
   )}
   <button class="gt-btn gt-btn--quiet gt-mvcompact__f" type="button" aria-haspopup="dialog" data-open-filters>
-    <Icon name="filter" />{MAP_TEXT.filters}{years.length > 1 && <span class="gt-mvcompact__n" data-filters-summary>{periods?.options[year] ?? year}</span>}
+    <Icon name="filter" />{MAP_TEXT.filters}{years.length > 1 && <span class="gt-mvcompact__n" data-filters-summary>{stepWord(year)}</span>}
   </button>
 </div>
 
@@ -108,9 +111,9 @@ const blocOptions = BLOC_ORDER.map((b) => ({ value: b, label: BLOC_TEXT[b] }));
   <div class="gt-fsheet__body">
     {years.length > 1 && (
       <fieldset>
-        <legend class="gt-label">{periods?.label ?? YEAR_TEXT.year}</legend>
+        <legend class="gt-label">{periods?.label ?? steps?.label ?? YEAR_TEXT.year}</legend>
         {(periods ? years : [...years].reverse()).map((yr) => (
-          <label class="gt-fsheet__opt"><input type="radio" name="mv-fyear" value={yr} checked={yr === year} />{periods?.options[yr] ?? yr}{yearStatus[yr] && <span class="gt-caption">({YEAR_TEXT.estimate})</span>}</label>
+          <label class="gt-fsheet__opt"><input type="radio" name="mv-fyear" value={yr} checked={yr === year} />{stepWord(yr)}{yearStatus[yr] && <span class="gt-caption">({steps?.statusWord ?? YEAR_TEXT.estimate})</span>}</label>
         ))}
         {periods?.note && <p class="gt-caption">{periods.note}</p>}
       </fieldset>

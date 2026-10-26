@@ -147,6 +147,7 @@
   .gt-mvcompact { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; position: sticky; top: 0; z-index: 4; background: var(--paper); padding: 8px 16px; margin: 0 -16px; width: auto; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
   .gt-mvcompact .gt-select { min-width: 0; }
   .gt-mvcompact--two { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; }
+  .gt-mvcompact--one { grid-template-columns: 1fr; justify-items: end; }
   .gt-mvcompact__f { padding: 0 12px; }
   .gt-mvcompact__n { font-weight: 400; color: var(--ink-muted); font-size: 13px; }
   /* The map is not first on a phone: the panel reads inline, and "Show map" opens the map full screen. */

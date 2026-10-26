@@ -40,6 +40,8 @@ import { anchors, boxOf } from './basemap.ts';
 import { armsPeriod, armsPeriods, supplierMix, SPAN } from '../arms.ts';
 import { ARMS_TEXT } from '../../i18n/arms.en.ts';
 import { groupsOf, mixOf } from '../electricity.ts';
+import { cells, conflictPage, deathClass, VIOLENCE } from '../conflict.ts';
+import { CONFLICT_TEXT, monthText } from '../../i18n/conflict.en.ts';
 import { POWER_TEXT } from '../../i18n/electricity.en.ts';
 import type { Pair } from '../../data/flows.ts';
 import type { Hazard } from '../../adapters/hazards.ts';
@@ -527,6 +529,68 @@ function disasterLayer(p: DisasterPage): LayerFile {
     overlays,
   };
 }
+/** Conflict (UCDP): countries shaded by deaths over the 12 months to each month, that month's events as marks (one
+ *  shape per kind of violence, added up within cells of a degree), the slider stepping through months. */
+function conflictLayer(): LayerFile {
+  const c = common();
+  const C = CONFLICT_TEXT;
+  const p = conflictPage()!;
+  const memberships = blocs();
+  const count = (v: number) => formatValue(v, { kind: 'count' });
+  const data: LayerYear[] = p.months.map((m) => {
+    const label = monthText(m.n);
+    const v: Record<string, Entry> = {};
+    m.rows.forEach((r, i) => {
+      v[r.id] = [deathClass(r.deaths), C.deathsOne(r.deaths, count(r.deaths)), r.deaths ? formatValue(r.civilians / r.deaths, { kind: 'share' }) : '', m.preliminary ? 'preliminary' : 0, i + 1];
+    });
+    const bl: Record<string, string> = {};
+    for (const [id, members] of memberships) {
+      const n = m.rows.filter((r) => members.includes(r.id)).reduce((t, r) => t + r.deaths, 0);
+      bl[id] = n ? C.blocLine(BLOC_TEXT[id] ?? id, count(n), label) : C.blocNone(BLOC_TEXT[id] ?? id, label);
+    }
+    return { year: m.n, label, ...(m.preliminary ? { status: 'preliminary' as const } : {}), legend: C.legend(label), v, order: m.rows.map((r) => r.id), blocs: bl };
+  });
+  // A selected country's main conflicts over the 12 months to the latest month.
+  const latest = p.byMonth[p.month];
+  const more: Record<string, PanelBlock[]> = {};
+  const window = p.months.filter((m) => m.n > p.month - 12).flatMap((m) => m.events);
+  for (const r of latest.rows) {
+    const by = new Map<string, number>();
+    for (const e of window) if (e.place === r.id) by.set(e.conflict, (by.get(e.conflict) ?? 0) + e.deaths);
+    const top = [...by].filter(([, d]) => d > 0).sort((a, b) => b[1] - a[1]);
+    if (!top.length) continue;
+    more[r.id] = [{
+      label: C.panelMain, caption: C.panelMainCaption(monthText(p.month)),
+      rows: top.slice(0, 5).map(([name, d]) => ({ name, value: count(d) })),
+      more: top.length > 5 ? C.andMore(top.length - 5) : undefined,
+    }];
+  }
+  const symbols = { 1: 'dot', 2: 'triangle', 3: 'diamond' } as const;
+  const overlays: Overlay[] = VIOLENCE.map((k) => ({
+    id: `conflict-${k}`, kind: 'points' as const, label: C.mark(k), symbol: symbols[k],
+    // Rounded and without the month in the tip (the kicker says it): live data has tens of thousands of events.
+    items: p.months.flatMap((m, i) => cells(m.events, k).filter((x) => x.deaths > 0).map((x): Point => ({
+      at: toMap(x.lon, x.lat).map((v) => Math.round(v * 1000) / 1000) as [number, number], r: Math.round(Math.min(18, 2.5 + Math.sqrt(x.deaths) * 0.6) * 10) / 10, i,
+      tip: C.tip(x.conflict, C.deathsOne(x.deaths, count(x.deaths)), x.events),
+    }))),
+  }));
+  return {
+    id: 'conflict', scale: 'seq', axis: 'months', years: p.months.map((m) => m.n), year: p.month, ticks: C.ticks,
+    missing: { none: VIEWS_TEXT.noData }, source: 'UCDP',
+    text: {
+      ...(c.words as LayerFile['text']),
+      kicker: `${C.title} · {year}`, measure: C.in12Short, shareLabel: C.key12, none: C.noneIn,
+      withheld: MAP_TEXT.withheldBy, withheldWhy: '', prev: '{year}: {value}', rank: VIEWS_TEXT.rank(0, 1).replace('0', '{rank}').replace('1', '{of}'),
+      movedYear: C.movedMonth,
+      detailLabel: C.civShare, rankLabel: PT.rank, rankOf: PT.rankOf, statusLabel: PT.status,
+      trend: C.trend, trendCaption: PT.trendCaption, ranking: PT.ranking,
+    },
+    tags: c.tags, names: c.names, hrefs: c.hrefs, dossiers: c.dossiers, slugs: c.slugs, notes: c.notes, blocs: c.blocs, data,
+    series: seriesOf(p.months.map((m) => Object.fromEntries(m.rows.map((r) => [r.id, r.deaths])))), format: { kind: 'count' },
+    more, overlays,
+  };
+}
+
 /** A commodity's production, use or net trade by country and year (FAOSTAT); on a crop's trade map, its largest flows. */
 function foodLayer(p: FoodPage): LayerFile {
   const c = common();
@@ -889,6 +953,7 @@ export function mapLayers(): LayerDef[] {
     ...disasterPages().map((p) => ({ id: `disasters-${p.id}`, view: `view:disasters:${p.id}`, topic: 'climate', build: () => disasterLayer(p) })),
     ...foodPages().map((p) => ({ id: `food-${p.id}`, view: `view:food:${p.id}`, topic: 'resources', build: () => foodLayer(p) })),
     ...energyPages().map((p) => ({ id: `energy-${p.id}`, view: `view:${p.fuel}:${p.layer}`, topic: 'resources', build: () => energyLayer(p) })),
+    ...(conflictPage() ? [{ id: 'conflict', view: 'view:conflict:events', topic: 'security', build: () => conflictLayer() }] : []),
     ...riverIds().map((id) => ({ id: `rivers-${id}`, view: `view:rivers:${id}`, topic: 'climate', build: () => riverLayer(id) })),
     ...HISTORY_BLOCS.map((id) => ({ id: `history-${id}`, view: `view:alliance-history:${id}`, topic: 'power', build: () => historyLayer(id) })),
     ...['all', ...blocPages().map((b) => b.id)].map((id) => ({ id: `blocs-${id}`, view: `view:blocs:${id}`, topic: 'power', build: () => blocLayer(id) })),

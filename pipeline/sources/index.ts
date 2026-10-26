@@ -20,8 +20,9 @@ import portwatch from './portwatch.ts';
 import eia from './eia.ts';
 import comtrade from './comtrade.ts';
 import ember from './ember.ts';
+import ucdp from './ucdp.ts';
 
 export const SOURCES: Source[] = [
   gdacs, usgsQuakes, ioda, portwatch, celestrak, csl, euSanctions, ukSanctions, worldbank, pinksheet, treasury, epoch,
-  owid, unhcr, imfWeo, cables, faostat, eia, comtrade, ember,
+  owid, unhcr, imfWeo, cables, faostat, eia, comtrade, ember, ucdp,
 ];

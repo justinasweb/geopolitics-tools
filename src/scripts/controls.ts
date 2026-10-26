@@ -114,12 +114,14 @@ function years(el: HTMLElement) {
   const now = el.querySelector('.gt-years__now');
   const btn = el.querySelector<HTMLButtonElement>('.gt-play');
   const est = (el.dataset.est ?? '').split(' ');
+  const labels = JSON.parse(el.dataset.labels ?? '{}') as Record<string, string>;
+  const word = (v: string) => labels[v] ?? v;
   let timer: ReturnType<typeof setInterval> | undefined;
   const update = () => {
     r.style.setProperty('--p', `${((+r.value - +r.min) / (+r.max - +r.min)) * 100}%`);
-    if (now) now.textContent = r.value;
+    if (now) now.textContent = word(r.value);
     for (const t of el.querySelectorAll<HTMLElement>('[data-tag-year]')) t.hidden = t.dataset.tagYear !== r.value;
-    r.setAttribute('aria-valuetext', r.value + (est.includes(r.value) ? `, ${YEAR_TEXT.estimate}` : ''));
+    r.setAttribute('aria-valuetext', word(r.value) + (est.includes(r.value) ? `, ${YEAR_TEXT.estimate}` : ''));
     emit(el, 'gt-change', { year: +r.value });
   };
   const stop = () => {

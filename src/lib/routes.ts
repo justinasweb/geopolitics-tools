@@ -16,6 +16,7 @@ import { PLACES, place } from './places.ts';
 import { mineralPages } from './minerals.ts';
 import { viewPages } from './views.ts';
 import { disasterPages } from './disasters.ts';
+import { conflictPage } from './conflict.ts';
 import { foodPages } from './food.ts';
 import { energyPages } from './energy.ts';
 import { blocPages } from './blocview.ts';
@@ -153,6 +154,15 @@ function build(): Route[] {
       key: `view:${e.fuel}:${e.layer}`, kind: 'view', lang, path: paths.energy(e.fuel, e.layer), live: true, indexed: true,
       aliases: e.layer === 'production' ? [`/${S[e.fuel]}/production`] : [], id: `energy:${e.id}`, image: paths.image('views', `energy-${e.id}`),
       lastmod: changed(e.layer === 'trade' && e.flowYear ? 'comtrade' : 'eia'),
+    });
+  }
+
+  // Conflict (phase 5b): one page, its months on the slider.
+  if (conflictPage()) {
+    families.add('conflict');
+    out.push({
+      key: 'view:conflict:events', kind: 'view', lang, path: paths.page('conflict'), live: true, indexed: true,
+      aliases: [], id: 'conflict:events', image: paths.image('views', 'conflict'), lastmod: changed('ucdp'),
     });
   }
 

@@ -1,0 +1,229 @@
+---
+// The conflict map view (/conflict), on the map view template: the answer in one sentence, the month slider and bloc
+// outline, the map with countries shaded by deaths over 12 months and the month's events as marks, then the
+// summary, every country with deaths, the deadliest conflicts and deaths by month. All text, figures and tables are
+// in the HTML; the map (src/scripts/map/) loads after them.
+import Page from '../layouts/Page.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import SourceLine from '../components/SourceLine.astro';
+import Notice from '../components/Notice.astro';
+import ShareRow from '../components/ShareRow.astro';
+import MapStage from '../components/MapStage.astro';
+import MapControls from '../components/MapControls.astro';
+import MarkIcon from '../components/MarkIcon.astro';
+import Icon from '../components/Icon.astro';
+import '../styles/atlas/mapview.css';
+import '../styles/atlas/bars.css';
+import '../styles/atlas/keyfigure.css';
+import '../styles/atlas/table.css';
+import '../styles/atlas/tools.css';
+import { MAP_TEXT } from '../i18n/map.en';
+import { NAV_TEXT } from '../i18n/en';
+import { inSentence, list } from '../i18n/pages.en';
+import { CONFLICT_TEXT as C, monthText } from '../i18n/conflict.en';
+import { conflictPage, VIOLENCE, type ConflictMonth } from '../lib/conflict';
+import { refreshed } from '../lib/data';
+import { formatValue } from '../lib/format';
+import { place } from '../lib/places';
+import { countryHref, indicatorHref, live, route } from '../lib/routes';
+import { layerPath } from '../lib/map/layers';
+import { DOSSIERS } from '../lib/country';
+import { breadcrumbs } from '../lib/structured';
+
+const p = conflictPage()!;
+const key = 'view:conflict:events';
+const path = route(key)!.path;
+const url = new URL(path, Astro.site).href;
+const updated = refreshed('ucdp');
+const m = p.byMonth[p.month];
+const prev = p.byMonth[p.month - 12] ?? null;
+const nameOf = (id: string) => place(id)?.name ?? id;
+const count = (v: number) => formatValue(v, { kind: 'count' });
+const share = (v: number) => formatValue(v, { kind: 'share' });
+const label = (x: ConflictMonth) => monthText(x.n);
+const sum = (x: ConflictMonth) => x.deaths[1] + x.deaths[2] + x.deaths[3];
+const symbols = { 1: 'dot', 2: 'triangle', 3: 'diamond' } as const;
+
+const ledeFor = (x: ConflictMonth) => C.lede({
+  month: monthText(x.n, true), deaths: count(sum(x)), deaths12: count(x.deaths12), months12: x.months12,
+  top: x.rows[0] ? inSentence(nameOf(x.rows[0].id)) : undefined, topDeaths: x.rows[0] ? count(x.rows[0].deaths) : undefined,
+});
+const answer = ledeFor(m);
+const firstPrelim = p.months.find((x) => x.preliminary);
+const status = Object.fromEntries(p.months.filter((x) => x.preliminary).map((x) => [x.n, 'preliminary' as const]));
+
+const summary = [
+  [answer, C.byKind(VIOLENCE.map((k) => C.kindPart(C.kind[k], count(m.deaths[k])))), m.civilians12 && m.deaths12 ? `${C.civilians(share(m.civilians12 / m.deaths12)).replace(/^./, (c) => c.toUpperCase())} over the 12 months.` : ''].filter(Boolean).join(' '),
+  [C.countries(m.rows.length, label(m)), m.conflicts.length ? `${C.deadliest.replace(', 12 months', '')}: ${list(m.conflicts.slice(0, 3).map((k) => `${k.name} (${count(k.deaths)})`))}.` : ''].filter(Boolean).join(' '),
+  [C.caveat, firstPrelim ? C.candidateNote(monthText(firstPrelim.n, true)) : ''].filter(Boolean).join(' '),
+];
+
+const crumbs = [{ label: NAV_TEXT.hubs.security }, { label: C.section }];
+const marks = VIOLENCE.map((k) => ({ symbol: symbols[k], label: C.mark(k) }));
+const rows = m.rows.map((r) => {
+  const q = prev?.rows.find((x) => x.id === r.id);
+  return { r, q, ch: q && q.deaths ? r.deaths / q.deaths - 1 : null };
+});
+const pct = (ch: number) => `${ch > 0 ? '+' : ch < 0 ? '−' : ''}${new Intl.NumberFormat('en', { maximumFractionDigits: 0 }).format(Math.abs(ch * 100))}%`;
+const related = [
+  ...(indicatorHref('conflictdeaths') ? [{ href: indicatorHref('conflictdeaths')!, name: C.indicator, note: '' }] : []),
+  ...m.rows.slice(0, 3).filter((r) => countryHref(r.id)).map((r) => ({ href: countryHref(r.id)!, name: nameOf(r.id), note: DOSSIERS.includes(r.id) ? C.dossier : C.countryPage })),
+  ...(live('view:refugees:refout') ? [{ href: live('view:refugees:refout')!.path, name: C.refugees, note: '' }] : []),
+];
+const mapTop = m.rows.slice(0, 3).map((r) => `${nameOf(r.id)} ${count(r.deaths)}`).join(', ');
+const recent = [...p.months].reverse();
+---
+<Page title={C.title} description={C.description(monthText(p.month, true))} hub="security" container="mv" image={route(key)!.image}
+  jsonld={[breadcrumbs(crumbs.map((c) => ({ label: c.label, href: undefined })))]}>
+  <div class="gt-mvhead">
+    <Breadcrumbs items={crumbs} />
+    <h1 class="gt-title gt-mvhead__t">{C.title} <span class="gt-mvhead__sub">{C.sub}</span></h1>
+    <p class="gt-lede gt-mvhead__a">{answer}</p>
+    <SourceLine source={C.source} parts={[`${monthText(p.months[0].n)} – ${label(m)}`]} updated={updated} />
+  </div>
+
+  <MapControls pickerLabel="" picker={[]} years={p.months.map((x) => x.n)} year={p.month} yearStatus={status}
+    steps={{ label: C.monthLabel, labels: Object.fromEntries(p.months.map((x) => [x.n, label(x)])), statusWord: C.preliminary }} />
+
+  <MapStage layer={layerPath('conflict')} label={`${C.legend(label(m))}. ${mapTop}.`} title={C.title}
+    legend={{ title: C.legend(label(m)), scale: 'seq', ticks: C.ticks, none: C.noneIn.replace('{year}', label(m)), marks }}>
+    <div data-panel="world" slot="panel">
+      <div class="gt-panel__head">
+        <div class="gt-panel__title"><span class="gt-kicker">{C.title} · <span data-year-text>{label(m)}</span></span><h2 class="gt-h3">{MAP_TEXT.world}</h2></div>
+      </div>
+      <div class="gt-panel__body">
+        {p.months.map((x) => {
+          const b = p.byMonth[x.n - 1];
+          const ch = b && sum(b) ? sum(x) / sum(b) - 1 : null;
+          const max = x.rows[0]?.deaths ?? 0;
+          const kmax = x.conflicts[0]?.deaths ?? 0;
+          return (
+            <div class="gt-pyear" data-year={x.n} hidden={x.n !== p.month}>
+              <div class="gt-pkf">
+                <span class="gt-pkf__label">{C.monthKey(label(x))}</span>
+                <span class="gt-pkf__num">{count(sum(x))}</span>
+                {ch !== null && (
+                  <span class="gt-pkf__meta"><span class="gt-kf__change"><Icon name={Math.abs(ch) < 0.05 ? 'flat' : ch > 0 ? 'up' : 'down'} />{Math.abs(ch) < 0.05 ? C.same(label(b)) : C.change(share(Math.abs(ch)), ch > 0, label(b))}</span></span>
+                )}
+                <span class="gt-pkf__meta">{VIOLENCE.map((k) => <span class="gt-dlevel"><MarkIcon symbol={symbols[k]} />{C.kindShort[k]} {count(x.deaths[k])}</span>)}</span>
+                <span class="gt-caption">{C.key12}: {count(x.deaths12)}{x.preliminary ? ` · ${C.preliminary}` : ''}</span>
+              </div>
+              {x.rows.length > 0 && (
+                <div class="gt-pgroup">
+                  <span class="gt-label">{C.most}</span>
+                  <ol class="gt-bars gt-bars--tight gt-bars--wide" aria-label={`${C.most}, ${label(x)}`}>
+                    {x.rows.slice(0, 8).map((r) => (
+                      <li><span class="gt-bars__name"><button type="button" data-select={r.id}>{nameOf(r.id)}</button></span><span class="gt-bars__track"><span class="gt-bars__fill" style={`width:${((100 * r.deaths) / max).toFixed(1)}%`}></span></span><span class="gt-bars__val">{count(r.deaths)}</span></li>
+                    ))}
+                  </ol>
+                </div>
+              )}
+              {x.conflicts.length > 0 && (
+                <div class="gt-pgroup">
+                  <span class="gt-label">{C.deadliest}</span>
+                  <ol class="gt-bars gt-bars--tight gt-bars--wide" aria-label={`${C.deadliest}, ${label(x)}`}>
+                    {x.conflicts.slice(0, 5).map((k) => (
+                      <li><span class="gt-bars__name" title={k.name}>{k.name}</span><span class="gt-bars__track"><span class="gt-bars__fill" style={`width:${((100 * k.deaths) / kmax).toFixed(1)}%`}></span></span><span class="gt-bars__val">{count(k.deaths)}</span></li>
+                    ))}
+                  </ol>
+                </div>
+              )}
+            </div>
+          );
+        })}
+        <div class="gt-blocline" hidden><span class="gt-blocline__key" aria-hidden="true"></span><p></p></div>
+        <Notice>
+          <p>{C.caveat}</p>
+          {firstPrelim && <p>{C.candidateNote(monthText(firstPrelim.n, true))}</p>}
+          <SourceLine source={C.source} updated={updated} />
+        </Notice>
+      </div>
+    </div>
+  </MapStage>
+
+  <section class="gt-mvbelow" aria-labelledby="mv-sum">
+    <div class="gt-mvbelow__main">
+      <h2 class="gt-h2" id="mv-sum">{C.summary}</h2>
+      <div class="gt-prose">{summary.map((s) => <p>{s}</p>)}</div>
+      <SourceLine source={C.source} parts={[label(m)]} updated={updated} />
+
+      <h2 class="gt-h2" id="table">{C.all}</h2>
+      <div class="gt-tablewrap" style="--gt-table-h:560px" tabindex="0" role="region" aria-label={C.tableLabel}>
+        <table class="gt-table" data-gt-sort>
+          <caption class="gt-caption">{C.caption(label(m), prev ? label(prev) : '–')}</caption>
+          <thead><tr>
+            <th scope="col" data-key="n"><button type="button">{C.country}</button></th>
+            <th scope="col" class="n" data-key="v" data-type="num" aria-sort="descending"><button type="button">{C.col12(label(m))}</button></th>
+            <th scope="col" class="n" data-key="c" data-type="num"><button type="button">{C.civCol}</button></th>
+            <th scope="col" class="n" data-key="e" data-type="num"><button type="button">{C.eventsCol}</button></th>
+            {prev && <th scope="col" class="n" data-key="q" data-type="num"><button type="button">{C.col12(label(prev))}</button></th>}
+            {prev && <th scope="col" class="n" data-key="h" data-type="num"><button type="button">{C.changeCol}</button></th>}
+          </tr></thead>
+          <tbody>
+            {rows.map(({ r, q, ch }) => (
+              <tr data-place={r.id}>
+                <th scope="row">{countryHref(r.id) ? <a href={countryHref(r.id)}>{nameOf(r.id)}</a> : nameOf(r.id)}</th>
+                <td class="n" data-v={r.deaths}>{count(r.deaths)}</td>
+                <td class="n" data-v={r.civilians}>{count(r.civilians)}</td>
+                <td class="n" data-v={r.events}>{count(r.events)}</td>
+                {prev && (q ? <td class="n" data-v={q.deaths}>{count(q.deaths)}</td> : <td class="n gt-na" data-v="">–</td>)}
+                {prev && (ch === null ? <td class="n gt-na" data-v="">–</td> : <td class="n" data-v={ch}><span class="gt-chg"><Icon name={Math.abs(ch) < 0.005 ? 'flat' : ch > 0 ? 'up' : 'down'} />{pct(ch)}</span></td>)}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <SourceLine source={C.source} parts={[prev ? `${label(prev)} and ${label(m)}` : label(m)]} updated={updated} />
+
+      <h2 class="gt-h2" id="conflicts">{C.conflicts}</h2>
+      <div class="gt-tablewrap" style="--gt-table-h:480px" tabindex="0" role="region" aria-label={C.conflicts}>
+        <table class="gt-table">
+          <caption class="gt-caption">{C.conflictsCaption(label(m))}</caption>
+          <thead><tr><th scope="col">{C.conflict}</th><th scope="col">{C.kindCol}</th><th scope="col">{C.where}</th><th scope="col" class="n">{C.col12(label(m))}</th></tr></thead>
+          <tbody>
+            {m.conflicts.slice(0, 25).map((k) => (
+              <tr>
+                <th scope="row">{k.name}</th>
+                <td><span class="gt-dlevel"><MarkIcon symbol={symbols[k.type]} />{C.kindShort[k.type]}</span></td>
+                <td>{k.places.map(nameOf).join(', ')}</td>
+                <td class="n">{count(k.deaths)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <SourceLine source={C.source} parts={[label(m)]} updated={updated} />
+
+      <h2 class="gt-h2" id="months">{C.byMonth}</h2>
+      <div class="gt-tablewrap" style="--gt-table-h:480px" tabindex="0" role="region" aria-label={C.byMonth}>
+        <table class="gt-table">
+          <caption class="gt-caption">{C.byMonthCaption}</caption>
+          <thead><tr><th scope="col">{C.monthCol}</th>{VIOLENCE.map((k) => <th scope="col" class="n">{C.kindShort[k]}</th>)}<th scope="col" class="n">{C.totalCol}</th></tr></thead>
+          <tbody>
+            {recent.map((x) => (
+              <tr>
+                <th scope="row">{label(x)}{x.preliminary && <small class="gt-caption"> ({C.preliminary})</small>}</th>
+                {VIOLENCE.map((k) => <td class="n">{count(x.deaths[k])}</td>)}
+                <td class="n">{count(sum(x))}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <SourceLine source={C.source} parts={[`${monthText(p.months[0].n)} – ${label(m)}`]} updated={updated} />
+      <dl class="gt-caption gt-mvnotes">
+        {VIOLENCE.map((k) => <div><dt><b>{C.kind[k]}</b></dt><dd>{C.kindNote[k]}</dd></div>)}
+      </dl>
+    </div>
+    <aside class="gt-mvbelow__side">
+      <h2 class="gt-label">{C.related}</h2>
+      <ul class="gt-related">{related.map((r) => <li><a href={r.href}><span>{r.name}</span>{r.note && <small>{r.note}</small>}</a></li>)}</ul>
+      <div class="gt-mvbelow__share"><ShareRow url={url} text={answer} /></div>
+    </aside>
+  </section>
+</Page>
+
+<script>
+  import { initSortable } from '../scripts/table';
+  document.querySelectorAll<HTMLTableElement>('table[data-gt-sort]').forEach(initSortable);
+</script>

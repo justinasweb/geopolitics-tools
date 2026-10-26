@@ -18,24 +18,28 @@ interface Props {
   disabled?: boolean;
   /** A status tag shown next to the readout for these years (map views: "Estimate" on USGS's estimated years). */
   tags?: Record<number, Status>;
+  /** Words for the values, where they are not years (a months axis: "Mar 2026"), and the label in place of "Year". */
+  labels?: Record<number, string>;
+  label?: string;
 }
-const { id, min, max, value = max, estimated = [], play = true, disabled = false, tags } = Astro.props;
+const { id, min, max, value = max, estimated = [], play = true, disabled = false, tags, labels, label = YEAR_TEXT.year } = Astro.props;
+const word = (v: number) => labels?.[v] ?? v;
 const step = Math.max(1, Math.ceil((max - min) / 5));
 const ticks = Astro.props.ticks ?? Array.from({ length: Math.floor((max - min) / step) + 1 }, (_, i) => max - (Math.floor((max - min) / step) - i) * step);
 ---
-<div class:list={["gt-years", { "gt-years--noplay": !play, "gt-years--two": max - min === 1 }]} data-gt-years data-est={estimated.join(' ')}>
+<div class:list={["gt-years", { "gt-years--noplay": !play, "gt-years--two": max - min === 1 }]} data-gt-years data-est={estimated.join(' ')} data-labels={labels ? JSON.stringify(labels) : undefined}>
   {play && <button class="gt-play" type="button" aria-label={YEAR_TEXT.play} disabled={disabled}></button>}
   <div class="gt-years__head">
-    <label class="gt-label" for={id}>{YEAR_TEXT.year}</label>
+    <label class="gt-label" for={id}>{label}</label>
     {tags ? (
       <span class="gt-years__nowwrap">
-        <span class="gt-years__now" aria-hidden="true">{value}</span>
+        <span class="gt-years__now" aria-hidden="true">{word(value)}</span>
         {Object.entries(tags).map(([y, st]) => <span data-tag-year={y} hidden={Number(y) !== value}><StatusTag status={st} small /></span>)}
       </span>
-    ) : <span class="gt-years__now" aria-hidden="true">{value}</span>}
+    ) : <span class="gt-years__now" aria-hidden="true">{word(value)}</span>}
   </div>
   <input id={id} type="range" min={min} max={max} step="1" value={value} disabled={disabled} />
-  <div class="gt-years__ticks">{ticks.map((t) => <span data-est={estimated.includes(t) ? '' : undefined}>{t}</span>)}</div>
+  <div class="gt-years__ticks">{ticks.map((t) => <span data-est={estimated.includes(t) ? '' : undefined}>{word(t)}</span>)}</div>
 </div>
 
 <script>

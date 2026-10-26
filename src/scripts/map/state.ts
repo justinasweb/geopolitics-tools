@@ -4,7 +4,11 @@
 // (disasters) keeps its period in ?days= instead.
 
 export interface ViewState { year?: number; country?: string; bloc?: string }
-export interface StateContext { years: number[]; latest: number; slugs: Record<string, string>; blocs: Record<string, unknown>; param?: 'year' | 'days' }
+export interface StateContext { years: number[]; latest: number; slugs: Record<string, string>; blocs: Record<string, unknown>; param?: 'year' | 'days' | 'month' }
+
+/** A month as the URL writes it (2026-03), from its number on a months axis (year × 12 + month − 1), and back. */
+export const monthCode = (n: number) => `${Math.floor(n / 12)}-${String((n % 12) + 1).padStart(2, '0')}`;
+export const monthNumber = (s: string) => { const m = /^(\d{4})-(\d{2})$/.exec(s); return m ? Number(m[1]) * 12 + Number(m[2]) - 1 : NaN; };
 
 /** The nearest year the layer has: a year the source does not cover moves to the closest one it does. */
 export function nearestYear(years: number[], want: number): number {
@@ -16,7 +20,7 @@ export function readState(search: string, ctx: StateContext): ViewState & { aske
   const q = new URLSearchParams(search);
   const out: ViewState & { askedYear?: number } = {};
   const key = ctx.param ?? 'year';
-  const y = Number(q.get(key));
+  const y = key === 'month' ? monthNumber(q.get(key) ?? '') : Number(q.get(key));
   if (q.get(key) && Number.isInteger(y)) {
     out.year = nearestYear(ctx.years, y);
     if (out.year !== y) out.askedYear = y;
@@ -36,7 +40,7 @@ export function readState(search: string, ctx: StateContext): ViewState & { aske
 export function writeState(url: URL, s: ViewState, ctx: StateContext): URL {
   const u = new URL(url.href);
   const set = (k: string, v: string | undefined) => (v ? u.searchParams.set(k, v) : u.searchParams.delete(k));
-  set(ctx.param ?? 'year', s.year !== undefined && s.year !== ctx.latest ? String(s.year) : undefined);
+  set(ctx.param ?? 'year', s.year !== undefined && s.year !== ctx.latest ? (ctx.param === 'month' ? monthCode(s.year) : String(s.year)) : undefined);
   set('country', s.country ? ctx.slugs[s.country] ?? s.country.toLowerCase() : undefined);
   set('bloc', s.bloc || undefined);
   return u;
