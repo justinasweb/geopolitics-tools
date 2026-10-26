@@ -70,7 +70,10 @@ const source: Source = {
           // Say which units the API has for it, so a renamed unit shows in the log.
           const any = await all(name, 'international', `${facets(series, false)}&facets[countryRegionId][]=SAU&facets[countryRegionId][]=USA`);
           const units = [...new Set(any.rows.map((r) => `${r.unit} (${r.unitName ?? ''})`))].join(', ') || 'none';
-          check(false, `${name}: product ${p}, activity ${a} (${u}) has only ${n} countries; for Saudi Arabia and the US the API has units ${units}`);
+          // And the API's own list of activities, so a renumbered one shows too.
+          const listed = await getJson<{ response?: { facets?: { id: string; name: string }[] } }>(ctx.http, `${base}/international/facet/activityId/?api_key=${key}`, { timeout: 60_000 }).catch(() => null);
+          const activities = listed?.response?.facets?.map((x) => `${x.id} ${x.name}`).join('; ') ?? 'not listed';
+          check(false, `${name}: product ${p}, activity ${a} (${u}) has only ${n} countries; for Saudi Arabia and the US the API has units ${units}; activities: ${activities}`);
         }
         got.push(...answer.rows);
         last = answer.last;
