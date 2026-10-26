@@ -61,7 +61,7 @@ A sample build has 129 country pages and 37 indicator pages; the real snapshot h
   listed as such. "Latest available" reaches back two years and marks the older rows.
 - **Dependence.** Net imports ÷ use: 50% or more "Imports most", 15–50% "Imports some", within ±15% "Roughly
   self-sufficient", below −15% "Exporter" (`src/lib/dependence.ts`). Arms and chips show the main supplier's share
-  only. Oil and gas say "No data yet" until EIA and UN Comtrade are connected.
+  only. A row whose source is not in the snapshot says "No data yet".
 - **Neutral words.** Templates use plain verbs (mines, imports, hosts) and no adjectives that judge. "Higher" on
   Compare marks the larger value and says it is not a judgement. A sentence whose figure is missing is left out.
 - **Colour is never the only cue.** Dependence tags have a glyph and a word, Compare countries have a marker and a
