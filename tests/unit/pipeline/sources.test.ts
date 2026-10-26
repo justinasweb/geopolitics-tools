@@ -293,9 +293,16 @@ describe('eia', () => {
   const env = { EIA_API_KEY: 'k' };
   const intl = (series: readonly (readonly string[])[]) => series.flatMap(([p, a, u]) => Array.from({ length: 120 }, (_, i) => ({ period: '2024', productId: Number(p), productName: 'x', activityId: Number(a), activityName: a === '1' ? 'Production' : a === '2' ? 'Consumption' : 'Reserves', countryRegionId: iso(i), countryRegionTypeId: 'c', unit: u, value: i === 0 ? '--' : '12' })));
   const months = (s: string) => Array.from({ length: 120 }, (_, i) => ({ period: `${2016 + Math.floor(i / 12)}-${String((i % 12) + 1).padStart(2, '0')}`, series: s, value: 70 }));
-  const routes = (lastMonth = true): Route[] => [
-    [/international\/data.*productId\]\[\]=57/, () => ({ response: { total: 480, data: [...intl(EIA_SERIES.oil), { period: '2024', productId: 57, activityId: 3, activityName: 'Imports', countryRegionId: 'USA', unit: 'TBPD', value: '1' }] }, apiVersion: '2.1.8' })],
-    [/international\/data.*productId\]\[\]=26/, () => ({ response: { total: 360, data: intl(EIA_SERIES.gas) }, apiVersion: '2.1.8' })],
+  const routes = (lastMonth = true, noReserves = false): Route[] => [
+    // Answers each call with the series its facets name, plus an import row the source must drop.
+    [/international\/data/, (url) => {
+      const f = (name: string) => decodeURIComponent(url).match(new RegExp(`facets\\[${name}\\]\\[\\]=([^&]+)`))?.[1];
+      const [p, a, u] = [f('productId'), f('activityId'), f('unit')];
+      if (noReserves && a === '6' && p === '57') return { response: { total: 0, data: u ? [] : [{ period: '2024', productId: 57, activityId: 6, countryRegionId: 'SAU', unit: 'BBL', unitName: 'billion barrels', value: '260' }] } };
+      const data = intl([[p!, a!, u!]]);
+      if (p === '57' && a === '1') data.push({ period: '2024', productId: 57, productName: 'x', activityId: 3, activityName: 'Imports', countryRegionId: 'USA', countryRegionTypeId: 'c', unit: 'TBPD', value: '1' });
+      return { response: { total: data.length, data }, apiVersion: '2.1.8' };
+    }],
     [/pri\/spt/, () => ({ response: { total: 240, data: [...months('RBRTE'), ...months('RWTC').slice(0, lastMonth ? 120 : 100)] } })],
   ];
 
@@ -310,6 +317,10 @@ describe('eia', () => {
 
   it('refuses a price series that stopped updating', async () => {
     await expect(eia.fetch({ ...ctxFor(fakeHttp(routes(false))), now: new Date('2026-02-10T00:00:00Z'), env })).rejects.toThrow(/RWTC ends in 2024-04/);
+  });
+
+  it('names the units the API has when a series comes back empty', async () => {
+    await expect(eia.fetch({ ...ctxFor(fakeHttp(routes(true, true))), now: new Date('2026-02-10T00:00:00Z'), env })).rejects.toThrow(/activity 6 \(BB\) has only 0 countries.*units BBL \(billion barrels\)/);
   });
 });
 

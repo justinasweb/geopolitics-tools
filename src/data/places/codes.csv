@@ -87,6 +87,16 @@ comtrade,m49,699,IND,,,Comtrade code for India
 comtrade,m49,757,CHE,,,Comtrade code for Switzerland (with Liechtenstein)
 comtrade,m49,579,NOR,,,Comtrade code for Norway (with Svalbard and Jan Mayen)
 comtrade,m49,0,,,,World total
+comtrade,m49,899,,,,Areas not elsewhere specified
+comtrade,m49,568,,,,Other Europe not elsewhere specified
+comtrade,m49,577,,,,Other Africa not elsewhere specified
+comtrade,m49,837,,,,Bunkers
+comtrade,m49,838,,,,Free zones
+comtrade,m49,839,,,,Special categories
+comtrade,m49,527,,,,Oceania not elsewhere specified
+comtrade,m49,473,,,,LAIA not elsewhere specified
+comtrade,m49,637,,,,North and Central America not elsewhere specified
+comtrade,m49,80,,,,British Antarctic Territory
 celestrak,code,US,USA,,,
 celestrak,code,PRC,CHN,,,
 celestrak,code,CIS,SUN,,1991-12-26,"CelesTrak's code for the Soviet Union and then Russia (Commonwealth of Independent States); the Soviet Union until it ended"
