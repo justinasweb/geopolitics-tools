@@ -210,7 +210,8 @@ oil use is all petroleum products, net trade is all liquids produced minus use (
 gas is dry gas in billion cubic metres. The default year is the latest with 90% of the best coverage; later reporters are
 listed as not yet reported. Trade maps draw the 20 largest UN Comtrade flows (crude in barrels a day at 7.33 barrels a
 tonne; gas as pipeline and LNG, LNG dashed). `/oil` also shows Brent and WTI monthly prices. Reserves pages add years
-of output at the latest rate.
+of output at the latest rate; on live data they are left out, since EIA's API no longer has proved reserves (they show
+only on the sample build).
 
 ## Electricity (phase 5b)
 
@@ -242,5 +243,8 @@ Phase 5, which counts people in catastrophe, not famine (an area classification 
 
 - Refining shares and trade flows on the minerals views: later phases, once their sources are in.
 - The Atlas (one map, every layer): it reads these layer files when it is built.
+- Oil and gas reserves on live data: EIA's API dropped them (its international activities are now production,
+  consumption, imports and OECD stocks). Left out for now by decision; the Energy Institute (to 2020 only) and OPEC
+  (oil only, own terms) were the alternatives looked at.
 - Live data for the phase 5b views: each goes live when its key is set and its gates pass on live data. The chokepoints
   and ports wait on the IMF's terms; submarine cables stay hidden.
