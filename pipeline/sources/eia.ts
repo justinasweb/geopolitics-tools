@@ -1,9 +1,9 @@
 // U.S. Energy Information Administration, API v2 (free key) → eia/, each in the API's own { response: { data } }
 // format, the format of the prototype's samples:
-//   oil_international.json  crude oil including lease condensate (production, reserves), total petroleum and
-//                           other liquids (production: crude plus NGLs, the figure net trade must use) and
-//                           petroleum consumption; thousand barrels a day, reserves in billion barrels
-//   gas_international.json  dry natural gas production, consumption (bcm) and reserves (tcm)
+//   oil_international.json  crude oil including lease condensate (production), total petroleum and other
+//                           liquids (production: crude plus NGLs, the figure net trade must use) and petroleum
+//                           consumption; thousand barrels a day
+//   gas_international.json  dry natural gas production and consumption (bcm)
 //   oil_spot_prices.json    Brent and WTI spot prices, monthly, dollars a barrel
 // Countries only (EIA's regions and groups are left out); rows without a number ("--", "NA") are dropped.
 import { getJson } from '../lib/http.ts';
@@ -16,9 +16,11 @@ type Row = Record<string, string | number | null>;
 interface Answer { response?: { total?: number | string; data?: Row[]; dateFormat?: string; frequency?: string }; request?: unknown; apiVersion?: string }
 
 /** The series kept: product id, activity id and unit, as the API names them. */
+// Proved reserves (activity 6) are no longer in the API: its activities are now production, consumption, imports
+// and OECD stocks only, so the reserves pages wait for another source.
 export const SERIES = {
-  oil: [['57', '1', 'TBPD'], ['53', '1', 'TBPD'], ['5', '2', 'TBPD'], ['57', '6', 'BB']],
-  gas: [['26', '1', 'BCM'], ['26', '2', 'BCM'], ['26', '6', 'TCM']],
+  oil: [['57', '1', 'TBPD'], ['53', '1', 'TBPD'], ['5', '2', 'TBPD']],
+  gas: [['26', '1', 'BCM'], ['26', '2', 'BCM']],
 } as const;
 
 const hasNumber = (r: Row) => r.value !== null && r.value !== '' && Number.isFinite(Number(r.value));
