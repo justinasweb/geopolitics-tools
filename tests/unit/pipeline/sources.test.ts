@@ -16,7 +16,7 @@ import unhcr, { foldPairs, num } from '../../../pipeline/sources/unhcr.ts';
 import usgsQuakes from '../../../pipeline/sources/usgs-quakes.ts';
 import worldbank, { INDICATORS } from '../../../pipeline/sources/worldbank.ts';
 import comtrade, { plan, trim } from '../../../pipeline/sources/comtrade.ts';
-import eia, { SERIES as EIA_SERIES } from '../../../pipeline/sources/eia.ts';
+import eia from '../../../pipeline/sources/eia.ts';
 import ember, { SERIES as EMBER_SERIES } from '../../../pipeline/sources/ember.ts';
 import ucdp from '../../../pipeline/sources/ucdp.ts';
 import ipc from '../../../pipeline/sources/ipc.ts';
@@ -293,12 +293,12 @@ describe('eia', () => {
   const env = { EIA_API_KEY: 'k' };
   const intl = (series: readonly (readonly string[])[]) => series.flatMap(([p, a, u]) => Array.from({ length: 120 }, (_, i) => ({ period: '2024', productId: Number(p), productName: 'x', activityId: Number(a), activityName: a === '1' ? 'Production' : a === '2' ? 'Consumption' : 'Reserves', countryRegionId: iso(i), countryRegionTypeId: 'c', unit: u, value: i === 0 ? '--' : '12' })));
   const months = (s: string) => Array.from({ length: 120 }, (_, i) => ({ period: `${2016 + Math.floor(i / 12)}-${String((i % 12) + 1).padStart(2, '0')}`, series: s, value: 70 }));
-  const routes = (lastMonth = true, noReserves = false): Route[] => [
+  const routes = (lastMonth = true, emptyUse = false): Route[] => [
     // Answers each call with the series its facets name, plus an import row the source must drop.
     [/international\/data/, (url) => {
       const f = (name: string) => decodeURIComponent(url).match(new RegExp(`facets\\[${name}\\]\\[\\]=([^&]+)`))?.[1];
       const [p, a, u] = [f('productId'), f('activityId'), f('unit')];
-      if (noReserves && a === '6' && p === '57') return { response: { total: 0, data: u ? [] : [{ period: '2024', productId: 57, activityId: 6, countryRegionId: 'SAU', unit: 'BBL', unitName: 'billion barrels', value: '260' }] } };
+      if (emptyUse && a === '2' && p === '5') return { response: { total: 0, data: u ? [] : [{ period: '2024', productId: 5, activityId: 2, countryRegionId: 'SAU', unit: 'MBBL', unitName: 'million barrels', value: '3' }] } };
       const data = intl([[p!, a!, u!]]);
       if (p === '57' && a === '1') data.push({ period: '2024', productId: 57, productName: 'x', activityId: 3, activityName: 'Imports', countryRegionId: 'USA', countryRegionTypeId: 'c', unit: 'TBPD', value: '1' });
       return { response: { total: data.length, data }, apiVersion: '2.1.8' };
@@ -310,7 +310,7 @@ describe('eia', () => {
     const r = await eia.fetch({ ...ctxFor(fakeHttp(routes())), now: new Date('2026-02-10T00:00:00Z'), env });
     expect(r.files.map((f) => f.name)).toEqual(['oil_international.json', 'gas_international.json', 'oil_spot_prices.json']);
     const o = JSON.parse(body(r, 'oil_international.json')).response.data;
-    expect(o).toHaveLength(4 * 119);
+    expect(o).toHaveLength(3 * 119);
     expect(o.some((x: { activityName: string }) => x.activityName === 'Imports')).toBe(false);
     expect(r.dataTo).toBe('2024');
   });
@@ -320,7 +320,7 @@ describe('eia', () => {
   });
 
   it('names the units the API has when a series comes back empty', async () => {
-    await expect(eia.fetch({ ...ctxFor(fakeHttp(routes(true, true))), now: new Date('2026-02-10T00:00:00Z'), env })).rejects.toThrow(/activity 6 \(BB\) has only 0 countries.*units BBL \(billion barrels\)/);
+    await expect(eia.fetch({ ...ctxFor(fakeHttp(routes(true, true))), now: new Date('2026-02-10T00:00:00Z'), env })).rejects.toThrow(/product 5, activity 2 \(TBPD\) has only 0 countries.*units MBBL \(million barrels\)/);
   });
 });
 
