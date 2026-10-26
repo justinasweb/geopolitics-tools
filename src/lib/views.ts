@@ -12,6 +12,7 @@ import { ANSWER, SOURCE_NOTE, SOURCE_SHORT, inSentence } from '../i18n/pages.en.
 import { indicator, refreshed, shared, sourceName, tryLoad } from './data.ts';
 import { VIEW_MEASURES } from '../data/view-measures.ts';
 import { yearsOf } from '../adapters/core.ts';
+import { worldShare } from './electricity.ts';
 import { formatValue } from './format.ts';
 import { place } from './places.ts';
 import { breaks, classOf, counts, defaultYear, ranking, type Row } from './stats.ts';
@@ -75,6 +76,8 @@ function worldOf(layer: ViewLayer, year: number, rows: Row[]): { world: number |
   if (layer.indicator === 'co2' && own?.co2 != null) return { world: own.co2, worldOwn: true };
   if (layer.indicator === 'co2cum' && own?.cum != null) return { world: own.cum, worldOwn: true };
   if (layer.indicator === 'co2pc' && own?.pc != null) return { world: own.pc, worldOwn: true };
+  const power = worldShare(layer.indicator, year);
+  if (power) return { world: power.value, worldOwn: power.own };
   if (layer.sums) return { world: rows.reduce((s, r) => s + r.value, 0), worldOwn: false };
   return { world: null, worldOwn: false };
 }
@@ -143,12 +146,31 @@ export const prevOf = (p: ViewPage, y: number) => y - (p.layer.span ?? 1);
 /** A year as the layer names it ("2021–2025" for a five-year total). */
 export const yearText = (p: ViewPage, y: number) => (p.text.period ? p.text.period(y) : String(y));
 
-/** The change in the world figure from the year (or period) before, as a share, when both have one. */
+/** The change in the world figure from the year (or period) before, as a share (in points for share layers), when both have one. */
 export function worldChange(p: ViewPage, y: number): number | null {
+  if (p.layer.noTotalChange) return null;
   const a = p.byYear[y]?.world;
   const b = p.byYear[prevOf(p, y)]?.world;
-  return a && b ? a / b - 1 : null;
+  return a == null || b == null ? null : p.layer.points ? a - b : a && b ? a / b - 1 : null;
 }
+
+/** A change as the layer writes it: "+12%", or for share layers in percentage points ("+3.1 pts"). */
+export function changeText(p: ViewPage, ch: number): string {
+  const sign = ch > 0 ? '+' : ch < 0 ? '−' : '';
+  return p.layer.points
+    ? W.points(`${sign}${new Intl.NumberFormat('en', { maximumFractionDigits: 1, minimumFractionDigits: 1 }).format(Math.abs(ch * 100))}`)
+    : `${sign}${new Intl.NumberFormat('en', { maximumFractionDigits: 0 }).format(Math.abs(ch * 100))}%`;
+}
+
+/** A change's size without its sign, for sentences: "4.2%", or "1.3 pts" ("1.3 percentage points" with `long`). */
+export function changeSize(p: ViewPage, ch: number, long = false): string {
+  if (!p.layer.points) return formatValue(Math.abs(ch), { kind: 'share' });
+  const n = new Intl.NumberFormat('en', { maximumFractionDigits: 1, minimumFractionDigits: 1 }).format(Math.abs(ch * 100));
+  return long ? W.pointsLong(n) : W.points(n);
+}
+
+/** No change worth a word: under half a percent, or a tenth of a point. */
+export const flat = (p: ViewPage, ch: number) => Math.abs(ch) < (p.layer.points ? 0.0005 : 0.005);
 
 /** Countries above and below zero, for a diverging layer's answer. */
 export const divCounts = (y: ViewYear) => ({ up: y.rows.filter((r) => r.value > 0).length, down: y.rows.filter((r) => r.value < 0).length });
@@ -174,7 +196,7 @@ export function summary(p: ViewPage, year = p.year): string[] {
   const first: string[] = [];
   const ch = worldChange(p, year);
   if (y.world !== null && p.text.total) {
-    const change = ch === null || p.id === 'co2cum' ? null : Math.abs(ch) < 0.005 ? null : W.changeIn(formatValue(Math.abs(ch), { kind: 'share' }), ch > 0, yearText(p, prevOf(p, year)));
+    const change = ch === null || p.id === 'co2cum' ? null : flat(p, ch) ? null : W.changeIn(changeSize(p, ch, true), ch > 0, yearText(p, prevOf(p, year)));
     first.push(p.text.total(valueText(p, y.world), year, change));
   }
   if (p.layer.scale === 'div') {

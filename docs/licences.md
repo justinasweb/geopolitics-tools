@@ -4,7 +4,7 @@ Generated from `src/data/licences.ts` by `node scripts/licence-table.ts > docs/l
 
 What each source's terms allow and what the site does with it (decision D9). Downloads are "Yes" only where the terms
 allow redistribution; otherwise the site shows charts and figures only. Credits travel with every chart and export.
-4 checked against the terms page, 22 to confirm, 2 waiting on permission.
+8 checked against the terms page, 22 to confirm, 2 waiting on permission.
 
 | Source | Licence | Downloads | Commercial use | Status | Note |
 |---|---|---|---|---|---|
@@ -34,5 +34,9 @@ allow redistribution; otherwise the site shows charts and figures only. Credits 
 | [AidData Chinese development finance](https://www.aiddata.org/data/aiddatas-global-chinese-development-finance-dataset-version-3-0) | Not stated on the dataset page | Shown only | To confirm | To confirm | The spec names CLG-Global 1.0, the prototype used GCDF 3.0: check which is current and its licence |
 | [USGS Mineral Commodity Summaries](https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits) | Public domain (US government work) | Yes | Yes | To confirm |  |
 | [US Treasury holdings, history](https://home.treasury.gov/data/treasury-international-capital-tic-system) | Public domain (US government work) | Yes | Yes | To confirm |  |
-| [UN Comtrade](https://uncomtrade.org/docs/re-dissemination-of-data/) | UN Comtrade terms; limits on redistributing extracted records | Shown only | To confirm | To confirm | Spec: charts and aggregates; no raw bilateral downloads beyond the limits |
+| [UN Comtrade](https://uncomtrade.org/docs/re-dissemination-of-data/) | UN Comtrade terms: a free, not-for-profit visualisation may show its figures; no bulk redistribution | Shown only | No | Checked 2026-10-26 | The terms list "free-of-charge data visualization" as needing no licence, and allow up to 100,000 records in a free extraction tool; the site shows charts, flows and aggregates only. Ads or a paid tier need a licence from subscriptions@un.org |
+| [U.S. Energy Information Administration](https://www.eia.gov/about/copyrights_reuse.php) | Public domain (US government work); EIA asks to be credited | Yes | Yes | Checked 2026-10-26 | The page asks for a credit with the publication date: "Source: U.S. Energy Information Administration (Oct 2026)" |
+| [Ember electricity data](https://ember-energy.org/data/api) | CC BY 4.0 | Yes | Yes | To confirm | The API page says all content is CC BY 4.0; confirm it covers the API data |
+| [UCDP Georeferenced Event Dataset](https://ucdp.uu.se/downloads/) | CC BY 4.0 | Yes | Yes | Checked 2026-10-26 | The downloads page: all datasets are free and CC BY 4.0, citing the publications listed with each. Cite Sundberg and Melander (2013) and Davies et al. for the GED; Candidate events are preliminary |
+| [IPC food insecurity analyses](https://docs.api.ipcinfo.org) | CC BY-NC-SA 3.0 IGO | Shown only | No | Checked 2026-10-26 | Addendum: non-commercial and share-alike; credit "IPC CC BY-NC-SA 3.0 IGO" with the date and a link; keys are per implementation; no military use. Ads or a paid tier need IPC’s agreement |
 | [PeeringDB](https://tools.peeringdb.com/aup) | PeeringDB acceptable use policy | Shown only | No | To confirm | Spec: exchange points left out unless PeeringDB gives permission |

@@ -8,15 +8,17 @@ export const SECTION_SLUGS = {
   about: 'about', methodology: 'methodology', sources: 'sources', privacy: 'privacy', minerals: 'minerals',
   emissions: 'emissions', refugees: 'refugees', disasters: 'disasters', food: 'food', blocs: 'blocs',
   space: 'space', ai: 'ai', sanctions: 'sanctions', internet: 'internet',
-  water: 'water', 'chinese-lending': 'chinese-lending', arms: 'arms',
+  water: 'water', 'chinese-lending': 'chinese-lending', arms: 'arms', oil: 'oil', gas: 'gas', electricity: 'electricity', conflict: 'conflict', 'food-crises': 'food-crises',
 } as const;
 
 /** Map view layers after their section (/emissions/per-person), by registry id; the first layer of a section is the section itself (''). */
 export const VIEW_SLUGS: Record<string, string> = {
+  hunger: '', hungershare: 'share',
+  lowcarbon: '', windsolar: 'wind-solar', coalpower: 'coal', gaspower: 'gas', nuclearpower: 'nuclear',
   co2: '', co2pc: 'per-person', co2cum: 'since-1750', co2trade: 'imported',
   refout: '', refin: 'hosted', refinpc: 'per-person', idps: 'displaced',
   satellites: '', launches: 'launches',
-  aicompute: '', aimodels: 'models', entitylist: 'export-controls',
+  aicompute: '', aimodels: 'models', entitylist: 'export-controls', chipimports: 'chips', chipmachines: 'chip-machines',
   outages: 'outages',
   waterstress: '', waterstress2050: '2050', waterdep: 'from-abroad',
   lendall: '', lendenergy: 'energy', lendtransport: 'transport', lendindustry: 'mining', lendbanking: 'banking', lendother: 'other',
@@ -32,6 +34,9 @@ export const DISASTER_SLUGS: Record<string, string> = {
 /** Food and fertiliser: the commodity after /food, then the measure; production is the commodity's own address. */
 export const FOOD_SLUGS: Record<string, string> = { wheat: 'wheat', maize: 'maize', rice: 'rice', soy: 'soybeans', potash: 'potash', phosphate: 'phosphate' };
 export const FOOD_LAYER_SLUGS: Record<string, string> = { production: '', use: 'use', trade: 'trade' };
+
+/** Oil and gas: the measure after /oil or /gas; production is the section's own address. */
+export const ENERGY_LAYER_SLUGS: Record<string, string> = { production: '', consumption: 'consumption', trade: 'trade', reserves: 'reserves' };
 
 /** Groupings after /blocs; every grouping together is the section itself. */
 export const BLOC_SLUGS: Record<string, string> = {

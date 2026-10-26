@@ -47,18 +47,19 @@ export interface PanelBlock {
 /** `m`, as on a point: the years (by bit of their index) the arc shows in; 0 or none for every year. */
 export interface Arc { p: [number, number][]; w: number; tip: string; m?: number }
 export interface Line { p: [number, number][][]; tip: string }
-/** A point; `m` is a bit mask of the year indices it shows in (bit i for data[i]), 0 or none for all. */
-export interface Point { at: [number, number]; r?: number; tip: string; m?: number }
+/** A point; `m` is a bit mask of the year indices it shows in (bit i for data[i]), 0 or none for all; `i` the one index it shows in, for layers with more steps than a mask can hold (conflict months). */
+export interface Point { at: [number, number]; r?: number; tip: string; m?: number; i?: number }
 export type Overlay =
-  | { id: string; kind: 'arcs'; label: string; items: Arc[] }
+  | { id: string; kind: 'arcs'; label: string; dashed?: boolean; items: Arc[] }
   | { id: string; kind: 'lines'; label: string; dashed?: boolean; items: Line[] }
   | { id: string; kind: 'points'; label: string; symbol: 'dot' | 'hollow' | 'triangle' | 'diamond' | 'square'; items: Point[] };
 
 export interface LayerFile {
   id: string;
   scale: 'seq' | 'div';
-  /** What the slider steps through: years (the default) or periods in days (?days= in the URL). */
-  axis?: 'days';
+  /** What the slider steps through: years (the default), periods in days (?days= in the URL), or months, numbered
+   *  year × 12 + month − 1 so they run on without gaps (?month=2026-03 in the URL). */
+  axis?: 'days' | 'months';
   years: number[];
   /** The year shown when the URL names none: the latest. */
   year: number;

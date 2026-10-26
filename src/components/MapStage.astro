@@ -21,7 +21,7 @@ interface Props {
   label: string;
   /** The view's name, for the phone map's top bar. */
   title: string;
-  legend: { title: string; scale: 'seq' | 'div'; ticks: string[]; ends?: [string, string]; none: string; withheld?: boolean; notyet?: string; marks?: { symbol: 'dot' | 'hollow' | 'triangle' | 'diamond' | 'square' | 'arc'; label: string }[];
+  legend: { title: string; scale: 'seq' | 'div'; ticks: string[]; ends?: [string, string]; none: string; withheld?: boolean; notyet?: string; marks?: { symbol: 'dot' | 'hollow' | 'triangle' | 'diamond' | 'square' | 'arc' | 'arc-dashed'; label: string }[];
     /** Named classes in place of a scale (a bloc's members): each a sequential class and its word. */
     categories?: { cls: number; label: string }[] };
   basemap?: string;

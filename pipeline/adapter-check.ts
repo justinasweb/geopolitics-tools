@@ -13,6 +13,11 @@ import { minerals } from '../src/adapters/minerals.ts';
 import { chokepoints } from '../src/adapters/portwatch.ts';
 import { prices } from '../src/adapters/prices.ts';
 import { treasuryHistory, treasuryHolders } from '../src/adapters/treasury.ts';
+import { oilPrices } from '../src/adapters/eia.ts';
+import { comtrade } from '../src/adapters/comtrade.ts';
+import { ember } from '../src/adapters/ember.ts';
+import { ged } from '../src/adapters/ucdp.ts';
+import { ipc } from '../src/adapters/ipc.ts';
 import { FLOWS, loadFlows } from '../src/data/flows.ts';
 import { INDICATORS, latestYear, registry } from '../src/data/indicators.ts';
 
@@ -56,6 +61,11 @@ const VIEWS: [string, () => string][] = [
   ['minerals', () => minerals(raw).map((m) => `${m.id} ${m.year}`).join(', ')],
   ['gem', () => { const g = gem(raw); return `${g.pipelines.length} pipelines, ${g.terminals.length} terminals, ${g.plants.length} plants`; }],
   ['treasury', () => `${treasuryHolders(raw).holders.length} holders to ${treasuryHolders(raw).months[0]}`],
+  ['oil prices', () => { const p = oilPrices(raw); return `${p.brent.length} Brent months to ${p.brent.at(-1)?.date}, ${p.wti.length} WTI`; }],
+  ['comtrade', () => { const r = comtrade(raw); return `${r.length} rows, ${new Set(r.map((x) => x.reporter)).size} reporters, ${[...new Set(r.map((x) => x.year))].sort().join(' ')}`; }],
+  ['electricity', () => { const e = ember(raw); return `${Object.keys(e.mix).length} countries, world ${Object.keys(e.world).length ? 'from Ember' : 'added up'}`; }],
+  ['conflict', () => { const e = ged(raw); return `${e.length} events, ${e[0]?.month}–${e.at(-1)?.month}, ${e.filter((x) => !x.place).length} unplaced, ${e.filter((x) => x.candidate).length} preliminary`; }],
+  ['food crises', () => { const a = ipc(raw); return `${a.length} analyses, ${new Set(a.map((x) => x.place)).size} countries, latest from ${a.at(-1)?.from}`; }],
   ['treasury history', () => `${Object.keys(treasuryHistory(raw)).length} places`],
 ];
 for (const [name, f] of VIEWS) {

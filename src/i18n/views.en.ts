@@ -39,14 +39,89 @@ export interface LayerText {
 export interface FamilyText {
   section: string;
   pickerLabel: string;
+  /** What the map and legend call a country with no figure, where "No data" would mislead (food crises: no analysis is not no hunger). */
+  none?: string;
   layers: Record<string, LayerText>;
 }
 
 const fossil = 'from fossil fuels and cement';
+const hungerCaveat = 'IPC and Cadre Harmonisé analyses cover the countries and areas that ask for them, often part of a country, for a few months; each country’s figure is its latest analysis starting in the year. A country with no analysis is shown as such: that does not mean no one there is hungry.';
+const chipsCaveat = (what: string) => `Imports of ${what} as the importing countries report them to UN Comtrade, at their value in US dollars. Chips cross borders several times as they are made, tested and packaged, so imports count some chips more than once. Taiwan does not report to Comtrade; its sales show in its partners’ imports.`;
+const power5 = ['Under 20%', '20–40%', '40–60%', '60–80%', '80% or more'];
+const powerCaveat = 'Shares of the electricity generated inside each country, before trade in electricity. A small system can reach a high share with one large plant. Changes are in percentage points.';
 const armsPeriod = (y: number) => `${y - 4}–${y}`;
 const armsCaveat = 'SIPRI’s trend-indicator value measures the military capability of major weapons delivered, not the price paid, so it is not money. Deliveries are lumpy, so figures are five-year totals. Small arms, ammunition and transfers to or from groups that are not states are left out.';
 
 export const VIEW_TEXT: Record<string, FamilyText> = {
+  'food-crises': {
+    section: 'Food crises',
+    pickerLabel: 'Measure',
+    none: 'No IPC analysis',
+    layers: {
+      hunger: {
+        pick: 'People', title: 'People in food crisis', sub: 'IPC Phase 3 or worse, by country', measure: 'in Phase 3 or worse', figureLabel: 'People in Phase 3 or worse',
+        legend: (y) => `People in food crisis or worse (IPC Phase 3+), latest analysis in ${y}`, worldLabel: 'Total, countries analysed',
+        lede: ({ top, value, share, top3, year }) => `${top} had the most people in food crisis or worse in its latest analysis of ${year}: ${value}, ${share} of the total in countries analysed${top3 ? `; the top three had ${top3}` : ''}.`,
+        total: (v, y, ch) => `Analyses in ${y} counted ${v} people in food crisis or worse${ch ? `, ${ch}` : ''}.`,
+        bloc: (b, s, y) => `${b} members had ${s} of them in ${y}.`,
+        caveat: hungerCaveat,
+        description: (y) => `People in food crisis or worse (IPC Phase 3+) by country, ${y}, from IPC and Cadre Harmonisé analyses, on a map and in a table. Source: IPC.`,
+      },
+      hungershare: {
+        pick: 'Share', title: 'Share in food crisis', sub: 'of the people analysed, by country', measure: 'of the people analysed', figureLabel: 'Share in Phase 3 or worse',
+        legend: (y) => `Share of the people analysed in IPC Phase 3 or worse, ${y}`, ticks: ['Under 5%', '5–10%', '10–20%', '20–30%', '30% or more'],
+        lede: ({ up, of, year }) => `In ${up} of the ${of} countries analysed in ${year}, 30% or more of the people analysed were in food crisis or worse.`,
+        caveat: `${hungerCaveat} The share is of the people analysed, which can be less than the whole population.`,
+        description: (y) => `Share of people in food crisis or worse (IPC Phase 3+) by country, ${y}, on a map and in a table. Source: IPC.`,
+      },
+    },
+  },
+  electricity: {
+    section: 'Electricity',
+    pickerLabel: 'Source',
+    layers: {
+      lowcarbon: {
+        pick: 'Low-carbon', title: 'Low-carbon electricity', sub: 'share of each country’s generation', measure: 'of its electricity', figureLabel: 'Low-carbon share',
+        legend: (y) => `Share of electricity from nuclear and renewables, ${y}`, worldLabel: 'World, low-carbon share', ticks: power5,
+        lede: ({ world, up, of, year }) => `${world ? `Low-carbon sources made ${world} of the world’s electricity in ${year}. ` : ''}${up} of ${of} countries got 80% or more of theirs from them.`,
+        total: (v, y, ch) => `Nuclear and renewables made ${v} of the world’s electricity in ${y}${ch ? `, ${ch}` : ''}.`,
+        caveat: `Low-carbon counts nuclear, hydro, wind, solar, bioenergy and other renewables. ${powerCaveat}`,
+        description: (y) => `Share of electricity from nuclear and renewables by country, ${y}, with each country’s power mix since 2000. Source: Ember.`,
+      },
+      windsolar: {
+        pick: 'Wind and solar', title: 'Electricity from wind and solar', sub: 'share of each country’s generation', measure: 'of its electricity', figureLabel: 'Wind and solar share',
+        legend: (y) => `Share of electricity from wind and solar, ${y}`, worldLabel: 'World, wind and solar share', ticks: ['Under 5%', '5–10%', '10–20%', '20–30%', '30% or more'],
+        lede: ({ world, up, of, year }) => `${world ? `Wind and solar made ${world} of the world’s electricity in ${year}. ` : ''}${up} of ${of} countries got 30% or more of theirs from them.`,
+        total: (v, y, ch) => `Wind and solar made ${v} of the world’s electricity in ${y}${ch ? `, ${ch}` : ''}.`,
+        caveat: powerCaveat,
+        description: (y) => `Share of electricity from wind and solar by country, ${y}, on a map and in a table. Source: Ember.`,
+      },
+      coalpower: {
+        pick: 'Coal', title: 'Electricity from coal', sub: 'share of each country’s generation', measure: 'of its electricity', figureLabel: 'Coal share',
+        legend: (y) => `Share of electricity from coal, ${y}`, worldLabel: 'World, coal share', ticks: power5,
+        lede: ({ world, up, of, year }) => `${world ? `Coal made ${world} of the world’s electricity in ${year}. ` : ''}${up} of ${of} countries got 80% or more of theirs from coal.`,
+        total: (v, y, ch) => `Coal made ${v} of the world’s electricity in ${y}${ch ? `, ${ch}` : ''}.`,
+        caveat: powerCaveat,
+        description: (y) => `Share of electricity from coal by country, ${y}, on a map and in a table. Source: Ember.`,
+      },
+      gaspower: {
+        pick: 'Gas', title: 'Electricity from gas', sub: 'share of each country’s generation', measure: 'of its electricity', figureLabel: 'Gas share',
+        legend: (y) => `Share of electricity from natural gas, ${y}`, worldLabel: 'World, gas share', ticks: power5,
+        lede: ({ world, up, of, year }) => `${world ? `Natural gas made ${world} of the world’s electricity in ${year}. ` : ''}${up} of ${of} countries got 80% or more of theirs from gas.`,
+        total: (v, y, ch) => `Natural gas made ${v} of the world’s electricity in ${y}${ch ? `, ${ch}` : ''}.`,
+        caveat: `Natural gas only; oil and other fossil fuels are counted apart. ${powerCaveat}`,
+        description: (y) => `Share of electricity from natural gas by country, ${y}, on a map and in a table. Source: Ember.`,
+      },
+      nuclearpower: {
+        pick: 'Nuclear', title: 'Electricity from nuclear', sub: 'share of each country’s generation', measure: 'of its electricity', figureLabel: 'Nuclear share',
+        legend: (y) => `Share of electricity from nuclear power, ${y}`, worldLabel: 'World, nuclear share', ticks: ['Under 5%', '5–15%', '15–30%', '30–50%', '50% or more'],
+        lede: ({ world, up, of, year }) => `${world ? `Nuclear power made ${world} of the world’s electricity in ${year}. ` : ''}${up} of ${of} countries got half or more of theirs from it.`,
+        total: (v, y, ch) => `Nuclear power made ${v} of the world’s electricity in ${y}${ch ? `, ${ch}` : ''}.`,
+        caveat: `Countries with no nuclear plant have a share of 0%. ${powerCaveat}`,
+        description: (y) => `Share of electricity from nuclear power by country, ${y}, on a map and in a table. Source: Ember.`,
+      },
+    },
+  },
   emissions: {
     section: 'Emissions',
     pickerLabel: 'Measure',
@@ -177,6 +252,24 @@ export const VIEW_TEXT: Record<string, FamilyText> = {
         bloc: (b, s, y) => `${s} of the entries were in ${b} members in ${y}.`,
         caveat: 'The Entity List names companies, research bodies and people that need a US licence to receive US goods and technology, including chips and chipmaking tools. It is an export control, not a sanction. Entries are counted by the country of their address.',
         description: (y) => `US Entity List entries by country, ${y}: who needs a licence to get US chips and technology, on a map and in a table. Source: US Consolidated Screening List.`,
+      },
+      chipimports: {
+        pick: 'Chip imports', title: 'Chip imports', sub: 'integrated circuits, by importer', measure: 'of chip imports reported', figureLabel: 'Chip imports',
+        legend: (y) => `Imports of integrated circuits, US dollars, ${y}`, worldLabel: 'Total, importers reporting',
+        lede: ({ top, value, share, top3, year }) => `${top} reported ${value} of chip imports in ${year}, ${share} of the total reported${top3 ? `; the top three importers ${top3}` : ''}.`,
+        total: (v, y, ch) => `Importers reported ${v} of chip imports in ${y}${ch ? `, ${ch}` : ''}.`,
+        bloc: (b, s, y) => `${b} members reported ${s} of chip imports in ${y}.`,
+        caveat: chipsCaveat('integrated circuits (HS 8542)'),
+        description: (y) => `Imports of integrated circuits by country, ${y}, with the largest flows from supplier to buyer, on a map and in a table. Source: UN Comtrade.`,
+      },
+      chipmachines: {
+        pick: 'Chipmaking machines', title: 'Chipmaking machine imports', sub: 'by importer', measure: 'of machine imports reported', figureLabel: 'Chipmaking machine imports',
+        legend: (y) => `Imports of chipmaking machines, US dollars, ${y}`, worldLabel: 'Total, importers reporting',
+        lede: ({ top, value, share, top3, year }) => `${top} reported ${value} of chipmaking machine imports in ${year}, ${share} of the total reported${top3 ? `; the top three importers ${top3}` : ''}.`,
+        total: (v, y, ch) => `Importers reported ${v} of chipmaking machine imports in ${y}${ch ? `, ${ch}` : ''}.`,
+        bloc: (b, s, y) => `${b} members reported ${s} of them in ${y}.`,
+        caveat: chipsCaveat('machines for making semiconductors and chips (HS 8486)'),
+        description: (y) => `Imports of chipmaking machines by country, ${y}, with the largest flows from supplier to buyer, on a map and in a table. Source: UN Comtrade.`,
       },
     },
   },
@@ -411,6 +504,8 @@ export const VIEWS_TEXT = {
   coverage: (n: number, y: number | string) => `${n} countries and territories have a figure for ${typeof y === 'number' || /^\d/.test(y) ? y : `the ${y}`}.`,
   changeIn: (pct: string, more: boolean, prev: number | string) => `${pct} ${more ? 'more' : 'less'} than in ${prev}`,
   change2: (pct: string, more: boolean, prev: number | string, value: string) => `${pct} ${more ? 'more' : 'less'} than ${prev} (${value})`,
+  points: (n: string) => `${n} pts`,
+  pointsLong: (n: string) => `${n} percentage points`,
   periodLabel: (years: number) => `${years}-year period`,
   sameAs: (prev: number | string) => `Same as ${prev}`,
   top: (parts: string[], together: string | null) => `${parts.join(', ').replace(/, ([^,]*)$/, ' and $1')}${together ? `; together, ${together} of the world total` : ''}.`,

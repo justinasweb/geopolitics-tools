@@ -22,6 +22,10 @@ import { weo, worldBank } from '../adapters/worldbank.ts';
 import { space } from '../adapters/celestrak.ts';
 import { ai, computeAt } from '../adapters/epoch.ts';
 import { LISTS, listingsAt, sanctions } from '../adapters/sanctions.ts';
+import { gas, oil } from '../adapters/eia.ts';
+import { ember, powerSeries } from '../adapters/ember.ts';
+import { deathsByYear, ged } from '../adapters/ucdp.ts';
+import { hungerSeries, ipc } from '../adapters/ipc.ts';
 
 export type Group = 'economy' | 'people' | 'energy' | 'food' | 'climate' | 'security' | 'tech' | 'influence';
 export const GROUPS: Group[] = ['economy', 'people', 'energy', 'food', 'climate', 'security', 'tech', 'influence'];
@@ -64,6 +68,10 @@ const waterOf = once(water);
 const spaceOf = once(space);
 const aiOf = once(ai);
 const sanctionsOf = once(sanctions);
+const oilOf = once(oil);
+const gasOf = once(gas);
+const powerOf = once(ember);
+const ipcOf = once(ipc);
 const staticYear = (values: Record<string, number | null>, year: number): Series => {
   const out: Series = {};
   for (const [id, v] of Object.entries(values)) put(out, id, year, v);
@@ -108,14 +116,14 @@ const LIST: Indicator[] = [
   { id: 'refinpc', group: 'people', source: 'unhcr', format: unit('', 1), scale: 'linear', load: (_r, get) => combine(get('refin'), get('population'), (r, p) => (r / p) * 1000) },
   { id: 'idps', group: 'people', source: 'unhcr', format: count, scale: 'log', load: (raw) => unhcrOf(raw).idps },
   // Energy
-  { id: 'oilprod', group: 'energy', source: 'eia', format: unit('kb/d'), scale: 'log', pending: 'EIA, waiting for an API key' },
-  { id: 'oiluse', group: 'energy', source: 'eia', format: unit('kb/d'), scale: 'log', pending: 'EIA, waiting for an API key' },
-  { id: 'gasprod', group: 'energy', source: 'eia', format: unit('bcm', 1), scale: 'log', pending: 'EIA, waiting for an API key' },
-  { id: 'gasuse', group: 'energy', source: 'eia', format: unit('bcm', 1), scale: 'log', pending: 'EIA, waiting for an API key' },
-  { id: 'power', group: 'energy', source: 'ember', format: unit('TWh'), scale: 'log', pending: 'Ember, waiting for an API key' },
-  { id: 'lowcarbon', group: 'energy', source: 'ember', format: share, scale: 'linear', pending: 'Ember, waiting for an API key' },
-  { id: 'coalpower', group: 'energy', source: 'ember', format: share, scale: 'linear', pending: 'Ember, waiting for an API key' },
-  { id: 'windsolar', group: 'energy', source: 'ember', format: share, scale: 'linear', pending: 'Ember, waiting for an API key' },
+  { id: 'oilprod', group: 'energy', source: 'eia', format: unit('kb/d'), scale: 'log', load: (raw) => oilOf(raw).production },
+  { id: 'oiluse', group: 'energy', source: 'eia', format: unit('kb/d'), scale: 'log', load: (raw) => oilOf(raw).consumption },
+  { id: 'gasprod', group: 'energy', source: 'eia', format: unit('bcm', 1), scale: 'log', load: (raw) => gasOf(raw).production },
+  { id: 'gasuse', group: 'energy', source: 'eia', format: unit('bcm', 1), scale: 'log', load: (raw) => gasOf(raw).consumption },
+  { id: 'power', group: 'energy', source: 'ember', format: unit('TWh'), scale: 'log', load: (raw) => powerSeries(powerOf(raw), 'total') },
+  { id: 'lowcarbon', group: 'energy', source: 'ember', format: share, scale: 'linear', load: (raw) => powerSeries(powerOf(raw), 'lowcarbon') },
+  { id: 'coalpower', group: 'energy', source: 'ember', format: share, scale: 'linear', load: (raw) => powerSeries(powerOf(raw), 'coal') },
+  { id: 'windsolar', group: 'energy', source: 'ember', format: share, scale: 'linear', load: (raw) => powerSeries(powerOf(raw), 'windsolar') },
   // Food
   ...CROPS.flatMap((c): Indicator[] => [
     { id: `${c}prod`, group: 'food', source: 'faostat', format: unit('Mt', 1), scale: 'log', load: (raw) => foodOf(raw).crops[c].production },
@@ -135,11 +143,11 @@ const LIST: Indicator[] = [
   // Security
   { id: 'milpct', group: 'security', source: 'worldbank', format: pct(1), scale: 'linear', load: wb('MS.MIL.XPND.GD.ZS') },
   { id: 'milusd', group: 'security', source: 'worldbank', format: money, scale: 'log', load: wb('MS.MIL.XPND.CD') },
-  { id: 'conflictdeaths', group: 'security', source: 'ucdp', format: count, scale: 'log', pending: 'UCDP, waiting for an API token' },
+  { id: 'conflictdeaths', group: 'security', source: 'ucdp', format: count, scale: 'log', load: (raw) => deathsByYear(ged(raw)) },
   { id: 'armsimp', group: 'security', source: 'sipri', format: unit('TIV m'), scale: 'log', load: armsBy('to') },
   { id: 'armsexp', group: 'security', source: 'sipri', format: unit('TIV m'), scale: 'log', load: armsBy('from') },
-  { id: 'hunger', group: 'security', source: 'ipc', format: count, scale: 'log', pending: 'IPC, waiting for an API key' },
-  { id: 'hungershare', group: 'security', source: 'ipc', format: share, scale: 'linear', pending: 'IPC, waiting for an API key' },
+  { id: 'hunger', group: 'security', source: 'ipc', format: count, scale: 'log', load: (raw) => hungerSeries(ipcOf(raw), 'people') },
+  { id: 'hungershare', group: 'security', source: 'ipc', format: share, scale: 'linear', load: (raw) => hungerSeries(ipcOf(raw), 'share') },
   // Technology and space
   { id: 'satellites', group: 'tech', source: 'celestrak', format: count, scale: 'log', load: (raw) => spaceOf(raw).inOrbit },
   { id: 'launches', group: 'tech', source: 'celestrak', format: count, scale: 'linear', load: (raw) => spaceOf(raw).launches },

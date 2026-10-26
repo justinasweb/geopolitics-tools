@@ -3,6 +3,7 @@
 // the colour classes (fixed across years so the slider compares like with like), the places that have not reported
 // the latest year yet, and the largest flows. The page template, the map layer files and the share images read this.
 import { food, type Balance, type Crop, type Flow, type Nutrient } from '../adapters/faostat.ts';
+import { comtrade, fertiliserFlows } from '../adapters/comtrade.ts';
 import type { Series } from '../adapters/core.ts';
 import { FOOD_TEXT, type CommodityText } from '../i18n/food.en.ts';
 import { inSentence } from '../i18n/pages.en.ts';
@@ -21,6 +22,11 @@ export const FIRST_YEAR = 2015;
 export const TOP_FLOWS = 20;
 
 const foodData = shared(food);
+/** Fertiliser flows come from UN Comtrade (FAOSTAT has no fertiliser trade matrix), in tonnes of product. */
+const fertFlows = shared((raw) => {
+  const rows = comtrade(raw);
+  return { potash: fertiliserFlows(rows, 'potash'), phosphate: fertiliserFlows(rows, 'phosphate') };
+});
 export const MT = { kind: 'mt' } as const;
 export const mt = (v: number) => formatValue(v, MT);
 /** Million tonnes, short for bars: "8.9 Mt", "0.99 Mt", "0.004 Mt". */
@@ -55,7 +61,8 @@ export interface FoodPage {
   /** Trade: the diverging scale's edges in million tonnes (six); the others use the minerals' share classes. */
   edges: number[];
   ticks: string[];
-  /** Crops: the largest flows in the trade matrix's year, exporter → importer, as importers report them. */
+  /** The largest flows in the latest year, exporter → importer, as importers report them: FAOSTAT's trade matrix for
+   * crops, UN Comtrade for fertilisers (in tonnes of product, unlike the nutrient tonnes of the rest of the page). */
   flows: Flow[];
   flowYear: number | null;
 }
@@ -137,7 +144,7 @@ function buildPage(commodity: Commodity, layer: FoodLayer): FoodPage | null {
     : T.shareTicks;
   let flows: Flow[] = [];
   let flowYear: number | null = null;
-  const all = crop ? d.flows[commodity as Crop] ?? [] : [];
+  const all = crop ? d.flows[commodity as Crop] ?? [] : fertFlows()?.[commodity as 'potash' | 'phosphate'] ?? [];
   if (layer === 'trade' && all.length) {
     flowYear = Math.max(...all.map((f) => f.year));
     flows = all.filter((f) => f.year === flowYear).sort((x, z) => z.amount - x.amount);
@@ -212,5 +219,7 @@ export function summary(p: FoodPage, year = p.year): string[] {
   return [first.join(' '), second.join(' ')];
 }
 
-/** The source line: FAOSTAT's domains this page reads. */
+/** The source line: FAOSTAT's domains this page reads (and UN Comtrade for fertiliser flows). */
 export const sourceOf = (p: FoodPage) => (p.crop ? FOOD_TEXT.sourceCrops : FOOD_TEXT.sourceFertilisers);
+/** The source line under a page's flows. */
+export const flowSourceOf = (p: FoodPage) => (p.crop ? FOOD_TEXT.sourceCrops : FOOD_TEXT.sourceFertFlows);

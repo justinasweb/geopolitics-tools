@@ -1,7 +1,8 @@
 // "Dependencies at a glance": one row per resource, the same ten as the Dependencies tool. Dependence is net
 // imports as a share of use (Methodology, "Import reliance"); arms and chips show supplier concentration only.
-// Rows whose source waits on a key (oil and gas: EIA and UN Comtrade; chips: UN Comtrade) say so.
+// Rows whose source is not in the snapshot yet (oil and gas: EIA, partners from UN Comtrade; chips: UN Comtrade) say so.
 import { food, type Balance, type Crop } from '../adapters/faostat.ts';
+import { gas, oil, type Fuel, type Oil } from '../adapters/eia.ts';
 import { FLOWS, loadFlows, type Flows } from '../data/flows.ts';
 import { shared } from './data.ts';
 
@@ -41,6 +42,7 @@ export interface DepRow {
 }
 
 const foodData = shared(food);
+const fuels = { oil: shared(oil), gas: shared(gas) };
 const flowsOf = new Map<string, () => Flows | null>();
 const flows = (key: string) => {
   if (!flowsOf.has(key)) flowsOf.set(key, shared((raw) => loadFlows(raw, key)));
@@ -81,6 +83,23 @@ function fromBalance(resource: Resource, b: Balance | undefined, id: string, flo
   return row;
 }
 
+/** Oil and gas: EIA's output minus use in the latest year with both, as a share of use; partners from Comtrade. */
+function fromFuel(resource: 'oil' | 'gas', f: Fuel | null, id: string): DepRow {
+  const base = { resource, source: 'eia', partners: [] as string[] };
+  if (!f) return { ...base, state: 'pending' };
+  const ys = Object.keys(f.net[id] ?? {}).map(Number).sort((a, b) => b - a);
+  const y = ys[0];
+  if (y === undefined) return { ...base, state: 'none' };
+  const use = f.consumption[id][y];
+  const net = -f.net[id][y];
+  // Oil's output is all liquids, the figure its net trade is worked out from.
+  const production = ('liquids' in f ? (f as Oil).liquids : f.production)[id]?.[y] ?? 0;
+  const one = (v: number) => ({ [id]: { [y]: v } });
+  const balance: Balance = { production: one(production), imports: one(Math.max(0, net)), exports: one(Math.max(0, -net)), use: one(use), world: { production: {} }, estimated: { production: {}, imports: {}, exports: {}, use: {} } };
+  const row = fromBalance(resource, balance, id, resource);
+  return { ...row, source: 'eia' };
+}
+
 function concentration(resource: Resource, id: string): DepRow {
   const def = FLOWS[resource];
   const base = { resource, source: def.source, partners: [] as string[] };
@@ -99,12 +118,12 @@ export function dependencies(id: string): DepRow[] {
   return RESOURCES.map((res): DepRow => {
     switch (res) {
       case 'oil': case 'gas':
-        return { resource: res, state: 'pending', source: 'eia', partners: [] };
+        return fromFuel(res, fuels[res](), id);
       case 'wheat': case 'maize': case 'rice': case 'soy':
         return fd ? fromBalance(res, fd.crops[res as Crop], id, res) : { resource: res, state: 'pending', source: 'faostat', partners: [] };
       case 'potash': case 'phosphate':
-        // FAOSTAT has the fertiliser balance but no trade matrix; partners wait for UN Comtrade.
-        return fd ? fromBalance(res, fd.fertilisers[res], id) : { resource: res, state: 'pending', source: 'faostat', partners: [] };
+        // The balance is FAOSTAT's; the partners come from UN Comtrade's flows, when it has them.
+        return fd ? fromBalance(res, fd.fertilisers[res], id, res) : { resource: res, state: 'pending', source: 'faostat', partners: [] };
       default:
         return concentration(res, id);
     }

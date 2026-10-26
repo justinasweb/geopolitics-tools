@@ -15,6 +15,12 @@ import treasury, { newestMonth } from '../../../pipeline/sources/treasury.ts';
 import unhcr, { foldPairs, num } from '../../../pipeline/sources/unhcr.ts';
 import usgsQuakes from '../../../pipeline/sources/usgs-quakes.ts';
 import worldbank, { INDICATORS } from '../../../pipeline/sources/worldbank.ts';
+import comtrade, { plan, trim } from '../../../pipeline/sources/comtrade.ts';
+import eia, { SERIES as EIA_SERIES } from '../../../pipeline/sources/eia.ts';
+import ember, { SERIES as EMBER_SERIES } from '../../../pipeline/sources/ember.ts';
+import ucdp from '../../../pipeline/sources/ucdp.ts';
+import ipc from '../../../pipeline/sources/ipc.ts';
+import { createHttp } from '../../../pipeline/lib/http.ts';
 import { ctxFor, fakeHttp, type Route } from './helpers.ts';
 
 const iso = (i: number) => String.fromCharCode(65 + (i % 26), 65 + (Math.floor(i / 26) % 26), 65 + Math.floor(i / 676));
@@ -236,5 +242,163 @@ describe('ioda', () => {
     const r = await ioda.fetch(ctxFor(fakeHttp([[/outages\/events/, () => ({ type: 'outages.events', requestParameters: { until: 1 }, data: events })]], calls)));
     expect(calls).toHaveLength(13);
     expect(JSON.parse(body(r, 'outage_events.json'))).toEqual({ type: 'outages.events', data: events });
+  });
+});
+
+describe('comtrade', () => {
+  const rows = (n: number, cmd: string, period: number) => Array.from({ length: n }, (_, i) => ({ period, reporterCode: i + 1, reporterISO: iso(i), reporterDesc: 'x', flowCode: 'M', partnerCode: 0, partnerISO: 'W00', cmdCode: cmd, netWgt: 1000, primaryValue: 5, isReported: true }));
+  const env = { COMTRADE_API_KEY: 'k', COMTRADE_PAUSE_MS: '0' };
+
+  it('plans every group and year, newest first, with the three latest years refetched', () => {
+    const p = plan(new Date('2026-10-24T00:00:00Z'));
+    expect(p[0]).toEqual({ group: 'crude', year: 2025, recent: true });
+    expect(p.filter((x) => x.recent).map((x) => x.year)).toEqual(expect.arrayContaining([2025, 2024, 2023]));
+    expect(p.at(-1)!.year).toBe(2015);
+    expect(trim([{ period: 2024, reporterDesc: 'China', partnerCode: 0, primaryValue: 3 }])).toEqual([{ period: 2024, partnerCode: 0, primaryValue: 3 }]);
+  });
+
+  it('fetches what is due within the call budget, carries the rest over, and sends the key as a header', async () => {
+    const calls: string[] = [];
+    const headers: string[] = [];
+    const http = createHttp((async (url: string, init?: RequestInit) => {
+      calls.push(String(url));
+      headers.push(String((init?.headers as Record<string, string>)['Ocp-Apim-Subscription-Key']));
+      const period = Number(/period=(\d{4})/.exec(String(url))![1]);
+      const cmd = /cmdCode=([^&]+)/.exec(String(url))![1].split(',')[0];
+      return new Response(JSON.stringify({ count: 100, data: rows(period === 2025 ? 5 : 100, cmd, period) }), { status: 200 });
+    }) as typeof fetch, 0);
+    const old = JSON.stringify({ count: 1, data: rows(100, '2709', 2016) });
+    const ctx = { ...ctxFor(http, { 'crude-2016.json': old }), env: { ...env, COMTRADE_MAX_CALLS: '25' } };
+    const r = await comtrade.fetch(ctx);
+    expect(calls).toHaveLength(25);
+    expect(headers.every((h) => h === 'k')).toBe(true);
+    expect(calls.every((u) => /partner2Code=0&customsCode=C00&motCode=0/.test(u))).toBe(true);
+    // 2025 has too few reporters so far: not saved. 2016 is carried over without a call.
+    expect(r.files.some((f) => f.name.endsWith('-2025.json'))).toBe(false);
+    expect(r.files.find((f) => f.name === 'crude-2016.json')!.body).toBe(old);
+    expect(JSON.parse(body(r, 'crude-2024.json')).data[0]).not.toHaveProperty('reporterDesc');
+    expect(r.dataTo).toBe('2024');
+  });
+
+  it('refuses an answer at the row limit and a sharp drop in reporters', async () => {
+    const big = fakeHttp([[/comtrade|get\/C/, () => ({ count: 100_000, data: rows(100_000, '2709', 2024) })]]);
+    await expect(comtrade.fetch({ ...ctxFor(big), env: { ...env, COMTRADE_MAX_CALLS: '1' } })).rejects.toThrow(/limit/);
+    const small = fakeHttp([[/get\/C/, () => ({ count: 50, data: rows(50, '2709', 2025) })]]);
+    const prev = JSON.stringify({ count: 100, data: rows(100, '2709', 2025) });
+    await expect(comtrade.fetch({ ...ctxFor(small, { 'crude-2025.json': prev }), env: { ...env, COMTRADE_MAX_CALLS: '1' } })).rejects.toThrow(/reporters now against 100/);
+  });
+});
+
+describe('eia', () => {
+  const env = { EIA_API_KEY: 'k' };
+  const intl = (series: readonly (readonly string[])[]) => series.flatMap(([p, a, u]) => Array.from({ length: 120 }, (_, i) => ({ period: '2024', productId: Number(p), productName: 'x', activityId: Number(a), activityName: a === '1' ? 'Production' : a === '2' ? 'Consumption' : 'Reserves', countryRegionId: iso(i), countryRegionTypeId: 'c', unit: u, value: i === 0 ? '--' : '12' })));
+  const months = (s: string) => Array.from({ length: 120 }, (_, i) => ({ period: `${2016 + Math.floor(i / 12)}-${String((i % 12) + 1).padStart(2, '0')}`, series: s, value: 70 }));
+  const routes = (lastMonth = true, noReserves = false): Route[] => [
+    // Answers each call with the series its facets name, plus an import row the source must drop.
+    [/international\/data/, (url) => {
+      const f = (name: string) => decodeURIComponent(url).match(new RegExp(`facets\\[${name}\\]\\[\\]=([^&]+)`))?.[1];
+      const [p, a, u] = [f('productId'), f('activityId'), f('unit')];
+      if (noReserves && a === '6' && p === '57') return { response: { total: 0, data: u ? [] : [{ period: '2024', productId: 57, activityId: 6, countryRegionId: 'SAU', unit: 'BBL', unitName: 'billion barrels', value: '260' }] } };
+      const data = intl([[p!, a!, u!]]);
+      if (p === '57' && a === '1') data.push({ period: '2024', productId: 57, productName: 'x', activityId: 3, activityName: 'Imports', countryRegionId: 'USA', countryRegionTypeId: 'c', unit: 'TBPD', value: '1' });
+      return { response: { total: data.length, data }, apiVersion: '2.1.8' };
+    }],
+    [/pri\/spt/, () => ({ response: { total: 240, data: [...months('RBRTE'), ...months('RWTC').slice(0, lastMonth ? 120 : 100)] } })],
+  ];
+
+  it('saves oil, gas and prices in the API format, without empty values or other series', async () => {
+    const r = await eia.fetch({ ...ctxFor(fakeHttp(routes())), now: new Date('2026-02-10T00:00:00Z'), env });
+    expect(r.files.map((f) => f.name)).toEqual(['oil_international.json', 'gas_international.json', 'oil_spot_prices.json']);
+    const o = JSON.parse(body(r, 'oil_international.json')).response.data;
+    expect(o).toHaveLength(4 * 119);
+    expect(o.some((x: { activityName: string }) => x.activityName === 'Imports')).toBe(false);
+    expect(r.dataTo).toBe('2024');
+  });
+
+  it('refuses a price series that stopped updating', async () => {
+    await expect(eia.fetch({ ...ctxFor(fakeHttp(routes(false))), now: new Date('2026-02-10T00:00:00Z'), env })).rejects.toThrow(/RWTC ends in 2024-04/);
+  });
+
+  it('names the units the API has when a series comes back empty', async () => {
+    await expect(eia.fetch({ ...ctxFor(fakeHttp(routes(true, true))), now: new Date('2026-02-10T00:00:00Z'), env })).rejects.toThrow(/activity 6 \(BB\) has only 0 countries.*units BBL \(billion barrels\)/);
+  });
+});
+
+describe('ember', () => {
+  const env = { EMBER_API_KEY: 'k' };
+  const gen = (n: number, year: string, entity?: string) => Array.from({ length: n }, (_, i) => [...EMBER_SERIES, 'Fossil'].map((series) => ({
+    entity: entity ?? `Place ${i}`, entity_code: entity ? null : iso(i), is_aggregate_entity: Boolean(entity), date: year, series,
+    is_aggregate_series: series === 'Fossil', generation_twh: 10, share_of_generation_pct: 10,
+  }))).flat();
+  const routes = (n = 200, year = '2025'): Route[] => [
+    [/entity=World/, () => ({ stats: {}, data: [...gen(1, '2024', 'World'), ...gen(1, '2025', 'World'), ...Array.from({ length: 10 }, (_, i) => gen(1, String(2010 + i), 'World')).flat()] })],
+    [/is_aggregate_entity=false/, () => ({ stats: {}, data: gen(n, year) })],
+  ];
+
+  it('saves countries and the world in the API format, without aggregate series', async () => {
+    const r = await ember.fetch({ ...ctxFor(fakeHttp(routes())), now: new Date('2026-10-10T00:00:00Z'), env });
+    expect(r.files.map((f) => f.name)).toEqual(['electricity_generation_yearly.json', 'electricity_generation_world.json']);
+    const d = JSON.parse(body(r, 'electricity_generation_yearly.json')).data;
+    expect(d).toHaveLength(200 * 9);
+    expect(d.some((x: { series: string }) => x.series === 'Fossil')).toBe(false);
+    expect(r.dataTo).toBe('2025');
+  });
+
+  it('refuses too few countries or a series that stopped updating', async () => {
+    await expect(ember.fetch({ ...ctxFor(fakeHttp(routes(100))), now: new Date('2026-10-10T00:00:00Z'), env })).rejects.toThrow(/only 100 countries/);
+    await expect(ember.fetch({ ...ctxFor(fakeHttp(routes(200, '2022'))), now: new Date('2026-10-10T00:00:00Z'), env })).rejects.toThrow(/latest year is 2022/);
+  });
+});
+
+describe('ucdp', () => {
+  const env = { UCDP_TOKEN: 't' };
+  const ev = (n: number, month: string) => Array.from({ length: n }, (_, i) => ({ id: i, type_of_violence: 1, country_id: 369, latitude: 48, longitude: 37, date_start: `${month}-02 00:00:00.000`, best: 3, dyad_name: 'dropped' }));
+  // 26.1 is not out yet; 25.1 is, in two pages; Candidate releases 25.0.1–12 and 26.0.1–9.
+  const routes = (seen: string[]): Route[] => [
+    [/./, (url: string, init?: RequestInit) => {
+      seen.push(url);
+      if ((init?.headers as Record<string, string>)['x-ucdp-access-token'] !== 't') return new Response('', { status: 401 });
+      const v = /gedevents\/([\d.]+)/.exec(url)![1];
+      if (v === '26.1') return new Response('', { status: 404 });
+      if (v === '25.1') return url.includes('page=1') ? { TotalCount: 1500, NextPageUrl: '', Result: ev(500, '2024-12') } : { TotalCount: 1500, NextPageUrl: 'http://x/api/gedevents/25.1?page=1', Result: ev(1000, '2024-11') };
+      const [y, , m] = v.split('.').map(Number);
+      if (y === 26 && m > 9) return new Response('', { status: 404 });
+      return { TotalCount: 10, NextPageUrl: '', Result: ev(10, `20${y}-${String(m).padStart(2, '0')}`) };
+    }],
+  ];
+
+  it('takes the latest yearly release and the Candidate months after it, with the token in a header', async () => {
+    const seen: string[] = [];
+    const r = await ucdp.fetch({ ...ctxFor(fakeHttp(routes(seen))), now: new Date('2026-10-20T00:00:00Z'), env });
+    expect(r.files.map((f) => f.name)).toEqual(['gedevents_25.1.json', ...Array.from({ length: 12 }, (_, i) => `gedevents_25.0.${i + 1}.json`), ...Array.from({ length: 9 }, (_, i) => `gedevents_26.0.${i + 1}.json`)]);
+    const g = JSON.parse(body(r, 'gedevents_25.1.json'));
+    expect(g.TotalCount).toBe(1500);
+    expect(g.Result[0].dyad_name).toBeUndefined();
+    expect(r.dataTo).toBe('2026-09');
+    expect(seen.some((u) => u.startsWith('https://x/api/gedevents/25.1?page=1'))).toBe(true);
+  });
+
+  it('carries over releases it already has', async () => {
+    const seen: string[] = [];
+    const prev = { 'gedevents_25.1.json': JSON.stringify({ TotalCount: 1200, Result: ev(1200, '2024-10') }), 'gedevents_25.0.3.json': JSON.stringify({ TotalCount: 1, Result: ev(1, '2025-03') }) };
+    const r = await ucdp.fetch({ ...ctxFor(fakeHttp(routes(seen)), prev), now: new Date('2026-10-20T00:00:00Z'), env });
+    expect(seen.some((u) => u.includes('/25.1?'))).toBe(false);
+    expect(seen.some((u) => u.includes('/25.0.3?'))).toBe(false);
+    expect(JSON.parse(body(r, 'gedevents_25.0.3.json')).TotalCount).toBe(1);
+  });
+});
+
+describe('ipc', () => {
+  const env = { IPC_API_KEY: 'k' };
+  const an = (n: number) => Array.from({ length: n }, (_, i) => ({ anl_id: i, country: iso(i).slice(0, 2), condition: 'A', from: `2026-0${1 + (i % 9)}`, to: '2026-12', phase3plus_population: 1000 }));
+
+  it('saves the acute analyses in the API format', async () => {
+    const r = await ipc.fetch({ ...ctxFor(fakeHttp([[/country\?format=json&type=A&key=k/, () => [...an(40), { anl_id: 99, country: 'XX', condition: 'C', from: '2026-01', phase3plus_population: 1 }]]])), env });
+    expect(JSON.parse(body(r, 'country.json'))).toHaveLength(40);
+    expect(r.dataTo).toBe('2026-09');
+  });
+
+  it('refuses too few countries', async () => {
+    await expect(ipc.fetch({ ...ctxFor(fakeHttp([[/country/, () => an(10)]])), env })).rejects.toThrow(/only 10 countries/);
   });
 });

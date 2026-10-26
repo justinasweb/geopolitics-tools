@@ -6,7 +6,7 @@
 //
 // Map views, hubs and tools are registered but not live until their phase builds them; the menu and every link
 // skip routes that are not live, so nothing links to a page that does not exist.
-import { SECTION_SLUGS, INDICATOR_SLUGS, COMPARE_JOIN, VIEW_SLUGS, DISASTER_SLUGS, FOOD_SLUGS, FOOD_LAYER_SLUGS, BLOC_SLUGS } from '../i18n/slugs.en.ts';
+import { SECTION_SLUGS, INDICATOR_SLUGS, COMPARE_JOIN, VIEW_SLUGS, DISASTER_SLUGS, FOOD_SLUGS, FOOD_LAYER_SLUGS, ENERGY_LAYER_SLUGS, BLOC_SLUGS } from '../i18n/slugs.en.ts';
 import { NAV_HUBS, NAV_UTIL } from '../data/nav.ts';
 import { INDICATORS } from '../data/indicators.ts';
 import { countryModel, countryPages, DOSSIERS } from './country.ts';
@@ -16,7 +16,9 @@ import { PLACES, place } from './places.ts';
 import { mineralPages } from './minerals.ts';
 import { viewPages } from './views.ts';
 import { disasterPages } from './disasters.ts';
+import { conflictPage } from './conflict.ts';
 import { foodPages } from './food.ts';
+import { energyPages } from './energy.ts';
 import { blocPages } from './blocview.ts';
 import { BLOCS_CHECKED } from './blocs.ts';
 import { HISTORY_BLOCS } from './history.ts';
@@ -62,6 +64,8 @@ export const paths = {
   view: (family: keyof typeof SECTION_SLUGS, layer: string) => `/${S[family]}${VIEW_SLUGS[layer] ? `/${VIEW_SLUGS[layer]}` : ''}`,
   /** Food and fertiliser: /food/wheat, /food/wheat/use, /food/soybeans/trade. */
   food: (commodity: string, layer: string) => `/${S.food}/${FOOD_SLUGS[commodity]}${FOOD_LAYER_SLUGS[layer] ? `/${FOOD_LAYER_SLUGS[layer]}` : ''}`,
+  /** Oil and gas: /oil, /oil/consumption, /gas/trade. */
+  energy: (fuel: 'oil' | 'gas', layer: string) => `/${S[fuel]}${ENERGY_LAYER_SLUGS[layer] ? `/${ENERGY_LAYER_SLUGS[layer]}` : ''}`,
   /** Blocs: /blocs, /blocs/nato. */
   blocs: (bloc: string) => `/${S.blocs}${BLOC_SLUGS[bloc] ? `/${BLOC_SLUGS[bloc]}` : ''}`,
   /** Alliance history: /blocs/nato/history. */
@@ -142,6 +146,25 @@ function build(): Route[] {
       aliases: i === 0 ? [`/${S.food}`] : [], id: `food:${f.id}`, image: paths.image('views', `food-${f.id}`), lastmod: changed('faostat'),
     });
   });
+
+  // Oil and gas (phase 5b): production at /oil and /gas, consumption, trade and reserves after it.
+  for (const e of energyPages()) {
+    families.add(e.fuel);
+    out.push({
+      key: `view:${e.fuel}:${e.layer}`, kind: 'view', lang, path: paths.energy(e.fuel, e.layer), live: true, indexed: true,
+      aliases: e.layer === 'production' ? [`/${S[e.fuel]}/production`] : [], id: `energy:${e.id}`, image: paths.image('views', `energy-${e.id}`),
+      lastmod: changed(e.layer === 'trade' && e.flowYear ? 'comtrade' : 'eia'),
+    });
+  }
+
+  // Conflict (phase 5b): one page, its months on the slider.
+  if (conflictPage()) {
+    families.add('conflict');
+    out.push({
+      key: 'view:conflict:events', kind: 'view', lang, path: paths.page('conflict'), live: true, indexed: true,
+      aliases: [], id: 'conflict:events', image: paths.image('views', 'conflict'), lastmod: changed('ucdp'),
+    });
+  }
 
   // Blocs (phase 5): every grouping at /blocs, one at /blocs/{bloc}.
   families.add('blocs');

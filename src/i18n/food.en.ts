@@ -84,7 +84,9 @@ export const FOOD_TEXT = {
     if (layer === 'use' && !fert) out.push('Use is production plus imports minus exports. It covers food, animal feed, industrial uses, seed and waste, and leaves out changes in stocks; FAOSTAT’s food balance sheets, which split these, come two years or more later.');
     if (layer === 'use' && fert) out.push('Use is FAOSTAT’s agricultural use: what farmers apply, as countries report it.');
     if (layer === 'trade') out.push(`Net trade is exports minus imports, as each country reports them to FAOSTAT; one country’s exports and its partners’ imports often differ.${flowYear ? ` Flows on the map are the largest in ${flowYear}, as importers report them.` : ''}`);
-    if (layer === 'trade' && fert) out.push('FAOSTAT does not publish who trades fertilisers with whom, so this map has no flows.');
+    if (layer === 'trade' && fert) out.push(flowYear
+      ? 'FAOSTAT does not publish who trades fertilisers with whom, so the flows come from UN Comtrade, as importers report them, and are in tonnes of product, not of nutrient: potash as HS 3104 (mostly potassium chloride, about 60% K2O); phosphate as HS 3103 and the phosphates DAP and MAP (HS 310530, 310540, about 46–52% P2O5).'
+      : 'FAOSTAT does not publish who trades fertilisers with whom, so this map has no flows.');
     return out;
   },
   caveat: (c: string, layer: Layer) => FOOD_TEXT.caveats(c, layer, null).join(' '),
@@ -93,7 +95,7 @@ export const FOOD_TEXT = {
   netExporters: 'Largest net exporters',
   netImporters: 'Largest net importers',
   flowsLabel: (year: number) => `Largest flows, ${year}`,
-  flowsCaption: (n: number, year: number) => `The ${n} largest flows in ${year}, exporter to importer, as importers report them.`,
+  flowsCaption: (n: number, year: number, product = false) => `The ${n} largest flows in ${year}, exporter to importer, as importers report them${product ? ' to UN Comtrade, in tonnes of product' : ''}.`,
   flowTip: (from: string, to: string, v: string, year: number) => `${from} → ${to}: ${v} (${year})`,
   from: 'From',
   to: 'To',
@@ -110,6 +112,7 @@ export const FOOD_TEXT = {
   suppliers: (year: number) => `Main suppliers, ${year}`,
   buyers: (year: number) => `Main buyers, ${year}`,
   partnersCaption: 'Importer-reported flows; share of the flows listed',
+  partnersCaptionFert: 'Importer-reported flows (UN Comtrade), tonnes of product; share of the flows listed',
   ofListed: (share: string) => `${share} of those listed`,
   morePartners: (n: number) => `and ${n} more`,
   otherBlock: (measure: string) => `${measure} of the other commodities`,
@@ -156,6 +159,7 @@ export const FOOD_TEXT = {
   mapLabel: (title: string, year: number, top: string) => `World map: ${title.toLowerCase()} by country, ${year}. ${top}. The same figures are in the table below.`,
   sourceCrops: 'FAOSTAT (FAO)',
   sourceFertilisers: 'FAOSTAT (FAO), fertilisers by nutrient',
+  sourceFertFlows: 'UN Comtrade, imports by partner (HS 3103, 3104, 310530, 310540)',
   citation: (domains: string, years: string, url: string, accessed: string) =>
     `FAO. FAOSTAT: ${domains}, ${years}. Licence: CC BY 4.0. Accessed ${accessed}. Retrieved via ${url}.`,
   domainsCrops: 'Crops and livestock products; Trade (crops and livestock products); Detailed trade matrix',

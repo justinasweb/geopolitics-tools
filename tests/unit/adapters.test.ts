@@ -134,7 +134,11 @@ describe('indicator registry and flows', () => {
     expect(valueAt(gdppc, 'USA', 2030, 10)?.year).toBe(2025);
     expect(latestYear(gdppc)).toBe(2024);
     expect(r.load('waterstress').indicator.static).toBe(true);
-    expect(() => r.get('oilprod')).toThrow(/waiting for an API key/);
+    expect(r.get('oilprod').USA[2024]).toBeGreaterThan(10_000);
+    expect(r.get('power').CHN[2024]).toBeGreaterThan(5000);
+    expect(r.get('lowcarbon').FRA[2024]).toBeGreaterThan(0.8);
+    expect(r.get('hunger').SDN[2025]).toBeGreaterThan(1e6);
+    expect(r.get('hungershare').SDN[2025]).toBeLessThan(1);
     for (const id of ['co2pc', 'wheatprod', 'armsimp', 'chinaloans', 'popun', 'refin', 'refinpc']) expect(Object.keys(r.get(id)).length, id).toBeGreaterThan(0);
   });
 
@@ -146,7 +150,10 @@ describe('indicator registry and flows', () => {
     expect(top.share).toBeGreaterThan(0);
     expect(top.share).toBeLessThanOrEqual(1);
     expect(loadFlows(raw, 'refugees').pairs.length).toBeGreaterThan(0);
-    expect(() => loadFlows(raw, 'oil')).toThrow(/Comtrade/);
+    const oil = loadFlows(raw, 'oil');
+    expect(oil.period).toBe('2024');
+    expect(topSupplier(oil, 'CHN')!.from).toBe('RUS');
+    expect(loadFlows(raw, 'potash').pairs.length).toBeGreaterThan(10);
   });
 
   it('formats values the registry way', () => {

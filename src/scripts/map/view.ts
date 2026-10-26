@@ -48,7 +48,7 @@ export function initMapView(root: HTMLElement): void {
 
   const isPhone = () => getComputedStyle(stageMap).display === 'none';
   const yi = () => Math.max(0, file?.years.indexOf(year) ?? 0);
-  const ctx = (): StateContext => ({ years: file!.years, latest: file!.year, slugs: file!.slugs, blocs: file!.blocs, param: file!.axis ?? 'year' });
+  const ctx = (): StateContext => ({ years: file!.years, latest: file!.year, slugs: file!.slugs, blocs: file!.blocs, param: file!.axis === 'months' ? 'month' : file!.axis ?? 'year' });
   // What the page says for a year: the year itself, or a period's words ("Last 30 days").
   const yearText = (y: number) => file?.data.find((d) => d.year === y)?.label ?? String(y);
 

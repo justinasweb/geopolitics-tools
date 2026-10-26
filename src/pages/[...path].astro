@@ -13,6 +13,8 @@ import MineralView from '../templates/MineralView.astro';
 import IndicatorView from '../templates/IndicatorView.astro';
 import DisasterView from '../templates/DisasterView.astro';
 import FoodView from '../templates/FoodView.astro';
+import EnergyView from '../templates/EnergyView.astro';
+import ConflictView from '../templates/ConflictView.astro';
 import BlocView from '../templates/BlocView.astro';
 import HistoryView from '../templates/HistoryView.astro';
 import RiverView from '../templates/RiverView.astro';
@@ -38,4 +40,6 @@ const [a, b] = route.id.split(',');
 {route.kind === 'view' && route.id.startsWith('blocs:') && <BlocView id={route.id.split(':')[1]} />}
 {route.kind === 'view' && route.id.startsWith('history:') && <HistoryView id={route.id.split(':')[1]} />}
 {route.kind === 'view' && route.id.startsWith('rivers:') && <RiverView id={route.id.split(':')[1]} />}
-{route.kind === 'view' && !/^(minerals|disasters|food|blocs|history|rivers):/.test(route.id) && <IndicatorView id={route.id.split(':')[1]} />}
+{route.kind === 'view' && route.id.startsWith('energy:') && <EnergyView id={route.id.split(':')[1]} />}
+{route.kind === 'view' && route.id.startsWith('conflict:') && <ConflictView />}
+{route.kind === 'view' && !/^(minerals|disasters|food|energy|conflict|blocs|history|rivers):/.test(route.id) && <IndicatorView id={route.id.split(':')[1]} />}

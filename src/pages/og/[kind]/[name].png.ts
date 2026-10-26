@@ -18,6 +18,8 @@ import { creditOf, lede as viewLede, valueText, viewPage } from '../../../lib/vi
 import { VIEW_TEXT } from '../../../i18n/views.en';
 import { DISASTERS_TEXT, KIND_TEXT } from '../../../i18n/disasters.en';
 import { disasterPage } from '../../../lib/disasters';
+import { conflictPage } from '../../../lib/conflict';
+import { CONFLICT_TEXT, monthText } from '../../../i18n/conflict.en';
 import { FOOD_TEXT } from '../../../i18n/food.en';
 import { BLOCS_TEXT, HISTORY_TEXT, MEASURE_TEXT } from '../../../i18n/blocs.en';
 import { BLOC_TEXT } from '../../../i18n/map.en';
@@ -26,6 +28,8 @@ import { historyPage } from '../../../lib/history';
 import { riverPage } from '../../../lib/rivers';
 import { RIVERS_TEXT } from '../../../i18n/water.en';
 import { foodPage, lede as foodLede, mt, netText, shareOf as foodShare } from '../../../lib/food';
+import { amount as energyAmount, energyPage, lede as energyLede, shareOf as energyShare, valueText as energyValue } from '../../../lib/energy';
+import { ENERGY_TEXT } from '../../../i18n/energy.en';
 
 export const getStaticPaths = (() => {
   if (process.env.GT_FAST === '1') return [{ params: { kind: 'page', name: 'default' }, props: { route: null } }];
@@ -89,6 +93,16 @@ function card(r: Route | null): Card {
       bars: x.rows.slice(0, 5).map((y) => ({ label: nameOf(y.id), value: y.n, text: String(y.n) })),
     };
   }
+  if (r.kind === 'view' && r.id.startsWith('conflict:')) {
+    const p = conflictPage()!;
+    const m = p.byMonth[p.month];
+    const f = (v: number) => formatValue(v, { kind: 'count' });
+    return {
+      kicker: CONFLICT_TEXT.section, title: CONFLICT_TEXT.title, figure: CONFLICT_TEXT.deaths(f(m.deaths12)), caption: CONFLICT_TEXT.in12(monthText(m.n, true)),
+      source: `${short('ucdp')}, ${monthText(m.n)}${m.preliminary ? `, ${CONFLICT_TEXT.preliminary.toLowerCase()}` : ''}`,
+      bars: m.rows.slice(0, 5).map((y) => ({ label: nameOf(y.id), value: y.deaths, text: f(y.deaths) })),
+    };
+  }
   if (r.kind === 'view' && r.id.startsWith('blocs:')) {
     const id = r.id.split(':')[1];
     if (id === 'all') {
@@ -131,6 +145,16 @@ function card(r: Route | null): Card {
     return {
       kicker: FOOD_TEXT.section, title: FOOD_TEXT.layer[p.layer].title(p.text.pick), caption: foodLede(p) ?? undefined, source: `${short('faostat')}, ${p.year}`,
       bars: rows.map((x) => ({ label: nameOf(x.id), value: Math.abs(x.value), text: trade ? netText(x.value) : `${mt(x.value)} (${foodShare(x.value, y.world)})` })),
+    };
+  }
+  if (r.kind === 'view' && r.id.startsWith('energy:')) {
+    const p = energyPage(r.id.split(':')[1])!;
+    const y = p.byYear[p.year];
+    const trade = p.layer === 'trade';
+    const rows = trade ? [...y.rows.slice(0, 3), ...y.rows.slice(-2)] : y.rows.slice(0, 5);
+    return {
+      kicker: p.text.pick, title: ENERGY_TEXT.layer[p.layer].title(p.text.pick), caption: energyLede(p) ?? undefined, source: `${short('eia')}, ${p.year}`,
+      bars: rows.map((x) => ({ label: nameOf(x.id), value: Math.abs(x.value), text: trade ? energyValue(p, x.value) : `${energyAmount(p.fuel, p.layer, x.value)} (${energyShare(x.value, y.world)})` })),
     };
   }
   if (r.kind === 'view') {

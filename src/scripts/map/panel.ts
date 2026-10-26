@@ -36,8 +36,8 @@ export function tooltipHtml(f: LayerFile, y: LayerYear, id: string | null, fallb
 export function sparkHtml(f: LayerFile, id: string, label: string): string {
   const vals = f.series?.[id];
   if (!vals || !f.format) return '';
-  const pts = vals.map((v, i) => (v === null ? null : { x: i, v, year: f.data[i].year }));
-  const have = pts.filter((p): p is { x: number; v: number; year: number } => p !== null);
+  const pts = vals.map((v, i) => (v === null ? null : { x: i, v, year: when(f.data[i]) }));
+  const have = pts.filter((p): p is { x: number; v: number; year: number | string } => p !== null);
   if (have.length < 3) return '';
   const fmt = (v: number) => (v === 0 ? '0' : formatValue(v, f.format!));
   const lo = Math.min(0, ...have.map((p) => p.v));
@@ -91,7 +91,7 @@ export function blockHtml(b: PanelBlock): string {
 export function countryPanelHtml(f: LayerFile, yearIndex: number, id: string, sheet = false): string {
   const y = f.data[yearIndex];
   // Periods count different alert levels, so a shorter one is no "before" to compare with.
-  const prev = yearIndex > 0 && !f.axis ? f.data[yearIndex - 1] : null;
+  const prev = yearIndex > 0 && f.axis !== 'days' ? f.data[yearIndex - 1] : null;
   const e = y.v[id];
   const name = nameOf(f, id);
   const body: string[] = [];
@@ -109,7 +109,7 @@ export function countryPanelHtml(f: LayerFile, yearIndex: number, id: string, sh
     body.push(`<dl class="gt-panel__facts">${facts.map(([dt, dd]) => `<div><dt>${esc(dt)}</dt>${dd}</div>`).join('')}</dl>`);
     if (e[2] && !f.text.detailLabel) body.push(`<p class="gt-ptrend">${esc(e[2])}</p>`);
   }
-  if (!f.axis) body.push(sparkHtml(f, id, fill(f.text.trend ?? f.text.shareLabel, { from: f.data[0].year, to: f.data.at(-1)!.year })));
+  if (f.axis !== 'days') body.push(sparkHtml(f, id, fill(f.text.trend ?? f.text.shareLabel, { from: when(f.data[0]), to: when(f.data.at(-1)!) })));
   if (e && e[0] > 0 && f.series) body.push(rankingHtml(f, yearIndex, id, fill(f.text.ranking ?? '', { year: when(y) })));
   for (const b of y.more?.[id] ?? []) body.push(blockHtml(b));
   for (const b of f.more?.[id] ?? []) body.push(blockHtml(b));

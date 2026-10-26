@@ -18,3 +18,4 @@
 .gt-bars--wide li { grid-template-columns: minmax(72px, 9.5em) minmax(48px, 1fr) 5.6em; }
 .gt-bars__rest { display: block; height: 100%; background: var(--paper-sunk); box-shadow: inset 0 0 0 1px var(--rule); }
 .gt-bars__fill--prev { background: var(--seq-3) !important; }
+.gt-bars--tight.gt-bars--wide li { grid-template-columns: minmax(64px, 7.6em) minmax(48px, 1fr) 5.6em; }

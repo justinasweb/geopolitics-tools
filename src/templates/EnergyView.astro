@@ -1,0 +1,294 @@
+---
+// An oil or gas map view (/oil, /oil/consumption, /oil/trade, /oil/reserves and the same for /gas), on the food
+// views' template: the answer in one sentence, the fuel and measure pickers, year slider and bloc outline, the map with
+// its legend and panel, then the summary, every country, the largest flows on a trade page, oil prices on oil's own
+// pages, and related links. All text, figures and tables are in the HTML; the map loads after them.
+import Page from '../layouts/Page.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import SourceLine from '../components/SourceLine.astro';
+import Notice from '../components/Notice.astro';
+import ShareRow from '../components/ShareRow.astro';
+import MapStage from '../components/MapStage.astro';
+import MapControls from '../components/MapControls.astro';
+import LineChart from '../components/LineChart.astro';
+import Icon from '../components/Icon.astro';
+import '../styles/atlas/mapview.css';
+import '../styles/atlas/bars.css';
+import '../styles/atlas/keyfigure.css';
+import '../styles/atlas/table.css';
+import '../styles/atlas/tools.css';
+import { MAP_TEXT } from '../i18n/map.en';
+import { INDICATOR_TEXT } from '../i18n/en';
+import { ENERGY_TEXT as E } from '../i18n/energy.en';
+import { ENERGY_LAYERS, FUELS, TOP_FLOWS, amount, amountShort, balanceOf, energyKey, energyPage, energyPages, fuelPages, lede, prices, shareOf, summary, unitWords, valueText, worldChange } from '../lib/energy';
+import type { EnergyRow } from '../lib/energy';
+import { refreshed } from '../lib/data';
+import { place } from '../lib/places';
+import { countryHref, indicatorHref, live, route } from '../lib/routes';
+import { layerPath } from '../lib/map/layers';
+import { DOSSIERS } from '../lib/country';
+import { breadcrumbs } from '../lib/structured';
+import { shareExact, shareText } from '../lib/minerals';
+import { formatDate } from '../lib/format';
+
+interface Props { id: string }
+const p = energyPage(Astro.props.id)!;
+const T = p.text;
+const L = E.layer[p.layer];
+const trade = p.layer === 'trade';
+const path = route(energyKey(p))!.path;
+const url = new URL(path, Astro.site).href;
+const title = L.title(T.pick);
+const sub = T.basis[p.layer] ? `${E.sub}, ${T.basis[p.layer]}` : E.sub;
+const source = E.source;
+const updated = refreshed('eia');
+const flowSource = E.sourceFlows(p.fuel);
+const flowsUpdated = refreshed('comtrade');
+const y = p.byYear[p.year];
+const prevYear = p.years.includes(p.year - 1) ? p.year - 1 : null;
+const prev = prevYear ? p.byYear[prevYear] : null;
+const answer = lede(p);
+const nameOf = (id: string) => place(id)?.name ?? id;
+const yearsText = p.years.length > 1 ? `${p.years[0]}–${p.years.at(-1)}` : String(p.year);
+const a = (v: number) => amount(p.fuel, p.layer, v);
+const first = fuelPages(p.fuel)[0];
+const crumbs = [{ label: E.hub }, { label: T.pick, href: route(energyKey(first))!.path }, { label: title }];
+const pct = (ch: number) => `${ch > 0 ? '+' : ch < 0 ? '−' : ''}${new Intl.NumberFormat('en', { maximumFractionDigits: 0 }).format(Math.abs(ch * 100))}%`;
+
+// The pickers: the fuels (this measure), and this fuel's measures.
+const picker = FUELS.map((f) => energyPages().find((o) => o.fuel === f && o.layer === p.layer)).filter((o) => o && live(energyKey(o)))
+  .map((o) => ({ label: o!.text.pick, href: live(energyKey(o!))!.path, current: o!.fuel === p.fuel }));
+const picker2 = { label: E.layerLabel, options: ENERGY_LAYERS.map((l) => fuelPages(p.fuel).find((o) => o.layer === l)).filter((o) => o && live(energyKey(o)))
+  .map((o) => ({ label: E.layer[o!.layer].pick, href: live(energyKey(o!))!.path, current: o!.layer === p.layer })) };
+
+// The table: every country with a figure for the default year.
+const rows = y.rows.map((r) => {
+  const q = prev?.rows.find((x) => x.id === r.id);
+  const ch = !trade && q && q.value ? r.value / q.value - 1 : null;
+  return { r, q, ch, b: balanceOf(p, r.id, p.year) };
+});
+const reserves = p.layer === 'reserves';
+const flowsOf = (kind?: 'pipe' | 'lng') => p.flows.filter((f) => f.kind === kind).slice(0, TOP_FLOWS);
+const flowSets = p.fuel === 'gas'
+  ? [{ label: E.pipeLabel(p.flowYear ?? 0), what: E.kind.pipe + ' gas', items: flowsOf('pipe') }, { label: E.lngLabel(p.flowYear ?? 0), what: E.kind.lng, items: flowsOf('lng') }].filter((s) => s.items.length)
+  : [{ label: E.flowsLabel(p.flowYear ?? 0), what: T.flows, items: flowsOf(undefined) }].filter((s) => s.items.length);
+const marks = flowSets.map((s, i) => ({ symbol: (p.fuel === 'gas' && i === 1 ? 'arc-dashed' : 'arc') as 'arc' | 'arc-dashed', label: s.label }));
+const indicatorId = { oil: { production: 'oilprod', consumption: 'oiluse' }, gas: { production: 'gasprod', consumption: 'gasuse' } }[p.fuel][p.layer as 'production' | 'consumption'];
+const top = trade ? [y.rows[0], y.rows.at(-1)!] : y.rows.slice(0, 3);
+const otherFuel = energyPages().find((o) => o.fuel !== p.fuel && o.layer === p.layer);
+const related = [
+  ...fuelPages(p.fuel).filter((o) => o.id !== p.id && live(energyKey(o))).map((o) => ({ href: live(energyKey(o))!.path, name: E.layer[o.layer].title(T.pick), note: E.sameFuel })),
+  ...(otherFuel && live(energyKey(otherFuel)) ? [{ href: live(energyKey(otherFuel))!.path, name: E.layer[p.layer].title(otherFuel.text.pick), note: E.otherFuel }] : []),
+  ...(indicatorId && indicatorHref(indicatorId) ? [{ href: indicatorHref(indicatorId)!, name: INDICATOR_TEXT[indicatorId]?.label ?? title, note: E.indicatorPage }] : []),
+  ...top.filter((r) => countryHref(r.id)).map((r) => ({ href: countryHref(r.id)!, name: nameOf(r.id), note: DOSSIERS.includes(r.id) ? E.dossier : E.countryPage })),
+];
+const mapTop = top.map((r) => `${nameOf(r.id)} ${trade ? valueText(p, r.value) : shareOf(r.value, y.world)}`).join(', ');
+const bars = (rs: EnergyRow[], max: number) => rs.map((r) => ({ id: r.id, text: amountShort(p.fuel, p.layer, Math.abs(r.value)), w: max ? (100 * Math.abs(r.value)) / max : 0 }));
+
+// Oil prices, on oil's own pages: yearly averages as a chart, the last twelve months in a table.
+const pr = p.fuel === 'oil' ? prices() : null;
+const priceYears = pr ? [...new Set(pr.brent.map((x) => Number(x.date.slice(0, 4))))].sort((x, z) => x - z) : [];
+const yearly = (s: { date: string; value: number }[]) => priceYears.map((yr) => {
+  const m = s.filter((x) => x.date.startsWith(String(yr)));
+  return m.length ? m.reduce((t, x) => t + x.value, 0) / m.length : null;
+});
+const lastMonths = pr ? pr.brent.slice(-12).reverse().map((b) => ({ date: b.date, brent: b.value, wti: pr.wti.find((w) => w.date === b.date)?.value })) : [];
+const usd = (v: number | undefined) => (v === undefined ? '–' : `$${v.toFixed(2)}`);
+const monthName = (d: string) => formatDate(`${d}-15`).replace(/^\d+ /, '');
+---
+<Page title={title} description={E.description(p.layer, T.name, p.year)} hub="resources" container="mv" image={route(energyKey(p))!.image}
+  jsonld={[breadcrumbs(crumbs.map((c) => ({ label: c.label, href: c.href })))]}>
+  <div class="gt-mvhead">
+    <Breadcrumbs items={crumbs} />
+    <h1 class="gt-title gt-mvhead__t">{title} <span class="gt-mvhead__sub">{sub}</span></h1>
+    {answer && <p class="gt-lede gt-mvhead__a">{answer}</p>}
+    <SourceLine source={source} parts={[String(p.year)]} updated={updated} />
+  </div>
+
+  <MapControls pickerLabel={E.fuelLabel} picker={picker} picker2={picker2} years={p.years} year={p.year} />
+
+  <MapStage layer={layerPath(`energy-${p.id}`)} label={E.mapLabel(title, p.year, mapTop)} title={title}
+    legend={{
+      title: trade ? E.layer.trade.legend(p.year, E.tradeUnit[p.fuel]) : L.legend(p.year), scale: trade ? 'div' : 'seq', ticks: p.ticks, ends: trade ? E.ends : undefined, none: E.none,
+      notyet: y.notYet.length ? E.notYetLegend : undefined, marks: marks.length ? marks : undefined,
+    }}>
+    <div data-panel="world" slot="panel">
+      <div class="gt-panel__head">
+        <div class="gt-panel__title"><span class="gt-kicker">{title} · <span data-year-text>{p.year}</span></span><h2 class="gt-h3">{MAP_TEXT.world}</h2></div>
+      </div>
+      <div class="gt-panel__body">
+        {p.years.map((yr) => {
+          const Y = p.byYear[yr];
+          const ch = worldChange(p, yr);
+          const max = Math.max(...Y.rows.map((r) => Math.abs(r.value)));
+          const groups = trade
+            ? [{ label: E.netExporters, items: bars(Y.rows.filter((r) => r.value > 0).slice(0, 5), max) }, { label: E.netImporters, items: bars([...Y.rows].reverse().filter((r) => r.value < 0).slice(0, 5), max) }]
+            : [{ label: E.highest, items: bars(Y.rows.slice(0, 8), max) }];
+          return (
+            <div class="gt-pyear" data-year={yr} hidden={yr !== p.year}>
+              {Y.world !== null && (
+                <div class="gt-pkf">
+                  <span class="gt-pkf__label">{L.worldLabel}</span>
+                  <span class="gt-pkf__num">{a(Y.world)}</span>
+                  {ch !== null && (
+                    <span class="gt-pkf__meta"><span class="gt-kf__change"><Icon name={Math.abs(ch) < 0.005 ? 'flat' : ch > 0 ? 'up' : 'down'} />{Math.abs(ch) < 0.005 ? E.sameAs(yr - 1) : E.change2(shareText(Math.abs(ch)), ch > 0, yr - 1, a(p.byYear[yr - 1].world!))}</span></span>
+                  )}
+                </div>
+              )}
+              {groups.map((g) => g.items.length > 0 && (
+                <div class="gt-pgroup">
+                  <span class="gt-label">{g.label}</span>
+                  <ol class="gt-bars gt-bars--tight gt-bars--wide" aria-label={`${g.label}, ${title.toLowerCase()}, ${yr}`}>
+                    {g.items.map((x) => (
+                      <li><span class="gt-bars__name"><button type="button" data-select={x.id}>{nameOf(x.id)}</button></span><span class="gt-bars__track"><span class="gt-bars__fill" style={`width:${x.w.toFixed(1)}%`}></span></span><span class="gt-bars__val">{x.text}</span></li>
+                    ))}
+                  </ol>
+                </div>
+              ))}
+            </div>
+          );
+        })}
+        <div class="gt-blocline" hidden><span class="gt-blocline__key" aria-hidden="true"></span><p></p></div>
+        <Notice>
+          <p>{E.caveats(p.fuel, p.layer, p.flowYear).join(' ')}</p>
+          <SourceLine source={source} parts={[yearsText]} updated={updated} />
+        </Notice>
+      </div>
+    </div>
+  </MapStage>
+
+  <section class="gt-mvbelow" aria-labelledby="mv-sum">
+    <div class="gt-mvbelow__main">
+      <h2 class="gt-h2" id="mv-sum">{E.summary}</h2>
+      <div class="gt-prose">{summary(p).map((s) => <p>{s}</p>)}</div>
+      <SourceLine source={source} parts={[String(p.year)]} updated={updated} />
+      <h2 class="gt-h2" id="table">{E.all}</h2>
+      <div class="gt-tablewrap" style="--gt-table-h:560px" tabindex="0" role="region" aria-label={E.tableLabel(title)}>
+        <table class="gt-table" data-gt-sort>
+          <caption class="gt-caption">{E.caption(p.layer, unitWords(p), p.year, reserves ? null : prev?.year ?? null)}</caption>
+          <thead><tr>
+            <th scope="col" data-key="n"><button type="button">{E.country}</button></th>
+            {trade ? (
+              <>
+                <th scope="col" class="n" data-key="o" data-type="num"><button type="button">{E.output}</button></th>
+                <th scope="col" class="n" data-key="u" data-type="num"><button type="button">{E.use}</button></th>
+                <th scope="col" class="n" data-key="v" data-type="num" aria-sort="descending"><button type="button">{E.netCol} {p.year}</button></th>
+                {prev && <th scope="col" class="n" data-key="q" data-type="num"><button type="button">{E.netCol} {prev.year}</button></th>}
+              </>
+            ) : (
+              <>
+                <th scope="col" class="n" data-key="v" data-type="num" aria-sort="descending"><button type="button">{p.year}</button></th>
+                <th scope="col" class="n" data-key="s" data-type="num"><button type="button">{E.share}</button></th>
+                {reserves ? (
+                  <th scope="col" class="n" data-key="r" data-type="num"><button type="button">{E.reserveYears}</button></th>
+                ) : prev && (
+                  <>
+                    <th scope="col" class="n" data-key="q" data-type="num"><button type="button">{prev.year}</button></th>
+                    <th scope="col" class="n" data-key="c" data-type="num"><button type="button">{E.change}</button></th>
+                  </>
+                )}
+              </>
+            )}
+          </tr></thead>
+          <tbody>
+            {rows.map(({ r, q, ch, b }) => {
+              const out = p.fuel === 'oil' ? b.liquids : b.production;
+              return (
+                <tr data-place={r.id}>
+                  <th scope="row">{countryHref(r.id) ? <a href={countryHref(r.id)}>{nameOf(r.id)}</a> : nameOf(r.id)}</th>
+                  {trade ? (
+                    <>
+                      {out === undefined ? <td class="n gt-na" data-v="">–</td> : <td class="n" data-v={out}>{amount(p.fuel, 'production', out)}</td>}
+                      {b.consumption === undefined ? <td class="n gt-na" data-v="">–</td> : <td class="n" data-v={b.consumption}>{amount(p.fuel, 'consumption', b.consumption)}</td>}
+                      <td class="n" data-v={r.value}>{valueText(p, r.value)}</td>
+                      {prev && (q ? <td class="n" data-v={q.value}>{valueText(p, q.value)}</td> : <td class="n gt-na" data-v="">–</td>)}
+                    </>
+                  ) : (
+                    <>
+                      <td class="n" data-v={r.value}>{a(r.value)}</td>
+                      <td class="n" data-v={y.world ? r.value / y.world : ''}>{y.world ? shareExact(r.value / y.world) : '–'}</td>
+                      {reserves ? (
+                        b.reserveYears === undefined ? <td class="n gt-na" data-v="">–</td> : <td class="n" data-v={b.reserveYears}>{Math.round(b.reserveYears)}</td>
+                      ) : prev && (
+                        <>
+                          {q ? <td class="n" data-v={q.value}>{a(q.value)}</td> : <td class="n gt-na" data-v="">–</td>}
+                          {ch === null ? <td class="n gt-na" data-v="">–</td> : <td class="n" data-v={ch}><span class="gt-chg"><Icon name={Math.abs(ch) < 0.005 ? 'flat' : ch > 0 ? 'up' : 'down'} />{pct(ch)}</span></td>}
+                        </>
+                      )}
+                    </>
+                  )}
+                </tr>
+              );
+            })}
+          </tbody>
+          {y.world !== null && !trade && (
+            <tfoot><tr>
+              <td>{E.totalRow}</td><td class="n">{a(y.world)}</td><td class="n">100%</td>
+              {!reserves && prev && <td class="n">{prev.world !== null ? a(prev.world) : '–'}</td>}
+              {!reserves && prev && <td class="n">{worldChange(p, p.year) !== null ? pct(worldChange(p, p.year)!) : '–'}</td>}
+              {reserves && <td></td>}
+            </tr></tfoot>
+          )}
+        </table>
+      </div>
+      <SourceLine source={source} parts={[prev && !reserves ? `${prev.year} and ${p.year}` : String(p.year)]} updated={updated} />
+      {y.notYet.length > 0 && (
+        <div class="gt-mvnotes">
+          <h3 class="gt-label">{E.notYet}</h3>
+          <p class="gt-caption">{y.notYet.map((n) => `${nameOf(n.id)} (${E.lastFigure(n.year, valueText(p, n.value))})`).join('; ')}.</p>
+        </div>
+      )}
+      {flowSets.map((s, i) => (
+        <>
+          <h2 class="gt-h2" id={`flows-${i + 1}`}>{s.label}</h2>
+          <div class="gt-tablewrap" style="--gt-table-h:none" tabindex="0" role="region" aria-label={s.label}>
+            <table class="gt-table" data-gt-sort>
+              <caption class="gt-caption">{E.flowsCaption(s.items.length, p.flowYear!, s.what)}</caption>
+              <thead><tr>
+                <th scope="col" data-key="f"><button type="button">{E.from}</button></th>
+                <th scope="col" data-key="t"><button type="button">{E.to}</button></th>
+                <th scope="col" class="n" data-key="a" data-type="num" aria-sort="descending"><button type="button">{E.amount}</button></th>
+              </tr></thead>
+              <tbody>
+                {s.items.map((f) => (
+                  <tr>
+                    <td>{nameOf(f.from)}</td>
+                    <td>{nameOf(f.to)}</td>
+                    <td class="n" data-v={f.amount}>{amount(p.fuel, 'production', f.amount)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <SourceLine source={flowSource} parts={[String(p.flowYear)]} updated={flowsUpdated} />
+        </>
+      ))}
+      {pr && pr.brent.length > 0 && p.layer === 'production' && (
+        <>
+          <h2 class="gt-h2" id="prices">{E.pricesTitle}</h2>
+          <p>{E.pricesLede(usd(lastMonths[0].brent), usd(lastMonths[0].wti), monthName(lastMonths[0].date))}</p>
+          <LineChart label={E.pricesCaption(monthName(pr.brent[0].date), monthName(pr.brent.at(-1)!.date))} years={priceYears}
+            lines={[{ label: E.brent, values: yearly(pr.brent), cls: 'gt-ser-1' }, { label: E.wti, values: yearly(pr.wti), cls: 'gt-ser-2', dashed: true }]} format={{ kind: 'number', digits: 0 }} zero={false} />
+          <div class="gt-tablewrap" style="--gt-table-h:none" tabindex="0" role="region" aria-label={E.pricesTitle}>
+            <table class="gt-table">
+              <caption class="gt-caption">{E.pricesCaption(monthName(lastMonths.at(-1)!.date), monthName(lastMonths[0].date))}</caption>
+              <thead><tr><th scope="col">{E.month}</th><th scope="col" class="n">{E.brent}</th><th scope="col" class="n">{E.wti}</th></tr></thead>
+              <tbody>{lastMonths.map((m) => <tr><th scope="row">{monthName(m.date)}</th><td class="n">{usd(m.brent)}</td><td class="n">{usd(m.wti)}</td></tr>)}</tbody>
+            </table>
+          </div>
+          <SourceLine source={E.sourcePrices} parts={[monthName(pr.brent.at(-1)!.date)]} updated={updated} />
+        </>
+      )}
+    </div>
+    <aside class="gt-mvbelow__side">
+      <h2 class="gt-label">{E.related}</h2>
+      <ul class="gt-related">{related.map((r) => <li><a href={r.href}><span>{r.name}</span><small>{r.note}</small></a></li>)}</ul>
+      <div class="gt-mvbelow__share"><ShareRow url={url} text={answer ?? title} /></div>
+    </aside>
+  </section>
+</Page>
+
+<script>
+  import { initSortable } from '../scripts/table';
+  document.querySelectorAll<HTMLTableElement>('table[data-gt-sort]').forEach(initSortable);
+</script>

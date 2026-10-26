@@ -82,13 +82,27 @@ back separately, from Cloudflare's deployments.
 | FAOSTAT | 30 days | 400 days | Wheat, maize, rice and soybean production and trade, nitrogen, phosphate and potash, since 2015, by ISO3 code; each importer's 10 main suppliers in the latest well-reported year |
 | IMF World Economic Outlook | 30 days | 200 days | **Off** until the IMF allows scheduled downloads. Growth, inflation, debt, deficit, unemployment, current account; country groups dropped |
 | IMF PortWatch chokepoints | 20 hours | 10 days | **Off**, as above. The chokepoints and their daily transits for 400 days |
+| EIA | 7 days | 60 days | **Off** until `EIA_API_KEY` is set. Crude oil and all liquids production, oil consumption and reserves, dry gas production, consumption and reserves, by country since 2000; Brent and WTI monthly from 2010 |
+| UN Comtrade | 7 days | 60 days | **Off** until `COMTRADE_API_KEY` is set. Imports and exports by partner, one file per group and year (crude, gas, potash and phosphate, chips and chipmaking machines, total trade), 2015 to last year: the latest three years each run, older years once, at most `COMTRADE_MAX_CALLS` calls a run (default 90) |
+| Ember | 7 days | 60 days | **Off** until `EMBER_API_KEY` is set. Yearly generation by source, every country and the world, since 2000 |
+| UCDP | 7 days | 45 days | **Off** until `UCDP_TOKEN` is set. Events since 2023 from the latest yearly release (GED) and the monthly Candidate releases after it, one file per release; a release already saved is carried over |
+| IPC | 1 day | 14 days | **Off** until `IPC_API_KEY` is set. Every country-level acute food insecurity analysis (IPC and Cadre Harmonisé), current period |
 
 A failed source is retried after 1, 2, 4… hours, never later than its normal interval.
 
 Sources with no API are imported by hand when they publish (see "Importing a file" below). Still to come in phase 1:
 IMF reserves (gold in tonnes needs the IMF's new SDMX
-service checked first). Keyed sources (EIA, UN Comtrade, Ember, UCDP, IPC) follow as their keys arrive. FAOSTAT has
-no fertiliser trade matrix, so potash and phosphate flows will come from UN Comtrade.
+service checked first).
+
+**Keyed sources.** EIA, UN Comtrade, Ember, UCDP and IPC each switch on when their key is a repository secret
+(`EIA_API_KEY`, `COMTRADE_API_KEY`, `EMBER_API_KEY`, `UCDP_TOKEN`, `IPC_API_KEY`); the data workflow passes all five,
+and the live check runs Comtrade with `COMTRADE_MAX_CALLS=8`. Until then their views build from the prototype's sample
+files in `tests/fixtures/prototype/` (`npm run build:sample`) and are not in a live build. EIA's key goes in the query
+string and Ember's as `api_key`; errors are logged without query strings. Comtrade's key goes in the
+`Ocp-Apim-Subscription-Key` header and UCDP's in `x-ucdp-access-token`. Each fetcher refuses an answer that is cut off
+or much smaller than the last good copy. FAOSTAT has no fertiliser trade matrix, so potash and phosphate flows come
+from UN Comtrade (HS 3104; phosphate is HS 3103 plus DAP 310530 and MAP 310540, not all of 3105, which includes
+NPK blends).
 
 ## Running it
 

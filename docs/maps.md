@@ -125,7 +125,7 @@ How the adapter (`src/adapters/minerals.ts`) reads them:
 - **Shading.** Production and use by share of the world, in the minerals' classes (under 1%, 1–5%, 5–10%, 10–25%, 25%+). Trade is exports minus imports on a diverging scale, net exporters at one end and net importers at the other; its edges are rounded (1, 2, 5) from that commodity's latest year and kept for every year.
 - **Years still coming in.** The default year is the latest with 90% of the best coverage. A place with a figure in one of the two years before but none yet is hatched "Not yet reported", with its last figure.
 - **Estimates and notes.** Figures FAOSTAT flags as its own estimate or imputation (flags E and I) carry the estimate tag and an "e" in the table; a use worked out from an estimate is one too. Most fertiliser figures are estimates. Notes on single places (Russia's trade since 2022, Morocco's 2024 phosphate exports, Belarus's potash) are in src/i18n/food.en.ts.
-- **Flows.** Crop trade maps draw the 20 largest importer-reported flows in the trade matrix's year as arcs, also listed in a table. FAOSTAT has no fertiliser trade matrix, so fertiliser trade maps have none (UN Comtrade, phase 5b).
+- **Flows.** Crop trade maps draw the 20 largest importer-reported flows in the trade matrix's year as arcs, also listed in a table. Fertiliser flows come from UN Comtrade, in tonnes of product (not nutrient), which the caveat says.
 - **Panel.** A selected country's balance in the latest year (production, imports, exports, use, production as a share of use), its main suppliers and buyers (crops), and the same measure for the other five commodities.
 - **Not yet.** Prices (World Bank Pink Sheet) are not shown.
 
@@ -155,8 +155,9 @@ with a sites table on the launches page. Satellites of international owners (ESA
 `/ai` (share of known AI computing power, the registry's `aicompute`), `/ai/models` (notable models by country of the
 developer, Epoch AI) and `/ai/export-controls` (US Entity List entries by country, from the CSL). Models and Entity List
 counts are view-only measures (`src/data/view-measures.ts`): no indicator page, profile row or Compare column. The
-computing power map marks each known supercomputer, with a table of the largest. Chip and chipmaking-tool trade (the
-spec's `/ai/chips`) waits on UN Comtrade.
+computing power map marks each known supercomputer, with a table of the largest. `/ai/chips` and `/ai/chip-machines`
+(phase 5b) map imports of integrated circuits (HS 8542) and chipmaking machines (HS 8486) as importers report them to UN
+Comtrade, in US dollars, with each year's 20 largest flows as arcs and a buyer's main suppliers in its panel.
 
 ## Sanctions (phase 5a)
 
@@ -201,7 +202,45 @@ into the United States, China, Russia, European countries and others; the arcs a
 largest flows. Each layer compares with the period before (`span` in src/data/views.ts), not an overlapping one, so
 supplier shifts show once the export reaches back at least ten years.
 
+## Oil and gas (phase 5b)
+
+`/oil` and `/gas` (production), then `/consumption`, `/trade` and `/reserves` after each (src/lib/energy.ts,
+src/templates/EnergyView.astro). EIA International Energy Data from 2000: oil production is crude with lease condensate,
+oil use is all petroleum products, net trade is all liquids produced minus use (so the United States is a net exporter),
+gas is dry gas in billion cubic metres. The default year is the latest with 90% of the best coverage; later reporters are
+listed as not yet reported. Trade maps draw the 20 largest UN Comtrade flows (crude in barrels a day at 7.33 barrels a
+tonne; gas as pipeline and LNG, LNG dashed). `/oil` also shows Brent and WTI monthly prices. Reserves pages add years
+of output at the latest rate.
+
+## Electricity (phase 5b)
+
+`/electricity` (low-carbon share), `/electricity/wind-solar`, `/coal`, `/gas` and `/nuclear`: Ember's yearly generation,
+each source as a share of the country's own generation, on fixed bands. Ember's nine series fold into seven groups for
+the mix (gas with other fossil, bioenergy with other renewables); the gas layer maps gas alone. The world figure is
+Ember's own World total, and changes are in percentage points (`points` in src/data/views.ts). A country's panel shows
+its mix in the default year only (every year would make the layer file several megabytes); the page has the world mix.
+
+## Conflict (phase 5b)
+
+`/conflict` (src/lib/conflict.ts, src/templates/ConflictView.astro): UCDP events since January 2023, the slider stepping
+through months (`axis: 'months'`, numbered year × 12 + month − 1 so they run on; `?month=2026-03` in the URL). Countries
+are shaded by deaths over the 12 months to the month, in UCDP's bands (25 deaths an armed conflict, 1,000 a war); the
+month's events are marks, one shape per kind of violence, added up within cells of one degree, each shown in its month
+only (`i` on a point). Months from the Candidate release are preliminary. UCDP numbers countries by Gleditsch–Ward code
+(codes.csv, source `ucdp`); Gaza and West Bank events move to Palestine. The registry's `conflictdeaths` counts full
+calendar years only.
+
+## Food crises (phase 5b)
+
+`/food-crises` (people in IPC Phase 3 or worse) and `/food-crises/share` (their share of the people analysed): each
+country's latest IPC or Cadre Harmonisé analysis starting in the year. A country without an analysis reads "No IPC
+analysis", never "No data" or zero. The total covers the countries analysed, which change from year to year, so its
+change is not shown. A country's panel gives its latest analysis by phase; the page lists countries with people in
+Phase 5, which counts people in catastrophe, not famine (an area classification this endpoint does not give).
+
 ## Not done in this phase
 
 - Refining shares and trade flows on the minerals views: later phases, once their sources are in.
 - The Atlas (one map, every layer): it reads these layer files when it is built.
+- Live data for the phase 5b views: each goes live when its key is set and its gates pass on live data. The chokepoints
+  and ports wait on the IMF's terms; submarine cables stay hidden.
