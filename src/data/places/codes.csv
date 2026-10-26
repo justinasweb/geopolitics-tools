@@ -77,6 +77,10 @@ source,system,code,place,start,end,note
 *,m49,001,,,,World total
 faostat,m49,159,,,,"""China"" in FAOSTAT adds mainland China, Hong Kong, Macao and Taiwan; the parts are kept, the sum is skipped"
 owid,iso3,OWID_KOS,XKX,,,Our World in Data code for Kosovo
+eia,iso3,XKS,XKX,,,EIA code for Kosovo
+eia,iso3,NLDA,,,,"Netherlands Antilles, dissolved in 2010; EIA keeps it as a series"
+eia,iso3,USIQ,,,,EIA's US Pacific islands total
+eia,iso3,WAK,,,,Wake Island (no population)
 owid,iso3,OWID_WRL,,,,World total
 imf-weo,iso3,UVK,XKX,,,IMF code for Kosovo
 aqueduct,iso3,XKO,XKX,,,"GADM code for Kosovo, used by Aqueduct"
@@ -288,6 +292,7 @@ ucdp,code,42,DOM,,,Gleditsch–Ward number
 ucdp,code,51,JAM,,,Gleditsch–Ward number
 ucdp,code,52,TTO,,,Gleditsch–Ward number
 ucdp,code,53,BRB,,,Gleditsch–Ward number
+ucdp,code,54,DMA,,,Gleditsch–Ward number
 ucdp,code,70,MEX,,,Gleditsch–Ward number
 ucdp,code,80,BLZ,,,Gleditsch–Ward number
 ucdp,code,90,GTM,,,Gleditsch–Ward number
@@ -318,6 +323,7 @@ ucdp,code,225,CHE,,,Gleditsch–Ward number
 ucdp,code,230,ESP,,,Gleditsch–Ward number
 ucdp,code,235,PRT,,,Gleditsch–Ward number
 ucdp,code,255,DEU,,,Gleditsch–Ward number
+ucdp,code,260,DEU,,,"Gleditsch–Ward number of West Germany, which UCDP still uses for some events in Germany"
 ucdp,code,290,POL,,,Gleditsch–Ward number
 ucdp,code,305,AUT,,,Gleditsch–Ward number
 ucdp,code,310,HUN,,,Gleditsch–Ward number
