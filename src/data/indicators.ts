@@ -22,6 +22,7 @@ import { weo, worldBank } from '../adapters/worldbank.ts';
 import { space } from '../adapters/celestrak.ts';
 import { ai, computeAt } from '../adapters/epoch.ts';
 import { LISTS, listingsAt, sanctions } from '../adapters/sanctions.ts';
+import { gas, oil } from '../adapters/eia.ts';
 
 export type Group = 'economy' | 'people' | 'energy' | 'food' | 'climate' | 'security' | 'tech' | 'influence';
 export const GROUPS: Group[] = ['economy', 'people', 'energy', 'food', 'climate', 'security', 'tech', 'influence'];
@@ -64,6 +65,8 @@ const waterOf = once(water);
 const spaceOf = once(space);
 const aiOf = once(ai);
 const sanctionsOf = once(sanctions);
+const oilOf = once(oil);
+const gasOf = once(gas);
 const staticYear = (values: Record<string, number | null>, year: number): Series => {
   const out: Series = {};
   for (const [id, v] of Object.entries(values)) put(out, id, year, v);
@@ -108,10 +111,10 @@ const LIST: Indicator[] = [
   { id: 'refinpc', group: 'people', source: 'unhcr', format: unit('', 1), scale: 'linear', load: (_r, get) => combine(get('refin'), get('population'), (r, p) => (r / p) * 1000) },
   { id: 'idps', group: 'people', source: 'unhcr', format: count, scale: 'log', load: (raw) => unhcrOf(raw).idps },
   // Energy
-  { id: 'oilprod', group: 'energy', source: 'eia', format: unit('kb/d'), scale: 'log', pending: 'EIA, waiting for an API key' },
-  { id: 'oiluse', group: 'energy', source: 'eia', format: unit('kb/d'), scale: 'log', pending: 'EIA, waiting for an API key' },
-  { id: 'gasprod', group: 'energy', source: 'eia', format: unit('bcm', 1), scale: 'log', pending: 'EIA, waiting for an API key' },
-  { id: 'gasuse', group: 'energy', source: 'eia', format: unit('bcm', 1), scale: 'log', pending: 'EIA, waiting for an API key' },
+  { id: 'oilprod', group: 'energy', source: 'eia', format: unit('kb/d'), scale: 'log', load: (raw) => oilOf(raw).production },
+  { id: 'oiluse', group: 'energy', source: 'eia', format: unit('kb/d'), scale: 'log', load: (raw) => oilOf(raw).consumption },
+  { id: 'gasprod', group: 'energy', source: 'eia', format: unit('bcm', 1), scale: 'log', load: (raw) => gasOf(raw).production },
+  { id: 'gasuse', group: 'energy', source: 'eia', format: unit('bcm', 1), scale: 'log', load: (raw) => gasOf(raw).consumption },
   { id: 'power', group: 'energy', source: 'ember', format: unit('TWh'), scale: 'log', pending: 'Ember, waiting for an API key' },
   { id: 'lowcarbon', group: 'energy', source: 'ember', format: share, scale: 'linear', pending: 'Ember, waiting for an API key' },
   { id: 'coalpower', group: 'energy', source: 'ember', format: share, scale: 'linear', pending: 'Ember, waiting for an API key' },

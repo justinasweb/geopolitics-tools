@@ -114,12 +114,17 @@ describe('food views', () => {
     expect(F.classFor(prod, y.world! * 0.3, y.world)).toBe(5);
   });
 
-  it('writes a layer file per page, with flows on crop trade maps only', () => {
+  it('writes a layer file per page, with flows on trade maps only (fertilisers from UN Comtrade)', () => {
     for (const p of F.foodPages()) {
       const f = L.layerFile(`food-${p.id}`);
       expect(f.scale).toBe(p.layer === 'trade' ? 'div' : 'seq');
       expect(f.data.map((d) => d.year)).toEqual(p.years);
-      if (!p.crop || p.layer !== 'trade') expect(f.overlays).toBeUndefined();
+      if (p.layer !== 'trade') expect(f.overlays).toBeUndefined();
+      else expect(f.overlays?.[0].kind).toBe('arcs');
+      if (p.id === 'potash-trade') {
+        expect(p.flows[0].year).toBe(p.flowYear);
+        expect(f.source).toMatch(/UN Comtrade/);
+      }
       for (const d of f.data) for (const e of Object.values(d.v)) expect([-1, 1, 2, 3, 4, 5, 6, 7]).toContain(e[0]);
     }
   });

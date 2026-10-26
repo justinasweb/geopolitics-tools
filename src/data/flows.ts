@@ -2,6 +2,7 @@
 // (exporter, origin), to = buyer (importer, host), amounts summed per pair. Ported from the
 // prototype's src/data/flows.js; words are in src/i18n/<lang>.ts.
 import type { Raw } from '../adapters/core.ts';
+import { chipFlows, comtrade, crudeFlows, fertiliserFlows, gasFlows, type Flow } from '../adapters/comtrade.ts';
 import { food } from '../adapters/faostat.ts';
 import { arms } from '../adapters/sipri.ts';
 import { displacement } from '../adapters/unhcr.ts';
@@ -32,26 +33,32 @@ export function sumPairs<T extends { from: string; to: string }>(rows: T[], amou
 const maxYear = (rows: { year: number }[]) => Math.max(0, ...rows.map((r) => r.year));
 const mt: Format = { kind: 'number', unit: 'Mt', digits: 1 };
 
+/** The latest year of a set of yearly flows, summed per pair. */
+const latest = (f: Flow[]) => { const y = maxYear(f); return { period: String(y), pairs: sumPairs(f.filter((r) => r.year === y), (r) => r.amount) }; };
+const fromComtrade = (format: Format, pick: (rows: ReturnType<typeof comtrade>) => Flow[]): FlowDef => ({
+  source: 'comtrade', format, load: (raw) => latest(pick(comtrade(raw))),
+});
+
 const crop = (k: 'wheat' | 'maize' | 'rice' | 'soy'): FlowDef => ({
   source: 'faostat', format: mt,
   load: (raw) => { const f = food(raw).flows[k] ?? []; const y = maxYear(f); return { period: String(y), pairs: sumPairs(f.filter((r) => r.year === y), (r) => r.amount) }; },
 });
 
 export const FLOWS: Record<string, FlowDef> = {
-  oil: { source: 'comtrade', format: { kind: 'number', unit: 'kb/d' }, pending: 'UN Comtrade, waiting for an API key' },
-  gas: { source: 'comtrade', format: { kind: 'number', unit: 'bcm', digits: 1 }, pending: 'UN Comtrade, waiting for an API key' },
+  oil: fromComtrade({ kind: 'number', unit: 'kb/d' }, crudeFlows),
+  gas: fromComtrade({ kind: 'number', unit: 'bcm', digits: 1 }, gasFlows),
   wheat: crop('wheat'),
   maize: crop('maize'),
   rice: crop('rice'),
   soy: crop('soy'),
-  // FAOSTAT has no fertiliser trade matrix.
-  potash: { source: 'comtrade', format: mt, pending: 'UN Comtrade, waiting for an API key' },
-  phosphate: { source: 'comtrade', format: mt, pending: 'UN Comtrade, waiting for an API key' },
+  // FAOSTAT has no fertiliser trade matrix; Comtrade's are in tonnes of product, not of nutrient.
+  potash: fromComtrade(mt, (r) => fertiliserFlows(r, 'potash')),
+  phosphate: fromComtrade(mt, (r) => fertiliserFlows(r, 'phosphate')),
   arms: {
     source: 'sipri', format: { kind: 'number', unit: 'TIV m' },
     load: (raw) => { const a = arms(raw).pairs; const y = maxYear(a); return { period: `${y - 4}–${y}`, pairs: sumPairs(a.filter((p) => p.year > y - 5), (p) => p.tiv) }; },
   },
-  chips: { source: 'comtrade', format: { kind: 'money' }, pending: 'UN Comtrade, waiting for an API key' },
+  chips: fromComtrade({ kind: 'money' }, (r) => chipFlows(r, 'chips')),
   refugees: {
     source: 'unhcr', format: { kind: 'count' },
     load: (raw) => { const p = displacement(raw).pairs; const y = maxYear(p); return { period: String(y), pairs: sumPairs(p.filter((r) => r.year === y), (r) => r.people) }; },

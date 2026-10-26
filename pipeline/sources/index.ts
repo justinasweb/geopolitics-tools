@@ -17,8 +17,10 @@ import cables from './cables.ts';
 import faostat from './faostat.ts';
 import imfWeo from './imf-weo.ts';
 import portwatch from './portwatch.ts';
+import eia from './eia.ts';
+import comtrade from './comtrade.ts';
 
 export const SOURCES: Source[] = [
   gdacs, usgsQuakes, ioda, portwatch, celestrak, csl, euSanctions, ukSanctions, worldbank, pinksheet, treasury, epoch,
-  owid, unhcr, imfWeo, cables, faostat,
+  owid, unhcr, imfWeo, cables, faostat, eia, comtrade,
 ];

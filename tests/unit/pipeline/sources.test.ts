@@ -15,6 +15,9 @@ import treasury, { newestMonth } from '../../../pipeline/sources/treasury.ts';
 import unhcr, { foldPairs, num } from '../../../pipeline/sources/unhcr.ts';
 import usgsQuakes from '../../../pipeline/sources/usgs-quakes.ts';
 import worldbank, { INDICATORS } from '../../../pipeline/sources/worldbank.ts';
+import comtrade, { plan, trim } from '../../../pipeline/sources/comtrade.ts';
+import eia, { SERIES as EIA_SERIES } from '../../../pipeline/sources/eia.ts';
+import { createHttp } from '../../../pipeline/lib/http.ts';
 import { ctxFor, fakeHttp, type Route } from './helpers.ts';
 
 const iso = (i: number) => String.fromCharCode(65 + (i % 26), 65 + (Math.floor(i / 26) % 26), 65 + Math.floor(i / 676));
@@ -236,5 +239,73 @@ describe('ioda', () => {
     const r = await ioda.fetch(ctxFor(fakeHttp([[/outages\/events/, () => ({ type: 'outages.events', requestParameters: { until: 1 }, data: events })]], calls)));
     expect(calls).toHaveLength(13);
     expect(JSON.parse(body(r, 'outage_events.json'))).toEqual({ type: 'outages.events', data: events });
+  });
+});
+
+describe('comtrade', () => {
+  const rows = (n: number, cmd: string, period: number) => Array.from({ length: n }, (_, i) => ({ period, reporterCode: i + 1, reporterISO: iso(i), reporterDesc: 'x', flowCode: 'M', partnerCode: 0, partnerISO: 'W00', cmdCode: cmd, netWgt: 1000, primaryValue: 5, isReported: true }));
+  const env = { COMTRADE_API_KEY: 'k', COMTRADE_PAUSE_MS: '0' };
+
+  it('plans every group and year, newest first, with the three latest years refetched', () => {
+    const p = plan(new Date('2026-10-24T00:00:00Z'));
+    expect(p[0]).toEqual({ group: 'crude', year: 2025, recent: true });
+    expect(p.filter((x) => x.recent).map((x) => x.year)).toEqual(expect.arrayContaining([2025, 2024, 2023]));
+    expect(p.at(-1)!.year).toBe(2015);
+    expect(trim([{ period: 2024, reporterDesc: 'China', partnerCode: 0, primaryValue: 3 }])).toEqual([{ period: 2024, partnerCode: 0, primaryValue: 3 }]);
+  });
+
+  it('fetches what is due within the call budget, carries the rest over, and sends the key as a header', async () => {
+    const calls: string[] = [];
+    const headers: string[] = [];
+    const http = createHttp((async (url: string, init?: RequestInit) => {
+      calls.push(String(url));
+      headers.push(String((init?.headers as Record<string, string>)['Ocp-Apim-Subscription-Key']));
+      const period = Number(/period=(\d{4})/.exec(String(url))![1]);
+      const cmd = /cmdCode=([^&]+)/.exec(String(url))![1].split(',')[0];
+      return new Response(JSON.stringify({ count: 100, data: rows(period === 2025 ? 5 : 100, cmd, period) }), { status: 200 });
+    }) as typeof fetch, 0);
+    const old = JSON.stringify({ count: 1, data: rows(100, '2709', 2016) });
+    const ctx = { ...ctxFor(http, { 'crude-2016.json': old }), env: { ...env, COMTRADE_MAX_CALLS: '25' } };
+    const r = await comtrade.fetch(ctx);
+    expect(calls).toHaveLength(25);
+    expect(headers.every((h) => h === 'k')).toBe(true);
+    expect(calls.every((u) => /partner2Code=0&customsCode=C00&motCode=0/.test(u))).toBe(true);
+    // 2025 has too few reporters so far: not saved. 2016 is carried over without a call.
+    expect(r.files.some((f) => f.name.endsWith('-2025.json'))).toBe(false);
+    expect(r.files.find((f) => f.name === 'crude-2016.json')!.body).toBe(old);
+    expect(JSON.parse(body(r, 'crude-2024.json')).data[0]).not.toHaveProperty('reporterDesc');
+    expect(r.dataTo).toBe('2024');
+  });
+
+  it('refuses an answer at the row limit and a sharp drop in reporters', async () => {
+    const big = fakeHttp([[/comtrade|get\/C/, () => ({ count: 100_000, data: rows(100_000, '2709', 2024) })]]);
+    await expect(comtrade.fetch({ ...ctxFor(big), env: { ...env, COMTRADE_MAX_CALLS: '1' } })).rejects.toThrow(/limit/);
+    const small = fakeHttp([[/get\/C/, () => ({ count: 50, data: rows(50, '2709', 2025) })]]);
+    const prev = JSON.stringify({ count: 100, data: rows(100, '2709', 2025) });
+    await expect(comtrade.fetch({ ...ctxFor(small, { 'crude-2025.json': prev }), env: { ...env, COMTRADE_MAX_CALLS: '1' } })).rejects.toThrow(/reporters now against 100/);
+  });
+});
+
+describe('eia', () => {
+  const env = { EIA_API_KEY: 'k' };
+  const intl = (series: readonly (readonly string[])[]) => series.flatMap(([p, a, u]) => Array.from({ length: 120 }, (_, i) => ({ period: '2024', productId: Number(p), productName: 'x', activityId: Number(a), activityName: a === '1' ? 'Production' : a === '2' ? 'Consumption' : 'Reserves', countryRegionId: iso(i), countryRegionTypeId: 'c', unit: u, value: i === 0 ? '--' : '12' })));
+  const months = (s: string) => Array.from({ length: 120 }, (_, i) => ({ period: `${2016 + Math.floor(i / 12)}-${String((i % 12) + 1).padStart(2, '0')}`, series: s, value: 70 }));
+  const routes = (lastMonth = true): Route[] => [
+    [/international\/data.*productId\]\[\]=57/, () => ({ response: { total: 480, data: [...intl(EIA_SERIES.oil), { period: '2024', productId: 57, activityId: 3, activityName: 'Imports', countryRegionId: 'USA', unit: 'TBPD', value: '1' }] }, apiVersion: '2.1.8' })],
+    [/international\/data.*productId\]\[\]=26/, () => ({ response: { total: 360, data: intl(EIA_SERIES.gas) }, apiVersion: '2.1.8' })],
+    [/pri\/spt/, () => ({ response: { total: 240, data: [...months('RBRTE'), ...months('RWTC').slice(0, lastMonth ? 120 : 100)] } })],
+  ];
+
+  it('saves oil, gas and prices in the API format, without empty values or other series', async () => {
+    const r = await eia.fetch({ ...ctxFor(fakeHttp(routes())), now: new Date('2026-02-10T00:00:00Z'), env });
+    expect(r.files.map((f) => f.name)).toEqual(['oil_international.json', 'gas_international.json', 'oil_spot_prices.json']);
+    const o = JSON.parse(body(r, 'oil_international.json')).response.data;
+    expect(o).toHaveLength(4 * 119);
+    expect(o.some((x: { activityName: string }) => x.activityName === 'Imports')).toBe(false);
+    expect(r.dataTo).toBe('2024');
+  });
+
+  it('refuses a price series that stopped updating', async () => {
+    await expect(eia.fetch({ ...ctxFor(fakeHttp(routes(false))), now: new Date('2026-02-10T00:00:00Z'), env })).rejects.toThrow(/RWTC ends in 2024-04/);
   });
 });

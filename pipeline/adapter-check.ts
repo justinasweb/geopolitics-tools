@@ -13,6 +13,8 @@ import { minerals } from '../src/adapters/minerals.ts';
 import { chokepoints } from '../src/adapters/portwatch.ts';
 import { prices } from '../src/adapters/prices.ts';
 import { treasuryHistory, treasuryHolders } from '../src/adapters/treasury.ts';
+import { oilPrices } from '../src/adapters/eia.ts';
+import { comtrade } from '../src/adapters/comtrade.ts';
 import { FLOWS, loadFlows } from '../src/data/flows.ts';
 import { INDICATORS, latestYear, registry } from '../src/data/indicators.ts';
 
@@ -56,6 +58,8 @@ const VIEWS: [string, () => string][] = [
   ['minerals', () => minerals(raw).map((m) => `${m.id} ${m.year}`).join(', ')],
   ['gem', () => { const g = gem(raw); return `${g.pipelines.length} pipelines, ${g.terminals.length} terminals, ${g.plants.length} plants`; }],
   ['treasury', () => `${treasuryHolders(raw).holders.length} holders to ${treasuryHolders(raw).months[0]}`],
+  ['oil prices', () => { const p = oilPrices(raw); return `${p.brent.length} Brent months to ${p.brent.at(-1)?.date}, ${p.wti.length} WTI`; }],
+  ['comtrade', () => { const r = comtrade(raw); return `${r.length} rows, ${new Set(r.map((x) => x.reporter)).size} reporters, ${[...new Set(r.map((x) => x.year))].sort().join(' ')}`; }],
   ['treasury history', () => `${Object.keys(treasuryHistory(raw)).length} places`],
 ];
 for (const [name, f] of VIEWS) {

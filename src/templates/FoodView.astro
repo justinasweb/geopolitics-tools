@@ -19,7 +19,7 @@ import '../styles/atlas/tools.css';
 import { MAP_TEXT } from '../i18n/map.en';
 import { INDICATOR_TEXT } from '../i18n/en';
 import { FOOD_NOTES, FOOD_TEXT as F } from '../i18n/food.en';
-import { COMMODITIES, FOOD_LAYERS, TOP_FLOWS, balanceOf, estimated, mtShort, commodityPages, foodPage, foodPages, lede, mt, netText, shareOf, sourceOf, summary, valueText, worldChange } from '../lib/food';
+import { COMMODITIES, FOOD_LAYERS, TOP_FLOWS, balanceOf, estimated, flowSourceOf, mtShort, commodityPages, foodPage, foodPages, lede, mt, netText, shareOf, sourceOf, summary, valueText, worldChange } from '../lib/food';
 import { refreshed, data } from '../lib/data';
 import { place } from '../lib/places';
 import { countryHref, indicatorHref, live, route } from '../lib/routes';
@@ -41,6 +41,7 @@ const title = L.title(T.pick);
 const sub = T.basis === 'tonnes' ? F.sub : `${F.sub}, ${T.basis}`;
 const source = sourceOf(p);
 const updated = refreshed('faostat');
+const flowsUpdated = p.crop ? updated : refreshed('comtrade');
 const y = p.byYear[p.year];
 const prevYear = p.years.includes(p.year - 1) ? p.year - 1 : null;
 const prev = prevYear ? p.byYear[prevYear] : null;
@@ -238,7 +239,7 @@ const bars = (rs: FoodRow[], max: number) => rs.map((r) => ({ id: r.id, text: mt
           <h2 class="gt-h2" id="flows">{F.flowsLabel(p.flowYear!)}</h2>
           <div class="gt-tablewrap" style="--gt-table-h:none" tabindex="0" role="region" aria-label={F.flowsLabel(p.flowYear!)}>
             <table class="gt-table" data-gt-sort>
-              <caption class="gt-caption">{F.flowsCaption(flows.length, p.flowYear!)}</caption>
+              <caption class="gt-caption">{F.flowsCaption(flows.length, p.flowYear!, !p.crop)}</caption>
               <thead><tr>
                 <th scope="col" data-key="f"><button type="button">{F.from}</button></th>
                 <th scope="col" data-key="t"><button type="button">{F.to}</button></th>
@@ -255,7 +256,7 @@ const bars = (rs: FoodRow[], max: number) => rs.map((r) => ({ id: r.id, text: mt
               </tbody>
             </table>
           </div>
-          <SourceLine source={source} parts={[String(p.flowYear)]} updated={updated} />
+          <SourceLine source={flowSourceOf(p)} parts={[String(p.flowYear)]} updated={flowsUpdated} />
         </>
       )}
     </div>

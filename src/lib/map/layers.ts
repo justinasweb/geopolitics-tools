@@ -539,7 +539,7 @@ function foodLayer(p: FoodPage): LayerFile {
   }
   return {
     id: `food-${p.id}`, scale: trade ? 'div' : 'seq', years: p.years, year: p.year, ticks: p.ticks, ends: trade ? F.ends : undefined,
-    missing: { none: F.none, notyet: data.some((d) => Object.values(d.v).some((e) => e[0] === -1)) ? F.notYetLegend : undefined }, source: sourceOf(p),
+    missing: { none: F.none, notyet: data.some((d) => Object.values(d.v).some((e) => e[0] === -1)) ? F.notYetLegend : undefined }, source: p.flows.length && !p.crop ? `${sourceOf(p)}; ${F.sourceFertFlows}` : sourceOf(p),
     text: {
       ...(c.words as LayerFile['text']),
       kicker: `${L.title(T.pick)} · {year}`, measure: L.measure, shareLabel: trade ? L.figure : F.share, none: F.notListed(0).replace('0', '{year}'),
@@ -566,7 +566,7 @@ function foodMore(p: FoodPage): Record<string, PanelBlock[]> {
   const out: Record<string, PanelBlock[]> = {};
   const others = foodPages().filter((o) => o.layer === p.layer && o.commodity !== p.commodity);
   const ids = new Set(p.years.flatMap((y) => p.byYear[y].rows.map((r) => r.id)));
-  const flows = p.crop ? foodPages().find((o) => o.commodity === p.commodity && o.layer === 'trade') : undefined;
+  const flows = foodPages().find((o) => o.commodity === p.commodity && o.layer === 'trade');
   for (const id of ids) {
     const blocks: PanelBlock[] = [];
     const b = balanceOf(p, id, p.year);
@@ -580,7 +580,7 @@ function foodMore(p: FoodPage): Record<string, PanelBlock[]> {
         const total = mine.reduce((t, f) => t + f.amount, 0);
         if (!mine.length) continue;
         blocks.push({
-          label, caption: F.partnersCaption,
+          label, caption: p.crop ? F.partnersCaption : F.partnersCaptionFert,
           rows: mine.slice(0, 5).map((f) => ({ name: nameOf2(dir === 'to' ? f.from : f.to), value: mt(f.amount), note: F.ofListed(shareText(f.amount / total)) })),
           more: mine.length > 5 ? F.morePartners(mine.length - 5) : undefined,
         });
