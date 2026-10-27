@@ -18,7 +18,9 @@ import ConflictView from '../templates/ConflictView.astro';
 import BlocView from '../templates/BlocView.astro';
 import HistoryView from '../templates/HistoryView.astro';
 import RiverView from '../templates/RiverView.astro';
+import ExplorerPage from '../templates/ExplorerPage.astro';
 import { BUILT_KINDS, routes, type Route } from '../lib/routes';
+import type { View } from '../lib/explorer/model';
 
 export const getStaticPaths = (() =>
   routes().filter((r) => r.live && BUILT_KINDS.includes(r.kind))
@@ -43,3 +45,4 @@ const [a, b] = route.id.split(',');
 {route.kind === 'view' && route.id.startsWith('energy:') && <EnergyView id={route.id.split(':')[1]} />}
 {route.kind === 'view' && route.id.startsWith('conflict:') && <ConflictView />}
 {route.kind === 'view' && !/^(minerals|disasters|food|energy|conflict|blocs|history|rivers):/.test(route.id) && <IndicatorView id={route.id.split(':')[1]} />}
+{route.kind === 'tool' && route.id.startsWith('explorer:') && <ExplorerPage view={route.id.split(':')[1] as View} />}

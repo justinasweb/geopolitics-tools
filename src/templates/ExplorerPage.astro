@@ -1,0 +1,71 @@
+---
+// The Explorer (ExplorerPage, ExplorerControls and ExplorerCharts designs): any registry measure as a table, over
+// time or as a scatter. The build draws each view's default settings, so the page reads without scripts; the
+// browser script (src/scripts/explorer.ts) then loads the measures the reader picks and keeps every setting in the
+// address. On a phone the controls move into a settings sheet.
+import Page from '../layouts/Page.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import Icon from '../components/Icon.astro';
+import '../styles/atlas/tools.css';
+import '../styles/atlas/table.css';
+import '../styles/atlas/filters.css';
+import '../styles/atlas/country.css';
+import '../styles/atlas/years.css';
+import '../styles/atlas/legend.css';
+import '../styles/atlas/source.css';
+import '../styles/atlas/mapview.css';
+import '../styles/atlas/explorer.css';
+import { EXPLORER_TEXT as T } from '../i18n/explorer.en';
+import { explorerData, explorerMeta } from '../lib/explorer';
+import { parseState, queryOf, VIEWS, type View } from '../lib/explorer/model';
+import { controlsHtml, needed, outputHtml, presetsHtml, urlbarHtml, viewSource, type Data } from '../lib/explorer/render';
+import { paths } from '../lib/routes';
+import { breadcrumbs } from '../lib/structured';
+
+interface Props { view: View }
+const { view } = Astro.props;
+const meta = explorerMeta();
+const state = parseState(view, new URLSearchParams(), meta);
+const data: Data = Object.fromEntries(needed(state).map((id) => [id, explorerData(id)]));
+const viewPaths = Object.fromEntries(VIEWS.map((v) => [v, paths.explorer(v)]));
+const path = viewPaths[view];
+const url = new URL(`${path}?${queryOf(state)}`, Astro.site).href;
+const crumbs = [{ label: T.crumb }, { label: T.title }];
+const n = meta.measures.length;
+const json = JSON.stringify({ meta, paths: viewPaths, site: Astro.site?.href ?? '' }).replace(/</g, '\\u003c');
+---
+<Page title={`${T.title}: ${T.views[view]}`} description={T.description[view](n)} container="tl" mainClass="gt-exp" image={paths.image('tools', `explorer-${path.split('/')[2] ?? 'table'}`)}
+  jsonld={[breadcrumbs(crumbs)]}>
+  <header class="gt-tlhead">
+    <Breadcrumbs items={crumbs} />
+    <h1 class="gt-title gt-tlhead__t">{T.title}</h1>
+    <p class="gt-lede gt-tlhead__a">{T.lede(n)}</p>
+    <div class="gt-presets" data-x-presets set:html={presetsHtml(state, meta, viewPaths)} />
+  </header>
+  <nav class="gt-tabs" aria-label={T.viewsLabel}>
+    <ul>{VIEWS.map((v) => <li><a href={viewPaths[v]} aria-current={v === view ? 'page' : undefined}>{T.views[v]}<span class="gt-tabs__url">{viewPaths[v]}</span></a></li>)}</ul>
+  </nav>
+  <p class="gt-urlbar" data-x-url set:html={urlbarHtml(url)} />
+  <div class="gt-expbar">
+    <span class="gt-expbar__t">{T.views[view]}</span>
+    <button class="gt-btn gt-btn--quiet" type="button" data-x-open><Icon name="filter" />{T.settings}</button>
+  </div>
+  <div class="gt-expctl" data-x-ctl="xa" set:html={controlsHtml(state, meta, data, 'xa')} />
+  <div class="gt-expout" data-x-out data-view={view} set:html={outputHtml(state, meta, data)} />
+  <p class="gt-caption" data-x-note hidden></p>
+  <div data-x-src set:html={viewSource(state, meta, data)} />
+  <dialog class="gt-fsheet gt-xsheet" aria-labelledby="x-sheet-t" data-x-sheet>
+    <div class="gt-fsheet__bar">
+      <h2 class="gt-h3" id="x-sheet-t">{T.settingsTitle}</h2>
+      <button class="gt-iconbtn" type="button" data-x-close aria-label={T.done}><Icon name="close" /></button>
+    </div>
+    <div class="gt-fsheet__body" data-x-ctl="xb" set:html={controlsHtml(state, meta, data, 'xb')} />
+    <div class="gt-fsheet__foot gt-xsheet__foot"><button class="gt-btn" type="button" data-x-close>{T.done}</button></div>
+  </dialog>
+  <script type="application/json" id="x-meta" set:html={json} />
+</Page>
+
+<script>
+  import { initExplorer } from '../scripts/explorer';
+  initExplorer();
+</script>
