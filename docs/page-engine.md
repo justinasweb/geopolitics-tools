@@ -50,6 +50,7 @@ servers never see the part after `#`.
 | Indicator | Every registry measure with data in the snapshot. Fewer than 20 places reporting in the common year: built, `noindex`. Measures waiting on a key or permission have no page and are listed on the index as waiting |
 | About, Methodology, Privacy | `src/content/pages/*.md`. Each shows the draft banner until its front matter says `approved: true` |
 | Sources | Generated from the source registry, the licence table and the last snapshot; corrections from `src/data/corrections.csv` |
+| Explorer | `/explorer` (table), `/explorer/over-time`, `/explorer/scatter`: every measure with an indicator page. See "Explorer" below |
 
 A sample build has 129 country pages and 37 indicator pages; the real snapshot has more sources and more places.
 
@@ -74,6 +75,28 @@ A sample build has 129 country pages and 37 indicator pages; the real snapshot h
 All page text and sentence templates are in `src/i18n/pages.en.ts` (and the registry's labels in `src/i18n/en.ts`).
 Templates take figures already formatted by `src/lib/format.ts` and return sentences, so another language is another
 file with the same keys, written in that language from the same data.
+
+## Explorer
+
+Any registry measure as a table (up to 8 columns), over time (one measure, up to 8 countries) or as a scatter (two
+measures, optional bubble size, year slider with Play). `src/lib/explorer.ts` writes one compact file per measure
+(`/explorer/data/<id>.json`, six significant figures, counts whole) and the page's list of measures, places and blocs.
+`src/lib/explorer/render.ts` draws every view as HTML strings: the build draws each view's default settings, so the
+page reads without scripts, and `src/scripts/explorer.ts` redraws with the same code in the browser.
+
+- **Address.** Every setting is in the query string (`m`, `sort`, `dir`, `bloc`, `year`, `find`; `c`, `index`, `log`;
+  `x`, `y`, `size`, `pin`), rewritten with `history.replaceState`. Unknown measures or places are dropped. The canonical
+  is the path without the query.
+- **Years.** A table column shows the measure's common year (or the chosen year); a country missing it shows the
+  latest of the two years before, marked with its year. A scatter year is offered when at least 20 countries have
+  both figures; it opens on the latest such year no later than either measure's common year.
+- **Log scale.** On when the values shown are all above zero and span more than 30 times; the reader can turn it off
+  (`log=0`) or on (`log=1`).
+- **Correlation.** Pearson's r of the points shown (of their logarithms on log axes), said in words, always with
+  "A link between two measures is not proof that one causes the other."
+- **CSV.** Built in the browser from the table shown; measures whose licence does not allow downloads are left out,
+  with a note saying which.
+- **Starting points.** `PRESETS` in `src/lib/explorer/model.ts`; one is offered only when all its measures are live.
 
 ## Share images
 

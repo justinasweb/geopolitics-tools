@@ -30,6 +30,9 @@ import { RIVERS_TEXT } from '../../../i18n/water.en';
 import { foodPage, lede as foodLede, mt, netText, shareOf as foodShare } from '../../../lib/food';
 import { amount as energyAmount, energyPage, lede as energyLede, shareOf as energyShare, valueText as energyValue } from '../../../lib/energy';
 import { ENERGY_TEXT } from '../../../i18n/energy.en';
+import { EXPLORER_TEXT } from '../../../i18n/explorer.en';
+import { explorerMeasures } from '../../../lib/explorer';
+import type { View } from '../../../lib/explorer/model';
 
 export const getStaticPaths = (() => {
   if (process.env.GT_FAST === '1') return [{ params: { kind: 'page', name: 'default' }, props: { route: null } }];
@@ -166,6 +169,10 @@ function card(r: Route | null): Card {
       kicker: VIEW_TEXT[family].section, title: p.text.title, caption: viewLede(p) ?? undefined, source: `${creditOf(p)}, ${p.year}`,
       bars: rows.map((x) => ({ label: nameOf(x.id), value: Math.abs(x.value), text: valueText(p, x.value) })),
     };
+  }
+  if (r.kind === 'tool' && r.id.startsWith('explorer:')) {
+    const view = r.id.split(':')[1];
+    return { kicker: EXPLORER_TEXT.title, title: EXPLORER_TEXT.views[view], caption: EXPLORER_TEXT.description[view as View](explorerMeasures().length) };
   }
   return { kicker: OG_TEXT.pageKicker, title: TITLES[r.id || r.kind] ?? r.id };
 }

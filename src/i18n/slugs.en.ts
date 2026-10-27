@@ -9,7 +9,11 @@ export const SECTION_SLUGS = {
   emissions: 'emissions', refugees: 'refugees', disasters: 'disasters', food: 'food', blocs: 'blocs',
   space: 'space', ai: 'ai', sanctions: 'sanctions', internet: 'internet',
   water: 'water', 'chinese-lending': 'chinese-lending', arms: 'arms', oil: 'oil', gas: 'gas', electricity: 'electricity', conflict: 'conflict', 'food-crises': 'food-crises',
+  explorer: 'explorer',
 } as const;
+
+/** The Explorer's views after /explorer; the table is /explorer itself. */
+export const EXPLORER_SLUGS: Record<string, string> = { table: '', lines: 'over-time', scatter: 'scatter' };
 
 /** Map view layers after their section (/emissions/per-person), by registry id; the first layer of a section is the section itself (''). */
 export const VIEW_SLUGS: Record<string, string> = {

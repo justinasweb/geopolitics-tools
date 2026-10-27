@@ -6,7 +6,7 @@
 //
 // Map views, hubs and tools are registered but not live until their phase builds them; the menu and every link
 // skip routes that are not live, so nothing links to a page that does not exist.
-import { SECTION_SLUGS, INDICATOR_SLUGS, COMPARE_JOIN, VIEW_SLUGS, DISASTER_SLUGS, FOOD_SLUGS, FOOD_LAYER_SLUGS, ENERGY_LAYER_SLUGS, BLOC_SLUGS } from '../i18n/slugs.en.ts';
+import { SECTION_SLUGS, INDICATOR_SLUGS, COMPARE_JOIN, VIEW_SLUGS, DISASTER_SLUGS, FOOD_SLUGS, FOOD_LAYER_SLUGS, ENERGY_LAYER_SLUGS, BLOC_SLUGS, EXPLORER_SLUGS } from '../i18n/slugs.en.ts';
 import { NAV_HUBS, NAV_UTIL } from '../data/nav.ts';
 import { INDICATORS } from '../data/indicators.ts';
 import { countryModel, countryPages, DOSSIERS } from './country.ts';
@@ -23,12 +23,14 @@ import { blocPages } from './blocview.ts';
 import { BLOCS_CHECKED } from './blocs.ts';
 import { HISTORY_BLOCS } from './history.ts';
 import { riverIds } from './rivers.ts';
+import { explorerMeasures } from './explorer.ts';
+import { VIEWS as EXPLORER_VIEWS } from './explorer/model.ts';
 
 export type Lang = 'en';
 export type Kind = 'countries' | 'country' | 'compare' | 'indicators' | 'indicator' | 'page' | 'sources' | 'view' | 'hub' | 'tool';
 
 /** The kinds built so far (src/pages/[...path].astro); hubs and tools come in later phases. */
-export const BUILT_KINDS: Kind[] = ['countries', 'country', 'compare', 'indicators', 'indicator', 'page', 'sources', 'view'];
+export const BUILT_KINDS: Kind[] = ['countries', 'country', 'compare', 'indicators', 'indicator', 'page', 'sources', 'view', 'tool'];
 
 export interface Route {
   /** Stable internal key: "country:DEU", "indicator:milpct", "page:about". Slugs can change; keys do not. */
@@ -72,6 +74,8 @@ export const paths = {
   history: (bloc: string) => `/${S.blocs}/${BLOC_SLUGS[bloc]}/history`,
   /** Disputed rivers: /water/rivers/nile. */
   river: (id: string) => `/${S.water}/rivers/${id}`,
+  /** Explorer: /explorer (table), /explorer/over-time, /explorer/scatter. */
+  explorer: (view: string) => `/${S.explorer}${EXPLORER_SLUGS[view] ? `/${EXPLORER_SLUGS[view]}` : ''}`,
   /** Disasters: /disasters, /disasters/earthquakes. */
   disasters: (kind: string) => `/${S.disasters}${DISASTER_SLUGS[kind] ? `/${DISASTER_SLUGS[kind]}` : ''}`,
 };
@@ -193,12 +197,24 @@ function build(): Route[] {
     });
   }
 
+  // Explorer (phase 6): the table is the tool's own key (tool:explorer, the menu's link), the other views after it.
+  const tools = new Set<string>();
+  if (explorerMeasures().length >= 2) {
+    tools.add('explorer');
+    for (const v of EXPLORER_VIEWS) {
+      out.push({
+        key: v === 'table' ? 'tool:explorer' : `tool:explorer:${v}`, kind: 'tool', lang, path: paths.explorer(v), live: true, indexed: true,
+        aliases: [], id: `explorer:${v}`, image: paths.image('tools', `explorer-${EXPLORER_SLUGS[v] || 'table'}`), lastmod: snapshotDate,
+      });
+    }
+  }
+
   // Not built yet (phases 5–8): registered so links, the menu and redirects know about them.
   for (const hub of NAV_HUBS) {
     out.push({ key: `hub:${hub.id}`, kind: 'hub', lang, path: hub.path, live: false, indexed: false, aliases: [], id: hub.id });
     for (const v of hub.views) if (!families.has(v.id)) out.push({ key: `view:${v.id}`, kind: 'view', lang, path: v.path, live: false, indexed: false, aliases: [], id: v.id });
   }
-  for (const u of NAV_UTIL) if (u.id !== 'countries') out.push({ key: `tool:${u.id}`, kind: 'tool', lang, path: u.path, live: false, indexed: false, aliases: [], id: u.id });
+  for (const u of NAV_UTIL) if (u.id !== 'countries' && !tools.has(u.id)) out.push({ key: `tool:${u.id}`, kind: 'tool', lang, path: u.path, live: false, indexed: false, aliases: [], id: u.id });
   return out;
 }
 

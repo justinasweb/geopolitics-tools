@@ -120,6 +120,15 @@ for (const [name, viewport] of [['desktop', { width: 1440, height: 900 }], ['pho
     await page.screenshot({ path: `${out}/minerals-${name}.png` });
   }
 
+  // The Explorer's scatter: the chart draws after its data loads and the address keeps the settings.
+  errors.length = 0;
+  await page.goto(`${base}/explorer/scatter`, { waitUntil: 'networkidle' });
+  check(await page.locator('svg.gt-sc circle').count() > 2, `${name}: the Explorer scatter draws`);
+  check(/[?&]x=/.test(page.url()), `${name}: the Explorer keeps its settings in the address`);
+  check(!(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth)), `${name}: /explorer/scatter has no sideways scroll`);
+  check(errors.length === 0, `${name}: /explorer/scatter has no console errors${errors.length ? ` (${errors.join('; ')})` : ''}`);
+  await page.screenshot({ path: `${out}/explorer-${name}.png`, fullPage: true });
+
   // The design system's components page (hidden, noindex): renders without errors or sideways scroll.
   errors.length = 0;
   await page.goto(`${base}/dev/components`, { waitUntil: 'networkidle' });
