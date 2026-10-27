@@ -3,7 +3,7 @@
 // Rows whose source is not in the snapshot yet (oil and gas: EIA, partners from UN Comtrade; chips: UN Comtrade) say so.
 import { food, type Balance, type Crop } from '../adapters/faostat.ts';
 import { gas, oil, type Fuel, type Oil } from '../adapters/eia.ts';
-import { FLOWS, loadFlows, type Flows } from '../data/flows.ts';
+import { FLOWS, loadFlows, topSupplier, type Flows } from '../data/flows.ts';
 import { shared } from './data.ts';
 
 export const RESOURCES = ['oil', 'gas', 'wheat', 'maize', 'rice', 'soy', 'potash', 'phosphate', 'arms', 'chips'] as const;
@@ -34,6 +34,8 @@ export interface DepRow {
   tag?: DepTag;
   /** Arms and chips: the main supplier and its share of imports. */
   main?: { id: string; share: number };
+  /** Food, fuel and fertiliser importers: the main supplier and its share of imports, from the trade flows. */
+  top?: { id: string; share: number };
   /** Main suppliers, or buyers for an exporter. */
   partners: string[];
   buyers?: boolean;
@@ -79,6 +81,8 @@ function fromBalance(resource: Resource, b: Balance | undefined, id: string, flo
     const buyers = row.tag === 'exp';
     row.buyers = buyers;
     row.partners = f.pairs.filter((p) => (buyers ? p.from === id : p.to === id)).slice(0, 3).map((p) => (buyers ? p.to : p.from));
+    const t = !buyers && (row.reliance ?? 0) > 0 ? topSupplier(f, id) : null;
+    if (t) row.top = { id: t.from, share: t.share };
   }
   return row;
 }
@@ -111,6 +115,9 @@ function concentration(resource: Resource, id: string): DepRow {
   if (!total) return { ...base, state: 'none', period: f.period };
   return { ...base, state: 'ok', period: f.period, main: { id: ins[0].from, share: ins[0].amount / total }, partners: ins.slice(0, 3).map((p) => p.from) };
 }
+
+/** The tool and the country tables have something to show: the food or the fuel balances are in the snapshot. */
+export const depsLive = () => Boolean(foodData() || fuels.oil());
 
 /** The ten rows for a place. */
 export function dependencies(id: string): DepRow[] {

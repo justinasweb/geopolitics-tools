@@ -1,0 +1,66 @@
+/* Atlas design system: Dependencies (batch 5, DependencyGrid and DependenciesPage).
+   Ported from the design system's bundle.css; colours and fonts come from tokens.css. */
+
+.gt-spof { display: grid; gap: 12px; padding: 16px; border: 1px solid var(--ink); background: var(--paper-raised); }
+.gt-spof__head { display: grid; gap: 4px; }
+.gt-spof__head .gt-h2, .gt-spof__head .gt-caption { margin: 0; }
+.gt-spof__list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.gt-spof__list li { display: grid; gap: 6px; align-content: start; padding: 12px; border: 1px solid var(--rule); background: var(--paper); }
+.gt-spof__h { display: flex; justify-content: space-between; gap: 8px; align-items: center; font: 600 16px/22px var(--sans); }
+.gt-spof__h b { min-width: 0; }
+.gt-spof__h b a { color: var(--ink); }
+.gt-spof__list p { margin: 0; font: 400 14px/20px var(--sans); color: var(--ink); }
+.gt-spof__more .gt-spof__n--phone, .gt-spof__more .gt-spof__phonebtn { display: none; }
+.gt-spof__more { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; color: var(--ink-muted); font: 400 14px/20px var(--sans); }
+
+.gt-dg { --dgc: var(--div-4); --dgt: color-mix(in srgb, var(--div-4) 45%, var(--paper-raised)); }
+.gt-dg--1 { --dgc: var(--div-1); --dgt: color-mix(in srgb, var(--div-2) 40%, var(--paper-raised)); }
+.gt-dg--2 { --dgc: var(--div-2); --dgt: color-mix(in srgb, var(--div-3) 45%, var(--paper-raised)); }
+.gt-dg--3 { --dgc: var(--div-3); --dgt: color-mix(in srgb, var(--div-3) 18%, var(--paper-raised)); }
+.gt-dg--5 { --dgc: var(--div-5); --dgt: color-mix(in srgb, var(--div-5) 22%, var(--paper-raised)); }
+.gt-dg--6 { --dgc: var(--div-7); --dgt: color-mix(in srgb, var(--div-6) 40%, var(--paper-raised)); }
+.gt-dg--c { --dgc: var(--rule-strong); --dgt: var(--paper-raised); }
+/* No figure: no tint and no bar; the dash and the words under it say why. */
+.gt-dg--0 { --dgc: transparent; --dgt: transparent; }
+.gt-dg--0 .gt-dg__v, .gt-dg--0 .gt-dg__s { color: var(--ink-muted); font-weight: 400; }
+.gt-dgtbl td.gt-dg { background: var(--dgt); box-shadow: inset 5px 0 0 var(--dgc); padding: 8px 8px 8px 13px; vertical-align: top; min-width: 76px; border-right: 1px solid var(--paper); text-align: left; }
+.gt-dg__v { display: block; font: 700 15px/20px var(--sans); color: var(--ink); font-variant-numeric: tabular-nums; }
+.gt-dg__s { display: block; font: 400 12px/16px var(--sans); color: var(--ink); }
+.gt-dg--c .gt-dg__v { font-weight: 600; }
+.gt-dg--c { background-image: repeating-linear-gradient(135deg, transparent 0 6px, color-mix(in srgb, var(--rule) 60%, transparent) 6px 7px) !important; }
+.gt-dgtbl tbody th { white-space: nowrap; }
+.gt-dgtbl thead th:nth-last-child(-n+2) { background: var(--paper-sunk); }
+.gt-dgtbl tr.is-found th { background: var(--brand-soft); box-shadow: inset 4px 0 0 var(--brand); }
+.gt-dgwrap + .gt-caption { margin: 8px 0 0; }
+.gt-dglegend { position: static; box-shadow: none; padding: 0; border: 0; background: none; display: grid; gap: 8px; }
+.gt-dglegend .gt-caption { margin: 0; }
+.gt-dglegend__row { display: flex; flex-wrap: wrap; gap: 6px; }
+.gt-dglegend__k { background: var(--dgt); box-shadow: inset 5px 0 0 var(--dgc); padding: 6px 10px 6px 14px; font: 600 13px/18px var(--sans); color: var(--ink); }
+
+.gt-dgphone { display: none; }
+.gt-dgcard { border: 1px solid var(--rule-strong); background: var(--paper-raised); padding: 14px; display: grid; gap: 10px; }
+.gt-dgcard .gt-h3 { margin: 0; }
+.gt-dgcard ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.gt-dgcard__r { display: grid; grid-template-columns: 90px minmax(0, 1fr); gap: 8px; align-items: stretch; }
+.gt-dgcard__c { font: 600 14px/20px var(--sans); align-self: center; }
+.gt-dgcard__r .gt-dg, .gt-dgrank .gt-dg { display: flex; flex-wrap: wrap; gap: 0 10px; align-items: baseline; background: var(--dgt); box-shadow: inset 5px 0 0 var(--dgc); padding: 6px 8px 6px 13px; }
+.gt-dgrank { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.gt-dgrank li { display: grid; grid-template-columns: 24px 110px minmax(0, 1fr); gap: 8px; align-items: center; }
+.gt-dgrank__n { font: 600 13px/18px var(--sans); color: var(--ink-muted); text-align: right; }
+.gt-dgrank__c { font: 600 14px/20px var(--sans); overflow-wrap: anywhere; }
+.gt-dgrank__c a { color: var(--ink); }
+
+@container page (max-width: 1099px) {
+  .gt-spof__list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@container page (max-width: 759px) {
+  .gt-spof { padding: 12px; }
+  .gt-spof__list { grid-template-columns: minmax(0, 1fr); }
+  .gt-spof:not(.is-all) .gt-spof__list li:nth-child(n+5) { display: none; }
+  .gt-spof__more .gt-spof__n:not(.gt-spof__n--phone):has(+ .gt-spof__n--phone) { display: none; }
+  .gt-spof__more .gt-spof__n--phone { display: inline; }
+  .gt-spof__more .gt-spof__phonebtn { display: inline-flex; }
+  .gt-dgctl, .gt-dgdesk { display: none; }
+  .gt-dgphone { display: grid; gap: 12px; }
+  .gt-dgphone .gt-seg { justify-self: start; }
+}

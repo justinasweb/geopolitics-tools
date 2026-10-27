@@ -112,7 +112,7 @@ export const NAV_TEXT = {
     blocs: ['Blocs', '19 groupings'],
     'alliance-history': ['Alliance history', 'How blocs grew'],
   } as Record<string, [string, string]>,
-  util: { countries: 'Countries', indicators: 'Indicators', atlas: 'Atlas', explorer: 'Explorer' } as Record<string, string>,
+  util: { countries: 'Countries', indicators: 'Indicators', atlas: 'Atlas', explorer: 'Explorer', dependencies: 'Dependencies' } as Record<string, string>,
   footer: { about: 'About', methodology: 'Methodology', sources: 'Sources', privacy: 'Privacy' } as Record<string, string>,
 };
 

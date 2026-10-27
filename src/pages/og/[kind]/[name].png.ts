@@ -32,6 +32,7 @@ import { amount as energyAmount, energyPage, lede as energyLede, shareOf as ener
 import { ENERGY_TEXT } from '../../../i18n/energy.en';
 import { EXPLORER_TEXT } from '../../../i18n/explorer.en';
 import { explorerMeasures } from '../../../lib/explorer';
+import { DEPS_TEXT } from '../../../i18n/dependencies.en';
 import type { View } from '../../../lib/explorer/model';
 
 export const getStaticPaths = (() => {
@@ -174,6 +175,7 @@ function card(r: Route | null): Card {
     const view = r.id.split(':')[1];
     return { kicker: EXPLORER_TEXT.title, title: EXPLORER_TEXT.views[view], caption: EXPLORER_TEXT.description[view as View](explorerMeasures().length) };
   }
+  if (r.kind === 'tool' && r.id === 'dependencies') return { kicker: DEPS_TEXT.crumb, title: DEPS_TEXT.title, caption: DEPS_TEXT.lede };
   return { kicker: OG_TEXT.pageKicker, title: TITLES[r.id || r.kind] ?? r.id };
 }
 
