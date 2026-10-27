@@ -23,6 +23,7 @@ import { blocPages } from './blocview.ts';
 import { BLOCS_CHECKED } from './blocs.ts';
 import { HISTORY_BLOCS } from './history.ts';
 import { riverIds } from './rivers.ts';
+import { depsLive } from './dependence.ts';
 import { explorerMeasures } from './explorer.ts';
 import { VIEWS as EXPLORER_VIEWS } from './explorer/model.ts';
 
@@ -76,6 +77,8 @@ export const paths = {
   river: (id: string) => `/${S.water}/rivers/${id}`,
   /** Explorer: /explorer (table), /explorer/over-time, /explorer/scatter. */
   explorer: (view: string) => `/${S.explorer}${EXPLORER_SLUGS[view] ? `/${EXPLORER_SLUGS[view]}` : ''}`,
+  /** Dependencies: /dependencies, countries against ten commodities. */
+  dependencies: () => `/${S.dependencies}`,
   /** Disasters: /disasters, /disasters/earthquakes. */
   disasters: (kind: string) => `/${S.disasters}${DISASTER_SLUGS[kind] ? `/${DISASTER_SLUGS[kind]}` : ''}`,
 };
@@ -207,6 +210,15 @@ function build(): Route[] {
         aliases: [], id: `explorer:${v}`, image: paths.image('tools', `explorer-${EXPLORER_SLUGS[v] || 'table'}`), lastmod: snapshotDate,
       });
     }
+  }
+
+  // Dependencies (phase 6): live once the food or fuel balances are in the snapshot.
+  if (depsLive()) {
+    tools.add('dependencies');
+    out.push({
+      key: 'tool:dependencies', kind: 'tool', lang, path: paths.dependencies(), live: true, indexed: true,
+      aliases: [], id: 'dependencies', image: paths.image('tools', 'dependencies'), lastmod: snapshotDate,
+    });
   }
 
   // Not built yet (phases 5–8): registered so links, the menu and redirects know about them.

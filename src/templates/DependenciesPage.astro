@@ -1,0 +1,51 @@
+---
+// Dependencies (DependenciesPage and DependencyGrid designs): every country against the ten commodities of its
+// country page's "Dependencies at a glance", with the single points of failure above. The build draws the default
+// settings, so the page reads without scripts; the browser script (src/scripts/dependencies.ts) then filters,
+// sorts and finds, keeping the settings in the address. On a phone the grid gives way to one country's card or
+// one commodity ranked.
+import Page from '../layouts/Page.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import SourceLine from '../components/SourceLine.astro';
+import '../styles/atlas/tools.css';
+import '../styles/atlas/table.css';
+import '../styles/atlas/filters.css';
+import '../styles/atlas/country.css';
+import '../styles/atlas/legend.css';
+import '../styles/atlas/source.css';
+import '../styles/atlas/explorer.css';
+import '../styles/atlas/dependencies.css';
+import { DEPS_TEXT as T } from '../i18n/dependencies.en';
+import { dependencyGrid } from '../lib/dependencies';
+import { DEFAULTS, firstLive } from '../lib/dependencies/model';
+import { controlsHtml, legendHtml, phoneHtml, spofHtml, tableHtml } from '../lib/dependencies/render';
+import { paths } from '../lib/routes';
+import { breadcrumbs } from '../lib/structured';
+
+const grid = dependencyGrid();
+const state = { ...DEFAULTS, sort: firstLive(grid) };
+const crumbs = [{ label: T.crumb }, { label: T.title }];
+const json = JSON.stringify({ grid }).replace(/</g, '\\u003c');
+---
+<Page title={T.title} description={T.description(grid.rows.length)} container="tl" mainClass="gt-deps-tool" image={paths.image('tools', 'dependencies')}
+  jsonld={[breadcrumbs(crumbs)]}>
+  <header class="gt-tlhead">
+    <Breadcrumbs items={crumbs} />
+    <h1 class="gt-title gt-tlhead__t">{T.title}</h1>
+    <p class="gt-lede gt-tlhead__a">{T.lede}</p>
+    <p class="gt-tldef">{T.definition} <a href={`${paths.page('methodology')}#import-reliance`}>{T.how}</a></p>
+    <SourceLine source={grid.credits} parts={grid.years ? [grid.years] : []} updated={grid.updated} />
+  </header>
+  <section class:list={['gt-spof', { 'is-all': state.all }]} aria-labelledby="spof-h" data-d-spof set:html={spofHtml(state, grid)} />
+  <div class="gt-expctl gt-dgctl" data-d-ctl set:html={controlsHtml(state, grid)} />
+  <div class="gt-legend gt-dglegend" set:html={legendHtml()} />
+  <div class="gt-dgdesk" data-d-out set:html={tableHtml(state, grid)} />
+  <div class="gt-dgphone" data-d-phone set:html={phoneHtml(state, grid)} />
+  <p class="gt-caption" data-d-note hidden></p>
+  <script type="application/json" id="d-grid" set:html={json} />
+</Page>
+
+<script>
+  import { initDependencies } from '../scripts/dependencies';
+  initDependencies();
+</script>

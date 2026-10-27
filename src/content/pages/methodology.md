@@ -34,9 +34,15 @@ A negative value means the country sells more than it buys. We then show exports
 
 A country that uses none of a resource, by its source, gets no share and the table says so.
 
+The Dependencies tool splits these further, to show where a country sits: imports 75% or more, 50% to 75%, 15% to 50%, roughly self-sufficient (±15%), and, for exporters, exports of 15% to 50% or over 50% of what it produces.
+
 ## Supplier concentration
 
 For arms and chips the sources give trade but not use, so we cannot say how much of what a country uses comes from abroad. These rows show the main supplier and its share of the country's imports instead, and the dependence column says "Supplier concentration only".
+
+For food, fuel and fertiliser, the Dependencies tool also shows the main supplier's share of a country's imports, from the trade flows (FAOSTAT for crops, UN Comtrade for oil, gas and fertilisers). Their year can differ from the year of the import share.
+
+A **single point of failure** is a country that imports at least half of what it uses of a resource, with at least half of those imports from one supplier.
 
 ## Five-year arms totals
 

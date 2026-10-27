@@ -54,6 +54,7 @@ export const NAV_UTIL = [
   { id: 'countries', path: '/countries' },
   { id: 'atlas', path: '/atlas' },
   { id: 'explorer', path: '/explorer' },
+  { id: 'dependencies', path: '/dependencies' },
 ];
 
 export const NAV_FOOTER = [

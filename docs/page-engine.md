@@ -51,6 +51,7 @@ servers never see the part after `#`.
 | About, Methodology, Privacy | `src/content/pages/*.md`. Each shows the draft banner until its front matter says `approved: true` |
 | Sources | Generated from the source registry, the licence table and the last snapshot; corrections from `src/data/corrections.csv` |
 | Explorer | `/explorer` (table), `/explorer/over-time`, `/explorer/scatter`: every measure with an indicator page. See "Explorer" below |
+| Dependencies | `/dependencies`: countries against the ten commodities of each country page's dependencies table, with the single points of failure. See "Dependencies" below |
 
 A sample build has 129 country pages and 37 indicator pages; the real snapshot has more sources and more places.
 
@@ -97,6 +98,23 @@ page reads without scripts, and `src/scripts/explorer.ts` redraws with the same 
 - **CSV.** Built in the browser from the table shown; measures whose licence does not allow downloads are left out,
   with a note saying which.
 - **Starting points.** `PRESETS` in `src/lib/explorer/model.ts`; one is offered only when all its measures are live.
+
+## Dependencies
+
+Every country with at least one share of use, against oil, gas, wheat, maize, rice, soybeans, potash, phosphate,
+arms and chips. `src/lib/dependencies.ts` builds the grid from the same rows as the country pages
+(`src/lib/dependence.ts`) and embeds it in the page; `src/lib/dependencies/render.ts` draws it, at build time for the
+default settings and in the browser (`src/scripts/dependencies.ts`) as the reader changes them.
+
+- **Cells.** Six bands on import reliance (75% or more, 50–75%, 15–50%, ±15%, exporting 15–50% or over 50% of
+  output), each with its value written and, for importers, the main supplier and its share of imports (ISO code).
+  Arms and chips show supplier concentration only, hatched. The cell's year is in its title.
+- **Single points of failure.** Import reliance at least 50% and at least 50% of those imports from one supplier,
+  largest supplier share first; eight shown (four on a phone) until "Show all". Computed from the rows in the bloc.
+- **Address.** `bloc`, `sort`, `dir`, `find`, and on a phone `show` (country or commodity) and `c`; `all` for every
+  single point of failure.
+- **CSV.** The rows shown. Shares of use and output from EIA and FAOSTAT, and FAOSTAT's main suppliers for the crops;
+  UN Comtrade suppliers and SIPRI arms are left out under their terms, with a note.
 
 ## Share images
 
