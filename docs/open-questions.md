@@ -73,3 +73,18 @@ Kazakhstan, Thailand, Vietnam) are not listed.
 
 **Also.** The page has no Methodology section yet; the bridge rule is stated on the page. It can join the full
 Methodology review.
+
+## Government bitcoin holdings on country profiles (raised 28 Oct 2026)
+
+**The question.** The prototype showed estimated government bitcoin holdings on country profiles. Should the site
+show them?
+
+**What the site does now.** Nothing. The spec dropped them ("weakest source, unclear terms"): the figures came from
+tracker sites that estimate holdings from on-chain analysis and news reports, with no official or research source and
+no clear licence for reuse, so they fail the source rules.
+
+**Options.**
+- Leave them out (current).
+- Wave 2: show only what governments themselves disclose (for example the US Strategic Bitcoin Reserve, El Salvador's
+  published holdings), with the date of each disclosure, for the few countries that publish. Needs a check that each
+  disclosure is regular and citable, and a note that other countries' holdings are unknown, not zero.
