@@ -55,6 +55,9 @@ export const BLOC_SLUGS: Record<string, string> = {
   usmca: 'usmca', csto: 'csto', eaeu: 'eurasian-economic-union', cis: 'cis',
 };
 
+/** Bloc overlap, after /blocs: not a grouping, so no bloc may take this slug. */
+export const BLOCS_OVERLAP_SLUG = 'overlap';
+
 /** Joins two country slugs on a Compare page: /compare/united-states-vs-china. */
 export const COMPARE_JOIN = '-vs-';
 

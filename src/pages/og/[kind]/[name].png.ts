@@ -33,6 +33,7 @@ import { ENERGY_TEXT } from '../../../i18n/energy.en';
 import { EXPLORER_TEXT } from '../../../i18n/explorer.en';
 import { explorerMeasures } from '../../../lib/explorer';
 import { DEPS_TEXT } from '../../../i18n/dependencies.en';
+import { OVERLAP_TEXT } from '../../../i18n/overlap.en';
 import { CHAIN_TEXT, CHAINS_TEXT, chainTitle } from '../../../i18n/supply-chains.en';
 import { chainLinks, chainOf } from '../../../lib/supply-chains';
 import { amount as chainAmount, totals } from '../../../lib/supply-chains/model';
@@ -180,6 +181,7 @@ function card(r: Route | null): Card {
     return { kicker: EXPLORER_TEXT.title, title: EXPLORER_TEXT.views[view], caption: EXPLORER_TEXT.description[view as View](explorerMeasures().length) };
   }
   if (r.kind === 'tool' && r.id === 'dependencies') return { kicker: DEPS_TEXT.crumb, title: DEPS_TEXT.title, caption: DEPS_TEXT.lede };
+  if (r.kind === 'tool' && r.id === 'blocs-overlap') return { kicker: OVERLAP_TEXT.crumb, title: OVERLAP_TEXT.title, caption: OVERLAP_TEXT.lede };
   if (r.kind === 'tool' && r.id === 'supply-chains') return { kicker: CHAINS_TEXT.crumb, title: CHAINS_TEXT.title, caption: CHAINS_TEXT.indexLede(chainLinks().length) };
   if (r.kind === 'tool' && r.id.startsWith('supply-chains:')) {
     const c = chainOf(r.id.split(':')[1]);

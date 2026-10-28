@@ -190,6 +190,20 @@ for (const [name, viewport] of [['desktop', { width: 1440, height: 900 }], ['pho
   }
   check(errors.length === 0, `${name}: the header has no console errors${errors.length ? ` (${errors.join('; ')})` : ''}`);
 
+  // Bloc overlap: the matrix (or, on a phone, two blocs side by side) and the membership table draw, India is the
+  // bridge country, and choosing blocs goes into the address.
+  errors.length = 0;
+  await page.goto(`${base}/blocs/overlap`, { waitUntil: 'networkidle' });
+  check(await page.locator('.gt-bridge__list li').first().innerText().then((t) => t.includes('India')), `${name}: Bloc overlap lists India as a bridge country`);
+  check(await page.locator('.gt-mxtbl td:visible, .gt-two__c:visible').count() > 2, `${name}: Bloc overlap draws the matrix or the two blocs`);
+  check(await page.locator('.gt-memtbl:visible tbody tr').count() > 5, `${name}: Bloc overlap draws the membership table`);
+  if (name === 'desktop') await page.locator('[data-o-bloc="oecd"]').click();
+  else await page.locator('[data-o-set="b"]').selectOption('quad');
+  check(/[?&](blocs|b)=/.test(page.url()), `${name}: Bloc overlap keeps the blocs in the address`);
+  check(!(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth)), `${name}: /blocs/overlap has no sideways scroll`);
+  check(errors.length === 0, `${name}: /blocs/overlap has no console errors${errors.length ? ` (${errors.join('; ')})` : ''}`);
+  await page.screenshot({ path: `${out}/blocs-overlap-${name}.png`, fullPage: true });
+
   // The design system's components page (hidden, noindex): renders without errors or sideways scroll.
   errors.length = 0;
   await page.goto(`${base}/dev/components`, { waitUntil: 'networkidle' });

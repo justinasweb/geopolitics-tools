@@ -52,6 +52,7 @@ servers never see the part after `#`.
 | Sources | Generated from the source registry, the licence table and the last snapshot; corrections from `src/data/corrections.csv` |
 | Explorer | `/explorer` (table), `/explorer/over-time`, `/explorer/scatter`: every measure with an indicator page. See "Explorer" below |
 | Dependencies | `/dependencies`: countries against the ten commodities of each country page's dependencies table, with the single points of failure. See "Dependencies" below |
+| Bloc overlap | `/blocs/overlap`: shared members between blocs, bridge countries and every country's memberships, from `src/data/blocs.csv`. See "Bloc overlap" below |
 | Supply chains | `/supply-chains` and `/supply-chains/{flow}` for each of the 11 flows whose source is in the snapshot with at least one pair; the index lists only those. See "Supply chains" below |
 
 A sample build has 129 country pages and 37 indicator pages; the real snapshot has more sources and more places.
@@ -139,6 +140,27 @@ country focused and in the browser (`src/scripts/supply-chains.ts`) when the rea
   sideways inside its own box.
 - **CSV.** Every flow shown, when the source's licence allows downloads (FAOSTAT, UNHCR); UN Comtrade and SIPRI flows
   are shown only, with a note.
+
+## Bloc overlap
+
+`/blocs/overlap` reads the same membership table as the blocs views (`src/lib/blocs.ts`); `src/lib/overlap.ts` embeds
+it in the page, and `src/lib/overlap/render.ts` draws it, at build time for the default settings and in the browser
+(`src/scripts/overlap.ts`) as the reader chooses blocs. It is live whenever the membership table is.
+
+- **Blocs.** All 19 as chips; NATO, EU, G7, G20, BRICS, SCO, ASEAN, OPEC and Quad are chosen by default
+  (`OVERLAP_ORDER`, `DEFAULT_BLOCS` in `src/lib/overlap/model.ts`). At least two stay chosen.
+- **Matrix.** Shared members for every pair of chosen blocs, bloc size on the diagonal, five shades (1–4, 5–9, 10–14,
+  15–19, 20+) with the number in every cell. The line above names the pair sharing most, then the pair sharing most
+  among the blocs left.
+- **Bridge countries.** The strict rule (addendum section 4, 5.3): a full member of NATO, the EU, the G7 or the Quad
+  and of BRICS or the SCO, over all members, whatever is chosen. Today: India. Partners and invitees come from
+  `src/data/bloc-partners.csv` (`partner`, `dialogue`, `invited`, `offered` with a year); they are listed apart and
+  never counted. The build fails on a partner row that is also a full membership.
+- **Membership table.** Every country in a chosen bloc, most memberships first; shapes (square, triangle, dot) tell
+  bloc groups apart without colour. CSV of the whole table with the member lists' date.
+- **Phone.** Two blocs picked side by side (In both, Only A, Only B) instead of the matrix; the table shows the pair
+  and the two chosen blocs sharing most members with it, 14 rows, until "Show all countries and blocs".
+- **Address.** `blocs`, `a`, `b`, `sort`, `dir`, `all`. The prototype's `#/overlap?blocs=NATO,EU` lands here.
 
 ## Share images
 

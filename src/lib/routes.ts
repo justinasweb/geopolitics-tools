@@ -6,7 +6,7 @@
 //
 // Map views, hubs and tools are registered but not live until their phase builds them; the menu and every link
 // skip routes that are not live, so nothing links to a page that does not exist.
-import { SECTION_SLUGS, INDICATOR_SLUGS, COMPARE_JOIN, VIEW_SLUGS, DISASTER_SLUGS, FOOD_SLUGS, FOOD_LAYER_SLUGS, ENERGY_LAYER_SLUGS, BLOC_SLUGS, EXPLORER_SLUGS, CHAIN_SLUGS } from '../i18n/slugs.en.ts';
+import { SECTION_SLUGS, INDICATOR_SLUGS, COMPARE_JOIN, VIEW_SLUGS, DISASTER_SLUGS, FOOD_SLUGS, FOOD_LAYER_SLUGS, ENERGY_LAYER_SLUGS, BLOC_SLUGS, BLOCS_OVERLAP_SLUG, EXPLORER_SLUGS, CHAIN_SLUGS } from '../i18n/slugs.en.ts';
 import { NAV_HUBS, NAV_TOOLS, NAV_TOP } from '../data/nav.ts';
 import { INDICATORS } from '../data/indicators.ts';
 import { countryModel, countryPages, DOSSIERS } from './country.ts';
@@ -72,6 +72,8 @@ export const paths = {
   energy: (fuel: 'oil' | 'gas', layer: string) => `/${S[fuel]}${ENERGY_LAYER_SLUGS[layer] ? `/${ENERGY_LAYER_SLUGS[layer]}` : ''}`,
   /** Blocs: /blocs, /blocs/nato. */
   blocs: (bloc: string) => `/${S.blocs}${BLOC_SLUGS[bloc] ? `/${BLOC_SLUGS[bloc]}` : ''}`,
+  /** Bloc overlap: /blocs/overlap, beside the groupings' own pages. */
+  blocsOverlap: () => `/${S.blocs}/${BLOCS_OVERLAP_SLUG}`,
   /** Alliance history: /blocs/nato/history. */
   history: (bloc: string) => `/${S.blocs}/${BLOC_SLUGS[bloc]}/history`,
   /** Disputed rivers: /water/rivers/nile. */
@@ -241,6 +243,13 @@ function build(): Route[] {
     }
   }
 
+  // Bloc overlap (phase 6): reads the membership table, so it is live whenever the blocs views are.
+  tools.add('blocs-overlap');
+  out.push({
+    key: 'tool:blocs-overlap', kind: 'tool', lang, path: paths.blocsOverlap(), live: true, indexed: true,
+    aliases: [], id: 'blocs-overlap', image: paths.image('tools', 'blocs-overlap'), lastmod: BLOCS_CHECKED,
+  });
+
   // Not built yet (phases 5–8): registered so links, the menu and redirects know about them.
   for (const hub of NAV_HUBS) {
     out.push({ key: `hub:${hub.id}`, kind: 'hub', lang, path: hub.path, live: false, indexed: false, aliases: [], id: hub.id });
@@ -329,6 +338,9 @@ export function hashMap(): Record<string, string> {
   }
   // The prototype's #/chains/gas?country=DEU: the script carries the query over.
   for (const r of routes().filter((x) => x.live && x.id.startsWith('supply-chains:'))) out[`chains/${r.id.split(':')[1]}`] = r.path;
+  // The prototype's #/overlap?blocs=NATO,EU: the script carries the query over, and the page reads its bloc ids.
+  const overlap = live('tool:blocs-overlap');
+  if (overlap) out.overlap = overlap.path;
   return out;
 }
 
