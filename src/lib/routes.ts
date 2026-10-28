@@ -7,7 +7,7 @@
 // Map views, hubs and tools are registered but not live until their phase builds them; the menu and every link
 // skip routes that are not live, so nothing links to a page that does not exist.
 import { SECTION_SLUGS, INDICATOR_SLUGS, COMPARE_JOIN, VIEW_SLUGS, DISASTER_SLUGS, FOOD_SLUGS, FOOD_LAYER_SLUGS, ENERGY_LAYER_SLUGS, BLOC_SLUGS, EXPLORER_SLUGS, CHAIN_SLUGS } from '../i18n/slugs.en.ts';
-import { NAV_HUBS, NAV_UTIL } from '../data/nav.ts';
+import { NAV_HUBS, NAV_TOOLS, NAV_TOP } from '../data/nav.ts';
 import { INDICATORS } from '../data/indicators.ts';
 import { countryModel, countryPages, DOSSIERS } from './country.ts';
 import { data, changed } from './data.ts';
@@ -246,9 +246,15 @@ function build(): Route[] {
     out.push({ key: `hub:${hub.id}`, kind: 'hub', lang, path: hub.path, live: false, indexed: false, aliases: [], id: hub.id });
     for (const v of hub.views) if (!families.has(v.id)) out.push({ key: `view:${v.id}`, kind: 'view', lang, path: v.path, live: false, indexed: false, aliases: [], id: v.id });
   }
-  for (const u of NAV_UTIL) if (u.id !== 'countries' && !tools.has(u.id)) out.push({ key: `tool:${u.id}`, kind: 'tool', lang, path: u.path, live: false, indexed: false, aliases: [], id: u.id });
+  for (const u of [...NAV_TOP, ...NAV_TOOLS]) {
+    const key = navKey(u.id);
+    if (key === `tool:${u.id}` && !tools.has(u.id)) out.push({ key, kind: 'tool', lang, path: u.path, live: false, indexed: false, aliases: [], id: u.id });
+  }
   return out;
 }
+
+/** The route key behind a top link or a tool: Countries and Indicators are their own kinds, the rest are tools. */
+export const navKey = (id: string) => (id === 'countries' || id === 'indicators' ? id : `tool:${id}`);
 
 /** Fails on two routes with one path, an alias that is also a path, or a path that breaks the URL rules. */
 export function checkRoutes(routes: Route[]): void {

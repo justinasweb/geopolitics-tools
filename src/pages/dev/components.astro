@@ -5,7 +5,6 @@
 import Base from '../../layouts/Base.astro';
 import LogoSprite from '../../components/LogoSprite.astro';
 import Header from '../../components/Header.astro';
-import PhoneMenu from '../../components/PhoneMenu.astro';
 import Footer from '../../components/Footer.astro';
 import Lockup from '../../components/Lockup.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
@@ -124,9 +123,12 @@ const typeStyles = tokens.type.groups.flatMap((g) => g.styles.map((s) => ({ ...s
       <div class="dev__cell dev__deskonly"><span class="dev__cap">Header · Resources menu open</span>
         <div class="dev__desk" style="min-height:400px"><Header full idPrefix="h2" open="resources" /></div>
       </div>
+      <div class="dev__cell dev__deskonly"><span class="dev__cap">Header · Tools menu open</span>
+        <div class="dev__desk" style="min-height:400px"><Header full idPrefix="h5" open="tools" current="tools" /></div>
+      </div>
       <div class="dev__row">
         <div class="dev__cell"><span class="dev__cap">Phone 390 · compact header</span><div class="dev__phone"><Header full idPrefix="h3" /></div></div>
-        <div class="dev__cell"><span class="dev__cap">Phone 390 · menu, Resources open</span><div class="dev__phone"><PhoneMenu full idPrefix="pm" open="resources" /></div></div>
+        <div class="dev__cell"><span class="dev__cap">Phone 390 · menu, Resources open</span><div class="dev__phone"><Header full idPrefix="h4" menuOpen="resources" /></div></div>
       </div>
       <div class="dev__cell"><span class="dev__cap">Footer · desktop</span><div class="dev__desk"><Footer /></div></div>
       <div class="dev__cell"><span class="dev__cap">Footer · phone 390</span><div class="dev__phone"><Footer /></div></div>

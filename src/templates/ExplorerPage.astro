@@ -34,7 +34,7 @@ const crumbs = [{ label: T.crumb }, { label: T.title }];
 const n = meta.measures.length;
 const json = JSON.stringify({ meta, paths: viewPaths, site: Astro.site?.href ?? '' }).replace(/</g, '\\u003c');
 ---
-<Page title={`${T.title}: ${T.views[view]}`} description={T.description[view](n)} container="tl" mainClass="gt-exp" image={paths.image('tools', `explorer-${path.split('/')[2] ?? 'table'}`)}
+<Page title={`${T.title}: ${T.views[view]}`} description={T.description[view](n)} hub="tools" container="tl" mainClass="gt-exp" image={paths.image('tools', `explorer-${path.split('/')[2] ?? 'table'}`)}
   jsonld={[breadcrumbs(crumbs)]}>
   <header class="gt-tlhead">
     <Breadcrumbs items={crumbs} />

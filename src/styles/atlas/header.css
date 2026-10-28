@@ -11,6 +11,7 @@
 .gt-header__util a { font: 600 15px/1 var(--sans); color: var(--ink); text-decoration: none; padding: 12px; }
 .gt-header__util a:hover, .gt-header__util a.is-hover { text-decoration: underline; }
 .gt-searchbtn { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 12px; margin-left: 8px; border: 1px solid var(--rule-strong); background: var(--paper-raised); color: var(--ink-muted); font: 400 15px/1 var(--sans); cursor: pointer; min-width: 220px; }
+.gt-searchbtn__short { display: none; }
 .gt-searchbtn kbd { margin-left: auto; font: 600 12px/1 var(--sans); border: 1px solid var(--rule); padding: 3px 6px; color: var(--ink-muted); }
 .gt-searchbtn:hover, .gt-searchbtn.is-hover { border-color: var(--ink); }
 .gt-nav { display: flex; gap: 4px; border-top: 1px solid var(--rule); }
@@ -20,13 +21,30 @@
 .gt-nav__btn:hover, .gt-nav__btn.is-hover { border-bottom-color: var(--rule-strong); }
 .gt-nav__btn[aria-expanded="true"], .gt-nav__btn[aria-current="true"] { border-bottom-color: var(--brand); color: var(--brand); }
 .gt-nav__btn svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2; }
+.gt-nav__sep { align-self: center; width: 1px; height: 24px; margin: 0 8px; background: var(--rule); }
 .gt-mega { position: absolute; left: 0; top: 100%; z-index: 20; background: var(--paper-raised); border: 1px solid var(--rule); box-shadow: var(--shadow-pop); padding: 20px 24px 24px; min-width: 420px; display: grid; grid-template-columns: 1fr 1fr; gap: 4px 32px; }
 .gt-mega[hidden] { display: none; }
 .gt-mega .gt-label { grid-column: 1 / -1; margin-bottom: 8px; }
 .gt-mega a { display: block; padding: 6px 0; font: 400 15px/22px var(--sans); color: var(--ink); text-decoration: none; }
 .gt-mega a span { display: block; font-size: 13px; line-height: 18px; color: var(--ink-muted); }
 .gt-mega a:hover strong, .gt-mega a.is-hover strong { text-decoration: underline; }
+.gt-nav__item--end .gt-mega, .gt-mega.gt-mega--end { left: auto; right: 0; }
 .gt-header__phone { display: none; }
+/* A tap leaves :hover on touch screens; the bar's buttons look the same before and after. */
+@media (hover: none) { .gt-header__phone .gt-iconbtn:hover { background: transparent; } }
+.gt-menubtn[aria-expanded="true"] svg:first-child, .gt-menubtn[aria-expanded="false"] svg:last-child { display: none; }
+/* Narrow desktop: both rows still fit on one line each. */
+@container (max-width: 1099px) {
+  .gt-searchbtn { min-width: 180px; }
+  .gt-searchbtn__long { display: none; }
+  .gt-searchbtn__short { display: inline; }
+}
+@container (max-width: 899px) {
+  .gt-header__util a { padding: 12px 8px; }
+  .gt-nav { gap: 0; }
+  .gt-nav__btn { padding-right: 8px; font-size: 14px; white-space: nowrap; }
+  .gt-nav__sep { margin: 0 8px 0 0; }
+}
 @container (max-width: 759px) {
   .gt-header__in { padding: 0 8px 0 16px; }
   .gt-header__top { min-height: 56px; }
@@ -35,15 +53,20 @@
   .gt-header__phone { display: flex; align-items: center; }
 }
 
-/* full-screen phone menu */
+/* phone menu: a panel from the bottom of the header bar to the bottom of the screen (top set by header.ts); the
+   bar stays in place and the page behind does not scroll */
+.gt-menupanel { position: fixed; top: var(--gt-menu-top, 59px); left: 0; right: 0; bottom: 0; z-index: 30; background: var(--paper); overflow-y: auto; overscroll-behavior: contain; }
+.gt-menupanel:focus { outline: none; }
+.gt-menupanel--demo { position: static; overflow: visible; }
+html.gt-menu-open { overflow: hidden; padding-right: var(--gt-menu-gutter, 0px); }
 .gt-menu { container-type: inline-size; background: var(--paper); color: var(--ink); display: flex; flex-direction: column; min-height: 100%; }
-.gt-menu__bar { display: flex; align-items: center; justify-content: space-between; min-height: 56px; padding: 0 8px 0 16px; border-bottom: 3px double var(--ink); }
 .gt-menu__body { padding: 16px; display: grid; gap: 8px; }
 .gt-menu__search { display: flex; align-items: center; gap: 8px; border: 1px solid var(--rule-strong); background: var(--paper-raised); padding: 0 12px; min-height: 48px; }
 .gt-menu__search input { flex: 1; min-width: 0; border: 0; background: transparent; font: 400 17px/1 var(--sans); color: var(--ink); }
 .gt-menu__search input::placeholder { color: var(--ink-muted); }
 .gt-menu__search:focus-within { outline: 2px solid var(--focus); outline-offset: 2px; }
 .gt-menu__search input:focus-visible { outline: none; }
+.gt-menu__row { display: flex; align-items: center; min-height: 52px; border-bottom: 1px solid var(--rule); font: 600 20px/1.2 var(--serif); color: var(--ink); text-decoration: none; }
 .gt-menu details { border-bottom: 1px solid var(--rule); }
 .gt-menu summary { list-style: none; display: flex; justify-content: space-between; align-items: center; min-height: 52px; font: 600 20px/1.2 var(--serif); cursor: pointer; }
 .gt-menu summary::-webkit-details-marker { display: none; }
@@ -52,4 +75,7 @@
 .gt-menu details ul { list-style: none; margin: 0; padding: 0 0 12px; display: grid; }
 .gt-menu details a { display: block; padding: 10px 0; min-height: 44px; font: 400 17px/24px var(--sans); color: var(--ink); text-decoration: none; }
 .gt-menu__tools { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding-top: 16px; }
+.gt-menu__label { padding-top: 16px; }
+.gt-menu__label + .gt-menu__tools { padding-top: 0; }
+.gt-menu__tools .gt-menu__wide { grid-column: 1 / -1; }
 .gt-menu__tools a { display: flex; align-items: center; justify-content: center; min-height: 48px; border: 1px solid var(--rule-strong); font: 600 15px/1 var(--sans); color: var(--ink); text-decoration: none; }

@@ -112,7 +112,14 @@ export const NAV_TEXT = {
     blocs: ['Blocs', '19 groupings'],
     'alliance-history': ['Alliance history', 'How blocs grew'],
   } as Record<string, [string, string]>,
-  util: { countries: 'Countries', indicators: 'Indicators', atlas: 'Atlas', explorer: 'Explorer', dependencies: 'Dependencies', 'supply-chains': 'Supply chains' } as Record<string, string>,
+  top: { countries: 'Countries', indicators: 'Indicators', 'this-week': 'This week' } as Record<string, string>,
+  tools: {
+    atlas: ['Atlas', 'Every map layer on one full-screen map'],
+    explorer: ['Explorer', 'Compare any measures in a table, over time or as a scatter'],
+    dependencies: ['Dependencies', 'Who relies on whom, for what'],
+    'supply-chains': ['Supply chains', 'Follow one flow from producers to users'],
+    'blocs-overlap': ['Bloc overlap', 'Shared members and bridge countries between blocs'],
+  } as Record<string, [string, string]>,
   footer: { about: 'About', methodology: 'Methodology', sources: 'Sources', privacy: 'Privacy' } as Record<string, string>,
 };
 
@@ -124,6 +131,7 @@ export const UI_TEXT = {
   closeMenu: 'Close menu',
   search: 'Search',
   searchPlaceholder: 'Search countries, minerals, places',
+  tools: 'Tools',
   breadcrumb: 'Breadcrumb',
   onThisPage: 'On this page',
   footerTagline: 'Data from official and research sources, updated daily.',
