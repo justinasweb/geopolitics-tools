@@ -20,7 +20,7 @@ const flows = chainLinks().map((f) => {
 });
 const crumbs = [{ label: T.crumb }, { label: T.title }];
 ---
-<Page title={T.title} description={T.indexDescription(flows.length)} container="tl" mainClass="gt-skpage" image={paths.image('tools', 'supply-chains')}
+<Page title={T.title} description={T.indexDescription(flows.length)} hub="tools" container="tl" mainClass="gt-skpage" image={paths.image('tools', 'supply-chains')}
   jsonld={[breadcrumbs(crumbs)]}>
   <header class="gt-tlhead">
     <Breadcrumbs items={crumbs} />

@@ -29,8 +29,7 @@ The Atlas design system (Claude Design, batches 1–7) as Astro components. Phas
 
 ## Components
 
-Page frame: `Header` (mega menu; full-screen phone menu in a modal dialog), `PhoneMenu`, `Footer`, `Lockup` + `LogoSprite`,
-`Breadcrumbs`, `PageToc`, `Icon`. Sources and status: `SourceLine`, `StatusTag` (also Sample), `Notice`. Data display:
+Page frame: `Header`, `PhoneMenu`, `Footer`, `Lockup` + `LogoSprite`, `Breadcrumbs`, `PageToc`, `Icon`. Sources and status: `SourceLine`, `StatusTag` (also Sample), `Notice`. Data display:
 `KeyFigure` (in a `.gt-kfrow`), `RankedBars`, `DataTable`, `ChartState`, buttons (`.gt-btn`, `.gt-btn--quiet`).
 Filters: `SegmentedControl`, `Dropdown`, `CountrySearch`, `Chips`, `YearSlider`. Maps: `MapLegend`, `MapTooltip`,
 `CountryPanel` + `PanelFacts`; the interactive map view's `MapControls` and `MapStage` (phase 4, see
@@ -38,6 +37,16 @@ Filters: `SegmentedControl`, `Dropdown`, `CountrySearch`, `Chips`, `YearSlider`.
 
 Controls tell the page what changed with bubbling events: `gt-change` (segmented control, chips, year slider) and `gt-pick`
 (country search). The header's search buttons and the `/` key send `gt-search`, which site search (phase 8) will answer.
+
+**Header.** Desktop: the top row has Countries, Indicators, This week and search; the topic row has the five hubs, a
+divider and Tools (`NAV_TOP` and `NAV_TOOLS` in `src/data/nav.ts`). Every panel is a `.gt-mega`; Tools opens from its
+button's right edge, and a hub panel that would run off the screen does the same. Tool pages pass `hub="tools"` to
+`Page`, which marks Tools with `aria-current`. Under 1100px of container the search button says just "Search"; under
+900px the topic row tightens so both rows stay on one line down to 760px. Links to pages that are not live are left
+out, and Tools is left out when no tool is live. Phone (under 760px): the menu button opens `PhoneMenu` in a panel
+under the bar, which never moves; the same button closes it. While it is open the rest of the page is `inert` and
+does not scroll, Tab stays in the bar and the panel, Esc or a link closes it, and it closes if the header grows past
+760px (`src/scripts/header.ts`).
 
 ## Not in this phase
 

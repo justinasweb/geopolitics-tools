@@ -31,7 +31,7 @@ const sides = SIDES[chain.kind];
 const crumbs = [{ label: T.crumb }, { label: T.title, href: paths.supplyChains() }, { label: head.title }];
 const json = JSON.stringify({ chain }).replace(/</g, '\\u003c');
 ---
-<Page title={head.full} description={T.description(head.full, chain.period, sides.froms, sides.tos, chain.credit)} container="tl" mainClass="gt-skpage"
+<Page title={head.full} description={T.description(head.full, chain.period, sides.froms, sides.tos, chain.credit)} hub="tools" container="tl" mainClass="gt-skpage"
   image={paths.image('tools', `supply-chains-${CHAIN_SLUGS[flow] ?? flow}`)} jsonld={[breadcrumbs(crumbs)]}>
   <header class="gt-tlhead">
     <Breadcrumbs items={crumbs} />

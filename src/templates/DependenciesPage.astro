@@ -27,7 +27,7 @@ const state = { ...DEFAULTS, sort: firstLive(grid) };
 const crumbs = [{ label: T.crumb }, { label: T.title }];
 const json = JSON.stringify({ grid }).replace(/</g, '\\u003c');
 ---
-<Page title={T.title} description={T.description(grid.rows.length)} container="tl" mainClass="gt-deps-tool" image={paths.image('tools', 'dependencies')}
+<Page title={T.title} description={T.description(grid.rows.length)} hub="tools" container="tl" mainClass="gt-deps-tool" image={paths.image('tools', 'dependencies')}
   jsonld={[breadcrumbs(crumbs)]}>
   <header class="gt-tlhead">
     <Breadcrumbs items={crumbs} />

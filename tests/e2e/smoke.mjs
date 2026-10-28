@@ -160,6 +160,36 @@ for (const [name, viewport] of [['desktop', { width: 1440, height: 900 }], ['pho
   check(errors.length === 0, `${name}: supply chains have no console errors${errors.length ? ` (${errors.join('; ')})` : ''}`);
   await page.screenshot({ path: `${out}/supply-chain-${name}.png`, fullPage: true });
 
+  // The header: on desktop the Tools menu opens inside the screen and Esc closes it; on a phone the menu opens under
+  // a bar that does not move, the page behind keeps its scroll, and the same button closes it.
+  errors.length = 0;
+  await page.goto(`${base}/countries/china`, { waitUntil: 'networkidle' });
+  if (name === 'desktop') {
+    const tools = page.locator('.gt-nav__btn', { hasText: 'Tools' });
+    if (await tools.count()) {
+      await tools.click();
+      const panel = await page.evaluate(() => { const m = document.querySelector('.gt-nav__item--end .gt-mega'); const r = m.getBoundingClientRect(); return !m.hidden && r.left >= 0 && r.right <= window.innerWidth; });
+      check(panel, `${name}: the Tools menu opens inside the screen`);
+      await page.keyboard.press('Escape');
+      check(await page.evaluate(() => document.activeElement?.textContent?.trim() === 'Tools'), `${name}: Esc closes the Tools menu and returns focus`);
+    }
+  } else {
+    await page.evaluate(() => window.scrollTo(0, 20));
+    const bar = () => page.evaluate(() => { const r = document.querySelector('.gt-header').getBoundingClientRect(); const b = document.querySelector('[data-gt-menu-open]').getBoundingClientRect(); return `${r.top},${r.bottom},${b.left},${b.top}`; });
+    const shut = await bar();
+    await page.evaluate(() => document.querySelector('[data-gt-menu-open]').click());
+    const menu = await page.evaluate(() => { const m = document.querySelector('[data-gt-menu]'); return { open: !m.hidden, top: m.getBoundingClientRect().top, bar: document.querySelector('.gt-header').getBoundingClientRect().bottom, inert: document.querySelector('main').inert }; });
+    check(menu.open && menu.top === menu.bar && menu.inert, `${name}: the menu opens under the bar, with the page inert`);
+    check(await bar() === shut, `${name}: the header bar does not move when the menu opens`);
+    await page.mouse.move(200, 500);
+    await page.mouse.wheel(0, 2000);
+    await page.waitForTimeout(200);
+    check(await page.evaluate(() => window.scrollY) === 20, `${name}: the page behind the menu does not scroll`);
+    await page.evaluate(() => document.querySelector('[data-gt-menu-open]').click());
+    check(await page.evaluate(() => document.querySelector('[data-gt-menu]').hidden && window.scrollY === 20 && !document.querySelector('main').inert), `${name}: the menu button closes the menu, at the same scroll`);
+  }
+  check(errors.length === 0, `${name}: the header has no console errors${errors.length ? ` (${errors.join('; ')})` : ''}`);
+
   // The design system's components page (hidden, noindex): renders without errors or sideways scroll.
   errors.length = 0;
   await page.goto(`${base}/dev/components`, { waitUntil: 'networkidle' });

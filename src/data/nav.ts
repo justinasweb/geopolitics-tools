@@ -1,6 +1,6 @@
-// The main menu: the five topic hubs and their views, in site-map order (02-site-map.md), plus the utility links.
-// Paths only; the words are in src/i18n/<lang>.ts (NAV_TEXT). Wave 2 views (news signal, supply cutoffs) are left
-// out, as the Header design asks. Phase 3's route registry will hide views that are not live yet.
+// The main menu: the five topic hubs and their views, in site-map order (02-site-map.md), the header's top links
+// and the tools. Paths only; the words are in src/i18n/<lang>.ts (NAV_TEXT). Wave 2 views (news signal, supply
+// cutoffs) are left out, as the Header design asks. The route registry hides pages that are not live yet.
 
 export interface NavView { id: string; path: string }
 export interface NavHub { id: string; path: string; views: NavView[] }
@@ -50,12 +50,20 @@ export const NAV_HUBS: NavHub[] = [
   },
 ];
 
-export const NAV_UTIL = [
+/** The header's top row: what people come back to often. Search follows them. */
+export const NAV_TOP = [
   { id: 'countries', path: '/countries' },
+  { id: 'indicators', path: '/indicators' },
+  { id: 'this-week', path: '/this-week' },
+];
+
+/** The Tools menu at the end of the topic row, Atlas first. */
+export const NAV_TOOLS = [
   { id: 'atlas', path: '/atlas' },
   { id: 'explorer', path: '/explorer' },
   { id: 'dependencies', path: '/dependencies' },
   { id: 'supply-chains', path: '/supply-chains' },
+  { id: 'blocs-overlap', path: '/blocs/overlap' },
 ];
 
 export const NAV_FOOTER = [

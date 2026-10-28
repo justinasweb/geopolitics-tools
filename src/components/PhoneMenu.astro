@@ -1,32 +1,34 @@
 ---
-// The full-screen phone menu: search, the five hubs as <details> groups, then Countries, Atlas and Explorer.
-// The Header puts it in a modal <dialog>; the components page shows it inline.
+// The phone menu: search, This week, the five hubs as <details> groups, the tools (Atlas across both columns), then
+// Countries and Indicators. The Header shows it in a panel under its bar.
 import '../styles/atlas/header.css';
 import Icon from './Icon.astro';
-import Lockup from './Lockup.astro';
 import { menu } from '../lib/menu';
 import { NAV_TEXT, UI_TEXT } from '../i18n/en';
 
 interface Props { open?: string; idPrefix?: string; full?: boolean }
 const { open, idPrefix = 'nav', full = false } = Astro.props;
-const { hubs, util } = menu(full);
+const { hubs, top, tools } = menu(full);
+const week = top.find((u) => u.id === 'this-week');
+const places = top.filter((u) => u !== week);
 ---
 <div class="gt-menu">
-  <div class="gt-menu__bar">
-    <a class="gt-logo" href="/" aria-label={UI_TEXT.home}><Lockup /></a>
-    <button class="gt-iconbtn" type="button" aria-label={UI_TEXT.closeMenu} data-gt-menu-close><Icon name="close" /></button>
-  </div>
   <div class="gt-menu__body">
     <label class="gt-menu__search" for={`${idPrefix}-q`}>
       <Icon name="search" /><span class="gt-vh">{UI_TEXT.search}</span>
       <input id={`${idPrefix}-q`} type="search" placeholder={UI_TEXT.searchPlaceholder} />
     </label>
+    {week && <a class="gt-menu__row" href={week.path}>{NAV_TEXT.top[week.id]}</a>}
     {hubs.map((hub) => (
       <details open={open === hub.id}>
         <summary>{NAV_TEXT.hubs[hub.id]}</summary>
         <ul>{hub.views.map((v) => <li><a href={v.path}>{NAV_TEXT.views[v.id][0]}</a></li>)}</ul>
       </details>
     ))}
-    <div class="gt-menu__tools">{util.map((u) => <a href={u.path}>{NAV_TEXT.util[u.id]}</a>)}</div>
+    {tools.length > 0 && <span class="gt-label gt-menu__label">{UI_TEXT.tools}</span>}
+    {tools.length > 0 && <div class="gt-menu__tools">
+      {tools.map((t) => <a href={t.path} class:list={{ 'gt-menu__wide': t.id === 'atlas' }}>{NAV_TEXT.tools[t.id][0]}</a>)}
+    </div>}
+    {places.length > 0 && <div class="gt-menu__tools">{places.map((u) => <a href={u.path}>{NAV_TEXT.top[u.id]}</a>)}</div>}
   </div>
 </div>
