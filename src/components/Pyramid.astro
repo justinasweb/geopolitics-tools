@@ -5,22 +5,31 @@ import '../styles/atlas/country.css';
 import type { AgeGroup } from '../adapters/wpp';
 import { DOSSIER_TEXT } from '../i18n/pages.en';
 
-interface Props { label: string; groups: AgeGroup[] }
-const { label, groups } = Astro.props;
+interface Props {
+  label: string;
+  groups: AgeGroup[];
+  /** The widest bar's value, shared by every year of a pyramid with a year slider so the bars compare. */
+  max?: number;
+  hidden?: boolean;
+  year?: number;
+}
+const { label, groups, hidden = false, year } = Astro.props;
 const W = 420, top = 22, row = 11, mid = W / 2, gap = 18, side = mid - gap - 4;
 const H = top + groups.length * row + 22;
-const max = Math.max(...groups.flatMap((g) => [g.male, g.female])) || 1;
+const max = Astro.props.max ?? (Math.max(...groups.flatMap((g) => [g.male, g.female])) || 1);
 const w = (v: number) => (v / max) * side;
 const y = (i: number) => top + (groups.length - 1 - i) * row;
 const millions = (v: number) => new Intl.NumberFormat('en', { maximumFractionDigits: 0 }).format(v / 1e6);
+const exact = (v: number) => new Intl.NumberFormat('en', { maximumFractionDigits: v < 1e6 ? 2 : 1 }).format(v / 1e6);
+const group = (g: AgeGroup) => g.group.replace('-', '–');
 ---
-<svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={label}>
+<svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={label} data-year={year} {...(hidden ? { hidden: '' } as Record<string, string> : {})}>
   <text class="gt-pyr__h" x={mid - gap} y={12} text-anchor="end">{DOSSIER_TEXT.men}</text>
   <text class="gt-pyr__h" x={mid + gap} y={12}>{DOSSIER_TEXT.women}</text>
   {groups.map((g, i) => (
     <g>
-      <rect class="gt-pyr__m" x={mid - gap - w(g.male)} y={y(i)} width={w(g.male)} height={row - 2} />
-      <rect class="gt-pyr__f" x={mid + gap} y={y(i)} width={w(g.female)} height={row - 2} />
+      <rect class="gt-pyr__m" x={mid - gap - w(g.male)} y={y(i)} width={w(g.male)} height={row - 2}><title>{DOSSIER_TEXT.pyramidBar(group(g), DOSSIER_TEXT.men, exact(g.male))}</title></rect>
+      <rect class="gt-pyr__f" x={mid + gap} y={y(i)} width={w(g.female)} height={row - 2}><title>{DOSSIER_TEXT.pyramidBar(group(g), DOSSIER_TEXT.women, exact(g.female))}</title></rect>
       {i % 2 === 0 && <text class="gt-pyr__age" x={mid} y={y(i) + row - 3} text-anchor="middle">{g.start}</text>}
     </g>
   ))}

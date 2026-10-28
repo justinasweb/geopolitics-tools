@@ -13,6 +13,7 @@ import DependencyTable from '../components/DependencyTable.astro';
 import DataTable from '../components/DataTable.astro';
 import LineChart from '../components/LineChart.astro';
 import Pyramid from '../components/Pyramid.astro';
+import YearSlider from '../components/YearSlider.astro';
 import Notice from '../components/Notice.astro';
 import SourceLine from '../components/SourceLine.astro';
 import ShareRow from '../components/ShareRow.astro';
@@ -72,6 +73,9 @@ const hasBlocks = Boolean(blocks.refugees || blocks.disasters || blocks.emission
 const buildYear = Number(data().snapshot.created.slice(0, 4));
 const d = m.dossier ? dossierFor(p.id, buildYear) : null;
 const pop = m.allFigures.find((f) => f.id === 'population');
+// The age pyramid: one drawing per five-year step on one shared scale, so moving the slider shows the shape change.
+const pyr = d?.people?.pyramid ?? null;
+const pyrMax = pyr ? Math.max(...Object.values(pyr.byYear).flat().flatMap((g) => [g.male, g.female])) || 1 : 1;
 
 // Sections, in page order; the menu numbers follow them.
 const sections: { id: string; label: string }[] = [];
@@ -213,7 +217,8 @@ const citation = COUNTRY_TEXT.citation(name, kind, url, Number(m.updated.slice(0
 
         {d?.people && (
           <CpSection n={nPeople} id="people" heading={DOSSIER_TEXT.people}
-            find={pop ? DOSSIER_TEXT.peopleFind(name, formatValue(pop.value, INDICATORS.population.format), pop.year) : undefined}>
+            find={pop ? DOSSIER_TEXT.peopleFind(name, formatValue(pop.value, INDICATORS.population.format), pop.year) : undefined}
+            link={indicatorHref('population') ? { href: indicatorHref('population')!, label: DOSSIER_TEXT.peopleLink } : undefined}>
             <div class="gt-cpgrid">
               {d.people.years.length > 1 && (
                 <div class="gt-cpsub">
@@ -224,13 +229,22 @@ const citation = COUNTRY_TEXT.citation(name, kind, url, Number(m.updated.slice(0
                   <SourceLine source={sourceName('wpp')} updated={m.updated} status="projection" />
                 </div>
               )}
-              {d.people.pyramid && (
-                <div class="gt-cpsub">
-                  <h3 class="gt-h3">{DOSSIER_TEXT.pyramid(name)}, {d.people.pyramid.year}</h3>
+              {pyr && (
+                <div class="gt-cpsub" data-gt-pyramid>
+                  <h3 class="gt-h3">{DOSSIER_TEXT.pyramid(name)}</h3>
                   <figure class="gt-pyr">
-                    <Pyramid label={`${DOSSIER_TEXT.pyramid(name)}, ${d.people.pyramid.year}`} groups={d.people.pyramid.groups} />
-                    <figcaption class="gt-caption">{DOSSIER_TEXT.pyramidCaption(d.people.pyramid.year > d.people.lastEstimate)}</figcaption>
+                    {pyr.years.length > 1 && (
+                      <div class="gt-pyr__yr">
+                        <YearSlider id="pyramid-year" min={pyr.years[0]} max={pyr.years.at(-1)!} value={pyr.year} step={5}
+                          ticks={pyr.years.filter((y) => y % 50 === 0)} />
+                      </div>
+                    )}
+                    {pyr.years.map((y) => (
+                      <Pyramid label={DOSSIER_TEXT.pyramidLabel(name, y)} groups={pyr.byYear[y]} max={pyrMax} year={y} hidden={y !== pyr.year} />
+                    ))}
+                    <figcaption class="gt-caption">{DOSSIER_TEXT.pyramidCaption(d!.people!.lastEstimate)}</figcaption>
                   </figure>
+                  <SourceLine source={sourceName('wpp')} parts={[`${pyr.years[0]}–${pyr.years.at(-1)}`]} updated={m.updated} status="projection" />
                 </div>
               )}
             </div>
@@ -359,4 +373,9 @@ const citation = COUNTRY_TEXT.citation(name, kind, url, Number(m.updated.slice(0
 <script>
   import { initCopy } from '../scripts/copy';
   initCopy();
+  // The age pyramid's year slider shows that year's drawing.
+  document.querySelectorAll<HTMLElement>('[data-gt-pyramid]').forEach((box) => box.addEventListener('gt-change', (e) => {
+    const year = String((e as CustomEvent<{ year: number }>).detail.year);
+    box.querySelectorAll<SVGElement>('svg[data-year]').forEach((svg) => svg.toggleAttribute('hidden', svg.dataset.year !== year));
+  }));
 </script>

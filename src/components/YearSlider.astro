@@ -21,8 +21,10 @@ interface Props {
   /** Words for the values, where they are not years (a months axis: "Mar 2026"), and the label in place of "Year". */
   labels?: Record<number, string>;
   label?: string;
+  /** Years between stops (5 for the age pyramid, whose source gives every fifth year); play moves one stop at a time. */
+  step?: number;
 }
-const { id, min, max, value = max, estimated = [], play = true, disabled = false, tags, labels, label = YEAR_TEXT.year } = Astro.props;
+const { id, min, max, value = max, estimated = [], play = true, disabled = false, tags, labels, label = YEAR_TEXT.year, step: stop = 1 } = Astro.props;
 const word = (v: number) => labels?.[v] ?? v;
 const step = Math.max(1, Math.ceil((max - min) / 5));
 const ticks = Astro.props.ticks ?? Array.from({ length: Math.floor((max - min) / step) + 1 }, (_, i) => max - (Math.floor((max - min) / step) - i) * step);
@@ -38,7 +40,7 @@ const ticks = Astro.props.ticks ?? Array.from({ length: Math.floor((max - min) /
       </span>
     ) : <span class="gt-years__now" aria-hidden="true">{word(value)}</span>}
   </div>
-  <input id={id} type="range" min={min} max={max} step="1" value={value} disabled={disabled} />
+  <input id={id} type="range" min={min} max={max} step={stop} value={value} disabled={disabled} />
   <div class="gt-years__ticks">{ticks.map((t) => <span data-est={estimated.includes(t) ? '' : undefined}>{word(t)}</span>)}</div>
 </div>
 
