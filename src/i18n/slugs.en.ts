@@ -9,8 +9,14 @@ export const SECTION_SLUGS = {
   emissions: 'emissions', refugees: 'refugees', disasters: 'disasters', food: 'food', blocs: 'blocs',
   space: 'space', ai: 'ai', sanctions: 'sanctions', internet: 'internet',
   water: 'water', 'chinese-lending': 'chinese-lending', arms: 'arms', oil: 'oil', gas: 'gas', electricity: 'electricity', conflict: 'conflict', 'food-crises': 'food-crises',
-  explorer: 'explorer', dependencies: 'dependencies',
+  explorer: 'explorer', dependencies: 'dependencies', 'supply-chains': 'supply-chains',
 } as const;
+
+/** Supply chains after /supply-chains, by flow key (src/data/flows.ts). */
+export const CHAIN_SLUGS: Record<string, string> = {
+  oil: 'oil', gas: 'gas', wheat: 'wheat', maize: 'maize', rice: 'rice', soy: 'soybeans', potash: 'potash', phosphate: 'phosphate',
+  arms: 'arms', chips: 'chips', refugees: 'refugees',
+};
 
 /** The Explorer's views after /explorer; the table is /explorer itself. */
 export const EXPLORER_SLUGS: Record<string, string> = { table: '', lines: 'over-time', scatter: 'scatter' };

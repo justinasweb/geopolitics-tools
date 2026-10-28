@@ -20,6 +20,8 @@ import HistoryView from '../templates/HistoryView.astro';
 import RiverView from '../templates/RiverView.astro';
 import ExplorerPage from '../templates/ExplorerPage.astro';
 import DependenciesPage from '../templates/DependenciesPage.astro';
+import SupplyChainPage from '../templates/SupplyChainPage.astro';
+import SupplyChainsIndex from '../templates/SupplyChainsIndex.astro';
 import { BUILT_KINDS, routes, type Route } from '../lib/routes';
 import type { View } from '../lib/explorer/model';
 
@@ -48,3 +50,5 @@ const [a, b] = route.id.split(',');
 {route.kind === 'view' && !/^(minerals|disasters|food|energy|conflict|blocs|history|rivers):/.test(route.id) && <IndicatorView id={route.id.split(':')[1]} />}
 {route.kind === 'tool' && route.id.startsWith('explorer:') && <ExplorerPage view={route.id.split(':')[1] as View} />}
 {route.kind === 'tool' && route.id === 'dependencies' && <DependenciesPage />}
+{route.kind === 'tool' && route.id === 'supply-chains' && <SupplyChainsIndex />}
+{route.kind === 'tool' && route.id.startsWith('supply-chains:') && <SupplyChainPage flow={route.id.split(':')[1]} />}

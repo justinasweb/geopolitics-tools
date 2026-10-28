@@ -1,0 +1,33 @@
+---
+// The Supply chains index: every flow with figures in the snapshot, each with its own latest year, its source and
+// its largest flow. Flows whose source is not in the snapshot have no page and are not listed.
+import Page from '../layouts/Page.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import '../styles/atlas/tools.css';
+import '../styles/atlas/supply-chains.css';
+import { CHAINS_TEXT as T } from '../i18n/supply-chains.en';
+import { chainLinks, chainOf } from '../lib/supply-chains';
+import { CHAIN_TEXT } from '../i18n/supply-chains.en';
+import { amount, nameOf } from '../lib/supply-chains/model';
+import { periodLabel } from '../lib/supply-chains/render';
+import { paths } from '../lib/routes';
+import { breadcrumbs } from '../lib/structured';
+
+const flows = chainLinks().map((f) => {
+  const c = chainOf(f.key);
+  const [from, to, v] = c.pairs[0];
+  return { ...f, meta: `${periodLabel(c)} · ${c.credit} · ${T.largest(nameOf(c, from), nameOf(c, to), `${amount(v, c)} ${CHAIN_TEXT[f.key].short}`)}` };
+});
+const crumbs = [{ label: T.crumb }, { label: T.title }];
+---
+<Page title={T.title} description={T.indexDescription(flows.length)} container="tl" mainClass="gt-skpage" image={paths.image('tools', 'supply-chains')}
+  jsonld={[breadcrumbs(crumbs)]}>
+  <header class="gt-tlhead">
+    <Breadcrumbs items={crumbs} />
+    <h1 class="gt-title gt-tlhead__t">{T.title}</h1>
+    <p class="gt-lede gt-tlhead__a">{T.indexLede(flows.length)}</p>
+  </header>
+  <ul class="gt-skindex">
+    {flows.map((f) => <li><a href={f.path}><span>{f.label}</span><small>{f.meta}</small></a></li>)}
+  </ul>
+</Page>
