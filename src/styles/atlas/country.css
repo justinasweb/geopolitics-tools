@@ -105,6 +105,17 @@
 .gt-lc__note { font: 600 12px var(--sans); fill: var(--ink-muted); }
 .gt-lc__lab { font: 600 13px var(--sans); }
 .gt-lc__mk { stroke: var(--paper); stroke-width: 1.5; }
+/* LineChart: an SVG without a viewBox inside padding that holds the value ticks (left) and end labels (right),
+   so its text keeps these sizes at any width. Narrow columns get fewer year labels and shorter end labels. */
+.gt-lcw { container-type: inline-size; min-width: 0; }
+.gt-lcw > .gt-lc { box-sizing: content-box; width: calc(100% - var(--l) - var(--r)); height: var(--h); padding: 0 var(--r) 0 var(--l); }
+.gt-lcw .gt-lc__line { vector-effect: non-scaling-stroke; }
+.gt-lc__narrow { display: none; }
+@container (max-width: 439px) {
+  .gt-lcw > .gt-lc { width: calc(100% - var(--l) - var(--rn)); padding-right: var(--rn); }
+  .gt-lc__wide { display: none; }
+  .gt-lc__narrow { display: inline; }
+}
 /* compare colours: fixed per country, always named and paired with a marker */
 .gt-cc--us { --cc: var(--cat-1); }
 .gt-cc--cn { --cc: var(--cat-6); }
@@ -198,13 +209,12 @@
 .gt-cpsources__row { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; }
 /* age pyramid */
 .gt-pyr { margin: 0; display: grid; gap: 8px; }
-.gt-pyr svg { width: 100%; height: auto; display: block; font: 400 11px var(--sans); fill: var(--ink-muted); }
+.gt-pyr > svg { width: 100%; display: block; overflow: visible; font: 400 12px var(--sans); fill: var(--ink-muted); font-variant-numeric: tabular-nums; }
 .gt-pyr__m { fill: var(--seq-4); }
-.gt-pyr__f { fill: var(--seq-2); stroke: var(--seq-4); stroke-width: .8; }
+.gt-pyr__f { fill: var(--seq-2); stroke: var(--seq-4); stroke-width: .8; vector-effect: non-scaling-stroke; }
 .gt-pyr__h { font: 600 13px var(--sans); fill: var(--ink); }
-.gt-pyr__age { font-size: 10px; }
 .gt-pyr__yr { max-width: 420px; }
-.gt-pyr svg[hidden] { display: none; }
+.gt-pyr > svg[hidden] { display: none; }
 /* phone jump bar and sheet */
 .gt-jumpbar { display: none; }
 .gt-jumpsheet__list { list-style: none; margin: 0; padding: 8px 16px 16px; display: grid; }

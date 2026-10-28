@@ -20,8 +20,8 @@
 
 .gt-skscroll, .gt-sktable { min-width: 0; }
 .gt-sktable { display: grid; gap: 10px; }
-.gt-sk { width: 100%; height: auto; display: block; overflow: visible; }
-.gt-sk__band { fill-opacity: .42; stroke: var(--paper-raised); stroke-width: .6; }
+.gt-sk { box-sizing: content-box; width: calc(100% - var(--l) - var(--r)); height: var(--h); padding: 0 var(--r) 0 var(--l); display: block; overflow: visible; }
+.gt-sk__band { fill-opacity: .42; stroke: var(--paper-raised); stroke-width: .6; vector-effect: non-scaling-stroke; }
 .gt-sk__band:hover, .gt-sk__band.is-hover { fill-opacity: .7; }
 .gt-sk--0 { fill: var(--ink-disabled); } .gt-sk--1 { fill: var(--cat-1); } .gt-sk--2 { fill: var(--cat-5); } .gt-sk--3 { fill: var(--cat-3); } .gt-sk--4 { fill: var(--cat-6); } .gt-sk--5 { fill: var(--cat-4); } .gt-sk--6 { fill: var(--cat-2); } .gt-sk--7 { fill: var(--cat-8); }
 .gt-sk__node { fill: var(--ink); }
@@ -61,7 +61,7 @@
   .gt-skstage:not(.is-open) .gt-skpanel { border-top: 0; }
   /* The diagram keeps a readable size and scrolls sideways inside its own box. */
   .gt-skscroll { overflow-x: auto; }
-  .gt-skscroll .gt-sk { min-width: 640px; }
+  .gt-skscroll .gt-sk { min-width: 600px; }
   .gt-skfind { min-width: 0; }
   .gt-skindex { grid-template-columns: minmax(0, 1fr); }
 }
