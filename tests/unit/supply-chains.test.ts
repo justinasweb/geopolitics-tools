@@ -106,6 +106,13 @@ describe('Supply chains markup', () => {
     }
   });
 
+  it('keeps every panel bar inside its track, Others included', () => {
+    // Russia sells to one large buyer and many small ones: Others is larger than the first bar.
+    const many: Chain = { ...chain, pairs: [['RUS', 'TUR', 5], ...['CAN', 'AUS', 'USA', 'FRA', 'UKR', 'ARG', 'KAZ', 'POL'].map((id): [string, string, number] => ['RUS', id, 2])] };
+    const widths = [...panelHtml(many, { country: 'RUS' }).matchAll(/width:([\d.]+)%/g)].map((m) => Number(m[1]));
+    expect(Math.max(...widths)).toBe(100);
+  });
+
   it('calls refugees refugee flows, not a supply chain', () => {
     expect(chainTitle('wheat', 'Wheat')).toEqual({ title: 'Wheat', sub: 'supply chain', full: 'Wheat supply chain' });
     expect(chainTitle('refugees', 'Refugees')).toEqual({ title: 'Refugee flows', sub: 'Countries of origin → host countries', full: 'Refugee flows' });

@@ -83,7 +83,8 @@ export function sankeyHtml(c: Chain, s: State): string {
 // ---------- panel ----------
 
 function barsHtml(c: Chain, xs: [string, number][], label: string, share?: number): string {
-  const max = xs[0]?.[1] || 1;
+  // Others, last, can be larger than the first bar.
+  const max = Math.max(...xs.map(([, v]) => v)) || 1;
   const items = xs.map(([id, v]) => {
     const p = c.places[id];
     const who = id === OTHERS ? T.others : p?.h ? `<a href="${esc(p.h)}">${esc(nameOf(c, id))}</a>` : esc(nameOf(c, id));
