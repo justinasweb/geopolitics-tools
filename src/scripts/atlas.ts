@@ -18,6 +18,7 @@ import { countryPanelHtml, tooltipHtml, worldPanelHtml } from './map/panel';
 import { esc, fill } from './map/text';
 import { initControls } from './controls';
 import { initCopy } from './copy';
+import { bindSearchKey } from './header';
 
 interface ManifestLayer extends AtlasLayerRef { id: string; file: string; family: string; name: string; path: string; title: string }
 interface ManifestOverlay { id: string; label: string; variants: AtlasOverlayVariant[] }
@@ -72,6 +73,8 @@ export function initAtlas(root: HTMLElement): void {
   const loadCard = $('[data-at-loading]')!;
   const shareBtn = $('[data-at-share]')!;
   const share = $('#at-share')!;
+  const menuBtn = $('[data-at-menu]');
+  const menu = $('#at-menu');
   const dockBtn = $('[data-at-layersopen]')!;
 
   const { state, askedYear } = readAtlasState(location.search, ctx);
@@ -227,7 +230,7 @@ export function initAtlas(root: HTMLElement): void {
   // ---------- the year card ----------
   function renderYear() {
     const f = file;
-    if (!f || f.years.length < 2) { yearCard.hidden = true; yearCard.innerHTML = ''; return; }
+    if (!f || f.years.length < 2) { yearCard.hidden = true; yearCard.innerHTML = ''; sizeYear(); return; }
     yearCard.hidden = false;
     const n = f.years.length;
     const labels = Object.fromEntries(f.data.map((d, i) => [i, d.label ?? String(d.year)]));
@@ -244,7 +247,11 @@ export function initAtlas(root: HTMLElement): void {
       + `<div class="gt-years__ticks">${ticks.map((i) => `<span>${esc(labels[i])}</span>`).join('')}</div></div>`
       + `<p class="gt-caption gt-atyear__note" aria-live="polite"${yearMsg ? '' : ' hidden'}>${esc(yearMsg)}</p>`;
     initControls();
+    sizeYear();
   }
+  /** The card's height, for the legend above it where the two share the map's foot (narrower desktops). */
+  function sizeYear() { mapBox.style.setProperty('--at-yearh', yearCard.hidden ? '0px' : `${yearCard.offsetHeight}px`); }
+  new ResizeObserver(sizeYear).observe(yearCard);
   function setYearIndex(i: number) {
     if (!file || i < 0 || i >= file.years.length || file.years[i] === shownYear()) return;
     state.year = file.years[i];
@@ -534,7 +541,16 @@ export function initAtlas(root: HTMLElement): void {
     $<HTMLAnchorElement>('[data-at-sharex]', share)!.href = `https://x.com/intent/post?${q}`;
     $<HTMLAnchorElement>('[data-at-sharetg]', share)!.href = `https://t.me/share/url?${q}`;
   }
+  // ---------- Map views: the main menu's topics and Tools ----------
+  function setMenu(open: boolean) {
+    if (!menu || !menuBtn) return;
+    if (open) setShare(false);
+    menu.hidden = !open;
+    menuBtn.setAttribute('aria-expanded', String(open));
+    if (open) menu.querySelector<HTMLElement>('a')?.focus();
+  }
   function setShare(open: boolean) {
+    if (open) setMenu(false);
     share.hidden = !open;
     shareBtn.setAttribute('aria-expanded', String(open));
     if (open) { renderShare(); $<HTMLElement>('[data-gt-copy]', share)!.focus(); }
@@ -647,9 +663,13 @@ export function initAtlas(root: HTMLElement): void {
   search.addEventListener('keydown', (e) => { if (e.key === 'Escape' && search.value) { e.preventDefault(); e.stopPropagation(); search.value = ''; filter(); } });
   root.addEventListener('click', (e) => {
     const t = e.target as HTMLElement;
-    const el = t.closest<HTMLElement>('[data-zoom], [data-map-retry], [data-at-ovoff], [data-at-leghide], [data-select], [data-panel-close], [data-sheet-grab], [data-at-go], [data-at-share], [data-at-shareclose], [data-at-layersopen], [data-at-layersclose], [data-at-hintok]');
+    const el = t.closest<HTMLElement>('[data-zoom], [data-map-retry], [data-at-ovoff], [data-at-leghide], [data-select], [data-panel-close], [data-sheet-grab], [data-at-go], [data-at-share], [data-at-shareclose], [data-at-layersopen], [data-at-layersclose], [data-at-hintok], [data-at-menu], [data-gt-search]');
     if (!share.hidden && !t.closest('#at-share, [data-at-share]')) setShare(false);
+    if (menu && !menu.hidden && !t.closest('#at-menu, [data-at-menu]')) setMenu(false);
     if (!el) return;
+    if (el.hasAttribute('data-at-menu')) { setMenu(!!menu?.hidden); return; }
+    // The site search (phase 8) answers the same event as the header's search button and the "/" key.
+    if (el.hasAttribute('data-gt-search')) { document.dispatchEvent(new CustomEvent('gt-search')); return; }
     if (el.dataset.zoom) ctrl?.zoom(el.dataset.zoom as 'in' | 'out' | 'reset');
     else if (el.dataset.atOvoff) {
       const kind = kindOf(el.dataset.atOvoff);
@@ -672,6 +692,7 @@ export function initAtlas(root: HTMLElement): void {
   document.addEventListener('keydown', (e) => {
     if (e.key !== 'Escape' || e.defaultPrevented) return;
     if (!share.hidden) { setShare(false); shareBtn.focus(); }
+    else if (menu && !menu.hidden) { setMenu(false); menuBtn?.focus(); }
     else if (root.classList.contains('is-layers')) setLayersOpen(false);
     else if (phone && state.country && !canvasEl.contains(document.activeElement)) select(null, true);
     else return;
@@ -679,6 +700,7 @@ export function initAtlas(root: HTMLElement): void {
   });
 
   initCopy();
+  bindSearchKey();
   root.classList.toggle('is-phone', phone);
   restoreLegend();
   renderList();

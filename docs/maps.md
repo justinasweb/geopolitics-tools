@@ -111,7 +111,13 @@ layers whose view is live, and loads their files (`/map/<id>.json`) as the views
   and alert periods all work, with play (not for periods). After a layer change it says "Year kept from your last
   layer" or "2023 is the latest year in this source; you were on 2025" (`yearNote`); a year in the address the layer
   lacks says the same.
+- **Bar.** Logo, "Atlas" with the layer and the selected country, then Map views (one panel with the main menu's
+  topics and Tools, `menuGroups()` in `src/lib/menu.ts`, which the header uses too), Countries, Explorer, the site
+  search (a compact button sending the same `gt-search` event as the header's search and the "/" key) and Share. Its
+  controls are 32px to the eye, centred above the double rule, each with a 44px hit area that is not drawn.
 - **Share.** The bar's Share opens the full address, Copy, X and Telegram; Escape or a click outside closes it.
+- **Narrower desktops (760–1199px of the Atlas).** Side columns 260px and 340px; the year card spans the foot of the
+  map with the legend above it.
 - **First visit.** "Pick a layer" beside the list (above the Layers button on a phone), gone for good after Got it
   (`localStorage`, a per-viewer convenience; without storage it shows each visit).
 - **Loading.** A layer not yet fetched: after 120 ms the old map fades and stays, a card says what is loading and that

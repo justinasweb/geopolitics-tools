@@ -35,6 +35,7 @@ import { worldPanelHtml } from '../scripts/map/panel';
 import { live, paths } from '../lib/routes';
 import { PLACES } from '../lib/places';
 import { breadcrumbs } from '../lib/structured';
+import { menuGroups } from '../lib/menu';
 
 const topics = atlasTopics();
 const layers = atlasLayers();
@@ -80,6 +81,8 @@ const crumbs = [{ label: A.crumb }, { label: A.title }];
 const pageUrl = new URL(paths.atlas(), Astro.site).href;
 const shareQ = (u: string) => `url=${encodeURIComponent(u)}&text=${encodeURIComponent(words.shareText)}`;
 const multi = overlays.filter((o) => o.variants.length > 1);
+// Map views: the main menu's topics and Tools, as the header shows them.
+const groups = menuGroups();
 ---
 <Base title={A.title} description={A.description(layers.length)} image={paths.image('tools', 'atlas')} jsonld={[breadcrumbs(crumbs)]}>
   <LogoSprite />
@@ -89,8 +92,24 @@ const multi = overlays.filter((o) => o.variants.length > 1);
       <a class="gt-logo" href="/" aria-label={UI_TEXT.home}><Lockup /></a>
       <span class="gt-atbar__div" aria-hidden="true"></span>
       <h1 class="gt-atbar__t">{A.title}<span data-at-current>{title(first)}</span></h1>
-      {nav.length > 0 && <nav class="gt-atbar__nav" aria-label={A.nav}>{nav.map((n) => <a href={n.href}>{n.label}</a>)}</nav>}
-      <button class="gt-btn gt-btn--quiet gt-btn--sm gt-atbar__share" type="button" aria-expanded="false" aria-controls="at-share" data-at-share>
+      <nav class="gt-atbar__nav" aria-label={A.nav}>
+        {groups.length > 0 && (
+          <button class="gt-atbar__menu" type="button" aria-expanded="false" aria-controls="at-menu" data-at-menu>{A.mapViews}<Icon name="chevron" /></button>
+        )}
+        {nav.map((n) => <a href={n.href}>{n.label}</a>)}
+      </nav>
+      {groups.length > 0 && (
+        <div class="gt-atmenu" id="at-menu" hidden>
+          {groups.map((g) => (
+            <div class="gt-atmenu__g">
+              <span class="gt-label">{g.name}</span>
+              {g.links.map((l) => <a href={l.path} aria-current={l.path === paths.atlas() ? 'page' : undefined}><strong>{l.text[0]}</strong><span>{l.text[1]}</span></a>)}
+            </div>
+          ))}
+        </div>
+      )}
+      <button class="gt-iconbtn gt-atbar__search" type="button" aria-label={UI_TEXT.search} data-gt-search><Icon name="search" /></button>
+      <button class="gt-btn gt-btn--quiet gt-atbar__share" type="button" aria-expanded="false" aria-controls="at-share" data-at-share>
         <Icon name="link" /><span>{A.share.button}</span>
       </button>
       <section class="gt-atshare" id="at-share" aria-labelledby="at-share-t" hidden>

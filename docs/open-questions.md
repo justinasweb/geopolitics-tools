@@ -116,3 +116,14 @@ The others appear on their own once a view draws them, since the Atlas reads ove
 - Add pipelines and LNG terminals to the gas and oil trade views (GEM, CC BY 4.0), which brings them to the Atlas.
 - Give the outages view a mark per outage (it needs a location per outage; IODA reports by country and region).
 
+## Map canvas: dark band on narrow maps (raised 28 Oct 2026)
+
+**The question.** On a narrow desktop map (the Atlas at 1024px, where the map column is about 420px wide) the MapLibre
+canvas draws a dark band at the top left, under the borders line. It is the canvas itself, not a page element, and it
+was there before the Atlas bar changes. Wider maps do not show it.
+
+**What the site does now.** Nothing yet; the borders line sits over most of it.
+
+**Options.** Look at the engine's bounds and minimum zoom for narrow maps (the world fitted into a column narrower than
+it is tall), and whether the area beyond Web Mercator's latitude limit is drawn in the sea colour.
+
