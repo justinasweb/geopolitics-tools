@@ -44,8 +44,8 @@ servers never see the part after `#`.
 
 | Page | Rule |
 | --- | --- |
-| Country profile | Every country or territory with at least one figure from any source. Fewer than 4 measures: built, `noindex`, with the "few sources" box listing which sources cover it |
-| Dossier | United States, China and Russia: the profile plus money, people, technology and climate sections |
+| Country profile | Every country or territory with at least one figure from any source. Fewer than 4 measures: built, `noindex`, with the "few sources" box listing which sources cover it. Every profile has the People section when WPP covers the place (addendum section 7): population 1950–2100 with the UN range, the age pyramid, births per woman, median age, share aged 65+. People needs the three UN WPP imports (`wpp-total`, `wpp-indicators`, `wpp-age`); its age pyramid has a year slider in five-year steps, 1950–2100, every year drawn at build time on one scale |
+| Dossier | United States, China and Russia: the profile plus money, technology and climate sections |
 | Compare | The three pairs of dossier countries |
 | Indicator | Every registry measure with data in the snapshot. Fewer than 20 places reporting in the common year: built, `noindex`. Measures waiting on a key or permission have no page and are listed on the index as waiting |
 | About, Methodology, Privacy | `src/content/pages/*.md`. Each shows the draft banner until its front matter says `approved: true` |
@@ -173,5 +173,4 @@ theme colours: kicker, title, the headline figure or answer, up to five bars, an
 ## Not done in this phase
 
 - Dossier summaries drafted with AI from a facts file (addendum, D15): the dossiers use the template summary for now.
-- The age pyramid's year slider: the pyramid shows one year.
 - Redeploying when new data arrives: today pages refresh on the next deploy.

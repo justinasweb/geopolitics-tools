@@ -141,7 +141,7 @@ function years(el: HTMLElement) {
       const slow = matchMedia('(prefers-reduced-motion: reduce)').matches;
       timer = setInterval(() => {
         if (+r.value >= +r.max) return stop();
-        r.value = String(+r.value + 1);
+        r.value = String(+r.value + (+r.step || 1));
         update();
       }, slow ? 1600 : 900);
     });

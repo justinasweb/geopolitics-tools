@@ -39,7 +39,8 @@ export interface People {
   medium: (number | null)[];
   band: { lo: (number | null)[]; hi: (number | null)[] } | null;
   lastEstimate: number;
-  pyramid: { year: number; groups: AgeGroup[] } | null;
+  /** The age pyramid: the five-year steps WPP gives (1950, 1955 … 2100), opening on the last one up to the build year. */
+  pyramid: { year: number; years: number[]; byYear: Record<number, AgeGroup[]> } | null;
   old: number | null;
   oldYear: number | null;
 }
@@ -52,13 +53,15 @@ function peopleFor(id: string, pyramidYear: number): People | null {
   const lo = w.total.Low?.[id];
   const hi = w.total.High?.[id];
   const ages = w.ages[id];
-  const ageYears = ages ? Object.keys(ages).map(Number).sort((a, b) => a - b) : [];
-  const py = ageYears.includes(pyramidYear) ? pyramidYear : ageYears.filter((y) => y <= pyramidYear).at(-1) ?? ageYears.at(-1);
+  // The import also keeps the current year; the slider moves in five-year steps, so it is left out here.
+  const allYears = ages ? Object.keys(ages).map(Number).sort((a, b) => a - b) : [];
+  const ageYears = allYears.some((y) => y % 5 === 0) ? allYears.filter((y) => y % 5 === 0) : allYears;
+  const py = ageYears.filter((y) => y <= pyramidYear).at(-1) ?? ageYears.at(-1);
   const shares = py !== undefined ? ageShares(ages[py]) : null;
   return {
     years, medium: years.map((y) => med[y] ?? null), lastEstimate: w.lastEstimate,
     band: lo && hi ? { lo: years.map((y) => (y > w.lastEstimate ? lo[y] ?? null : null)), hi: years.map((y) => (y > w.lastEstimate ? hi[y] ?? null : null)) } : null,
-    pyramid: py !== undefined ? { year: py, groups: ages[py] } : null,
+    pyramid: py !== undefined ? { year: py, years: ageYears, byYear: Object.fromEntries(ageYears.map((y) => [y, ages[y]])) } : null,
     old: shares?.old ?? null, oldYear: shares ? py! : null,
   };
 }
@@ -79,19 +82,24 @@ export interface Dossier {
 
 const pick = (ids: string[], placeId: string) => ids.map((i) => figure(i, placeId)).filter((f): f is Figure => f !== null);
 
+/** The People section: every country page has it, profiles and dossiers alike. */
+export function peopleSection(id: string, buildYear: number): (People & { stats: Figure[] }) | null {
+  const people = peopleFor(id, buildYear);
+  const stats = pick(['tfr', 'median'], id);
+  return people || stats.length ? { ...(people ?? { years: [], medium: [], band: null, lastEstimate: 0, pyramid: null, old: null, oldYear: null }), stats } : null;
+}
+
 export function dossierFor(id: string, buildYear: number): Dossier {
   const moneyStats = pick(['growth', 'inflation', 'unemployment', 'reserves', 'trade', 'fdi'], id);
   const gdp = seriesOf('gdp', id);
   const treasuries = treasuriesFor(id);
-  const people = peopleFor(id, buildYear);
-  const peopleStats = pick(['tfr', 'median', 'lex'], id);
   const techStats = pick(['satellites', 'launches', 'aicompute'], id);
   const models = modelsFor(id);
   const climateStats = pick(['co2', 'co2pc', 'co2cum', 'waterstress'], id);
   const co2 = seriesOf('co2', id, 1990);
   return {
     money: gdp || moneyStats.length || treasuries ? { gdp, stats: moneyStats, treasuries } : null,
-    people: people || peopleStats.length ? { ...(people ?? { years: [], medium: [], band: null, lastEstimate: 0, pyramid: null, old: null, oldYear: null }), stats: peopleStats } : null,
+    people: peopleSection(id, buildYear),
     tech: techStats.length || models ? { stats: techStats, models } : null,
     climate: co2 || climateStats.length ? { co2, stats: climateStats } : null,
   };
