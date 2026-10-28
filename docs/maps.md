@@ -61,8 +61,7 @@ before and without the map script.
 
 `/atlas` (`src/templates/AtlasPage.astro`, `src/lib/atlas.ts`, `src/scripts/atlas.ts`): one full-screen map with the
 shaded layer of every live map view. No data and no layer logic of its own: it lists the layer registry, keeps the
-layers whose view is live, and loads their files (`/map/<id>.json`) as the views do. Built in steps; steps 1 and 2
-are done.
+layers whose view is live, and loads their files (`/map/<id>.json`) as the views do.
 
 - **Layer list.** The menu's topics, then one row per map view family, in menu order; a family with several layers
   (the minerals, the crops, the blocs) has one row with a select, shown when the row is on. Each row shows the layer's
@@ -76,9 +75,12 @@ are done.
   crops and fertilisers, chips, chip machines, arms; the same flows on two layers are offered once), launch sites
   (the launches view's marks), disaster alerts (the all-alerts view's orange and red alerts, last 30 days) and a bloc
   outline (one select of the 19 groupings). Pipelines, cables, chokepoints and outage marks are not listed: no live
-  view draws them. One choice per overlay. An overlay shows the step of its own layer nearest the map's year that has
-  marks (`overlayStep`), with its masks taken off (`overlayAt`); when that is not the map's year, its legend says
-  "Shown for 2023". Turning trade flows on over a trade layer opens on that layer's own flows.
+  view draws them. Flows two layers share (arms exports and imports) are offered once, named for their family ("Arms
+  transfers"). One choice per overlay. An overlay shows the step of its own layer nearest the map's year that has
+  marks (`overlayStep`), with its masks taken off (`overlayAt`). Its legend title says the time actually drawn
+  (`overlayTime`): the one year every mark carries (a crop's or a fuel's flows carry `year` in the layer file; their
+  `label` has no year), else the step drawn ("Launch sites, 2025", "Disaster alerts, last 30 days"); a caption explains
+  when that differs from the map's year. Turning trade flows on over a trade layer opens on that layer's own flows.
 - **Legend box.** Bottom left: the shaded layer's legend (`legendHtml` in `src/scripts/map/legend.ts`, from the
   layer file; drawn at build time for lithium and in the browser after), then one section per overlay with its marks
   and an X that turns it off. Hide folds it to its bar for the session. Mark shapes are defined once (`markSvg`), and
@@ -94,8 +96,30 @@ are done.
   latest one). The year slider comes in step 3.
 - **Indexing.** /atlas is in the sitemap. Any address with a query gets `X-Robots-Tag: noindex, follow` from the
   Worker (`STATE_PAGES` in `worker/index.ts`), since a static page cannot see its query; the canonical is /atlas.
-- **Not yet.** The country panel, the year slider, Share and the phone sheets (step 3). On a phone the list sits
-  under the map until then.
+- **Panel.** No country: the layer and year, a hint, the ten largest (`worldPanelHtml`), the source and "See full
+  page". A country: the map views' own panel (`countryPanelHtml`, with options for the Atlas: no table link, its own
+  no-data block, a block after the facts, a first link), plus "On the layer you had before" (its value on the previous
+  layer and year), "See full page: {layer}" opening the view with the same year and country (`viewHref`), and the
+  country page. With no figure, the panel uses the layer's own words ("No production listed for 2024", "No IPC
+  analysis"), says grey means that, not zero, and lists the country's figures on up to five other rows' current
+  layers, nearest topic first, each a button that switches to it.
+- **Year card.** Shown when the layer has more than one step; it steps by index, so years with gaps (launches), months
+  and alert periods all work, with play (not for periods). After a layer change it says "Year kept from your last
+  layer" or "2023 is the latest year in this source; you were on 2025" (`yearNote`); a year in the address the layer
+  lacks says the same.
+- **Share.** The bar's Share opens the full address, Copy, X and Telegram; Escape or a click outside closes it.
+- **First visit.** "Pick a layer" beside the list (above the Layers button on a phone), gone for good after Got it
+  (`localStorage`, a per-viewer convenience; without storage it shows each visit).
+- **Loading.** A layer not yet fetched: after 120 ms the old map fades and stays, a card says what is loading and that
+  the country stays selected, and the legend and panel show skeleton lines.
+- **Phone (under 760px of the Atlas).** The map fills the screen under a 56px bar (back, Atlas and the layer, Share).
+  The legend folds to one line (ramp, title, Show legend; the choice kept for the session). The Layers button opens
+  the list as a sheet (78% high): overlays first as radio buttons, one at a time, then the shaded layers; picking a
+  layer closes it. Tapping a country opens the panel as a second sheet; closing it keeps the layer. A compact year card
+  sits above the Layers button (the design shows none on a phone). The map refits around the legend line, the card and
+  the sheets.
+- **Styles.** `src/styles/atlas/atlasmap.css`. The phone rules use the named container `atlas`, so cards and panels
+  that are containers themselves do not match them.
 
 ## Territories: what the default map shows
 

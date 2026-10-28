@@ -23,6 +23,9 @@ const LAYER = {
   trade: { pick: 'Trade', title: (c: string) => `${c} trade`, figure: 'Net trade', worldLabel: 'World exports, countries reporting', measure: '', legend: (y: number) => `Exports minus imports, million tonnes, ${y}` },
 };
 
+/** The flow marks' words, without the year (a layer file carries the year apart: src/lib/map/types.ts). */
+const FLOWS_MARK = 'Largest flows';
+
 export const FOOD_TEXT = {
   section: 'Food and fertiliser',
   hub: 'Resources',
@@ -94,7 +97,8 @@ export const FOOD_TEXT = {
   highest: 'Highest',
   netExporters: 'Largest net exporters',
   netImporters: 'Largest net importers',
-  flowsLabel: (year: number) => `Largest flows, ${year}`,
+  flowsMark: FLOWS_MARK,
+  flowsLabel: (year: number) => `${FLOWS_MARK}, ${year}`,
   flowsCaption: (n: number, year: number, product = false) => `The ${n} largest flows in ${year}, exporter to importer, as importers report them${product ? ' to UN Comtrade, in tonnes of product' : ''}.`,
   flowTip: (from: string, to: string, v: string, year: number) => `${from} → ${to}: ${v} (${year})`,
   from: 'From',

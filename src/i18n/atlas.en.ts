@@ -24,8 +24,8 @@ export const ATLAS_TEXT = {
   hide: 'Hide',
   show: 'Show',
   removeOverlay: (name: string) => `Turn off ${name}`,
-  /** Under an overlay drawn from another year than the map's. */
-  overlayYear: (year: string) => `Shown for ${year}`,
+  /** Under an overlay whose marks are from another year than the map's: {drawn} the overlay's, {map} the map's. */
+  drawnFor: 'Drawn for {drawn}, the nearest year with these marks; the map shows {map}.',
   /** On a topic that holds the shown layer. */
   on: (n: number) => `${n} on`,
   /** Under the search box, filled in by the script: {n} rows match the query {q}. */
@@ -36,7 +36,38 @@ export const ATLAS_TEXT = {
   current: (family: string, name: string) => (name.toLowerCase().includes(family.toLowerCase()) ? name : `${family}: ${name}`),
   /** A year span in the layer list. */
   span: (from: string, to: string) => (from === to ? from : `${from}–${to}`),
-  loading: 'Loading the layer…',
-  failed: 'The layer could not be loaded.',
+  /** The bar: the layer, and the selected country after it. */
+  withCountry: (layer: string, country: string) => `${layer} · ${country}`,
   nav: 'Site',
+  loading: (layer: string) => `Loading ${layer}…`,
+  loadingNote: (country: string | null) => `${country ? `${country} stays selected. ` : ''}The old layer stays faded until the new one arrives.`,
+  /** The panel with no country selected. */
+  pickHint: 'Select a country on the map to see its figures here.',
+  top: (year: string) => `Largest, ${year}`,
+  seeFull: (layer: string) => `See full page: ${layer}`,
+  previous: 'On the layer you had before',
+  /** No figure for the selected country: what grey means, in the layer's own words for it (lower-cased by the script). */
+  greyMeans: (none: string) => `Grey on this map means ${none}, not zero.`,
+  otherLayers: (country: string) => `${country} on other layers`,
+  year: {
+    years: 'Year', months: 'Month', days: 'Period',
+    kept: 'Year kept from your last layer.',
+    latest: (got: string, want: string) => `${got} is the latest year in this source; you were on ${want}.`,
+    earliest: (got: string, want: string) => `${got} is the earliest year in this source; you were on ${want}.`,
+    nearest: (got: string, want: string) => `${got} is the nearest year in this source; you were on ${want}.`,
+  },
+  share: {
+    button: 'Share', title: 'Share this view', copy: 'Copy',
+    note: 'The link opens this exact map: layer, year, overlays and country.', on: 'Or share on', close: 'Close',
+  },
+  hint: {
+    title: 'Pick a layer',
+    body: (rows: number, topics: number) => `${rows} layers in ${topics} topics. The map opens on lithium; add overlays such as trade flows or a bloc outline on top.`,
+    phone: (rows: number, topics: number) => `${rows} layers in ${topics} topics. The map opens on lithium.`,
+    ok: 'Got it',
+  },
+  phone: {
+    back: 'Back to the home page', layers: 'Layers', close: 'Close layers', showLegend: 'Show legend',
+    overlay: 'Overlay, one at a time on phone', none: 'None', shaded: 'Shaded layer',
+  },
 };

@@ -94,15 +94,28 @@ export function blockHtml(b: PanelBlock): string {
     + `${b.source ? `<p class="gt-source"><span>${esc(b.source)}</span></p>` : ''}</div>`;
 }
 
+/** What a page adds to the panel (the Atlas): its own block where the place has no figure, a block after the facts,
+ *  a first link (the map view's page), and whether the page has a table to point to. */
+export interface PanelOptions {
+  sheet?: boolean;
+  empty?: string;
+  after?: string;
+  first?: { href: string; label: string };
+  table?: boolean;
+}
+
 /** The panel for a selected place: its facts (figure, detail, rank, the year before), its trend, the ranking around it, more blocks, notes and links on. */
-export function countryPanelHtml(f: LayerFile, yearIndex: number, id: string, sheet = false): string {
+export function countryPanelHtml(f: LayerFile, yearIndex: number, id: string, options: boolean | PanelOptions = false): string {
+  const o: PanelOptions = typeof options === 'boolean' ? { sheet: options } : options;
+  const sheet = !!o.sheet;
   const y = f.data[yearIndex];
   // Periods count different alert levels, so a shorter one is no "before" to compare with.
   const prev = yearIndex > 0 && f.axis !== 'days' ? f.data[yearIndex - 1] : null;
   const e = y.v[id];
   const name = nameOf(f, id);
   const body: string[] = [];
-  if (!e) {
+  if (!e && o.empty) body.push(o.empty);
+  else if (!e) {
     body.push(`<div class="gt-pkf"><span class="gt-pkf__label">${esc(f.text.shareLabel)}</span><span class="gt-pkf__num gt-pkf__num--word">–</span><span class="gt-pkf__meta">${esc(fill(f.text.none, { year: when(y) }))}</span></div>`);
   } else if (e[0] === 0) {
     body.push(`<div class="gt-pkf"><span class="gt-pkf__label">${esc(f.text.shareLabel)}</span><span class="gt-pkf__num gt-pkf__num--word">${esc(f.text.withheld)}</span><span class="gt-pkf__meta">${esc(f.text.withheldWhy)}</span></div>`);
@@ -116,6 +129,7 @@ export function countryPanelHtml(f: LayerFile, yearIndex: number, id: string, sh
     body.push(`<dl class="gt-panel__facts">${facts.map(([dt, dd]) => `<div><dt>${esc(dt)}</dt>${dd}</div>`).join('')}</dl>`);
     if (e[2] && !f.text.detailLabel) body.push(`<p class="gt-ptrend">${esc(e[2])}</p>`);
   }
+  if (o.after) body.push(o.after);
   if (f.axis !== 'days') body.push(sparkHtml(f, id, fill(f.text.trend ?? f.text.shareLabel, { from: when(f.data[0]), to: when(f.data.at(-1)!) })));
   if (e && e[0] > 0 && f.series) body.push(rankingHtml(f, yearIndex, id, fill(f.text.ranking ?? '', { year: when(y) })));
   for (const b of y.more?.[id] ?? []) body.push(blockHtml(b));
@@ -123,11 +137,28 @@ export function countryPanelHtml(f: LayerFile, yearIndex: number, id: string, sh
   if (f.notes[id]) body.push(`<div class="gt-notice gt-notice--inline" role="note">${INFO}<div class="gt-notice__body"><p>${esc(f.notes[id])}</p></div></div>`);
   body.push(`<p class="gt-source"><span>${esc(f.source)}</span></p>`);
   const links: string[] = [];
+  if (o.first) links.push(`<a class="gt-btn" href="${esc(o.first.href)}">${esc(o.first.label)}</a>`);
   if (f.hrefs[id]) links.push(`<a class="gt-btn gt-btn--quiet" href="${esc(f.hrefs[id])}">${esc(f.dossiers.includes(id) ? f.text.dossier : f.text.countryPage)}</a>`);
-  if (e) links.push(`<a class="gt-btn gt-btn--quiet" href="#table" data-show-row="${esc(id)}">${esc(f.text.inTable)}</a>`);
+  if (e && o.table !== false) links.push(`<a class="gt-btn gt-btn--quiet" href="#table" data-show-row="${esc(id)}">${esc(f.text.inTable)}</a>`);
   return `${sheet ? `<button class="gt-sheet__grab" type="button" aria-label="${esc(f.text.close)}" data-sheet-grab></button>` : ''}`
     + `<div class="gt-panel__head"><div class="gt-panel__title"><span class="gt-kicker">${esc(fill(f.text.kicker, { year: when(y) }))}</span><h2 class="gt-h3" tabindex="-1">${esc(name)}</h2></div>`
     + `<button class="gt-iconbtn" type="button" aria-label="${esc(f.text.close)}" data-panel-close>${CLOSE}</button></div>`
     + `<div class="gt-panel__body">${body.filter(Boolean).join('')}</div>`
     + (links.length ? `<div class="gt-panel__foot gt-plinks">${links.join('')}</div>` : '');
+}
+
+/** The panel with no place selected (the Atlas): the layer and year, a hint, the largest places as bars, the source and links on. */
+export function worldPanelHtml(f: LayerFile, yearIndex: number, o: { hint: string; top: string; first?: { href: string; label: string }; n?: number }): string {
+  const y = f.data[yearIndex];
+  const ids = y.order.slice(0, o.n ?? 10);
+  const num = (pid: string) => Math.abs(f.series?.[pid]?.[yearIndex] ?? 0);
+  const max = Math.max(0, ...ids.map(num));
+  const rows = ids.map((pid, i) => `<li><span class="gt-bars__name"><span class="gt-bars__rank">${i + 1}</span><button type="button" data-select="${esc(pid)}">${esc(nameOf(f, pid))}</button></span>`
+    + `<span class="gt-bars__track">${max ? `<span class="gt-bars__fill" style="width:${((100 * num(pid)) / max).toFixed(1)}%"></span>` : ''}</span><span class="gt-bars__val">${esc(y.v[pid]?.[1] ?? '')}</span></li>`).join('');
+  const label = fill(o.top, { year: when(y) });
+  return `<div class="gt-panel__head"><div class="gt-panel__title"><span class="gt-kicker">${esc(fill(f.text.kicker, { year: when(y) }))}</span><h2 class="gt-h3" tabindex="-1">${esc(f.text.world)}</h2></div></div>`
+    + `<div class="gt-panel__body"><p class="gt-atpanel__tip">${esc(o.hint)}</p>`
+    + (rows ? `<div class="gt-pblock gt-pgroup"><span class="gt-label">${esc(label)}</span><ol class="gt-bars gt-bars--tight gt-bars--rank" aria-label="${esc(label)}">${rows}</ol></div>` : '')
+    + `<p class="gt-source"><span>${esc(f.source)}</span></p></div>`
+    + (o.first ? `<div class="gt-panel__foot gt-plinks"><a class="gt-btn" href="${esc(o.first.href)}">${esc(o.first.label)}</a></div>` : '');
 }

@@ -108,3 +108,38 @@ export function overlayAt(o: Overlay, index: number): Overlay {
   if (o.kind === 'points') return { ...o, items: o.items.filter(inStep).map((p) => { const q = { ...p, m: 0 }; delete q.i; return q; }) };
   return o;
 }
+
+/**
+ * When an overlay's drawn marks are from: the one year every mark carries (a crop's largest flows), else the step drawn,
+ * as its layer says it (2025, "2021–2025", "Last 30 days"). `year` is the year to compare with the map's, when there is one.
+ */
+export function overlayTime(parts: Overlay[], step: { year: number; label?: string } | undefined): { text: string; year?: number } | null {
+  const fixed = parts.find((o) => o.year !== undefined)?.year;
+  if (fixed !== undefined) return { text: String(fixed), year: fixed };
+  if (!step) return null;
+  return { text: step.label ?? String(step.year), year: step.label && !/\d{4}/.test(step.label) ? undefined : step.year };
+}
+
+/**
+ * The map view's own address for the Atlas's state on a layer: its page, with the year (as that view writes it) and the
+ * country (its slug), so "See full page" opens the view as the Atlas shows it.
+ */
+export function viewHref(path: string, l: AtlasLayerRef, s: AtlasState, slugs: Record<string, string>): string {
+  const q = new URLSearchParams();
+  const shown = yearOn(l, s.year);
+  if (shown !== l.year) q.set(l.axis === 'months' ? 'month' : l.axis === 'days' ? 'days' : 'year', stepText(l, shown));
+  if (s.country) q.set('country', slugs[s.country] ?? s.country.toLowerCase());
+  const qs = q.toString();
+  return qs ? `${path}?${qs}` : path;
+}
+
+/**
+ * What the year slider says about a year the reader chose: kept, or moved to the latest, earliest or nearest year the
+ * layer has (design review decision 7.4). Nothing when the reader never chose one, or the layer is not over years.
+ */
+export function yearNote(l: AtlasLayerRef, chosen: number | undefined): { kind: 'kept' } | { kind: 'latest' | 'earliest' | 'nearest'; got: number; want: number } | null {
+  if (chosen === undefined || l.axis) return null;
+  const got = yearOn(l, chosen);
+  if (got === chosen) return { kind: 'kept' };
+  return { kind: got === Math.max(...l.years) ? 'latest' : got === Math.min(...l.years) ? 'earliest' : 'nearest', got, want: chosen };
+}

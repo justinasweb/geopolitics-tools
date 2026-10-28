@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { carryYear, kindOf, overlayAt, overlayStep, readAtlasState, toggleOverlay, writeAtlasState, yearOn, type AtlasContext } from '../../src/scripts/map/atlas-state.ts';
+import { carryYear, kindOf, overlayAt, overlayStep, overlayTime, readAtlasState, toggleOverlay, viewHref, writeAtlasState, yearNote, yearOn, type AtlasContext } from '../../src/scripts/map/atlas-state.ts';
 import { legendHtml } from '../../src/scripts/map/legend.ts';
 import type { LayerFile, Overlay } from '../../src/lib/map/types.ts';
 import { monthNumber } from '../../src/scripts/map/state.ts';
@@ -94,6 +94,35 @@ describe('Atlas overlays', () => {
     expect(overlayStep(src, 0, ctx.layers[0], 2025, all)).toBe(0);
     // A map over months: the overlay keeps its own default.
     expect(overlayStep(src, undefined, ctx.layers[2], monthNumber('2026-03'), all)).toBe(2);
+  });
+});
+
+describe('Atlas overlay times', () => {
+  const arc = (year?: number): Overlay => ({ id: 'f', kind: 'arcs', label: 'Largest flows', year, items: [] });
+  it('says the one year every mark carries, else the step drawn', () => {
+    expect(overlayTime([arc(2025)], { year: 2024 })).toEqual({ text: '2025', year: 2025 });
+    expect(overlayTime([arc()], { year: 2024 })).toEqual({ text: '2024', year: 2024 });
+    expect(overlayTime([arc()], { year: 2025, label: '2021–2025' })).toEqual({ text: '2021–2025', year: 2025 });
+    // A period is not a year to compare with the map's.
+    expect(overlayTime([arc()], { year: 30, label: 'Last 30 days' })).toEqual({ text: 'Last 30 days', year: undefined });
+  });
+});
+
+describe('Atlas panel links and year notes', () => {
+  const [lithium, oil, conflict, disasters] = ctx.layers;
+  it('opens the map view as the Atlas shows it', () => {
+    expect(viewHref('/oil/trade', oil, { layer: 'oil-trade', overlays: [] }, ctx.slugs)).toBe('/oil/trade');
+    expect(viewHref('/oil/trade', oil, { layer: 'oil-trade', year: 2020, country: 'IND', overlays: [] }, ctx.slugs)).toBe('/oil/trade?year=2020&country=india');
+    expect(viewHref('/conflict', conflict, { layer: 'conflict', year: monthNumber('2026-02'), overlays: [] }, ctx.slugs)).toBe('/conflict?month=2026-02');
+    expect(viewHref('/disasters', disasters, { layer: 'disasters', year: 90, overlays: [] }, ctx.slugs)).toBe('/disasters?days=90');
+  });
+  it('says whether a chosen year was kept or moved, and where to', () => {
+    expect(yearNote(lithium, undefined)).toBeNull();
+    expect(yearNote(lithium, 2025)).toEqual({ kind: 'kept' });
+    expect(yearNote(oil, 2025)).toEqual({ kind: 'latest', got: 2024, want: 2025 });
+    expect(yearNote(oil, 2010)).toEqual({ kind: 'earliest', got: 2015, want: 2010 });
+    expect(yearNote(oil, 2018)).toEqual({ kind: 'nearest', got: 2020, want: 2018 });
+    expect(yearNote(conflict, monthNumber('2026-02'))).toBeNull();
   });
 });
 

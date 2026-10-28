@@ -2,7 +2,7 @@
    the map side by side. The map host, zoom, tooltip and states are the map views' (mapview.css). */
 
 html:has(.gt-atlas), html:has(.gt-atlas) body { height: 100%; overflow: hidden; }
-.gt-atlas { height: 100vh; height: 100dvh; display: grid; grid-template-rows: auto 1fr; background: var(--paper); overflow: hidden; container-type: inline-size; }
+.gt-atlas { height: 100vh; height: 100dvh; display: grid; grid-template-rows: auto 1fr; background: var(--paper); overflow: hidden; container: atlas / inline-size; }
 
 .gt-atbar { position: relative; z-index: 6; display: flex; align-items: center; gap: 16px; padding: 0 16px; min-height: 52px; border-bottom: 3px double var(--ink); background: var(--paper); }
 .gt-atbar .gt-logo { display: inline-flex; align-items: center; color: var(--ink); text-decoration: none; flex: none; }
@@ -14,7 +14,7 @@ html:has(.gt-atlas), html:has(.gt-atlas) body { height: 100%; overflow: hidden; 
 .gt-atbar__nav a { color: var(--ink); text-decoration: none; }
 .gt-atbar__nav a:hover { text-decoration: underline; }
 
-.gt-atbody { display: grid; grid-template-columns: 300px minmax(0, 1fr); min-height: 0; }
+.gt-atbody { display: grid; grid-template-columns: 300px minmax(0, 1fr) 360px; min-height: 0; }
 
 /* The layer list */
 .gt-atlayers { display: flex; flex-direction: column; min-height: 0; border-right: 1px solid var(--rule); background: var(--paper); position: relative; }
@@ -61,23 +61,13 @@ html:has(.gt-atlas), html:has(.gt-atlas) body { height: 100%; overflow: hidden; 
 .gt-atmap { position: relative; background: var(--paper-sunk); overflow: hidden; min-width: 0; }
 .gt-atmap .gt-mapcanvas { transition: opacity .2s; }
 .gt-atmap.is-loading .gt-mapcanvas { opacity: .35; filter: grayscale(.6); }
-.gt-atborders { position: absolute; left: 16px; bottom: 8px; z-index: 1; margin: 0; max-width: calc(100% - 200px); font: 400 12px/16px var(--sans); color: var(--ink-muted); }
+/* The borders note sits at the top of the map, clear of the legend and the year card. */
+.gt-atborders { position: absolute; left: 16px; top: 12px; z-index: 1; margin: 0; max-width: calc(100% - 96px); padding: 4px 8px; background: color-mix(in srgb, var(--paper-sunk) 85%, transparent); font: 400 12px/16px var(--sans); color: var(--ink-muted); }
 .gt-atborders i { display: inline-block; width: 18px; height: 0; border-top: 1.6px dashed var(--ink-muted); vertical-align: middle; margin-right: 6px; }
 .gt-atborders a { color: inherit; }
 
 @media (prefers-reduced-motion: reduce) {
   .gt-lgroup summary::before, .gt-atmap .gt-mapcanvas { transition: none; }
-}
-
-/* Phone (the AtlasPhone sheets come in a later step): the map on top, the layer list under it. */
-@container (max-width: 759px) {
-  .gt-atbar { gap: 10px; padding: 0 12px; }
-  .gt-atbar__nav, .gt-atbar__div { display: none; }
-  .gt-atbar__t { flex-direction: column; gap: 2px; font-size: 18px; }
-  .gt-atbody { grid-template-columns: minmax(0, 1fr); grid-template-rows: 55% minmax(0, 1fr); }
-  .gt-atlayers { order: 2; border-right: 0; border-top: 1px solid var(--rule); }
-  .gt-atborders { max-width: calc(100% - 32px); }
-  .gt-atleg { left: 12px; bottom: 12px; width: auto; right: 64px; max-height: calc(100% - 24px); }
 }
 
 /* Overlay rows: the mark before the name */
@@ -86,7 +76,7 @@ html:has(.gt-atlas), html:has(.gt-atlas) body { height: 100%; overflow: hidden; 
 .gt-lyr__t b .gt-mark { flex: none; }
 
 /* The legend box: the shaded layer first, then one section per overlay, each with an X; Hide folds it to its bar */
-.gt-atleg { position: absolute; left: 16px; bottom: 32px; z-index: 2; width: 360px; max-width: calc(100% - 88px); max-height: calc(100% - 48px); overflow: auto; display: grid; align-content: start; background: color-mix(in srgb, var(--paper-raised) 95%, transparent); border: 1px solid var(--rule-strong); }
+.gt-atleg { position: absolute; left: 16px; bottom: 16px; z-index: 2; width: 360px; max-width: calc(100% - 88px); max-height: calc(100% - 72px); overflow: auto; display: grid; align-content: start; background: color-mix(in srgb, var(--paper-raised) 95%, transparent); border: 1px solid var(--rule-strong); }
 .gt-atleg__bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 4px 12px; border-bottom: 1px solid var(--rule); }
 .gt-atleg.is-folded .gt-atleg__bar { border-bottom: 0; }
 .gt-atleg__bar .gt-label { margin: 0; }
@@ -102,3 +92,141 @@ html:has(.gt-atlas), html:has(.gt-atlas) body { height: 100%; overflow: hidden; 
 .gt-atleg .gt-caption { margin: 0; }
 .gt-linkbtn { min-height: 32px; border: 0; background: none; padding: 4px 0; font: 600 13px/1 var(--sans); color: var(--brand); text-decoration: underline; cursor: pointer; text-align: left; }
 .gt-linkbtn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+/* The bar's Share and its popover */
+.gt-atbar__share[aria-expanded="true"] { background: var(--paper-sunk); border-color: var(--ink); }
+.gt-atbar .gt-atbar__back { display: none; }
+.gt-atshare { position: absolute; top: calc(100% + 6px); right: 16px; z-index: 8; width: 440px; max-width: calc(100% - 32px); padding: 12px 16px 16px; display: grid; gap: 10px; background: var(--paper-raised); border: 1px solid var(--ink); box-shadow: var(--shadow-pop); }
+.gt-atshare[hidden] { display: none; }
+.gt-atshare__head { display: flex; justify-content: space-between; align-items: center; }
+.gt-atshare .gt-label, .gt-atshare .gt-caption { margin: 0; }
+.gt-aturl { display: flex; gap: 8px; align-items: stretch; }
+.gt-aturl code { flex: 1; min-width: 0; padding: 8px 10px; background: var(--paper-sunk); border: 1px solid var(--rule-strong); font: 400 13px/18px ui-monospace, SFMono-Regular, Menlo, monospace; overflow-wrap: anywhere; }
+.gt-atshare__icons { display: flex; align-items: center; gap: 8px; }
+.gt-atshare .gt-share__icon { display: inline-grid; place-items: center; width: 44px; height: 44px; border: 1px solid var(--rule-strong); background: var(--paper-raised); color: var(--ink); }
+.gt-atshare .gt-share__icon:hover { border-color: var(--ink); }
+.gt-atshare .gt-share__icon svg { width: 18px; height: 18px; fill: currentColor; }
+
+/* First visit: a dark note beside the list, gone for good after Got it */
+.gt-athint { position: absolute; z-index: 5; left: calc(100% + 12px); top: 92px; width: 260px; padding: 14px 16px; display: grid; gap: 6px; justify-items: start; background: var(--ink); color: var(--paper); box-shadow: var(--shadow-pop); }
+.gt-athint[hidden] { display: none; }
+.gt-athint::before { content: ""; position: absolute; left: -8px; top: 22px; border: 8px solid transparent; border-left: 0; border-right-color: var(--ink); }
+.gt-athint b { font: 600 17px/22px var(--serif); }
+.gt-athint p { margin: 0; font: 400 14px/20px var(--sans); }
+.gt-athint .gt-btn { color: var(--paper); border-color: color-mix(in srgb, var(--paper) 60%, transparent); background: transparent; }
+.gt-athint .gt-btn:focus-visible { outline-color: var(--paper); }
+.gt-athint--phone { display: none; }
+
+/* Loading another layer: a card over the faded map */
+.gt-atloadcard { position: absolute; top: 56px; left: 50%; transform: translateX(-50%); z-index: 3; display: grid; gap: 4px; justify-items: center; max-width: calc(100% - 96px); padding: 12px 20px; background: var(--paper-raised); border: 1px solid var(--rule-strong); box-shadow: var(--shadow-pop); text-align: center; }
+.gt-atloadcard[hidden] { display: none; }
+.gt-atloadcard p { margin: 0; }
+.gt-atloadcard__t { display: inline-flex; align-items: center; gap: 10px; font: 600 16px/22px var(--serif); }
+.gt-atspin { width: 16px; height: 16px; border: 2px solid var(--rule-strong); border-top-color: var(--ink); border-radius: 50%; animation: gt-atspin .9s linear infinite; }
+@keyframes gt-atspin { to { transform: rotate(360deg); } }
+
+/* The year card, bottom right, only when the layer has years */
+.gt-atyear { position: absolute; right: 16px; bottom: 40px; z-index: 2; width: min(360px, calc(100% - 408px)); padding: 10px 14px; background: color-mix(in srgb, var(--paper-raised) 95%, transparent); border: 1px solid var(--rule-strong); display: grid; gap: 4px; }
+.gt-atyear[hidden] { display: none; }
+.gt-atyear .gt-caption { margin: 0; }
+.gt-atyear__note[hidden] { display: none; }
+
+/* The phone legend line: hidden on desktop */
+.gt-atlegm__b { display: none; }
+
+/* The panel: the world, or the selected country */
+.gt-atpanel { border-left: 1px solid var(--rule); min-height: 0; overflow: hidden; display: flex; flex-direction: column; }
+.gt-atpanel .gt-panel__body { flex: 1; min-height: 0; overflow: auto; align-content: start; }
+.gt-atpanel__tip { margin: 0; padding: 8px 10px; background: var(--paper-sunk); font: 400 14px/20px var(--sans); }
+.gt-atprev { display: grid; gap: 4px; padding-top: 12px; border-top: 1px solid var(--rule); }
+.gt-atprev p { margin: 0; font: 400 14px/20px var(--sans); color: var(--ink-muted); }
+.gt-atprev b { color: var(--ink); }
+.gt-atprev .gt-label { margin: 0; }
+.gt-atempty { display: grid; gap: 8px; justify-items: start; }
+.gt-atempty .gt-ico { width: 28px; height: 28px; fill: none; stroke: var(--ink); stroke-width: 1.5; }
+.gt-atempty p { margin: 0; font: 400 15px/22px var(--sans); color: var(--ink-muted); }
+.gt-atempty .gt-atempty__t { font: 600 20px/26px var(--serif); color: var(--ink); }
+.gt-atpanel .gt-prow__n .gt-linkbtn { min-height: 0; padding: 0; font-weight: 400; font-size: 14px; }
+
+/* Phone overlays: hidden on desktop, where each topic lists its own */
+.gt-atov { display: none; }
+.gt-atsheet__head { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .gt-atspin { animation: none; }
+}
+
+/* ---------- Phone (AtlasPhone): the map fills the screen; the list and the panel are sheets ---------- */
+@container atlas (max-width: 759px) {
+  .gt-atlas .gt-atbar { gap: 8px; padding: 0 8px 0 4px; min-height: 56px; }
+  .gt-atlas .gt-atbar .gt-atbar__back { display: inline-grid; }
+  .gt-atlas .gt-atbar__back svg { width: 16px; height: 16px; transform: rotate(90deg); fill: none; stroke: currentColor; stroke-width: 1.6; }
+  .gt-atlas .gt-atbar .gt-logo, .gt-atlas .gt-atbar__nav, .gt-atlas .gt-atbar__div { display: none; }
+  .gt-atlas .gt-atbar__t { flex-direction: column; align-items: flex-start; gap: 2px; font-size: 18px; }
+  .gt-atlas .gt-atbar__t span { max-width: 100%; font-size: 13px; }
+  .gt-atlas .gt-atbar__share { min-width: 44px; min-height: 44px; padding: 0; justify-content: center; }
+  .gt-atlas .gt-atbar__share span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .gt-atlas .gt-atshare { left: 8px; right: 8px; width: auto; max-width: none; }
+
+  .gt-atlas .gt-atbody { grid-template-columns: minmax(0, 1fr); position: relative; }
+  .gt-atlas .gt-atmap { grid-row: 1; }
+
+  /* The layers sheet */
+  .gt-atlas .gt-atlayers { position: absolute; left: 0; right: 0; bottom: 0; z-index: 7; max-height: 78%; border: 0; border-radius: 4px 4px 0 0; background: var(--paper-raised); box-shadow: var(--shadow-pop); transform: translateY(105%); visibility: hidden; transition: transform .2s, visibility 0s .2s; }
+  .gt-atlas.is-layers .gt-atlayers { transform: none; visibility: visible; transition: transform .2s; }
+  .gt-atlas .gt-atsheet__head { display: flex; justify-content: space-between; align-items: center; padding: 8px 8px 0 16px; }
+  .gt-atlas .gt-atsheet__head .gt-h3 { margin: 0; }
+  .gt-atlas .gt-atlayers__top { border-bottom: 0; padding-top: 4px; }
+  .gt-atlas .gt-atlayers__top > .gt-label { display: none; }
+  .gt-atlas .gt-atlayers .gt-athint { display: none; }
+  .gt-atlas .gt-atov { display: grid; gap: 8px; margin: 0; padding: 0 16px 8px; border: 0; }
+  .gt-atlas .gt-atov legend { padding: 0; margin-bottom: 8px; }
+  .gt-atlas .gt-atov__opts { display: flex; flex-wrap: wrap; gap: 8px; }
+  .gt-atlas .gt-atov__o { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 14px 0 12px; border: 1px solid var(--rule-strong); border-radius: 999px; font: 600 14px/1 var(--sans); cursor: pointer; }
+  .gt-atlas .gt-atov__o span { display: inline-flex; align-items: center; gap: 6px; }
+  .gt-atlas .gt-atov__o:has(input:checked) { border-color: var(--ink); background: var(--brand-soft); }
+  .gt-atlas .gt-atov__o input { margin: 0; accent-color: var(--brand); }
+  .gt-atlas .gt-atov__o:has(input:focus-visible) { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .gt-atlas .gt-atov__sub { display: grid; gap: 4px; }
+  .gt-atlas .gt-atov__sub[hidden] { display: none; }
+  .gt-atlas .gt-atov__shaded { margin: 12px 0 0; }
+  .gt-atlas .gt-lgroup__ov, .gt-atlas .gt-lyrs--ov { display: none !important; }
+  .gt-atlas .gt-lgroup summary { padding-left: 32px; }
+  .gt-atlas .gt-lgroup summary::before { left: 14px; }
+  .gt-atlas .gt-lyrs { padding: 0 8px 8px 12px; }
+
+  /* The legend: one line at the top, unfolding */
+  .gt-atlas .gt-atleg { top: 12px; bottom: auto; left: 12px; right: 12px; width: auto; max-width: none; max-height: 60%; }
+  .gt-atlas .gt-atleg__bar { display: none; }
+  .gt-atlas .gt-atlegm__b { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 44px; padding: 6px 10px; border: 0; background: none; font: inherit; color: var(--ink); text-align: left; cursor: pointer; }
+  .gt-atlas .gt-atlegm__b:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+  .gt-atlas .gt-atlegm__ramp { display: inline-flex; flex: none; }
+  .gt-atlas .gt-atlegm__ramp i { width: 8px; height: 10px; }
+  .gt-atlas .gt-atlegm__t { flex: 1; min-width: 0; font-size: 13px; line-height: 18px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .gt-atlas .gt-atlegm__a { flex: none; font: 600 13px/1 var(--sans); color: var(--brand); text-decoration: underline; text-underline-offset: 2px; }
+  .gt-atlas .gt-atleg .gt-atleg__body .gt-atleg__s:first-child { border-top: 1px solid var(--rule); }
+  .gt-atlas .gt-atleg [data-at-shaded] .gt-legend__title { display: none; }
+
+  /* The map's own controls */
+  .gt-atlas .gt-zoom { top: auto; bottom: 156px; right: 12px; }
+  .gt-atlas .gt-atborders { display: none; }
+  .gt-atlas .gt-atyear { left: 12px; right: 12px; bottom: 80px; width: auto; padding: 8px 12px; }
+  .gt-atlas .gt-atyear .gt-years__ticks { display: none; }
+  .gt-atlas .gt-atdock { position: absolute; left: 12px; right: 12px; bottom: 16px; z-index: 3; }
+  .gt-atlas .gt-atdock__l { width: 100%; justify-content: flex-start; gap: 10px; min-height: 52px; background: var(--paper-raised); color: var(--ink); border: 1px solid var(--ink); box-shadow: var(--shadow-pop); }
+  .gt-atlas .gt-atdock__l .gt-ico { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.6; }
+  .gt-atlas .gt-atdock__l span { margin-left: auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 400; color: var(--ink-muted); }
+  .gt-atlas .gt-athint--phone { display: grid; left: 12px; right: 12px; top: auto; bottom: 84px; width: auto; }
+  .gt-atlas .gt-athint--phone[hidden] { display: none; }
+  .gt-atlas .gt-athint--phone::before { left: 40px; top: auto; bottom: -8px; border: 8px solid transparent; border-bottom: 0; border-top-color: var(--ink); }
+  .gt-atlas .gt-atloadcard { top: 68px; max-width: calc(100% - 24px); }
+
+  /* The country sheet */
+  .gt-atlas .gt-atpanel { position: absolute; left: 0; right: 0; bottom: 0; z-index: 6; max-height: 58%; border: 0; border-radius: 4px 4px 0 0; box-shadow: var(--shadow-pop); display: none; }
+  .gt-atlas.is-country .gt-atpanel { display: flex; }
+  .gt-atlas .gt-atpanel.is-full { max-height: 92%; }
+  .gt-atlas .gt-atpanel .gt-panel__head { padding: 4px 16px 12px; }
+  .gt-atlas .gt-atpanel .gt-panel__body { padding: 14px 16px 16px; }
+  .gt-atlas .gt-atpanel .gt-panel__foot { padding: 12px 16px; flex-wrap: wrap; }
+  .gt-atlas.is-country .gt-atdock, .gt-atlas.is-country .gt-atyear, .gt-atlas.is-country .gt-athint--phone { visibility: hidden; }
+}

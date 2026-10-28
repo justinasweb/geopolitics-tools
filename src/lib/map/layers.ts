@@ -669,7 +669,7 @@ function foodLayer(p: FoodPage): LayerFile {
     const at = anchors();
     const items = p.flows.filter((f) => at[f.from] && at[f.to]).slice(0, TOP_FLOWS)
       .map((f) => ({ p: arcXY(at[f.from], at[f.to]), w: f.amount, tip: F.flowTip(nameOf2(f.from), nameOf2(f.to), mt(f.amount), p.flowYear!) }));
-    overlays.push({ id: 'flows', kind: 'arcs', label: F.flowsLabel(p.flowYear), items });
+    overlays.push({ id: 'flows', kind: 'arcs', label: F.flowsMark, year: p.flowYear, items });
   }
   return {
     id: `food-${p.id}`, name: L.title(T.pick), scale: trade ? 'div' : 'seq', years: p.years, year: p.year, ticks: p.ticks, ends: trade ? F.ends : undefined,
@@ -723,8 +723,7 @@ function energyLayer(p: EnergyPage): LayerFile {
       const items = p.flows.filter((f) => f.kind === kind && at[f.from] && at[f.to]).slice(0, ENERGY_TOP)
         .map((f) => ({ p: arcXY(at[f.from], at[f.to]), w: f.amount, tip: E.flowTip(nameOf2(f.from), nameOf2(f.to), energyAmount(p.fuel, 'production', f.amount), p.flowYear!, kind && E.kind[kind]) }));
       if (!items.length) continue;
-      const label = kind === 'pipe' ? E.pipeLabel(p.flowYear) : kind === 'lng' ? E.lngLabel(p.flowYear) : E.flowsLabel(p.flowYear);
-      overlays.push({ id: `flows-${kind ?? 'all'}`, kind: 'arcs', label, ...(kind === 'lng' ? { dashed: true } : {}), items });
+      overlays.push({ id: `flows-${kind ?? 'all'}`, kind: 'arcs', label: E.marks[kind ?? 'flows'], year: p.flowYear, ...(kind === 'lng' ? { dashed: true } : {}), items });
     }
   }
   const unit = p.layer === 'reserves' ? (p.fuel === 'oil' ? 'bn barrels' : 'tcm') : p.fuel === 'oil' ? 'kb/d' : 'bcm';

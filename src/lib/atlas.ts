@@ -126,7 +126,8 @@ let overlayCache: AtlasOverlay[] | null = null;
 /**
  * The overlays whose map view is live (spec: flow arcs, pipelines, cables, chokepoints, disaster dots, bloc outline).
  * Each is drawn from the layer file of the view that draws it, so the Atlas computes nothing of its own:
- *  - trade flows: the arcs of every live layer that has them (oil, gas, the crops, chips, arms), the same flows once;
+ *  - trade flows: the arcs of every live layer that has them (oil, gas, the crops, chips, arms); flows two layers
+ *    share are offered once, named for their family ("Arms transfers");
  *  - launch sites: the marks on the launches view; disaster alerts: the orange and red alerts of the all-alerts view
  *    over its shortest period;
  *  - bloc outline: the groupings every layer file lists, when the blocs views are live.
@@ -139,14 +140,21 @@ export function atlasOverlays(): AtlasOverlay[] {
   const out: AtlasOverlay[] = [];
 
   const flows: AtlasOverlayVariant[] = [];
-  const seen = new Set<string>();
+  // The same flows on several layers (arms exports and imports) are offered once, named for their family.
+  const seen = new Map<string, AtlasOverlayVariant>();
   for (const l of layers) {
     const f = layerFile(l.id);
     const arcs = (f.overlays ?? []).filter((o) => o.kind === 'arcs' && o.items.length);
     const sig = JSON.stringify(arcs.map((o) => o.items));
-    if (!arcs.length || seen.has(sig)) continue;
-    seen.add(sig);
-    flows.push(variantOf(`flows-${l.key}`, l, f, arcs));
+    if (!arcs.length) continue;
+    const twin = seen.get(sig);
+    if (twin) {
+      twin.label = NAV_TEXT.views[l.family]?.[0] ?? twin.label;
+      continue;
+    }
+    const v = variantOf(`flows-${l.key}`, l, f, arcs);
+    seen.set(sig, v);
+    flows.push(v);
   }
   if (flows.length) out.push({ id: 'flows', label: O.flows.label, desc: O.flows.desc, topic: 'resources', glyph: 'arc', variants: flows });
 
