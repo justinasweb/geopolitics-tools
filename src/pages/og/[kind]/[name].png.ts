@@ -33,6 +33,10 @@ import { ENERGY_TEXT } from '../../../i18n/energy.en';
 import { EXPLORER_TEXT } from '../../../i18n/explorer.en';
 import { explorerMeasures } from '../../../lib/explorer';
 import { DEPS_TEXT } from '../../../i18n/dependencies.en';
+import { CHAIN_TEXT, CHAINS_TEXT, chainTitle } from '../../../i18n/supply-chains.en';
+import { chainLinks, chainOf } from '../../../lib/supply-chains';
+import { amount as chainAmount, totals } from '../../../lib/supply-chains/model';
+import { ledeOf, periodLabel } from '../../../lib/supply-chains/render';
 import type { View } from '../../../lib/explorer/model';
 
 export const getStaticPaths = (() => {
@@ -176,6 +180,17 @@ function card(r: Route | null): Card {
     return { kicker: EXPLORER_TEXT.title, title: EXPLORER_TEXT.views[view], caption: EXPLORER_TEXT.description[view as View](explorerMeasures().length) };
   }
   if (r.kind === 'tool' && r.id === 'dependencies') return { kicker: DEPS_TEXT.crumb, title: DEPS_TEXT.title, caption: DEPS_TEXT.lede };
+  if (r.kind === 'tool' && r.id === 'supply-chains') return { kicker: CHAINS_TEXT.crumb, title: CHAINS_TEXT.title, caption: CHAINS_TEXT.indexLede(chainLinks().length) };
+  if (r.kind === 'tool' && r.id.startsWith('supply-chains:')) {
+    const c = chainOf(r.id.split(':')[1]);
+    // Units longer than "kb/d" wrap beside the bars, so they go in the source line instead.
+    const { short, unit } = CHAIN_TEXT[c.key];
+    const fits = short.length <= 4;
+    return {
+      kicker: CHAINS_TEXT.title, title: chainTitle(c.key, c.label).full, caption: ledeOf(c), source: `${c.credit}, ${periodLabel(c)}${fits ? '' : `, ${unit}`}`,
+      bars: totals(c.pairs, 0).slice(0, 5).map(([id, v]) => ({ label: nameOf(id), value: v, text: fits ? `${chainAmount(v, c)} ${short}` : chainAmount(v, c) })),
+    };
+  }
   return { kicker: OG_TEXT.pageKicker, title: TITLES[r.id || r.kind] ?? r.id };
 }
 

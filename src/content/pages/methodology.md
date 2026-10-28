@@ -50,6 +50,14 @@ SIPRI measures arms deliveries in trend-indicator values (TIV): a common unit ba
 
 SIPRI's terms allow reuse of under 10% of its dataset, so we publish these derived totals only and offer no download of the underlying records.
 
+## Supply chains
+
+Each supply chain page shows one flow for one period: the latest year its source reports (for arms, the latest five-year total). We never mix years in one diagram, and flows from different sources can have different latest years, so each page says which year it shows.
+
+The flows are the main bilateral flows each source publishes, not all trade. FAOSTAT's detailed trade matrix is cut to each importer's main suppliers; UN Comtrade's flows are as importers report them; UNHCR lists smaller origin and host pairs together. Totals on these pages are totals of the flows shown.
+
+**Concentration** is the Herfindahl–Hirschman index on suppliers' shares of the flows shown: the sum of the squared percentage shares, from near 0 (many small suppliers) to 10,000 (one supplier). As in the 2023 US merger guidelines, 1,000 to 1,800 counts as moderately concentrated and above 1,800 as highly concentrated. For a country, it is worked out on its own suppliers. Refugee flows have no concentration: countries of origin are not suppliers.
+
 ## Common years, preliminary years and coverage
 
 Sources publish in stages: a few countries report a year early, most report later. The common year on each indicator page is the latest year that at least 80% as many countries have reported as in the best of the five years before it. Later years that some countries have already reported are **preliminary**; the page lists them and never uses them as the default until coverage catches up.

@@ -55,6 +55,7 @@ export const NAV_UTIL = [
   { id: 'atlas', path: '/atlas' },
   { id: 'explorer', path: '/explorer' },
   { id: 'dependencies', path: '/dependencies' },
+  { id: 'supply-chains', path: '/supply-chains' },
 ];
 
 export const NAV_FOOTER = [

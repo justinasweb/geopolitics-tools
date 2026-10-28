@@ -6,7 +6,7 @@
 //
 // Map views, hubs and tools are registered but not live until their phase builds them; the menu and every link
 // skip routes that are not live, so nothing links to a page that does not exist.
-import { SECTION_SLUGS, INDICATOR_SLUGS, COMPARE_JOIN, VIEW_SLUGS, DISASTER_SLUGS, FOOD_SLUGS, FOOD_LAYER_SLUGS, ENERGY_LAYER_SLUGS, BLOC_SLUGS, EXPLORER_SLUGS } from '../i18n/slugs.en.ts';
+import { SECTION_SLUGS, INDICATOR_SLUGS, COMPARE_JOIN, VIEW_SLUGS, DISASTER_SLUGS, FOOD_SLUGS, FOOD_LAYER_SLUGS, ENERGY_LAYER_SLUGS, BLOC_SLUGS, EXPLORER_SLUGS, CHAIN_SLUGS } from '../i18n/slugs.en.ts';
 import { NAV_HUBS, NAV_UTIL } from '../data/nav.ts';
 import { INDICATORS } from '../data/indicators.ts';
 import { countryModel, countryPages, DOSSIERS } from './country.ts';
@@ -25,6 +25,7 @@ import { HISTORY_BLOCS } from './history.ts';
 import { riverIds } from './rivers.ts';
 import { depsLive } from './dependence.ts';
 import { explorerMeasures } from './explorer.ts';
+import { liveChains } from './supply-chains.ts';
 import { VIEWS as EXPLORER_VIEWS } from './explorer/model.ts';
 
 export type Lang = 'en';
@@ -79,6 +80,9 @@ export const paths = {
   explorer: (view: string) => `/${S.explorer}${EXPLORER_SLUGS[view] ? `/${EXPLORER_SLUGS[view]}` : ''}`,
   /** Dependencies: /dependencies, countries against ten commodities. */
   dependencies: () => `/${S.dependencies}`,
+  /** Supply chains: /supply-chains, and one page per flow (/supply-chains/soybeans). */
+  supplyChains: () => `/${S['supply-chains']}`,
+  supplyChain: (key: string) => `/${S['supply-chains']}/${CHAIN_SLUGS[key] ?? key}`,
   /** Disasters: /disasters, /disasters/earthquakes. */
   disasters: (kind: string) => `/${S.disasters}${DISASTER_SLUGS[kind] ? `/${DISASTER_SLUGS[kind]}` : ''}`,
 };
@@ -221,6 +225,22 @@ function build(): Route[] {
     });
   }
 
+  // Supply chains (phase 6): the index and one page per flow whose source is in the snapshot.
+  const chains = liveChains();
+  if (chains.length) {
+    tools.add('supply-chains');
+    out.push({
+      key: 'tool:supply-chains', kind: 'tool', lang, path: paths.supplyChains(), live: true, indexed: true,
+      aliases: [], id: 'supply-chains', image: paths.image('tools', 'supply-chains'), lastmod: snapshotDate,
+    });
+    for (const k of chains) {
+      out.push({
+        key: `tool:supply-chains:${k}`, kind: 'tool', lang, path: paths.supplyChain(k), live: true, indexed: true,
+        aliases: [], id: `supply-chains:${k}`, image: paths.image('tools', `supply-chains-${CHAIN_SLUGS[k] ?? k}`), lastmod: snapshotDate,
+      });
+    }
+  }
+
   // Not built yet (phases 5–8): registered so links, the menu and redirects know about them.
   for (const hub of NAV_HUBS) {
     out.push({ key: `hub:${hub.id}`, kind: 'hub', lang, path: hub.path, live: false, indexed: false, aliases: [], id: hub.id });
@@ -301,6 +321,8 @@ export function hashMap(): Record<string, string> {
     out[`compare/${a},${b}`] = r.path;
     out[`compare/${b},${a}`] = r.path;
   }
+  // The prototype's #/chains/gas?country=DEU: the script carries the query over.
+  for (const r of routes().filter((x) => x.live && x.id.startsWith('supply-chains:'))) out[`chains/${r.id.split(':')[1]}`] = r.path;
   return out;
 }
 
@@ -320,5 +342,5 @@ export const routeCounts = () => {
  * after "#", so this runs on the home and 404 pages; unknown hashes stay where they are.
  */
 export function hashRedirectScript(): string {
-  return `(function(){var m=${JSON.stringify(hashMap())};var h=location.hash.replace(/^#\\/?/,'');if(h&&m[h])location.replace(m[h]);})();`;
+  return `(function(){var m=${JSON.stringify(hashMap())};var h=location.hash.replace(/^#\\/?/,'').split('?');if(h[0]&&m[h[0]])location.replace(m[h[0]]+(h[1]?'?'+h[1]:''));})();`;
 }

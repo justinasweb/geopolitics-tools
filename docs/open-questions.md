@@ -35,3 +35,28 @@ lintaojlu/submarine_cable_information (crawled from TeleGeography's site), map.k
 cables, no licence stated) and EMODnet's schematic cables (TeleGeography's 2014 data, EU waters only, reuse needs
 PriMetrica's written consent). EMODnet's separate "actual routes" layer, from European national sources, may be open but
 covers European seas only.
+
+## Multi-year supply chain flows (raised 28 Oct 2026)
+
+**The question.** Should the supply chain pages let the reader pick earlier years, to see how a flow changed (who
+bought Russia's wheat or gas before and after 2022)?
+
+**What the site does now.** Each `/supply-chains/{flow}` page shows one period only: the latest year its source
+reports (2023 for FAOSTAT's crops, 2025 for UNHCR on the current snapshot), labelled "2023, latest available", with no
+year select. Flows with different latest years are labelled each with their own, and one Sankey never mixes years.
+Arms show SIPRI's latest five-year total, as everywhere else on the site.
+
+**Options.**
+- Keep the latest year only (current).
+- Add a year select fed by the years each source has in the snapshot, one year per diagram, with a note when a year
+  covers fewer reporters. FAOSTAT's matrix and Comtrade's main flows are cut to each importer's main suppliers, so
+  coverage can differ by year; that needs checking first.
+- A small "change since" line in the panel (a country's top supplier then and now) instead of a full year switch.
+
+## Supply chains: gas by pipeline and LNG (raised 28 Oct 2026)
+
+**The question.** The SupplyChainPage design has a "Pipeline and LNG / Pipeline / LNG" switch on natural gas.
+
+**What the site does now.** The gas page sums both routes, because the flows module (`src/data/flows.ts`) adds them
+into one pair. Comtrade's gas rows keep the route (HS 271121 pipeline, 271111 LNG), so the switch can be added once
+the gas flows are live on real data.

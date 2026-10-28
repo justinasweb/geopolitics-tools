@@ -1,0 +1,67 @@
+/* Atlas design system: Supply chains (batch 5, SankeyFlow and SupplyChainPage).
+   Ported from the design system's bundle.css; colours and fonts come from tokens.css. */
+
+.gt-skyear { align-content: start; }
+.gt-skyear__v { display: flex; align-items: center; min-height: 44px; font: 600 16px/22px var(--sans); color: var(--ink); }
+.gt-skfind { min-width: 240px; }
+
+.gt-skstage { display: grid; grid-template-columns: minmax(0, 1fr) 340px; border: 1px solid var(--rule-strong); background: var(--paper-raised); }
+.gt-skstage__d { padding: 20px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.gt-skstage__d .gt-blocchip { position: static; justify-self: start; }
+.gt-skstage__d .gt-caption { margin: 0; }
+.gt-skstage .gt-skpanel { border-left: 1px solid var(--rule-strong); }
+.gt-skpanel { padding: 16px; display: grid; gap: 16px; align-content: start; min-width: 0; }
+.gt-skpanel .gt-mpanel__head { display: grid; grid-template-columns: 1fr auto; gap: 2px; }
+.gt-skpanel .gt-mpanel__head .gt-kicker { grid-column: 1; }
+.gt-skpanel .gt-mpanel__head .gt-h3 { margin: 0; grid-column: 1; }
+.gt-skpanel .gt-mpanel__head .gt-iconbtn { grid-column: 2; grid-row: 1 / 3; }
+.gt-skpanel .gt-bars__name a { color: var(--ink); }
+.gt-skpanel .gt-source { margin: 0; }
+
+.gt-skscroll, .gt-sktable { min-width: 0; }
+.gt-sktable { display: grid; gap: 10px; }
+.gt-sk { width: 100%; height: auto; display: block; overflow: visible; }
+.gt-sk__band { fill-opacity: .42; stroke: var(--paper-raised); stroke-width: .6; }
+.gt-sk__band:hover, .gt-sk__band.is-hover { fill-opacity: .7; }
+.gt-sk--0 { fill: var(--ink-disabled); } .gt-sk--1 { fill: var(--cat-1); } .gt-sk--2 { fill: var(--cat-5); } .gt-sk--3 { fill: var(--cat-3); } .gt-sk--4 { fill: var(--cat-6); } .gt-sk--5 { fill: var(--cat-4); } .gt-sk--6 { fill: var(--cat-2); } .gt-sk--7 { fill: var(--cat-8); }
+.gt-sk__node { fill: var(--ink); }
+.gt-sk__node.is-sel { fill: var(--accent); }
+.gt-sk__lab { font: 400 13px var(--sans); fill: var(--ink-muted); }
+.gt-sk__n { font-weight: 600; fill: var(--ink); }
+.gt-sk__ax { font: 600 12px var(--sans); letter-spacing: .06em; text-transform: uppercase; fill: var(--ink-muted); }
+.gt-sk__pick { cursor: pointer; }
+.gt-sk__pick:hover .gt-sk__n { text-decoration: underline; }
+.gt-skread { min-height: 20px; color: var(--ink); font-weight: 600; }
+
+.gt-flowlist { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.gt-flowlist li { display: grid; grid-template-columns: minmax(0, 1fr) 56px; gap: 4px 10px; align-items: center; font: 400 14px/20px var(--sans); }
+.gt-flowlist__ab { grid-column: 1 / -1; overflow-wrap: anywhere; }
+.gt-flowlist .gt-bars__track { height: 10px; position: relative; }
+.gt-flowlist__v { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* The phone leads with the ranked list; the diagram opens below it. */
+.gt-skphone { display: none; }
+.gt-skphone__l { display: grid; gap: 14px; }
+.gt-skphone__l .gt-source { margin: 0; }
+
+.gt-skindex { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 32px; border-top: 2px solid var(--ink); }
+.gt-skindex a { display: grid; gap: 2px; padding: 12px 0; border-bottom: 1px solid var(--rule); color: var(--ink); text-decoration: none; }
+.gt-skindex a span { font: 600 17px/24px var(--sans); }
+.gt-skindex a small { font: 400 14px/20px var(--sans); color: var(--ink-muted); }
+.gt-skindex a:hover span, .gt-skindex a:focus-visible span { text-decoration: underline; }
+
+@container page (max-width: 1099px) {
+  .gt-skstage { grid-template-columns: minmax(0, 1fr); }
+  .gt-skstage .gt-skpanel { border-left: 0; border-top: 1px solid var(--rule-strong); }
+}
+@container page (max-width: 759px) {
+  .gt-skphone { display: grid; }
+  .gt-skstage__d { padding: 12px; }
+  .gt-skstage:not(.is-open) .gt-skstage__d { display: none; }
+  .gt-skstage:not(.is-open) .gt-skpanel { border-top: 0; }
+  /* The diagram keeps a readable size and scrolls sideways inside its own box. */
+  .gt-skscroll { overflow-x: auto; }
+  .gt-skscroll .gt-sk { min-width: 640px; }
+  .gt-skfind { min-width: 0; }
+  .gt-skindex { grid-template-columns: minmax(0, 1fr); }
+}

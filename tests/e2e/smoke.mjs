@@ -141,6 +141,25 @@ for (const [name, viewport] of [['desktop', { width: 1440, height: 900 }], ['pho
   check(errors.length === 0, `${name}: /dependencies has no console errors${errors.length ? ` (${errors.join('; ')})` : ''}`);
   await page.screenshot({ path: `${out}/dependencies-${name}.png`, fullPage: true });
 
+  // Supply chains: the index lists flows; a flow page draws the Sankey (or, on a phone, the top flows), and focusing
+  // a country redraws it and goes into the address.
+  errors.length = 0;
+  await page.goto(`${base}/supply-chains`, { waitUntil: 'networkidle' });
+  const chainLink = page.locator('.gt-skindex a').first();
+  check(await page.locator('.gt-skindex a').count() > 0, `${name}: Supply chains lists flows`);
+  await page.goto(`${base}${await chainLink.getAttribute('href')}`, { waitUntil: 'networkidle' });
+  check(await page.locator('.gt-sk__band').count() > 1, `${name}: a supply chain draws its bands`);
+  check(await page.locator('.gt-sktable tbody tr').count() > 1, `${name}: a supply chain lists its flows in a table`);
+  if (name === 'phone') check(await page.locator('.gt-flowlist li').count() > 1, `${name}: a supply chain leads with its top flows`);
+  const target = await page.locator('.gt-sktable tbody tr td a').first().textContent();
+  await page.fill('#sk-c', target ?? '');
+  await page.press('#sk-c', 'Enter');
+  check(/[?&]country=/.test(page.url()), `${name}: a supply chain keeps the focus in the address`);
+  check(await page.locator('.gt-blocchip').count() === 1, `${name}: a supply chain shows the focus`);
+  check(!(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth)), `${name}: a supply chain has no sideways scroll`);
+  check(errors.length === 0, `${name}: supply chains have no console errors${errors.length ? ` (${errors.join('; ')})` : ''}`);
+  await page.screenshot({ path: `${out}/supply-chain-${name}.png`, fullPage: true });
+
   // The design system's components page (hidden, noindex): renders without errors or sideways scroll.
   errors.length = 0;
   await page.goto(`${base}/dev/components`, { waitUntil: 'networkidle' });

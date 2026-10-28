@@ -52,6 +52,7 @@ servers never see the part after `#`.
 | Sources | Generated from the source registry, the licence table and the last snapshot; corrections from `src/data/corrections.csv` |
 | Explorer | `/explorer` (table), `/explorer/over-time`, `/explorer/scatter`: every measure with an indicator page. See "Explorer" below |
 | Dependencies | `/dependencies`: countries against the ten commodities of each country page's dependencies table, with the single points of failure. See "Dependencies" below |
+| Supply chains | `/supply-chains` and `/supply-chains/{flow}` for each of the 11 flows whose source is in the snapshot with at least one pair; the index lists only those. See "Supply chains" below |
 
 A sample build has 129 country pages and 37 indicator pages; the real snapshot has more sources and more places.
 
@@ -115,6 +116,29 @@ default settings and in the browser (`src/scripts/dependencies.ts`) as the reade
   single point of failure.
 - **CSV.** The rows shown. Shares of use and output from EIA and FAOSTAT, and FAOSTAT's main suppliers for the crops;
   UN Comtrade suppliers and SIPRI arms are left out under their terms, with a note.
+
+## Supply chains
+
+One page per flow of `src/data/flows.ts` (crude oil, gas, wheat, maize, rice, soybeans, potash, phosphate, arms, chips,
+refugees), suppliers to buyers as a Sankey with a side panel and the same flows as a table. `src/lib/supply-chains.ts`
+embeds the flow's pairs and place names in its page; `src/lib/supply-chains/render.ts` draws it, at build time with no
+country focused and in the browser (`src/scripts/supply-chains.ts`) when the reader focuses one.
+
+- **One period.** The latest year the source reports (SIPRI: the latest five-year total), shown as a label
+  ("2023, latest available"), not a select. Each flow keeps its own year; a diagram never mixes years. Multi-year
+  flows are an open question.
+- **Diagram.** The 7 largest suppliers and 10 largest buyers are named, the rest grouped as Others; bands are coloured
+  by supplier and named at both ends with values, and hovering one writes its value under the diagram. A focused
+  country is drawn on both sides when it imports and exports. Clicking a named node focuses it too.
+- **Panel.** Total of the flows shown, concentration (Herfindahl index on supplier shares, the minerals views'
+  thresholds; not for refugees), top suppliers and buyers; for a focused country its imports with their supplier shares
+  and concentration, and its exports.
+- **Address.** `country` (internal id). The flow switch opens the other flow's page with the same focus; the
+  prototype's `#/chains/{flow}?country=` links move there.
+- **Phone.** The top 10 flows as bars first; "Show diagram" opens the diagram, which keeps its size and scrolls
+  sideways inside its own box.
+- **CSV.** Every flow shown, when the source's licence allows downloads (FAOSTAT, UNHCR); UN Comtrade and SIPRI flows
+  are shown only, with a note.
 
 ## Share images
 
