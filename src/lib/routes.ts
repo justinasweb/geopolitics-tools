@@ -80,6 +80,8 @@ export const paths = {
   river: (id: string) => `/${S.water}/rivers/${id}`,
   /** Explorer: /explorer (table), /explorer/over-time, /explorer/scatter. */
   explorer: (view: string) => `/${S.explorer}${EXPLORER_SLUGS[view] ? `/${EXPLORER_SLUGS[view]}` : ''}`,
+  /** Atlas: /atlas, every map layer on one map. */
+  atlas: () => `/${S.atlas}`,
   /** Dependencies: /dependencies, countries against ten commodities. */
   dependencies: () => `/${S.dependencies}`,
   /** Supply chains: /supply-chains, and one page per flow (/supply-chains/soybeans). */
@@ -249,6 +251,16 @@ function build(): Route[] {
     key: 'tool:blocs-overlap', kind: 'tool', lang, path: paths.blocsOverlap(), live: true, indexed: true,
     aliases: [], id: 'blocs-overlap', image: paths.image('tools', 'blocs-overlap'), lastmod: BLOCS_CHECKED,
   });
+
+  // Atlas (phase 6): the shaded layers of the live map views on one map (src/lib/atlas.ts), so it is live with them.
+  // Its states (?layer=&year=…) are noindex through the Worker's X-Robots-Tag; the canonical is /atlas.
+  if (out.some((r) => r.kind === 'view' && r.live)) {
+    tools.add('atlas');
+    out.push({
+      key: 'tool:atlas', kind: 'tool', lang, path: paths.atlas(), live: true, indexed: true,
+      aliases: [], id: 'atlas', image: paths.image('tools', 'atlas'), lastmod: snapshotDate,
+    });
+  }
 
   // Not built yet (phases 5–8): registered so links, the menu and redirects know about them.
   for (const hub of NAV_HUBS) {

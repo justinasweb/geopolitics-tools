@@ -15,12 +15,17 @@ export interface Env extends WatchEnv {
 const SITE_HOSTS = new Set(['geopolitics.tools', 'www.geopolitics.tools']);
 const HOLDING_FILES = new Set(['/', '/robots.txt', '/favicon.svg', '/og.png']);
 
+// Pages whose every state is in the query string (/atlas?layer=…&country=IND): the page itself is indexed, its states
+// are not (site map, "Atlas states"; 10-seo-plan.md). A static page cannot tell its query, so the Worker says it.
+// The canonical in the HTML is already the path alone.
+const STATE_PAGES = new Set(['/atlas']);
+
 const json = (body: unknown, status = 200) =>
   Response.json(body, { status, headers: { 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex' } });
 
 export default {
   async fetch(request, env): Promise<Response> {
-    const { hostname, pathname } = new URL(request.url);
+    const { hostname, pathname, search } = new URL(request.url);
     if (env.HOLDING === 'true' && SITE_HOSTS.has(hostname) && !HOLDING_FILES.has(pathname) && !pathname.startsWith('/api/')) {
       return new Response(null, { status: 302, headers: { Location: '/', 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex' } });
     }
@@ -29,7 +34,13 @@ export default {
       return json({ ok: true });
     }
     if (pathname.startsWith('/api/')) return json({ ok: false, error: 'not found' }, 404);
-    return env.ASSETS.fetch(request);
+    const res = await env.ASSETS.fetch(request);
+    if (search && STATE_PAGES.has(pathname) && res.ok) {
+      const out = new Response(res.body, res);
+      out.headers.set('X-Robots-Tag', 'noindex, follow');
+      return out;
+    }
+    return res;
   },
   async scheduled(_controller, env, ctx): Promise<void> {
     ctx.waitUntil(watch(env, new Date()).then((r) => console.log(JSON.stringify(r))));

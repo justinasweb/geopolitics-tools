@@ -1,6 +1,6 @@
 // The shape of a map layer file (/map/<layer>.json), written at build time by ./layers.ts and read by the map
-// engine in the browser (src/scripts/map/). A layer is data, not code: the same file serves its map view page and,
-// later, the Atlas (spec, "Atlas" under Views), so a layer is defined once.
+// engine in the browser (src/scripts/map/). A layer is data, not code: the same file serves its map view page and
+// the Atlas (spec, "Atlas" under Views), so a layer is defined once.
 //
 // Everything a reader sees is already formatted and worded in the page's language at build time; the engine only
 // places it. Coordinates are map coordinates (Equal Earth drawn through Web Mercator, ./projection.ts).
@@ -56,6 +56,8 @@ export type Overlay =
 
 export interface LayerFile {
   id: string;
+  /** The layer's own name, as its view's title and kicker say it ("Lithium", "Wheat production"): the Atlas lists it. */
+  name: string;
   scale: 'seq' | 'div';
   /** What the slider steps through: years (the default), periods in days (?days= in the URL), or months, numbered
    *  year × 12 + month − 1 so they run on without gaps (?month=2026-03 in the URL). */

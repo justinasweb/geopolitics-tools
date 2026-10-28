@@ -52,8 +52,8 @@ describe('route registry', () => {
   });
 
   it('keeps views, hubs and tools out of the build until their phase', () => {
-    // Phase 4 builds the critical minerals views, phase 5 the views on registry measures, phase 5b those on keyed sources (with sample data here), phase 6 the Explorer, Dependencies, Supply chains and Bloc overlap; the rest wait for theirs.
-    const built = /^(view:(minerals|emissions|refugees|disasters|food|blocs|alliance-history|space|ai|sanctions|internet|water|chinese-lending|arms|rivers|oil|gas|electricity|conflict|food-crises):|tool:(explorer|dependencies|supply-chains|blocs-overlap)(:|$))/;
+    // Phase 4 builds the critical minerals views, phase 5 the views on registry measures, phase 5b those on keyed sources (with sample data here), phase 6 the Explorer, Dependencies, Supply chains, Bloc overlap and the Atlas; the rest wait for theirs.
+    const built = /^(view:(minerals|emissions|refugees|disasters|food|blocs|alliance-history|space|ai|sanctions|internet|water|chinese-lending|arms|rivers|oil|gas|electricity|conflict|food-crises):|tool:(explorer|dependencies|supply-chains|blocs-overlap|atlas)(:|$))/;
     for (const r of R.routes().filter((x) => ['view', 'hub', 'tool'].includes(x.kind))) expect(r.live).toBe(built.test(r.key));
   });
 

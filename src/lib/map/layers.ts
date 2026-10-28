@@ -1,5 +1,5 @@
 // The map layers: every shaded layer the site's maps can show, defined once as data (./types.ts) and written to
-// /map/<id>.json at build time. A map view page loads its layer file; the Atlas (phase 6) will list the same
+// /map/<id>.json at build time. A map view page loads its layer file; the Atlas (src/lib/atlas.ts) lists the same
 // registry. Each layer says which view it belongs to, so the Atlas panel can link to "See full page".
 import { MAP_TEXT, BLOC_TEXT, PANEL_TEXT as PT } from '../../i18n/map.en.ts';
 import { tagHtml } from '../tags.ts';
@@ -53,8 +53,9 @@ export interface LayerDef {
   id: string;
   /** The route key of the map view the layer belongs to. */
   view: string;
-  /** The topic (hub) the Atlas groups it under. */
-  topic: string;
+  /** The map view family it belongs to: the menu's view id (src/data/nav.ts), so the Atlas groups and orders its
+   *  layers as the menu does and takes the topic from the hub that lists the family. */
+  family: string;
   build: () => LayerFile;
 }
 
@@ -116,7 +117,7 @@ function mineralLayer(p: MineralPage): LayerFile {
     return { year, status: y.estimated ? 'estimate' : undefined, legend: MV.legendTitle(year), v, order: l.map((x) => x.place!).filter(Boolean), blocs: bl };
   });
   return {
-    id: `minerals-${p.id}`, scale: 'seq', years: p.years, year: p.years.at(-1)!, ticks: MV.ticks,
+    id: `minerals-${p.id}`, name: p.title, scale: 'seq', years: p.years, year: p.years.at(-1)!, ticks: MV.ticks,
     missing: { none: MV.notListedLegend, withheld: data.some((d) => Object.values(d.v).some((e) => e[0] === 0)) ? MV.withheldBy : undefined },
     source: p.source,
     text: {
@@ -211,7 +212,7 @@ function indicatorLayer(p: ViewPage): LayerFile {
     if (n) notes[id] = notes[id] ? `${notes[id]} ${n}` : n;
   }
   return {
-    id: `${p.family.id}-${p.id}`, scale: p.layer.scale, years: p.years, year: p.year, ticks: p.ticks, ends: p.text.ends,
+    id: `${p.family.id}-${p.id}`, name: p.text.title, scale: p.layer.scale, years: p.years, year: p.year, ticks: p.ticks, ends: p.text.ends,
     missing: { none: VIEW_TEXT[p.family.id].none ?? W.noData }, source: creditOf(p),
     text: {
       ...(c.words as LayerFile['text']),
@@ -559,7 +560,7 @@ function disasterLayer(p: DisasterPage): LayerFile {
   }
   const title = KIND_TEXT[p.id].title;
   return {
-    id: `disasters-${p.id}`, scale: 'seq', axis: 'days', years: p.periods.map((x) => x.days), year: p.days, ticks: D.ticks,
+    id: `disasters-${p.id}`, name: title, scale: 'seq', axis: 'days', years: p.periods.map((x) => x.days), year: p.days, ticks: D.ticks,
     missing: { none: D.none }, source: p.kind === 'EQ' ? 'GDACS; USGS' : 'GDACS',
     text: {
       ...(c.words as LayerFile['text']),
@@ -620,7 +621,7 @@ function conflictLayer(): LayerFile {
     }))),
   }));
   return {
-    id: 'conflict', scale: 'seq', axis: 'months', years: p.months.map((m) => m.n), year: p.month, ticks: C.ticks,
+    id: 'conflict', name: C.title, scale: 'seq', axis: 'months', years: p.months.map((m) => m.n), year: p.month, ticks: C.ticks,
     missing: { none: VIEWS_TEXT.noData }, source: 'UCDP',
     text: {
       ...(c.words as LayerFile['text']),
@@ -671,7 +672,7 @@ function foodLayer(p: FoodPage): LayerFile {
     overlays.push({ id: 'flows', kind: 'arcs', label: F.flowsLabel(p.flowYear), items });
   }
   return {
-    id: `food-${p.id}`, scale: trade ? 'div' : 'seq', years: p.years, year: p.year, ticks: p.ticks, ends: trade ? F.ends : undefined,
+    id: `food-${p.id}`, name: L.title(T.pick), scale: trade ? 'div' : 'seq', years: p.years, year: p.year, ticks: p.ticks, ends: trade ? F.ends : undefined,
     missing: { none: F.none, notyet: data.some((d) => Object.values(d.v).some((e) => e[0] === -1)) ? F.notYetLegend : undefined }, source: p.flows.length && !p.crop ? `${sourceOf(p)}; ${F.sourceFertFlows}` : sourceOf(p),
     text: {
       ...(c.words as LayerFile['text']),
@@ -728,7 +729,7 @@ function energyLayer(p: EnergyPage): LayerFile {
   }
   const unit = p.layer === 'reserves' ? (p.fuel === 'oil' ? 'bn barrels' : 'tcm') : p.fuel === 'oil' ? 'kb/d' : 'bcm';
   return {
-    id: `energy-${p.id}`, scale: trade ? 'div' : 'seq', years: p.years, year: p.year, ticks: p.ticks, ends: trade ? E.ends : undefined,
+    id: `energy-${p.id}`, name: L.title(T.pick), scale: trade ? 'div' : 'seq', years: p.years, year: p.year, ticks: p.ticks, ends: trade ? E.ends : undefined,
     missing: { none: E.none, notyet: data.some((d) => Object.values(d.v).some((e) => e[0] === -1)) ? E.notYetLegend : undefined },
     source: overlays.length ? `${E.source}; ${E.sourceFlows(p.fuel)}` : E.source,
     text: {
@@ -874,7 +875,7 @@ function blocLayer(id: string): LayerFile {
   if (id !== 'all') for (const [pl, n] of Object.entries(MEMBER_NOTES[id] ?? {})) notes[pl] = notes[pl] ? `${notes[pl]} ${n}` : n;
   else for (const ns of Object.values(MEMBER_NOTES)) for (const [pl, n] of Object.entries(ns)) notes[pl] = notes[pl] ? `${notes[pl]} ${n}` : n;
   return {
-    id: `blocs-${id}`, scale: 'seq', years: [year], year, ticks: id === 'all' ? B.countTicks : [],
+    id: `blocs-${id}`, name, scale: 'seq', years: [year], year, ticks: id === 'all' ? B.countTicks : [],
     missing: { none: id === 'all' ? B.none : B.notMember }, source: B.source,
     text: {
       ...(c.words as LayerFile['text']),
@@ -911,7 +912,7 @@ function historyLayer(id: string): LayerFile {
     more[pl] = [{ label: H.spans, rows: p.spans.filter((s) => s.place === pl).map((s) => ({ name: `${H.joined} ${s.from}`, value: s.to === null ? H.status.member : `${H.left} ${s.to}` })) }];
   }
   return {
-    id: `history-${id}`, scale: 'seq', years: p.years, year: p.years.at(-1)!, ticks: [],
+    id: `history-${id}`, name, scale: 'seq', years: p.years, year: p.years.at(-1)!, ticks: [],
     missing: { none: H.notMember }, source: H.source,
     text: {
       ...(c.words as LayerFile['text']),
@@ -973,7 +974,7 @@ function riverLayer(id: string): LayerFile {
   const bl: Record<string, string> = {};
   for (const [b, members] of blocs()) bl[b] = R.blocLine(BLOC_TEXT[b] ?? b, members.filter((m) => p.river.countries.includes(m)).length, members.length);
   return {
-    id: `rivers-${id}`, scale: 'seq', years: [ws.year], year: ws.year, ticks: ws.ticks,
+    id: `rivers-${id}`, name, scale: 'seq', years: [ws.year], year: ws.year, ticks: ws.ticks,
     missing: { none: R.notInDispute }, source: R.source,
     text: {
       ...(c.words as LayerFile['text']),
@@ -993,15 +994,15 @@ const nameOf2 = (id: string) => placeNames.get(id) ?? id;
 let defs: LayerDef[] | null = null;
 export function mapLayers(): LayerDef[] {
   defs ??= [
-    ...mineralPages().map((p) => ({ id: `minerals-${p.id}`, view: `view:minerals:${p.id}`, topic: 'resources', build: () => mineralLayer(p) })),
-    ...viewPages().map((p) => ({ id: `${p.family.id}-${p.id}`, view: `view:${p.family.id}:${p.id}`, topic: p.family.hub, build: () => indicatorLayer(p) })),
-    ...disasterPages().map((p) => ({ id: `disasters-${p.id}`, view: `view:disasters:${p.id}`, topic: 'climate', build: () => disasterLayer(p) })),
-    ...foodPages().map((p) => ({ id: `food-${p.id}`, view: `view:food:${p.id}`, topic: 'resources', build: () => foodLayer(p) })),
-    ...energyPages().map((p) => ({ id: `energy-${p.id}`, view: `view:${p.fuel}:${p.layer}`, topic: 'resources', build: () => energyLayer(p) })),
-    ...(conflictPage() ? [{ id: 'conflict', view: 'view:conflict:events', topic: 'security', build: () => conflictLayer() }] : []),
-    ...riverIds().map((id) => ({ id: `rivers-${id}`, view: `view:rivers:${id}`, topic: 'climate', build: () => riverLayer(id) })),
-    ...HISTORY_BLOCS.map((id) => ({ id: `history-${id}`, view: `view:alliance-history:${id}`, topic: 'power', build: () => historyLayer(id) })),
-    ...['all', ...blocPages().map((b) => b.id)].map((id) => ({ id: `blocs-${id}`, view: `view:blocs:${id}`, topic: 'power', build: () => blocLayer(id) })),
+    ...mineralPages().map((p) => ({ id: `minerals-${p.id}`, view: `view:minerals:${p.id}`, family: 'minerals', build: () => mineralLayer(p) })),
+    ...viewPages().map((p) => ({ id: `${p.family.id}-${p.id}`, view: `view:${p.family.id}:${p.id}`, family: p.family.id, build: () => indicatorLayer(p) })),
+    ...disasterPages().map((p) => ({ id: `disasters-${p.id}`, view: `view:disasters:${p.id}`, family: 'disasters', build: () => disasterLayer(p) })),
+    ...foodPages().map((p) => ({ id: `food-${p.id}`, view: `view:food:${p.id}`, family: 'food', build: () => foodLayer(p) })),
+    ...energyPages().map((p) => ({ id: `energy-${p.id}`, view: `view:${p.fuel}:${p.layer}`, family: p.fuel, build: () => energyLayer(p) })),
+    ...(conflictPage() ? [{ id: 'conflict', view: 'view:conflict:events', family: 'conflict', build: () => conflictLayer() }] : []),
+    ...riverIds().map((id) => ({ id: `rivers-${id}`, view: `view:rivers:${id}`, family: 'rivers', build: () => riverLayer(id) })),
+    ...HISTORY_BLOCS.map((id) => ({ id: `history-${id}`, view: `view:alliance-history:${id}`, family: 'alliance-history', build: () => historyLayer(id) })),
+    ...['all', ...blocPages().map((b) => b.id)].map((id) => ({ id: `blocs-${id}`, view: `view:blocs:${id}`, family: 'blocs', build: () => blocLayer(id) })),
   ];
   return defs;
 }

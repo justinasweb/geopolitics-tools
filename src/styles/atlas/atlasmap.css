@@ -1,0 +1,80 @@
+/* The Atlas (/atlas): Atlas design, batch 7 of bundle.css. A full-screen tool: the slim bar, then the layer list and
+   the map side by side. The map host, zoom, tooltip and states are the map views' (mapview.css). */
+
+html:has(.gt-atlas), html:has(.gt-atlas) body { height: 100%; overflow: hidden; }
+.gt-atlas { height: 100vh; height: 100dvh; display: grid; grid-template-rows: auto 1fr; background: var(--paper); overflow: hidden; container-type: inline-size; }
+
+.gt-atbar { position: relative; z-index: 6; display: flex; align-items: center; gap: 16px; padding: 0 16px; min-height: 52px; border-bottom: 3px double var(--ink); background: var(--paper); }
+.gt-atbar .gt-logo { display: inline-flex; align-items: center; color: var(--ink); text-decoration: none; flex: none; }
+.gt-atbar .gt-logo svg { height: 22px; width: auto; display: block; }
+.gt-atbar__div { width: 1px; height: 24px; background: var(--rule-strong); flex: none; }
+.gt-atbar__t { margin: 0; display: flex; align-items: baseline; gap: 12px; font: 600 20px/1 var(--serif); flex: 1; min-width: 0; }
+.gt-atbar__t span { font: 400 14px/1.2 var(--sans); color: var(--ink-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gt-atbar__nav { display: flex; gap: 20px; font: 600 14px/1 var(--sans); }
+.gt-atbar__nav a { color: var(--ink); text-decoration: none; }
+.gt-atbar__nav a:hover { text-decoration: underline; }
+
+.gt-atbody { display: grid; grid-template-columns: 300px minmax(0, 1fr); min-height: 0; }
+
+/* The layer list */
+.gt-atlayers { display: flex; flex-direction: column; min-height: 0; border-right: 1px solid var(--rule); background: var(--paper); position: relative; }
+.gt-atlayers__top { display: grid; gap: 8px; padding: 16px 16px 12px; border-bottom: 1px solid var(--rule); }
+.gt-atlayers__top .gt-label, .gt-atlayers__top .gt-caption { margin: 0; }
+.gt-atsearch { display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 4px 0 12px; border: 1px solid var(--rule-strong); background: var(--paper-raised); }
+.gt-atsearch:focus-within { outline: 2px solid var(--focus); outline-offset: 1px; border-color: var(--ink); }
+.gt-atsearch .gt-ico { width: 18px; height: 18px; flex: none; color: var(--ink-muted); }
+.gt-atsearch input { flex: 1; min-width: 0; min-height: 40px; border: 0; background: transparent; font: 400 15px/1 var(--sans); color: var(--ink); outline: none; }
+.gt-atsearch input::-webkit-search-cancel-button { display: none; }
+.gt-atsearch .gt-iconbtn { width: 36px; height: 36px; }
+.gt-atsearch .gt-iconbtn[hidden] { display: none; }
+.gt-atlayers__list { overflow: auto; flex: 1; padding: 4px 0 12px; overscroll-behavior: contain; }
+
+.gt-lgroup { border-bottom: 1px solid var(--rule); }
+.gt-lgroup[hidden] { display: none; }
+.gt-lgroup summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: 1fr auto; grid-template-areas: "t b" "s b"; align-items: center; column-gap: 8px; padding: 12px 16px 12px 36px; position: relative; }
+.gt-lgroup summary::-webkit-details-marker { display: none; }
+.gt-lgroup summary::before { content: ""; position: absolute; left: 16px; top: 19px; width: 7px; height: 7px; border-right: 2px solid var(--ink); border-bottom: 2px solid var(--ink); transform: rotate(-45deg); transition: transform .15s; }
+.gt-lgroup[open] summary::before { transform: rotate(45deg); top: 16px; }
+.gt-lgroup summary:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+.gt-lgroup summary > span:first-child { grid-area: t; font: 600 16px/22px var(--serif); }
+.gt-lgroup summary small { grid-area: s; font: 400 12px/16px var(--sans); color: var(--ink-muted); }
+.gt-lgroup__on { grid-area: b; font: 600 12px/1 var(--sans); padding: 4px 8px; border-radius: 999px; background: var(--brand-soft); color: var(--brand); }
+.gt-lgroup__on[hidden] { display: none; }
+
+.gt-lyrs { list-style: none; margin: 0; padding: 0 8px 8px 24px; display: grid; gap: 2px; }
+.gt-lyr { border-left: 3px solid transparent; }
+.gt-lyr[hidden] { display: none; }
+.gt-lyr.is-on { border-left-color: var(--brand); background: var(--brand-soft); }
+.gt-lyr__l { display: grid; grid-template-columns: 20px 1fr; gap: 8px; padding: 8px; cursor: pointer; }
+.gt-lyr__l:hover { background: var(--paper-sunk); }
+.gt-lyr.is-on .gt-lyr__l:hover { background: transparent; }
+.gt-lyr__l input { margin: 3px 0 0; accent-color: var(--brand); width: 16px; height: 16px; }
+.gt-lyr__l input:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.gt-lyr__t { display: grid; gap: 1px; min-width: 0; }
+.gt-lyr__t b { display: flex; align-items: center; gap: 6px; font: 600 14px/20px var(--sans); }
+.gt-lyr__t small { font: 400 13px/18px var(--sans); color: var(--ink-muted); }
+.gt-lyr__t .gt-lyr__src { font-size: 12px; line-height: 16px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gt-lyr__sub { padding: 0 8px 10px 36px; }
+.gt-lyr__sub[hidden] { display: none; }
+
+/* The map */
+.gt-atmap { position: relative; background: var(--paper-sunk); overflow: hidden; min-width: 0; }
+.gt-atmap .gt-mapcanvas { transition: opacity .2s; }
+.gt-atmap.is-loading .gt-mapcanvas { opacity: .35; filter: grayscale(.6); }
+.gt-atborders { position: absolute; left: 16px; bottom: 8px; z-index: 1; margin: 0; max-width: calc(100% - 200px); font: 400 12px/16px var(--sans); color: var(--ink-muted); }
+.gt-atborders i { display: inline-block; width: 18px; height: 0; border-top: 1.6px dashed var(--ink-muted); vertical-align: middle; margin-right: 6px; }
+.gt-atborders a { color: inherit; }
+
+@media (prefers-reduced-motion: reduce) {
+  .gt-lgroup summary::before, .gt-atmap .gt-mapcanvas { transition: none; }
+}
+
+/* Phone (the AtlasPhone sheets come in a later step): the map on top, the layer list under it. */
+@container (max-width: 759px) {
+  .gt-atbar { gap: 10px; padding: 0 12px; }
+  .gt-atbar__nav, .gt-atbar__div { display: none; }
+  .gt-atbar__t { flex-direction: column; gap: 2px; font-size: 18px; }
+  .gt-atbody { grid-template-columns: minmax(0, 1fr); grid-template-rows: 55% minmax(0, 1fr); }
+  .gt-atlayers { order: 2; border-right: 0; border-top: 1px solid var(--rule); }
+  .gt-atborders { max-width: calc(100% - 32px); }
+}

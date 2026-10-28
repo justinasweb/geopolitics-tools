@@ -53,6 +53,7 @@ servers never see the part after `#`.
 | Explorer | `/explorer` (table), `/explorer/over-time`, `/explorer/scatter`: every measure with an indicator page. See "Explorer" below |
 | Dependencies | `/dependencies`: countries against the ten commodities of each country page's dependencies table, with the single points of failure. See "Dependencies" below |
 | Bloc overlap | `/blocs/overlap`: shared members between blocs, bridge countries and every country's memberships, from `src/data/blocs.csv`. See "Bloc overlap" below |
+| Atlas | `/atlas`: every live map view's layer on one map, live when any map view is. Its states are noindex. See [maps.md](maps.md), "The Atlas" |
 | Supply chains | `/supply-chains` and `/supply-chains/{flow}` for each of the 11 flows whose source is in the snapshot with at least one pair; the index lists only those. See "Supply chains" below |
 
 A sample build has 129 country pages and 37 indicator pages; the real snapshot has more sources and more places.

@@ -1,0 +1,139 @@
+---
+// The Atlas (Atlas design): one full-screen map with every shaded layer of every live map view. A slim bar, the layer
+// list (topics, then one row per map view family, a select where a family has several layers) and the map. The list
+// is HTML, so it reads before the script; the script (src/scripts/atlas.ts) draws the map with the map engine,
+// switches layers on it and keeps ?layer=&year=&country= in the address. The layers are the map views' own layer
+// files (src/lib/atlas.ts): no data of its own.
+import Base from '../layouts/Base.astro';
+import LogoSprite from '../components/LogoSprite.astro';
+import Lockup from '../components/Lockup.astro';
+import Icon from '../components/Icon.astro';
+import '../styles/atlas/mapview.css';
+import '../styles/atlas/tooltip.css';
+import '../styles/atlas/tags.css';
+import '../styles/atlas/filters.css';
+import '../styles/atlas/atlasmap.css';
+import { ATLAS_TEXT as A } from '../i18n/atlas.en';
+import { MAP_TEXT } from '../i18n/map.en';
+import { NAV_TEXT, UI_TEXT } from '../i18n/en';
+import { atlasLayers, atlasTopics, defaultLayer } from '../lib/atlas';
+import { live, paths } from '../lib/routes';
+import { PLACES } from '../lib/places';
+import { breadcrumbs } from '../lib/structured';
+
+const topics = atlasTopics();
+const layers = atlasLayers();
+const first = defaultLayer();
+const rowLabel = new Map(topics.flatMap((t) => t.rows.map((r) => [r.family, r.label])));
+// The bar's links: pages that are live.
+const nav = (['countries', 'tool:explorer'] as const).flatMap((k) => {
+  const r = live(k);
+  return r ? [{ href: r.path, label: k === 'countries' ? NAV_TEXT.top.countries : NAV_TEXT.tools.explorer[0] }] : [];
+});
+// What a row says under its name: the layer's name when the family has several, else what it measures.
+const sub = (n: number, l: (typeof layers)[number]) => (n > 1 ? l.name : l.measure);
+const src = (l: (typeof layers)[number]) => `${l.source} · ${l.span}`;
+
+const manifest = {
+  start: first.key,
+  slugs: Object.fromEntries(PLACES.map((p) => [p.id, p.slug])),
+  overlays: [] as string[],
+  layers: layers.map((l) => ({
+    key: l.key, id: l.id, file: l.file, family: l.family, name: l.name, years: l.years, year: l.year, axis: l.axis, path: l.path,
+    title: A.current(rowLabel.get(l.family)!, l.name),
+  })),
+};
+const json = JSON.stringify(manifest).replace(/</g, '\\u003c');
+const crumbs = [{ label: A.crumb }, { label: A.title }];
+---
+<Base title={A.title} description={A.description(layers.length)} image={paths.image('tools', 'atlas')} jsonld={[breadcrumbs(crumbs)]}>
+  <LogoSprite />
+  <div class="gt-atlas" data-atlas data-basemap="/geo/basemap.json" data-found-none={A.found.none} data-found-one={A.found.one} data-found-many={A.found.many}>
+    <header class="gt-atbar">
+      <a class="gt-logo" href="/" aria-label={UI_TEXT.home}><Lockup /></a>
+      <span class="gt-atbar__div" aria-hidden="true"></span>
+      <h1 class="gt-atbar__t">{A.title}<span data-at-current>{manifest.layers.find((l) => l.key === first.key)!.title}</span></h1>
+      {nav.length > 0 && <nav class="gt-atbar__nav" aria-label={A.nav}>{nav.map((n) => <a href={n.href}>{n.label}</a>)}</nav>}
+    </header>
+    <div class="gt-atbody">
+      <aside class="gt-atlayers" aria-label={A.layers}>
+        <div class="gt-atlayers__top">
+          <h2 class="gt-label">{A.layers}</h2>
+          <div class="gt-atsearch">
+            <Icon name="search" />
+            <label class="gt-vh" for="at-search">{A.search}</label>
+            <input id="at-search" type="search" autocomplete="off" placeholder={A.searchPlaceholder} data-at-search />
+            <button class="gt-iconbtn" type="button" aria-label={A.clearSearch} hidden data-at-clear><Icon name="close" /></button>
+          </div>
+          <p class="gt-caption" aria-live="polite" data-at-found>{A.oneLayer}</p>
+        </div>
+        <div class="gt-atlayers__list">
+          {topics.map((t) => {
+            const on = t.rows.some((r) => r.family === first.family);
+            return (
+              <details class="gt-lgroup" open={on} data-at-topic={t.id}>
+                <summary><span>{t.label}</span><small>{A.count(t.rows.length)}</small><span class="gt-lgroup__on" hidden={!on} data-at-on>{A.on(1)}</span></summary>
+                <ul class="gt-lyrs" aria-label={t.label}>
+                  {t.rows.map((r) => {
+                    const cur = r.family === first.family ? first : r.layers[0];
+                    const many = r.layers.length > 1;
+                    return (
+                      <li class:list={['gt-lyr', { 'is-on': cur === first }]} data-at-row={r.family} data-at-key={cur.key}
+                        data-at-words={[r.label, t.label, ...r.layers.map((l) => l.name)].join('|').toLowerCase()}>
+                        <label class="gt-lyr__l">
+                          <input type="radio" name="at-layer" value={r.family} checked={cur === first} />
+                          <span class="gt-lyr__t">
+                            <b>{r.label}</b>
+                            <small data-at-sub>{sub(r.layers.length, cur)}</small>
+                            <small class="gt-lyr__src" data-at-src>{src(cur)}</small>
+                          </span>
+                        </label>
+                        {many && (
+                          <div class="gt-lyr__sub" hidden={cur !== first}>
+                            <label class="gt-vh" for={`at-v-${r.family}`}>{`${r.label}: ${A.variant}`}</label>
+                            <div class="gt-select gt-select--sm">
+                              <select id={`at-v-${r.family}`} data-at-variant>
+                                {r.layers.map((l) => <option value={l.key} selected={l === cur} data-sub={sub(r.layers.length, l)} data-src={src(l)}>{l.name}</option>)}
+                              </select>
+                            </div>
+                          </div>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </details>
+            );
+          })}
+        </div>
+      </aside>
+      <div class="gt-atmap">
+        <div class="gt-maphost">
+          <div class="gt-mapcanvas" aria-label={A.title} aria-describedby="at-keys"></div>
+          <p class="gt-vh" id="at-keys">{MAP_TEXT.keys}</p>
+          <div class="gt-mapstate" data-map-state="loading"><p class="gt-mapstate__msg">{MAP_TEXT.loading}</p></div>
+          <div class="gt-mapstate" data-map-state="error" hidden>
+            <div class="gt-mapstate__err" role="alert">
+              <p class="gt-mapstate__msg"><Icon name="alert" />{MAP_TEXT.failed}</p>
+              <p><button class="gt-btn gt-btn--quiet" type="button" data-map-retry>{MAP_TEXT.retry}</button></p>
+            </div>
+          </div>
+          <div class="gt-zoom" role="group" aria-label={MAP_TEXT.zoom}>
+            <button type="button" aria-label={MAP_TEXT.zoomIn} data-zoom="in">+</button>
+            <button type="button" aria-label={MAP_TEXT.zoomOut} data-zoom="out">−</button>
+            <button type="button" aria-label={MAP_TEXT.reset} data-zoom="reset"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8a5 5 0 1 0 1.5-3.5M3 2.5V5h2.5" fill="none" stroke="currentColor" stroke-width="1.6" /></svg></button>
+          </div>
+          <p class="gt-atborders"><i aria-hidden="true"></i>{MAP_TEXT.borders} <a href={paths.page('methodology')}>{MAP_TEXT.howBorders}</a></p>
+          <div class="gt-tip gt-world__tip" hidden aria-hidden="true"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script type="application/json" id="at-data" set:html={json} />
+</Base>
+
+<script>
+  import { initAtlas } from '../scripts/atlas';
+  const root = document.querySelector<HTMLElement>('[data-atlas]');
+  if (root) initAtlas(root);
+</script>

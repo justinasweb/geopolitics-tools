@@ -18,7 +18,10 @@ and the Atlas use the same layer files.
 - **Layer files.** `/map/<layer>.json` (`src/lib/map/layers.ts`, shape in `src/lib/map/types.ts`): for each year,
   each place's class on the colour scale, its figure, detail, status and rank, already formatted and worded; the
   rank order for keyboard stepping; one sentence per bloc; names, slugs, links, notes and interface words. A layer
-  is data, not code, so the Atlas reads the same file. The lithium file is 29 KB (7 KB gzipped).
+  is data, not code, so the Atlas reads the same file. The lithium file is 29 KB (7 KB gzipped). Each layer in the
+  registry (`mapLayers()`) names its map view's route key and its family (the menu's view id in `src/data/nav.ts`:
+  `minerals`, `oil`, `food`…), and each file carries its own `name` ("Lithium", "Wheat production"), the words its
+  kicker starts with.
 - **Shading** uses MapLibre feature state, so a new year, a selection or a bloc outline never rebuilds the map.
   Withheld and not-yet-reported places are patterns (hatching, dots), never a colour of the scale, so they cannot
   be read as zero; every colour also has its figure in the tooltip, the panel and the table.
@@ -53,6 +56,31 @@ before and without the map script.
   data in rank order with the tooltip, Enter opens the one shown, Escape clears. Selections are announced in the
   page's live region.
 - **Reduced motion.** No fades, instant zooms, and a slower play.
+
+## The Atlas (phase 6)
+
+`/atlas` (`src/templates/AtlasPage.astro`, `src/lib/atlas.ts`, `src/scripts/atlas.ts`): one full-screen map with the
+shaded layer of every live map view. No data and no layer logic of its own: it lists the layer registry, keeps the
+layers whose view is live, and loads their files (`/map/<id>.json`) as the views do. Built in steps; this is step 1.
+
+- **Layer list.** The menu's topics, then one row per map view family, in menu order; a family with several layers
+  (the minerals, the crops, the blocs) has one row with a select, shown when the row is on. Each row shows the layer's
+  name (or, alone in its family, what it measures), then its source and years. Search matches family, topic and
+  layer names; picking a row found by a layer's name ("wheat") opens that layer.
+- **One map.** The engine draws the first layer, then `setLayer` swaps the shading, its scale and its overlays in
+  place, so zoom and the selected country stay. Other countries stay at full strength when one is selected (design
+  review decision 7.8; `dim: false`). Overlays are off for now (step 2 makes them their own toggles).
+- **Address.** `?layer=&year=&country=&overlays=` (`src/scripts/map/atlas-state.ts`). `layer` is the layer's view path
+  without slashes (`oil-trade`, `minerals-lithium`, `blocs-nato-history`), so it follows the slugs; `country` is the
+  internal id in capitals (ISO3), a slug also reads; `year` is written as the layer's view writes its step (2023,
+  2026-03 on conflict, 90 days on disasters). Defaults are left out, so the opening state (lithium) is the bare /atlas.
+- **Year across layers.** A year the reader chose is carried to the next layer that steps in years, shown at the
+  nearest year it has; a reader who never chose sees each layer's own default year (its common year, not a thin
+  latest one). The year slider comes in step 3.
+- **Indexing.** /atlas is in the sitemap. Any address with a query gets `X-Robots-Tag: noindex, follow` from the
+  Worker (`STATE_PAGES` in `worker/index.ts`), since a static page cannot see its query; the canonical is /atlas.
+- **Not yet.** Overlays and the stacked legend (step 2); the country panel, the year slider, Share and the phone
+  sheets (step 3). On a phone the list sits under the map until then.
 
 ## Territories: what the default map shows
 
@@ -245,7 +273,6 @@ Phase 5, which counts people in catastrophe, not famine (an area classification 
 ## Not done in this phase
 
 - Refining shares and trade flows on the minerals views: later phases, once their sources are in.
-- The Atlas (one map, every layer): it reads these layer files when it is built.
 - Oil and gas reserves on live data: EIA's API dropped them (its international activities are now production,
   consumption, imports and OECD stocks). Left out for now by decision; the Energy Institute (to 2020 only) and OPEC
   (oil only, own terms) were the alternatives looked at.
