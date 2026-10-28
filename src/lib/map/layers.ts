@@ -829,6 +829,9 @@ function foodMore(p: FoodPage): Record<string, PanelBlock[]> {
   return out;
 }
 
+/** A member's class on a grouping's map: one shade, named in the legend. */
+const MEMBER_CLASS = 4;
+
 /** A grouping's members (/blocs/{bloc}), or how many groupings each country belongs to (/blocs). Memberships do not change by year. */
 function blocLayer(id: string): LayerFile {
   const c = common();
@@ -856,7 +859,7 @@ function blocLayer(id: string): LayerFile {
     order = p.byPopulation;
     for (const m of p.members) {
       const w = weightIn('population', m, p.members);
-      v[m] = [4, B.member, w !== null ? shareText(w) : '', 0, 0];
+      v[m] = [MEMBER_CLASS, B.member, w !== null ? shareText(w) : '', 0, 0];
       const rows = (['population', 'gdp', 'milusd', 'co2'] as const).map((k) => [k, weightIn(k, m, p.members)] as const)
         .filter(([, x]) => x !== null).map(([k, x]) => ({ name: MEASURE_TEXT[k], value: shareText(x!), note: String(measureYear(k)) }));
       more[m] = [...(rows.length ? [{ label: B.weightLabel, caption: B.weightCaption, rows }] : [])];
@@ -876,6 +879,7 @@ function blocLayer(id: string): LayerFile {
   else for (const ns of Object.values(MEMBER_NOTES)) for (const [pl, n] of Object.entries(ns)) notes[pl] = notes[pl] ? `${notes[pl]} ${n}` : n;
   return {
     id: `blocs-${id}`, name, scale: 'seq', years: [year], year, ticks: id === 'all' ? B.countTicks : [],
+    ...(id === 'all' ? {} : { categories: [{ cls: MEMBER_CLASS, label: B.member }] }),
     missing: { none: id === 'all' ? B.none : B.notMember }, source: B.source,
     text: {
       ...(c.words as LayerFile['text']),
@@ -913,6 +917,7 @@ function historyLayer(id: string): LayerFile {
   }
   return {
     id: `history-${id}`, name, scale: 'seq', years: p.years, year: p.years.at(-1)!, ticks: [],
+    categories: (['joined', 'member', 'left', 'former'] as const).map((s) => ({ cls: STATUS_CLASS[s], label: H.status[s] })),
     missing: { none: H.notMember }, source: H.source,
     text: {
       ...(c.words as LayerFile['text']),

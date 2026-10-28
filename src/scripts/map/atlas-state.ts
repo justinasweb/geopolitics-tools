@@ -2,6 +2,7 @@
 // left out, so the plain Atlas keeps its plain address; the canonical is always /atlas, and the Worker marks any
 // address with a query noindex. `year` is written the way the layer's own view writes its step: a year (2023), a
 // month on the conflict layer (2026-03), or a period in days on the disaster layers (90).
+import type { Overlay } from '../../lib/map/types';
 import { monthCode, monthNumber, nearestYear } from './state';
 
 export interface AtlasLayerRef { key: string; years: number[]; year: number; axis?: 'days' | 'months' }
@@ -21,7 +22,7 @@ export interface AtlasContext {
   start: string;
   /** Place ids, and their slugs (an old or hand-written link may use one). */
   slugs: Record<string, string>;
-  /** The overlays that can be turned on. */
+  /** The overlay choices that can be turned on, in list order ("flows-oil-trade", "bloc-nato"). */
   overlays: string[];
 }
 
@@ -49,8 +50,9 @@ export function readAtlasState(search: string, ctx: AtlasContext): { state: Atla
   }
   const c = (q.get('country') ?? '').toLowerCase();
   if (c) state.country = Object.keys(ctx.slugs).find((id) => id.toLowerCase() === c) ?? Object.entries(ctx.slugs).find(([, s]) => s === c)?.[0];
-  const ov = new Set((q.get('overlays') ?? '').toLowerCase().split(',').filter(Boolean));
-  state.overlays = ctx.overlays.filter((o) => ov.has(o));
+  // One choice per overlay (one trade flow, one grouping): the first named wins.
+  const asked = (q.get('overlays') ?? '').toLowerCase().split(',').filter((o) => ctx.overlays.includes(o));
+  state.overlays = ctx.overlays.filter((o) => asked.find((a) => kindOf(a) === kindOf(o)) === o);
   return { state, askedYear };
 }
 
@@ -77,4 +79,32 @@ export function writeAtlasState(url: URL, s: AtlasState, ctx: AtlasContext): URL
 export function carryYear(from: AtlasLayerRef, to: AtlasLayerRef, chosen: number | undefined): number | undefined {
   if (chosen === undefined || (from.axis ?? 'years') !== (to.axis ?? 'years')) return undefined;
   return chosen;
+}
+
+/** The overlay a choice belongs to: "flows-oil-trade" → "flows", "bloc-nato" → "bloc". */
+export const kindOf = (token: string) => token.split('-')[0];
+
+/** Turns an overlay choice on (in place of another choice of the same overlay) or off, keeping the list order. */
+export function toggleOverlay(on: string[], token: string, want: boolean, order: string[]): string[] {
+  const rest = on.filter((o) => kindOf(o) !== kindOf(token));
+  return order.filter((o) => rest.includes(o) || (want && o === token));
+}
+
+/**
+ * The step of an overlay's own layer to show: a fixed one (an alert period); else, of the steps that have marks, the
+ * year nearest the one the map shows when both step in years, or else nearest the overlay layer's own default.
+ */
+export function overlayStep(src: AtlasLayerRef, fixed: number | undefined, map: AtlasLayerRef, shown: number, has: (index: number) => boolean): number {
+  if (fixed !== undefined) return fixed;
+  const years = src.years.filter((_, i) => has(i));
+  if (!years.length) return src.years.indexOf(src.year);
+  return src.years.indexOf(nearestYear(years, !src.axis && !map.axis ? shown : src.year));
+}
+
+/** An overlay's marks for one step of its own layer, with the step masks taken off, so they stay put on another layer. */
+export function overlayAt(o: Overlay, index: number): Overlay {
+  const inStep = (x: { m?: number; i?: number }) => (x.i !== undefined ? x.i === index : !x.m || Math.floor(x.m / 2 ** index) % 2 === 1);
+  if (o.kind === 'arcs') return { ...o, items: o.items.filter(inStep).map((a) => ({ ...a, m: 0 })) };
+  if (o.kind === 'points') return { ...o, items: o.items.filter(inStep).map((p) => { const q = { ...p, m: 0 }; delete q.i; return q; }) };
+  return o;
 }

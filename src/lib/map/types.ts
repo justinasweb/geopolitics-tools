@@ -66,6 +66,8 @@ export interface LayerFile {
   /** The year shown when the URL names none: the latest. */
   year: number;
   ticks: string[];
+  /** Named classes in place of a scale (a bloc's members; joined, member, left): each a sequential class and its word. */
+  categories?: { cls: number; label: string }[];
   /** Diverging scales: what each end means. */
   ends?: [string, string];
   /** Legend words for the shapes without a class. */

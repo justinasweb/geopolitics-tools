@@ -7,8 +7,11 @@ import { NAV_TEXT } from '../i18n/en.ts';
 import { ATLAS_TEXT as A } from '../i18n/atlas.en.ts';
 import { monthText } from '../i18n/conflict.en.ts';
 import { layerFile, layerPath, mapLayers } from './map/layers.ts';
-import type { LayerFile } from './map/types.ts';
+import type { LayerFile, Overlay } from './map/types.ts';
 import { live } from './routes.ts';
+import { BLOC_ORDER } from './blocs.ts';
+import { BLOC_TEXT } from '../i18n/map.en.ts';
+import type { MarkSymbol } from '../scripts/map/legend.ts';
 
 /** One shaded layer, as the Atlas lists it and its script reads it. */
 export interface AtlasLayer {
@@ -87,3 +90,83 @@ export const atlasLayers = () => atlasTopics().flatMap((t) => t.rows.flatMap((r)
 
 /** The layer the Atlas opens on. */
 export const defaultLayer = () => atlasLayers().find((l) => l.id === DEFAULT_LAYER) ?? atlasLayers()[0];
+
+/** One choice of an overlay: a trade flow, a grouping. Its marks are overlays of a live layer file. */
+export interface AtlasOverlayVariant {
+  /** Its name in the address (?overlays=flows-oil-trade,bloc-nato). The part before the first "-" is the overlay. */
+  token: string;
+  label: string;
+  /** The layer file that draws it, and which of that file's overlays. A bloc outline has none: every file lists the blocs. */
+  file?: string;
+  parts?: string[];
+  /** The step of its layer it shows: fixed (an alert period), or else the one nearest the map's year. */
+  step?: number;
+  source?: string;
+  /** Its legend: a mark and words for each part. */
+  legend: { symbol: MarkSymbol; label: string }[];
+}
+
+export interface AtlasOverlay {
+  id: 'flows' | 'launches' | 'alerts' | 'bloc';
+  label: string;
+  desc: string;
+  /** The topic it is listed under. */
+  topic: string;
+  glyph: MarkSymbol;
+  variants: AtlasOverlayVariant[];
+}
+
+const markOf = (o: Overlay): MarkSymbol => (o.kind === 'arcs' ? (o.dashed ? 'arc-dashed' : 'arc') : o.kind === 'points' ? o.symbol : 'arc');
+const variantOf = (token: string, l: AtlasLayer, f: LayerFile, parts: Overlay[], step?: number): AtlasOverlayVariant => ({
+  token, label: l.name, file: l.file, parts: parts.map((o) => o.id), step, source: f.source,
+  legend: parts.map((o) => ({ symbol: markOf(o), label: o.label })),
+});
+
+let overlayCache: AtlasOverlay[] | null = null;
+/**
+ * The overlays whose map view is live (spec: flow arcs, pipelines, cables, chokepoints, disaster dots, bloc outline).
+ * Each is drawn from the layer file of the view that draws it, so the Atlas computes nothing of its own:
+ *  - trade flows: the arcs of every live layer that has them (oil, gas, the crops, chips, arms), the same flows once;
+ *  - launch sites: the marks on the launches view; disaster alerts: the orange and red alerts of the all-alerts view
+ *    over its shortest period;
+ *  - bloc outline: the groupings every layer file lists, when the blocs views are live.
+ * Pipelines, cables, chokepoints and internet outage marks have no live view that draws them yet, so they are not listed.
+ */
+export function atlasOverlays(): AtlasOverlay[] {
+  if (overlayCache) return overlayCache;
+  const O = A.overlay;
+  const layers = atlasLayers();
+  const out: AtlasOverlay[] = [];
+
+  const flows: AtlasOverlayVariant[] = [];
+  const seen = new Set<string>();
+  for (const l of layers) {
+    const f = layerFile(l.id);
+    const arcs = (f.overlays ?? []).filter((o) => o.kind === 'arcs' && o.items.length);
+    const sig = JSON.stringify(arcs.map((o) => o.items));
+    if (!arcs.length || seen.has(sig)) continue;
+    seen.add(sig);
+    flows.push(variantOf(`flows-${l.key}`, l, f, arcs));
+  }
+  if (flows.length) out.push({ id: 'flows', label: O.flows.label, desc: O.flows.desc, topic: 'resources', glyph: 'arc', variants: flows });
+
+  const launches = layers.find((l) => l.id === 'space-launches');
+  const sites = launches && layerFile(launches.id).overlays?.find((o) => o.id === 'sites' && o.items.length);
+  if (launches && sites) out.push({ id: 'launches', label: O.launches.label, desc: O.launches.desc, topic: 'technology', glyph: 'hollow', variants: [variantOf('launches', launches, layerFile(launches.id), [sites])] });
+
+  const alerts = layers.find((l) => l.id === 'disasters-all');
+  if (alerts) {
+    const f = layerFile(alerts.id);
+    const parts = (f.overlays ?? []).filter((o) => (o.id === 'alerts-orange' || o.id === 'alerts-red') && o.items.length);
+    const step = f.years.indexOf(Math.min(...f.years));
+    if (parts.length) out.push({ id: 'alerts', label: O.alerts.label, desc: O.alerts.desc(f.data[step].label ?? ''), topic: 'climate', glyph: 'triangle', variants: [variantOf('alerts', alerts, f, parts, step)] });
+  }
+
+  if (layers.some((l) => l.family === 'blocs')) {
+    const f = layerFile(layers.find((l) => l.family === 'blocs')!.id);
+    const variants = BLOC_ORDER.filter((b) => f.blocs[b]).map((b) => ({ token: `bloc-${b}`, label: BLOC_TEXT[b] ?? b, source: f.source, legend: [{ symbol: 'outline' as const, label: BLOC_TEXT[b] ?? b }] }));
+    if (variants.length) out.push({ id: 'bloc', label: O.bloc.label, desc: O.bloc.desc, topic: 'power', glyph: 'outline', variants });
+  }
+  overlayCache = out;
+  return out;
+}

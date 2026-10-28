@@ -45,6 +45,8 @@ export interface MapController {
   /** Draws another layer on the same map (the Atlas): its scale, its overlays (or the ones given), its first year;
    *  the selection and the bloc outline stay. A layer with its own area (a disputed river) moves the map there. */
   setLayer: (layer: LayerFile, overlays?: Overlay[]) => void;
+  /** Replaces the overlays drawn on the layer (the Atlas's toggles). */
+  setOverlays: (overlays: Overlay[]) => void;
   select: (id: string | null) => void;
   setBloc: (members: string[] | null) => void;
   zoom: (how: 'in' | 'out' | 'reset') => void;
@@ -322,6 +324,13 @@ export function createMap(container: HTMLElement, base: Basemap, first: LayerFil
       addOverlays(shown);
       showMarks();
       paint();
+    },
+    setOverlays(list) {
+      shown = list;
+      if (!ready) return;
+      removeOverlays();
+      addOverlays(shown);
+      showMarks();
     },
     select(id) {
       selected = id;

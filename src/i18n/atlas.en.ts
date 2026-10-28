@@ -9,9 +9,23 @@ export const ATLAS_TEXT = {
   search: 'Search layers',
   searchPlaceholder: 'Search layers, e.g. wheat',
   clearSearch: 'Clear search',
-  oneLayer: 'One shaded layer at a time.',
-  /** A topic's summary line: how many rows it lists. */
-  count: (n: number) => `${n} ${n === 1 ? 'layer' : 'layers'}`,
+  oneLayer: 'One shaded layer, plus any overlays.',
+  /** A topic's summary line: how many rows and overlays it lists. */
+  count: (n: number, o = 0) => `${n} ${n === 1 ? 'layer' : 'layers'}${o ? `, ${o} ${o === 1 ? 'overlay' : 'overlays'}` : ''}`,
+  overlays: 'Overlays',
+  /** The overlays, each drawn from the live map view that draws it (src/lib/atlas.ts). */
+  overlay: {
+    flows: { label: 'Trade flows', desc: 'Largest flows, exporter to importer', pick: 'Flow' },
+    launches: { label: 'Launch sites', desc: 'Orbital launches by site, in the year shown' },
+    alerts: { label: 'Disaster alerts', desc: (period: string) => `Orange and red alerts, ${period.toLowerCase()}` },
+    bloc: { label: 'Bloc outline', desc: 'Members’ borders drawn in ink', pick: 'Grouping' },
+  },
+  legend: 'Legend',
+  hide: 'Hide',
+  show: 'Show',
+  removeOverlay: (name: string) => `Turn off ${name}`,
+  /** Under an overlay drawn from another year than the map's. */
+  overlayYear: (year: string) => `Shown for ${year}`,
   /** On a topic that holds the shown layer. */
   on: (n: number) => `${n} on`,
   /** Under the search box, filled in by the script: {n} rows match the query {q}. */

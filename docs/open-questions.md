@@ -101,3 +101,18 @@ bar links to Countries and Explorer only; Map views is left out until a hub or i
 **Options.**
 - Add a short source name to each layer file (the source registry's `SOURCE_SHORT` where one exists).
 - Link "Map views" to the topic hubs once they are live, or to a plain index of every map view.
+
+## Atlas overlays without a live view (raised 28 Oct 2026)
+
+**The question.** The Atlas design lists eight overlays. Four have nothing live to draw them from: pipelines and
+terminals (GEM is imported, `src/adapters/gem.ts`, but no map view draws it yet), submarine cables (waiting on
+TeleGeography, above), chokepoints (waiting on the IMF's terms) and internet outages as marks (the outages view
+shades countries; it has no marks).
+
+**What the site does now.** The Atlas lists only trade flows, launch sites, disaster alerts and the bloc outline.
+The others appear on their own once a view draws them, since the Atlas reads overlays from the views' layer files.
+
+**Options.**
+- Add pipelines and LNG terminals to the gas and oil trade views (GEM, CC BY 4.0), which brings them to the Atlas.
+- Give the outages view a mark per outage (it needs a location per outage; IODA reports by country and region).
+

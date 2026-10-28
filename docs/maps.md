@@ -61,7 +61,8 @@ before and without the map script.
 
 `/atlas` (`src/templates/AtlasPage.astro`, `src/lib/atlas.ts`, `src/scripts/atlas.ts`): one full-screen map with the
 shaded layer of every live map view. No data and no layer logic of its own: it lists the layer registry, keeps the
-layers whose view is live, and loads their files (`/map/<id>.json`) as the views do. Built in steps; this is step 1.
+layers whose view is live, and loads their files (`/map/<id>.json`) as the views do. Built in steps; steps 1 and 2
+are done.
 
 - **Layer list.** The menu's topics, then one row per map view family, in menu order; a family with several layers
   (the minerals, the crops, the blocs) has one row with a select, shown when the row is on. Each row shows the layer's
@@ -69,8 +70,22 @@ layers whose view is live, and loads their files (`/map/<id>.json`) as the views
   layer names; picking a row found by a layer's name ("wheat") opens that layer.
 - **One map.** The engine draws the first layer, then `setLayer` swaps the shading, its scale and its overlays in
   place, so zoom and the selected country stay. Other countries stay at full strength when one is selected (design
-  review decision 7.8; `dim: false`). Overlays are off for now (step 2 makes them their own toggles).
-- **Address.** `?layer=&year=&country=&overlays=` (`src/scripts/map/atlas-state.ts`). `layer` is the layer's view path
+  review decision 7.8; `dim: false`). The shaded layer's own marks are not drawn; overlays are toggles instead.
+- **Overlays** (`atlasOverlays()` in `src/lib/atlas.ts`), each listed under its topic and drawn from the layer file of
+  the live view that draws it: trade flows (the arcs of every layer that has them, one select: oil, gas, the six
+  crops and fertilisers, chips, chip machines, arms; the same flows on two layers are offered once), launch sites
+  (the launches view's marks), disaster alerts (the all-alerts view's orange and red alerts, last 30 days) and a bloc
+  outline (one select of the 19 groupings). Pipelines, cables, chokepoints and outage marks are not listed: no live
+  view draws them. One choice per overlay. An overlay shows the step of its own layer nearest the map's year that has
+  marks (`overlayStep`), with its masks taken off (`overlayAt`); when that is not the map's year, its legend says
+  "Shown for 2023". Turning trade flows on over a trade layer opens on that layer's own flows.
+- **Legend box.** Bottom left: the shaded layer's legend (`legendHtml` in `src/scripts/map/legend.ts`, from the
+  layer file; drawn at build time for lithium and in the browser after), then one section per overlay with its marks
+  and an X that turns it off. Hide folds it to its bar for the session. Mark shapes are defined once (`markSvg`), and
+  `MarkIcon` uses the same. Bloc and alliance-history layers carry their named classes (`categories`) in the layer
+  file; their views' legends read them from there.
+- **Address.** `?layer=&year=&country=&overlays=` (`src/scripts/map/atlas-state.ts`); overlays are written as their
+  choices, `overlays=flows-oil-trade,launches,alerts,bloc-nato`. `layer` is the layer's view path
   without slashes (`oil-trade`, `minerals-lithium`, `blocs-nato-history`), so it follows the slugs; `country` is the
   internal id in capitals (ISO3), a slug also reads; `year` is written as the layer's view writes its step (2023,
   2026-03 on conflict, 90 days on disasters). Defaults are left out, so the opening state (lithium) is the bare /atlas.
@@ -79,8 +94,8 @@ layers whose view is live, and loads their files (`/map/<id>.json`) as the views
   latest one). The year slider comes in step 3.
 - **Indexing.** /atlas is in the sitemap. Any address with a query gets `X-Robots-Tag: noindex, follow` from the
   Worker (`STATE_PAGES` in `worker/index.ts`), since a static page cannot see its query; the canonical is /atlas.
-- **Not yet.** Overlays and the stacked legend (step 2); the country panel, the year slider, Share and the phone
-  sheets (step 3). On a phone the list sits under the map until then.
+- **Not yet.** The country panel, the year slider, Share and the phone sheets (step 3). On a phone the list sits
+  under the map until then.
 
 ## Territories: what the default map shows
 
