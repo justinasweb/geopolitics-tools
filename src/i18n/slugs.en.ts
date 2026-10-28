@@ -9,7 +9,7 @@ export const SECTION_SLUGS = {
   emissions: 'emissions', refugees: 'refugees', disasters: 'disasters', food: 'food', blocs: 'blocs',
   space: 'space', ai: 'ai', sanctions: 'sanctions', internet: 'internet',
   water: 'water', 'chinese-lending': 'chinese-lending', arms: 'arms', oil: 'oil', gas: 'gas', electricity: 'electricity', conflict: 'conflict', 'food-crises': 'food-crises',
-  explorer: 'explorer', dependencies: 'dependencies', 'supply-chains': 'supply-chains',
+  explorer: 'explorer', dependencies: 'dependencies', 'supply-chains': 'supply-chains', atlas: 'atlas',
 } as const;
 
 /** Supply chains after /supply-chains, by flow key (src/data/flows.ts). */

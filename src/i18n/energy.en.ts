@@ -27,6 +27,9 @@ const LAYER = {
   reserves: { pick: 'Reserves', title: (f: string) => `${f} reserves`, figure: 'Proved reserves', measure: 'of world proved reserves', worldLabel: 'World proved reserves, countries reporting', legend: (y: number) => `Share of world proved reserves, ${y}` },
 };
 
+/** The flow marks' words, without the year (a layer file carries the year apart: src/lib/map/types.ts). */
+const MARKS = { flows: 'Largest flows', pipe: 'Pipeline gas', lng: 'LNG' };
+
 export const ENERGY_TEXT = {
   hub: 'Resources',
   fuelLabel: 'Fuel',
@@ -103,9 +106,10 @@ export const ENERGY_TEXT = {
   highest: 'Highest',
   netExporters: 'Largest net exporters',
   netImporters: 'Largest net importers',
-  flowsLabel: (year: number) => `Largest flows, ${year}`,
-  pipeLabel: (year: number) => `Pipeline gas, ${year}`,
-  lngLabel: (year: number) => `LNG, ${year}`,
+  marks: MARKS,
+  flowsLabel: (year: number) => `${MARKS.flows}, ${year}`,
+  pipeLabel: (year: number) => `${MARKS.pipe}, ${year}`,
+  lngLabel: (year: number) => `${MARKS.lng}, ${year}`,
   flowsCaption: (n: number, year: number, what: string) => `The ${n} largest flows of ${what} in ${year}, exporter to importer, as importers report them to UN Comtrade.`,
   flowTip: (from: string, to: string, v: string, year: number, kind?: string) => `${from} → ${to}: ${v}${kind ? `, ${kind}` : ''} (${year})`,
   kind: { pipe: 'pipeline', lng: 'LNG' },

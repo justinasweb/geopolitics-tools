@@ -1,6 +1,6 @@
 // The shape of a map layer file (/map/<layer>.json), written at build time by ./layers.ts and read by the map
-// engine in the browser (src/scripts/map/). A layer is data, not code: the same file serves its map view page and,
-// later, the Atlas (spec, "Atlas" under Views), so a layer is defined once.
+// engine in the browser (src/scripts/map/). A layer is data, not code: the same file serves its map view page and
+// the Atlas (spec, "Atlas" under Views), so a layer is defined once.
 //
 // Everything a reader sees is already formatted and worded in the page's language at build time; the engine only
 // places it. Coordinates are map coordinates (Equal Earth drawn through Web Mercator, ./projection.ts).
@@ -49,13 +49,20 @@ export interface Arc { p: [number, number][]; w: number; tip: string; m?: number
 export interface Line { p: [number, number][][]; tip: string }
 /** A point; `m` is a bit mask of the year indices it shows in (bit i for data[i]), 0 or none for all; `i` the one index it shows in, for layers with more steps than a mask can hold (conflict months). */
 export interface Point { at: [number, number]; r?: number; tip: string; m?: number; i?: number }
-export type Overlay =
-  | { id: string; kind: 'arcs'; label: string; dashed?: boolean; items: Arc[] }
-  | { id: string; kind: 'lines'; label: string; dashed?: boolean; items: Line[] }
-  | { id: string; kind: 'points'; label: string; symbol: 'dot' | 'hollow' | 'triangle' | 'diamond' | 'square'; items: Point[] };
+/**
+ * Marks drawn over the shading. `label` names the marks without a year; `year` is set when every mark is from one
+ * year whatever the slider shows (a crop's largest flows, from the trade matrix's year). Marks with `m` or `i` belong
+ * to their step of the layer instead.
+ */
+export type Overlay = { id: string; label: string; year?: number } & (
+  | { kind: 'arcs'; dashed?: boolean; items: Arc[] }
+  | { kind: 'lines'; dashed?: boolean; items: Line[] }
+  | { kind: 'points'; symbol: 'dot' | 'hollow' | 'triangle' | 'diamond' | 'square'; items: Point[] });
 
 export interface LayerFile {
   id: string;
+  /** The layer's own name, as its view's title and kicker say it ("Lithium", "Wheat production"): the Atlas lists it. */
+  name: string;
   scale: 'seq' | 'div';
   /** What the slider steps through: years (the default), periods in days (?days= in the URL), or months, numbered
    *  year × 12 + month − 1 so they run on without gaps (?month=2026-03 in the URL). */
@@ -64,6 +71,8 @@ export interface LayerFile {
   /** The year shown when the URL names none: the latest. */
   year: number;
   ticks: string[];
+  /** Named classes in place of a scale (a bloc's members; joined, member, left): each a sequential class and its word. */
+  categories?: { cls: number; label: string }[];
   /** Diverging scales: what each end means. */
   ends?: [string, string];
   /** Legend words for the shapes without a class. */
@@ -80,6 +89,8 @@ export interface LayerFile {
     prev: string;          // "{year}: {detail} ({value})"
     rank: string;          // "{rank} of {of} listed"
     world: string; close: string; countryPage: string; dossier: string; inTable: string; hint: string; tapHint: string;
+    /** The country page and dossier links' names with the place ({name}); a figure from another year ({label}, {year}). */
+    countryPageOf?: string; dossierOf?: string; inYear?: string;
     note: string; disputed: string; selected: string; cleared: string; members: string; removeBloc: string;
     movedYear: string; keys: string;
     /** The selected place's panel: fact labels, the trend's title ({from}, {to}) and caption ({first}, {from}, {last}, {to}), the ranking's title ({year}). */

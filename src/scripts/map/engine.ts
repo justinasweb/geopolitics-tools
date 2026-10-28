@@ -42,6 +42,14 @@ export interface Handlers {
 
 export interface MapController {
   setYear: (index: number) => void;
+  /** Draws another layer on the same map (the Atlas): its scale, its overlays (or the ones given), its first year;
+   *  the selection and the bloc outline stay. A layer with its own area (a disputed river) moves the map there. */
+  setLayer: (layer: LayerFile, overlays?: Overlay[]) => void;
+  /** Replaces the overlays drawn on the layer (the Atlas's toggles). */
+  setOverlays: (overlays: Overlay[]) => void;
+  /** Adds words (HTML) after "Natural Earth" behind the map's ⓘ, folded until opened; null for "Natural Earth" alone
+   *  (the Atlas on a phone, where the borders line under the map has no room). */
+  setAttribution: (extra: string | null) => void;
   select: (id: string | null) => void;
   setBloc: (members: string[] | null) => void;
   zoom: (how: 'in' | 'out' | 'reset') => void;
@@ -95,12 +103,26 @@ function symbol(kind: 'triangle' | 'diamond' | 'square', fill: string, stroke: s
 
 type Expr = maplibregl.ExpressionSpecification;
 
-export function createMap(container: HTMLElement, base: Basemap, layer: LayerFile, on: Handlers): MapController {
+export interface MapOptions {
+  /** Fade the other places while one is selected (map views). The Atlas keeps them at full strength, so the next
+   *  layer stays readable (design review decision 7.8). */
+  dim?: boolean;
+  /** The overlays to draw in place of the layer's own (the Atlas draws only the ones the reader turns on). */
+  overlays?: Overlay[];
+}
+
+export function createMap(container: HTMLElement, base: Basemap, first: LayerFile, on: Handlers, opts: MapOptions = {}): MapController {
   const T = readTokens();
-  const scale = layer.scale === 'seq' ? 5 : 7;
-  const colours = Array.from({ length: scale }, (_, i) => T[`--${layer.scale}-${i + 1}` as Token]);
+  const dimOthers = opts.dim ?? true;
+  let layer = first;
+  let shown = opts.overlays ?? layer.overlays ?? [];
+  // The fill colour of a class on the layer's scale; classes off the scale (none, withheld, not yet) are no-data grey.
+  const fillOf = (l: LayerFile): Expr => {
+    const colours = Array.from({ length: l.scale === 'seq' ? 5 : 7 }, (_, i) => T[`--${l.scale}-${i + 1}` as Token]);
+    return ['match', ['coalesce', ['feature-state', 'c'], -9], ...colours.flatMap((c, i) => [i + 1, c]), T['--map-nodata']] as unknown as Expr;
+  };
   // Where the map starts and the reset button returns: the layer's own area (a disputed river), else the lived-in world.
-  const home = layer.bounds ?? HOME_BOUNDS;
+  let home = layer.bounds ?? HOME_BOUNDS;
 
   const map = new maplibregl.Map({
     container,
@@ -115,9 +137,11 @@ export function createMap(container: HTMLElement, base: Basemap, layer: LayerFil
       zoom,
     }),
     fadeDuration: reduced() ? 0 : 300,
-    attributionControl: { compact: true, customAttribution: 'Natural Earth' },
+    attributionControl: false,
   });
   map.touchZoomRotate.disableRotation();
+  let attribution = new maplibregl.AttributionControl({ compact: true, customAttribution: 'Natural Earth' });
+  map.addControl(attribution, 'bottom-right');
   map.keyboard.disableRotation();
 
   let ready = false;
@@ -132,7 +156,7 @@ export function createMap(container: HTMLElement, base: Basemap, layer: LayerFil
     const v = layer.data[year].v;
     for (const id of ids) {
       const e = v[id];
-      map.setFeatureState({ source: 'countries', id }, { c: e ? e[0] : -9, dim: selected !== null && id !== selected });
+      map.setFeatureState({ source: 'countries', id }, { c: e ? e[0] : -9, dim: dimOthers && selected !== null && id !== selected });
     }
   };
 
@@ -162,8 +186,7 @@ export function createMap(container: HTMLElement, base: Basemap, layer: LayerFil
       map.addSource('disputed', { type: 'geojson', data: base.disputed });
       const cls: Expr = ['coalesce', ['feature-state', 'c'], -9];
       const dim: Expr = ['case', ['boolean', ['feature-state', 'dim'], false], 0.35, 1];
-      const fill: Expr = ['match', cls, ...colours.flatMap((c, i) => [i + 1, c]), T['--map-nodata']] as unknown as Expr;
-      map.addLayer({ id: 'fill', type: 'fill', source: 'countries', paint: { 'fill-color': fill, 'fill-opacity': dim } });
+      map.addLayer({ id: 'fill', type: 'fill', source: 'countries', paint: { 'fill-color': fillOf(layer), 'fill-opacity': dim } });
       // Withheld and not-yet-reported are patterns, so neither ever reads as zero or as a colour of the scale.
       map.addLayer({ id: 'withheld', type: 'fill', source: 'countries', paint: { 'fill-pattern': 'withheld', 'fill-opacity': ['case', ['==', cls, 0], dim, 0] } });
       map.addLayer({ id: 'notyet', type: 'fill', source: 'countries', paint: { 'fill-pattern': 'notyet', 'fill-opacity': ['case', ['==', cls, -1], dim, 0] } });
@@ -172,7 +195,7 @@ export function createMap(container: HTMLElement, base: Basemap, layer: LayerFil
       map.addLayer({ id: 'bloc', type: 'line', source: 'countries', filter: ['in', ['get', 'id'], ['literal', []]], paint: { 'line-color': T['--ink'], 'line-width': 2 } });
       map.addLayer({ id: 'hover', type: 'line', source: 'countries', filter: ['==', ['get', 'id'], ''], paint: { 'line-color': T['--ink'], 'line-width': 1.4 } });
       map.addLayer({ id: 'selected', type: 'line', source: 'countries', filter: ['==', ['get', 'id'], ''], paint: { 'line-color': T['--accent'], 'line-width': 2.5 } });
-      addOverlays(layer.overlays ?? []);
+      addOverlays(shown);
       ready = true;
       showMarks();
       paint();
@@ -188,6 +211,11 @@ export function createMap(container: HTMLElement, base: Basemap, layer: LayerFil
   const overlayLayers: string[] = [];
   // Overlays whose marks show in some years (or periods) only: filtered on the mark's bit for the year.
   const masked: string[] = [];
+  function removeOverlays() {
+    for (const id of overlayLayers) { map.removeLayer(id); map.removeSource(id); }
+    overlayLayers.length = 0;
+    masked.length = 0;
+  }
   const showMarks = () => {
     const bit = 2 ** year;
     for (const id of masked) map.setFilter(id, ['any', ['all', ['==', ['get', 'i'], -1], ['any', ['==', ['get', 'm'], 0], ['==', ['%', ['floor', ['/', ['get', 'm'], bit]], 2], 1]]], ['==', ['get', 'i'], year]]);
@@ -287,6 +315,35 @@ export function createMap(container: HTMLElement, base: Basemap, layer: LayerFil
 
   return {
     setYear(i) { year = i; paint(); if (ready) showMarks(); },
+    setLayer(next, overlays) {
+      layer = next;
+      shown = overlays ?? next.overlays ?? [];
+      year = next.data.length - 1;
+      if (next.bounds) {
+        home = next.bounds;
+        if (ready) map.fitBounds(home, { padding: fitPad, duration: reduced() ? 0 : 300 });
+      } else home = HOME_BOUNDS;
+      if (!ready) return;
+      map.setPaintProperty('fill', 'fill-color', fillOf(next));
+      removeOverlays();
+      addOverlays(shown);
+      showMarks();
+      paint();
+    },
+    setAttribution(extra) {
+      map.removeControl(attribution);
+      attribution = new maplibregl.AttributionControl({ compact: true, customAttribution: extra ? ['Natural Earth', extra] : 'Natural Earth' });
+      map.addControl(attribution, 'bottom-right');
+      // MapLibre shows a compact attribution open until the map first moves; extra words stay behind the ⓘ.
+      if (extra) container.querySelector('.maplibregl-ctrl-attrib')?.classList.remove('maplibregl-compact-show');
+    },
+    setOverlays(list) {
+      shown = list;
+      if (!ready) return;
+      removeOverlays();
+      addOverlays(shown);
+      showMarks();
+    },
     select(id) {
       selected = id;
       if (ready) map.setFilter('selected', ['==', ['get', 'id'], id ?? '']);

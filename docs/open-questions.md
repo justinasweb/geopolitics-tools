@@ -88,3 +88,42 @@ no clear licence for reuse, so they fail the source rules.
 - Wave 2: show only what governments themselves disclose (for example the US Strategic Bitcoin Reserve, El Salvador's
   published holdings), with the date of each disclosure, for the few countries that publish. Needs a check that each
   disclosure is regular and citable, and a note that other countries' holdings are unknown, not zero.
+
+## Atlas: short source names and the Map views link (raised 28 Oct 2026)
+
+**The question.** The Atlas design lists short source names under each layer ("EIA; UN Comtrade"), and its bar links
+to "Map views". The layer files carry the full source line ("U.S. Energy Information Administration (EIA),
+International…"), and there is no page that lists every map view yet (the topic hubs are not built).
+
+**What the site does now.** The list shows each layer file's own source line, cut to one line with an ellipsis. The
+bar links to Countries and Explorer only; Map views is left out until a hub or index page is live.
+
+**Options.**
+- Add a short source name to each layer file (the source registry's `SOURCE_SHORT` where one exists).
+- Link "Map views" to the topic hubs once they are live, or to a plain index of every map view.
+
+## Atlas overlays without a live view (raised 28 Oct 2026)
+
+**The question.** The Atlas design lists eight overlays. Four have nothing live to draw them from: pipelines and
+terminals (GEM is imported, `src/adapters/gem.ts`, but no map view draws it yet), submarine cables (waiting on
+TeleGeography, above), chokepoints (waiting on the IMF's terms) and internet outages as marks (the outages view
+shades countries; it has no marks).
+
+**What the site does now.** The Atlas lists only trade flows, launch sites, disaster alerts and the bloc outline.
+The others appear on their own once a view draws them, since the Atlas reads overlays from the views' layer files.
+
+**Options.**
+- Add pipelines and LNG terminals to the gas and oil trade views (GEM, CC BY 4.0), which brings them to the Atlas.
+- Give the outages view a mark per outage (it needs a location per outage; IODA reports by country and region).
+
+## Map canvas: dark band on narrow maps (raised 28 Oct 2026)
+
+**The question.** On a narrow desktop map (the Atlas at 1024px, where the map column is about 420px wide) the MapLibre
+canvas draws a dark band at the top left, under the borders line. It is the canvas itself, not a page element, and it
+was there before the Atlas bar changes. Wider maps do not show it.
+
+**What the site does now.** Nothing yet; the borders line sits over most of it.
+
+**Options.** Look at the engine's bounds and minimum zoom for narrow maps (the world fitted into a column narrower than
+it is tall), and whether the area beyond Web Mercator's latitude limit is drawn in the sea colour.
+

@@ -6,7 +6,7 @@ import '../styles/atlas/header.css';
 import Icon from './Icon.astro';
 import Lockup from './Lockup.astro';
 import PhoneMenu from './PhoneMenu.astro';
-import { menu } from '../lib/menu';
+import { menu, menuGroups } from '../lib/menu';
 import { NAV_TEXT, UI_TEXT } from '../i18n/en';
 
 interface Props {
@@ -22,13 +22,10 @@ interface Props {
   full?: boolean;
 }
 const { current, open, menuOpen, idPrefix = 'nav', full = false } = Astro.props;
-const { hubs, top, tools } = menu(full);
+const { top } = menu(full);
 const menuId = `${idPrefix}-menu`;
 const demo = menuOpen !== undefined;
-const groups = [
-  ...hubs.map((hub) => ({ id: hub.id, name: NAV_TEXT.hubs[hub.id], links: hub.views.map((v) => ({ path: v.path, text: NAV_TEXT.views[v.id] })) })),
-  ...(tools.length ? [{ id: 'tools', name: UI_TEXT.tools, links: tools.map((t) => ({ path: t.path, text: NAV_TEXT.tools[t.id] })) }] : []),
-];
+const groups = menuGroups(full);
 ---
 <header class="gt-header" data-gt-header>
   <div class="gt-header__in">

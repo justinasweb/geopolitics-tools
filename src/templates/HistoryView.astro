@@ -23,7 +23,7 @@ import { HISTORY_BLOCS, historyPage, spanText } from '../lib/history';
 import { formatDate } from '../lib/format';
 import { place } from '../lib/places';
 import { countryHref, live, route } from '../lib/routes';
-import { layerPath } from '../lib/map/layers';
+import { layerFile, layerPath } from '../lib/map/layers';
 import { breadcrumbs } from '../lib/structured';
 
 interface Props { id: string }
@@ -48,8 +48,6 @@ const related = [
   ...(live(`view:blocs:${id}`) ? [{ href: live(`view:blocs:${id}`)!.path, name, note: H.today }] : []),
   ...picker.filter((o) => !o.current).slice(0, 3).map((o) => ({ href: o.href, name: o.label, note: H.history })),
 ];
-const statuses = ['joined', 'member', 'left', 'former'] as const;
-const cls = { joined: 5, member: 3, left: 2, former: 1 };
 ---
 <Page title={title} description={H.description(name, first)} hub="power" container="mv" image={route(key(id))!.image}
   jsonld={[breadcrumbs(crumbs.map((c) => ({ label: c.label, href: c.href })))]}>
@@ -63,7 +61,7 @@ const cls = { joined: 5, member: 3, left: 2, former: 1 };
   <MapControls pickerLabel={H.pickerLabel} picker={picker} pickerSelect years={p.years} year={last} />
 
   <MapStage layer={layerPath(`history-${id}`)} label={H.mapLabel(name, last, p.byYear[last].members.length)} title={title}
-    legend={{ title: H.legend(last), scale: 'seq', ticks: [], none: H.notMember, categories: statuses.map((s) => ({ cls: cls[s], label: H.status[s] })) }}>
+    legend={{ title: H.legend(last), scale: 'seq', ticks: [], none: H.notMember, categories: layerFile(`history-${id}`).categories }}>
     <div data-panel="world" slot="panel">
       <div class="gt-panel__head">
         <div class="gt-panel__title"><span class="gt-kicker">{name} · <span data-year-text>{last}</span></span><h2 class="gt-h3">{MAP_TEXT.world}</h2></div>

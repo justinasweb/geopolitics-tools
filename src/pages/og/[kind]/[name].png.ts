@@ -39,6 +39,8 @@ import { chainLinks, chainOf } from '../../../lib/supply-chains';
 import { amount as chainAmount, totals } from '../../../lib/supply-chains/model';
 import { ledeOf, periodLabel } from '../../../lib/supply-chains/render';
 import type { View } from '../../../lib/explorer/model';
+import { ATLAS_TEXT } from '../../../i18n/atlas.en';
+import { atlasLayers } from '../../../lib/atlas';
 
 export const getStaticPaths = (() => {
   if (process.env.GT_FAST === '1') return [{ params: { kind: 'page', name: 'default' }, props: { route: null } }];
@@ -180,6 +182,7 @@ function card(r: Route | null): Card {
     const view = r.id.split(':')[1];
     return { kicker: EXPLORER_TEXT.title, title: EXPLORER_TEXT.views[view], caption: EXPLORER_TEXT.description[view as View](explorerMeasures().length) };
   }
+  if (r.kind === 'tool' && r.id === 'atlas') return { kicker: ATLAS_TEXT.crumb, title: ATLAS_TEXT.title, caption: ATLAS_TEXT.description(atlasLayers().length) };
   if (r.kind === 'tool' && r.id === 'dependencies') return { kicker: DEPS_TEXT.crumb, title: DEPS_TEXT.title, caption: DEPS_TEXT.lede };
   if (r.kind === 'tool' && r.id === 'blocs-overlap') return { kicker: OVERLAP_TEXT.crumb, title: OVERLAP_TEXT.title, caption: OVERLAP_TEXT.lede };
   if (r.kind === 'tool' && r.id === 'supply-chains') return { kicker: CHAINS_TEXT.crumb, title: CHAINS_TEXT.title, caption: CHAINS_TEXT.indexLede(chainLinks().length) };

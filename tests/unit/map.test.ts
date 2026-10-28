@@ -227,6 +227,16 @@ describe('layer files', () => {
     expect(panel).toContain('href="/minerals/');
     expect(countryPanelHtml(L, 0, 'FRA')).not.toContain('data-show-row');
   });
+
+  it('labels the year before with what it measures, and names whose page a link opens', () => {
+    // A year whose figure is not an estimate (an estimate shows its tag in place of the year before).
+    const i = L.data.findLastIndex((y, k) => k > 0 && y.v.AUS && !y.v.AUS[3] && L.data[k - 1].v.AUS);
+    const panel = countryPanelHtml(L, i, 'AUS');
+    const before = L.data[i - 1].year;
+    expect(panel).toContain(`<dt>${L.text.shareLabel} in ${before}</dt>`);
+    expect(panel).not.toContain(`<dt>${before}</dt>`);
+    expect(panel).toContain('aria-label="Australia country page"');
+  });
 });
 
 describe('view state in the URL', () => {

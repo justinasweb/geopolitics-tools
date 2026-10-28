@@ -40,6 +40,14 @@ describe('worker', () => {
     expect((await call('/api/health', 'GET', holding, 'geopolitics.tools')).status).toBe(200);
   });
 
+  it('marks Atlas states noindex, follow, but not the Atlas itself', async () => {
+    const state = await call('/atlas?layer=oil-trade&country=IND', 'GET', env, 'geopolitics.tools');
+    expect(await state.text()).toBe('asset');
+    expect(state.headers.get('X-Robots-Tag')).toBe('noindex, follow');
+    expect((await call('/atlas', 'GET', env, 'geopolitics.tools')).headers.get('X-Robots-Tag')).toBeNull();
+    expect((await call('/water?year=2020', 'GET', env, 'geopolitics.tools')).headers.get('X-Robots-Tag')).toBeNull();
+  });
+
   it('serves every page on workers.dev, in Previews and after launch', async () => {
     expect(await (await call('/water', 'GET', holding, 'geopolitics-tools.example.workers.dev')).text()).toBe('asset');
     expect(await (await call('/water', 'GET', env, 'geopolitics.tools')).text()).toBe('asset');

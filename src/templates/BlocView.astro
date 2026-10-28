@@ -25,7 +25,7 @@ import { formatDate, formatValue } from '../lib/format';
 import { shareText } from '../lib/minerals';
 import { place } from '../lib/places';
 import { countryHref, live, route } from '../lib/routes';
-import { layerPath } from '../lib/map/layers';
+import { layerFile, layerPath } from '../lib/map/layers';
 import { DOSSIERS } from '../lib/country';
 import { breadcrumbs } from '../lib/structured';
 
@@ -88,7 +88,7 @@ const shareBars = (ss: BlocShare[]) => ss.map((s) => ({ label: label(s), text: s
   <MapStage layer={layerPath(`blocs-${id}`)} label={mapLabel} title={name}
     legend={all
       ? { title: B.countLegend, scale: 'seq', ticks: B.countTicks, none: B.none }
-      : { title: B.legendMember, scale: 'seq', ticks: [], none: B.notMember, categories: [{ cls: 4, label: B.member }] }}>
+      : { title: B.legendMember, scale: 'seq', ticks: [], none: B.notMember, categories: layerFile(`blocs-${id}`).categories }}>
     <div data-panel="world" slot="panel">
       <div class="gt-panel__head">
         <div class="gt-panel__title"><span class="gt-kicker">{name} · {B.checked(checked)}</span><h2 class="gt-h3">{MAP_TEXT.world}</h2></div>

@@ -164,6 +164,15 @@ export function balanceOf(p: EnergyPage, id: string, y: number) {
   return out;
 }
 
+/**
+ * The year of a place's balance: the latest year, up to `upTo`, in which EIA has both its output and its use, so
+ * production, use and net trade are shown together (EIA's use figures run a year behind its output). Else `upTo`.
+ */
+export function balanceYear(p: EnergyPage, id: string, upTo: number): number {
+  const years = Object.keys(p.data.consumption[id] ?? {}).map(Number).filter((y) => y <= upTo && p.data.production[id]?.[y] !== undefined);
+  return years.length ? Math.max(...years) : upTo;
+}
+
 /** The one-sentence answer under the title. */
 export function lede(p: EnergyPage, year = p.year): string | null {
   const y = p.byYear[year];

@@ -40,7 +40,7 @@ describe('menu', () => {
     const m = menu();
     expect(m.top.map((u) => u.id)).toContain('indicators');
     expect(m.top.map((u) => u.id)).not.toContain('this-week');
-    expect(m.tools.map((u) => u.id)).not.toContain('atlas');
+    expect(m.tools.map((u) => u.id)).toContain('atlas');
     expect(m.tools.map((u) => u.id)).toContain('blocs-overlap');
     // Bloc overlap has its own address, beside the bloc pages under /blocs.
     expect(route('tool:blocs-overlap')).toMatchObject({ path: '/blocs/overlap', live: true });
