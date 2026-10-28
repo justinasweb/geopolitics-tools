@@ -60,3 +60,16 @@ Arms show SIPRI's latest five-year total, as everywhere else on the site.
 **What the site does now.** The gas page sums both routes, because the flows module (`src/data/flows.ts`) adds them
 into one pair. Comtrade's gas rows keep the route (HS 271121 pipeline, 271111 LNG), so the switch can be added once
 the gas flows are live on real data.
+
+## Bloc overlap: which groupings count for bridge countries, and which partners to list (raised 28 Oct 2026)
+
+**What the site does now.** Bridge countries are full members of NATO, the EU, the G7 or the Quad and of BRICS or the
+SCO; the page names the blocs and gives the two groups no labels. AUKUS, USMCA, CSTO, EAEU and CIS are in neither
+group; adding them would change nothing today (India stays the only one). "Partners and invitees" lists the design's three (Türkiye,
+Saudi Arabia, Malaysia), from `src/data/bloc-partners.csv`; BRICS's other partner countries (such as Belarus,
+Kazakhstan, Thailand, Vietnam) are not listed.
+
+**Options.** Keep as is; widen the two groups; list every BRICS partner country and SCO dialogue partner.
+
+**Also.** The page has no Methodology section yet; the bridge rule is stated on the page. It can join the full
+Methodology review.

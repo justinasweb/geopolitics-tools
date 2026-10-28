@@ -1,0 +1,63 @@
+/* Atlas design system: Bloc overlap (batch 5, BlocOverlap and BlocOverlapPage).
+   Ported from the design system's bundle.css; colours and fonts come from tokens.css. */
+
+/* Set by src/scripts/overlap.ts when the matrix does not fit its half: full width, bridge countries under it. */
+.gt-indgrid--bl.is-wide { grid-template-columns: minmax(0, 1fr); }
+
+.gt-mxtbl td.gt-mx { text-align: center; padding: 10px 8px; font: 600 16px/20px var(--sans); font-variant-numeric: tabular-nums; min-width: 56px; border: 1px solid var(--paper); }
+.gt-mxtbl thead th { text-align: center; }
+.gt-mxtbl tbody th { white-space: nowrap; }
+.gt-mx--0 { color: var(--ink-muted); background: var(--paper-raised); font-weight: 400 !important; }
+.gt-mx--1 { background: var(--seq-1); color: var(--ink); }
+.gt-mx--2 { background: var(--seq-2); color: var(--ink); }
+.gt-mx--3 { background: var(--seq-3); color: var(--ink); }
+.gt-mx--4 { background: var(--seq-4); color: var(--paper); }
+.gt-mx--5 { background: var(--seq-5); color: var(--paper); }
+.gt-mx--self { background: var(--paper-sunk); box-shadow: inset 0 0 0 1px var(--rule-strong); }
+.gt-mx--self small { display: block; font: 400 11px/14px var(--sans); color: var(--ink-muted); }
+
+.gt-bridge .gt-h3 { margin: 6px 0 0; }
+.gt-bridge .gt-caption { margin: 0; }
+.gt-bridge__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.gt-bridge__list li { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; padding: 10px 12px; border: 1px solid var(--rule-strong); background: var(--paper-raised); font: 400 15px/22px var(--sans); }
+.gt-bridge__list li b { font-weight: 700; min-width: 90px; }
+.gt-bridge__list li b a { color: var(--ink); }
+.gt-bridge__list--p li { border-style: dashed; background: none; }
+.gt-bridge__x { color: var(--ink-muted); }
+
+.gt-memkey { margin: 0; display: flex; flex-wrap: wrap; gap: 6px 18px; font: 400 13px/18px var(--sans); color: var(--ink-muted); }
+.gt-memkey > span { display: inline-flex; align-items: center; gap: 6px; }
+.gt-mk { display: inline-block; width: 12px; height: 12px; background: var(--ink); vertical-align: middle; }
+.gt-mk--dot { border-radius: 50%; background: var(--brand); }
+.gt-mk--tri { clip-path: polygon(50% 0, 100% 100%, 0 100%); background: var(--accent); }
+.gt-memtbl td.gt-mem2 { text-align: center; }
+.gt-memtbl thead th { text-align: center; }
+.gt-memtbl thead th:first-child, .gt-memtbl tbody th { text-align: left; }
+.gt-memtbl tbody th { white-space: nowrap; }
+.gt-memtbl tbody th a { color: var(--ink); }
+.gt-memtbl td.n { font-variant-numeric: tabular-nums; font-weight: 600; }
+.gt-memtbl .gt-na { color: var(--ink-disabled); font-style: normal; }
+.gt-memtbl + .gt-caption, .gt-mxwrap + .gt-caption { margin: -6px 0 0; }
+.gt-tlsec > .gt-caption + .gt-caption { margin: -10px 0 0; }
+
+.gt-two { display: grid; gap: 14px; align-content: start; }
+.gt-two__pick { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.gt-two__pick .gt-field { min-width: 0; grid-template-columns: minmax(0, 1fr); }
+.gt-two__pick .gt-select, .gt-two__pick select { width: 100%; min-width: 0; max-width: none; }
+.gt-two__c { border: 1px solid var(--rule-strong); padding: 12px; background: var(--paper-raised); }
+.gt-two__c--both { border: 2px solid var(--ink); }
+.gt-two__c .gt-h3 { margin: 0 0 6px; }
+.gt-two__c .gt-h3 small { font-weight: 400; color: var(--ink-muted); }
+.gt-two__c ul { margin: 0; padding-left: 18px; columns: 2; font: 400 15px/24px var(--sans); }
+.gt-two__c p { margin: 0; }
+.gt-two__c a { color: var(--ink); }
+
+.gt-ovphone { display: none; }
+@container page (max-width: 759px) {
+  .gt-ovdesk { display: none; }
+  .gt-ovphone { display: grid; }
+  .gt-two__c ul { columns: 1; }
+  .gt-memtbl th, .gt-memtbl td { padding-inline: 4px; }
+  .gt-memtbl tbody th { white-space: normal; font-size: 14px; }
+  .gt-memtbl thead th:first-child button { gap: 2px; }
+}
