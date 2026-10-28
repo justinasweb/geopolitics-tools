@@ -61,21 +61,25 @@ export function sankeyHtml(c: Chain, s: State): string {
     const t = esc(T.bandTitle(name(c, b.from), name(c, b.to), full(c, b.value)));
     return `<path d="${b.d}" class="gt-sk__band gt-sk--${b.colour}" data-sk-band="${t}"><title>${t}</title></path>`;
   }).join('');
-  const nodes = sk.nodes.map((n) => {
+  // No viewBox: the SVG is as wide as its box and sk.height pixels tall, so labels stay 13px. Bands and nodes are
+  // drawn in a nested SVG stretched over the space between the label margins; labels are placed outside it.
+  const rects: string[] = [];
+  const labs: string[] = [];
+  for (const n of sk.nodes) {
     const left = n.side === 0;
-    const lx = left ? X.from - 8 : X.to + X.node + 8;
     const label = n.id === OTHERS ? T.others : n.label;
-    const lab = `<text x="${lx}" y="${(n.mid + 4.5).toFixed(1)}"${left ? ' text-anchor="end"' : ''} class="gt-sk__lab"><tspan class="gt-sk__n">${esc(label)}</tspan> ${esc(amount(n.value, c))}</text>`;
-    const rect = `<rect x="${n.x}" y="${n.y.toFixed(1)}" width="${X.node}" height="${Math.max(1, n.h).toFixed(1)}" class="gt-sk__node${n.sel ? ' is-sel' : ''}"/>`;
     // Named places can be focused from the diagram too; the focus field below does the same from the keyboard.
-    return n.id === OTHERS || n.sel ? rect + lab : `<g class="gt-sk__pick" data-sk-pick="${esc(n.id)}">${rect}${lab}</g>`;
-  }).join('');
-  const axis = `<text x="${X.from}" y="${sk.height - 8}" class="gt-sk__ax">${esc(sides(c).froms)}</text>`
-    + `<text x="${X.to + X.node}" y="${sk.height - 8}" text-anchor="end" class="gt-sk__ax">${esc(sides(c).tos)}</text>`;
+    const pick = n.id === OTHERS || n.sel ? '' : ` data-sk-pick="${esc(n.id)}"`;
+    rects.push(`<rect x="${n.x}" y="${n.y.toFixed(1)}" width="${X.node}" height="${Math.max(1, n.h).toFixed(1)}" class="gt-sk__node${n.sel ? ' is-sel' : ''}${pick ? ' gt-sk__pick' : ''}"${pick}/>`);
+    labs.push(`<text x="${left ? 0 : '100%'}" dx="${left ? -8 : 8}" y="${(n.mid + 4.5).toFixed(1)}"${left ? ' text-anchor="end"' : ''} class="gt-sk__lab${pick ? ' gt-sk__pick' : ''}"${pick}><tspan class="gt-sk__n">${esc(label)}</tspan> ${esc(amount(n.value, c))}</text>`);
+  }
+  const plot = `<svg width="100%" height="${sk.height}" viewBox="${X.from} 0 ${X.to + X.node - X.from} ${sk.height}" preserveAspectRatio="none" overflow="visible">${bands}${rects.join('')}</svg>`;
+  const axis = `<text x="0" y="${sk.height - 8}" class="gt-sk__ax">${esc(sides(c).froms)}</text>`
+    + `<text x="100%" y="${sk.height - 8}" text-anchor="end" class="gt-sk__ax">${esc(sides(c).tos)}</text>`;
   const label = T.diagramLabel(chainTitle(c.key, c.label).full, c.period, sides(c).froms, sides(c).tos, w.unit, s.country ? nameOf(c, s.country) : undefined);
   const chip = s.country
     ? `<div class="gt-blocchip"><span>${T.focused(esc(nameOf(c, s.country)))}</span><button type="button" aria-label="${esc(T.clear)}" data-sk-clear>${ICON.close}</button></div>` : '';
-  return `${chip}<div class="gt-skscroll"><svg class="gt-sk" viewBox="0 0 ${sk.width} ${sk.height}" role="img" aria-label="${esc(label)}">${bands}${nodes}${axis}</svg></div>`
+  return `${chip}<div class="gt-skscroll"><svg class="gt-sk" height="${sk.height}" style="--h:${sk.height}px;--l:${X.from}px;--r:${sk.width - X.to - X.node}px" role="img" aria-label="${esc(label)}">${plot}${labs.join('')}${axis}</svg></div>`
     + `<p class="gt-caption gt-skread" data-sk-read aria-hidden="true">${esc(T.readout)}</p>`
     + `<p class="gt-caption">${esc(T.caption(SHOWN.from, SHOWN.to))} ${esc(COVERAGE[c.src] ?? '')}</p>`;
 }

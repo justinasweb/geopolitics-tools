@@ -38,6 +38,14 @@ Filters: `SegmentedControl`, `Dropdown`, `CountrySearch`, `Chips`, `YearSlider`.
 Controls tell the page what changed with bubbling events: `gt-change` (segmented control, chips, year slider) and `gt-pick`
 (country search). The header's search buttons and the `/` key send `gt-search`, which site search (phase 8) will answer.
 
+**Charts.** The SVG charts drawn on the server or in the page (`LineChart`, `Pyramid`, the map panel's trend line, the
+supply-chain diagram) have no `viewBox` on their outer SVG: it is as wide as its column and a fixed height in pixels, so
+chart text is always 12px (ticks) and 13px (labels), never scaled with the drawing. Text is placed in percent of the
+width; lines, bands and bars sit in a nested SVG stretched over the plot (`preserveAspectRatio="none"`) with
+`vector-effect: non-scaling-stroke`; the margins for value ticks and end labels are padding sized from the labels
+(`src/lib/chart.ts`). `LineChart` picks year labels at least 48px apart and, under 440px of container, switches to a
+sparser set and end labels cut to 12 characters. Explorer's charts are drawn at their measured width, so they are 1:1.
+
 **Header.** Desktop: the top row has Countries, Indicators, This week and search; the topic row has the five hubs, a
 divider and Tools (`NAV_TOP` and `NAV_TOOLS` in `src/data/nav.ts`). Every panel is a `.gt-mega`; Tools opens from its
 button's right edge, and a hub panel that would run off the screen does the same. Tool pages pass `hub="tools"` to

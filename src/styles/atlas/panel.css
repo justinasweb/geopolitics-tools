@@ -26,9 +26,9 @@
 .gt-pblock { display: grid; gap: 6px; padding-top: 12px; border-top: 1px solid var(--rule); }
 .gt-pblock__head { display: grid; gap: 2px; }
 .gt-pblock__cap { margin: 0; }
-.gt-spark { width: 100%; height: auto; display: block; font: 400 11px var(--sans); fill: var(--ink-muted); font-variant-numeric: tabular-nums; }
+.gt-spark { box-sizing: content-box; width: calc(100% - var(--l)); height: 96px; padding-left: var(--l); display: block; overflow: visible; font: 400 12px var(--sans); fill: var(--ink-muted); font-variant-numeric: tabular-nums; }
 .gt-spark__grid { stroke: var(--rule); stroke-width: 1; }
-.gt-spark__line { fill: none; stroke: var(--brand); stroke-width: 2; }
+.gt-spark__line { fill: none; stroke: var(--brand); stroke-width: 2; vector-effect: non-scaling-stroke; }
 .gt-spark__dot { fill: var(--brand); }
 .gt-prows { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; font: 400 14px/20px var(--sans); }
 .gt-prows li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: baseline; padding: 5px 0; border-bottom: 1px solid var(--rule); }

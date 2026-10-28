@@ -2,10 +2,16 @@
 // A line chart drawn at build time as SVG (svg.gt-lc, CountryCharts design): actual values solid, projections
 // dashed after a dotted split line labelled "Projection", an optional range band, and lines labelled at their
 // ends so colour is never the only cue. The numbers are in the table or figures next to it.
+// The SVG has no viewBox: it is as wide as its column and `height` pixels tall, so its text stays at the design
+// sizes (12px ticks, 13px labels) at any width. Text is placed in percent of the plot's width; the lines and
+// band are drawn in a nested SVG stretched over the plot, with strokes that do not stretch. The margins for the
+// value ticks and end labels are padding around the SVG, sized from the labels. Under 440px the chart shows
+// fewer year labels and shorter end labels (a container query in country.css).
 import '../styles/atlas/country.css';
 import '../styles/atlas/tools.css';
 import type { Format } from '../data/indicators';
 import { formatValue } from '../lib/format';
+import { CHART_LABEL_PX, CHART_TICK_PX, NARROWEST, NARROW_BELOW, clip, textWidth, yearTickIndexes } from '../lib/chart';
 import { DOSSIER_TEXT } from '../i18n/pages.en';
 
 export interface Line {
@@ -30,7 +36,7 @@ interface Props {
   zero?: boolean;
 }
 const { label, years, lines, format, projectedAfter, band, height = 260, zero = true } = Astro.props;
-const W = 720, H = height, L = 64, R = 150, T = 14, B = 28;
+const H = height, T = 14, B = 32, PW = 1000;
 const all = [...lines.flatMap((l) => l.values), ...(band ? [...band.lo, ...band.hi] : [])].filter((v): v is number => v !== null);
 let lo = zero ? Math.min(0, ...all) : Math.min(...all);
 let hi = Math.max(...all);
@@ -43,7 +49,11 @@ lo = Math.floor(lo / step) * step;
 hi = Math.ceil(hi / step) * step;
 const ticks: number[] = [];
 for (let v = lo; v <= hi + step / 2; v += step) ticks.push(Number(v.toPrecision(12)));
-const x = (i: number) => L + (years.length > 1 ? (i / (years.length - 1)) * (W - L - R) : 0);
+const short = (v: number) => formatValue(v, format);
+// x: the plot's width, as a share (for text, in %) or in the nested SVG's 0–1000 units (for paths).
+const share = (i: number) => (years.length > 1 ? i / (years.length - 1) : 0);
+const pct = (i: number) => `${(share(i) * 100).toFixed(2)}%`;
+const x = (i: number) => share(i) * PW;
 const y = (v: number) => T + (1 - (v - lo) / (hi - lo)) * (H - T - B);
 const splitIndex = projectedAfter === undefined ? -1 : years.findIndex((yr) => yr > projectedAfter);
 const segs = (vals: (number | null)[], from: number, to: number) => {
@@ -58,7 +68,6 @@ const segs = (vals: (number | null)[], from: number, to: number) => {
   return out;
 };
 const last = years.length - 1;
-const yearTicks = years.filter((_, i) => i === 0 || i === last || (years.length > 8 ? i % Math.ceil(years.length / 6) === 0 : true));
 const bandPath = band ? (() => {
   const top = band.hi.map((v, i) => (v === null ? null : `${x(i).toFixed(1)} ${y(v).toFixed(1)}`)).filter(Boolean);
   const bot = band.lo.map((v, i) => (v === null ? null : `${x(i).toFixed(1)} ${y(v).toFixed(1)}`)).filter(Boolean).reverse();
@@ -67,29 +76,51 @@ const bandPath = band ? (() => {
 // End labels, nudged apart so they do not overlap.
 const ends = lines.filter((l) => !l.noLabel).map((l) => {
   const i = l.values.findLastIndex((v) => v !== null);
-  return { l, i, yy: i >= 0 ? y(l.values[i]!) : -1 };
+  return { l, i, yy: i >= 0 ? y(l.values[i]!) : -1, full: clip(l.label, 20), short: clip(l.label, 12) };
 }).filter((e) => e.i >= 0).sort((a, b) => a.yy - b.yy);
-for (let k = 1; k < ends.length; k++) if (ends[k].yy - ends[k - 1].yy < 15) ends[k].yy = ends[k - 1].yy + 15;
+for (let k = 1; k < ends.length; k++) if (ends[k].yy - ends[k - 1].yy < 16) ends[k].yy = ends[k - 1].yy + 16;
 // Labels pushed below the plot move back up, keeping their spacing.
 const floor = H - B - 4;
 for (let k = ends.length - 1; k >= 0; k--) {
-  const limit = k === ends.length - 1 ? floor : ends[k + 1].yy - 15;
+  const limit = k === ends.length - 1 ? floor : ends[k + 1].yy - 16;
   if (ends[k].yy > limit) ends[k].yy = limit;
 }
-const short = (v: number) => formatValue(v, format);
+// Margins: the widest value tick on the left; the widest end label (or half a year label) on the right.
+const L = Math.max(28, ...ticks.map((t) => textWidth(short(t), CHART_TICK_PX) + 10));
+const endW = (key: 'full' | 'short') => Math.max(18, ...ends.map((e) => textWidth(e[key], CHART_LABEL_PX, true) + 12));
+const R = endW('full'), Rn = endW('short');
+// Year labels for a wide and a narrow column; each one shown in only one layout carries a class that hides it in the other.
+const wide = new Set(yearTickIndexes(years.length, NARROW_BELOW - L - R));
+const narrow = new Set(yearTickIndexes(years.length, NARROWEST - L - Rn));
+const yearTicks = years.map((yr, i) => ({ yr, i, cls: wide.has(i) ? (narrow.has(i) ? undefined : 'gt-lc__wide') : narrow.has(i) ? 'gt-lc__narrow' : null }))
+  .filter((t) => t.cls !== null);
+// The "Projection" note sits right of the split line, or left of it when the split is near the right edge.
+const noteLeft = splitIndex > 0 && share(splitIndex - 1) > 0.7;
 ---
-<svg class="gt-lc" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={label}>
-  {ticks.map((t) => <g><line class="gt-lc__grid" x1={L} x2={W - R} y1={y(t)} y2={y(t)} /><text x={L - 8} y={y(t) + 4} text-anchor="end">{short(t)}</text></g>)}
-  {yearTicks.map((yr) => <text x={x(years.indexOf(yr))} y={H - 8} text-anchor="middle">{yr}</text>)}
-  {bandPath && <path class="gt-lc__band" d={bandPath} />}
-  {splitIndex > 0 && (
-    <g><line class="gt-lc__split" x1={x(splitIndex - 1)} x2={x(splitIndex - 1)} y1={T} y2={H - B} /><text class="gt-lc__note" x={x(splitIndex - 1) + 6} y={T + 10}>{DOSSIER_TEXT.projection}</text></g>
-  )}
-  {lines.map((l) => (
-    <g>
-      {segs(l.values, 0, splitIndex > 0 ? splitIndex - 1 : last).map((d) => <path class:list={['gt-lc__line', l.cls, { 'gt-lc__line--dash': l.dashed }]} d={d} />)}
-      {splitIndex > 0 && segs(l.values, splitIndex - 1, last).map((d) => <path class:list={['gt-lc__line', 'gt-lc__line--proj', l.cls]} d={d} />)}
-    </g>
-  ))}
-  {ends.map((e) => <text class:list={['gt-lc__lab', e.l.cls]} x={x(e.i) + 8} y={e.yy + 4}>{e.l.label}</text>)}
-</svg>
+<div class="gt-lcw" style={`--l:${L}px;--r:${R}px;--rn:${Rn}px;--h:${H}px`}>
+  <svg class="gt-lc" height={H} role="img" aria-label={label}>
+    {ticks.map((t) => <g><line class="gt-lc__grid" x1="0" x2="100%" y1={y(t)} y2={y(t)} /><text x="-8" y={y(t) + 4} text-anchor="end">{short(t)}</text></g>)}
+    {yearTicks.map((t) => <text class={t.cls} x={pct(t.i)} y={H - 8} text-anchor="middle">{t.yr}</text>)}
+    <svg width="100%" height={H} viewBox={`0 0 ${PW} ${H}`} preserveAspectRatio="none" overflow="visible" aria-hidden="true">
+      {bandPath && <path class="gt-lc__band" d={bandPath} />}
+      {lines.map((l) => (
+        <g>
+          {segs(l.values, 0, splitIndex > 0 ? splitIndex - 1 : last).map((d) => <path class:list={['gt-lc__line', l.cls, { 'gt-lc__line--dash': l.dashed }]} d={d} />)}
+          {splitIndex > 0 && segs(l.values, splitIndex - 1, last).map((d) => <path class:list={['gt-lc__line', 'gt-lc__line--proj', l.cls]} d={d} />)}
+        </g>
+      ))}
+    </svg>
+    {splitIndex > 0 && (
+      <g>
+        <line class="gt-lc__split" x1={pct(splitIndex - 1)} x2={pct(splitIndex - 1)} y1={T} y2={H - B} />
+        <text class="gt-lc__note" x={pct(splitIndex - 1)} dx={noteLeft ? -6 : 6} y={T + 10} text-anchor={noteLeft ? 'end' : 'start'}>{DOSSIER_TEXT.projection}</text>
+      </g>
+    )}
+    {ends.map((e) => e.full === e.short
+      ? <text class:list={['gt-lc__lab', e.l.cls]} x={pct(e.i)} dx="8" y={e.yy + 4}>{e.full}</text>
+      : <>
+          <text class:list={['gt-lc__lab', 'gt-lc__wide', e.l.cls]} x={pct(e.i)} dx="8" y={e.yy + 4}>{e.full}</text>
+          <text class:list={['gt-lc__lab', 'gt-lc__narrow', e.l.cls]} x={pct(e.i)} dx="8" y={e.yy + 4}>{e.short}</text>
+        </>)}
+  </svg>
+</div>

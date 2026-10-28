@@ -3,6 +3,7 @@
 // functions, so they are tested without a browser.
 import type { LayerFile, LayerYear, PanelBlock } from '../../lib/map/types';
 import { formatValue } from '../../lib/format';
+import { CHART_TICK_PX, textWidth } from '../../lib/chart';
 import { esc, fill } from './text';
 
 const INFO = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg>';
@@ -42,20 +43,26 @@ export function sparkHtml(f: LayerFile, id: string, label: string): string {
   const fmt = (v: number) => (v === 0 ? '0' : formatValue(v, f.format!));
   const lo = Math.min(0, ...have.map((p) => p.v));
   const hi = Math.max(...have.map((p) => p.v));
-  const W = 320, H = 96, L = 52, R = 312, T = 10, B = 76;
-  const X = (i: number) => L + ((R - L) * i) / Math.max(1, vals.length - 1);
+  // No viewBox: the SVG fills the panel and is H pixels tall, so its text stays 12px. The line is drawn in a
+  // nested SVG stretched over the plot (0–1000 across); text and the end dot are placed in percent.
+  const H = 96, T = 10, B = 76, PW = 1000;
+  const grid = [lo, (lo + hi) / 2, hi];
+  const L = Math.max(...grid.map((g) => textWidth(fmt(g), CHART_TICK_PX) + 8));
+  const share = (i: number) => i / Math.max(1, vals.length - 1);
+  const pct = (i: number) => `${(share(i) * 100).toFixed(2)}%`;
   const Y = (v: number) => (hi === lo ? B : B - ((B - T) * (v - lo)) / (hi - lo));
-  const grid = [lo, (lo + hi) / 2, hi].map((g) => `<line x1="${L}" x2="${R}" y1="${Y(g).toFixed(1)}" y2="${Y(g).toFixed(1)}" class="gt-spark__grid"/><text x="${L - 6}" y="${(Y(g) + 4).toFixed(1)}" text-anchor="end">${esc(fmt(g))}</text>`).join('');
+  const lines = grid.map((g) => `<line x1="0" x2="100%" y1="${Y(g).toFixed(1)}" y2="${Y(g).toFixed(1)}" class="gt-spark__grid"/><text x="-6" y="${(Y(g) + 4).toFixed(1)}" text-anchor="end">${esc(fmt(g))}</text>`).join('');
   // Gaps (years without a figure) break the line.
   let d = '';
-  pts.forEach((p, i) => { if (p) d += `${d && pts[i - 1] ? 'L' : 'M'}${X(p.x).toFixed(1)},${Y(p.v).toFixed(1)}`; });
+  pts.forEach((p, i) => { if (p) d += `${d && pts[i - 1] ? 'L' : 'M'}${(share(p.x) * PW).toFixed(1)},${Y(p.v).toFixed(1)}`; });
   const first = have[0], last = have.at(-1)!;
   const tag = (y: LayerYear) => (y.status ? 'e' : '');
   const caption = fill(f.text.trendCaption ?? '{first} in {from}, {last} in {to}.', { first: fmt(first.v), from: first.year, last: fmt(last.v), to: last.year });
   return `<div class="gt-pblock"><div class="gt-pblock__head"><span class="gt-label">${esc(label)}</span></div>`
-    + `<svg class="gt-spark" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(`${label}: ${caption}`)}">${grid}<path d="${d}" class="gt-spark__line"/>`
-    + `<circle cx="${X(last.x).toFixed(1)}" cy="${Y(last.v).toFixed(1)}" r="3" class="gt-spark__dot"/>`
-    + `<text x="${X(first.x).toFixed(1)}" y="92" text-anchor="start">${first.year}${tag(f.data[first.x])}</text><text x="${X(last.x).toFixed(1)}" y="92" text-anchor="end">${last.year}${tag(f.data[last.x])}</text></svg>`
+    + `<svg class="gt-spark" height="${H}" style="--l:${L}px" role="img" aria-label="${esc(`${label}: ${caption}`)}">${lines}`
+    + `<svg width="100%" height="${H}" viewBox="0 0 ${PW} ${H}" preserveAspectRatio="none" overflow="visible" aria-hidden="true"><path d="${d}" class="gt-spark__line"/></svg>`
+    + `<circle cx="${pct(last.x)}" cy="${Y(last.v).toFixed(1)}" r="3" class="gt-spark__dot"/>`
+    + `<text x="${pct(first.x)}" y="92" text-anchor="start">${first.year}${tag(f.data[first.x])}</text><text x="${pct(last.x)}" y="92" text-anchor="end">${last.year}${tag(f.data[last.x])}</text></svg>`
     + `<p class="gt-caption gt-pblock__cap">${esc(caption)}</p></div>`;
 }
 
