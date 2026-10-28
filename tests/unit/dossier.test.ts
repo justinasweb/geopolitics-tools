@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { dossierFor } from '../../src/lib/dossier.ts';
+import { dossierFor, peopleSection } from '../../src/lib/dossier.ts';
 
-// The dossiers' People section on the sample files: the age pyramid's five-year steps and the year it opens on.
+// The People section (every country page has it; the sample files only cover the dossiers) on the sample files: the age pyramid's five-year steps and the year it opens on.
 process.env.GT_DATA = 'sample';
 
 describe('Dossier people', () => {
@@ -17,5 +17,9 @@ describe('Dossier people', () => {
 
   it('shows the figures the design shows: births per woman and median age', () => {
     expect(dossierFor('CHN', 2026).people!.stats.map((f) => f.id)).toEqual(['tfr', 'median']);
+  });
+
+  it('builds the same section for any country page, not only dossiers', () => {
+    expect(peopleSection('CHN', 2026)).toEqual(dossierFor('CHN', 2026).people);
   });
 });

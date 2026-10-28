@@ -1,7 +1,7 @@
 ---
 // A country page (IndonesiaProfile, ThinProfile and ChinaDossier designs): header with the template summary and a
 // locator map, key figures with world rank, a numbered menu, then one section per thing a source reports. The
-// three dossiers add money, people, technology and climate sections. A place few sources cover gets the "few
+// three dossiers add money, technology and climate sections; every page has People. A place few sources cover gets the "few
 // sources" box and is not indexed. Nothing is shown for a section with no data.
 import Page from '../layouts/Page.astro';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
@@ -27,7 +27,7 @@ import {
   BLOCK_TEXT, COUNTRY_TEXT, DEP_TEXT, DOSSIER_TEXT, RESOURCE_TEXT, SOURCE_SHORT, inSentence, list, mineralName, ordinal,
 } from '../i18n/pages.en';
 import { countryModel, countrySources, DOSSIERS, type Figure } from '../lib/country';
-import { dossierFor } from '../lib/dossier';
+import { dossierFor, peopleSection } from '../lib/dossier';
 import { data, sourceName } from '../lib/data';
 import { formatDate, formatParts, formatShare, formatValue } from '../lib/format';
 import { notesFor, place } from '../lib/places';
@@ -72,9 +72,10 @@ const hasBlocks = Boolean(blocks.refugees || blocks.disasters || blocks.emission
 
 const buildYear = Number(data().snapshot.created.slice(0, 4));
 const d = m.dossier ? dossierFor(p.id, buildYear) : null;
+const people = d ? d.people : peopleSection(p.id, buildYear);
 const pop = m.allFigures.find((f) => f.id === 'population');
 // The age pyramid: one drawing per five-year step on one shared scale, so moving the slider shows the shape change.
-const pyr = d?.people?.pyramid ?? null;
+const pyr = people?.pyramid ?? null;
 const pyrMax = pyr ? Math.max(...Object.values(pyr.byYear).flat().flatMap((g) => [g.male, g.female])) || 1 : 1;
 
 // Sections, in page order; the menu numbers follow them.
@@ -85,7 +86,7 @@ const nDeps = add('deps', COUNTRY_TEXT.depsMenu, okDeps.length);
 const mineralView = (id?: string) => (id && live(`view:minerals:${id}`) ? `${live(`view:minerals:${id}`)!.path}?country=${p.slug}` : undefined);
 const nMin = add('minerals', COUNTRY_TEXT.mineralsMenu, m.minerals.length);
 const nMoney = add('money', DOSSIER_TEXT.moneyMenu, d?.money);
-const nPeople = add('people', DOSSIER_TEXT.peopleMenu, d?.people);
+const nPeople = add('people', DOSSIER_TEXT.peopleMenu, people);
 const nTech = add('tech', DOSSIER_TEXT.techMenu, d?.tech);
 const nClimate = add('climate', DOSSIER_TEXT.climateMenu, d?.climate);
 const nMore = add('more', COUNTRY_TEXT.moreMenu, hasBlocks);
@@ -215,17 +216,17 @@ const citation = COUNTRY_TEXT.citation(name, kind, url, Number(m.updated.slice(0
           </CpSection>
         )}
 
-        {d?.people && (
+        {people && (
           <CpSection n={nPeople} id="people" heading={DOSSIER_TEXT.people}
             find={pop ? DOSSIER_TEXT.peopleFind(name, formatValue(pop.value, INDICATORS.population.format), pop.year) : undefined}
             link={indicatorHref('population') ? { href: indicatorHref('population')!, label: DOSSIER_TEXT.peopleLink } : undefined}>
             <div class="gt-cpgrid">
-              {d.people.years.length > 1 && (
+              {people.years.length > 1 && (
                 <div class="gt-cpsub">
-                  <h3 class="gt-h3">{INDICATOR_TEXT.population.label}, {d.people.years[0]}–{d.people.years.at(-1)}</h3>
-                  <LineChart label={DOSSIER_TEXT.popChart(name)} years={d.people.years} lines={[{ label: DOSSIER_TEXT.popProjection, values: d.people.medium, noLabel: true }]}
-                    format={INDICATORS.population.format} projectedAfter={d.people.lastEstimate} band={d.people.band ?? undefined} />
-                  <div class="gt-legend__extra"><span>{DOSSIER_TEXT.projection}: {DOSSIER_TEXT.popProjection.toLowerCase()}, after {d.people.lastEstimate}</span>{d.people.band && <span><i class="gt-sw gt-lc__bandkey"></i>{DOSSIER_TEXT.popRange}</span>}</div>
+                  <h3 class="gt-h3">{INDICATOR_TEXT.population.label}, {people.years[0]}–{people.years.at(-1)}</h3>
+                  <LineChart label={DOSSIER_TEXT.popChart(name)} years={people.years} lines={[{ label: DOSSIER_TEXT.popProjection, values: people.medium, noLabel: true }]}
+                    format={INDICATORS.population.format} projectedAfter={people.lastEstimate} band={people.band ?? undefined} />
+                  <div class="gt-legend__extra"><span>{DOSSIER_TEXT.projection}: {DOSSIER_TEXT.popProjection}, after {people.lastEstimate}</span>{people.band && <span><i class="gt-sw gt-lc__bandkey"></i>{DOSSIER_TEXT.popRange}</span>}</div>
                   <SourceLine source={sourceName('wpp')} updated={m.updated} status="projection" />
                 </div>
               )}
@@ -242,16 +243,16 @@ const citation = COUNTRY_TEXT.citation(name, kind, url, Number(m.updated.slice(0
                     {pyr.years.map((y) => (
                       <Pyramid label={DOSSIER_TEXT.pyramidLabel(name, y)} groups={pyr.byYear[y]} max={pyrMax} year={y} hidden={y !== pyr.year} />
                     ))}
-                    <figcaption class="gt-caption">{DOSSIER_TEXT.pyramidCaption(d!.people!.lastEstimate)}</figcaption>
+                    <figcaption class="gt-caption">{DOSSIER_TEXT.pyramidCaption(people.lastEstimate)}</figcaption>
                   </figure>
                   <SourceLine source={sourceName('wpp')} parts={[`${pyr.years[0]}–${pyr.years.at(-1)}`]} updated={m.updated} status="projection" />
                 </div>
               )}
             </div>
-            {(d.people.stats.length > 0 || d.people.old !== null) && (
+            {(people.stats.length > 0 || people.old !== null) && (
               <div class="gt-cpstats">
-                {d.people.stats.map((f) => <CpStat label={label(f.id)} num={parts(f).num} unit={parts(f).unit} caption={statCaption(f)} />)}
-                {d.people.old !== null && <CpStat label={DOSSIER_TEXT.aged65} num={formatShare(d.people.old).replace('%', '')} unit="%" caption={`${d.people.oldYear} · ${short('wpp')}`} />}
+                {people.stats.map((f) => <CpStat label={label(f.id)} num={parts(f).num} unit={parts(f).unit} caption={statCaption(f)} />)}
+                {people.old !== null && <CpStat label={DOSSIER_TEXT.aged65} num={formatShare(people.old).replace('%', '')} unit="%" caption={`${people.oldYear} · ${short('wpp')}`} />}
               </div>
             )}
           </CpSection>

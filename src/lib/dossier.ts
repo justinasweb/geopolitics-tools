@@ -82,19 +82,24 @@ export interface Dossier {
 
 const pick = (ids: string[], placeId: string) => ids.map((i) => figure(i, placeId)).filter((f): f is Figure => f !== null);
 
+/** The People section: every country page has it, profiles and dossiers alike. */
+export function peopleSection(id: string, buildYear: number): (People & { stats: Figure[] }) | null {
+  const people = peopleFor(id, buildYear);
+  const stats = pick(['tfr', 'median'], id);
+  return people || stats.length ? { ...(people ?? { years: [], medium: [], band: null, lastEstimate: 0, pyramid: null, old: null, oldYear: null }), stats } : null;
+}
+
 export function dossierFor(id: string, buildYear: number): Dossier {
   const moneyStats = pick(['growth', 'inflation', 'unemployment', 'reserves', 'trade', 'fdi'], id);
   const gdp = seriesOf('gdp', id);
   const treasuries = treasuriesFor(id);
-  const people = peopleFor(id, buildYear);
-  const peopleStats = pick(['tfr', 'median'], id);
   const techStats = pick(['satellites', 'launches', 'aicompute'], id);
   const models = modelsFor(id);
   const climateStats = pick(['co2', 'co2pc', 'co2cum', 'waterstress'], id);
   const co2 = seriesOf('co2', id, 1990);
   return {
     money: gdp || moneyStats.length || treasuries ? { gdp, stats: moneyStats, treasuries } : null,
-    people: people || peopleStats.length ? { ...(people ?? { years: [], medium: [], band: null, lastEstimate: 0, pyramid: null, old: null, oldYear: null }), stats: peopleStats } : null,
+    people: peopleSection(id, buildYear),
     tech: techStats.length || models ? { stats: techStats, models } : null,
     climate: co2 || climateStats.length ? { co2, stats: climateStats } : null,
   };
