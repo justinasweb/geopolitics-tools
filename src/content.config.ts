@@ -1,5 +1,5 @@
 // Content collections: the long-read pages (About, Methodology, Privacy), written in Markdown in the repo
-// (spec, "Static pages"). A page stays marked as a draft until the owner approves it (addendum, D15).
+// (spec, "Static pages"). A page stays marked as a draft until the owner approves it (spec, D15).
 import { defineCollection } from 'astro:content';
 import { z } from 'astro/zod';
 import { glob } from 'astro/loaders';

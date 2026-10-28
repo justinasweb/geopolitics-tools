@@ -1,6 +1,6 @@
 // The shape of a map layer file (/map/<layer>.json), written at build time by ./layers.ts and read by the map
 // engine in the browser (src/scripts/map/). A layer is data, not code: the same file serves its map view page and,
-// later, the Atlas (addendum, section 3), so a layer is defined once.
+// later, the Atlas (spec, "Atlas" under Views), so a layer is defined once.
 //
 // Everything a reader sees is already formatted and worded in the page's language at build time; the engine only
 // places it. Coordinates are map coordinates (Equal Earth drawn through Web Mercator, ./projection.ts).

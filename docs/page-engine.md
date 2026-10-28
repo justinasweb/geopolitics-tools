@@ -44,7 +44,7 @@ servers never see the part after `#`.
 
 | Page | Rule |
 | --- | --- |
-| Country profile | Every country or territory with at least one figure from any source. Fewer than 4 measures: built, `noindex`, with the "few sources" box listing which sources cover it. Every profile has the People section when WPP covers the place (addendum section 7): population 1950–2100 with the UN range, the age pyramid, births per woman, median age, share aged 65+. People needs the three UN WPP imports (`wpp-total`, `wpp-indicators`, `wpp-age`); its age pyramid has a year slider in five-year steps, 1950–2100, every year drawn at build time on one scale |
+| Country profile | Every country or territory with at least one figure from any source. Fewer than 4 measures: built, `noindex`, with the "few sources" box listing which sources cover it. Every profile has the People section when WPP covers the place (spec, D16): population 1950–2100 with the UN range, the age pyramid, births per woman, median age, share aged 65+. People needs the three UN WPP imports (`wpp-total`, `wpp-indicators`, `wpp-age`); its age pyramid has a year slider in five-year steps, 1950–2100, every year drawn at build time on one scale |
 | Dossier | United States, China and Russia: the profile plus money, technology and climate sections |
 | Compare | The three pairs of dossier countries |
 | Indicator | Every registry measure with data in the snapshot. Fewer than 20 places reporting in the common year: built, `noindex`. Measures waiting on a key or permission have no page and are listed on the index as waiting |
@@ -153,7 +153,7 @@ it in the page, and `src/lib/overlap/render.ts` draws it, at build time for the 
   15–19, 20+) with the number in every cell. The line above names the pair sharing most, then the pair sharing most
   among the blocs left. When the chosen blocs make it wider than its half of the row, the script gives it the full
   width and the bridge countries go under it.
-- **Bridge countries.** The strict rule (addendum section 4, 5.3): a full member of NATO, the EU, the G7 or the Quad
+- **Bridge countries.** The strict rule (spec, design review decision 5.3): a full member of NATO, the EU, the G7 or the Quad
   and of BRICS or the SCO, over all members, whatever is chosen. Today: India. The page names the blocs; it does not
   call either group "Western-led" or "non-Western" (`BRIDGE_A`, `BRIDGE_B` in `src/lib/overlap/model.ts`). Partners and invitees come from
   `src/data/bloc-partners.csv` (`partner`, `dialogue`, `invited`, `offered` with a year); they are listed apart and
@@ -172,5 +172,5 @@ theme colours: kicker, title, the headline figure or answer, up to five bars, an
 
 ## Not done in this phase
 
-- Dossier summaries drafted with AI from a facts file (addendum, D15): the dossiers use the template summary for now.
+- Dossier summaries drafted with AI from a facts file (spec, D15): the dossiers use the template summary for now.
 - Redeploying when new data arrives: today pages refresh on the next deploy.
