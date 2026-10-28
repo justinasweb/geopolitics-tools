@@ -15,8 +15,8 @@ export function menu(full = false, liveRoute: (key: string) => { path: string } 
   return { hubs, top: NAV_TOP.flatMap(linked), tools: NAV_TOOLS.flatMap(linked) };
 }
 
-/** The menu's groups as the header shows them: each topic hub with its views, then Tools. The Atlas's Map views
- *  menu shows the same groups. */
+/** The menu's groups as the header shows them: each topic hub with its views, then Tools. The Atlas's Menu shows
+ *  the same groups. */
 export function menuGroups(full = false) {
   const { hubs, tools } = menu(full);
   return [

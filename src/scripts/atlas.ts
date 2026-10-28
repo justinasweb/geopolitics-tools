@@ -541,7 +541,7 @@ export function initAtlas(root: HTMLElement): void {
     $<HTMLAnchorElement>('[data-at-sharex]', share)!.href = `https://x.com/intent/post?${q}`;
     $<HTMLAnchorElement>('[data-at-sharetg]', share)!.href = `https://t.me/share/url?${q}`;
   }
-  // ---------- Map views: the main menu's topics and Tools ----------
+  // ---------- Menu: the main menu's topics and Tools ----------
   function setMenu(open: boolean) {
     if (!menu || !menuBtn) return;
     if (open) setShare(false);

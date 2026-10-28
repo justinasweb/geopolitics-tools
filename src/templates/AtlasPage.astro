@@ -32,10 +32,10 @@ import { atlasLayers, atlasOverlays, atlasTopics, defaultLayer } from '../lib/at
 import { layerFile } from '../lib/map/layers';
 import { legendHtml, markSvg } from '../scripts/map/legend';
 import { worldPanelHtml } from '../scripts/map/panel';
-import { live, paths } from '../lib/routes';
+import { paths } from '../lib/routes';
 import { PLACES } from '../lib/places';
 import { breadcrumbs } from '../lib/structured';
-import { menuGroups } from '../lib/menu';
+import { menu, menuGroups } from '../lib/menu';
 
 const topics = atlasTopics();
 const layers = atlasLayers();
@@ -45,11 +45,8 @@ const firstFile = layerFile(first.id);
 const firstIndex = firstFile.years.indexOf(first.year);
 const rows = topics.reduce((n, t) => n + t.rows.length, 0);
 const rowLabel = new Map(topics.flatMap((t) => t.rows.map((r) => [r.family, r.label])));
-// The bar's links: pages that are live.
-const nav = (['countries', 'tool:explorer'] as const).flatMap((k) => {
-  const r = live(k);
-  return r ? [{ href: r.path, label: k === 'countries' ? NAV_TEXT.top.countries : NAV_TEXT.tools.explorer[0] }] : [];
-});
+// The bar's plain links: the main header's top row (Countries, Indicators; This week once it is live).
+const nav = menu().top.map((u) => ({ href: u.path, label: NAV_TEXT.top[u.id] }));
 // What a row says under its name: the layer's name when the family has several, else what it measures.
 const sub = (n: number, l: (typeof layers)[number]) => (n > 1 ? l.name : l.measure);
 const src = (l: (typeof layers)[number]) => `${l.source} · ${l.span}`;
@@ -81,7 +78,7 @@ const crumbs = [{ label: A.crumb }, { label: A.title }];
 const pageUrl = new URL(paths.atlas(), Astro.site).href;
 const shareQ = (u: string) => `url=${encodeURIComponent(u)}&text=${encodeURIComponent(words.shareText)}`;
 const multi = overlays.filter((o) => o.variants.length > 1);
-// Map views: the main menu's topics and Tools, as the header shows them.
+// Menu: the main menu's topics and Tools, as the header shows them.
 const groups = menuGroups();
 ---
 <Base title={A.title} description={A.description(layers.length)} image={paths.image('tools', 'atlas')} jsonld={[breadcrumbs(crumbs)]}>
@@ -94,7 +91,7 @@ const groups = menuGroups();
       <h1 class="gt-atbar__t">{A.title}<span data-at-current>{title(first)}</span></h1>
       <nav class="gt-atbar__nav" aria-label={A.nav}>
         {groups.length > 0 && (
-          <button class="gt-atbar__menu" type="button" aria-expanded="false" aria-controls="at-menu" data-at-menu>{A.mapViews}<Icon name="chevron" /></button>
+          <button class="gt-atbar__menu" type="button" aria-expanded="false" aria-controls="at-menu" data-at-menu>{A.menu}<Icon name="chevron" /></button>
         )}
         {nav.map((n) => <a href={n.href}>{n.label}</a>)}
       </nav>
@@ -103,7 +100,9 @@ const groups = menuGroups();
           {groups.map((g) => (
             <div class="gt-atmenu__g">
               <span class="gt-label">{g.name}</span>
-              {g.links.map((l) => <a href={l.path} aria-current={l.path === paths.atlas() ? 'page' : undefined}><strong>{l.text[0]}</strong><span>{l.text[1]}</span></a>)}
+              {g.links.map((l) => l.path === paths.atlas()
+                ? <span class="gt-atmenu__here" aria-current="page"><strong>{l.text[0]}</strong><span>{l.text[1]}</span></span>
+                : <a href={l.path}><strong>{l.text[0]}</strong><span>{l.text[1]}</span></a>)}
             </div>
           ))}
         </div>

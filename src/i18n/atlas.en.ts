@@ -39,8 +39,8 @@ export const ATLAS_TEXT = {
   /** The bar: the layer, and the selected country after it. */
   withCountry: (layer: string, country: string) => `${layer} · ${country}`,
   nav: 'Site',
-  /** The bar's menu of every map view (the main menu's topics and Tools). */
-  mapViews: 'Map views',
+  /** The bar's menu: the main menu's topics with their views, then Tools. */
+  menu: 'Menu',
   loading: (layer: string) => `Loading ${layer}…`,
   loadingNote: (country: string | null) => `${country ? `${country} stays selected. ` : ''}The old layer stays faded until the new one arrives.`,
   /** The panel with no country selected. */
