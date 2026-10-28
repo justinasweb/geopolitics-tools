@@ -210,6 +210,11 @@ html:has(.gt-atlas), html:has(.gt-atlas) body { height: 100%; overflow: hidden; 
   /* The map's own controls */
   .gt-atlas .gt-zoom { top: auto; bottom: 156px; right: 12px; }
   .gt-atlas .gt-atborders { display: none; }
+  /* The ⓘ (Natural Earth and, behind it, the borders line) sits under the legend line, clear of the Layers button. */
+  .gt-atlas .gt-atmap .maplibregl-ctrl-bottom-right { top: 64px; bottom: auto; }
+  .gt-atlas .gt-atmap .maplibregl-ctrl-attrib.maplibregl-compact-show { max-width: calc(100cqw - 24px); }
+  .gt-atlas .gt-atmap .maplibregl-ctrl-attrib a { color: var(--ink); text-decoration: underline; text-underline-offset: 2px; }
+  .gt-atlas .gt-atleg { z-index: 3; }
   .gt-atlas .gt-atyear { left: 12px; right: 12px; bottom: 80px; width: auto; padding: 8px 12px; }
   .gt-atlas .gt-atyear .gt-years__ticks { display: none; }
   .gt-atlas .gt-atdock { position: absolute; left: 12px; right: 12px; bottom: 16px; z-index: 3; }

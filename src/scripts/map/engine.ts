@@ -47,6 +47,9 @@ export interface MapController {
   setLayer: (layer: LayerFile, overlays?: Overlay[]) => void;
   /** Replaces the overlays drawn on the layer (the Atlas's toggles). */
   setOverlays: (overlays: Overlay[]) => void;
+  /** Adds words (HTML) after "Natural Earth" behind the map's ⓘ, folded until opened; null for "Natural Earth" alone
+   *  (the Atlas on a phone, where the borders line under the map has no room). */
+  setAttribution: (extra: string | null) => void;
   select: (id: string | null) => void;
   setBloc: (members: string[] | null) => void;
   zoom: (how: 'in' | 'out' | 'reset') => void;
@@ -134,9 +137,11 @@ export function createMap(container: HTMLElement, base: Basemap, first: LayerFil
       zoom,
     }),
     fadeDuration: reduced() ? 0 : 300,
-    attributionControl: { compact: true, customAttribution: 'Natural Earth' },
+    attributionControl: false,
   });
   map.touchZoomRotate.disableRotation();
+  let attribution = new maplibregl.AttributionControl({ compact: true, customAttribution: 'Natural Earth' });
+  map.addControl(attribution, 'bottom-right');
   map.keyboard.disableRotation();
 
   let ready = false;
@@ -324,6 +329,13 @@ export function createMap(container: HTMLElement, base: Basemap, first: LayerFil
       addOverlays(shown);
       showMarks();
       paint();
+    },
+    setAttribution(extra) {
+      map.removeControl(attribution);
+      attribution = new maplibregl.AttributionControl({ compact: true, customAttribution: extra ? ['Natural Earth', extra] : 'Natural Earth' });
+      map.addControl(attribution, 'bottom-right');
+      // MapLibre shows a compact attribution open until the map first moves; extra words stay behind the ⓘ.
+      if (extra) container.querySelector('.maplibregl-ctrl-attrib')?.classList.remove('maplibregl-compact-show');
     },
     setOverlays(list) {
       shown = list;

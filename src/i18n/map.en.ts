@@ -36,6 +36,11 @@ export const MAP_TEXT = {
   close: 'Back to the world',
   countryPage: 'Country page',
   dossier: 'Full dossier',
+  /** The same links' names for screen readers, with the place ({name}). */
+  countryPageOf: '{name} country page',
+  dossierOf: '{name}: full dossier',
+  /** A figure from another year in the panel: "Share of world in 2024". */
+  inYear: '{label} in {year}',
   inTable: 'Show in the table',
   world: 'World',
   /** Read by screen readers when the map takes focus. */

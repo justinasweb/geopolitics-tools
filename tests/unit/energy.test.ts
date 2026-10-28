@@ -2,6 +2,7 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import { rawDir } from '../../src/adapters/core.ts';
 import { chipFlows, comtrade, crudeFlows, fertiliserFlows, gasFlows, parseComtrade, partners } from '../../src/adapters/comtrade.ts';
 import { gas, oil, oilPrices, parseOil } from '../../src/adapters/eia.ts';
+import { ENERGY_TEXT } from '../../src/i18n/energy.en.ts';
 
 // The oil and gas views and the Comtrade and EIA adapters, built from the sample files.
 process.env.GT_DATA = 'sample';
@@ -103,6 +104,24 @@ describe('oil and gas views', () => {
     expect(E.classFor(t, rows.at(-1)!.value, null)).toBeGreaterThanOrEqual(6);
     expect(E.lede(t)).toMatch(/largest net exporter of oil in 2024/);
     expect(E.balanceOf(E.energyPage('oil-reserves')!, 'SAU', 2024).reserveYears).toBeGreaterThan(30);
+  });
+
+  it('shows a place’s balance in the latest year with both output and use, so net trade comes with them', () => {
+    const p = E.energyPage('oil-production')!;
+    for (const id of p.byYear[p.year].rows.map((r) => r.id).slice(0, 10)) {
+      const y = E.balanceYear(p, id, p.year);
+      expect(y).toBeLessThanOrEqual(p.year);
+      const b = E.balanceOf(p, id, y);
+      if (b.consumption !== undefined) expect(b.production).toBeDefined();
+    }
+    for (const f of ['oil', 'gas']) {
+      const file = L.layerFile(`energy-${f}-production`);
+      for (const blocks of Object.values(file.more ?? {})) {
+        const bal = blocks.find((b) => b.label.startsWith('Balance'));
+        // The note on net trade goes with a net trade row only.
+        if (bal?.caption) expect(bal.rows.some((r) => r.name === ENERGY_TEXT.netTrade)).toBe(true);
+      }
+    }
   });
 
   it('draws the largest flows on trade maps only; gas as pipeline and dashed LNG arcs', () => {

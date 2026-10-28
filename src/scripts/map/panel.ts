@@ -125,7 +125,8 @@ export function countryPanelHtml(f: LayerFile, yearIndex: number, id: string, op
     if (e[4]) facts.push([f.text.rankLabel ?? '', `<dd>${e[4]} <small>${esc(fill(f.text.rankOf ?? 'of {of}', { of: y.order.length }))}</small></dd>`]);
     const p = prev?.v[id];
     if (e[3]) facts.push([f.text.statusLabel ?? '', `<dd class="gt-panel__tagdd">${f.tags[e[3]]}</dd>`]);
-    else if (prev && p) facts.push([String(when(prev)), `<dd class="gt-panel__dsmall">${esc(p[0] === 0 ? f.text.withheld : p[1])}</dd>`]);
+    // The year before, labelled with what it measures ("Share of world in 2024"), not the year alone.
+    else if (prev && p) facts.push([fill(f.text.inYear ?? '{label}, {year}', { label: f.text.shareLabel, year: when(prev) }), `<dd class="gt-panel__dsmall">${esc(p[0] === 0 ? f.text.withheld : p[1])}</dd>`]);
     body.push(`<dl class="gt-panel__facts">${facts.map(([dt, dd]) => `<div><dt>${esc(dt)}</dt>${dd}</div>`).join('')}</dl>`);
     if (e[2] && !f.text.detailLabel) body.push(`<p class="gt-ptrend">${esc(e[2])}</p>`);
   }
@@ -138,7 +139,12 @@ export function countryPanelHtml(f: LayerFile, yearIndex: number, id: string, op
   body.push(`<p class="gt-source"><span>${esc(f.source)}</span></p>`);
   const links: string[] = [];
   if (o.first) links.push(`<a class="gt-btn" href="${esc(o.first.href)}">${esc(o.first.label)}</a>`);
-  if (f.hrefs[id]) links.push(`<a class="gt-btn gt-btn--quiet" href="${esc(f.hrefs[id])}">${esc(f.dossiers.includes(id) ? f.text.dossier : f.text.countryPage)}</a>`);
+  if (f.hrefs[id]) {
+    const dossier = f.dossiers.includes(id);
+    // The visible words stay short; the name says whose page it is.
+    const named = dossier ? f.text.dossierOf : f.text.countryPageOf;
+    links.push(`<a class="gt-btn gt-btn--quiet" href="${esc(f.hrefs[id])}"${named ? ` aria-label="${esc(fill(named, { name }))}"` : ''}>${esc(dossier ? f.text.dossier : f.text.countryPage)}</a>`);
+  }
   if (e && o.table !== false) links.push(`<a class="gt-btn gt-btn--quiet" href="#table" data-show-row="${esc(id)}">${esc(f.text.inTable)}</a>`);
   return `${sheet ? `<button class="gt-sheet__grab" type="button" aria-label="${esc(f.text.close)}" data-sheet-grab></button>` : ''}`
     + `<div class="gt-panel__head"><div class="gt-panel__title"><span class="gt-kicker">${esc(fill(f.text.kicker, { year: when(y) }))}</span><h2 class="gt-h3" tabindex="-1">${esc(name)}</h2></div>`

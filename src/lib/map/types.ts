@@ -89,6 +89,8 @@ export interface LayerFile {
     prev: string;          // "{year}: {detail} ({value})"
     rank: string;          // "{rank} of {of} listed"
     world: string; close: string; countryPage: string; dossier: string; inTable: string; hint: string; tapHint: string;
+    /** The country page and dossier links' names with the place ({name}); a figure from another year ({label}, {year}). */
+    countryPageOf?: string; dossierOf?: string; inYear?: string;
     note: string; disputed: string; selected: string; cleared: string; members: string; removeBloc: string;
     movedYear: string; keys: string;
     /** The selected place's panel: fact labels, the trend's title ({from}, {to}) and caption ({first}, {from}, {last}, {to}), the ranking's title ({year}). */

@@ -64,6 +64,8 @@ const words = {
   greyMeans: A.greyMeans('{none}'), otherLayers: A.otherLayers('{country}'),
   year: { ...A.year, latest: A.year.latest('{got}', '{want}'), earliest: A.year.earliest('{got}', '{want}'), nearest: A.year.nearest('{got}', '{want}') },
   shareText: A.description(layers.length),
+  // The borders line, behind the map's ⓘ on a phone (territories policy: every map carries it).
+  borders: `${MAP_TEXT.borders} <a href="${paths.page('methodology')}">${MAP_TEXT.howBorders}</a>`,
 };
 const manifest = {
   start: first.key,

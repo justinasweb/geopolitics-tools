@@ -21,7 +21,7 @@ import { DISASTERS_TEXT, KIND_TEXT } from '../../i18n/disasters.en.ts';
 import { formatDate, formatValue } from '../format.ts';
 import { TOP_FLOWS, balanceOf, estimated as foodEstimated, classFor as foodClass, foodPages, mt, netText, shareOf as foodShare, sourceOf, valueText as foodValue, type FoodPage } from '../food.ts';
 import { FOOD_NOTES, FOOD_TEXT } from '../../i18n/food.en.ts';
-import { TOP_FLOWS as ENERGY_TOP, amount as energyAmount, balanceOf as energyBalance, classFor as energyClass, energyPages, shareOf as energyShare, valueText as energyValue, type EnergyPage } from '../energy.ts';
+import { TOP_FLOWS as ENERGY_TOP, amount as energyAmount, balanceOf as energyBalance, balanceYear, classFor as energyClass, energyPages, shareOf as energyShare, valueText as energyValue, type EnergyPage } from '../energy.ts';
 import { ENERGY_TEXT } from '../../i18n/energy.en.ts';
 import { arcXY, toMap } from './projection.ts';
 import { sitesIn, spaceAsOf, workingBy } from '../space.ts';
@@ -82,6 +82,7 @@ function common(): Pick<LayerFile, 'tags' | 'names' | 'hrefs' | 'dossiers' | 'sl
     names, hrefs, dossiers: DOSSIERS, slugs, notes, blocs: bl,
     words: {
       world: MAP_TEXT.world, close: MAP_TEXT.close, countryPage: MAP_TEXT.countryPage, dossier: MAP_TEXT.dossier, inTable: MAP_TEXT.inTable,
+      countryPageOf: MAP_TEXT.countryPageOf, dossierOf: MAP_TEXT.dossierOf, inYear: MAP_TEXT.inYear,
       hint: MAP_TEXT.clickHint, tapHint: MAP_TEXT.tapHint, note: MAP_TEXT.note, disputed: MAP_TEXT.disputed,
       selected: MAP_TEXT.selected('{name}'), cleared: MAP_TEXT.cleared, members: MAP_TEXT.members(0).replace('0', '{n}'),
       removeBloc: MAP_TEXT.removeBloc('{bloc}'), movedYear: MAP_TEXT.movedYear(0, 1).replace('0', '{want}').replace('1', '{got}'),
@@ -753,7 +754,8 @@ function energyMore(p: EnergyPage): Record<string, PanelBlock[]> {
   const ids = new Set(p.years.flatMap((y) => p.byYear[y].rows.map((r) => r.id)));
   for (const id of ids) {
     const blocks: PanelBlock[] = [];
-    const b = energyBalance(p, id, p.year);
+    const by = balanceYear(p, id, p.year);
+    const b = energyBalance(p, id, by);
     const rows: { name: string; value: string }[] = [];
     if (b.production !== undefined) rows.push({ name: E.production, value: energyAmount(p.fuel, 'production', b.production) });
     if (b.liquids !== undefined) rows.push({ name: E.liquids, value: energyAmount(p.fuel, 'production', b.liquids) });
@@ -761,7 +763,8 @@ function energyMore(p: EnergyPage): Record<string, PanelBlock[]> {
     if (b.net !== undefined) rows.push({ name: E.netTrade, value: E.net(energyAmount(p.fuel, 'trade', Math.abs(b.net)), b.net >= 0) });
     if (b.reserves !== undefined) rows.push({ name: E.reserves, value: energyAmount(p.fuel, 'reserves', b.reserves) });
     if (b.reserveYears !== undefined) rows.push({ name: E.reserveYears, value: E.years(String(Math.round(b.reserveYears))) });
-    if (rows.length) blocks.push({ label: E.balanceBlock(p.year), caption: E.balanceCaption, rows });
+    // The note explains net trade, so it goes with a net trade row only.
+    if (rows.length) blocks.push({ label: E.balanceBlock(by), caption: b.net !== undefined ? E.balanceCaption : undefined, rows });
     if (p.flowYear) {
       for (const [dir, label] of [['to', E.suppliers(p.flowYear)], ['from', E.buyers(p.flowYear)]] as const) {
         const mine = p.flows.filter((f) => f[dir] === id);

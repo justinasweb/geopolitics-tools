@@ -102,7 +102,11 @@ layers whose view is live, and loads their files (`/map/<id>.json`) as the views
   layer and year), "See full page: {layer}" opening the view with the same year and country (`viewHref`), and the
   country page. With no figure, the panel uses the layer's own words ("No production listed for 2024", "No IPC
   analysis"), says grey means that, not zero, and lists the country's figures on up to five other rows' current
-  layers, nearest topic first, each a button that switches to it.
+  layers with their units ("222 outages"), nearest topic first, each a button that switches to it.
+- **Panel words (every map).** The year before is labelled with what it measures ("Share of world in 2024"); the
+  country page and dossier links are named for screen readers with the place ("India country page"). An oil or gas
+  place's balance is from the latest year with both its output and its use (`balanceYear`), so production, use and
+  net trade show together, and the note on net trade appears only with a net trade row.
 - **Year card.** Shown when the layer has more than one step; it steps by index, so years with gaps (launches), months
   and alert periods all work, with play (not for periods). After a layer change it says "Year kept from your last
   layer" or "2023 is the latest year in this source; you were on 2025" (`yearNote`); a year in the address the layer
@@ -117,7 +121,8 @@ layers whose view is live, and loads their files (`/map/<id>.json`) as the views
   the list as a sheet (78% high): overlays first as radio buttons, one at a time, then the shaded layers; picking a
   layer closes it. Tapping a country opens the panel as a second sheet; closing it keeps the layer. A compact year card
   sits above the Layers button (the design shows none on a phone). The map refits around the legend line, the card and
-  the sheets.
+  the sheets. The borders line is not shown under the map; its words and the "How we treat borders" link are behind
+  the map's ⓘ (the engine's `setAttribution`), folded until tapped, so the phone map carries them too.
 - **Styles.** `src/styles/atlas/atlasmap.css`. The phone rules use the named container `atlas`, so cards and panels
   that are containers themselves do not match them.
 

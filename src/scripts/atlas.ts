@@ -24,7 +24,7 @@ interface ManifestOverlay { id: string; label: string; variants: AtlasOverlayVar
 interface Words {
   found: { none: string; one: string; many: string }; on: string; hide: string; show: string; showLegend: string; remove: string;
   drawnFor: string; withCountry: string; loading: string; loadingNote: string; loadingNoteNone: string; pickHint: string; top: string;
-  seeFull: string; previous: string; greyMeans: string; otherLayers: string; shareText: string;
+  seeFull: string; previous: string; greyMeans: string; otherLayers: string; shareText: string; borders: string;
   year: { years: string; months: string; days: string; kept: string; latest: string; earliest: string; nearest: string };
 }
 interface Manifest {
@@ -313,7 +313,8 @@ export function initAtlas(root: HTMLElement): void {
       for (const b of batch) {
         if (!b) continue;
         const e = b.f.data[b.f.years.indexOf(b.l.year)]?.v[id];
-        if (e && e[0] > 0 && out.length < 5) out.push({ key: b.l.key, title: b.l.title, value: e[1] });
+        // Each figure with what it counts, as the tooltip says it ("222 outages", "58% of its electricity").
+        if (e && e[0] > 0 && out.length < 5) out.push({ key: b.l.key, title: b.l.title, value: b.f.text.measure ? `${e[1]} ${b.f.text.measure}` : e[1] });
       }
     }
     const box = $('[data-at-other]', panel);
@@ -478,6 +479,7 @@ export function initAtlas(root: HTMLElement): void {
         ctrl = engine.createMap(canvasEl, base, f, {
           ready() {
             loading.hidden = true;
+            ctrl!.setAttribution(phone ? W.borders : null);
             ctrl!.setYear(yi());
             ctrl!.select(state.country ?? null);
             frame();
@@ -570,6 +572,7 @@ export function initAtlas(root: HTMLElement): void {
     renderYear();
     renderPanel();
     renderBar();
+    ctrl?.setAttribution(phone ? W.borders : null);
     ctrl?.resize();
   }
   new ResizeObserver(() => { if (isPhone() !== phone) applyMode(); }).observe(root);
