@@ -33,7 +33,7 @@ import { ENERGY_TEXT } from '../../../i18n/energy.en';
 import { EXPLORER_TEXT } from '../../../i18n/explorer.en';
 import { explorerMeasures } from '../../../lib/explorer';
 import { DEPS_TEXT } from '../../../i18n/dependencies.en';
-import { CHAIN_TEXT, CHAINS_TEXT } from '../../../i18n/supply-chains.en';
+import { CHAIN_TEXT, CHAINS_TEXT, chainTitle } from '../../../i18n/supply-chains.en';
 import { chainLinks, chainOf } from '../../../lib/supply-chains';
 import { amount as chainAmount, totals } from '../../../lib/supply-chains/model';
 import { ledeOf, periodLabel } from '../../../lib/supply-chains/render';
@@ -187,7 +187,7 @@ function card(r: Route | null): Card {
     const { short, unit } = CHAIN_TEXT[c.key];
     const fits = short.length <= 4;
     return {
-      kicker: CHAINS_TEXT.title, title: `${c.label} ${CHAINS_TEXT.sub}`, caption: ledeOf(c), source: `${c.credit}, ${periodLabel(c)}${fits ? '' : `, ${unit}`}`,
+      kicker: CHAINS_TEXT.title, title: chainTitle(c.key, c.label).full, caption: ledeOf(c), source: `${c.credit}, ${periodLabel(c)}${fits ? '' : `, ${unit}`}`,
       bars: totals(c.pairs, 0).slice(0, 5).map(([id, v]) => ({ label: nameOf(id), value: v, text: fits ? `${chainAmount(v, c)} ${short}` : chainAmount(v, c) })),
     };
   }

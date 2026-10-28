@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { amount, concentration, foundPlace, hhi, parseState, queryOf, sankey, totals, OTHERS, type Chain } from '../../src/lib/supply-chains/model.ts';
+import { SIDES, chainTitle } from '../../src/i18n/supply-chains.en.ts';
 import { chainCsv, ledeOf, panelHtml, periodLabel, sankeyHtml, tableHtml } from '../../src/lib/supply-chains/render.ts';
 
 // The Supply chains tool: the focus in the address, totals and concentration, the Sankey's grouping and layout,
@@ -93,6 +94,24 @@ describe('Supply chains markup', () => {
     expect(egy).toContain('Egypt country page');
     // No concentration for refugees: origins are not suppliers.
     expect(panelHtml({ ...chain, kind: 'refugees' }, { country: '' })).not.toContain('Concentration');
+  });
+
+  it('labels a focused country’s figures as in the flows shown, for every kind of flow', () => {
+    for (const kind of Object.keys(SIDES) as (keyof typeof SIDES)[]) {
+      expect(SIDES[kind].ins, kind).toMatch(/ in the flows shown$/);
+      expect(SIDES[kind].outs, kind).toMatch(/ in the flows shown$/);
+      const egy = panelHtml({ ...chain, kind }, { country: 'EGY' });
+      expect(egy, kind).toContain(`>${SIDES[kind].ins}</span>`);
+      expect(egy, kind).toContain(`>${SIDES[kind].outs}</span>`);
+    }
+  });
+
+  it('calls refugees refugee flows, not a supply chain', () => {
+    expect(chainTitle('wheat', 'Wheat')).toEqual({ title: 'Wheat', sub: 'supply chain', full: 'Wheat supply chain' });
+    expect(chainTitle('refugees', 'Refugees')).toEqual({ title: 'Refugee flows', sub: 'Countries of origin → host countries', full: 'Refugee flows' });
+    const html = sankeyHtml({ ...chain, key: 'refugees', kind: 'refugees', label: 'Refugees', count: true }, { country: '' });
+    expect(html).toContain('aria-label="Refugee flows, 2023, largest countries of origin to largest host countries, in people"');
+    expect(html).not.toContain('supply chain');
   });
 
   it('lists every flow in the table, and offers a CSV only when the source allows it', () => {

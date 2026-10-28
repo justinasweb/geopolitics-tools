@@ -2,7 +2,7 @@
 // page with no country focused so it reads without scripts, and the browser script, which redraws for a focus.
 // Every band is named at both ends with its amount, and the table below lists every flow, so nothing depends on
 // reading the diagram.
-import { CHAIN_TEXT, CHAINS_TEXT as T, COVERAGE, SIDES } from '../../i18n/supply-chains.en.ts';
+import { CHAIN_TEXT, CHAINS_TEXT as T, COVERAGE, SIDES, chainTitle } from '../../i18n/supply-chains.en.ts';
 import { SOURCE_TEXT } from '../../i18n/en.ts';
 import { inSentence } from '../../i18n/pages.en.ts';
 import { formatShare } from '../format.ts';
@@ -72,7 +72,7 @@ export function sankeyHtml(c: Chain, s: State): string {
   }).join('');
   const axis = `<text x="${X.from}" y="${sk.height - 8}" class="gt-sk__ax">${esc(sides(c).froms)}</text>`
     + `<text x="${X.to + X.node}" y="${sk.height - 8}" text-anchor="end" class="gt-sk__ax">${esc(sides(c).tos)}</text>`;
-  const label = T.diagramLabel(c.label, c.period, w.unit, s.country ? nameOf(c, s.country) : undefined);
+  const label = T.diagramLabel(chainTitle(c.key, c.label).full, c.period, sides(c).froms, sides(c).tos, w.unit, s.country ? nameOf(c, s.country) : undefined);
   const chip = s.country
     ? `<div class="gt-blocchip"><span>${T.focused(esc(nameOf(c, s.country)))}</span><button type="button" aria-label="${esc(T.clear)}" data-sk-clear>${ICON.close}</button></div>` : '';
   return `${chip}<div class="gt-skscroll"><svg class="gt-sk" viewBox="0 0 ${sk.width} ${sk.height}" role="img" aria-label="${esc(label)}">${bands}${nodes}${axis}</svg></div>`

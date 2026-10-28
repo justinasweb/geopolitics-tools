@@ -4,7 +4,7 @@
 import { FLOWS, loadFlows } from '../data/flows.ts';
 import { FLOW_TEXT } from '../i18n/en.ts';
 import { SOURCE_SHORT } from '../i18n/pages.en.ts';
-import { CHAIN_TEXT } from '../i18n/supply-chains.en.ts';
+import { CHAIN_TEXT, chainTitle } from '../i18n/supply-chains.en.ts';
 import { licenceOf, refreshed, shared, sourceName } from './data.ts';
 import { place } from './places.ts';
 import { countryHref, paths } from './routes.ts';
@@ -61,5 +61,5 @@ export function chainOf(key: string): Chain {
   return chain;
 }
 
-/** Every live flow for the switch: its name and its page. */
-export const chainLinks = () => liveChains().map((k) => ({ key: k, label: FLOW_TEXT[k].label, path: paths.supplyChain(k) }));
+/** Every live flow for the switch and the index: its title and its page. */
+export const chainLinks = () => liveChains().map((k) => ({ key: k, label: chainTitle(k, FLOW_TEXT[k].label).title, path: paths.supplyChain(k) }));

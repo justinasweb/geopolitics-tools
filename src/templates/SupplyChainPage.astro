@@ -15,7 +15,7 @@ import '../styles/atlas/mapview.css';
 import '../styles/atlas/source.css';
 import '../styles/atlas/explorer.css';
 import '../styles/atlas/supply-chains.css';
-import { CHAINS_TEXT as T } from '../i18n/supply-chains.en';
+import { CHAINS_TEXT as T, SIDES, chainTitle } from '../i18n/supply-chains.en';
 import { chainLinks, chainOf } from '../lib/supply-chains';
 import { controlsHtml, flowListHtml, ledeOf, panelHtml, periodLabel, sankeyHtml, tableHtml } from '../lib/supply-chains/render';
 import { CHAIN_SLUGS } from '../i18n/slugs.en';
@@ -26,14 +26,16 @@ interface Props { flow: string }
 const { flow } = Astro.props;
 const chain = chainOf(flow);
 const state = { country: '' };
-const crumbs = [{ label: T.crumb }, { label: T.title, href: paths.supplyChains() }, { label: chain.label }];
+const head = chainTitle(flow, chain.label);
+const sides = SIDES[chain.kind];
+const crumbs = [{ label: T.crumb }, { label: T.title, href: paths.supplyChains() }, { label: head.title }];
 const json = JSON.stringify({ chain }).replace(/</g, '\\u003c');
 ---
-<Page title={`${chain.label} ${T.sub}`} description={T.description(chain.label, chain.period, chain.credit)} container="tl" mainClass="gt-skpage"
+<Page title={head.full} description={T.description(head.full, chain.period, sides.froms, sides.tos, chain.credit)} container="tl" mainClass="gt-skpage"
   image={paths.image('tools', `supply-chains-${CHAIN_SLUGS[flow] ?? flow}`)} jsonld={[breadcrumbs(crumbs)]}>
   <header class="gt-tlhead">
     <Breadcrumbs items={crumbs} />
-    <h1 class="gt-title gt-tlhead__t">{chain.label} <span class="gt-mvhead__sub">{T.sub}</span></h1>
+    <h1 class="gt-title gt-tlhead__t">{head.title} <span class="gt-mvhead__sub">{head.sub}</span></h1>
     <p class="gt-lede gt-tlhead__a">{ledeOf(chain)}</p>
     <SourceLine source={chain.source} parts={[periodLabel(chain)]} updated={chain.updated} />
   </header>

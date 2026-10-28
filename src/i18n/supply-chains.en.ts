@@ -20,10 +20,16 @@ export const CHAIN_TEXT: Record<string, { short: string; noun: string; kind: Cha
 
 /** The two sides of a flow, the words for a focused country's totals, and how the flows were cut, by kind. */
 export const SIDES: Record<ChainKind, { from: string; to: string; froms: string; tos: string; ins: string; outs: string; inShare: string; outShare: string }> = {
-  trade: { from: 'Supplier', to: 'Buyer', froms: 'Suppliers', tos: 'Buyers', ins: 'Imports', outs: 'Exports', inShare: 'Suppliers, share of imports', outShare: 'Buyers, share of exports' },
-  arms: { from: 'Supplier', to: 'Recipient', froms: 'Suppliers', tos: 'Recipients', ins: 'Received', outs: 'Delivered', inShare: 'Suppliers, share of deliveries received', outShare: 'Recipients, share of deliveries' },
-  refugees: { from: 'Country of origin', to: 'Host country', froms: 'Countries of origin', tos: 'Host countries', ins: 'Hosted from other countries', outs: 'From here, in other countries', inShare: 'Countries of origin, share of those hosted', outShare: 'Host countries, share of those abroad' },
+  trade: { from: 'Supplier', to: 'Buyer', froms: 'Suppliers', tos: 'Buyers', ins: 'Imports in the flows shown', outs: 'Exports in the flows shown', inShare: 'Suppliers, share of imports', outShare: 'Buyers, share of exports' },
+  arms: { from: 'Supplier', to: 'Recipient', froms: 'Suppliers', tos: 'Recipients', ins: 'Received in the flows shown', outs: 'Delivered in the flows shown', inShare: 'Suppliers, share of deliveries received', outShare: 'Recipients, share of deliveries' },
+  refugees: { from: 'Country of origin', to: 'Host country', froms: 'Countries of origin', tos: 'Host countries', ins: 'Hosted in the flows shown', outs: 'Abroad in the flows shown', inShare: 'Countries of origin, share of those hosted', outShare: 'Host countries, share of those abroad' },
 };
+
+/** A page's title, the line beside it and its title on its own: "Wheat supply chain", but refugees are not a supply chain. */
+export function chainTitle(key: string, label: string): { title: string; sub: string; full: string } {
+  if (key === 'refugees') return { title: 'Refugee flows', sub: 'Countries of origin → host countries', full: 'Refugee flows' };
+  return { title: label, sub: 'supply chain', full: `${label} supply chain` };
+}
 
 /** What each source's flows cover, under the diagram. */
 export const COVERAGE: Record<string, string> = {
@@ -36,10 +42,9 @@ export const COVERAGE: Record<string, string> = {
 export const CHAINS_TEXT = {
   crumb: 'Tools',
   title: 'Supply chains',
-  sub: 'supply chain',
   indexLede: (n: number) => `Who supplies whom, flow by flow: ${n} ${n === 1 ? 'flow' : 'flows'} from supplier to buyer, each for the latest year its source reports.`,
   indexDescription: (n: number) => `Supply chains for ${n} ${n === 1 ? 'flow' : 'flows'}, from crude oil and grain to arms and refugees: who supplies whom, in a diagram and a table, with sources.`,
-  description: (label: string, period: string, credit: string) => `${label} supply chain, ${period}: suppliers to buyers in a diagram and a table, with concentration and the largest flows, from ${credit}.`,
+  description: (full: string, period: string, froms: string, tos: string, credit: string) => `${full}, ${period}: ${froms.toLowerCase()} to ${tos.toLowerCase()} in a diagram and a table, with the largest flows, from ${credit}.`,
   largest: (from: string, to: string, v: string) => `Largest flow: ${from} → ${to}, ${v}`,
 
   // Ledes, written from the figures
@@ -64,7 +69,7 @@ export const CHAINS_TEXT = {
   cleared: 'Showing all flows.',
 
   // Diagram
-  diagramLabel: (label: string, period: string, unit: string, focus?: string) => `${label} supply chain, ${period}${focus ? `, flows of ${focus}` : ', largest suppliers to largest buyers'}, in ${unit}`,
+  diagramLabel: (full: string, period: string, froms: string, tos: string, unit: string, focus?: string) => `${full}, ${period}${focus ? `, flows of ${focus}` : `, largest ${froms.toLowerCase()} to largest ${tos.toLowerCase()}`}, in ${unit}`,
   bandTitle: (from: string, to: string, v: string) => `${from} to ${to}: ${v}`,
   others: 'Others',
   caption: (froms: number, tos: number) => `Band width is the amount. Bands are coloured by where they start and named at both ends; hover a band for its value. Outside the ${froms} largest on the left and the ${tos} largest on the right, flows are grouped as Others; the table lists every one.`,
