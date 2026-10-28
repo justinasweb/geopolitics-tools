@@ -14,7 +14,7 @@ export const DEFAULT_BLOCS = ['nato', 'eu', 'g7', 'g20', 'brics', 'sco', 'asean'
 export const DEFAULT_PAIR: [string, string] = ['brics', 'sco'];
 
 /**
- * The strict bridge-country rule (addendum section 4, decision 5.3): a full member of at least one bloc in each of
+ * The strict bridge-country rule (spec, design review decision 5.3): a full member of at least one bloc in each of
  * the two groups. The page names the blocs rather than labelling the groups. Partners and invitees do not count.
  */
 export const BRIDGE_A = ['nato', 'eu', 'g7', 'quad'];

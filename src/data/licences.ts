@@ -1,7 +1,7 @@
 // The licence table (spec, "Licences and permissions"; decision D9): for each source, what its
 // terms allow and what the site does. Downloads per source, the credit lines and the Sources page
 // come from here. `status` is "checked" only where the terms page was read and says so; anything
-// else stays "to confirm", and the site shows "To confirm" (addendum 6.9). docs/licences.md is
+// else stays "to confirm", and the site shows "To confirm" (spec, design review decision 6.9). docs/licences.md is
 // generated from this file (node scripts/licence-table.ts > docs/licences.md).
 
 export type Downloads = 'yes' | 'shown only';
@@ -62,6 +62,6 @@ export const LICENCES: Licence[] = [
   { source: 'eia', name: 'U.S. Energy Information Administration', licence: 'Public domain (US government work); EIA asks to be credited', terms: 'https://www.eia.gov/about/copyrights_reuse.php', downloads: 'yes', commercial: 'yes', credit: 'U.S. Energy Information Administration (EIA)', status: 'checked', checked: '2026-10-26', note: 'The page asks for a credit with the publication date: "Source: U.S. Energy Information Administration (Oct 2026)"' },
   { source: 'ember', name: 'Ember electricity data', licence: 'CC BY 4.0', terms: 'https://ember-energy.org/data/api', downloads: 'yes', commercial: 'yes', credit: 'Ember, Yearly Electricity Data (CC BY 4.0)', status: 'to confirm', checked: '2026-10-26', note: 'The API page says all content is CC BY 4.0; confirm it covers the API data' },
   { source: 'ucdp', name: 'UCDP Georeferenced Event Dataset', licence: 'CC BY 4.0', terms: 'https://ucdp.uu.se/downloads/', downloads: 'yes', commercial: 'yes', credit: 'Uppsala Conflict Data Program (UCDP), Georeferenced Event Dataset (CC BY 4.0)', status: 'checked', checked: '2026-10-26', note: 'The downloads page: all datasets are free and CC BY 4.0, citing the publications listed with each. Cite Sundberg and Melander (2013) and Davies et al. for the GED; Candidate events are preliminary' },
-  { source: 'ipc', name: 'IPC food insecurity analyses', licence: 'CC BY-NC-SA 3.0 IGO', terms: 'https://docs.api.ipcinfo.org', downloads: 'shown only', commercial: 'no', credit: 'IPC (CC BY-NC-SA 3.0 IGO)', status: 'checked', checked: '2026-10-26', note: 'Addendum: non-commercial and share-alike; credit "IPC CC BY-NC-SA 3.0 IGO" with the date and a link; keys are per implementation; no military use. Ads or a paid tier need IPC’s agreement' },
+  { source: 'ipc', name: 'IPC food insecurity analyses', licence: 'CC BY-NC-SA 3.0 IGO', terms: 'https://docs.api.ipcinfo.org', downloads: 'shown only', commercial: 'no', credit: 'IPC (CC BY-NC-SA 3.0 IGO)', status: 'checked', checked: '2026-10-26', note: 'Non-commercial and share-alike; credit "IPC CC BY-NC-SA 3.0 IGO" with the date and a link; keys are per implementation; no military use. Ads or a paid tier need IPC’s agreement' },
   { source: 'peeringdb', name: 'PeeringDB', licence: 'PeeringDB acceptable use policy', terms: 'https://tools.peeringdb.com/aup', downloads: 'shown only', commercial: 'no', credit: 'PeeringDB', status: 'to confirm', checked: ON, note: 'Spec: exchange points left out unless PeeringDB gives permission' },
 ];

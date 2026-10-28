@@ -16,7 +16,7 @@ const editionData = shared((raw) => Number(raw.list('usgs-minerals').filter((f) 
 export const SHARE_BINS = [0.01, 0.05, 0.1, 0.25];
 export const shareClass = (s: number) => 1 + SHARE_BINS.filter((b) => s >= b).length;
 
-/** Concentration labels from the Herfindahl index (2023 US merger guidelines; addendum 3.3). */
+/** Concentration labels from the Herfindahl index (2023 US merger guidelines; spec, design review decision 3.3). */
 export const concentration = (hhi: number): 'low' | 'moderate' | 'high' => (hhi > 1800 ? 'high' : hhi >= 1000 ? 'moderate' : 'low');
 
 /** A share for reading: whole percent from 10%, one decimal below ("32%", "9.7%", "0.1%"). */
