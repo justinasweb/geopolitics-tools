@@ -16,10 +16,18 @@ export function initOverlap(): void {
   const two = document.querySelector<HTMLElement>('[data-o-two]')!;
   const table = document.querySelector<HTMLElement>('[data-o-table]')!;
   const ptable = document.querySelector<HTMLElement>('[data-o-ptable]')!;
+  const grid = document.querySelector<HTMLElement>('[data-o-grid]')!;
   const live = document.getElementById('gt-live');
   const say = (text: string) => { if (live) live.textContent = text; };
 
   let s: State = parseState(new URLSearchParams(location.search), data);
+
+  /** The matrix takes the full width, bridge countries under it, when it would scroll sideways in its half. */
+  function fit() {
+    grid.classList.remove('is-wide');
+    const wrap = matrix.querySelector<HTMLElement>('.gt-mxwrap');
+    if (wrap?.offsetParent && wrap.scrollWidth > wrap.clientWidth + 1) grid.classList.add('is-wide');
+  }
 
   /** Redraws, then puts focus back on the control the reader used (the markup under it is new). */
   function draw(focus?: string) {
@@ -28,6 +36,7 @@ export function initOverlap(): void {
     two.innerHTML = twoHtml(s, data);
     table.innerHTML = tableHtml(s, data);
     ptable.innerHTML = phoneTableHtml(s, data);
+    fit();
     const q = queryOf(s);
     history.replaceState(history.state, '', q ? `${location.pathname}?${q}` : location.pathname);
     if (focus) document.querySelector<HTMLElement>(focus)?.focus();
@@ -77,4 +86,10 @@ export function initOverlap(): void {
 
   // The address may carry settings the build did not draw.
   if (location.search) draw();
+  else fit();
+  let frame = 0;
+  addEventListener('resize', () => {
+    cancelAnimationFrame(frame);
+    frame = requestAnimationFrame(fit);
+  });
 }

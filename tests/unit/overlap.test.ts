@@ -71,7 +71,10 @@ describe('Bloc overlap markup', () => {
     expect(html).toContain('gt-mk--tri" role="img" aria-label="Member"');
     expect(html).toContain('aria-label="Not a member"');
     expect(html).toContain('aria-sort="descending"><button type="button" data-o-sort="total">');
-    expect(html).toContain('Member: NATO, EU, G7, G20 or Quad');
+    // The same two groups as the bridge rule; the G20 and every other bloc is a dot.
+    expect(html).toContain('Member: NATO, EU, G7 or Quad');
+    expect(html).toContain('Member: BRICS or SCO');
+    expect(html).toContain('Member: G20, ASEAN or OPEC');
   });
 
   it('shows two blocs side by side on a phone, and the closest blocs in its table', () => {
@@ -104,12 +107,18 @@ describe('Bloc overlap from blocs.csv', () => {
   it('finds India as the one bridge country, and lists partners apart', async () => {
     const { bridges } = await import('../../src/lib/overlap.ts');
     const b = bridges();
-    expect(b.list).toEqual([{ id: 'IND', west: ['quad'], non: ['brics', 'sco'] }]);
+    expect(b.list).toEqual([{ id: 'IND', a: ['quad'], b: ['brics', 'sco'] }]);
     expect(b.partners).toEqual([
       { id: 'TUR', text: 'NATO; SCO dialogue partner; offered BRICS partner status in 2024' },
       { id: 'SAU', text: 'invited to BRICS; has not confirmed membership' },
       { id: 'MYS', text: 'BRICS partner country' },
     ]);
     expect(b.neither).toEqual(['g20', 'asean', 'opec']);
+    const { bridgeHtml } = await import('../../src/lib/overlap/render.ts');
+    const { overlapData } = await import('../../src/lib/overlap.ts');
+    const html = bridgeHtml(b, overlapData());
+    expect(html).toContain('India is the only country that is a full member both of NATO, the EU, the G7 or the Quad and of BRICS or the SCO.');
+    expect(html).toContain('Membership of other groupings, the G20, ASEAN and OPEC among them, is not counted here.');
+    expect(html).not.toMatch(/western/i);
   });
 });

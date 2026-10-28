@@ -151,13 +151,16 @@ it in the page, and `src/lib/overlap/render.ts` draws it, at build time for the 
   (`OVERLAP_ORDER`, `DEFAULT_BLOCS` in `src/lib/overlap/model.ts`). At least two stay chosen.
 - **Matrix.** Shared members for every pair of chosen blocs, bloc size on the diagonal, five shades (1–4, 5–9, 10–14,
   15–19, 20+) with the number in every cell. The line above names the pair sharing most, then the pair sharing most
-  among the blocs left.
+  among the blocs left. When the chosen blocs make it wider than its half of the row, the script gives it the full
+  width and the bridge countries go under it.
 - **Bridge countries.** The strict rule (addendum section 4, 5.3): a full member of NATO, the EU, the G7 or the Quad
-  and of BRICS or the SCO, over all members, whatever is chosen. Today: India. Partners and invitees come from
+  and of BRICS or the SCO, over all members, whatever is chosen. Today: India. The page names the blocs; it does not
+  call either group "Western-led" or "non-Western" (`BRIDGE_A`, `BRIDGE_B` in `src/lib/overlap/model.ts`). Partners and invitees come from
   `src/data/bloc-partners.csv` (`partner`, `dialogue`, `invited`, `offered` with a year); they are listed apart and
   never counted. The build fails on a partner row that is also a full membership.
-- **Membership table.** Every country in a chosen bloc, most memberships first; shapes (square, triangle, dot) tell
-  bloc groups apart without colour. CSV of the whole table with the member lists' date.
+- **Membership table.** Every country in a chosen bloc, most memberships first; shapes tell bloc groups apart without
+  colour, in the bridge rule's groups: a square for NATO, EU, G7 and Quad, a triangle for BRICS and SCO, a dot for the
+  G20 and every other bloc. CSV of the whole table with the member lists' date.
 - **Phone.** Two blocs picked side by side (In both, Only A, Only B) instead of the matrix; the table shows the pair
   and the two chosen blocs sharing most members with it, 14 rows, until "Show all countries and blocs".
 - **Address.** `blocs`, `a`, `b`, `sort`, `dir`, `all`. The prototype's `#/overlap?blocs=NATO,EU` lands here.

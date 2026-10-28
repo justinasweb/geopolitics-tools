@@ -14,18 +14,21 @@ export const DEFAULT_BLOCS = ['nato', 'eu', 'g7', 'g20', 'brics', 'sco', 'asean'
 export const DEFAULT_PAIR: [string, string] = ['brics', 'sco'];
 
 /**
- * The strict bridge-country rule (addendum section 4, decision 5.3): a full member of at least one Western-led
- * grouping and at least one non-Western one. Partners and invitees do not count.
+ * The strict bridge-country rule (addendum section 4, decision 5.3): a full member of at least one bloc in each of
+ * the two groups. The page names the blocs rather than labelling the groups. Partners and invitees do not count.
  */
-export const WEST = ['nato', 'eu', 'g7', 'quad'];
-export const NON_WEST = ['brics', 'sco'];
+export const BRIDGE_A = ['nato', 'eu', 'g7', 'quad'];
+export const BRIDGE_B = ['brics', 'sco'];
 
-/** The membership table's marks: shapes, not colour, tell the bloc groups apart. */
+/**
+ * The membership table's marks: shapes, not colour, tell the bloc groups apart. The same two groups as the bridge
+ * rule, so the key and the rule match; every other bloc (the G20 among them) is a dot.
+ */
 export type Shape = 'sq' | 'tri' | 'dot';
 export const SHAPES: Record<Shape, string[]> = {
-  sq: ['nato', 'eu', 'g7', 'g20', 'quad', 'oecd', 'aukus', 'usmca'],
-  tri: ['brics', 'sco', 'csto', 'eaeu', 'cis'],
-  dot: ['asean', 'opec', 'apec', 'rcep', 'opec-plus', 'unsc-p5'],
+  sq: BRIDGE_A,
+  tri: BRIDGE_B,
+  dot: OVERLAP_ORDER.filter((b) => !BRIDGE_A.includes(b) && !BRIDGE_B.includes(b)),
 };
 export const shapeOf = (bloc: string): Shape => (Object.keys(SHAPES) as Shape[]).find((s) => SHAPES[s].includes(bloc)) ?? 'dot';
 

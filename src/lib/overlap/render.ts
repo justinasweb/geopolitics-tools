@@ -60,22 +60,24 @@ export function twoHtml(s: State, data: Data): string {
 // ---------- bridge countries ----------
 
 export interface Bridges {
-  /** Each bridge country, with its Western-led and non-Western memberships. */
-  list: { id: string; west: string[]; non: string[] }[];
+  /** Each bridge country, with its memberships in each bridge group. */
+  list: { id: string; a: string[]; b: string[] }[];
   /** Partners and invitees: the place and its line. */
   partners: { id: string; text: string }[];
-  west: string[];
-  non: string[];
+  /** The two bridge groups, and the default blocs in neither. */
+  a: string[];
+  b: string[];
   neither: string[];
 }
 
 export function bridgeHtml(br: Bridges, data: Data): string {
   const names = (ids: string[]) => ids.map((b) => short(data, b));
-  const items = br.list.map((x) => `<li><b>${nameHtml(data, x.id)}</b><span class="gt-bridge__w">${esc(names(x.west).join(' · '))}</span>`
-    + `<span class="gt-bridge__x" aria-hidden="true">↔</span><span class="gt-bridge__n">${esc(names(x.non).join(' · '))}</span></li>`).join('');
+  const inText = (ids: string[]) => ids.map((b) => blocOf(data, b).inText);
+  const items = br.list.map((x) => `<li><b>${nameHtml(data, x.id)}</b><span class="gt-bridge__w">${esc(names(x.a).join(' · '))}</span>`
+    + `<span class="gt-bridge__x" aria-hidden="true">↔</span><span class="gt-bridge__n">${esc(names(x.b).join(' · '))}</span></li>`).join('');
   const partners = br.partners.map((p) => `<li><b>${nameHtml(data, p.id)}</b><span>${esc(p.text)}</span></li>`).join('');
-  return `<h2 class="gt-h2">${esc(T.bridgeTitle)}</h2><p class="gt-cpsec__find">${esc(T.bridgeFind(br.list.map((x) => data.places[x.id]?.n ?? x.id)))}</p>`
-    + `<p class="gt-caption">${esc(T.bridgeRule(names(br.west), names(br.non), names(br.neither)))}</p>`
+  return `<h2 class="gt-h2">${esc(T.bridgeTitle)}</h2><p class="gt-cpsec__find">${esc(T.bridgeFind(br.list.map((x) => data.places[x.id]?.n ?? x.id), inText(br.a), inText(br.b)))}</p>`
+    + `<p class="gt-caption">${esc(T.bridgeRule(inText(br.neither)))}</p>`
     + (items ? `<ul class="gt-bridge__list">${items}</ul>` : '')
     + (partners ? `<h3 class="gt-h3">${esc(T.partnersTitle)}</h3><ul class="gt-bridge__list gt-bridge__list--p">${partners}</ul>` : '');
 }

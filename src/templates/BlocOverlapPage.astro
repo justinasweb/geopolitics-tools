@@ -2,7 +2,8 @@
 // Bloc overlap (BlocOverlap and BlocOverlapPage designs): the chosen blocs' shared members, the bridge countries and
 // every country's memberships. The build draws the default settings, so the page reads without scripts; the browser
 // script (src/scripts/overlap.ts) then redraws as the reader chooses blocs, keeping the settings in the address. On a
-// phone the matrix gives way to two blocs side by side, and the table to the blocs closest to them.
+// phone the matrix gives way to two blocs side by side, and the table to the blocs closest to them. When the chosen
+// blocs make the matrix wider than its half of the row, it takes the full width and the bridge countries go under it.
 import Page from '../layouts/Page.astro';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
 import SourceLine from '../components/SourceLine.astro';
@@ -35,7 +36,7 @@ const json = JSON.stringify({ data }).replace(/</g, '\\u003c');
     <p class="gt-caption">{T.note}</p>
   </header>
   <div class="gt-presets gt-ovdesk" role="group" aria-labelledby="o-chips-l" data-o-chips set:html={chipsHtml(state, data)} />
-  <div class="gt-indgrid gt-indgrid--bl">
+  <div class="gt-indgrid gt-indgrid--bl" data-o-grid>
     <section class="gt-tlsec gt-ovdesk" data-o-matrix set:html={matrixHtml(state, data)} />
     <section class="gt-two gt-ovphone" aria-label={T.title} data-o-two set:html={twoHtml(state, data)} />
     <section class="gt-tlsec gt-bridge" set:html={bridgeHtml(bridges(), data)} />

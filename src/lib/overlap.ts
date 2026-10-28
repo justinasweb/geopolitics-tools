@@ -8,7 +8,7 @@ import { BLOC_TEXT } from '../i18n/map.en.ts';
 import { OVERLAP_SHORT, OVERLAP_TEXT as T, blocIn } from '../i18n/overlap.en.ts';
 import { BLOCS_CHECKED, blocs } from './blocs.ts';
 import { formatDate } from './format.ts';
-import { DEFAULT_BLOCS, NON_WEST, OVERLAP_ORDER, WEST, type Data } from './overlap/model.ts';
+import { BRIDGE_A, BRIDGE_B, DEFAULT_BLOCS, OVERLAP_ORDER, type Data } from './overlap/model.ts';
 import type { Bridges } from './overlap/render.ts';
 import { place } from './places.ts';
 import { countryHref } from './routes.ts';
@@ -56,22 +56,22 @@ function partnerRows(): { bloc: string; place: string; status: Status; year: str
   });
 }
 
-/** Bridge countries: full members of at least one Western-led and one non-Western grouping, by name. */
+/** Bridge countries: full members of at least one bloc in each bridge group, by name. */
 export function bridges(): Bridges {
   const data = overlapData();
   const of = (id: string) => data.blocs.find((b) => b.id === id)!.members;
   const memberOf = (p: string, group: string[]) => group.filter((b) => of(b).includes(p));
   const list = Object.keys(data.places)
-    .map((id) => ({ id, west: memberOf(id, WEST), non: memberOf(id, NON_WEST) }))
-    .filter((x) => x.west.length && x.non.length)
+    .map((id) => ({ id, a: memberOf(id, BRIDGE_A), b: memberOf(id, BRIDGE_B) }))
+    .filter((x) => x.a.length && x.b.length)
     .sort((x, y) => data.places[x.id].n.localeCompare(data.places[y.id].n, 'en'));
   const name = (b: string) => data.blocs.find((x) => x.id === b)!.name;
   const byPlace = new Map<string, string[]>();
   for (const r of partnerRows()) {
     const text = r.status === 'offered' ? T.partner.offered(name(r.bloc), r.year) : T.partner[r.status](name(r.bloc));
-    if (!byPlace.has(r.place)) byPlace.set(r.place, memberOf(r.place, [...WEST, ...NON_WEST]).map(name));
+    if (!byPlace.has(r.place)) byPlace.set(r.place, memberOf(r.place, [...BRIDGE_A, ...BRIDGE_B]).map(name));
     byPlace.get(r.place)!.push(text);
   }
   const partners = [...byPlace].map(([id, parts]) => ({ id, text: parts.join('; ') }));
-  return { list, partners, west: WEST, non: NON_WEST, neither: DEFAULT_BLOCS.filter((b) => !WEST.includes(b) && !NON_WEST.includes(b)) };
+  return { list, partners, a: BRIDGE_A, b: BRIDGE_B, neither: DEFAULT_BLOCS.filter((b) => !BRIDGE_A.includes(b) && !BRIDGE_B.includes(b)) };
 }

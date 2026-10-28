@@ -197,7 +197,10 @@ for (const [name, viewport] of [['desktop', { width: 1440, height: 900 }], ['pho
   check(await page.locator('.gt-bridge__list li').first().innerText().then((t) => t.includes('India')), `${name}: Bloc overlap lists India as a bridge country`);
   check(await page.locator('.gt-mxtbl td:visible, .gt-two__c:visible').count() > 2, `${name}: Bloc overlap draws the matrix or the two blocs`);
   check(await page.locator('.gt-memtbl:visible tbody tr').count() > 5, `${name}: Bloc overlap draws the membership table`);
-  if (name === 'desktop') await page.locator('[data-o-bloc="oecd"]').click();
+  if (name === 'desktop') {
+    await page.locator('[data-o-bloc="oecd"]').click();
+    check(await page.locator('.gt-mxwrap').evaluate((w) => w.scrollWidth <= w.clientWidth + 1), `${name}: Bloc overlap widens the matrix for a tenth bloc instead of scrolling`);
+  }
   else await page.locator('[data-o-set="b"]').selectOption('quad');
   check(/[?&](blocs|b)=/.test(page.url()), `${name}: Bloc overlap keeps the blocs in the address`);
   check(!(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth)), `${name}: /blocs/overlap has no sideways scroll`);

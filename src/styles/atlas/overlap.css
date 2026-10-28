@@ -1,6 +1,9 @@
 /* Atlas design system: Bloc overlap (batch 5, BlocOverlap and BlocOverlapPage).
    Ported from the design system's bundle.css; colours and fonts come from tokens.css. */
 
+/* Set by src/scripts/overlap.ts when the matrix does not fit its half: full width, bridge countries under it. */
+.gt-indgrid--bl.is-wide { grid-template-columns: minmax(0, 1fr); }
+
 .gt-mxtbl td.gt-mx { text-align: center; padding: 10px 8px; font: 600 16px/20px var(--sans); font-variant-numeric: tabular-nums; min-width: 56px; border: 1px solid var(--paper); }
 .gt-mxtbl thead th { text-align: center; }
 .gt-mxtbl tbody th { white-space: nowrap; }
