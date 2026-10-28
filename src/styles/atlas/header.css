@@ -28,12 +28,14 @@
 .gt-mega a { display: block; padding: 6px 0; font: 400 15px/22px var(--sans); color: var(--ink); text-decoration: none; }
 .gt-mega a span { display: block; font-size: 13px; line-height: 18px; color: var(--ink-muted); }
 .gt-mega a:hover strong, .gt-mega a.is-hover strong { text-decoration: underline; }
-.gt-nav__item--end .gt-mega, .gt-mega.gt-mega--end { left: auto; right: 0; }
 .gt-header__phone { display: none; }
 /* A tap leaves :hover on touch screens; the bar's buttons look the same before and after. */
 @media (hover: none) { .gt-header__phone .gt-iconbtn:hover { background: transparent; } }
 .gt-menubtn[aria-expanded="true"] svg:first-child, .gt-menubtn[aria-expanded="false"] svg:last-child { display: none; }
 /* Narrow desktop: both rows still fit on one line each. */
+@container (max-width: 1280px) {
+    .gt-nav__item--end .gt-mega, .gt-mega.gt-mega--end { left: auto; right: 0; }
+}
 @container (max-width: 1099px) {
   .gt-searchbtn { min-width: 180px; }
   .gt-searchbtn__long { display: none; }
