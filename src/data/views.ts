@@ -10,6 +10,9 @@ export interface ViewLayer {
   scale: 'seq' | 'div';
   /** Countries' values add up to a world total, so the page can give shares of it (not true of per-person values). */
   sums: boolean;
+  /** Values rank countries by size (a share of a world total, a volume or a count), so first place means largest; a
+   *  topic hub counts first places on these only. Defaults to `sums`. */
+  ranks?: boolean;
   /** The source's latest year is still running (launches): the view stops at the last full year. */
   fullYears?: boolean;
   /** Each figure is a total over this many years (arms, five), so it is compared with the period before, not the year before. */
@@ -73,9 +76,9 @@ export const VIEW_FAMILIES: ViewFamily[] = [
   },
   {
     id: 'ai', hub: 'technology', layers: [
-      { indicator: 'aicompute', scale: 'seq', sums: false },
+      { indicator: 'aicompute', scale: 'seq', sums: false, ranks: true },
       // A model from labs in two countries counts for each, so countries' figures do not add up to a world total.
-      { indicator: 'aimodels', scale: 'seq', sums: false, fullYears: true },
+      { indicator: 'aimodels', scale: 'seq', sums: false, ranks: true, fullYears: true },
       { indicator: 'entitylist', scale: 'seq', sums: true },
       // Imports as their importers report them to UN Comtrade, in US dollars.
       { indicator: 'chipimports', scale: 'seq', sums: true },

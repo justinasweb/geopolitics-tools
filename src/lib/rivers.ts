@@ -4,7 +4,10 @@
 import { RIVERS, river as riverOf, type River } from '../data/rivers.ts';
 import { water, type Dam } from '../adapters/water.ts';
 import { shared } from './data.ts';
-import { viewPage } from './views.ts';
+import { valueText, viewPage } from './views.ts';
+import { RIVERS_TEXT } from '../i18n/water.en.ts';
+import { list } from '../i18n/pages.en.ts';
+import { place } from './places.ts';
 
 const waterData = shared(water);
 
@@ -35,3 +38,14 @@ export function riverPage(id: string): RiverPage | null {
 
 /** The rivers with a page: those GDW and the water views have data for. */
 export const riverIds = () => (waterData() ? RIVERS.map((r) => r.id) : []);
+
+/** The view's answer in one sentence (its countries, its large dams, who gets most water from abroad): its page and
+ *  its hub card. None without AQUASTAT's figures. */
+export function riverLede(id: string): string | null {
+  const p = riverPage(id);
+  const dep = viewPage('waterdep');
+  if (!p || !dep) return null;
+  const nameOf = (x: string) => place(x)?.name ?? x;
+  const most = [...p.countries].filter((x) => x.fromAbroad !== null).sort((a, b) => b.fromAbroad! - a.fromAbroad!)[0];
+  return most ? RIVERS_TEXT.lede(RIVERS_TEXT.name[id] ?? id, list(p.river.countries.map(nameOf)), p.dams.length, nameOf(most.id), valueText(dep, most.fromAbroad!)) : null;
+}

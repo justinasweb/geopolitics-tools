@@ -12,6 +12,7 @@ import SourceLine from '../components/SourceLine.astro';
 import ToolIcon from '../components/ToolIcon.astro';
 import '../styles/atlas/tools.css';
 import '../styles/atlas/source.css';
+import '../styles/atlas/legend.css';
 import '../styles/atlas/hub.css';
 import { HUB_TEXT as H } from '../i18n/hubs.en';
 import { DRAFT_BANNER, LONGREAD_TEXT } from '../i18n/pages.en';
@@ -50,10 +51,21 @@ const views = m.cards.map((c) => c.kicker);
           <div class="gt-hubthumb">
             <div class="gt-mapbox">
               <svg viewBox={`0 0 ${c.thumb.width} ${c.thumb.height}`} role="img" aria-label={c.thumb.label} preserveAspectRatio="xMidYMid meet">
+                {(c.thumb.withheld || c.thumb.notyet) && (
+                  <defs>
+                    {/* The full map's patterns (src/scripts/map/engine.ts), so withheld and not yet never read as a colour of the scale. */}
+                    {c.thumb.withheld && <pattern id={`${c.thumb.pattern}-w`} width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                      <rect width="4" height="4" fill="var(--map-nodata)" /><line x1="0" y1="0" x2="0" y2="4" stroke="var(--map-withheld)" stroke-width="1.6" />
+                    </pattern>}
+                    {c.thumb.notyet && <pattern id={`${c.thumb.pattern}-n`} width="4" height="4" patternUnits="userSpaceOnUse">
+                      <rect width="4" height="4" fill="var(--paper-raised)" /><circle cx="2" cy="2" r=".7" fill="var(--ink-muted)" />
+                    </pattern>}
+                  </defs>
+                )}
                 {c.thumb.paths.map((p) => <path d={p.d} fill={p.fill} />)}
               </svg>
             </div>
-            {c.key.length > 0 && <p class="gt-thumbkey">{c.key.map((k) => <span><i style={`background:${k.fill}`}></i>{k.label}</span>)}</p>}
+            {c.key.length > 0 && <p class="gt-thumbkey">{c.key.map((k) => <span>{k.sw ? <i class={`gt-sw gt-sw--${k.sw}`}></i> : <i style={`background:${k.fill}`}></i>}{k.label}</span>)}</p>}
           </div>
           <div class="gt-hubcard__b">
             <span class="gt-kicker">{c.kicker}</span>

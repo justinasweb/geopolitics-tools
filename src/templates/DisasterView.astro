@@ -19,7 +19,7 @@ import '../styles/atlas/tools.css';
 import { MAP_TEXT } from '../i18n/map.en';
 import { BLOCK_TEXT, SOURCE_SHORT, inSentence, list } from '../i18n/pages.en';
 import { DISASTERS_TEXT as D, KIND_TEXT } from '../i18n/disasters.en';
-import { byKind, daysText, disasterPage, disasterPages, type DisasterPage } from '../lib/disasters';
+import { answerOf, byKind, daysText, disasterPage, disasterPages, ledeFor, quakeLine } from '../lib/disasters';
 import { refreshed, sourceName as longName } from '../lib/data';
 import { formatDate } from '../lib/format';
 import { place } from '../lib/places';
@@ -46,26 +46,12 @@ const num = (n: number) => new Intl.NumberFormat('en').format(n);
 const range = (x: { from: string; to: string }) => `${formatDate(x.from)} – ${formatDate(x.to)}`;
 const symbols = { red: 'triangle', orange: 'diamond', green: 'dot', none: 'hollow' } as const;
 
-function ledeFor(q: DisasterPage, days: number): string {
-  const x = q.byDays[days];
-  const top = x.rows[0];
-  const tie = top && x.rows[1]?.n === top.n;
-  return D.lede({
-    days, n: num(x.alerts.length), red: x.alerts.filter((h) => h.alert === 'red').length, forKind: KIND_TEXT[q.id].forKind,
-    top: top && !tie ? inSentence(nameOf(top.id), true) : undefined, topN: top ? num(top.n) : undefined,
-  });
-}
-const quakeLine = (days: number) => {
-  const qs = p.byDays[days].quakes;
-  const big = qs[0];
-  return D.quakes(num(qs.length), days, big ? { mag: big.mag!.toFixed(1), place: big.name.replace(/^M [\d.]+ - /, ''), date: formatDate(big.from) } : undefined);
-};
-const answer = [ledeFor(p, p.days), quakes ? quakeLine(p.days) : ''].filter(Boolean).join(' ');
+const answer = answerOf(p);
 
 // The summary: alerts by kind (every kind together), how many countries, then the caveats.
 const kinds = byKind(per.alerts);
 const summary = [
-  [ledeFor(p, p.days), !p.kind && kinds.length > 1 ? D.byKind(kinds.map(([k, n]) => D.kindPart(n, kindName(k, n)))) : '', per.rows.length ? D.countries(per.rows.length) : '', quakes ? quakeLine(p.days) : ''].filter(Boolean).join(' '),
+  [ledeFor(p, p.days), !p.kind && kinds.length > 1 ? D.byKind(kinds.map(([k, n]) => D.kindPart(n, kindName(k, n)))) : '', per.rows.length ? D.countries(per.rows.length) : '', quakes ? quakeLine(p, p.days) : ''].filter(Boolean).join(' '),
   [ledeFor(p, 30), !quakes && p.byDays[30].green.length ? D.greenNote(num(p.byDays[30].green.length)) : '', D.periodNote].filter(Boolean).join(' '),
   [D.caveat, D.counting, quakes ? D.quakeNote : ''].filter(Boolean).join(' '),
 ];

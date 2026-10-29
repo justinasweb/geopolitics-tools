@@ -36,7 +36,7 @@ export type Kind = 'countries' | 'country' | 'compare' | 'indicators' | 'indicat
 export const BUILT_KINDS: Kind[] = ['countries', 'country', 'compare', 'indicators', 'indicator', 'page', 'sources', 'view', 'tool', 'hub'];
 
 /** The topic hubs built so far (phase 6). A built hub is live when at least one of its map views is. */
-export const HUBS_BUILT = ['resources'];
+export const HUBS_BUILT = ['resources', 'technology', 'climate', 'security', 'power'];
 
 export interface Route {
   /** Stable internal key: "country:DEU", "indicator:milpct", "page:about". Slugs can change; keys do not. */

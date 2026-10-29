@@ -19,7 +19,7 @@ import { MAP_TEXT, BLOC_TEXT } from '../i18n/map.en';
 import { BLOCS_TEXT, HISTORY_EVENTS, HISTORY_TEXT as H } from '../i18n/blocs.en';
 import { list } from '../i18n/pages.en';
 import { BLOCS_CHECKED } from '../lib/blocs';
-import { HISTORY_BLOCS, historyPage, spanText } from '../lib/history';
+import { HISTORY_BLOCS, historyLede, historyPage, spanText } from '../lib/history';
 import { formatDate } from '../lib/format';
 import { place } from '../lib/places';
 import { countryHref, live, route, hubCrumb } from '../lib/routes';
@@ -38,7 +38,7 @@ const nameOf = (x: string) => place(x)?.name ?? x;
 const first = p.years[0];
 const last = p.years.at(-1)!;
 const events = HISTORY_EVENTS[id] ?? {};
-const answer = H.lede(name, first, p.byYear[first].members.length, p.byYear[last].members.length, last, p.changes.length);
+const answer = historyLede(id);
 const crumbs: { label: string; href?: string }[] = [hubCrumb('power'), { label: BLOCS_TEXT.section, href: route('view:blocs:all')!.path }, ...(live(`view:blocs:${id}`) ? [{ label: name, href: live(`view:blocs:${id}`)!.path }] : []), { label: H.section }];
 const picker = HISTORY_BLOCS.filter((b) => live(key(b))).map((b) => ({ label: BLOC_TEXT[b] ?? b, href: live(key(b))!.path, current: b === id }));
 const timelineYears = [...new Set([...p.changes, ...Object.keys(events).map(Number)])].filter((y) => y >= first && y <= last).sort((a, b) => a - b);
@@ -149,7 +149,7 @@ const related = [
     <aside class="gt-mvbelow__side">
       <h2 class="gt-label">{BLOCS_TEXT.related}</h2>
       <ul class="gt-related">{related.map((r) => <li><a href={r.href}><span>{r.name}</span><small>{r.note}</small></a></li>)}</ul>
-      <div class="gt-mvbelow__share"><ShareRow url={url} text={answer} /></div>
+      <div class="gt-mvbelow__share"><ShareRow url={url} text={answer ?? title} /></div>
     </aside>
   </section>
 </Page>

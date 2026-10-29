@@ -7,6 +7,8 @@ import { join } from 'node:path';
 import { parseCsv } from '../../pipeline/lib/csv.ts';
 import { BLOCS_CHECKED } from './blocs.ts';
 import { place } from './places.ts';
+import { HISTORY_TEXT } from '../i18n/blocs.en.ts';
+import { BLOC_TEXT } from '../i18n/map.en.ts';
 
 export const HISTORY_BLOCS = ['nato', 'eu', 'g7', 'g20', 'brics', 'sco', 'asean', 'opec', 'csto', 'quad', 'oecd'];
 /** The last year a history shows: the year the membership table was checked. */
@@ -91,3 +93,11 @@ export const historyPage = (id: string) => historyPages().find((p) => p.id === i
 
 /** A place's spans in a grouping, as text: "1949–", "1962–2009, 2016". */
 export const spanText = (ss: Span[], p: string) => ss.filter((s) => s.place === p).map((s) => (s.to === null ? `${s.from}–` : s.to === s.from ? String(s.from) : `${s.from}–${s.to}`)).join(', ');
+
+/** The view's answer in one sentence (founding members, members now, changes): its page and its hub card. */
+export function historyLede(id: string): string | null {
+  const p = historyPage(id);
+  if (!p) return null;
+  const first = p.years[0], last = p.years.at(-1)!;
+  return HISTORY_TEXT.lede(BLOC_TEXT[id] ?? id, first, p.byYear[first].members.length, p.byYear[last].members.length, last, p.changes.length);
+}

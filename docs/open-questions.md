@@ -127,17 +127,12 @@ was there before the Atlas bar changes. Wider maps do not show it.
 **Options.** Look at the engine's bounds and minimum zoom for narrow maps (the world fitted into a column narrower than
 it is tall), and whether the area beyond Web Mercator's latitude limit is drawn in the sea colour.
 
-## Topic hubs: lead headline, intro labels, Explorer links (raised 29 Oct 2026)
+## Topic hubs: Explorer links (raised 29 Oct 2026)
 
-**The questions.**
-1. The design's lead card shows rare earths (China 69%). The hub takes each card from the family's main view, the one
-   the menu links to, so Critical minerals shows lithium. Another rule (the mineral with the most concentrated output)
-   would be data-driven too.
-2. Once approved, do hub intros carry a label ("Drafted with AI from cited sources and reviewed by the editor", like
-   dossier summaries) or none, like About and Methodology? D15 does not list them.
-3. Explorer has no presets for Resources (its four presets are on GDP, emissions, refugees and military spending), so
-   its tool entry has no links under it.
+**Decided 29 Oct 2026.** The lead card stays the family's main view, the one the menu links to (Critical minerals
+shows lithium). Hub intros carry no AI label once approved, like About and Methodology; until then they show the draft
+banner.
 
-**What the site does now.** Lithium leads; the intro shows the draft banner until approved; Explorer is listed without
-links.
+**Still open.** Explorer has no presets for most topics (its four presets are on GDP, emissions, refugees and military
+spending), so its tool entry on a hub has no links under it. Topic presets would give it some.
 

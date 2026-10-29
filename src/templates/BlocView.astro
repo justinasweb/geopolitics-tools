@@ -18,9 +18,9 @@ import '../styles/atlas/table.css';
 import '../styles/atlas/tools.css';
 import { MAP_TEXT, BLOC_TEXT } from '../i18n/map.en';
 import { BLOC_ABOUT, BLOC_SHORT, blocIn, BLOCS_TEXT as B, MEASURE_IN, MEASURE_TEXT, MEMBER_NOTES } from '../i18n/blocs.en';
-import { MINERAL_TEXT, inSentence } from '../i18n/pages.en';
+import { MINERAL_TEXT } from '../i18n/pages.en';
 import { BLOCS_CHECKED, BLOC_ORDER, blocs } from '../lib/blocs';
-import { blocPage, blocPages, blocsOf, membershipCounts, shareOn, valueOf, weightIn, type BlocShare } from '../lib/blocview';
+import { blocLede, blocPage, blocPages, blocsOf, membershipCounts, shareOn, valueOf, weightIn, type BlocShare } from '../lib/blocview';
 import { formatDate, formatValue } from '../lib/format';
 import { shareText } from '../lib/minerals';
 import { place } from '../lib/places';
@@ -49,12 +49,8 @@ const label = (s: BlocShare) => (s.id.startsWith('mineral:') ? cap(mineralName(s
 
 // A grouping's page.
 const pop = p?.shares.find((s) => s.id === 'population');
-const gdp = p?.shares.find((s) => s.id === 'gdp');
 const counts = all ? membershipCounts() : [];
-const most = counts.filter((c) => c.n === counts[0]?.n);
-const answer = all
-  ? B.allLede(counts.length, most.map((c, i) => inSentence(nameOf(c.id), i === 0)), counts[0]?.n ?? 0)
-  : B.lede(name, p!.members.length, pop ? shareText(pop.share) : null, gdp ? shareText(gdp.share) : null, pop?.year ?? null);
+const answer = blocLede(id);
 const summary = all ? [B.allSummary(BLOC_ORDER.length), B.scope] : [
   BLOC_ABOUT[id],
   [p!.shares.length ? B.summaryShares(name, p!.shares.slice(0, 4).map((s) => B.sharePart(shareText(s.share), MEASURE_IN[s.id], s.year))) : '',
@@ -236,7 +232,7 @@ const shareBars = (ss: BlocShare[]) => ss.map((s) => ({ label: label(s), text: s
     <aside class="gt-mvbelow__side">
       <h2 class="gt-label">{B.related}</h2>
       <ul class="gt-related">{related.map((r) => <li><a href={r.href}><span>{r.name}</span><small>{r.note}</small></a></li>)}</ul>
-      <div class="gt-mvbelow__share"><ShareRow url={url} text={answer} /></div>
+      <div class="gt-mvbelow__share"><ShareRow url={url} text={answer ?? name} /></div>
     </aside>
   </section>
 </Page>

@@ -7,7 +7,7 @@ import { NAV_HUBS } from '../data/nav.ts';
 import { HUB_FLOWS, HUB_GROUPS, HUB_TOOLS } from '../data/hubs.ts';
 import { INDICATORS } from '../data/indicators.ts';
 import { FLOW_TEXT, INDICATOR_TEXT, NAV_TEXT } from '../i18n/en.ts';
-import { HUB_TEXT as H } from '../i18n/hubs.en.ts';
+import { HUB_TEXT as H, inLine } from '../i18n/hubs.en.ts';
 import { ATLAS_TEXT } from '../i18n/atlas.en.ts';
 import { ENERGY_TEXT } from '../i18n/energy.en.ts';
 import { list } from '../i18n/pages.en.ts';
@@ -16,6 +16,7 @@ import { refreshed } from './data.ts';
 import { energyKey, energyPage, energyPages, lede as energyLede } from './energy.ts';
 import { foodPage, foodPages, lede as foodLede } from './food.ts';
 import { indicatorModel } from './indicator.ts';
+import { formatValue } from './format.ts';
 import { layerFile, mapLayers } from './map/layers.ts';
 import type { LayerFile } from './map/types.ts';
 import { worldMap } from './mapsvg.ts';
@@ -23,6 +24,16 @@ import { lede as mineralLede, mineralPage, mineralPages } from './minerals.ts';
 import { place } from './places.ts';
 import { countryHref, live, routes, viewHref } from './routes.ts';
 import { familyPages, lede as viewLede, viewPage } from './views.ts';
+import { answerOf as disasterAnswer, disasterPage, disasterPages } from './disasters.ts';
+import { conflictPage, ledeFor as conflictLede } from './conflict.ts';
+import { blocLede } from './blocview.ts';
+import { HISTORY_BLOCS, historyLede } from './history.ts';
+import { riverIds, riverLede } from './rivers.ts';
+import { BLOC_ORDER } from './blocs.ts';
+import { BLOCS_TEXT } from '../i18n/blocs.en.ts';
+import { BLOC_TEXT } from '../i18n/map.en.ts';
+import { KIND_TEXT } from '../i18n/disasters.en.ts';
+import { RIVERS_TEXT } from '../i18n/water.en.ts';
 import { keyOf } from './atlas.ts';
 
 export interface Link { label: string; href: string }
@@ -42,9 +53,11 @@ export interface HubCard {
   /** When the site last refreshed the source. */
   updated?: string;
   chips: Link[];
-  thumb: { width: number; height: number; paths: { d: string; fill: string }[]; label: string };
-  /** The thumbnail's small key: a swatch and words for each, so colour is never the only cue. */
-  key: { fill: string; label: string }[];
+  /** `pattern` names the patterns it uses (withheld hatching, not-yet dots), defined in the card's own SVG. */
+  thumb: { width: number; height: number; paths: { d: string; fill: string }[]; label: string; pattern: string; withheld: boolean; notyet: boolean };
+  /** The thumbnail's small key: a swatch (a colour, or the legend's swatch class) and words for each, so colour is
+   *  never the only cue; every state the full map shows has its entry. */
+  key: { fill?: string; sw?: 'withheld' | 'notyet' | 'nodata'; label: string }[];
   open: string;
 }
 
@@ -71,6 +84,11 @@ export function answerOf(key: string): string | null {
   if (family === 'minerals') { const p = mineralPage(id); return p ? mineralLede(p) : null; }
   if (family === 'food') { const p = foodPage(id); return p ? foodLede(p) : null; }
   if (family === 'oil' || family === 'gas') { const p = energyPage(`${family}-${id}`); return p ? energyLede(p) : null; }
+  if (family === 'disasters') { const p = disasterPage(id); return p ? disasterAnswer(p) : null; }
+  if (family === 'conflict') { const p = conflictPage(); return p ? conflictLede(p.byMonth[p.month]) : null; }
+  if (family === 'blocs') return blocLede(id);
+  if (family === 'alliance-history') return historyLede(id);
+  if (family === 'rivers') return riverLede(id);
   const p = viewPage(id);
   return p && p.family.id === family ? viewLede(p) : null;
 }
@@ -78,7 +96,13 @@ export function answerOf(key: string): string | null {
 /** A family's main layers as chips, worded as its view's own picker, linked to their pages (up to eight). */
 export function chipsOf(family: string): Link[] {
   const at = (key: string) => live(key)?.path;
-  const out: (Link | null)[] = family === 'minerals'
+  const pick = (ids: string[], key: (id: string) => string, label: (id: string) => string) => ids.map((id) => (at(key(id)) ? { label: label(id), href: at(key(id))! } : null));
+  const out: (Link | null)[] = family === 'disasters' ? pick(disasterPages().map((p) => p.id), (id) => `view:disasters:${id}`, (id) => KIND_TEXT[id]?.pick ?? id)
+    : family === 'blocs' ? pick(['all', ...BLOC_ORDER], (id) => `view:blocs:${id}`, (id) => (id === 'all' ? BLOCS_TEXT.all : BLOC_TEXT[id] ?? id))
+    : family === 'alliance-history' ? pick(HISTORY_BLOCS, (id) => `view:alliance-history:${id}`, (id) => BLOC_TEXT[id] ?? id)
+    : family === 'rivers' ? pick(riverIds(), (id) => `view:rivers:${id}`, (id) => RIVERS_TEXT.name[id] ?? id)
+    : family === 'conflict' ? []
+    : family === 'minerals'
     ? mineralPages().map((m) => (at(`view:minerals:${m.id}`) ? { label: m.title, href: at(`view:minerals:${m.id}`)! } : null))
     : family === 'oil' || family === 'gas'
       ? energyPages().filter((p) => p.fuel === family).map((p) => (at(energyKey(p)) ? { label: ENERGY_TEXT.layer[p.layer].pick, href: at(energyKey(p))! } : null))
@@ -90,19 +114,30 @@ export function chipsOf(family: string): Link[] {
   return chips.length > 1 ? chips.slice(0, 8) : [];
 }
 
-/** The class colour of a place on a layer, as the map draws it; no data and withheld are the no-data grey. */
-function fillOf(f: LayerFile, cls: number | undefined): string {
-  if (cls === undefined || cls < 1) return 'var(--map-nodata)';
+/** A place's fill on a layer, as the full map draws it: its class colour, the withheld hatching, the not-yet dots,
+ *  or the no-data grey (patterns `${pattern}-w` and `${pattern}-n` are in the card's SVG). */
+function fillOf(f: LayerFile, cls: number | undefined, pattern: string): string {
+  if (cls === undefined) return 'var(--map-nodata)';
+  if (cls === 0) return `url(#${pattern}-w)`;
+  if (cls === -1) return `url(#${pattern}-n)`;
   return `var(--${f.scale}-${cls})`;
 }
 
-/** The thumbnail's key: the scale's two ends (or named classes), worded as the layer's legend words them. */
-function keyOf2(f: LayerFile): HubCard['key'] {
-  if (f.categories?.length) return f.categories.map((c) => ({ fill: `var(--seq-${c.cls})`, label: c.label }));
+/** The thumbnail's key, worded as the layer's legend: the scale's two ends (or its named classes), then each state
+ *  without a class the year shows (withheld, not yet reported) and no data. */
+function keyOf2(f: LayerFile, i: number): HubCard['key'] {
   const top = f.scale === 'seq' ? 5 : 7;
-  if (f.ends) return [{ fill: `var(--${f.scale}-1)`, label: f.ends[0] }, { fill: `var(--${f.scale}-${top})`, label: f.ends[1] }];
-  if (f.ticks.length) return [{ fill: `var(--${f.scale}-1)`, label: f.ticks[0] }, { fill: `var(--${f.scale}-${top})`, label: f.ticks.at(-1)! }];
-  return [];
+  const scale: HubCard['key'] = f.categories?.length ? f.categories.map((c) => ({ fill: `var(--seq-${c.cls})`, label: c.label }))
+    : f.ends ? [{ fill: `var(--${f.scale}-1)`, label: f.ends[0] }, { fill: `var(--${f.scale}-${top})`, label: f.ends[1] }]
+    : f.ticks.length ? [{ fill: `var(--${f.scale}-1)`, label: f.ticks[0] }, { fill: `var(--${f.scale}-${top})`, label: f.ticks.at(-1)! }]
+    : [];
+  const v = Object.values(f.data[i].v);
+  return [
+    ...scale,
+    ...(f.missing.withheld && v.some((e) => e[0] === 0) ? [{ sw: 'withheld' as const, label: f.missing.withheld }] : []),
+    ...(f.missing.notyet && v.some((e) => e[0] === -1) ? [{ sw: 'notyet' as const, label: f.missing.notyet }] : []),
+    { sw: 'nodata' as const, label: f.missing.none },
+  ];
 }
 
 function cardOf(family: string, lead: boolean): HubCard | null {
@@ -116,14 +151,19 @@ function cardOf(family: string, lead: boolean): HubCard | null {
   const kicker = NAV_TEXT.views[family]?.[0] ?? family;
   const map = worldMap(lead ? 600 : 400);
   const period = y.label ?? String(y.year);
+  const pattern = `th-${family}`;
   return {
     family, kicker, href: route.path,
     headline: answerOf(route.key) ?? f.name,
     sub: y.legend, source: f.source, period, estimated: y.status === 'estimate',
     updated: def.source ? refreshed(def.source) : undefined,
     chips: chipsOf(family),
-    thumb: { width: map.width, height: map.height, paths: map.paths.map((p) => ({ d: p.d, fill: fillOf(f, p.id ? y.v[p.id]?.[0] : undefined) })), label: H.thumb(y.legend) },
-    key: keyOf2(f),
+    thumb: {
+      width: map.width, height: map.height, label: H.thumb(y.legend), pattern,
+      paths: map.paths.map((p) => ({ d: p.d, fill: fillOf(f, p.id ? y.v[p.id]?.[0] : undefined, pattern) })),
+      withheld: Object.values(y.v).some((e) => e[0] === 0), notyet: Object.values(y.v).some((e) => e[0] === -1),
+    },
+    key: keyOf2(f, i),
     open: H.open(kicker),
   };
 }
@@ -149,17 +189,17 @@ function toolsOf(hub: string, cards: HubCard[]): HubTool[] {
 
 /**
  * Country pages for a topic, by a stated rule: the three dossiers, then the countries ranked first on most of the
- * topic's maps (each live layer of its views that ranks places on one scale, in its default year; a first place
- * shared with the next country does not count), up to ten.
+ * topic's maps (each live layer of its views whose figures rank countries by size, in its default year; a first
+ * place shared with the next country does not count), up to ten.
  */
 function countriesOf(families: string[]): HubCountry[] {
   const first = new Map<string, string[]>();
   const top3 = new Map<string, number>();
   for (const d of mapLayers()) {
-    if (!families.includes(d.family) || !live(d.view)) continue;
+    // Measures that rank countries by size only: world shares, volumes and counts (the registry's `ranks`), not a
+    // share of a country's own total (electricity from coal), a per-person figure, a score or a membership.
+    if (!families.includes(d.family) || !live(d.view) || !d.ranks) continue;
     const f = layerFile(d.id);
-    // Rankings only: a diverging scale (net trade) or named classes (membership) does not rank places by size.
-    if (f.scale !== 'seq' || f.categories) continue;
     const y = f.data[Math.max(0, f.years.indexOf(f.year))];
     // First only when ahead: a figure the next place shares (100% low-carbon) names no one first.
     const lead = y.order[0];
@@ -169,7 +209,7 @@ function countriesOf(families: string[]): HubCountry[] {
   const what = (id: string) => {
     const maps = first.get(id) ?? [];
     if (maps.length) {
-      const named = maps.slice(0, 2).map((m, i) => (i === 0 ? m : m.charAt(0).toLowerCase() + m.slice(1)));
+      const named = maps.slice(0, 2).map((m, i) => (i === 0 ? m : inLine(m)));
       return H.firstOn(list(maps.length > 2 ? [...named, H.more(maps.length - 2)] : named));
     }
     return top3.get(id) ? H.topThree(top3.get(id)!) : '';
@@ -182,14 +222,26 @@ function countriesOf(families: string[]): HubCountry[] {
   });
 }
 
-/** Indicator rankings for a topic: the indexed indicator pages of its groups (src/data/hubs.ts), with their top three. */
+/**
+ * How a ranking's top reads: its top three, or, when several places share the first figure as the page shows it
+ * (low-carbon electricity at 100%), those places named as tied first (four at most, then how many more).
+ */
+export function topLine(rows: { id: string; value: number }[], fmt: (v: number) => string): string {
+  const first = fmt(rows[0].value);
+  const tied = rows.filter((r) => fmt(r.value) === first);
+  if (tied.length < 2) return H.top3(rows.slice(0, 3).map((x) => nameOf(x.id)).join(', '));
+  const names = tied.slice(0, 4).map((x) => nameOf(x.id));
+  return H.tiedFirst(first, list(tied.length > 4 ? [...names, H.more(tied.length - 4)] : names));
+}
+
+/** Indicator rankings for a topic: the indexed indicator pages of its groups (src/data/hubs.ts), with how their top reads. */
 function rankingsOf(hub: string): HubRanking[] {
   const groups = HUB_GROUPS[hub] ?? [];
   return Object.values(INDICATORS).filter((i) => groups.includes(i.group)).flatMap((i) => {
     const r = live(`indicator:${i.id}`);
     const m = r?.indexed ? indicatorModel(i.id) : null;
     if (!r || !m || m.common.length < 3) return [];
-    return [{ id: i.id, name: INDICATOR_TEXT[i.id]?.label ?? i.id, href: r.path, top: H.top3(m.common.slice(0, 3).map((x) => nameOf(x.id)).join(', ')) }];
+    return [{ id: i.id, name: INDICATOR_TEXT[i.id]?.label ?? i.id, href: r.path, top: topLine(m.common, (v) => formatValue(v, i.format)) }];
   }).slice(0, 6);
 }
 
@@ -206,7 +258,8 @@ export function hubModel(id: string): HubModel | null {
     out = {
       id, name: NAV_TEXT.hubs[id] ?? id, cards, tools: toolsOf(id, cards),
       countries: countriesOf(cards.map((c) => c.family)), rankings: rankingsOf(id),
-      sources: [...new Set(cards.map((c) => c.source))],
+      // Each source once, though a layer may name several ("WRI Aqueduct; FAO AQUASTAT; Global Dam Watch").
+      sources: [...new Set(cards.flatMap((c) => c.source.split(/;\s*/)))],
     };
   }
   cache.set(id, out);

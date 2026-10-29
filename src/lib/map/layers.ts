@@ -56,6 +56,9 @@ export interface LayerDef {
   /** The map view family it belongs to: the menu's view id (src/data/nav.ts), so the Atlas groups and orders its
    *  layers as the menu does and takes the topic from the hub that lists the family. */
   family: string;
+  /** Its figures rank countries by size: a share of a world total, a volume or a count (not a share of a country's
+   *  own total, a per-person figure, a score or a membership). A topic hub counts first places on these only. */
+  ranks: boolean;
   /** The snapshot source whose refresh date the layer's figures carry (src/lib/data.ts `refreshed`); none for the
    *  hand-checked membership lists, which carry their own date. */
   source?: string;
@@ -1004,15 +1007,15 @@ const nameOf2 = (id: string) => placeNames.get(id) ?? id;
 let defs: LayerDef[] | null = null;
 export function mapLayers(): LayerDef[] {
   defs ??= [
-    ...mineralPages().map((p) => ({ id: `minerals-${p.id}`, view: `view:minerals:${p.id}`, family: 'minerals', source: 'usgs-minerals', build: () => mineralLayer(p) })),
-    ...viewPages().map((p) => ({ id: `${p.family.id}-${p.id}`, view: `view:${p.family.id}:${p.id}`, family: p.family.id, source: [p.loaded.indicator.source].flat()[0], build: () => indicatorLayer(p) })),
-    ...disasterPages().map((p) => ({ id: `disasters-${p.id}`, view: `view:disasters:${p.id}`, family: 'disasters', source: 'gdacs', build: () => disasterLayer(p) })),
-    ...foodPages().map((p) => ({ id: `food-${p.id}`, view: `view:food:${p.id}`, family: 'food', source: 'faostat', build: () => foodLayer(p) })),
-    ...energyPages().map((p) => ({ id: `energy-${p.id}`, view: `view:${p.fuel}:${p.layer}`, family: p.fuel, source: 'eia', build: () => energyLayer(p) })),
-    ...(conflictPage() ? [{ id: 'conflict', view: 'view:conflict:events', family: 'conflict', source: 'ucdp', build: () => conflictLayer() }] : []),
-    ...riverIds().map((id) => ({ id: `rivers-${id}`, view: `view:rivers:${id}`, family: 'rivers', source: 'gdw', build: () => riverLayer(id) })),
-    ...HISTORY_BLOCS.map((id) => ({ id: `history-${id}`, view: `view:alliance-history:${id}`, family: 'alliance-history', build: () => historyLayer(id) })),
-    ...['all', ...blocPages().map((b) => b.id)].map((id) => ({ id: `blocs-${id}`, view: `view:blocs:${id}`, family: 'blocs', build: () => blocLayer(id) })),
+    ...mineralPages().map((p) => ({ id: `minerals-${p.id}`, view: `view:minerals:${p.id}`, family: 'minerals', ranks: true, source: 'usgs-minerals', build: () => mineralLayer(p) })),
+    ...viewPages().map((p) => ({ id: `${p.family.id}-${p.id}`, view: `view:${p.family.id}:${p.id}`, family: p.family.id, ranks: p.layer.ranks ?? p.layer.sums, source: [p.loaded.indicator.source].flat()[0], build: () => indicatorLayer(p) })),
+    ...disasterPages().map((p) => ({ id: `disasters-${p.id}`, view: `view:disasters:${p.id}`, family: 'disasters', ranks: true, source: 'gdacs', build: () => disasterLayer(p) })),
+    ...foodPages().map((p) => ({ id: `food-${p.id}`, view: `view:food:${p.id}`, family: 'food', ranks: p.layer !== 'trade', source: 'faostat', build: () => foodLayer(p) })),
+    ...energyPages().map((p) => ({ id: `energy-${p.id}`, view: `view:${p.fuel}:${p.layer}`, family: p.fuel, ranks: p.layer !== 'trade', source: 'eia', build: () => energyLayer(p) })),
+    ...(conflictPage() ? [{ id: 'conflict', view: 'view:conflict:events', family: 'conflict', ranks: true, source: 'ucdp', build: () => conflictLayer() }] : []),
+    ...riverIds().map((id) => ({ id: `rivers-${id}`, view: `view:rivers:${id}`, family: 'rivers', ranks: false, source: 'gdw', build: () => riverLayer(id) })),
+    ...HISTORY_BLOCS.map((id) => ({ id: `history-${id}`, view: `view:alliance-history:${id}`, family: 'alliance-history', ranks: false, build: () => historyLayer(id) })),
+    ...['all', ...blocPages().map((b) => b.id)].map((id) => ({ id: `blocs-${id}`, view: `view:blocs:${id}`, family: 'blocs', ranks: false, build: () => blocLayer(id) })),
   ];
   return defs;
 }

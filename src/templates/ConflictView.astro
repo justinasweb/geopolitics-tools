@@ -18,9 +18,9 @@ import '../styles/atlas/keyfigure.css';
 import '../styles/atlas/table.css';
 import '../styles/atlas/tools.css';
 import { MAP_TEXT } from '../i18n/map.en';
-import { inSentence, list } from '../i18n/pages.en';
+import { list } from '../i18n/pages.en';
 import { CONFLICT_TEXT as C, monthText } from '../i18n/conflict.en';
-import { conflictPage, VIOLENCE, type ConflictMonth } from '../lib/conflict';
+import { conflictPage, ledeFor, VIOLENCE, type ConflictMonth } from '../lib/conflict';
 import { refreshed } from '../lib/data';
 import { formatValue } from '../lib/format';
 import { place } from '../lib/places';
@@ -43,10 +43,6 @@ const label = (x: ConflictMonth) => monthText(x.n);
 const sum = (x: ConflictMonth) => x.deaths[1] + x.deaths[2] + x.deaths[3];
 const symbols = { 1: 'dot', 2: 'triangle', 3: 'diamond' } as const;
 
-const ledeFor = (x: ConflictMonth) => C.lede({
-  month: monthText(x.n, true), deaths: count(sum(x)), deaths12: count(x.deaths12), months12: x.months12,
-  top: x.rows[0] ? inSentence(nameOf(x.rows[0].id)) : undefined, topDeaths: x.rows[0] ? count(x.rows[0].deaths) : undefined,
-});
 const answer = ledeFor(m);
 const firstPrelim = p.months.find((x) => x.preliminary);
 const status = Object.fromEntries(p.months.filter((x) => x.preliminary).map((x) => [x.n, 'preliminary' as const]));
