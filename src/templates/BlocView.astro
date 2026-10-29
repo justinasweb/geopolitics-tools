@@ -24,7 +24,7 @@ import { blocPage, blocPages, blocsOf, membershipCounts, shareOn, valueOf, weigh
 import { formatDate, formatValue } from '../lib/format';
 import { shareText } from '../lib/minerals';
 import { place } from '../lib/places';
-import { countryHref, live, route } from '../lib/routes';
+import { countryHref, live, route, hubCrumb } from '../lib/routes';
 import { layerFile, layerPath } from '../lib/map/layers';
 import { DOSSIERS } from '../lib/country';
 import { breadcrumbs } from '../lib/structured';
@@ -39,7 +39,7 @@ const url = new URL(path, Astro.site).href;
 const checked = formatDate(BLOCS_CHECKED);
 const name = all ? B.allTitle : BLOC_TEXT[id] ?? id;
 const nameOf = (x: string) => place(x)?.name ?? x;
-const crumbs = [{ label: B.hub }, ...(all ? [] : [{ label: B.section, href: route(key('all'))!.path }]), { label: all ? B.section : name }];
+const crumbs: { label: string; href?: string }[] = [hubCrumb('power'), ...(all ? [] : [{ label: B.section, href: route(key('all'))!.path }]), { label: all ? B.section : name }];
 const memberships = blocs();
 const count = (v: number | null) => (v === null ? '–' : formatValue(v, { kind: 'count' }));
 const money = (v: number | null) => (v === null ? '–' : formatValue(v, { kind: 'money' }));

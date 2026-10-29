@@ -132,6 +132,8 @@ export const UI_TEXT = {
   search: 'Search',
   searchPlaceholder: 'Search countries, minerals, places',
   tools: 'Tools',
+  /** Under a topic hub's name in the menus: its own page. */
+  hubAll: 'All maps and tools in this topic',
   breadcrumb: 'Breadcrumb',
   onThisPage: 'On this page',
   footerTagline: 'Data from official and research sources, updated daily.',

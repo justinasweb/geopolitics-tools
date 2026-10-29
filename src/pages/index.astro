@@ -20,6 +20,7 @@ const built = routes().filter((r) => r.live);
 const of = (kind: Route['kind']) => built.filter((r) => r.kind === kind);
 const groups: { title: string; items: Route[] }[] = [
   { title: 'Indexes and long reads', items: [...of('countries'), ...of('indicators'), ...of('sources'), ...of('page')] },
+  { title: 'Topic hubs', items: of('hub') },
   { title: 'Map views', items: of('view') },
   { title: 'Dossiers', items: of('country').filter((r) => DOSSIERS.includes(r.id)) },
   { title: 'Compare', items: of('compare') },

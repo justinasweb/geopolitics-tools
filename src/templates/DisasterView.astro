@@ -17,14 +17,13 @@ import '../styles/atlas/keyfigure.css';
 import '../styles/atlas/table.css';
 import '../styles/atlas/tools.css';
 import { MAP_TEXT } from '../i18n/map.en';
-import { NAV_TEXT } from '../i18n/en';
 import { BLOCK_TEXT, SOURCE_SHORT, inSentence, list } from '../i18n/pages.en';
 import { DISASTERS_TEXT as D, KIND_TEXT } from '../i18n/disasters.en';
 import { byKind, daysText, disasterPage, disasterPages, type DisasterPage } from '../lib/disasters';
 import { refreshed, sourceName as longName } from '../lib/data';
 import { formatDate } from '../lib/format';
 import { place } from '../lib/places';
-import { countryHref, live, route } from '../lib/routes';
+import { countryHref, live, route, hubCrumb } from '../lib/routes';
 import { layerPath } from '../lib/map/layers';
 import { DOSSIERS } from '../lib/country';
 import { breadcrumbs } from '../lib/structured';
@@ -71,7 +70,7 @@ const summary = [
   [D.caveat, D.counting, quakes ? D.quakeNote : ''].filter(Boolean).join(' '),
 ];
 
-const crumbs = [{ label: NAV_TEXT.hubs.climate }, { label: D.section, href: route(key('all'))!.path }, ...(p.kind ? [{ label: K.pick }] : [])];
+const crumbs: { label: string; href?: string }[] = [hubCrumb('climate'), { label: D.section, href: route(key('all'))!.path }, ...(p.kind ? [{ label: K.pick }] : [])];
 const marks = quakes
   ? [{ symbol: 'hollow' as const, label: D.marks.quake }]
   : [{ symbol: 'triangle' as const, label: D.marks.red }, { symbol: 'diamond' as const, label: D.marks.orange }, { symbol: 'dot' as const, label: D.marks.green }];

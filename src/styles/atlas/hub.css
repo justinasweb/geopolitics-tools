@@ -1,0 +1,72 @@
+/* Topic hubs (TopicHub design, batches 6 and 7 of bundle.css): the head, the map view cards with their thumbnail and
+   small key, the tools, and the country and ranking lists. The page container is .gt-tl (container "page"). */
+.gt-hubhead { gap: 8px; }
+.gt-hubhead .gt-lede { max-width: 62ch; margin: 4px 0 0; }
+.gt-hubhead .gt-notice { max-width: 62ch; }
+
+.gt-hubcards { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+.gt-hubcard { display: grid; grid-template-rows: auto 1fr; border: 1px solid var(--rule-strong); background: var(--paper-raised); min-width: 0; }
+.gt-hubcard--lead { grid-column: 1 / -1; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); grid-template-rows: none; }
+.gt-hubthumb { position: relative; aspect-ratio: 2 / 1; background: var(--paper-sunk); border-bottom: 1px solid var(--rule); overflow: hidden; }
+.gt-hubcard--lead .gt-hubthumb { aspect-ratio: auto; min-height: 300px; border-bottom: 0; border-right: 1px solid var(--rule); }
+.gt-hubthumb .gt-mapbox { position: absolute; inset: 8px 8px 30px; display: block; }
+.gt-hubthumb .gt-mapbox svg { width: 100%; height: 100%; display: block; }
+.gt-hubthumb .gt-mapbox path { stroke: var(--map-border); stroke-width: .4; vector-effect: non-scaling-stroke; }
+.gt-thumbkey { position: absolute; left: 0; right: 0; bottom: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 2px 14px; padding: 4px 10px; font: 500 12px/18px var(--sans); color: var(--ink-muted); background: var(--paper-sunk); }
+.gt-thumbkey span { display: inline-flex; gap: 6px; align-items: center; }
+.gt-thumbkey i { width: 12px; height: 10px; display: inline-block; flex: none; box-shadow: inset 0 0 0 1px var(--rule-strong); }
+.gt-hubcard__b { display: grid; gap: 10px; align-content: start; padding: 18px 20px 20px; min-width: 0; }
+.gt-hubcard__b .gt-kicker { margin: 0; }
+.gt-hubcard__h { margin: 0; font: 600 24px/30px var(--serif); text-wrap: pretty; }
+.gt-hubcard--lead .gt-hubcard__h { font-size: 30px; line-height: 36px; }
+.gt-hubcard__h a { color: var(--ink); text-decoration: none; }
+.gt-hubcard__h a:hover { text-decoration: underline; }
+.gt-hubcard__sub { margin: 0; font: 400 15px/22px var(--sans); color: var(--ink-muted); }
+.gt-hubsrc .gt-source { margin: 0; }
+.gt-hublayers { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.gt-hublayers a { display: inline-flex; align-items: center; min-height: 32px; padding: 0 10px; border: 1px solid var(--rule-strong); font: 500 14px/18px var(--sans); color: var(--ink); text-decoration: none; background: var(--paper); }
+.gt-hublayers a:hover { border-color: var(--ink); background: var(--paper-sunk); }
+.gt-hubcard__b > .gt-sechead__link { justify-self: start; }
+
+/* Tools for this topic */
+.gt-tools { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; }
+.gt-tool { display: grid; gap: 12px; align-content: start; }
+.gt-tool .gt-h3 { margin: 0; }
+.gt-tool .gt-h3 a { color: var(--ink); text-decoration: none; }
+.gt-tool .gt-h3 a:hover { text-decoration: underline; }
+.gt-tool p { margin: 6px 0 0; font: 400 15px/22px var(--sans); color: var(--ink-muted); }
+.gt-toolicon { width: 72px; height: 48px; display: block; }
+.gt-hublinks { list-style: none; margin: 6px 0 0; padding: 0; display: grid; }
+.gt-hublinks a { display: flex; align-items: center; min-height: 32px; font: 400 15px/20px var(--sans); color: var(--ink); border-bottom: 1px solid var(--rule); text-decoration: none; }
+.gt-hublinks a:hover { color: var(--brand); text-decoration: underline; }
+
+/* Countries and rankings */
+.gt-cr { display: grid; grid-template-columns: minmax(0, 8fr) minmax(0, 4fr); gap: 40px; }
+.gt-cr__c, .gt-cr__r { display: grid; gap: 16px; align-content: start; }
+.gt-cr .gt-label { margin: 0; color: var(--ink); }
+.gt-cr__rule { margin: 4px 0 0; }
+.gt-ranks { list-style: none; margin: 0; padding: 0; display: grid; border-top: 2px solid var(--ink); }
+.gt-ranks--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 24px; }
+.gt-ranks a { display: grid; gap: 2px; padding: 12px 0; border-bottom: 1px solid var(--rule); color: var(--ink); text-decoration: none; }
+.gt-ranks__name { font: 600 17px/24px var(--sans); }
+.gt-ranks__what { font: 400 14px/20px var(--sans); color: var(--ink-muted); }
+.gt-ranks a:hover .gt-ranks__name { text-decoration: underline; }
+.gt-cr .gt-sechead__link { justify-self: start; }
+.gt-hubfoot { margin: 0; padding-top: 14px; border-top: 1px solid var(--rule); }
+
+@container page (max-width: 1099px) {
+  .gt-tools { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@container page (max-width: 759px) {
+  .gt-hubcards { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .gt-hubcard--lead { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 1fr; }
+  .gt-hubthumb { aspect-ratio: 16 / 11; }
+  .gt-hubcard--lead .gt-hubthumb { min-height: 0; aspect-ratio: 16 / 11; border-right: 0; border-bottom: 1px solid var(--rule); }
+  .gt-hubcard__h, .gt-hubcard--lead .gt-hubcard__h { font-size: 22px; line-height: 28px; }
+  .gt-tools { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  .gt-tool { grid-template-columns: 56px minmax(0, 1fr); gap: 14px; }
+  .gt-toolicon { width: 56px; height: 38px; margin-top: 4px; }
+  .gt-cr { grid-template-columns: minmax(0, 1fr); gap: 32px; }
+  .gt-ranks--2 { grid-template-columns: minmax(0, 1fr); }
+  .gt-hublayers a { min-height: 44px; }
+}

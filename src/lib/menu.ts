@@ -8,8 +8,9 @@ import { NAV_TEXT, UI_TEXT } from '../i18n/en.ts';
 type Link = { id: string; path: string };
 
 export function menu(full = false, liveRoute: (key: string) => { path: string } | undefined = live, viewPath: (id: string) => string | undefined = viewHref) {
-  if (full) return { hubs: NAV_HUBS, top: NAV_TOP, tools: NAV_TOOLS };
-  const hubs = NAV_HUBS.map((h) => ({ ...h, views: h.views.flatMap((v) => { const path = viewPath(v.id); return path ? [{ ...v, path }] : []; }) }))
+  if (full) return { hubs: NAV_HUBS.map((h) => ({ ...h, href: undefined as string | undefined })), top: NAV_TOP, tools: NAV_TOOLS };
+  // A hub that is live is the parent of its views: its page heads its group.
+  const hubs = NAV_HUBS.map((h) => ({ ...h, href: liveRoute(`hub:${h.id}`)?.path, views: h.views.flatMap((v) => { const path = viewPath(v.id); return path ? [{ ...v, path }] : []; }) }))
     .filter((h) => h.views.length);
   const linked = (u: Link): Link[] => { const r = liveRoute(navKey(u.id)); return r ? [{ ...u, path: r.path }] : []; };
   return { hubs, top: NAV_TOP.flatMap(linked), tools: NAV_TOOLS.flatMap(linked) };
@@ -20,7 +21,13 @@ export function menu(full = false, liveRoute: (key: string) => { path: string } 
 export function menuGroups(full = false) {
   const { hubs, tools } = menu(full);
   return [
-    ...hubs.map((hub) => ({ id: hub.id, name: NAV_TEXT.hubs[hub.id], links: hub.views.map((v) => ({ path: v.path, text: NAV_TEXT.views[v.id] })) })),
+    ...hubs.map((hub) => ({
+      id: hub.id, name: NAV_TEXT.hubs[hub.id],
+      links: [
+        ...(hub.href ? [{ path: hub.href, text: [NAV_TEXT.hubs[hub.id], UI_TEXT.hubAll] as [string, string] }] : []),
+        ...hub.views.map((v) => ({ path: v.path, text: NAV_TEXT.views[v.id] })),
+      ],
+    })),
     ...(tools.length ? [{ id: 'tools', name: UI_TEXT.tools, links: tools.map((t) => ({ path: t.path, text: NAV_TEXT.tools[t.id] })) }] : []),
   ];
 }

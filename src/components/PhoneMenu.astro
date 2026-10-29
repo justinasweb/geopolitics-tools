@@ -22,7 +22,10 @@ const places = top.filter((u) => u !== week);
     {hubs.map((hub) => (
       <details open={open === hub.id}>
         <summary>{NAV_TEXT.hubs[hub.id]}</summary>
-        <ul>{hub.views.map((v) => <li><a href={v.path}>{NAV_TEXT.views[v.id][0]}</a></li>)}</ul>
+        <ul>
+          {hub.href && <li><a href={hub.href}>{UI_TEXT.hubAll}</a></li>}
+          {hub.views.map((v) => <li><a href={v.path}>{NAV_TEXT.views[v.id][0]}</a></li>)}
+        </ul>
       </details>
     ))}
     {tools.length > 0 && <span class="gt-label gt-menu__label">{UI_TEXT.tools}</span>}

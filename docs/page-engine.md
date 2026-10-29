@@ -53,6 +53,7 @@ servers never see the part after `#`.
 | Explorer | `/explorer` (table), `/explorer/over-time`, `/explorer/scatter`: every measure with an indicator page. See "Explorer" below |
 | Dependencies | `/dependencies`: countries against the ten commodities of each country page's dependencies table, with the single points of failure. See "Dependencies" below |
 | Bloc overlap | `/blocs/overlap`: shared members between blocs, bridge countries and every country's memberships, from `src/data/blocs.csv`. See "Bloc overlap" below |
+| Topic hubs | `/resources` (so far; the other four follow): the parent page of a topic's map views. See "Topic hubs" below |
 | Atlas | `/atlas`: every live map view's layer on one map, live when any map view is. Its states are noindex. See [maps.md](maps.md), "The Atlas" |
 | Supply chains | `/supply-chains` and `/supply-chains/{flow}` for each of the 11 flows whose source is in the snapshot with at least one pair; the index lists only those. See "Supply chains" below |
 
@@ -165,6 +166,27 @@ it in the page, and `src/lib/overlap/render.ts` draws it, at build time for the 
 - **Phone.** Two blocs picked side by side (In both, Only A, Only B) instead of the matrix; the table shows the pair
   and the two chosen blocs sharing most members with it, 14 rows, until "Show all countries and blocs".
 - **Address.** `blocs`, `a`, `b`, `sort`, `dir`, `all`. The prototype's `#/overlap?blocs=NATO,EU` lands here.
+
+## Topic hubs
+
+`src/templates/HubPage.astro`, model `src/lib/hubs.ts`, lists in `src/data/hubs.ts`. A hub is built when it is in
+`HUBS_BUILT` (`src/lib/routes.ts`) and live when one of its views is; it is then the first breadcrumb of its views
+(`hubCrumb`, also in their JSON-LD) and heads its group in the header and phone menus (`menuGroups`).
+
+- **Intro.** Two sentences in `src/content/hubs/<hub>.md`, an AI draft with the facts it was written from; the draft
+  banner shows until `approved: true`.
+- **Cards.** One per view family of the hub with a live view, in menu order; the first is the full-width lead. The
+  family's main view (the menu's link) gives the card: its main layer drawn small at build time from the layer file
+  (`worldMap`, 600px for the lead, 400px otherwise) with a key of the scale's ends or named classes; the view's own
+  one-sentence answer as the headline (`answerOf`: the same template its page shows under the title); the legend title;
+  the source, period and the date the site last refreshed it (each layer names its source in the registry); chips for
+  the family's layers, worded as the view's picker (up to eight).
+- **Tools.** The topic's tools from `HUB_TOOLS`, live ones only: Supply chains links the topic's flows, the Atlas its
+  first two maps.
+- **Countries.** By a rule the page states (no traffic data, so nothing is "popular"): the three dossiers, then the
+  countries ranked first on most of the topic's maps (every live one-scale layer of its views, default year; a first
+  place shared with the next country does not count), up to ten, each with the maps it is first on.
+- **Indicator rankings.** The indexed indicator pages of the topic's groups (`HUB_GROUPS`), with their top three.
 
 ## Share images
 
