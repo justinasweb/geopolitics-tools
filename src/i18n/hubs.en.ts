@@ -28,6 +28,10 @@ export const HUB_TEXT = {
   allCountries: 'All countries',
   rankings: 'Indicator rankings',
   top3: (names: string) => `Top 3: ${names}`,
+  /** A ranking's name: its label, and for a share or a rate what it is of ("CO2 imported in goods, % of own emissions"). */
+  ranking: (label: string, rate?: string) => (rate ? `${label}, ${rate}` : label),
+  /** A ranking's line starts with the year it ranks, so a one-year ranking reads apart from a card's total over years. */
+  inYear: (year: number, top: string) => `${year} · ${top}`,
   /** Several places share the first figure, as the page shows it: they are named together, not in a made-up order. */
   tiedFirst: (value: string, names: string) => `Tied first at ${value}: ${names}`,
   allRankings: 'All rankings',

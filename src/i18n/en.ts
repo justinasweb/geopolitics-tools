@@ -1,7 +1,12 @@
 // English text for the indicator registry and flows. Another language is another file with the
 // same keys; a test checks that every indicator and flow has its text.
 
-export interface IndicatorText { label: string; short?: string; unit: string; note?: string }
+export interface IndicatorText {
+  label: string; short?: string; unit: string; note?: string;
+  /** For a share or a rate whose label does not say what it is of: what the figure is per, or a share of, read after
+   *  the label in rankings ("CO2 imported in goods, % of own emissions"). */
+  rate?: string;
+}
 
 export const GROUP_TEXT: Record<string, string> = {
   economy: 'Economy', people: 'People', energy: 'Energy', food: 'Food', climate: 'Climate and water',
@@ -35,9 +40,9 @@ export const INDICATOR_TEXT: Record<string, IndicatorText> = {
   gasprod: { label: 'Natural gas production', short: 'Gas output', unit: 'bcm' },
   gasuse: { label: 'Natural gas consumption', short: 'Gas use', unit: 'bcm' },
   power: { label: 'Electricity generated', short: 'Electricity', unit: 'TWh' },
-  lowcarbon: { label: 'Low-carbon electricity', unit: 'share', note: 'Nuclear, hydro, wind, solar, bioenergy and other renewables.' },
-  coalpower: { label: 'Electricity from coal', unit: 'share' },
-  windsolar: { label: 'Electricity from wind and solar', unit: 'share' },
+  lowcarbon: { label: 'Low-carbon electricity', rate: '% of its electricity', unit: 'share', note: 'Nuclear, hydro, wind, solar, bioenergy and other renewables.' },
+  coalpower: { label: 'Electricity from coal', rate: '% of its electricity', unit: 'share' },
+  windsolar: { label: 'Electricity from wind and solar', rate: '% of its electricity', unit: 'share' },
   wheatprod: { label: 'Wheat production', unit: 'Mt' },
   wheatimp: { label: 'Wheat imports', unit: 'Mt' },
   maizeprod: { label: 'Maize production', unit: 'Mt' },
@@ -49,18 +54,18 @@ export const INDICATOR_TEXT: Record<string, IndicatorText> = {
   fertpotash: { label: 'Potash fertiliser use', short: 'Potash use', unit: 'Mt K2O', note: 'Agricultural use, tonnes of nutrient.' },
   fertphosphate: { label: 'Phosphate fertiliser use', short: 'Phosphate use', unit: 'Mt P2O5', note: 'Agricultural use, tonnes of nutrient.' },
   co2: { label: 'CO2 emissions', unit: 'Mt' },
-  co2pc: { label: 'CO2 per person', unit: 't' },
+  co2pc: { label: 'CO2 per person', rate: 'tonnes', unit: 't' },
   co2cum: { label: 'CO2 emitted since 1750', short: 'CO2 since 1750', unit: 'Mt' },
-  co2trade: { label: 'CO2 imported in goods', unit: '% of own', note: 'Emissions caused by what a country buys, against those inside its borders.' },
-  waterstress: { label: 'Water stress', unit: 'score 0–5', note: '0 low, 5 extremely high: over 80% of available water withdrawn.' },
-  waterdep: { label: 'Water from abroad', unit: '% of renewable water' },
+  co2trade: { label: 'CO2 imported in goods', rate: '% of own emissions', unit: '% of own', note: 'Emissions caused by what a country buys, against those inside its borders.' },
+  waterstress: { label: 'Water stress', rate: 'score from 0 to 5', unit: 'score 0–5', note: '0 low, 5 extremely high: over 80% of available water withdrawn.' },
+  waterdep: { label: 'Water from abroad', rate: '% of renewable water', unit: '% of renewable water' },
   milpct: { label: 'Military spending, share of GDP', short: 'Military, % GDP', unit: '% of GDP' },
   milusd: { label: 'Military spending', unit: 'US$' },
   conflictdeaths: { label: 'Deaths in organised violence', short: 'Conflict deaths', unit: 'deaths', note: 'Best estimate of deaths in state-based, non-state and one-sided violence. The latest year is preliminary.' },
   armsimp: { label: 'Arms imports', unit: 'TIV m', note: 'SIPRI trend-indicator value: military capability delivered, not price.' },
   armsexp: { label: 'Arms exports', unit: 'TIV m' },
   hunger: { label: 'People in food crisis or worse', short: 'Food crisis (IPC 3+)', unit: 'people' },
-  hungershare: { label: 'Share in food crisis or worse', short: 'Food crisis share', unit: 'share' },
+  hungershare: { label: 'Share in food crisis or worse', rate: '% of people analysed', short: 'Food crisis share', unit: 'share' },
   satellites: { label: 'Satellites in orbit', unit: 'satellites' },
   launches: { label: 'Orbital launches', unit: 'launches' },
   aicompute: { label: 'Share of AI computing power', short: 'AI compute share', unit: 'share' },

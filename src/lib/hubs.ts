@@ -241,7 +241,8 @@ function rankingsOf(hub: string): HubRanking[] {
     const r = live(`indicator:${i.id}`);
     const m = r?.indexed ? indicatorModel(i.id) : null;
     if (!r || !m || m.common.length < 3) return [];
-    return [{ id: i.id, name: INDICATOR_TEXT[i.id]?.label ?? i.id, href: r.path, top: topLine(m.common, (v) => formatValue(v, i.format)) }];
+    const t = INDICATOR_TEXT[i.id];
+    return [{ id: i.id, name: H.ranking(t?.label ?? i.id, t?.rate), href: r.path, top: H.inYear(m.year, topLine(m.common, (v) => formatValue(v, i.format))) }];
   }).slice(0, 6);
 }
 

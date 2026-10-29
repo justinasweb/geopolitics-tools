@@ -190,7 +190,10 @@ it in the page, and `src/lib/overlap/render.ts` draws it, at build time for the 
   countries ranked first on most of the topic's maps of world shares, volumes and counts (layers marked `ranks` in the
   registry; not a share of a country's own total, a per-person figure, a score or a membership; default year; a
   first place shared with the next country does not count), up to ten, each with the maps it is first on.
-- **Indicator rankings.** The indexed indicator pages of the topic's groups (`HUB_GROUPS`), with their top three; when
+- **Indicator rankings.** The indexed indicator pages of the topic's groups (`HUB_GROUPS`), named with what a share or
+  rate is of (`rate` in `src/i18n/en.ts`: "CO2 imported in goods, % of own emissions"), each line starting with the
+  year it ranks (so a one-year ranking reads apart from a card's total over years: Chinese lending, arms), then the top
+  three; when
   several places share the first figure as the page shows it, they are named as tied first instead (`topLine`), on
   every hub.
 

@@ -47,7 +47,7 @@ describe('topic hubs', async () => {
     const pct = (v: number) => `${Math.round(v * 100)}%`;
     expect(topLine([{ id: 'USA', value: 0.5 }, { id: 'CHN', value: 0.3 }, { id: 'RUS', value: 0.1 }], pct)).toBe('Top 3: United States, China, Russia');
     const tied = topLine(['ALB', 'BTN', 'PRY', 'ISL', 'NPL', 'ETH'].map((id) => ({ id, value: 0.999 })).concat([{ id: 'NOR', value: 0.9 }]), pct);
-    expect(tied).toBe('Tied first at 100%: Albania, Bhutan, Paraguay, Iceland, and 2 more');
+    expect(tied).toBe('Tied first at 100%: Albania, Bhutan, Paraguay, Iceland and 2 more');
   });
 
   it('has one card per live view family, in menu order, the view’s own answer as the headline', () => {
@@ -84,7 +84,7 @@ describe('topic hubs', async () => {
   it('ranks only the indicator groups of the topic', () => {
     for (const r of m.rankings) {
       expect(HUB_GROUPS.resources).toContain(INDICATORS[r.id].group);
-      expect(r.top).toMatch(/^(Top 3|Tied first at [^:]+): /);
+      expect(r.top).toMatch(/^\d{4} · (Top 3|Tied first at [^:]+): /);
     }
   });
 
@@ -101,5 +101,19 @@ describe('topic hubs', async () => {
     const intro = /^intro: "(.*)"$/m.exec(md)![1];
     expect(intro.split(/(?<=\.) /).length).toBe(2);
     expect(intro).not.toMatch(/\b(dominant|vulnerable|crucial|popular)\b/i);
+  });
+
+  it('names a share or rate measure with what it is of, and every ranking with its year', async () => {
+    const climate = hubModel('climate')!;
+    const trade = climate.rankings.find((r) => r.id === 'co2trade');
+    if (trade) expect(trade.name).toBe('CO2 imported in goods, % of own emissions');
+    for (const r of [...climate.rankings, ...hubModel('power')!.rankings]) expect(r.top).toMatch(/^\d{4} · /);
+  });
+
+  it('writes lists without a serial comma', async () => {
+    const { list } = await import('../../src/i18n/pages.en.ts');
+    expect(list(['Ethiopia', 'Sudan', 'Egypt'])).toBe('Ethiopia, Sudan and Egypt');
+    expect(list(['Ethiopia', 'Sudan'])).toBe('Ethiopia and Sudan');
+    expect(list(['Ethiopia'])).toBe('Ethiopia');
   });
 });
