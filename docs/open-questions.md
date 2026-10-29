@@ -127,3 +127,12 @@ was there before the Atlas bar changes. Wider maps do not show it.
 **Options.** Look at the engine's bounds and minimum zoom for narrow maps (the world fitted into a column narrower than
 it is tall), and whether the area beyond Web Mercator's latitude limit is drawn in the sea colour.
 
+## Topic hubs: Explorer links (raised 29 Oct 2026)
+
+**Decided 29 Oct 2026.** The lead card stays the family's main view, the one the menu links to (Critical minerals
+shows lithium). Hub intros carry no AI label once approved, like About and Methodology; until then they show the draft
+banner.
+
+**Still open.** Explorer has no presets for most topics (its four presets are on GDP, emissions, refugees and military
+spending), so its tool entry on a hub has no links under it. Topic presets would give it some.
+

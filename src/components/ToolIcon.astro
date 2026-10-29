@@ -1,0 +1,34 @@
+---
+// A tool's small pictogram (TopicHub and HomeSections designs): drawn from the design tokens, decorative only.
+interface Props { tool: string }
+const { tool } = Astro.props;
+const DEP = ['div-1', 'div-2', 'div-4', 'div-6', 'div-3', 'div-7', 'div-2', 'div-4', 'div-6', 'div-4', 'div-1', 'div-3', 'div-2', 'div-5', 'div-7', 'div-4'];
+---
+<svg class="gt-toolicon" viewBox="0 0 48 32" aria-hidden="true">
+  {tool === 'dependencies' && DEP.map((c, i) => <rect x={2 + (i % 4) * 9} y={2 + Math.floor(i / 4) * 8} width="8" height="7" fill={`var(--${c})`} />)}
+  {tool === 'supply-chains' && (
+    <>
+      <rect x="2" y="2" width="4" height="16" fill="var(--seq-5)" /><rect x="2" y="20" width="4" height="10" fill="var(--seq-3)" />
+      <rect x="42" y="2" width="4" height="10" fill="var(--seq-4)" /><rect x="42" y="14" width="4" height="16" fill="var(--seq-4)" />
+      <path d="M6 10C24 10 24 7 42 7M6 25C24 25 24 22 42 22M6 14C24 14 24 26 42 26" fill="none" stroke="var(--seq-2)" stroke-width="5" />
+    </>
+  )}
+  {tool === 'explorer' && (
+    <>
+      <path d="M2 6h44M2 14h44M2 22h44M2 30h44" stroke="var(--rule-strong)" stroke-width="1" />
+      <rect x="2" y="8" width="26" height="4" fill="var(--seq-5)" /><rect x="2" y="16" width="18" height="4" fill="var(--seq-4)" /><rect x="2" y="24" width="10" height="4" fill="var(--seq-3)" />
+    </>
+  )}
+  {tool === 'atlas' && (
+    <>
+      <rect x="2" y="2" width="44" height="28" fill="var(--paper-sunk)" stroke="var(--rule-strong)" />
+      <path d="M8 20c4-6 8-8 12-6s6 6 10 4 6-6 10-8" fill="none" stroke="var(--seq-4)" stroke-width="6" stroke-linecap="round" />
+      <path d="M6 10Q20 2 34 12" fill="none" stroke="var(--ink)" stroke-width="1.4" /><path d="M36 21l3 3-3 3-3-3z" fill="var(--paper-raised)" stroke="var(--ink)" />
+    </>
+  )}
+  {tool === 'blocs-overlap' && (
+    <>
+      {[0, 1, 2, 3].flatMap((r) => [0, 1, 2, 3].map((c) => <rect x={10 + c * 9} y={r * 8} width="8" height="7" fill={`var(--seq-${r === c ? 5 : 1 + ((r + c) % 3)})`} />))}
+    </>
+  )}
+</svg>

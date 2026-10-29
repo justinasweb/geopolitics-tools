@@ -6,6 +6,10 @@
 // Country pages count alerts with the same rule (alertsIn), so a profile and the map agree.
 import { parseGdacs, parseQuakes, type Alert, type Hazard, type HazardKind } from '../adapters/hazards.ts';
 import { data, refreshed, shared } from './data.ts';
+import { DISASTERS_TEXT, KIND_TEXT } from '../i18n/disasters.en.ts';
+import { inSentence } from '../i18n/pages.en.ts';
+import { formatDate } from './format.ts';
+import { place } from './places.ts';
 
 export const PERIODS = [30, 90, 365];
 /** The default period: the year, as on country pages. */
@@ -110,3 +114,26 @@ export function byKind(alerts: Hazard[]): [HazardKind, number][] {
 
 /** Every alert's days, as one text: "14 Oct 2026" or "12 Oct 2026 – 3 Nov 2026". */
 export const daysText = (h: Hazard, fmt: (d: string) => string) => (h.from === h.to ? fmt(h.from) : `${fmt(h.from)} – ${fmt(h.to)}`);
+
+const num = (n: number) => new Intl.NumberFormat('en').format(n);
+
+/** The view's answer for a period, in one sentence: its page shows it under the title and its hub card as the headline. */
+export function ledeFor(q: DisasterPage, days: number): string {
+  const x = q.byDays[days];
+  const top = x.rows[0];
+  const tie = top && x.rows[1]?.n === top.n;
+  return DISASTERS_TEXT.lede({
+    days, n: num(x.alerts.length), red: x.alerts.filter((h) => h.alert === 'red').length, forKind: KIND_TEXT[q.id].forKind,
+    top: top && !tie ? inSentence(place(top.id)?.name ?? top.id, true) : undefined, topN: top ? num(top.n) : undefined,
+  });
+}
+
+/** The earthquakes page's line on USGS quakes in a period, with the largest. */
+export function quakeLine(q: DisasterPage, days: number): string {
+  const qs = q.byDays[days].quakes;
+  const big = qs[0];
+  return DISASTERS_TEXT.quakes(num(qs.length), days, big ? { mag: big.mag!.toFixed(1), place: big.name.replace(/^M [\d.]+ - /, ''), date: formatDate(big.from) } : undefined);
+}
+
+/** The answer under the view's title, for its default period. */
+export const answerOf = (q: DisasterPage) => [ledeFor(q, q.days), q.kind === 'EQ' ? quakeLine(q, q.days) : ''].filter(Boolean).join(' ');

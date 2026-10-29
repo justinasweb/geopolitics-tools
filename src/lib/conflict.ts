@@ -4,6 +4,10 @@
 // layer file and the share image all read this.
 import { ged, type ConflictEvent, type Violence } from '../adapters/ucdp.ts';
 import { shared } from './data.ts';
+import { CONFLICT_TEXT, monthText } from '../i18n/conflict.en.ts';
+import { inSentence } from '../i18n/pages.en.ts';
+import { formatValue } from './format.ts';
+import { place } from './places.ts';
 
 const events = shared(ged);
 
@@ -123,3 +127,11 @@ export function cells(evs: ConflictEvent[], type: Violence, deg = 1): { lat: num
   return [...by.values()].map((c) => ({ lat: c.lat / c.w, lon: c.lon / c.w, deaths: c.deaths, events: c.events, conflict: [...c.byConflict].sort((a, b) => b[1] - a[1])[0][0] }))
     .sort((a, b) => b.deaths - a.deaths);
 }
+
+const count = (v: number) => formatValue(v, { kind: 'count' });
+
+/** A month's answer in one sentence: the view shows it under its title and its hub card as the headline. */
+export const ledeFor = (x: ConflictMonth) => CONFLICT_TEXT.lede({
+  month: monthText(x.n, true), deaths: count(x.deaths[1] + x.deaths[2] + x.deaths[3]), deaths12: count(x.deaths12), months12: x.months12,
+  top: x.rows[0] ? inSentence(place(x.rows[0].id)?.name ?? x.rows[0].id) : undefined, topDeaths: x.rows[0] ? count(x.rows[0].deaths) : undefined,
+});

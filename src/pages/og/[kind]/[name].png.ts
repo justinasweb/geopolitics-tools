@@ -41,6 +41,8 @@ import { ledeOf, periodLabel } from '../../../lib/supply-chains/render';
 import type { View } from '../../../lib/explorer/model';
 import { ATLAS_TEXT } from '../../../i18n/atlas.en';
 import { atlasLayers } from '../../../lib/atlas';
+import { HUB_TEXT } from '../../../i18n/hubs.en';
+import { hubModel } from '../../../lib/hubs';
 
 export const getStaticPaths = (() => {
   if (process.env.GT_FAST === '1') return [{ params: { kind: 'page', name: 'default' }, props: { route: null } }];
@@ -181,6 +183,11 @@ function card(r: Route | null): Card {
   if (r.kind === 'tool' && r.id.startsWith('explorer:')) {
     const view = r.id.split(':')[1];
     return { kicker: EXPLORER_TEXT.title, title: EXPLORER_TEXT.views[view], caption: EXPLORER_TEXT.description[view as View](explorerMeasures().length) };
+  }
+  if (r.kind === 'hub') {
+    const m = hubModel(r.id)!;
+    const lead = m.cards[0];
+    return { kicker: HUB_TEXT.kicker, title: m.name, caption: lead?.headline, source: lead ? `${lead.source}, ${lead.period}` : undefined };
   }
   if (r.kind === 'tool' && r.id === 'atlas') return { kicker: ATLAS_TEXT.crumb, title: ATLAS_TEXT.title, caption: ATLAS_TEXT.description(atlasLayers().length) };
   if (r.kind === 'tool' && r.id === 'dependencies') return { kicker: DEPS_TEXT.crumb, title: DEPS_TEXT.title, caption: DEPS_TEXT.lede };

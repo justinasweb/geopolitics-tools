@@ -8,6 +8,10 @@ import { indicator } from './data.ts';
 import { defaultYear, ranking } from './stats.ts';
 import { listed, mineralPages } from './minerals.ts';
 import { place } from './places.ts';
+import { BLOCS_TEXT } from '../i18n/blocs.en.ts';
+import { BLOC_TEXT } from '../i18n/map.en.ts';
+import { inSentence } from '../i18n/pages.en.ts';
+import { shareText } from './minerals.ts';
 
 /** Measures that add up across countries, so a bloc's members have a share of the world. */
 export const SHARE_MEASURES = ['population', 'gdp', 'milusd', 'co2', 'wheatprod', 'maizeprod', 'riceprod', 'soyprod'];
@@ -108,4 +112,19 @@ export function membershipCounts(): { id: string; n: number }[] {
   const c = new Map<string, number>();
   for (const m of blocs().values()) for (const x of m) c.set(x, (c.get(x) ?? 0) + 1);
   return [...c].map(([id, n]) => ({ id, n })).sort((a, b) => b.n - a.n || nameOf(a.id).localeCompare(nameOf(b.id)));
+}
+
+/** The view's answer in one sentence (/blocs: who belongs to most; a grouping: its members and their weight): its page
+ *  shows it under the title and its hub card as the headline. */
+export function blocLede(id: string): string | null {
+  if (id === 'all') {
+    const counts = membershipCounts();
+    const most = counts.filter((c) => c.n === counts[0]?.n);
+    return BLOCS_TEXT.allLede(counts.length, most.map((c, i) => inSentence(place(c.id)?.name ?? c.id, i === 0)), counts[0]?.n ?? 0);
+  }
+  const p = blocPage(id);
+  if (!p) return null;
+  const pop = p.shares.find((s) => s.id === 'population');
+  const gdp = p.shares.find((s) => s.id === 'gdp');
+  return BLOCS_TEXT.lede(BLOC_TEXT[id] ?? id, p.members.length, pop ? shareText(pop.share) : null, gdp ? shareText(gdp.share) : null, pop?.year ?? null);
 }

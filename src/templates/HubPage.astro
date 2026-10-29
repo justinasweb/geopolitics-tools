@@ -1,0 +1,143 @@
+---
+// A topic hub (TopicHub and TopicHubPage designs; Resources is the reference layout): the parent page of its map views.
+// Title and a two-sentence intro (an AI draft until approved, src/content/hubs/); one card per live map view, the
+// first full width, each with its main layer drawn small from the view's layer file, the view's own one-sentence
+// answer as the headline, its source, period and refresh date, and chips for its main layers; the tools for the topic;
+// then country pages and indicator rankings, each by a rule the page states. Model: src/lib/hubs.ts.
+import { getEntry } from 'astro:content';
+import Page from '../layouts/Page.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import Notice from '../components/Notice.astro';
+import SourceLine from '../components/SourceLine.astro';
+import ToolIcon from '../components/ToolIcon.astro';
+import '../styles/atlas/tools.css';
+import '../styles/atlas/source.css';
+import '../styles/atlas/legend.css';
+import '../styles/atlas/hub.css';
+import { HUB_TEXT as H } from '../i18n/hubs.en';
+import { DRAFT_BANNER, LONGREAD_TEXT } from '../i18n/pages.en';
+import { hubModel } from '../lib/hubs';
+import { paths } from '../lib/routes';
+import { breadcrumbs } from '../lib/structured';
+
+interface Props { id: string }
+const { id } = Astro.props;
+const m = hubModel(id)!;
+const intro = await getEntry('hubs', id);
+if (!intro) throw new Error(`hub ${id}: no intro in src/content/hubs/${id}.md`);
+const crumbs = [{ label: LONGREAD_TEXT.home, href: '/' }, { label: m.name }];
+const views = m.cards.map((c) => c.kicker);
+---
+<Page title={H.title(m.name)} description={H.description(m.name, views)} hub={id} container="tl" mainClass="gt-hub" image={paths.image('hubs', id)}
+  jsonld={[breadcrumbs(crumbs)]}>
+  <header class="gt-tlhead gt-hubhead">
+    <Breadcrumbs items={crumbs} />
+    <span class="gt-kicker">{H.kicker}</span>
+    <h1 class="gt-title">{m.name}</h1>
+    <p class="gt-lede">{intro.data.intro}</p>
+    {!intro.data.approved && <Notice inline><p>{DRAFT_BANNER}</p></Notice>}
+  </header>
+
+  <section class="gt-sec" aria-labelledby="hub-maps">
+    <div class="gt-sechead">
+      <div>
+        <h2 class="gt-h2" id="hub-maps">{H.maps}</h2>
+        <p class="gt-sechead__sub">{H.mapsSub(m.cards.length)}</p>
+      </div>
+    </div>
+    <ul class="gt-hubcards">
+      {m.cards.map((c, i) => (
+        <li class:list={['gt-hubcard', { 'gt-hubcard--lead': i === 0 }]}>
+          <div class="gt-hubthumb">
+            <div class="gt-mapbox">
+              <svg viewBox={`0 0 ${c.thumb.width} ${c.thumb.height}`} role="img" aria-label={c.thumb.label} preserveAspectRatio="xMidYMid meet">
+                {(c.thumb.withheld || c.thumb.notyet) && (
+                  <defs>
+                    {/* The full map's patterns (src/scripts/map/engine.ts), so withheld and not yet never read as a colour of the scale. */}
+                    {c.thumb.withheld && <pattern id={`${c.thumb.pattern}-w`} width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                      <rect width="4" height="4" fill="var(--map-nodata)" /><line x1="0" y1="0" x2="0" y2="4" stroke="var(--map-withheld)" stroke-width="1.6" />
+                    </pattern>}
+                    {c.thumb.notyet && <pattern id={`${c.thumb.pattern}-n`} width="4" height="4" patternUnits="userSpaceOnUse">
+                      <rect width="4" height="4" fill="var(--paper-raised)" /><circle cx="2" cy="2" r=".7" fill="var(--ink-muted)" />
+                    </pattern>}
+                  </defs>
+                )}
+                {c.thumb.paths.map((p) => <path d={p.d} fill={p.fill} />)}
+              </svg>
+            </div>
+            {c.key.length > 0 && <p class="gt-thumbkey">{c.key.map((k) => <span>{k.sw ? <i class={`gt-sw gt-sw--${k.sw}`}></i> : <i style={`background:${k.fill}`}></i>}{k.label}</span>)}</p>}
+          </div>
+          <div class="gt-hubcard__b">
+            <span class="gt-kicker">{c.kicker}</span>
+            <h3 class="gt-hubcard__h"><a href={c.href}>{c.headline}</a></h3>
+            <p class="gt-hubcard__sub">{c.sub}</p>
+            <div class="gt-hubsrc">
+              <SourceLine source={c.source} parts={[c.estimated ? H.estimated(c.period) : c.period]} updated={c.updated} />
+            </div>
+            {c.chips.length > 0 && (
+              <ul class="gt-hublayers" aria-label={`${c.kicker}: ${H.layers}`}>
+                {c.chips.map((x) => <li><a href={x.href}>{x.label}</a></li>)}
+              </ul>
+            )}
+            <a class="gt-sechead__link" href={c.href}>{c.open} <span aria-hidden="true">→</span></a>
+          </div>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  {m.tools.length > 0 && (
+    <section class="gt-sec" aria-labelledby="hub-tools">
+      <div class="gt-sechead"><div><h2 class="gt-h2" id="hub-tools">{H.tools}</h2></div></div>
+      <ul class="gt-tools gt-hubtools">
+        {m.tools.map((t) => (
+          <li class="gt-tool">
+            <ToolIcon tool={t.id} />
+            <div>
+              <h3 class="gt-h3"><a href={t.href}>{t.name}</a></h3>
+              <p>{t.desc}</p>
+              {t.links.length > 0 && <ul class="gt-hublinks">{t.links.map((l) => <li><a href={l.href}>{l.label}</a></li>)}</ul>}
+            </div>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+
+  {(m.countries.length > 0 || m.rankings.length > 0) && (
+    <section class="gt-sec" aria-labelledby="hub-places">
+      <div class="gt-sechead"><div><h2 class="gt-h2" id="hub-places">{H.countries}</h2></div></div>
+      <div class="gt-cr">
+        {m.countries.length > 0 && (
+          <div class="gt-cr__c">
+            <div>
+              <h3 class="gt-label">{H.countryPages}</h3>
+              <p class="gt-caption gt-cr__rule">{H.countryRule}</p>
+            </div>
+            <ul class="gt-ranks gt-ranks--2">
+              {m.countries.map((c) => <li><a href={c.href}><span class="gt-ranks__name">{c.name}</span>{c.what && <span class="gt-ranks__what">{c.what}</span>}</a></li>)}
+            </ul>
+            <a class="gt-sechead__link" href={paths.countries()}>{H.allCountries} <span aria-hidden="true">→</span></a>
+          </div>
+        )}
+        {m.rankings.length > 0 && (
+          <div class="gt-cr__r">
+            <h3 class="gt-label">{H.rankings}</h3>
+            <ul class="gt-ranks">
+              {m.rankings.map((r) => <li><a href={r.href}><span class="gt-ranks__name">{r.name}</span><span class="gt-ranks__what">{r.top}</span></a></li>)}
+            </ul>
+            <a class="gt-sechead__link" href={paths.indicators()}>{H.allRankings} <span aria-hidden="true">→</span></a>
+          </div>
+        )}
+      </div>
+    </section>
+  )}
+
+  <p class="gt-source gt-hubfoot">
+    <span>{H.sources} <b>{m.sources.join('; ')}</b></span>
+    <span class="gt-source__sep" aria-hidden="true">·</span>
+    <a href={paths.page('methodology')}>{H.howWeMeasure}</a>
+    <span class="gt-source__sep" aria-hidden="true">·</span>
+    <a href={paths.page('sources')}>{H.allSources}</a>
+  </p>
+</Page>

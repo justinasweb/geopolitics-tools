@@ -17,7 +17,8 @@ const PROPER = new Set(['Chinese', 'UN', 'US', 'EU', 'UK']);
 export const lc = (label: string) => label.replace(/\b[A-Z][a-z]+\b/g, (w) => (PROPER.has(w) ? w : w.toLowerCase()));
 
 /** "a, b and c". */
-export const list = (items: string[]) => new Intl.ListFormat('en', { style: 'long', type: 'conjunction' }).format(items);
+/** Items in a sentence, without a serial comma: "Ethiopia, Sudan and Egypt". */
+export const list = (items: string[]) => (items.length < 3 ? items.join(' and ') : `${items.slice(0, -1).join(', ')} and ${items.at(-1)}`);
 
 /** The possessive of a place name: "Germany's", "the United States'". */
 export const possessive = (name: string) => (name.endsWith('s') ? `${name}’` : `${name}’s`);

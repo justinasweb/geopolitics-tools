@@ -53,6 +53,7 @@ servers never see the part after `#`.
 | Explorer | `/explorer` (table), `/explorer/over-time`, `/explorer/scatter`: every measure with an indicator page. See "Explorer" below |
 | Dependencies | `/dependencies`: countries against the ten commodities of each country page's dependencies table, with the single points of failure. See "Dependencies" below |
 | Bloc overlap | `/blocs/overlap`: shared members between blocs, bridge countries and every country's memberships, from `src/data/blocs.csv`. See "Bloc overlap" below |
+| Topic hubs | `/resources`, `/technology`, `/climate`, `/security`, `/power`: the parent page of a topic's map views. See "Topic hubs" below |
 | Atlas | `/atlas`: every live map view's layer on one map, live when any map view is. Its states are noindex. See [maps.md](maps.md), "The Atlas" |
 | Supply chains | `/supply-chains` and `/supply-chains/{flow}` for each of the 11 flows whose source is in the snapshot with at least one pair; the index lists only those. See "Supply chains" below |
 
@@ -165,6 +166,36 @@ it in the page, and `src/lib/overlap/render.ts` draws it, at build time for the 
 - **Phone.** Two blocs picked side by side (In both, Only A, Only B) instead of the matrix; the table shows the pair
   and the two chosen blocs sharing most members with it, 14 rows, until "Show all countries and blocs".
 - **Address.** `blocs`, `a`, `b`, `sort`, `dir`, `all`. The prototype's `#/overlap?blocs=NATO,EU` lands here.
+
+## Topic hubs
+
+`src/templates/HubPage.astro`, model `src/lib/hubs.ts`, lists in `src/data/hubs.ts`. A hub is built when it is in
+`HUBS_BUILT` (`src/lib/routes.ts`) and live when one of its views is; it is then the first breadcrumb of its views
+(`hubCrumb`, also in their JSON-LD) and heads its group in the header and phone menus (`menuGroups`).
+
+- **Intro.** Two sentences in `src/content/hubs/<hub>.md`, an AI draft with the facts it was written from; the draft
+  banner shows until `approved: true`, and no label after (decided 29 Oct 2026, like About and Methodology).
+- **Cards.** One per view family of the hub with a live view, in menu order; the first is the full-width lead. The
+  family's main view (the menu's link) gives the card: its main layer drawn small at build time from the layer file
+  (`worldMap`, 600px for the lead, 400px otherwise) with every state the full map shows (withheld hatching, not-yet
+  dots, no data) and a key naming each: the scale's ends or named classes, then those states; the view's own
+  one-sentence answer as the headline (`answerOf`: the same function its page calls for the answer under its title;
+  the disaster, conflict, bloc, alliance-history and river answers moved from their templates into their libraries
+  for this); the legend title;
+  the source, period and the date the site last refreshed it (each layer names its source in the registry); chips for
+  the family's layers, worded as the view's picker (up to eight).
+- **Tools.** The topic's tools from `HUB_TOOLS`, live ones only: Supply chains links the topic's flows, the Atlas its
+  first two maps.
+- **Countries.** By a rule the page states (no traffic data, so nothing is "popular"): the three dossiers, then the
+  countries ranked first on most of the topic's maps of world shares, volumes and counts (layers marked `ranks` in the
+  registry; not a share of a country's own total, a per-person figure, a score or a membership; default year; a
+  first place shared with the next country does not count), up to ten, each with the maps it is first on.
+- **Indicator rankings.** The indexed indicator pages of the topic's groups (`HUB_GROUPS`), named with what a share or
+  rate is of (`rate` in `src/i18n/en.ts`: "CO2 imported in goods, % of own emissions"), each line starting with the
+  year it ranks (so a one-year ranking reads apart from a card's total over years: Chinese lending, arms), then the top
+  three; when
+  several places share the first figure as the page shows it, they are named as tied first instead (`topLine`), on
+  every hub.
 
 ## Share images
 

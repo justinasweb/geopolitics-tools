@@ -24,7 +24,7 @@ import { ENERGY_LAYERS, FUELS, TOP_FLOWS, amount, amountShort, balanceOf, energy
 import type { EnergyRow } from '../lib/energy';
 import { refreshed } from '../lib/data';
 import { place } from '../lib/places';
-import { countryHref, indicatorHref, live, route } from '../lib/routes';
+import { countryHref, indicatorHref, live, route, hubCrumb } from '../lib/routes';
 import { layerPath } from '../lib/map/layers';
 import { DOSSIERS } from '../lib/country';
 import { breadcrumbs } from '../lib/structured';
@@ -52,7 +52,7 @@ const nameOf = (id: string) => place(id)?.name ?? id;
 const yearsText = p.years.length > 1 ? `${p.years[0]}–${p.years.at(-1)}` : String(p.year);
 const a = (v: number) => amount(p.fuel, p.layer, v);
 const first = fuelPages(p.fuel)[0];
-const crumbs = [{ label: E.hub }, { label: T.pick, href: route(energyKey(first))!.path }, { label: title }];
+const crumbs: { label: string; href?: string }[] = [hubCrumb('resources'), { label: T.pick, href: route(energyKey(first))!.path }, { label: title }];
 const pct = (ch: number) => `${ch > 0 ? '+' : ch < 0 ? '−' : ''}${new Intl.NumberFormat('en', { maximumFractionDigits: 0 }).format(Math.abs(ch * 100))}%`;
 
 // The pickers: the fuels (this measure), and this fuel's measures.

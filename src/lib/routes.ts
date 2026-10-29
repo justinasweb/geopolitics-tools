@@ -8,6 +8,7 @@
 // skip routes that are not live, so nothing links to a page that does not exist.
 import { SECTION_SLUGS, INDICATOR_SLUGS, COMPARE_JOIN, VIEW_SLUGS, DISASTER_SLUGS, FOOD_SLUGS, FOOD_LAYER_SLUGS, ENERGY_LAYER_SLUGS, BLOC_SLUGS, BLOCS_OVERLAP_SLUG, EXPLORER_SLUGS, CHAIN_SLUGS } from '../i18n/slugs.en.ts';
 import { NAV_HUBS, NAV_TOOLS, NAV_TOP } from '../data/nav.ts';
+import { NAV_TEXT } from '../i18n/en.ts';
 import { INDICATORS } from '../data/indicators.ts';
 import { countryModel, countryPages, DOSSIERS } from './country.ts';
 import { data, changed } from './data.ts';
@@ -32,7 +33,10 @@ export type Lang = 'en';
 export type Kind = 'countries' | 'country' | 'compare' | 'indicators' | 'indicator' | 'page' | 'sources' | 'view' | 'hub' | 'tool';
 
 /** The kinds built so far (src/pages/[...path].astro); hubs and tools come in later phases. */
-export const BUILT_KINDS: Kind[] = ['countries', 'country', 'compare', 'indicators', 'indicator', 'page', 'sources', 'view', 'tool'];
+export const BUILT_KINDS: Kind[] = ['countries', 'country', 'compare', 'indicators', 'indicator', 'page', 'sources', 'view', 'tool', 'hub'];
+
+/** The topic hubs built so far (phase 6). A built hub is live when at least one of its map views is. */
+export const HUBS_BUILT = ['resources', 'technology', 'climate', 'security', 'power'];
 
 export interface Route {
   /** Stable internal key: "country:DEU", "indicator:milpct", "page:about". Slugs can change; keys do not. */
@@ -262,9 +266,14 @@ function build(): Route[] {
     });
   }
 
-  // Not built yet (phases 5–8): registered so links, the menu and redirects know about them.
+  // Topic hubs (phase 6): the parent page of their map views. Then what is not built yet (phases 5–8), registered so
+  // links, the menu and redirects know about it.
   for (const hub of NAV_HUBS) {
-    out.push({ key: `hub:${hub.id}`, kind: 'hub', lang, path: hub.path, live: false, indexed: false, aliases: [], id: hub.id });
+    const on = HUBS_BUILT.includes(hub.id) && hub.views.some((v) => families.has(v.id));
+    out.push({
+      key: `hub:${hub.id}`, kind: 'hub', lang, path: hub.path, live: on, indexed: on, aliases: [], id: hub.id,
+      ...(on ? { image: paths.image('hubs', hub.id), lastmod: snapshotDate } : {}),
+    });
     for (const v of hub.views) if (!families.has(v.id)) out.push({ key: `view:${v.id}`, kind: 'view', lang, path: v.path, live: false, indexed: false, aliases: [], id: v.id });
   }
   for (const u of [...NAV_TOP, ...NAV_TOOLS]) {
@@ -321,6 +330,12 @@ export function viewHref(family: string): string | undefined {
   if (own) return own.path;
   return routes().find((r) => r.live && r.key.startsWith(`view:${family}:`))?.path;
 }
+
+/** The topic hub a map view family belongs to (src/data/nav.ts). */
+export const hubOf = (family: string) => NAV_HUBS.find((h) => h.views.some((v) => v.id === family))?.id;
+
+/** A view's first breadcrumb: its topic hub, linked once the hub is live. */
+export const hubCrumb = (hub: string) => ({ label: NAV_TEXT.hubs[hub] ?? hub, href: live(`hub:${hub}`)?.path });
 
 /** A place's page, if it has one. */
 export const countryHref = (id: string) => live(`country:${id}`)?.path;

@@ -22,7 +22,7 @@ import { FOOD_NOTES, FOOD_TEXT as F } from '../i18n/food.en';
 import { COMMODITIES, FOOD_LAYERS, TOP_FLOWS, balanceOf, estimated, flowSourceOf, mtShort, commodityPages, foodPage, foodPages, lede, mt, netText, shareOf, sourceOf, summary, valueText, worldChange } from '../lib/food';
 import { refreshed, data } from '../lib/data';
 import { place } from '../lib/places';
-import { countryHref, indicatorHref, live, route } from '../lib/routes';
+import { countryHref, indicatorHref, live, route, hubCrumb } from '../lib/routes';
 import { layerPath } from '../lib/map/layers';
 import { DOSSIERS } from '../lib/country';
 import { breadcrumbs } from '../lib/structured';
@@ -51,7 +51,7 @@ const yearsText = p.years.length > 1 ? `${p.years[0]}–${p.years.at(-1)}` : Str
 const version = (data().snapshot.sources.faostat?.changed ?? updated ?? data().snapshot.created).slice(0, 10);
 const citation = F.citation(p.crop ? F.domainsCrops : F.domainsFertilisers, yearsText, url.replace(/^https:\/\//, ''), version);
 const first = foodPages()[0];
-const crumbs = [{ label: F.hub }, { label: F.section, href: route(key(first.id))!.path }, { label: title }];
+const crumbs: { label: string; href?: string }[] = [hubCrumb('resources'), { label: F.section, href: route(key(first.id))!.path }, { label: title }];
 const pct = (ch: number) => `${ch > 0 ? '+' : ch < 0 ? '−' : ''}${new Intl.NumberFormat('en', { maximumFractionDigits: 0 }).format(Math.abs(ch * 100))}%`;
 
 // The pickers: this measure for each commodity, and this commodity's measures.
