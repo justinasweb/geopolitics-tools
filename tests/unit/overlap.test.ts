@@ -117,8 +117,29 @@ describe('Bloc overlap from blocs.csv', () => {
     const { bridgeHtml } = await import('../../src/lib/overlap/render.ts');
     const { overlapData } = await import('../../src/lib/overlap.ts');
     const html = bridgeHtml(b, overlapData());
-    expect(html).toContain('India is the only country that is a full member both of NATO, the EU, the G7 or the Quad and of BRICS or the SCO.');
-    expect(html).toContain('Membership of other groupings, the G20, ASEAN and OPEC among them, is not counted here.');
+    expect(html).toContain('India is the only country that is a full member of groupings on both sides: the Quad on one, BRICS and the SCO on the other.');
+    expect(html).toContain('One side is NATO, the EU, the G7 and the Quad; the other is BRICS and the SCO. Full members only. Membership of other groupings, the G20, ASEAN and OPEC among them, is not counted here.');
     expect(html).not.toMatch(/western/i);
+  });
+
+  it('names in the bridge sentence only the blocs the country belongs to', async () => {
+    const { bridges, overlapData } = await import('../../src/lib/overlap.ts');
+    const { bridgeHtml } = await import('../../src/lib/overlap/render.ts');
+    const b = bridges();
+    const d = overlapData();
+    const sentence = bridgeHtml(b, d).match(/gt-cpsec__find">(.*?)<\/p>/)?.[1] ?? '';
+    const held = [...b.list[0].a, ...b.list[0].b];
+    for (const id of [...b.a, ...b.b]) {
+      const { inText } = d.blocs.find((x) => x.id === id)!;
+      if (held.includes(id)) expect(sentence).toContain(inText);
+      else expect(sentence).not.toContain(inText);
+    }
+  });
+
+  it('words the bridge sentence for several countries and for none', async () => {
+    const { OVERLAP_TEXT: T } = await import('../../src/i18n/overlap.en.ts');
+    const country = (name: string) => ({ name, a: ['the Quad'], b: ['BRICS'] });
+    expect(T.bridgeFind([country('Brazil'), country('India')])).toBe('Brazil and India are full members of a grouping on each side.');
+    expect(T.bridgeFind([])).toBe('No country is a full member of a grouping on each side.');
   });
 });

@@ -155,8 +155,8 @@ it in the page, and `src/lib/overlap/render.ts` draws it, at build time for the 
   15–19, 20+) with the number in every cell. The line above names the pair sharing most, then the pair sharing most
   among the blocs left. When the chosen blocs make it wider than its half of the row, the script gives it the full
   width and the bridge countries go under it.
-- **Bridge countries.** The strict rule (spec, design review decision 5.3): a full member of NATO, the EU, the G7 or the Quad
-  and of BRICS or the SCO, over all members, whatever is chosen. Today: India. The page names the blocs; it does not
+- **Bridge countries.** The strict rule (spec, design review decision 5.3): a full member of at least one of NATO, the EU, the G7 and the Quad
+  and at least one of BRICS and the SCO, over all members, whatever is chosen. Today: India. The page names the blocs; it does not
   call either group "Western-led" or "non-Western" (`BRIDGE_A`, `BRIDGE_B` in `src/lib/overlap/model.ts`). Partners and invitees come from
   `src/data/bloc-partners.csv` (`partner`, `dialogue`, `invited`, `offered` with a year); they are listed apart and
   never counted. The build fails on a partner row that is also a full membership.
