@@ -63,8 +63,8 @@ the gas flows are live on real data.
 
 ## Bloc overlap: which groupings count for bridge countries, and which partners to list (raised 28 Oct 2026)
 
-**What the site does now.** Bridge countries are full members of NATO, the EU, the G7 or the Quad and of BRICS or the
-SCO; the page names the blocs and gives the two groups no labels. AUKUS, USMCA, CSTO, EAEU and CIS are in neither
+**What the site does now.** Bridge countries are full members of at least one of NATO, the EU, the G7 and the Quad and at
+least one of BRICS and the SCO; the page names the blocs and gives the two groups no labels. AUKUS, USMCA, CSTO, EAEU and CIS are in neither
 group; adding them would change nothing today (India stays the only one). "Partners and invitees" lists the design's three (Türkiye,
 Saudi Arabia, Malaysia), from `src/data/bloc-partners.csv`; BRICS's other partner countries (such as Belarus,
 Kazakhstan, Thailand, Vietnam) are not listed.
