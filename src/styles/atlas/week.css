@@ -37,7 +37,8 @@
 .gt-counts { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
 .gt-count { display: grid; gap: 6px; align-content: start; justify-items: start; padding: 16px 0 4px; border-top: 2px solid var(--ink); }
 .gt-count__num { font: 600 56px/56px var(--serif); font-variation-settings: "opsz" 60; font-variant-numeric: lining-nums tabular-nums; letter-spacing: -.02em; }
-.gt-count__label { font: 600 15px/20px var(--sans); max-width: 26ch; }
+/* Wide enough for "new disaster alerts, orange and red" on one line at desktop. */
+.gt-count__label { font: 600 15px/20px var(--sans); max-width: 36ch; }
 .gt-count__src { font: 400 13px/18px var(--sans); color: var(--ink-muted); }
 .gt-week__grid { display: grid; grid-template-columns: minmax(0, 8fr) minmax(0, 4fr); gap: 40px; align-items: start; }
 .gt-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; align-items: stretch; }

@@ -2,10 +2,10 @@ import { describe, expect, it } from 'vitest';
 import type { Raw } from '../../src/adapters/core.ts';
 import { entries, changes } from '../../src/adapters/sanctions.ts';
 import { computeWeek, hasFigures, alertCount, type WeekInput } from '../../src/lib/week/model.ts';
-import { addDays, currentWeek, isWeekId, isoWeek, lastClosedWeek, prevWeek, weekId, weekRange } from '../../src/lib/week/period.ts';
+import { addDays, rollingWeek, isWeekId, isoWeek, lastClosedWeek, prevWeek, weekId, weekRange } from '../../src/lib/week/period.ts';
 import { day, months, pct, range, WEEK_TEXT } from '../../src/i18n/week.en.ts';
 
-// This week: ISO weeks (the live page is the current week so far, the archive the closed week), the cards worked out
+// This week: the live page's last 7 days and the closed ISO weeks of the archive, the cards worked out
 // from raw files in the sources' own formats, new and still-active alerts, the no-new-data rule, sanctions entries
 // added and removed, every range on a page naming the same days, and the words.
 process.env.GT_DATA = 'sample';
@@ -25,9 +25,9 @@ function memRaw(files: Record<string, unknown>): Raw {
   };
 }
 
-const gdacs = (id: number, level: string, type: string, iso3: string, from: string, to: string, name = `${type} ${id}`) => ({
+const gdacs = (id: number, level: string, type: string, iso3: string, from: string, to: string, name = `${type} ${id}`, current = false) => ({
   geometry: { coordinates: [120, 15] },
-  properties: { eventtype: type, eventid: id, name, alertlevel: level, iso3, fromdate: from, todate: to, affectedcountries: [{ iso3 }] },
+  properties: { eventtype: type, eventid: id, name, alertlevel: level, iso3, fromdate: from, todate: to, iscurrent: String(current), affectedcountries: [{ iso3 }] },
 });
 const ged = (id: number, date: string, gw: number) => ({ id, date_start: date, latitude: 1, longitude: 1, type_of_violence: 1, country_id: gw, adm_1: '', best: 1 });
 const pink = (cols: Record<string, string>, rows: Record<string, unknown>[]) => ({ columns: cols, data: rows });
@@ -42,7 +42,10 @@ const files = {
       // One storm as two GDACS events, the second from the day the first ended: merged, still active.
       gdacs(6, 'Red', 'TC', 'IND', '2026-10-14T00:00:00', '2026-10-20T00:00:00', 'MONTHA-26'),
       gdacs(7, 'Red', 'TC', 'BGD', '2026-10-20T00:00:00', '2026-10-22T00:00:00', 'MONTHA-26'),
-      gdacs(3, 'Orange', 'EQ', 'PER', '2026-09-01T00:00:00', '2026-09-02T00:00:00'), // ended before the week
+      gdacs(3, 'Orange', 'EQ', 'PER', '2026-09-01T00:00:00', '2026-09-02T00:00:00'), // ended before the period
+      // A drought GDACS last updated weeks ago but lists as current: still active.
+      gdacs(20, 'Orange', 'DR', 'SOM', '2025-12-21T00:00:00', '2026-10-01T00:00:00', 'Drought in Somalia', true),
+      gdacs(21, 'Orange', 'DR', 'ETH', '2026-04-21T00:00:00', '2026-09-30T00:00:00', 'Drought in Ethiopia', false), // over
       gdacs(4, 'Green', 'TC', 'VNM', '2026-10-20T00:00:00', '2026-10-21T00:00:00'), // not counted
     ],
   },
@@ -53,20 +56,21 @@ const files = {
   'pinksheet/cmo_gas_prices.json': pink({ NGAS_EUR: 'Natural gas, Europe' }, [{ period: '2026M09', NGAS_EUR: 11 }]),
   'csl/consolidated.json': csl([['a', 'RU'], ['b', 'RU'], ['c', 'IR']]),
 };
-/** Week 43 of 2026 so far: Monday 19 to Thursday 22 October. */
-const period = currentWeek('2026-10-22');
+/** The last 7 days to Thursday 22 October 2026: 16–22 October. */
+const period = rollingWeek('2026-10-22');
 const fresh = { fetched: '2026-10-22T06:00:00Z', changed: '2026-10-21T06:00:00Z' };
 const input = (over: Partial<WeekInput> = {}): WeekInput => ({
   raw: memRaw(files), period, made: '2026-10-22T06:00:00Z',
   sources: { gdacs: fresh, ioda: fresh, ucdp: fresh, pinksheet: fresh, csl: fresh },
   baseline: {
-    date: '2026-10-19',
+    date: '2026-10-16',
     raw: memRaw({
       'csl/consolidated.json': csl([['a', 'RU'], ['z', 'CN']]),
       'gdacs/events.json': { features: [
         gdacs(2, 'Orange', 'FL', 'NGA', '2026-10-10T00:00:00', '2026-10-18T00:00:00'),
         gdacs(5, 'Green', 'FL', 'IND', '2026-10-15T00:00:00', '2026-10-18T00:00:00'),
         gdacs(6, 'Red', 'TC', 'IND', '2026-10-14T00:00:00', '2026-10-18T00:00:00', 'MONTHA-26'),
+        gdacs(20, 'Orange', 'DR', 'SOM', '2025-12-21T00:00:00', '2026-10-01T00:00:00', 'Drought in Somalia', true),
       ] },
     }),
   },
@@ -87,13 +91,13 @@ describe('weeks and periods', () => {
     expect(isWeekId('2026-5')).toBe(false);
   });
 
-  it('closes a week on the Monday after it; the live page covers its ISO week from Monday to the data day', () => {
+  it('closes a week on the Monday after it; the live page covers the last 7 days to the data day', () => {
     expect(lastClosedWeek('2026-11-02T00:23:00Z')).toBe('2026-44');
     expect(lastClosedWeek('2026-11-08')).toBe('2026-44');
     expect(lastClosedWeek('2026-11-09')).toBe('2026-45');
-    expect(currentWeek('2026-10-22')).toEqual({ from: '2026-10-19', to: '2026-10-22' });
-    expect(currentWeek('2026-11-02T00:23:00Z')).toEqual({ from: '2026-11-02', to: '2026-11-02' });
-    expect(currentWeek('2026-01-01')).toEqual({ from: '2025-12-29', to: '2026-01-01' });
+    expect(rollingWeek('2026-10-22')).toEqual({ from: '2026-10-16', to: '2026-10-22' });
+    expect(rollingWeek('2026-11-02T00:23:00Z')).toEqual({ from: '2026-10-27', to: '2026-11-02' });
+    expect(rollingWeek('2026-01-02')).toEqual({ from: '2025-12-27', to: '2026-01-02' });
     expect(addDays('2026-03-01', -1)).toBe('2026-02-28');
   });
 });
@@ -112,7 +116,7 @@ describe('This week cards', () => {
     const d = card('disaster');
     expect(d.alerts.map((a) => [a.id, a.level, a.places, a.rose ?? false])).toEqual([['TC1', 'red', ['PHL'], false], ['FL5', 'orange', ['IND'], true]]);
     expect(alertCount(w)).toBe(2);
-    expect(d.active.map((a) => [a.id, a.from])).toEqual([['TC6', '2026-10-14'], ['FL2', '2026-10-10']]);
+    expect(d.active.map((a) => [a.id, a.from])).toEqual([['TC6', '2026-10-14'], ['FL2', '2026-10-10'], ['DR20', '2025-12-21']]);
     expect(d.compared).toBe(true);
   });
 
@@ -153,7 +157,7 @@ describe('This week cards', () => {
   });
 
   it('counts sanctions entries added and removed against the earlier copy, and where the added ones are', () => {
-    expect(card('sanctions')).toMatchObject({ since: '2026-10-19', lists: [{ list: 'US', added: 2, removed: 1 }], places: [{ place: 'IRN', n: 1 }, { place: 'RUS', n: 1 }] });
+    expect(card('sanctions')).toMatchObject({ since: '2026-10-16', lists: [{ list: 'US', added: 2, removed: 1 }], places: [{ place: 'IRN', n: 1 }, { place: 'RUS', n: 1 }] });
     const none = computeWeek(input({ baseline: null })).cards.find((c) => c.kind === 'sanctions')!;
     expect(none).toMatchObject({ since: null, lists: [] });
     expect(hasFigures(none)).toBe(false);
@@ -238,7 +242,7 @@ describe('This week pages name one range everywhere', () => {
   });
   const pageFor = async (made: string, week?: string) => {
     const { weekPageFor } = await import('../../src/lib/week.ts');
-    const p = week ? weekRange(week) : currentWeek(made);
+    const p = week ? weekRange(week) : rollingWeek(made);
     const src = { fetched: `${made}T06:00:00Z`, changed: `${made}T06:00:00Z` };
     const w = computeWeek({
       raw: memRaw(weekFiles(made)), period: p, made: `${made}T06:00:00Z`, week, feedFrom: week ? p.from : undefined,
@@ -247,27 +251,24 @@ describe('This week pages name one range everywhere', () => {
     });
     return weekPageFor(w, week ?? null);
   };
-  const check = (m: Awaited<ReturnType<typeof pageFor>>, long: string, short: string, id: string) => {
-    expect(m.title).toBe(m.id ? `Week ${Number(id.slice(5))}: ${long}` : `This week: ${long}`);
+  const check = (m: Awaited<ReturnType<typeof pageFor>>, long: string, short: string, id?: string) => {
+    expect(m.title).toBe(id ? `Week ${Number(id.slice(5))}: ${long}` : `Last 7 days: ${long}`);
     expect(m.rangeText).toBe(long);
     expect(m.counts.map((c) => c.source)).toEqual([`GDACS · ${short}`]);
     for (const c of m.cards) expect(c.period, c.kind).toBe(short);
-    expect(m.nav.keptAt).toBe(`/this-week/${id}`);
+    // The live page links to the latest closed week (the sample build has week 42); an archived week does not.
+    expect(m.nav.latest).toEqual(id ? undefined : { href: '/this-week/2026-42', label: 'week 42' });
   };
 
-  it('a week across two months: live Monday to today, then archived Monday to Sunday', { timeout: 30_000 }, async () => {
-    check(await pageFor('2026-10-31'), '26–31 October 2026', '26–31 Oct 2026', '2026-44');
-    check(await pageFor('2026-11-01'), '26 October – 1 November 2026', '26 Oct – 1 Nov 2026', '2026-44');
+  it('across two months: the last 7 days, and the closed ISO week Monday to Sunday', { timeout: 30_000 }, async () => {
+    check(await pageFor('2026-11-02'), '27 October – 2 November 2026', '27 Oct – 2 Nov 2026');
+    check(await pageFor('2026-10-31'), '25–31 October 2026', '25–31 Oct 2026');
     check(await pageFor('2026-10-31', '2026-44'), '26 October – 1 November 2026', '26 Oct – 1 Nov 2026', '2026-44');
   });
 
   it('ISO week 1 across a new year', async () => {
-    check(await pageFor('2026-01-02'), '29 December 2025 – 2 January 2026', '29 Dec 2025 – 2 Jan 2026', '2026-01');
+    check(await pageFor('2026-01-02'), '27 December 2025 – 2 January 2026', '27 Dec 2025 – 2 Jan 2026');
     check(await pageFor('2026-01-02', '2026-01'), '29 December 2025 – 4 January 2026', '29 Dec 2025 – 4 Jan 2026', '2026-01');
-  });
-
-  it('a Monday reads as one day', async () => {
-    check(await pageFor('2026-11-02'), '2 November 2026', '2 Nov 2026', '2026-45');
   });
 
   it('folds a long country list after three: "+ 11 more"', async () => {

@@ -99,12 +99,12 @@ const wkShipping = [
   { name: 'Bab el-Mandeb', width: 35, value: '42%', note: 'below normal' }, { name: 'Suez Canal', width: 42.5, value: '51%', note: 'below normal' },
   { name: 'Strait of Hormuz', width: 80, value: '96%' }, { name: 'Strait of Malacca', width: 85.8, value: '103%' }, { name: 'Panama Canal', width: 81.7, value: '98%' },
 ];
-const wkAlerts: Body = { type: 'alerts', notes: ['Counted: alerts that began, or rose to orange or red, this week.'],
-  activeTitle: 'Still active', activeNote: 'Began before this week and still active; not counted above.',
+const wkAlerts: Body = { type: 'alerts', notes: ['Counted: alerts that began, or rose to orange or red, in the last 7 days.'],
+  activeTitle: 'Still active', activeNote: 'Began before these 7 days and still active (GDACS lists them as current); not counted above.',
   rows: [
     { level: 'red', levelText: 'Red', what: 'Tropical cyclone', places: ['Philippines'], more: null, date: '21 Oct' },
     { level: 'orange', levelText: 'Orange', what: 'Drought', places: ['Ethiopia', 'Kenya', 'Somalia'], more: { text: '+ 11 more', label: '(countries)', places: 'Sudan, South Sudan, Uganda, Tanzania, Rwanda, Burundi, Eritrea, Djibouti, Yemen, Oman, Saudi Arabia' }, date: '20 Oct' },
-    { level: 'orange', levelText: 'Orange', what: 'Flood', places: ['Viet Nam'], more: null, date: '14 Oct', note: 'Rose to orange this week' },
+    { level: 'orange', levelText: 'Orange', what: 'Flood', places: ['Viet Nam'], more: null, date: '14 Oct', note: 'Rose to orange in the last 7 days' },
   ],
   active: [{ level: 'orange', levelText: 'Orange', what: 'Flood', places: ['Nigeria'], more: null, date: 'since 10 Oct' }],
 };
@@ -131,7 +131,7 @@ const wkFeed: FeedView[] = [
   { kind: 'prices', label: 'Prices', date: '2 Oct', datetime: '2026-10-02', text: 'Commodity prices for September 2026 published', source: 'World Bank' },
   ...Array.from({ length: 6 }, (_, i): FeedView => ({ kind: 'disaster', label: 'Disaster', date: `${30 - i} Sep`, datetime: `2026-09-${30 - i}`, text: 'Orange alert: flood, Nigeria', href: '#', source: 'GDACS' })),
 ];
-const wkNav = { prev: { href: '#', label: 'Week 42', range: '8–14 Oct' }, keptAt: '/this-week/2026-43', options: [
+const wkNav = { prev: { href: '#', label: 'Week 42', range: '8–14 Oct' }, options: [
   { value: '#43', label: 'Week 43 · 15–21 Oct', selected: true }, { value: '#42', label: 'Week 42 · 8–14 Oct', selected: false }, { value: '#41', label: 'Week 41 · 1–7 Oct', selected: false },
 ] };
 const wkSummary = 'Two sea routes ran well below normal: Bab el-Mandeb at 42% and the Suez Canal at 51% of usual transits, while Hormuz, Malacca and Panama were close to normal. GDACS issued seven orange and red disaster alerts, including a red alert for a tropical cyclone near Luzon in the Philippines. In September, UCDP recorded the most conflict events in Ukraine; events rose on August in Sudan and Syria. Gold rose 5% in September. The United States, the EU and the UK added 61 entries to their sanctions lists.';
@@ -379,7 +379,8 @@ const typeStyles = tokens.type.groups.flatMap((g) => g.styles.map((s) => ({ ...s
       </div>
       <div class="dev__cell"><span class="dev__cap">The week in brief (only when the editor has approved a summary) and earlier weeks</span>
         <WeekSummary id="dev-wsum" text={wkSummary} week={43} range="15–21 October 2026" approved="22 Oct 2026" method="#" status="sample" />
-        <WeekNav id="dev-wk" prev={wkNav.prev} options={wkNav.options} keptAt={wkNav.keptAt} />
+        <WeekNav id="dev-wk" prev={wkNav.prev} options={wkNav.options} />
+        <WeekNav id="dev-wk2" latest={{ href: '#44', label: 'week 44' }} options={[]} />
       </div>
     </section>
   </main>

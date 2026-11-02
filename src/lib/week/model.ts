@@ -1,4 +1,4 @@
-// This week's figures, worked out from one snapshot's raw files for one period: the current ISO week so far (the live page), or a
+// This week's figures, worked out from one snapshot's raw files for one period: the last 7 days (the live page), or a
 // closed ISO week that the data run freezes (pipeline/lib/weeks.ts) so its archive page never changes. The result is
 // small, plain JSON with numbers, dates and place ids only; the words come from src/i18n/week.en.ts when a page is
 // built, so a frozen week reads in any language.
@@ -55,7 +55,8 @@ export interface DisasterCard extends Base {
   kind: 'disaster';
   /** What the card counts: orange and red alerts that began in the week, or rose to orange or red in it. */
   alerts: AlertItem[];
-  /** Orange and red alerts that began earlier and are still active, listed apart and not counted. */
+  /** Orange and red alerts that began earlier and are still active (lasting into the period, or current in GDACS),
+   *  listed apart and not counted. */
   active: AlertItem[];
   /** Whether GDACS's file from the week's start was there to tell which earlier alerts rose in the week. */
   compared: boolean;
@@ -201,8 +202,11 @@ export function disasterCard(input: WeekInput): { card: DisasterCard; feed: Feed
   const active: AlertItem[] = [];
   if (!quiet) {
     for (const h of counted) {
-      if (h.to < p.from || h.from > p.to) continue;
+      if (h.from > p.to) continue;
       if (h.from >= p.from) alerts.push(item(h));
+      // GDACS's end date for a drought is its last update, often weeks back while the drought goes on; GDACS's own
+      // "current" flag says it is still active, so an alert counts as active if either says so.
+      else if (h.to < p.from && !h.current) continue;
       else if (base && levelBefore(h) < RANK[h.alert]) alerts.push(item(h, true));
       else active.push(item(h));
     }

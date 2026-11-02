@@ -63,12 +63,18 @@ export const PRICE_TEXT: Record<string, { name: string; unit: string }> = {
 export const WEEK_TEXT = {
   section: 'This week',
   crumb: 'This week',
-  title: (r: string) => `This week: ${r}`,
-  /** The h1 before its dates, which do not wrap: "This week:", "Week 45:". */
-  titleLead: 'This week:',
+  title: (r: string) => `Last 7 days: ${r}`,
+  /** The h1 before its dates, which do not wrap: "Last 7 days:", "Week 45:". */
+  titleLead: 'Last 7 days:',
+  /** What the counts cover, inside sentences: the live page's seven days, or an archived week. */
+  span: { live: 'in the last 7 days', week: 'this week' },
+  /** The live page's link to the archive: the latest closed week. */
+  previousWeeks: 'Previous weeks:',
+  weekLink: (x: number) => `week ${x}`,
   archiveLead: (week: number) => `Week ${week}:`,
   archiveTitle: (week: number, r: string) => `Week ${week}: ${r}`,
   lede: 'Disasters, conflict, prices, internet outages and sanctions, from the latest data each source has published.',
+  archiveLede: 'Disasters, conflict, prices, internet outages and sanctions in one ISO week, Monday to Sunday (UTC), as the data stood when it closed.',
   description: (r: string) => `Disaster alerts, conflict events, commodity prices, internet outages and sanctions list changes for ${r}, from the latest official data, with sources and dates.`,
   archiveDescription: (week: number, r: string) => `Week ${week} (${r}) on geopolitics.tools: disaster alerts, conflict events, commodity prices, internet outages and sanctions list changes as they stood when the week closed.`,
   updatedDaily: 'Updated daily',
@@ -76,7 +82,7 @@ export const WEEK_TEXT = {
   /** An archived week. */
   frozen: (d: string) => `Kept as it stood on ${d}`,
   frozenNote: 'This page keeps the figures as they stood when the week closed. Sources sometimes revise their data later; the maps show the latest.',
-  shareText: (r: string) => `This week on geopolitics.tools: ${r}`,
+  shareText: (r: string) => `The last 7 days on geopolitics.tools: ${r}`,
   shareArchive: (week: number, r: string) => `Week ${week} on geopolitics.tools: ${r}`,
   ogKicker: 'This week',
   countsLabel: 'This week in numbers',
@@ -95,10 +101,10 @@ export const WEEK_TEXT = {
     conflict: (d: string, m: string) => `UCDP has published no new events since ${d}. The latest month is ${m}; the conflict map shows it.`,
     prices: (d: string, m: string) => `The World Bank has published no new monthly prices since ${d}. The latest month is ${m}.`,
     outage: (d: string) => `IODA has sent no new outage data since ${d}. The outages map shows the outages from then.`,
-    sanctions: (d: string) => `None of the three lists has changed since ${d}, so no entries were added or removed this week.`,
+    sanctions: (d: string) => `None of the three lists has changed since ${d}, so no entries were added or removed in this period.`,
   } as Record<string, (d: string, m: string) => string>,
   noBaseline: 'No earlier copy to compare yet',
-  noBaselineText: 'Entries added and removed are counted against the lists as they stood on the week’s Monday. There is no copy from this Monday yet; one is kept every day from now on.',
+  noBaselineText: (d: string) => `Entries added and removed are counted against the lists as they stood on ${d}, the first day of the period. There is no copy from that day yet; one is kept every day from now on.`,
 
   source: {
     disaster: 'GDACS',
@@ -133,13 +139,13 @@ export const WEEK_TEXT = {
   fewerPlaces: 'Show fewer',
   /** An alert that began before the period and lasted into it. */
   sinceDay: (d: string) => `since ${d}`,
-  rose: (level: string) => `Rose to ${(LEVEL[level] ?? level).toLowerCase()} this week`,
+  rose: (level: string, span: string) => `Rose to ${(LEVEL[level] ?? level).toLowerCase()} ${span}`,
   alertsMore: (x: number) => `And ${s(x, 'more alert', 'more alerts')} on the disasters map.`,
-  alertsNone: 'GDACS issued no new orange or red alerts this week.',
-  alertsRule: 'Counted: alerts that began, or rose to orange or red, this week.',
-  alertsRuleNew: 'Counted: alerts that began this week. Earlier alerts that rose to orange or red this week are counted from the first week with a copy of GDACS’s alerts from its Monday.',
+  alertsNone: (span: string) => `GDACS issued no new orange or red alerts ${span}.`,
+  alertsRule: (span: string) => `Counted: alerts that began, or rose to orange or red, ${span}.`,
+  alertsRuleNew: (span: string) => `Counted: alerts that began ${span}. Earlier alerts that rose to orange or red are counted once a copy of GDACS’s alerts from the period’s first day is kept (one is kept every day from now on).`,
   activeTitle: 'Still active',
-  activeNote: 'Began before this week and still active; not counted above.',
+  activeNote: (span: string) => `Began before ${span === 'this week' ? 'this week' : 'these 7 days'} and still active (GDACS lists them as current); not counted above.`,
   activeMore: (x: number) => `And ${s(x, 'more', 'more')} on the disasters map.`,
   alertsKey: 'Levels are GDACS’s own: red, the highest, is a solid triangle; orange is an outline.',
 
@@ -163,7 +169,7 @@ export const WEEK_TEXT = {
   outagesHead: (x: number) => (x ? s(x, 'national-scale internet outage', 'national-scale internet outages') : 'No national-scale internet outages recorded'),
   outagesCols: { place: 'Country', began: 'Began', length: 'Length' },
   hours: (h: number) => (h < 1 ? 'under 1 h' : `${n(Math.round(h))} h`),
-  outagesNone: 'IODA recorded no country-level outages that began this week.',
+  outagesNone: (span: string) => `IODA recorded no country-level outages that began ${span}.`,
   outagesNote: 'IODA reports when an outage began and how long it lasted, not why.',
   // Sanctions
   sanctionsHead: (added: number, removed: number, lists: string[]) => {
@@ -199,8 +205,7 @@ export const WEEK_TEXT = {
   week: (x: number) => `Week ${x}`,
   pick: 'Go to a week',
   pickOption: (x: number, r: string) => `Week ${x} · ${r}`,
-  pickLive: (r: string) => `This week · ${r}`,
-  keptAt: 'Each week is kept at',
+  pickLive: (r: string) => `Last 7 days · ${r}`,
   newer: 'Back to this week',
 
   // The week in brief (AI summary, approved by the editor; a later task fills it)

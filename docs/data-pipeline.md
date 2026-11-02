@@ -73,15 +73,16 @@ Each closed ISO week is kept at `/this-week/{yyyy}-{ww}` with the cards as they 
 1. **Daily copies.** On the day's first run it records which raw copies of the US, EU and UK lists and of GDACS's
    alerts are current (keys in `weeks/ledger.json`, no files copied: the lists' raw copies are kept for good,
    GDACS's for 14 days). A week compares with its own Monday's copies: entries added and removed, by each list's own
-   ids, and alerts that were lower on Monday and rose to orange or red in the week.
+   ids, and alerts that were lower on Monday and rose to orange or red in the week. The live page's 7 days compare
+   with the copy from their first day the same way.
 2. **Freezing.** On the Monday or Tuesday after a week closes, it unpacks the last good copies of the page's sources,
    works the week out (`src/lib/week/model.ts`, the same code the live page uses) and writes `weeks/<id>.json` if it is
    not there yet. It never overwrites one, so revisions by a source later do not change an archived week.
 
 A failure here is a warning in the run log and never holds up the data. `pipeline/pull.ts` brings the frozen weeks,
-their summaries and the current week's Monday copies to `data/raw/weeks/`. Without a copy from that Monday (the
-first week after this started), the sanctions card says there is nothing to compare yet and the disasters card counts
-only alerts that began in the week.
+their summaries and the copies from the first of the live page's 7 days to `data/raw/weeks/`. Without a copy from
+that day (the first days after this started), the sanctions card says there is nothing to compare yet and the
+disasters card counts only alerts that began in the period.
 
 **Why R2 and not files committed by the data run.** The archive sits beside the snapshots it is made from, in the
 bucket the build already pulls, written by the same hourly job with the same token. Committing from the data run

@@ -1,6 +1,6 @@
 ---
-// This week (ThisWeekPage design) at /this-week, and a closed ISO week at /this-week/{yyyy}-{ww}: title with the
-// dates, when it was last updated (or that it is kept as it stood), share row, earlier weeks, the week in brief when
+// This week (ThisWeekPage design): the last 7 days at /this-week, and each closed ISO week at /this-week/{yyyy}-{ww}:
+// title with the dates, when it was last updated (or that it is kept as it stood), share row, earlier weeks, the week in brief when
 // the editor has approved one, the counts, one card per source (two across, stacked on a phone) and the Latest feed in
 // a sticky column beside them (under them below 1100px). Built from data only; model in src/lib/week.ts.
 import Page from '../layouts/Page.astro';
@@ -36,14 +36,14 @@ const method = live('page:methodology')?.path;
   <Breadcrumbs items={crumbs} />
   <div class="gt-week__intro">
     <h1 class="gt-title">{m.id ? W.archiveLead(weekNumber(m.id)) : W.titleLead} {rangeParts.map((r, i) => <>{i > 0 && ' – '}<span class="gt-nowrap">{r}</span></>)}</h1>
-    <p class="gt-lede">{W.lede}</p>
+    <p class="gt-lede">{m.id ? W.archiveLede : W.lede}</p>
     <p class="gt-week__upd">
       {m.id
         ? <span>{W.frozen(`${day(made, { year: true })}, ${made.slice(11, 16)} UTC`)}</span>
         : <><span>{W.updatedDaily}</span><span class="gt-source__sep" aria-hidden="true">·</span><span>{W.lastUpdate(day(made, { year: true }), made.slice(11, 16))}</span></>}
     </p>
     <ShareRow url={url} text={m.shareText} />
-    <WeekNav id={m.id ? `wk-pick-${m.id}` : 'wk-pick'} prev={m.nav.prev} options={m.nav.options} keptAt={m.nav.keptAt} />
+    <WeekNav id={m.id ? `wk-pick-${m.id}` : 'wk-pick'} prev={m.nav.prev} latest={m.nav.latest} options={m.nav.options} />
   </div>
   {m.summary && <WeekSummary id="wk-sum" text={m.summary.text} week={m.summary.week} range={m.summary.range} approved={day(m.summary.approved, { year: true })} method={method} />}
   {m.id && <Notice><p>{W.frozenNote}</p></Notice>}

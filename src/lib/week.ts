@@ -15,7 +15,7 @@ import { data } from './data.ts';
 import { place } from './places.ts';
 import { viewHref, paths } from './routes.ts';
 import { computeWeek, alertCount, hasFigures, CARD_ORDER, type AlertItem, type Card, type FeedItem, type WeekData } from './week/model.ts';
-import { currentWeek, isWeekId, lastClosedWeek, weekId as isoWeekOf, weekNumber, weekRange } from './week/period.ts';
+import { isWeekId, lastClosedWeek, rollingWeek, weekNumber, weekRange } from './week/period.ts';
 import { WEEK_TEXT as W, PRICE_TEXT, day, month, months, pct, range } from '../i18n/week.en.ts';
 import type { Status } from './tags.ts';
 
@@ -25,14 +25,13 @@ const readJson = <T>(p: string): T | null => (existsSync(p) ? (JSON.parse(readFi
 const snapshotSources = () => Object.fromEntries(Object.entries(data().snapshot.sources).map(([k, s]) => [k, { fetched: s.fetched, changed: s.changed }]));
 
 let liveCache: WeekData | null | undefined;
-/** The live page's week: the current ISO week, Monday to the snapshot's day. Null when no source on the page is in
- *  the snapshot. */
+/** The live page's period: the last 7 days, to the snapshot's day. Null when no source on the page is in the snapshot. */
 export function liveWeek(): WeekData | null {
   if (liveCache !== undefined) return liveCache;
   const d = data();
-  const period = currentWeek(d.snapshot.created.slice(0, 10));
+  const period = rollingWeek(d.snapshot.created.slice(0, 10));
   const b = d.sample ? null : readJson<{ date: string }>(join(weeksDir(), 'baseline.json'));
-  // Only the copy from the week's own Monday: any other would make the sanctions and alert counts cover another range.
+  // Only the copy from the period's first day: any other would make the sanctions and alert counts cover another range.
   const baseline = b && b.date === period.from ? { date: b.date, raw: rawDir(join(weeksDir(), 'baseline')) } : null;
   const w = computeWeek({ raw: d.raw, period, sources: snapshotSources(), baseline, made: d.snapshot.created });
   return (liveCache = w.cards.length ? w : null);
@@ -132,14 +131,14 @@ export interface CardView {
 /** "+17%", "−7%", "0%": the conflict pairs' change, in whole percent as the design shows it. */
 const wholeChange = (c: number) => { const v = Math.round(c * 100); return `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v)}%`; };
 /** An alert's row: the kind, the first countries, and the rest behind a "+ 11 more" disclosure. */
-function alertRow(a: AlertItem, date: string): AlertRow {
+function alertRow(a: AlertItem, date: string, span: string): AlertRow {
   const names = a.places.map(nameOf);
   const k = W.placesShown;
   const rest = names.length > k ? names.slice(k) : [];
   return {
     level: a.level, levelText: W.level(a.level), what: W.hazard(a.type), places: rest.length ? names.slice(0, k) : names,
     more: rest.length ? { text: W.morePlaces(rest.length), label: W.morePlacesLabel(rest.length), places: rest.join(', ') } : null,
-    date, ...(a.rose ? { note: W.rose(a.level) } : {}),
+    date, ...(a.rose ? { note: W.rose(a.level, span) } : {}),
   };
 }
 const dirOf = (c: number | null): 'up' | 'down' | 'flat' | undefined => (c === null ? undefined : c > 0.0005 ? 'up' : c < -0.0005 ? 'down' : 'flat');
@@ -147,6 +146,7 @@ const fmt = (v: number) => new Intl.NumberFormat('en', { maximumFractionDigits: 
 
 function cardView(c: Card, w: WeekData): CardView {
   const p = w.period;
+  const span = w.week ? W.span.week : W.span.live;
   const periodText = range(p.from, p.to);
   const base = {
     kind: c.kind, label: W.kind[c.kind], wide: c.kind === 'sanctions', updated: updatedText(c.kind, c.src.fetched), tags: [] as Status[],
@@ -167,11 +167,11 @@ function cardView(c: Card, w: WeekData): CardView {
         ...base, headline: W.alertsHead(c.alerts.length, red), source: W.source.disaster, period: periodText,
         body: {
           type: 'alerts',
-          rows: shown.map((a) => alertRow(a, day(a.from))),
-          active: activeShown.map((a) => alertRow(a, W.sinceDay(day(a.from)))),
-          activeTitle: W.activeTitle, activeNote: W.activeNote,
-          ...(c.alerts.length ? {} : { empty: W.alertsNone }),
-          notes: [c.alerts.length > shown.length ? W.alertsMore(c.alerts.length - shown.length) : '', c.compared === false ? W.alertsRuleNew : W.alertsRule].filter(Boolean),
+          rows: shown.map((a) => alertRow(a, day(a.from), span)),
+          active: activeShown.map((a) => alertRow(a, W.sinceDay(day(a.from)), span)),
+          activeTitle: W.activeTitle, activeNote: W.activeNote(span),
+          ...(c.alerts.length ? {} : { empty: W.alertsNone(span) }),
+          notes: [c.alerts.length > shown.length ? W.alertsMore(c.alerts.length - shown.length) : '', c.compared === false ? W.alertsRuleNew(span) : W.alertsRule(span)].filter(Boolean),
           ...(active.length > activeShown.length ? { activeMore: W.activeMore(active.length - activeShown.length) } : {}),
         },
       };
@@ -220,12 +220,12 @@ function cardView(c: Card, w: WeekData): CardView {
           type: 'table', cols: [{ text: W.outagesCols.place }, { text: W.outagesCols.began }, { text: W.outagesCols.length, num: true }],
           rows: c.rows.map((r) => ({ head: nameOf(r.place), cells: [{ text: `${day(r.start)}, ${r.start.slice(11, 16)} UTC` }, { text: W.hours(r.hours), num: true }] })),
           notes: [W.outagesNote],
-        } : { type: 'notes', notes: [W.outagesNone, W.outagesNote] },
+        } : { type: 'notes', notes: [W.outagesNone(span), W.outagesNote] },
       };
     }
     case 'sanctions': {
       if (c.quiet) return { ...quiet(), source: W.source.sanctions };
-      if (!c.since) return { ...base, headline: W.quietTitle.sanctions, source: W.source.sanctions, period: periodText, quiet: { title: W.noBaseline, text: W.noBaselineText } };
+      if (!c.since) return { ...base, headline: W.quietTitle.sanctions, source: W.source.sanctions, period: periodText, quiet: { title: W.noBaseline, text: W.noBaselineText(day(p.from, { long: true })) } };
       const added = c.lists.reduce((s, l) => s + l.added, 0);
       const removed = c.lists.reduce((s, l) => s + l.removed, 0);
       return {
@@ -266,7 +266,8 @@ export interface WeekPageModel {
   cards: CardView[];
   feed: FeedView[];
   feedKinds: string[];
-  nav: { prev?: { href: string; label: string; range: string }; options: { value: string; label: string; selected: boolean }[]; keptAt: string };
+  /** prev: an archived week's previous week; latest: the live page's link to the latest closed week, once one exists. */
+  nav: { prev?: { href: string; label: string; range: string }; latest?: { href: string; label: string }; options: { value: string; label: string; selected: boolean }[] };
   summary: (Summary & { week: number; range: string }) | null;
 }
 
@@ -276,8 +277,8 @@ export function weekPage(id?: string): WeekPageModel | null {
   return w ? weekPageFor(w, id ?? null) : null;
 }
 
-/** The page for one week's figures: the live week (id null) or an archived one. Every range on it (title, counts,
- *  cards, the address it is kept at) comes from the week's own period. */
+/** The page for one period's figures: the last 7 days (id null) or an archived ISO week. Every range on it (title,
+ *  counts, cards) comes from that period. */
 export function weekPageFor(w: WeekData, weekOf: string | null): WeekPageModel {
   const p = w.period;
   const longRange = range(p.from, p.to, { long: true });
@@ -285,8 +286,9 @@ export function weekPageFor(w: WeekData, weekOf: string | null): WeekPageModel {
   const n = alertCount(w);
   const counts = n === null ? [] : [{ num: String(n), label: W.counts.disaster(n), source: `GDACS · ${range(p.from, p.to)}` }];
   const archive = [...archivedWeeks().keys()];
-  const older = archive.filter((k) => !weekOf || k < weekOf);
-  const prevId = older[0];
+  // An archived week links to the one before it; the live page to the latest closed week.
+  const prevId = weekOf ? archive.find((k) => k < weekOf) : undefined;
+  const latestId = weekOf ? undefined : archive[0];
   const opt = (k: string) => {
     const r = weekRange(k);
     return { value: paths.week(k), label: W.pickOption(weekNumber(k), range(r.from, r.to, { year: false })), selected: k === weekOf };
@@ -296,10 +298,9 @@ export function weekPageFor(w: WeekData, weekOf: string | null): WeekPageModel {
     ...(live ? [{ value: paths.week(), label: W.pickLive(range(live.period.from, live.period.to, { year: false })), selected: !weekOf }] : []),
     ...archive.map(opt),
   ];
-  // The live page shows the summary of the ISO week its last day falls in, once the editor has approved one.
-  const summaryId = weekOf ?? isoWeekOf(p.from);
-  const s = weekSummary(summaryId);
-  const sr = weekRange(summaryId);
+  // Summaries are per closed week. The live page shows the latest closed week's, labelled with that week.
+  const summaryId = weekOf ?? latestId;
+  const s = summaryId ? weekSummary(summaryId) : null;
   const feed = w.feed.map(feedView);
   return {
     id: weekOf, data: w, path,
@@ -313,9 +314,9 @@ export function weekPageFor(w: WeekData, weekOf: string | null): WeekPageModel {
     feedKinds: [...new Set(feed.map((f) => f.kind))].sort((a, b) => CARD_ORDER.indexOf(a as never) - CARD_ORDER.indexOf(b as never)),
     nav: {
       prev: prevId ? { href: paths.week(prevId), label: W.week(weekNumber(prevId)), range: range(weekRange(prevId).from, weekRange(prevId).to, { year: false }) } : undefined,
+      latest: latestId ? { href: paths.week(latestId), label: W.weekLink(weekNumber(latestId)) } : undefined,
       options: options.length > 1 ? options : [],
-      keptAt: paths.week(weekOf ?? isoWeekOf(p.from)),
     },
-    summary: s ? { ...s, week: weekNumber(summaryId), range: range(sr.from, sr.to, { long: true }) } : null,
+    summary: s && summaryId ? { ...s, week: weekNumber(summaryId), range: range(weekRange(summaryId).from, weekRange(summaryId).to, { long: true }) } : null,
   };
 }

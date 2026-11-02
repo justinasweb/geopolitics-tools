@@ -6,15 +6,15 @@
 // with an earlier --snapshot.
 //
 // It also brings This week's archive (lib/weeks.ts) to <out>/weeks/: every frozen week and approved summary, and the
-// copies kept on the current week's Monday (<out>/weeks/baseline/, with baseline.json giving the day): the sanctions
-// lists, to count entries added and removed, and GDACS's alerts, to tell which earlier alerts rose in the week.
+// copies kept on the first of the live page's 7 days (<out>/weeks/baseline/, with baseline.json giving the day): the
+// sanctions lists, to count entries added and removed, and GDACS's alerts, to tell which earlier alerts rose.
 import { createHash } from 'node:crypto';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { readRaw, type Snapshot } from './lib/runner.ts';
 import { openStores } from './lib/store.ts';
 import { baselineFor, loadLedger, summaryKey, unpack, weekKey } from './lib/weeks.ts';
-import { currentWeek, weekId } from '../src/lib/week/period.ts';
+import { rollingWeek } from '../src/lib/week/period.ts';
 
 const args = process.argv.slice(2);
 const value = (name: string) => args.find((a) => a.startsWith(`--${name}=`))?.slice(name.length + 3);
@@ -57,11 +57,8 @@ for (const w of ledger.weeks) {
   const summary = await stores.snapshots.get(summaryKey(w));
   if (summary) writeFileSync(join(weeksOut, `${w}.summary.json`), summary);
 }
-const live = currentWeek(snap.created.slice(0, 10));
-// The live page shows its own ISO week's summary, once approved; that week is not frozen yet.
-const liveSummary = await stores.snapshots.get(summaryKey(weekId(live.from)));
-if (liveSummary) writeFileSync(join(weeksOut, `${weekId(live.from)}.summary.json`), liveSummary);
-// The copies from the week's Monday only, so every count on the page covers the same days.
+// The live page covers the last 7 days: the copies from their first day only, so every count covers the same days.
+const live = rollingWeek(snap.created.slice(0, 10));
 const base = baselineFor(ledger, live.from, live.from);
 if (base) {
   await unpack(stores, base.files, join(weeksOut, 'baseline'));

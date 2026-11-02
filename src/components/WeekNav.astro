@@ -1,6 +1,7 @@
 ---
-// Earlier weeks (WeekSummary design, .gt-weeknav): the previous week's link, a week picker that opens the chosen week
-// (src/scripts/week.ts) and the permanent address of the week shown, /this-week/{yyyy}-{ww} (ISO week).
+// Earlier weeks (WeekSummary design, .gt-weeknav): on an archived week the previous week's link, on the live page a
+// link to the latest closed week ("Previous weeks: week 44 →", only once one exists), and a week picker that opens the
+// chosen week (src/scripts/week.ts). Each closed ISO week is kept at /this-week/{yyyy}-{ww}.
 import '../styles/atlas/week.css';
 import '../styles/atlas/filters.css';
 import { WEEK_TEXT as W } from '../i18n/week.en';
@@ -8,18 +9,18 @@ import { WEEK_TEXT as W } from '../i18n/week.en';
 interface Props {
   id: string;
   prev?: { href: string; label: string; range: string };
+  latest?: { href: string; label: string };
   options: { value: string; label: string; selected: boolean }[];
-  keptAt: string;
 }
-const { id, prev, options, keptAt } = Astro.props;
+const { id, prev, latest, options } = Astro.props;
 ---
-<nav class="gt-weeknav" aria-label={W.navLabel}>
+{(prev || latest || options.length > 1) && <nav class="gt-weeknav" aria-label={W.navLabel}>
   {prev && <a class="gt-weeknav__prev" href={prev.href} rel="prev"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" /></svg><span>{prev.label}<small>{prev.range}</small></span></a>}
   {options.length > 1 && (
     <div class="gt-field gt-weeknav__pick"><label class="gt-vh" for={id}>{W.pick}</label><div class="gt-select"><select id={id} data-gt-weekpick>{options.map((o) => <option value={o.value} selected={o.selected}>{o.label}</option>)}</select></div></div>
   )}
-  <span class="gt-weeknav__url">{W.keptAt} <code>{keptAt}</code></span>
-</nav>
+  {latest && <span class="gt-weeknav__url">{W.previousWeeks} <a class="gt-weeknav__latest" href={latest.href}>{latest.label} <span aria-hidden="true">→</span></a></span>}
+</nav>}
 
 <script>
   import { initWeek } from '../scripts/week';
