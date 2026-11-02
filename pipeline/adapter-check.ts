@@ -56,7 +56,7 @@ for (const [key, f] of Object.entries(FLOWS)) {
 const VIEWS: [string, () => string][] = [
   ['hazards', () => { const h = hazards(raw); const q = h.filter((e) => e.kind === 'EQ'); return `${h.length - q.length} alerts, ${q.length} quakes (${q.filter((e) => !e.place).length} at sea or unplaced)`; }],
   ['outages', () => `${outages(raw).length} country outages`],
-  ['nuclear', () => { const n = nuclear(raw); const ys = Object.values(n.inventory).flatMap((y) => Object.keys(y).map(Number)); return `${Object.keys(n.inventory).length} states, ${Math.min(...ys)}–${Math.max(...ys)}${n.forces ? `, FAS table ${n.forces.asOf}` : ', no FAS table yet'}`; }],
+  ['nuclear', () => { const n = nuclear(raw); const ys = Object.values(n.inventory).flatMap((y) => Object.keys(y).map(Number)); return `${Object.keys(n.inventory).length} states, ${Math.min(...ys)}–${Math.max(...ys)}${n.forces ? `, split for ${n.forces.asOf} (${Object.keys(n.forces.rows).length} states)` : ', no split'}`; }],
   ['cables', () => { const c = cables(raw); return `${c.length} cables, ${c.filter((x) => x.landings.length >= 2).length} with two or more landings, ${c.flatMap((x) => x.landings).filter((l) => !l.place).length} landings unplaced`; }],
   ['chokepoints', () => chokepoints(raw).map((p) => `${p.name} ${p.status}`).join(', ')],
   ['prices', () => `${Object.keys(prices(raw).series).length} Pink Sheet series`],

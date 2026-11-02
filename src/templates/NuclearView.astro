@@ -128,7 +128,7 @@ const legend = id === 'warheads'
               })}
             </ul>
             <p class="gt-caption gt-pblock__cap">{N.splitCaption}</p>
-            <SourceLine source={N.splitSource(formatDate(forces.asOf))} status="estimate" />
+            <SourceLine source={forces.asOf.length > 4 ? N.splitSource(formatPartialDate(forces.asOf)) : N.splitSourceOwid(forces.year)} status="estimate" />
           </div>
         )}
         {!m && (
@@ -157,7 +157,7 @@ const legend = id === 'warheads'
               <caption class="gt-caption">{N.tableCaption(lastYear)}</caption>
               <thead><tr>
                 <th scope="col" data-key="n"><button type="button">{N.country}</button></th>
-                <th scope="col" class="n" data-key="v" data-type="num" aria-sort="descending"><button type="button">{N.inventory}</button></th>
+                <th scope="col" class="n" data-key="v" data-type="num" aria-sort="descending"><button type="button">{N.figureLabel}</button></th>
                 {forces && <th scope="col" class="n" data-key="d" data-type="num"><button type="button">{N.deployed}</button></th>}
                 {forces && <th scope="col" class="n" data-key="r" data-type="num"><button type="button">{N.reserve}</button></th>}
                 {forces && <th scope="col" class="n" data-key="t" data-type="num"><button type="button">{N.retired}</button></th>}

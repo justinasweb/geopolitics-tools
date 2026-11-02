@@ -326,13 +326,15 @@ Phase 5, which counts people in catastrophe, not famine (an area classification 
 `/nuclear` (warheads), `/nuclear/treaties` and `/nuclear/sharing` (src/lib/nuclear.ts, src/templates/NuclearView.astro,
 words in src/i18n/nuclear.en.ts), in the Power and alliances hub after Chinese lending (spec, D17).
 
-- **Warheads.** FAS's estimated total inventory (retired warheads included) for each of the nine states, every year
-  since 1945, from OWID's grapher CSV that credits FAS (`fas`); the slider steps through the years on one fixed scale
+- **Warheads.** FAS's estimated stockpile for each of the nine states, every year since 1945, from OWID's stockpile
+  chart, which credits FAS (`fas`, `nuclear-warhead-stockpiles.csv`). OWID's "inventories" chart holds only the latest
+  year (found by the first live check), so it gives the split, never the series; the slider steps through the years on one fixed scale
   (under 100, 100–300, 300–1,000, 1,000–5,000, 5,000+). Every figure carries the Estimate tag and "FAS estimate, as of
   early {year}". Figures are FAS's own, whole numbers; the world total is their sum, said as "about". The panel has
   the year's ranking, the inventories since 1945 (the four largest labelled) and FAS's current split; a state's
   panel adds its own split (deployed strategic and nonstrategic, reserve, military stockpile, retired, total). The
-  split comes from the hand-kept FAS table (`fas-forces`), whose year replaces OWID's figure for that year. The table
+  split comes from OWID's status chart, or from FAS's own table (`fas-forces`) when that is imported and as new; a
+  split's total is never written into the series, which stays one measure across every year. The table
   under the map has the split and each state's first estimate; a CSV of every figure shown is at
   `/downloads/nuclear-warheads.csv` (FAS confirmed CC BY 4.0 by email on 29 Oct 2026). The methodology note links to
   FAS's own explanation.

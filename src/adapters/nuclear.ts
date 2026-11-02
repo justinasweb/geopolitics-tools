@@ -1,19 +1,21 @@
-// Nuclear warhead estimates from the Federation of American Scientists (FAS), two files:
+// Nuclear warhead estimates from the Federation of American Scientists (FAS), three files:
 //
-// - fas/nuclear-warhead-inventories.csv (fetched, pipeline/sources/fas.ts): Our World in Data's grapher CSV of FAS's
-//   estimates, one row per country and year since 1945 (Entity, Code, Year, then one column per figure). The adapter
-//   finds its columns by what they name rather than by exact header, since OWID renames short names now and then:
-//   a total inventory column if there is one, else the sum of the status columns (deployed, reserve, retired) it has.
-// - fas-forces/status-world-nuclear-forces.csv (imported by hand, kind `fas-forces`): FAS's current table, which
-//   only FAS's own page has (deployed strategic and nonstrategic, reserve, military stockpile, total inventory), with
-//   the date FAS gives and a link to the page.
+// - fas/nuclear-warhead-stockpiles.csv (fetched, pipeline/sources/fas.ts): Our World in Data's grapher CSV of FAS's
+//   estimated stockpiles, one row per country and year since 1945 (Entity, Code, Year, then the figure). The map's
+//   series. Columns are found by what they name, since OWID renames short names now and then.
+// - fas/nuclear-warhead-inventories.csv (fetched too): OWID's chart of the latest estimate by status (deployed,
+//   reserve, retired), which holds the latest year only. The split in the panel and table.
+// - fas-forces/status-world-nuclear-forces.csv (imported by hand, kind `fas-forces`, optional): FAS's own table, with
+//   its date and link. When it is as new as OWID's split or newer, it replaces it.
 //
-// Every figure is an estimate: governments keep them secret. When FAS revises a past year, the newer file's figure
-// replaces the old one: OWID's file is replaced whole on each fetch, and the hand-kept table's year wins over OWID's.
+// Every figure is an estimate: governments keep them secret. When FAS revises a past year, the new figure replaces the
+// old one, since OWID's files are replaced whole on each fetch. The series and the split are kept apart: the series is
+// one measure across every year, and a split's total is never written into it.
 import { csvRecords, parseCsv } from '../../pipeline/lib/csv.ts';
 import { type Raw, type Series, matcher, num, put } from './core.ts';
 
-export const FAS_FILE = 'nuclear-warhead-inventories.csv';
+export const FAS_FILE = 'nuclear-warhead-stockpiles.csv';
+export const STATUS_FILE = 'nuclear-warhead-inventories.csv';
 export const FORCES_FILE = 'status-world-nuclear-forces.csv';
 
 /** The current split for one country, as FAS's table gives it. */
@@ -33,9 +35,9 @@ export interface Forces {
 }
 
 export interface NuclearData {
-  /** Total warhead inventory by place and year (the year of the estimate: FAS dates them "early" in the year). */
+  /** Estimated warheads by place and year (the year of the estimate: FAS dates them "early" in the year). */
   inventory: Series;
-  /** The current split, by place, from the hand-kept table; null when it has not been imported. */
+  /** The latest split by place: FAS's own table when imported and as new, else OWID's status chart; null when neither. */
   forces: { year: number; asOf: string; url: string; rows: Record<string, Forces> } | null;
 }
 
@@ -100,10 +102,48 @@ export function parseForces(text: string): NonNullable<NuclearData['forces']> {
   return { year, asOf, url, rows };
 }
 
+/** Which status column is which, by name; "reserve" before "deployed", since "nondeployed" contains it. */
+export function statusColumns(head: string[]): Partial<Record<'ds' | 'dn' | 'reserve' | 'retired' | 'deployed', number>> {
+  const out: Partial<Record<'ds' | 'dn' | 'reserve' | 'retired' | 'deployed', number>> = {};
+  head.forEach((h, i) => {
+    if (i < 3) return;
+    const l = h.toLowerCase();
+    if (/retired/.test(l)) out.retired = i;
+    else if (/reserve|non.?deployed/.test(l)) out.reserve = i;
+    else if (/deployed/.test(l) && /non.?strategic/.test(l)) out.dn = i;
+    else if (/deployed/.test(l) && /strategic/.test(l)) out.ds = i;
+    else if (/deployed/.test(l)) out.deployed = i;
+  });
+  return out;
+}
+
+/** OWID's status chart: the split for its latest year, by place. */
+export function parseStatus(text: string): NonNullable<NuclearData['forces']> | null {
+  const [head, ...rows] = parseCsv(text);
+  const c = statusColumns(head);
+  if (c.reserve === undefined && c.retired === undefined) return null;
+  const m = matcher('fas', 'iso3');
+  const at = (k: string) => head.findIndex((h) => h.trim().toLowerCase() === k);
+  const [ci, yi] = [at('code'), at('year')];
+  const n = (r: string[], i?: number) => (i === undefined ? 0 : num(r[i]) ?? 0);
+  const valid = rows.filter((r) => r[ci] && !r[ci].startsWith('OWID_') && Number(r[yi]));
+  const year = Math.max(...valid.map((r) => Number(r[yi])));
+  const out: Record<string, Forces> = {};
+  for (const r of valid.filter((x) => Number(x[yi]) === year)) {
+    const id = m.match(r[ci]);
+    if (!id) continue;
+    const ds = n(r, c.ds) + n(r, c.deployed), dn = n(r, c.dn), reserve = n(r, c.reserve), retired = n(r, c.retired);
+    const stockpile = ds + dn + reserve;
+    if (stockpile + retired > 0) out[id] = { place: id, deployedStrategic: ds, deployedNonstrategic: dn, deployed: ds + dn, reserve, stockpile, retired, inventory: stockpile + retired };
+  }
+  return Object.keys(out).length ? { year, asOf: String(year), url: 'https://ourworldindata.org/grapher/nuclear-warhead-inventories', rows: out } : null;
+}
+
 export function nuclear(raw: Raw): NuclearData {
   const inventory = parseInventory(raw.text('fas', FAS_FILE));
-  const forces = raw.has('fas-forces', FORCES_FILE) ? parseForces(raw.text('fas-forces', FORCES_FILE)) : null;
-  // FAS's own table is newer than OWID's copy of it: its year replaces OWID's figure for that year.
-  if (forces) for (const f of Object.values(forces.rows)) put(inventory, f.place, forces.year, f.inventory);
+  const owid = raw.has('fas', STATUS_FILE) ? parseStatus(raw.text('fas', STATUS_FILE)) : null;
+  const hand = raw.has('fas-forces', FORCES_FILE) ? parseForces(raw.text('fas-forces', FORCES_FILE)) : null;
+  // FAS's own table wins when it is at least as new as OWID's copy of it.
+  const forces = hand && (!owid || hand.year >= owid.year) ? hand : owid;
   return { inventory, forces };
 }

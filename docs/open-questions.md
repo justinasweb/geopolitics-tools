@@ -174,10 +174,11 @@ treaties.unoda.org, so some data and links need a human check.
   Ministry's US page, not to the statements themselves; replace them with the exact pages.
 - **The United Kingdom**: FAS reported in 2025 that US weapons may have returned to RAF Lakenheath. It is not in the
   sharing file; add it as `reported` if FAS's current estimate counts it.
-- **OWID's column names**: the fetcher saves OWID's grapher CSV as is and the adapter finds a total (or status)
-  column by name, so a renamed column still reads; the pull request's live check is the first run on the real file.
-- **The FAS table** (`fas-forces`) has to be copied from FAS's page and imported (docs/data-pipeline.md). Until it is,
-  `/nuclear` shows totals only, without the deployed, reserve and retired split.
+- **OWID's files**: the first live check showed OWID's "nuclear warhead inventories" export holds only the latest
+  year, so the series now comes from its "nuclear warhead stockpiles" chart and the inventories file gives the split.
+  Both are read by column name. What the stockpile figure counts (military stockpile, or retired warheads too) is to
+  confirm against OWID's chart notes once the files are in; the page says "estimated warheads" until then.
+- **The FAS table** (`fas-forces`) is optional now: import it only when OWID's split lags FAS's page.
 
 ## Source count (raised 2 Nov 2026)
 

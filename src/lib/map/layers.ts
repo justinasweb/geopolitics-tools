@@ -1040,7 +1040,7 @@ function nuclearLayer(id: NuclearPage): LayerFile {
     if (f) {
       for (const x of Object.values(f.rows)) {
         more[x.place] = [{
-          label: N.split(f.year), caption: N.splitCaption, source: N.splitSource(formatDate(f.asOf)),
+          label: N.split(f.year), caption: N.splitCaption, source: f.asOf.length > 4 ? N.splitSource(formatPartialDate(f.asOf)) : N.splitSourceOwid(f.year),
           rows: [
             { name: N.deployed, value: warheads(x.deployed), note: x.deployedNonstrategic ? `${N.deployedStrategic} ${warheads(x.deployedStrategic)}, ${N.deployedNonstrategic.toLowerCase()} ${warheads(x.deployedNonstrategic)}` : undefined },
             { name: N.reserve, value: warheads(x.reserve) },

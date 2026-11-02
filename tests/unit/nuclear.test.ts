@@ -2,10 +2,10 @@
 // treaty and sharing facts files, the three layer files, which pages are live, and the Sources page count.
 import { readFileSync } from 'node:fs';
 import { beforeAll, describe, expect, it } from 'vitest';
-import fas, { checkFas } from '../../pipeline/sources/fas.ts';
+import fas, { checkSeries, checkStatus } from '../../pipeline/sources/fas.ts';
 import { KINDS } from '../../pipeline/sources/imported.ts';
 import { prepare, readInput } from '../../pipeline/lib/importer.ts';
-import { columnsOf, parseForces, parseInventory } from '../../src/adapters/nuclear.ts';
+import { columnsOf, parseForces, parseInventory, parseStatus, statusColumns } from '../../src/adapters/nuclear.ts';
 import { LICENCES } from '../../src/data/licences.ts';
 import { blocs } from '../../src/lib/blocs.ts';
 import { PLACES } from '../../src/lib/places.ts';
@@ -25,22 +25,34 @@ beforeAll(async () => {
 });
 
 const fixture = (p: string) => readFileSync(new URL(`../fixtures/prototype/${p}`, import.meta.url), 'utf8');
-const OWID = fixture('fas/nuclear-warhead-inventories.csv');
+const OWID = fixture('fas/nuclear-warhead-stockpiles.csv');
+const STATUS = fixture('fas/nuclear-warhead-inventories.csv');
 const FORCES = fixture('fas-forces/status-world-nuclear-forces.csv');
 const now = new Date('2026-11-02T12:00:00Z');
 
 describe('FAS fetcher', () => {
-  it('keeps OWID’s grapher CSV whole, with the nine states from 1945', async () => {
-    const r = await fas.fetch(ctxFor(fakeHttp([[/nuclear-warhead-inventories/, () => OWID]]), {}, now));
-    expect(r.files[0].name).toBe('nuclear-warhead-inventories.csv');
+  const http = fakeHttp([[/nuclear-warhead-stockpiles/, () => OWID], [/nuclear-warhead-inventories/, () => STATUS]]);
+
+  it('keeps both OWID grapher CSVs whole: the series since 1945 and the latest split', async () => {
+    const log: string[] = [];
+    const r = await fas.fetch({ ...ctxFor(http, {}, now), log: (...a: unknown[]) => log.push(a.join(' ')) });
+    expect(r.files.map((f) => f.name)).toEqual(['nuclear-warhead-stockpiles.csv', 'nuclear-warhead-inventories.csv']);
     expect(r.files[0].body).toBe(OWID);
     expect(r.dataTo).toBe('2025');
+    // What each file holds is logged before the checks, so a refused file still shows what came back.
+    expect(log.join('\n')).toMatch(/nuclear-warhead-inventories\.csv: columns Entity, Code, Year, .*figures in 1 years \(2025–2025\)/);
   });
 
-  it('refuses a file missing a state, a stale file or another format', () => {
-    expect(() => checkFas(OWID.split('\n').filter((l) => !l.startsWith('Israel')).join('\n'), now)).toThrow(/ISR/);
-    expect(() => checkFas(OWID, new Date('2030-01-01'))).toThrow(/stale/);
-    expect(() => checkFas('country,year,co2\nA,2024,1\n', now)).toThrow(/Entity, Code, Year/);
+  it('refuses a series that holds only the latest year (what the inventories chart gave on 2 Nov 2026)', () => {
+    expect(() => checkSeries(STATUS, now)).toThrow(/starts in 2025, not 1945/);
+    expect(() => checkSeries(OWID.split('\n').filter((l) => !l.startsWith('Israel')).join('\n'), now)).toThrow(/ISR/);
+    expect(() => checkSeries(OWID, new Date('2030-01-01'))).toThrow(/stale/);
+    expect(() => checkSeries('country,year,co2\nA,2024,1\n', now)).toThrow(/Entity, Code, Year/);
+  });
+
+  it('refuses a split without status columns', () => {
+    expect(checkStatus(STATUS, now).last).toBe(2025);
+    expect(() => checkStatus(OWID, now)).toThrow(/no status columns/);
   });
 });
 
@@ -57,6 +69,16 @@ describe('FAS adapter', () => {
     expect(columnsOf(['Entity', 'Code', 'Year', 'nuclear_weapons_inventory'])).toEqual({ total: 3, parts: [] });
     const parts = 'Entity,Code,Year,warheads_deployed_strategic,warheads_reserve,warheads_retired\nRussia,RUS,2025,1718,2591,1150\n';
     expect(parseInventory(parts).RUS[2025]).toBe(5459);
+  });
+
+  it('reads OWID’s split for its latest year, telling reserve ("nondeployed") from deployed', () => {
+    expect(statusColumns(['Entity', 'Code', 'Year', 'a_deployed_strategic', 'a_deployed_nonstrategic', 'a_reserve_nondeployed', 'a_retired']))
+      .toEqual({ ds: 3, dn: 4, reserve: 5, retired: 6 });
+    const f = parseStatus(STATUS)!;
+    expect(f.year).toBe(2025);
+    expect(Object.keys(f.rows)).toHaveLength(9);
+    expect(f.rows.USA).toMatchObject({ deployed: 1770, reserve: 1930, stockpile: 3700, retired: 1477, inventory: 5177 });
+    expect(parseStatus(OWID)).toBeNull();
   });
 
   it('reads the hand-kept FAS table: retired is the total less the military stockpile, the Total row is skipped', () => {
@@ -78,13 +100,13 @@ describe('FAS adapter', () => {
 });
 
 describe('warheads model', () => {
-  it('takes the FAS table’s year over OWID’s, with the world total as the sum of the states', () => {
+  it('keeps the series from the stockpile chart, with the world total as the sum of the states', () => {
     const m = N.warheadsModel()!;
     expect(m.year).toBe(2025);
     expect(m.byYear[2025].rows[0]).toEqual({ id: 'RUS', value: 5459 });
     expect(m.byYear[2025].world).toBe(12241);
     expect(m.states.slice(0, 2)).toEqual(['RUS', 'USA']);
-    expect(N.warheadsLede()).toMatch(/^Russia has the largest estimated inventory, 5,459 warheads, then the United States with 5,177; .* early 2025\.$/);
+    expect(N.warheadsLede()).toMatch(/^Russia has the most estimated warheads, 5,459, then the United States with 5,177; .* early 2025\.$/);
   });
 
   it('shades on one fixed scale for every year', () => {

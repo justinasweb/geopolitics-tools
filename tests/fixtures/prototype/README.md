@@ -10,6 +10,6 @@ them. The figures are illustrative, not real data.
 turned from tonnes of nutrient into tonnes of product (potash at 60% K2O as HS 3104, phosphate at 46% P2O5 as DAP,
 HS 310530), since the prototype had no Comtrade fertiliser sample.
 
-`fas/` and `fas-forces/` are ours (no prototype sample existed): OWID's grapher CSV format with one total column, the
-nine states' totals interpolated between rounded FAS-like figures, and the FAS table as recalled for early 2025. Treat
+`fas/` and `fas-forces/` are ours (no prototype sample existed): OWID's grapher CSV format, the stockpile series
+interpolated between rounded FAS-like figures, the status chart and the FAS table as recalled for early 2025. Treat
 both as illustrative, like the rest.
