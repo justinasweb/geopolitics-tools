@@ -28,12 +28,14 @@ const url = new URL(m.path, Astro.site).href;
 const crumbs = [{ label: LONGREAD_TEXT.home, href: '/' }, ...(m.id ? [{ label: W.crumb, href: paths.week() }, { label: W.week(weekNumber(m.id)) }] : [{ label: W.crumb }])];
 const route = live(m.id ? `week:${m.id}` : 'week');
 const made = m.data.made;
+// Each side of the dates stays on one line; a range across months may break at its dash on a phone.
+const rangeParts = m.rangeText.split(' – ');
 const method = live('page:methodology')?.path;
 ---
 <Page title={m.title} description={m.description} mainClass="gt-week" image={route?.image} noindex={!route?.indexed} jsonld={[breadcrumbs(crumbs)]}>
   <Breadcrumbs items={crumbs} />
   <div class="gt-week__intro">
-    <h1 class="gt-title">{m.id ? W.archiveLead(weekNumber(m.id)) : W.titleLead} <span class="gt-nowrap">{m.rangeText}</span></h1>
+    <h1 class="gt-title">{m.id ? W.archiveLead(weekNumber(m.id)) : W.titleLead} {rangeParts.map((r, i) => <>{i > 0 && ' – '}<span class="gt-nowrap">{r}</span></>)}</h1>
     <p class="gt-lede">{W.lede}</p>
     <p class="gt-week__upd">
       {m.id

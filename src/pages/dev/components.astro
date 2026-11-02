@@ -354,7 +354,7 @@ const typeStyles = tokens.type.groups.flatMap((g) => g.styles.map((s) => ({ ...s
     <section id="this-week" class="dev__sec">
       <h2 class="gt-h2">This week</h2>
       <div class="dev__cell"><span class="dev__cap">Count row (three, then one)</span><div class="dev__desk dev__pad"><CountRow counts={wkCounts} /></div></div>
-      <div class="dev__phone dev__pad"><CountRow counts={wkCounts} /></div>
+      <div class="dev__cell"><span class="dev__cap">Count row in a 390px frame</span><div class="dev__phone dev__pad"><CountRow counts={wkCounts} /></div></div>
       <div class="dev__cell"><span class="dev__cap">Week cards: two across, the last one full width</span>
         <div class="dev__desk dev__pad" style="max-width:820px"><div class="gt-cards">
           <WeekCard kind="shipping" label="Shipping" headline="Bab el-Mandeb and Suez Canal traffic below normal" source="IMF PortWatch" period="week to 19 Oct 2026" updated="Updated 21 Oct" tags={['sample']} href="#" go="Open the chokepoints map">
