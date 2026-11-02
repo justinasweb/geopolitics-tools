@@ -18,7 +18,7 @@ import { data, shared } from '../data.ts';
 import { loadFlows } from '../../data/flows.ts';
 import { countClass, daysText, disasterPages, type DisasterPage } from '../disasters.ts';
 import { DISASTERS_TEXT, KIND_TEXT } from '../../i18n/disasters.en.ts';
-import { formatDate, formatValue } from '../format.ts';
+import { formatDate, formatPartialDate, formatValue } from '../format.ts';
 import { TOP_FLOWS, balanceOf, estimated as foodEstimated, classFor as foodClass, foodPages, mt, netText, shareOf as foodShare, sourceOf, valueText as foodValue, type FoodPage } from '../food.ts';
 import { FOOD_NOTES, FOOD_TEXT } from '../../i18n/food.en.ts';
 import { TOP_FLOWS as ENERGY_TOP, amount as energyAmount, balanceOf as energyBalance, balanceYear, classFor as energyClass, energyPages, shareOf as energyShare, valueText as energyValue, type EnergyPage } from '../energy.ts';
@@ -45,7 +45,7 @@ import { CONFLICT_TEXT, monthText } from '../../i18n/conflict.en.ts';
 import { latestAnalyses, monthSpan } from '../hunger.ts';
 import { HUNGER_TEXT } from '../../i18n/hunger.en.ts';
 import { POWER_TEXT } from '../../i18n/electricity.en.ts';
-import { NUCLEAR_PAGES, SHARING_CHECKED, SHARING_CLASSES, TREATIES_CHECKED, TREATY_CLASSES, armedStates, nuclearLive, providerName, sharingClass, sharingNote, sharingRows, treaties, treatyClass, warheadClass, warheads, warheadsModel, type NuclearPage } from '../nuclear.ts';
+import { NUCLEAR_PAGES, SHARING_CHECKED, SHARING_CLASSES, TREATIES_CHECKED, sharingCounts, TREATY_CLASSES, armedStates, nuclearLive, providerName, sharingClass, sharingNote, sharingRows, treaties, treatyClass, warheadClass, warheads, warheadsModel, type NuclearPage } from '../nuclear.ts';
 import { NUCLEAR_TEXT } from '../../i18n/nuclear.en.ts';
 import type { Pair } from '../../data/flows.ts';
 import type { Hazard } from '../../adapters/hazards.ts';
@@ -1071,7 +1071,7 @@ function nuclearLayer(id: NuclearPage): LayerFile {
       if (k) v[pl] = [TREATY_CLS[k], N.treatyClass[k], '', 0, 0];
       more[pl] = [{
         label: N.treatyLegend,
-        rows: (['npt', 'tpnw'] as const).filter((x) => t[x]).map((x) => ({ name: N[x], value: N.status[t[x]!.status], note: t[x]!.date ? N.since(formatDate(t[x]!.date)) : undefined })),
+        rows: (['npt', 'tpnw'] as const).filter((x) => t[x]).map((x) => ({ name: N[x], value: N.status[t[x]!.status], note: t[x]!.date ? N.since(formatPartialDate(t[x]!.date)) : undefined })),
         source: N.treatySource,
       }];
       if (N.treatyNotes[pl]) notes[pl] = notes[pl] ? `${notes[pl]} ${N.treatyNotes[pl]}` : N.treatyNotes[pl];
@@ -1084,12 +1084,12 @@ function nuclearLayer(id: NuclearPage): LayerFile {
     for (const pl of new Set([...armed, ...rows.map((r) => r.place)])) {
       const k = sharingClass(pl);
       if (!k) continue;
-      v[pl] = k === 'reported' ? [-1, N.sharingClass.reported, N.reportedBy, 0, 0] : [SHARING_CLS[k], N.sharingClass[k], '', 0, 0];
+      v[pl] = k === 'reported' ? [-2, N.sharingClass.reported, N.reportedBy, 0, 0] : [SHARING_CLS[k], N.sharingClass[k], '', 0, 0];
       const mine = rows.filter((r) => r.place === pl);
       if (mine.length) {
         more[pl] = [{
           label: N.sharingLegend,
-          rows: mine.map((r) => ({ name: `${N.kind[r.kind]} ${providerName(r.provider)}`, value: r.status === 'stated' ? N.stated : N.reportedBy, note: [formatDate(r.date), sharingNote(r)].filter(Boolean).join(' · ') })),
+          rows: mine.map((r) => ({ name: `${N.kind[r.kind]} ${providerName(r.provider)}`, value: r.status === 'stated' ? N.stated : N.reportedBy, note: [formatPartialDate(r.date), sharingNote(r)].filter(Boolean).join(' · ') })),
         }];
       }
     }
@@ -1102,7 +1102,10 @@ function nuclearLayer(id: NuclearPage): LayerFile {
     ...base, id: `nuclear-${id}`, name, scale: 'seq', palette: 'cat', years: [year], year, ticks: [],
     categories: treaty ? TREATY_CLASSES.map((k) => ({ cls: TREATY_CLS[k], label: N.treatyClass[k] }))
       : SHARING_CLASSES.filter((k) => k !== 'reported').map((k) => ({ cls: SHARING_CLS[k], label: N.sharingClass[k] })),
-    missing: treaty ? { none: N.treatyNone } : { none: N.sharingNone, notyet: N.sharingClass.reported },
+    missing: { none: treaty ? N.treatyNone : N.sharingNone },
+    ...(treaty ? {} : { hatch: { cls: SHARING_CLS.host, label: N.sharingClass.reported } }),
+    tally: treaty ? TREATY_CLASSES.map((k) => ({ label: N.treatyClass[k], n: Object.values(v).filter((e) => e[0] === TREATY_CLS[k]).length }))
+      : SHARING_CLASSES.map((k) => ({ label: N.sharingClass[k], n: sharingCounts()[k] })),
     source: treaty ? N.treatySource : N.sharingSources,
     text: words({ kicker: `${name} · {year}`, shareLabel: treaty ? N.treatyLegend : N.sharingLegend, none: treaty ? N.treatyNone : N.sharingNone, statusLabel: PT.status }),
     notes, data: [{ year, label, legend: treaty ? N.treatyLegend : N.sharingLegend, v, order, blocs: bl }], more,

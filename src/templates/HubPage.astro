@@ -51,7 +51,7 @@ const views = m.cards.map((c) => c.kicker);
           <div class="gt-hubthumb">
             <div class="gt-mapbox">
               <svg viewBox={`0 0 ${c.thumb.width} ${c.thumb.height}`} role="img" aria-label={c.thumb.label} preserveAspectRatio="xMidYMid meet">
-                {(c.thumb.withheld || c.thumb.notyet) && (
+                {(c.thumb.withheld || c.thumb.notyet || c.thumb.hatch) && (
                   <defs>
                     {/* The full map's patterns (src/scripts/map/engine.ts), so withheld and not yet never read as a colour of the scale. */}
                     {c.thumb.withheld && <pattern id={`${c.thumb.pattern}-w`} width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
@@ -60,12 +60,15 @@ const views = m.cards.map((c) => c.kicker);
                     {c.thumb.notyet && <pattern id={`${c.thumb.pattern}-n`} width="4" height="4" patternUnits="userSpaceOnUse">
                       <rect width="4" height="4" fill="var(--paper-raised)" /><circle cx="2" cy="2" r=".7" fill="var(--ink-muted)" />
                     </pattern>}
+                    {c.thumb.hatch && <pattern id={`${c.thumb.pattern}-h`} width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                      <rect width="4" height="4" fill="var(--paper-raised)" /><rect width="4" height="4" fill={c.thumb.hatch} fill-opacity=".3" /><line x1="0" y1="0" x2="0" y2="4" style={`stroke:color-mix(in srgb, ${c.thumb.hatch} 85%, var(--ink))`} stroke-width="1.6" />
+                    </pattern>}
                   </defs>
                 )}
                 {c.thumb.paths.map((p) => <path d={p.d} fill={p.fill} />)}
               </svg>
             </div>
-            {c.key.length > 0 && <p class="gt-thumbkey">{c.key.map((k) => <span>{k.sw ? <i class={`gt-sw gt-sw--${k.sw}`}></i> : <i style={`background:${k.fill}`}></i>}{k.label}</span>)}</p>}
+            {c.key.length > 0 && <p class="gt-thumbkey">{c.key.map((k) => <span>{k.sw ? <i class={`gt-sw gt-sw--${k.sw}`} style={k.sw === 'hatch' ? `--gt-hatch:${k.fill}` : undefined}></i> : <i style={`background:${k.fill}`}></i>}{k.label}</span>)}</p>}
           </div>
           <div class="gt-hubcard__b">
             <span class="gt-kicker">{c.kicker}</span>

@@ -11,7 +11,8 @@ export type Status = 'estimate' | 'projection' | 'preliminary';
 
 /**
  * One place's entry for a year: [class, value, detail, status, rank].
- * Class: 1–5 on a sequential scale, 1–7 on a diverging one; 0 withheld by the source; -1 not yet reported.
+ * Class: 1–5 on a sequential scale, 1–7 on a diverging one; 0 withheld by the source; -1 not yet reported; -2 the
+ * layer's `hatch` class (a named class drawn as a pattern).
  * Value is the figure the map shades by ("32%"), detail the absolute figure ("92,000 t"); rank is among places listed.
  */
 export type Entry = [cls: number, value: string, detail: string, status: Status | 0, rank: number];
@@ -75,6 +76,11 @@ export interface LayerFile {
   /** Draw the named classes in the categorical colours (--cat-1…8) instead of the sequential ones: for classes with no
    *  order, so no shade reads as more or better (treaty status). */
   palette?: 'cat';
+  /** A named class drawn as a dense hatch of another class's colour over a light tint of it (class -2 in the entries):
+   *  the same kind of place, less certain (a host only FAS reports), so it reads as related, not as no data. */
+  hatch?: { cls: number; label: string };
+  /** What the world panel counts, where that is not one count per map class (a place in two arrangements counts in both). */
+  tally?: { label: string; n: number }[];
   categories?: { cls: number; label: string }[];
   /** Diverging scales: what each end means. */
   ends?: [string, string];

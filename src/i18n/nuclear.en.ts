@@ -19,6 +19,9 @@ export const NUCLEAR_TEXT = {
     sharing: 'Countries that host another state’s nuclear weapons, and countries covered by an ally’s nuclear guarantee.',
   } as Record<string, string>,
   related: 'Related',
+  blocs: 'Blocs',
+  nato: 'NATO members',
+  blocsNote: 'Alliances and groupings',
 
   // Warheads
   /** The label every warhead figure carries. */
@@ -113,7 +116,7 @@ export const NUCLEAR_TEXT = {
   reportedBy: 'Reported by FAS, not officially confirmed',
   sharingLede: (hosts: number, reported: number, umbrella: number) =>
     `${hosts + reported} countries host another state’s nuclear weapons (${reported} of them reported by FAS, not officially confirmed), and ${umbrella} are covered by an ally’s nuclear guarantee.`,
-  sharingCaption: 'An arrangement is shown as fact only when a government or alliance has stated it. A host that is not officially confirmed is marked as reported by FAS, with its own dotted pattern.',
+  sharingCaption: 'An arrangement is shown as fact only when a government or alliance has stated it. A host that is not officially confirmed is marked as reported by FAS, with its own hatched pattern.',
   sharingNotes: {
     'host:USA': 'NATO states that US nuclear weapons are deployed in Europe under its nuclear sharing arrangements; it does not name the host countries.',
     'host:BLR': 'Russia said in March 2023 that it would station non-strategic weapons in Belarus, and in June 2023 that the first had been delivered.',
@@ -131,6 +134,8 @@ export const NUCLEAR_TEXT = {
   sharingBloc: (bloc: string, k: number, of: number) => `${k} of ${of} ${bloc} members host weapons or are covered by a guarantee.`,
   sharingLabel: 'World map of nuclear sharing and guarantees. The same arrangements are in the table below.',
   sharingFacts: (date: string) => `Facts as of ${date}`,
+  /** The same inside a source line, after the sources' names. */
+  factsAsOf: (date: string) => `facts as of ${date}`,
 
   // Country page block
   block: 'Nuclear weapons',

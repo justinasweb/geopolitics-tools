@@ -155,9 +155,29 @@ describe('nuclear layers and pages', () => {
     const s = L.layerFile('nuclear-sharing');
     expect(t.palette).toBe('cat');
     expect(s.palette).toBe('cat');
-    expect(s.data[0].v.DEU[0]).toBe(-1);
-    expect(s.data[0].v.BLR[0]).toBeGreaterThan(0);
-    expect(s.missing.notyet).toMatch(/reported by FAS/);
+    // A host only FAS reports: the hatch class, drawn in the stated hosts' colour.
+    expect(s.data[0].v.DEU[0]).toBe(-2);
+    expect(s.hatch).toEqual({ cls: s.data[0].v.BLR[0], label: expect.stringMatching(/reported by FAS/) });
+    expect(s.missing.notyet).toBeUndefined();
+  });
+
+  it('counts each arrangement the same way in the answer and the world panel: a covered host counts in both', () => {
+    const c = N.sharingCounts();
+    const s = L.layerFile('nuclear-sharing');
+    expect(s.tally!.map((t) => t.n)).toEqual([c.armed, c.host, c.reported, c.umbrella]);
+    expect(N.sharingLede()).toContain(`${c.host + c.reported} countries host`);
+    expect(N.sharingLede()).toContain(`and ${c.umbrella} are covered`);
+    // Germany hosts (reported) and is covered by NATO's guarantee, so it is in the covered count too.
+    const covered = new Set(N.sharingRows().filter((r) => r.kind === 'umbrella').map((r) => r.place));
+    expect(covered.has('DEU')).toBe(true);
+    expect(c.umbrella).toBe(covered.size);
+  });
+
+  it('names a provider with its article inside a sentence', () => {
+    expect(N.providerName('USA')).toBe('the United States');
+    expect(N.providerName('RUS')).toBe('Russia');
+    const rows = L.layerFile('nuclear-sharing').more!.JPN[0].rows;
+    expect(rows[0].name).toBe('Covered by the nuclear guarantee of the United States');
   });
 
   it('builds /nuclear, /nuclear/treaties and /nuclear/sharing in the power hub, and lists the family in the Atlas', () => {
@@ -174,5 +194,15 @@ describe('source count', () => {
     const rows = sourceRows();
     expect(LICENCES.map((l) => l.source)).toEqual(expect.arrayContaining(['fas', 'unoda']));
     expect(rows.map((r) => r.id).sort()).toEqual(LICENCES.map((l) => l.source).sort());
+  });
+});
+
+describe('fact dates', () => {
+  it('writes a date only as precisely as the row gives it', async () => {
+    const { formatPartialDate } = await import('../../src/lib/format.ts');
+    expect(formatPartialDate('2023')).toBe('2023');
+    expect(formatPartialDate('2023-06')).toBe('Jun 2023');
+    expect(formatPartialDate('2024-12-06')).toBe('6 Dec 2024');
+    expect(L.layerFile('nuclear-sharing').more!.BLR[0].rows.map((r) => r.note?.split(' · ')[0])).toEqual(['Jun 2023', '6 Dec 2024']);
   });
 });

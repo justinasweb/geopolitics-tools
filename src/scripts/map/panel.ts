@@ -163,8 +163,7 @@ export function worldPanelHtml(f: LayerFile, yearIndex: number, o: { hint: strin
     + `<span class="gt-bars__track">${max ? `<span class="gt-bars__fill" style="width:${((100 * num(pid)) / max).toFixed(1)}%"></span>` : ''}</span><span class="gt-bars__val">${esc(y.v[pid]?.[1] ?? '')}</span></li>`).join('');
   const label = fill(o.top, { year: when(y) });
   // Unordered classes (treaty status): how many places are in each, never a "largest" list.
-  const cats = f.palette === 'cat' && f.categories ? [...f.categories.map((c) => ({ label: c.label, n: Object.values(y.v).filter((e) => e[0] === c.cls).length })),
-    ...(f.missing.notyet ? [{ label: f.missing.notyet, n: Object.values(y.v).filter((e) => e[0] === -1).length }] : [])] : null;
+  const cats = f.tally ?? (f.palette === 'cat' && f.categories ? f.categories.map((c) => ({ label: c.label, n: Object.values(y.v).filter((e) => e[0] === c.cls).length })) : null);
   if (cats) {
     return `<div class="gt-panel__head"><div class="gt-panel__title"><span class="gt-kicker">${esc(fill(f.text.kicker, { year: when(y) }))}</span><h2 class="gt-h3" tabindex="-1">${esc(f.text.world)}</h2></div></div>`
       + `<div class="gt-panel__body"><p class="gt-atpanel__tip">${esc(o.hint)}</p>`

@@ -19,15 +19,15 @@ import '../styles/atlas/table.css';
 import '../styles/atlas/tools.css';
 import { MAP_TEXT } from '../i18n/map.en';
 import { NUCLEAR_TEXT as N } from '../i18n/nuclear.en';
-import { formatDate } from '../lib/format';
+import { formatDate, formatPartialDate } from '../lib/format';
 import { place } from '../lib/places';
 import { countryHref, live, route, hubCrumb } from '../lib/routes';
 import { layerFile, layerPath } from '../lib/map/layers';
 import { breadcrumbs } from '../lib/structured';
 import { refreshed } from '../lib/data';
 import {
-  NUCLEAR_CSV, NUCLEAR_PAGES, SHARING_CHECKED, SHARING_CLASSES, TREATIES_CHECKED, TREATY_CLASSES, nuclearAnswer, peakOf, providerName,
-  sharingClass, sharingNote, sharingRows, treaties, treatyClass, warheads, warheadsModel, type NuclearPage,
+  NUCLEAR_CSV, NUCLEAR_PAGES, SHARING_CHECKED, TREATIES_CHECKED, nuclearAnswer, peakOf, providerName,
+  sharingNote, sharingRows, treaties, warheads, warheadsModel, type NuclearPage,
 } from '../lib/nuclear';
 
 interface Props { id: NuclearPage }
@@ -42,7 +42,12 @@ const file = layerFile(`nuclear-${id}`);
 const picker = NUCLEAR_PAGES.filter((x) => live(key(x))).map((x) => ({ label: N.pick[x], href: live(key(x))!.path, current: x === id }));
 const first = picker[0];
 const crumbs: { label: string; href?: string }[] = [hubCrumb('power'), ...(first && !first.current ? [{ label: N.section, href: first.href }] : []), { label: title }];
-const related = picker.filter((o) => !o.current).map((o) => ({ href: o.href, name: o.label, note: N.section }));
+// The other nuclear pages, then the alliances these arrangements run through.
+const related = [
+  ...picker.filter((o) => !o.current).map((o) => ({ href: o.href, name: o.label, note: N.section })),
+  ...(live('view:blocs:all') ? [{ href: live('view:blocs:all')!.path, name: N.blocs, note: N.blocsNote }] : []),
+  ...(live('view:blocs:nato') ? [{ href: live('view:blocs:nato')!.path, name: N.nato, note: N.blocs }] : []),
+];
 
 // Warheads
 const m = id === 'warheads' ? warheadsModel()! : null;
@@ -60,13 +65,11 @@ const treatyRows = t ? [...t.entries()].sort((a, b) => nameOf(a[0]).localeCompar
 const sharing = id === 'sharing' ? sharingRows() : [];
 const sharingSorted = [...sharing].sort((a, b) => nameOf(a.place).localeCompare(nameOf(b.place), 'en') || a.kind.localeCompare(b.kind));
 const factsDate = formatDate((id === 'treaties' ? TREATIES_CHECKED : '') || SHARING_CHECKED);
-const factsSource = id === 'treaties' ? `${N.treatySource}, ${TREATIES_CHECKED ? N.checked(factsDate) : N.unchecked}` : `${N.sharingSources}, ${N.sharingFacts(factsDate).toLowerCase()}`;
-const counts = (cls: string[], f: (p: string) => string | null, of: string[]) => cls.map((k) => ({ k, n: of.filter((p) => f(p) === k).length }));
-const allPlaces = Object.keys(file.data[0].v);
+const factsSource = id === 'treaties' ? `${N.treatySource}, ${TREATIES_CHECKED ? N.checked(factsDate) : N.unchecked}` : `${N.sharingSources}, ${N.factsAsOf(factsDate)}`;
 const label = id === 'warheads' ? N.mapLabel(lastYear, m!.byYear[lastYear].rows.length) : id === 'treaties' ? N.treatyLabel : N.sharingLabel;
 const legend = id === 'warheads'
   ? { title: N.legend(lastYear), scale: 'seq' as const, ticks: N.ticks, none: N.none }
-  : { title: file.data[0].legend, scale: 'seq' as const, ticks: [], none: file.missing.none, notyet: file.missing.notyet, categories: file.categories, palette: 'cat' as const };
+  : { title: file.data[0].legend, scale: 'seq' as const, ticks: [], none: file.missing.none, categories: file.categories, palette: 'cat' as const, hatch: file.hatch };
 ---
 <Page title={title} description={N.description[id]} hub="power" container="mv" image={route(key(id))!.image}
   jsonld={[breadcrumbs(crumbs.map((c) => ({ label: c.label, href: c.href })))]}>
@@ -131,10 +134,7 @@ const legend = id === 'warheads'
         {!m && (
           <div class="gt-pblock">
             <ul class="gt-prows">
-              {(id === 'treaties'
-                ? counts(TREATY_CLASSES, treatyClass, allPlaces).map((x) => ({ name: N.treatyClass[x.k as keyof typeof N.treatyClass], n: x.n }))
-                : [...counts(SHARING_CLASSES, sharingClass, allPlaces).map((x) => ({ name: N.sharingClass[x.k as keyof typeof N.sharingClass], n: x.n }))]
-              ).map((x) => <li><span class="gt-prow__n">{x.name}</span><span class="gt-prow__v">{x.n}</span></li>)}
+              {(file.tally ?? []).map((x) => <li><span class="gt-prow__n">{x.label}</span><span class="gt-prow__v">{x.n}</span></li>)}
             </ul>
           </div>
         )}
@@ -203,7 +203,7 @@ const legend = id === 'warheads'
                 {treatyRows.map(([pl, x]) => (
                   <tr data-place={pl}>
                     <th scope="row">{countryHref(pl) ? <a href={countryHref(pl)}>{nameOf(pl)}</a> : nameOf(pl)}</th>
-                    {(['npt', 'tpnw'] as const).map((k) => <td>{x[k] ? `${N.status[x[k]!.status]}${x[k]!.date ? ` (${formatDate(x[k]!.date)})` : ''}` : '–'}</td>)}
+                    {(['npt', 'tpnw'] as const).map((k) => <td>{x[k] ? `${N.status[x[k]!.status]}${x[k]!.date ? ` (${formatPartialDate(x[k]!.date)})` : ''}` : '–'}</td>)}
                   </tr>
                 ))}
               </tbody>
@@ -231,8 +231,8 @@ const legend = id === 'warheads'
                   <tr data-place={r.place}>
                     <th scope="row">{countryHref(r.place) ? <a href={countryHref(r.place)}>{nameOf(r.place)}</a> : nameOf(r.place)}</th>
                     <td>{N.kind[r.kind]} {providerName(r.provider)}</td>
-                    <td>{r.status === 'stated' ? N.stated : <><span class="gt-sw gt-sw--notyet" aria-hidden="true"></span> {N.reportedBy}</>}</td>
-                    <td data-v={r.date}><a href={r.source}>{formatDate(r.date)}</a></td>
+                    <td>{r.status === 'stated' ? N.stated : <><span class="gt-sw gt-sw--hatch" style={`--gt-hatch:var(--cat-${file.hatch?.cls ?? 2})`} aria-hidden="true"></span> {N.reportedBy}</>}</td>
+                    <td data-v={r.date}><a href={r.source}>{formatPartialDate(r.date)}</a></td>
                     <td>{sharingNote(r)}</td>
                   </tr>
                 ))}
@@ -244,8 +244,8 @@ const legend = id === 'warheads'
       )}
     </div>
     <aside class="gt-mvbelow__side">
-      <h2 class="gt-label">{N.related}</h2>
-      <ul class="gt-related">{related.map((r) => <li><a href={r.href}><span>{r.name}</span><small>{r.note}</small></a></li>)}</ul>
+      {related.length > 0 && <h2 class="gt-label">{N.related}</h2>}
+      {related.length > 0 && <ul class="gt-related">{related.map((r) => <li><a href={r.href}><span>{r.name}</span><small>{r.note}</small></a></li>)}</ul>}
       <div class="gt-mvbelow__share"><ShareRow url={url} text={answer ?? title} /></div>
     </aside>
   </section>

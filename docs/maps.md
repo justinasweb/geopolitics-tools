@@ -346,11 +346,14 @@ words in src/i18n/nuclear.en.ts), in the Power and alliances hub after Chinese l
   cited row per arrangement, like the alliance histories. An arrangement is shown as fact (`stated`) only when a
   government or alliance has stated it (NATO's guarantee to its members, Russia on Belarus, the US to Japan, Korea and
   Australia); a host only FAS reports (`reported`: the five European hosts of US weapons, which NATO does not name) is
-  drawn with the dotted pattern (class −1 in the layer file) and says "reported by FAS", so colour is never the only
-  cue. A place both hosting and covered shows as a host; its panel lists both.
+  drawn as a dense hatch of the stated hosts' colour over a light tint of it (class −2 and `hatch` in the layer file),
+  says "reported by FAS", and keeps its borders, so it reads as a host, less certain, never as no data. The stripes are
+  the colour with 15% ink: 3.4:1 against the no-data grey in the light theme (the plain colour is 2.75:1), 4.5:1 or more
+  in the dark one. A place both hosting and covered is shaded as a host; its panel lists both, and the counts (answer
+  and world panel, from `sharingCounts`) count it in both rows.
 - **Neutral colours.** Treaty and sharing classes have no order, so their layer files set `palette: 'cat'` and the
   engine, legends and hub thumbnails draw them in the categorical colours (`--cat-1…`) rather than a sequential ramp.
-  The Atlas panel lists how many places each class has instead of a "largest" list for these layers.
+  The Atlas panel lists the layer's counts (`tally` in the layer file) instead of a "largest" list for these layers.
 - **Country pages.** The nine states' "More figures" section has a Nuclear weapons block: the latest estimate with its
   Estimate tag and a link to the map with the country selected.
 

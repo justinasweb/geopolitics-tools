@@ -89,6 +89,22 @@ function pattern(draw: (g: CanvasRenderingContext2D) => void, size = 8): ImageDa
   return g.getImageData(0, 0, size, size);
 }
 
+/**
+ * The hatch class's pattern: dense diagonal stripes of its colour over a 30% tint of the same colour. The stripes are
+ * the colour with 15% ink, so they keep at least 3:1 against the no-data grey (3.4:1 in the light theme, where the
+ * plain colour gives 2.75:1); the legend swatch (.gt-sw--hatch) and the hub thumbnail mix it the same way.
+ */
+function hatch(colour: string, paper: string, ink: string): ImageData {
+  return pattern((g) => {
+    g.fillStyle = paper; g.fillRect(0, 0, 8, 8);
+    g.globalAlpha = 0.3; g.fillStyle = colour; g.fillRect(0, 0, 8, 8);
+    g.globalAlpha = 1; g.strokeStyle = colour; g.lineWidth = 2;
+    g.beginPath(); g.moveTo(-2, 10); g.lineTo(10, -2); g.moveTo(-2, 2); g.lineTo(2, -2); g.moveTo(6, 10); g.lineTo(10, 6); g.stroke();
+    g.globalAlpha = 0.15; g.strokeStyle = ink;
+    g.beginPath(); g.moveTo(-2, 10); g.lineTo(10, -2); g.moveTo(-2, 2); g.lineTo(2, -2); g.moveTo(6, 10); g.lineTo(10, 6); g.stroke();
+  });
+}
+
 function symbol(kind: 'triangle' | 'diamond' | 'square', fill: string, stroke: string): ImageData {
   const s = 32;
   return pattern((g) => {
@@ -122,6 +138,8 @@ export function createMap(container: HTMLElement, base: Basemap, first: LayerFil
       : Array.from({ length: l.scale === 'seq' ? 5 : 7 }, (_, i) => T[`--${l.scale}-${i + 1}` as Token]);
     return ['match', ['coalesce', ['feature-state', 'c'], -9], ...colours.flatMap((c, i) => [i + 1, c]), T['--map-nodata']] as unknown as Expr;
   };
+  // The hatch class's colour: its named class on the layer's palette.
+  const hatchColour = (l: LayerFile) => T[`--${l.palette ?? l.scale}-${l.hatch?.cls ?? 1}` as Token] ?? T['--ink-muted'];
   // Where the map starts and the reset button returns: the layer's own area (a disputed river), else the lived-in world.
   let home = layer.bounds ?? HOME_BOUNDS;
 
@@ -179,6 +197,7 @@ export function createMap(container: HTMLElement, base: Basemap, first: LayerFil
         g.fillStyle = T['--paper-raised']; g.fillRect(0, 0, 8, 8);
         g.fillStyle = T['--ink-muted']; g.beginPath(); g.arc(4, 4, 1.1, 0, Math.PI * 2); g.fill();
       }), { pixelRatio: 1 });
+      map.addImage('hatch', hatch(hatchColour(layer), T['--paper-raised'], T['--ink']), { pixelRatio: 1 });
       for (const k of ['triangle', 'diamond', 'square'] as const) {
         map.addImage(`sym-${k}`, symbol(k, k === 'triangle' ? T['--ink'] : T['--paper-raised'], k === 'triangle' ? T['--paper-raised'] : T['--ink']), { pixelRatio: 2 });
       }
@@ -191,6 +210,7 @@ export function createMap(container: HTMLElement, base: Basemap, first: LayerFil
       // Withheld and not-yet-reported are patterns, so neither ever reads as zero or as a colour of the scale.
       map.addLayer({ id: 'withheld', type: 'fill', source: 'countries', paint: { 'fill-pattern': 'withheld', 'fill-opacity': ['case', ['==', cls, 0], dim, 0] } });
       map.addLayer({ id: 'notyet', type: 'fill', source: 'countries', paint: { 'fill-pattern': 'notyet', 'fill-opacity': ['case', ['==', cls, -1], dim, 0] } });
+      map.addLayer({ id: 'hatch', type: 'fill', source: 'countries', paint: { 'fill-pattern': 'hatch', 'fill-opacity': ['case', ['==', cls, -2], dim, 0] } });
       map.addLayer({ id: 'border', type: 'line', source: 'countries', paint: { 'line-color': T['--map-border'], 'line-width': 0.6 } });
       map.addLayer({ id: 'disputed', type: 'line', source: 'disputed', paint: { 'line-color': T['--ink-muted'], 'line-width': 1, 'line-dasharray': [3, 2] } });
       map.addLayer({ id: 'bloc', type: 'line', source: 'countries', filter: ['in', ['get', 'id'], ['literal', []]], paint: { 'line-color': T['--ink'], 'line-width': 2 } });
@@ -326,6 +346,7 @@ export function createMap(container: HTMLElement, base: Basemap, first: LayerFil
       } else home = HOME_BOUNDS;
       if (!ready) return;
       map.setPaintProperty('fill', 'fill-color', fillOf(next));
+      map.updateImage('hatch', hatch(hatchColour(next), T['--paper-raised'], T['--ink']));
       removeOverlays();
       addOverlays(shown);
       showMarks();

@@ -56,10 +56,12 @@ export interface HubCard {
   updated?: string;
   chips: Link[];
   /** `pattern` names the patterns it uses (withheld hatching, not-yet dots), defined in the card's own SVG. */
-  thumb: { width: number; height: number; paths: { d: string; fill: string }[]; label: string; pattern: string; withheld: boolean; notyet: boolean };
+  thumb: { width: number; height: number; paths: { d: string; fill: string }[]; label: string; pattern: string; withheld: boolean; notyet: boolean;
+    /** The hatch class's colour, when the layer has one (pattern `${pattern}-h`). */
+    hatch?: string };
   /** The thumbnail's small key: a swatch (a colour, or the legend's swatch class) and words for each, so colour is
    *  never the only cue; every state the full map shows has its entry. */
-  key: { fill?: string; sw?: 'withheld' | 'notyet' | 'nodata'; label: string }[];
+  key: { fill?: string; sw?: 'withheld' | 'notyet' | 'nodata' | 'hatch'; label: string }[];
   open: string;
 }
 
@@ -118,12 +120,16 @@ export function chipsOf(family: string): Link[] {
   return chips.length > 1 ? chips.slice(0, 8) : [];
 }
 
+/** The hatch class's colour, as the map draws it. */
+const hatchOf = (f: LayerFile) => (f.hatch ? `var(--${f.palette ?? f.scale}-${f.hatch.cls})` : undefined);
+
 /** A place's fill on a layer, as the full map draws it: its class colour, the withheld hatching, the not-yet dots,
  *  or the no-data grey (patterns `${pattern}-w` and `${pattern}-n` are in the card's SVG). */
 function fillOf(f: LayerFile, cls: number | undefined, pattern: string): string {
   if (cls === undefined) return 'var(--map-nodata)';
   if (cls === 0) return `url(#${pattern}-w)`;
   if (cls === -1) return `url(#${pattern}-n)`;
+  if (cls === -2) return `url(#${pattern}-h)`;
   return `var(--${f.palette ?? f.scale}-${cls})`;
 }
 
@@ -138,6 +144,7 @@ function keyOf2(f: LayerFile, i: number): HubCard['key'] {
   const v = Object.values(f.data[i].v);
   return [
     ...scale,
+    ...(f.hatch && v.some((e) => e[0] === -2) ? [{ sw: 'hatch' as const, fill: hatchOf(f), label: f.hatch.label }] : []),
     ...(f.missing.withheld && v.some((e) => e[0] === 0) ? [{ sw: 'withheld' as const, label: f.missing.withheld }] : []),
     ...(f.missing.notyet && v.some((e) => e[0] === -1) ? [{ sw: 'notyet' as const, label: f.missing.notyet }] : []),
     { sw: 'nodata' as const, label: f.missing.none },
@@ -166,6 +173,7 @@ function cardOf(family: string, lead: boolean): HubCard | null {
       width: map.width, height: map.height, label: H.thumb(y.legend), pattern,
       paths: map.paths.map((p) => ({ d: p.d, fill: fillOf(f, p.id ? y.v[p.id]?.[0] : undefined, pattern) })),
       withheld: Object.values(y.v).some((e) => e[0] === 0), notyet: Object.values(y.v).some((e) => e[0] === -1),
+      ...(Object.values(y.v).some((e) => e[0] === -2) ? { hatch: hatchOf(f) } : {}),
     },
     key: keyOf2(f, i),
     open: H.open(kicker),

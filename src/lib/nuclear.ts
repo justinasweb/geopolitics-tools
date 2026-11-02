@@ -181,12 +181,16 @@ export function sharingClass(id: string): SharingClass | null {
 }
 export const SHARING_CLASSES: SharingClass[] = ['armed', 'host', 'reported', 'umbrella'];
 
-export function sharingCounts() {
-  const places = [...new Set(sharingRows().map((r) => r.place))];
-  const c = (k: SharingClass) => places.filter((p) => sharingClass(p) === k).length;
-  // Hosts also covered by a guarantee count as hosts on the map; the guarantee count is every place covered.
-  const umbrella = new Set(sharingRows().filter((r) => r.kind === 'umbrella').map((r) => r.place)).size;
-  return { host: c('host'), reported: c('reported'), umbrella };
+/**
+ * How many countries have each arrangement, counted by arrangement, not by map colour: a host that is also covered by
+ * a guarantee counts as a host and as covered. The answer under the title and the world panel both read this.
+ */
+export function sharingCounts(): Record<SharingClass, number> {
+  const rows = sharingRows();
+  const places = (f: (r: SharingRow) => boolean) => new Set(rows.filter(f).map((r) => r.place));
+  const stated = places((r) => r.kind === 'host' && r.status === 'stated');
+  const reported = [...places((r) => r.kind === 'host')].filter((p) => !stated.has(p));
+  return { armed: armedStates().length, host: stated.size, reported: reported.length, umbrella: places((r) => r.kind === 'umbrella').size };
 }
 
 export function sharingLede(): string {
@@ -195,7 +199,7 @@ export function sharingLede(): string {
 }
 
 /** Who provides an arrangement, in words. */
-export const providerName = (p: string) => T.provider[p] ?? nameOf(p);
+export const providerName = (p: string) => T.provider[p] ?? inSentence(nameOf(p));
 /** The note on an arrangement: by place and kind, else by provider and kind. */
 export const sharingNote = (r: SharingRow) => T.sharingNotes[`${r.kind}:${r.place}`] ?? T.sharingNotes[`${r.kind}:${r.provider}`] ?? '';
 
