@@ -1,11 +1,11 @@
 Entity,Code,Year,nuclear_weapons_deployed_strategic,nuclear_weapons_deployed_nonstrategic,nuclear_weapons_reserve_nondeployed,nuclear_weapons_retired
-China,CHN,2025,24,0,576,0
-France,FRA,2025,280,0,10,0
-India,IND,2025,0,0,180,0
-Israel,ISR,2025,0,0,90,0
-North Korea,PRK,2025,0,0,50,0
-Pakistan,PAK,2025,0,0,170,0
-Russia,RUS,2025,1718,0,2591,1150
-United Kingdom,GBR,2025,120,0,105,0
-United States,USA,2025,1670,100,1930,1477
-World,OWID_WRL,2025,3812,100,5702,2627
+China,CHN,2026,24,0,626,0
+France,FRA,2026,280,0,10,0
+India,IND,2026,0,0,180,0
+Israel,ISR,2026,0,0,90,0
+North Korea,PRK,2026,0,0,50,0
+Pakistan,PAK,2026,0,0,170,0
+Russia,RUS,2026,1718,0,2591,1150
+United Kingdom,GBR,2026,120,0,105,0
+United States,USA,2026,1670,100,1930,1477
+World,OWID_WRL,2026,3812,100,5752,2627

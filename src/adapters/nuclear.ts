@@ -37,6 +37,10 @@ export interface Forces {
 export interface NuclearData {
   /** Estimated warheads by place and year (the year of the estimate: FAS dates them "early" in the year). */
   inventory: Series;
+  /** The year the series takes from the split (FAS's current figures, newer than the series), or null. */
+  extended: number | null;
+  /** Which of the split's totals the series measures: the military stockpile, or the total inventory (retired too). */
+  measure: 'stockpile' | 'inventory';
   /** The latest split by place: FAS's own table when imported and as new, else OWID's status chart; null when neither. */
   forces: { year: number; asOf: string; url: string; rows: Record<string, Forces> } | null;
 }
@@ -139,11 +143,37 @@ export function parseStatus(text: string): NonNullable<NuclearData['forces']> | 
   return Object.keys(out).length ? { year, asOf: String(year), url: 'https://ourworldindata.org/grapher/nuclear-warhead-inventories', rows: out } : null;
 }
 
+/**
+ * Which of FAS's two totals the series counts, found from the figures: the series' latest year at or before the split's,
+ * against the split's military stockpile and its total inventory (they differ by the retired warheads, thousands for
+ * Russia and the United States), whichever is nearer.
+ */
+export function seriesMeasure(series: Series, forces: NonNullable<NuclearData['forces']>): 'stockpile' | 'inventory' {
+  let dS = 0, dI = 0;
+  for (const f of Object.values(forces.rows)) {
+    const ys = Object.keys(series[f.place] ?? {}).map(Number).filter((y) => y <= forces.year);
+    if (!ys.length) continue;
+    const v = series[f.place][Math.max(...ys)];
+    dS += Math.abs(v - f.stockpile);
+    dI += Math.abs(v - f.inventory);
+  }
+  return dS < dI ? 'stockpile' : 'inventory';
+}
+
 export function nuclear(raw: Raw): NuclearData {
   const inventory = parseInventory(raw.text('fas', FAS_FILE));
   const owid = raw.has('fas', STATUS_FILE) ? parseStatus(raw.text('fas', STATUS_FILE)) : null;
   const hand = raw.has('fas-forces', FORCES_FILE) ? parseForces(raw.text('fas-forces', FORCES_FILE)) : null;
   // FAS's own table wins when it is at least as new as OWID's copy of it.
   const forces = hand && (!owid || hand.year >= owid.year) ? hand : owid;
-  return { inventory, forces };
+  const measure = forces ? seriesMeasure(inventory, forces) : 'inventory';
+  // FAS's current figures are newer than the series: they become its latest year, in the measure the series counts,
+  // so the slider, the chart and the totals reach the current estimate without mixing two measures.
+  const last = Math.max(...Object.values(inventory).flatMap((y) => Object.keys(y).map(Number)));
+  let extended: number | null = null;
+  if (forces && forces.year > last) {
+    for (const f of Object.values(forces.rows)) put(inventory, f.place, forces.year, f[measure]);
+    extended = forces.year;
+  }
+  return { inventory, forces, extended, measure };
 }

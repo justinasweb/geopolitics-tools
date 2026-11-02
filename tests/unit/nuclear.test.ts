@@ -5,7 +5,7 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import fas, { checkSeries, checkStatus } from '../../pipeline/sources/fas.ts';
 import { KINDS } from '../../pipeline/sources/imported.ts';
 import { prepare, readInput } from '../../pipeline/lib/importer.ts';
-import { columnsOf, parseForces, parseInventory, parseStatus, statusColumns } from '../../src/adapters/nuclear.ts';
+import { columnsOf, parseForces, parseInventory, parseStatus, seriesMeasure, statusColumns } from '../../src/adapters/nuclear.ts';
 import { LICENCES } from '../../src/data/licences.ts';
 import { blocs } from '../../src/lib/blocs.ts';
 import { PLACES } from '../../src/lib/places.ts';
@@ -40,18 +40,18 @@ describe('FAS fetcher', () => {
     expect(r.files[0].body).toBe(OWID);
     expect(r.dataTo).toBe('2025');
     // What each file holds is logged before the checks, so a refused file still shows what came back.
-    expect(log.join('\n')).toMatch(/nuclear-warhead-inventories\.csv: columns Entity, Code, Year, .*figures in 1 years \(2025–2025\)/);
+    expect(log.join('\n')).toMatch(/nuclear-warhead-inventories\.csv: columns Entity, Code, Year, .*figures in 1 years \(2026–2026\)/);
   });
 
   it('refuses a series that holds only the latest year (what the inventories chart gave on 2 Nov 2026)', () => {
-    expect(() => checkSeries(STATUS, now)).toThrow(/starts in 2025, not 1945/);
+    expect(() => checkSeries(STATUS, now)).toThrow(/starts in 2026, not 1945/);
     expect(() => checkSeries(OWID.split('\n').filter((l) => !l.startsWith('Israel')).join('\n'), now)).toThrow(/ISR/);
     expect(() => checkSeries(OWID, new Date('2030-01-01'))).toThrow(/stale/);
     expect(() => checkSeries('country,year,co2\nA,2024,1\n', now)).toThrow(/Entity, Code, Year/);
   });
 
   it('refuses a split without status columns', () => {
-    expect(checkStatus(STATUS, now).last).toBe(2025);
+    expect(checkStatus(STATUS, now).last).toBe(2026);
     expect(() => checkStatus(OWID, now)).toThrow(/no status columns/);
   });
 });
@@ -75,10 +75,16 @@ describe('FAS adapter', () => {
     expect(statusColumns(['Entity', 'Code', 'Year', 'a_deployed_strategic', 'a_deployed_nonstrategic', 'a_reserve_nondeployed', 'a_retired']))
       .toEqual({ ds: 3, dn: 4, reserve: 5, retired: 6 });
     const f = parseStatus(STATUS)!;
-    expect(f.year).toBe(2025);
+    expect(f.year).toBe(2026);
     expect(Object.keys(f.rows)).toHaveLength(9);
     expect(f.rows.USA).toMatchObject({ deployed: 1770, reserve: 1930, stockpile: 3700, retired: 1477, inventory: 5177 });
     expect(parseStatus(OWID)).toBeNull();
+  });
+
+  it('tells which of FAS’s totals a series counts, and extends the series only with a newer split', () => {
+    const forces = parseStatus(STATUS)!;
+    expect(seriesMeasure({ USA: { 2025: 3700 }, RUS: { 2025: 4309 } }, forces)).toBe('stockpile');
+    expect(seriesMeasure({ USA: { 2025: 5177 }, RUS: { 2025: 5459 } }, forces)).toBe('inventory');
   });
 
   it('reads the hand-kept FAS table: retired is the total less the military stockpile, the Total row is skipped', () => {
@@ -100,13 +106,38 @@ describe('FAS adapter', () => {
 });
 
 describe('warheads model', () => {
-  it('keeps the series from the stockpile chart, with the world total as the sum of the states', () => {
+  it('runs from 1945 to FAS’s current figures, which are newer than the series, in the measure the series counts', () => {
     const m = N.warheadsModel()!;
-    expect(m.year).toBe(2025);
-    expect(m.byYear[2025].rows[0]).toEqual({ id: 'RUS', value: 5459 });
-    expect(m.byYear[2025].world).toBe(12241);
+    expect(m.years[0]).toBe(1945);
+    // The sample series ends in 2025; OWID's split is for 2026, so 2026 comes from it.
+    expect(m.extended).toBe(2026);
+    expect(m.year).toBe(2026);
+    // The sample series matches FAS's total inventory (retired included), so 2026 takes the split's total inventory.
+    expect(m.measure).toBe('inventory');
+    expect(m.byYear[2026].rows[0]).toEqual({ id: 'RUS', value: 5459 });
+    expect(m.byYear[2026].world).toBe(12291);
     expect(m.states.slice(0, 2)).toEqual(['RUS', 'USA']);
-    expect(N.warheadsLede()).toMatch(/^Russia has the most estimated warheads, 5,459, then the United States with 5,177; .* early 2025\.$/);
+    expect(N.warheadsLede()).toMatch(/^Russia has the most estimated warheads, 5,459, then the United States with 5,177; .* early 2026\.$/);
+  });
+
+  it('reports the real peak: the mid-1980s', () => {
+    const p = N.peakOf(N.warheadsModel()!);
+    expect(p.year).toBeGreaterThanOrEqual(1984);
+    expect(p.year).toBeLessThanOrEqual(1988);
+    expect(p.world).toBeGreaterThan(60000);
+  });
+
+  it('puts the split beside the totals only for the same year, where each state’s parts add up to its total', () => {
+    const m = N.warheadsModel()!;
+    const f = m.forces!;
+    expect(m.splitIsLatest).toBe(f.year === m.year);
+    for (const x of Object.values(f.rows)) {
+      expect(x.deployed + x.reserve + x.retired, x.place).toBe(x.inventory);
+      expect(x.deployed + x.reserve, x.place).toBe(x.stockpile);
+      // The total beside it on the map is the series' figure for the same year, within FAS's rounding.
+      const total = m.byYear[f.year]?.rows.find((r) => r.id === x.place)?.value;
+      if (total !== undefined) expect(Math.abs(total - x[m.measure]), x.place).toBeLessThanOrEqual(Math.max(5, 0.005 * total));
+    }
   });
 
   it('shades on one fixed scale for every year', () => {

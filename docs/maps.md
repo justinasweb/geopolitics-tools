@@ -333,8 +333,13 @@ words in src/i18n/nuclear.en.ts), in the Power and alliances hub after Chinese l
   early {year}". Figures are FAS's own, whole numbers; the world total is their sum, said as "about". The panel has
   the year's ranking, the inventories since 1945 (the four largest labelled) and FAS's current split; a state's
   panel adds its own split (deployed strategic and nonstrategic, reserve, military stockpile, retired, total). The
-  split comes from OWID's status chart, or from FAS's own table (`fas-forces`) when that is imported and as new; a
-  split's total is never written into the series, which stays one measure across every year. The table
+  split comes from OWID's status chart, or from FAS's own table (`fas-forces`) when that is imported and as new. When
+  the split is newer than the series (OWID's split for 2026, its series to 2025), the split's year becomes the series'
+  latest year, taking whichever of FAS's two totals the series counts (military stockpile, or total inventory with
+  retired warheads), found by matching the figures (`seriesMeasure`), and the page says that year comes from FAS's
+  current figures. The split sits beside the totals (panel and table columns) only when it is for the same year;
+  otherwise it has its own table labelled with its year and date. The panel's chart names states by their short
+  names (US, UK). The "Peak" line under it reads the highest world total in the series (the mid-1980s). The table
   under the map has the split and each state's first estimate; a CSV of every figure shown is at
   `/downloads/nuclear-warheads.csv` (FAS confirmed CC BY 4.0 by email on 29 Oct 2026). The methodology note links to
   FAS's own explanation.

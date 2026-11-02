@@ -55,7 +55,10 @@ const forces = m?.forces ?? null;
 const lastYear = m ? m.year : file.year;
 const peak = m ? peakOf(m) : null;
 const chartYears = m ? m.years : [];
-const chartLines = m ? m.states.map((s, i) => ({ label: nameOf(s), values: m.years.map((y) => m.byYear[y].rows.find((r) => r.id === s)?.value ?? null), cls: i < 6 ? `gt-ser-${i + 1}` : 'gt-ser-med', noLabel: i > 3 })) : [];
+// Short names (US, UK), as the other charts use, so the end labels fit the panel.
+const shortOf = (x: string) => place(x)?.short ?? nameOf(x);
+const sideBySide = !!(m?.splitIsLatest && forces);
+const chartLines = m ? m.states.map((s, i) => ({ label: shortOf(s), values: m.years.map((y) => m.byYear[y].rows.find((r) => r.id === s)?.value ?? null), cls: i < 6 ? `gt-ser-${i + 1}` : 'gt-ser-med', noLabel: i > 3 })) : [];
 const updated = refreshed('fas');
 const csvHref = m && live(key('warheads')) ? `/downloads/${NUCLEAR_CSV}.csv` : null;
 
@@ -158,23 +161,20 @@ const legend = id === 'warheads'
               <thead><tr>
                 <th scope="col" data-key="n"><button type="button">{N.country}</button></th>
                 <th scope="col" class="n" data-key="v" data-type="num" aria-sort="descending"><button type="button">{N.figureLabel}</button></th>
-                {forces && <th scope="col" class="n" data-key="d" data-type="num"><button type="button">{N.deployed}</button></th>}
-                {forces && <th scope="col" class="n" data-key="r" data-type="num"><button type="button">{N.reserve}</button></th>}
-                {forces && <th scope="col" class="n" data-key="t" data-type="num"><button type="button">{N.retired}</button></th>}
-                <th scope="col" class="n" data-key="f" data-type="num"><button type="button">{N.first}</button></th>
+                {sideBySide && <th scope="col" class="n" data-key="d" data-type="num"><button type="button">{N.deployed}</button></th>}
+                {sideBySide && <th scope="col" class="n" data-key="r" data-type="num"><button type="button">{N.reserve}</button></th>}
+                {sideBySide && <th scope="col" class="n" data-key="t" data-type="num"><button type="button">{N.retired}</button></th>}
               </tr></thead>
               <tbody>
                 {m.byYear[lastYear].rows.map((r) => {
                   const f = forces?.rows[r.id];
-                  const firstYear = m.years.find((y) => m.byYear[y].rows.some((x) => x.id === r.id));
                   return (
                     <tr data-place={r.id}>
                       <th scope="row">{countryHref(r.id) ? <a href={countryHref(r.id)}>{nameOf(r.id)}</a> : nameOf(r.id)}</th>
                       <td class="n" data-v={r.value}>{warheads(r.value)} <StatusTag status="estimate" small /></td>
-                      {forces && <td class="n" data-v={f?.deployed ?? -1}>{f ? warheads(f.deployed) : '–'}</td>}
-                      {forces && <td class="n" data-v={f?.reserve ?? -1}>{f ? warheads(f.reserve) : '–'}</td>}
-                      {forces && <td class="n" data-v={f?.retired ?? -1}>{f ? warheads(f.retired) : '–'}</td>}
-                      <td class="n" data-v={firstYear}>{firstYear}</td>
+                      {sideBySide && <td class="n" data-v={f?.deployed ?? -1}>{f ? warheads(f.deployed) : '–'}</td>}
+                      {sideBySide && <td class="n" data-v={f?.reserve ?? -1}>{f ? warheads(f.reserve) : '–'}</td>}
+                      {sideBySide && <td class="n" data-v={f?.retired ?? -1}>{f ? warheads(f.retired) : '–'}</td>}
                     </tr>
                   );
                 })}
@@ -182,6 +182,36 @@ const legend = id === 'warheads'
             </table>
           </div>
           <SourceLine source={N.source} updated={updated} parts={[N.estimate(lastYear)]} status="estimate" />
+          {m.extended && <p class="gt-caption">{N.extendedNote(m.extended)}</p>}
+          {forces && !sideBySide && (
+            <>
+              <h3 class="gt-h3">{N.splitTable(forces.year)}</h3>
+              <div class="gt-tablewrap" style="--gt-table-h:none" tabindex="0" role="region" aria-label={N.splitTable(forces.year)}>
+                <table class="gt-table" data-gt-sort>
+                  <caption class="gt-caption">{N.splitTableCaption(forces.year, lastYear)}</caption>
+                  <thead><tr>
+                    <th scope="col" data-key="n"><button type="button">{N.country}</button></th>
+                    <th scope="col" class="n" data-key="d" data-type="num"><button type="button">{N.deployed}</button></th>
+                    <th scope="col" class="n" data-key="r" data-type="num"><button type="button">{N.reserve}</button></th>
+                    <th scope="col" class="n" data-key="t" data-type="num"><button type="button">{N.retired}</button></th>
+                    <th scope="col" class="n" data-key="v" data-type="num" aria-sort="descending"><button type="button">{N.inventory}</button></th>
+                  </tr></thead>
+                  <tbody>
+                    {Object.values(forces.rows).sort((a, b) => b.inventory - a.inventory).map((f) => (
+                      <tr data-place={f.place}>
+                        <th scope="row">{nameOf(f.place)}</th>
+                        <td class="n" data-v={f.deployed}>{warheads(f.deployed)}</td>
+                        <td class="n" data-v={f.reserve}>{warheads(f.reserve)}</td>
+                        <td class="n" data-v={f.retired}>{warheads(f.retired)}</td>
+                        <td class="n" data-v={f.inventory}>{warheads(f.inventory)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <SourceLine source={forces.asOf.length > 4 ? N.splitSource(formatPartialDate(forces.asOf)) : N.splitSourceOwid(forces.year)} status="estimate" />
+            </>
+          )}
           {csvHref && <p><a class="gt-btn gt-btn--quiet" href={csvHref} download>{N.csv}</a></p>}
           <h2 class="gt-h2">{N.chart(m.years[0], lastYear)}</h2>
           <LineChart label={N.chart(m.years[0], lastYear)} years={chartYears} lines={chartLines} format={{ kind: 'count' }} />

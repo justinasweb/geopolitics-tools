@@ -52,6 +52,12 @@ export interface WarheadsModel {
   /** Every state with an estimate in any year, by its latest figure, largest first. */
   states: string[];
   forces: ReturnType<typeof nuclear>['forces'];
+  /** The year taken from FAS's current figures because they are newer than the series, or null. */
+  extended: number | null;
+  /** Which of the split's totals the series counts. */
+  measure: 'stockpile' | 'inventory';
+  /** The split is for the map's latest year, so it can sit beside that year's totals. */
+  splitIsLatest: boolean;
 }
 
 let wcache: WarheadsModel | null | undefined;
@@ -68,7 +74,7 @@ export function warheadsModel(): WarheadsModel | null {
   const year = years.at(-1)!;
   const last = (id: string) => { const y = d.inventory[id]; return y[Math.max(...Object.keys(y).map(Number))]; };
   const states = Object.keys(d.inventory).sort((a, b) => last(b) - last(a));
-  return (wcache = { years, year, byYear, states, forces: d.forces });
+  return (wcache = { years, year, byYear, states, forces: d.forces, extended: d.extended, measure: d.measure, splitIsLatest: d.forces?.year === year });
 }
 
 const nameOf = (id: string) => place(id)?.name ?? id;
