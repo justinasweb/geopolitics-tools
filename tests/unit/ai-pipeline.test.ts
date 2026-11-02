@@ -216,7 +216,8 @@ describe('the facts files in the repository', () => {
       const f = all.find((x) => x.id === `history:${b}`)!;
       for (const s of historySpans().get(b)!) {
         expect(f.facts.find((x) => x.id === `join-${s.place}-${s.from}`)?.period, `${b} ${s.place} ${s.from}`).toBe(String(s.from));
-        if (s.to !== null) expect(f.facts.find((x) => x.id === `left-${s.place}-${s.to}`)?.period, `${b} ${s.place} left ${s.to}`).toBe(String(s.to));
+        // A departure may be dated to the day (the UAE left OPEC on 2026-05-01); its year is the CSV's.
+        if (s.to !== null) expect(f.facts.find((x) => x.id === `left-${s.place}-${s.to}`)?.period?.slice(0, 4), `${b} ${s.place} left ${s.to}`).toBe(String(s.to));
       }
     }
   });

@@ -2,6 +2,28 @@
 
 Decisions put off for later. Each says what the question is, what the site does now, and the options seen so far.
 
+## Re-check bloc memberships before launch (raised 2 Nov 2026)
+
+**The question.** The membership table (`src/data/blocs.csv`, `bloc-history.csv`) is kept by hand, and the
+weekly Wikidata cross-check planned for phase 5a is not built yet. It was last checked in full on **21 October 2026**
+(`BLOCS_CHECKED` in `src/lib/blocs.ts`), but it missed the United Arab Emirates leaving OPEC and OPEC+ on
+1 May 2026 (announced on 28 April 2026, [WAM](https://www.wam.ae/en/article/bzxzuh7-uae-announces-decision-exit-opec-opec+)).
+That was fixed on **2 November 2026**: the UAE was removed from OPEC (now 11 members) and OPEC+ (now 21), its OPEC
+history ends in 2026, and the change is in Sources → Corrections. Only OPEC and OPEC+ were rechecked that day, so
+`BLOCS_CHECKED` still says 21 October 2026.
+
+**Outline sentences use today's members for every year.** A bloc's share on a map (the "Outline a bloc" line) adds
+up its members as they are today, whatever year the map shows, so OPEC's 2024 oil share leaves out the UAE, which
+was a member then. The oil and gas lines now say "Today's OPEC members produced…". About 30 other outline sentences
+(food, minerals, emissions, refugees, space, AI, lending, arms, sanctions, nuclear, conflict) still say "OPEC members"
+with a past year. Options: say "today's" in all of them, or use each year's members where a history exists (the 11
+groupings in `bloc-history.csv`).
+
+**Before launch.** Check every one of the 19 groupings against its own member list, update `BLOCS_CHECKED` to that
+day, and log any change in `src/data/corrections.csv`. Known points to look at: BRICS (Saudi Arabia's status),
+the CSTO (Armenia's frozen participation), OPEC+ (its list of non-OPEC producers) and the G20 (the African Union is
+not a country, so not on the map).
+
 ## AI drafting: choices to confirm (raised 2 Nov 2026)
 
 Made while building the drafting pipeline (docs/ai-drafting.md); each is easy to change.
@@ -13,9 +35,6 @@ Made while building the drafting pipeline (docs/ai-drafting.md); each is easy to
   page could be checked (ASEAN's Timor-Leste declaration, Ethiopia's Prime Minister's Office, Egypt's State
   Information Service, Xinhua, the MEA). Privacy and Methodology also wait on the Fathom, Cloudflare and SIPRI facts
   and the six territory notes.
-- **OPEC and the UAE.** One secondary source found while researching says the United Arab Emirates left OPEC in May
-  2026. `src/data/blocs.csv` and `bloc-history.csv` still have it as a member (checked 21 Oct 2026). Check opec.org
-  before drafting the OPEC note.
 - **Stale texts are hidden.** A short text whose facts changed disappears until it is redrafted; a long page shows
   the draft banner again. For dossiers this happens whenever a figure they cite gets a new year. The alternative is
   to keep showing the old text with its approval date until the redraft.

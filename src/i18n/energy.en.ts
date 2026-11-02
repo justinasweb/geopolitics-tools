@@ -142,12 +142,13 @@ export const ENERGY_TEXT = {
   trendCaption: '{first} in {from}; {last} in {to}.',
   ranking: 'Ranking, {year}',
   share: 'Share of world',
-  // Bloc lines.
+  // Bloc lines. A bloc is its members today, applied to every year (the UAE, which left OPEC in 2026, is not in
+  // OPEC's 2024 share), so the line says "today's".
   bloc: {
-    production: (b: string, share: string, name: string, y: number) => `${b} members produced ${share} of the world’s ${name} in ${y}.`,
-    consumption: (b: string, share: string, name: string, y: number) => `${b} members used ${share} of the world’s ${name} in ${y}.`,
-    reserves: (b: string, share: string, name: string, y: number) => `${b} members held ${share} of the world’s proved ${name} reserves in ${y}.`,
-    trade: (b: string, v: string, exports: boolean, name: string, y: number) => `${b} members together were net ${exports ? 'exporters' : 'importers'} of ${v} of ${name} in ${y}.`,
+    production: (b: string, share: string, name: string, y: number) => `Today’s ${b} members produced ${share} of the world’s ${name} in ${y}.`,
+    consumption: (b: string, share: string, name: string, y: number) => `Today’s ${b} members used ${share} of the world’s ${name} in ${y}.`,
+    reserves: (b: string, share: string, name: string, y: number) => `Today’s ${b} members held ${share} of the world’s proved ${name} reserves in ${y}.`,
+    trade: (b: string, v: string, exports: boolean, name: string, y: number) => `Today’s ${b} members together were net ${exports ? 'exporters' : 'importers'} of ${v} of ${name} in ${y}.`,
   },
   blocNone: (b: string, y: number) => `No ${b} member has a figure for ${y}.`,
   // The tables.

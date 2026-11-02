@@ -99,7 +99,8 @@ describe('Bloc overlap from blocs.csv', () => {
     const d = overlapData();
     expect(d.blocs).toHaveLength(19);
     const size = Object.fromEntries(d.blocs.map((b) => [b.id, b.members.length]));
-    expect(size).toMatchObject({ nato: 32, eu: 27, g7: 7, g20: 19, brics: 10, sco: 10, asean: 11, opec: 12, quad: 4 });
+    // OPEC and OPEC+ lost the United Arab Emirates on 1 May 2026 (src/data/corrections.csv).
+    expect(size).toMatchObject({ nato: 32, eu: 27, g7: 7, g20: 19, brics: 10, sco: 10, asean: 11, opec: 11, 'opec-plus': 21, quad: 4 });
     expect(sharedMembers(d, 'nato', 'eu')).toHaveLength(23);
     expect(sharedMembers(d, 'brics', 'sco')).toHaveLength(4);
   });

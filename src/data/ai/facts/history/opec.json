@@ -21,7 +21,8 @@
     "VEN"
   ],
   "names": [
-    "OPEC"
+    "OPEC",
+    "OPEC+"
   ],
   "generated": "by hand, from src/data/bloc-history.csv and the events in src/i18n/blocs.en.ts",
   "facts": [
@@ -193,6 +194,32 @@
       "date": "2026-10-21",
       "unverified": true,
       "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "announce-ARE-2026",
+      "statement": "The United Arab Emirates announced on 28 April 2026 that it would leave OPEC and OPEC+.",
+      "period": "2026-04-28",
+      "places": [
+        "ARE"
+      ],
+      "source": "WAM, Emirates News Agency: UAE announces decision to exit OPEC & OPEC+",
+      "link": "https://www.wam.ae/en/article/bzxzuh7-uae-announces-decision-exit-opec-opec+",
+      "date": "2026-04-28",
+      "unverified": true,
+      "note": "Official UAE statement found by web search; wam.ae was not reachable from the build session. Check the date and wording against the link."
+    },
+    {
+      "id": "left-ARE-2026",
+      "statement": "The United Arab Emirates left OPEC and OPEC+ on 1 May 2026.",
+      "period": "2026-05-01",
+      "places": [
+        "ARE"
+      ],
+      "source": "WAM, Emirates News Agency: UAE announces decision to exit OPEC & OPEC+",
+      "link": "https://www.wam.ae/en/article/bzxzuh7-uae-announces-decision-exit-opec-opec+",
+      "date": "2026-04-28",
+      "unverified": true,
+      "note": "Official UAE statement found by web search; wam.ae was not reachable from the build session. Check the date and wording against the link."
     },
     {
       "id": "join-DZA-1969",
@@ -395,8 +422,8 @@
     },
     {
       "id": "members-2026",
-      "statement": "Members of OPEC in 2026, as the membership table was checked on 21 October 2026.",
-      "value": 12,
+      "statement": "Members of OPEC in 2026, after the United Arab Emirates left on 1 May 2026; counted on 2 November 2026.",
+      "value": 11,
       "unit": "members",
       "unitAliases": [
         "countries",
@@ -407,7 +434,7 @@
       "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
       "date": "2026-10-21",
       "unverified": true,
-      "note": "Count of the open rows in src/data/bloc-history.csv; check against the link."
+      "note": "Count of the open rows in src/data/bloc-history.csv, recounted on 2 November 2026 after the UAE left; check against the link."
     }
   ]
 }

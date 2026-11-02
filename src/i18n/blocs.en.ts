@@ -176,6 +176,7 @@ export const HISTORY_EVENTS: Record<string, Record<number, string>> = {
   opec: {
     2016: 'Indonesia rejoined in January and suspended its membership again in November.',
     2024: 'Angola left.',
+    2026: 'The United Arab Emirates left OPEC and OPEC+ on 1 May 2026, as it announced on 28 April 2026.',
   },
   csto: {
     1992: 'The Collective Security Treaty was signed.',
