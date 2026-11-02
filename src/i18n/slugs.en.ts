@@ -9,6 +9,7 @@ export const SECTION_SLUGS = {
   emissions: 'emissions', refugees: 'refugees', disasters: 'disasters', food: 'food', blocs: 'blocs',
   space: 'space', ai: 'ai', sanctions: 'sanctions', internet: 'internet',
   water: 'water', 'chinese-lending': 'chinese-lending', arms: 'arms', oil: 'oil', gas: 'gas', electricity: 'electricity', conflict: 'conflict', 'food-crises': 'food-crises',
+  nuclear: 'nuclear',
   explorer: 'explorer', dependencies: 'dependencies', 'supply-chains': 'supply-chains', atlas: 'atlas',
 } as const;
 
@@ -47,6 +48,9 @@ export const FOOD_LAYER_SLUGS: Record<string, string> = { production: '', use: '
 
 /** Oil and gas: the measure after /oil or /gas; production is the section's own address. */
 export const ENERGY_LAYER_SLUGS: Record<string, string> = { production: '', consumption: 'consumption', trade: 'trade', reserves: 'reserves' };
+
+/** Nuclear weapons after /nuclear; the warheads map is the section itself. */
+export const NUCLEAR_SLUGS: Record<string, string> = { warheads: '', treaties: 'treaties', sharing: 'sharing' };
 
 /** Groupings after /blocs; every grouping together is the section itself. */
 export const BLOC_SLUGS: Record<string, string> = {

@@ -321,6 +321,61 @@ analysis", never "No data" or zero. The total covers the countries analysed, whi
 change is not shown. A country's panel gives its latest analysis by phase; the page lists countries with people in
 Phase 5, which counts people in catastrophe, not famine (an area classification this endpoint does not give).
 
+## Nuclear weapons (phase 5a)
+
+`/nuclear` (warheads), `/nuclear/treaties` and `/nuclear/sharing` (src/lib/nuclear.ts, src/templates/NuclearView.astro,
+words in src/i18n/nuclear.en.ts), in the Power and alliances hub after Chinese lending (spec, D17).
+
+- **Warheads.** FAS's estimated stockpile for each of the nine states, every year since 1945, from OWID's stockpile
+  chart, which credits FAS (`fas`, `nuclear-warhead-stockpiles.csv`). OWID's "inventories" chart holds only the latest
+  year (found by the first live check), so it gives the split, never the series; the slider steps through the years on one fixed scale
+  (under 100, 100–300, 300–1,000, 1,000–5,000, 5,000+). Every figure carries the Estimate tag and "FAS estimate, as of
+  early {year}". Figures are FAS's own, whole numbers; the world total is their sum, said as "about". The panel has
+  the year's ranking, the inventories since 1945 (the four largest labelled) and FAS's current split; a state's
+  panel adds its own split (deployed strategic and nonstrategic, reserve, military stockpile, retired, total). The
+  split comes from OWID's status chart, or from FAS's own table (`fas-forces`) when that is imported and as new. When
+  the split is newer than the series (OWID's split for 2026, its series to 2025), the split's year becomes the series'
+  latest year, taking whichever of FAS's two totals the series counts (military stockpile, or total inventory with
+  retired warheads), found by matching the figures (`seriesMeasure`), and the page says that year comes from FAS's
+  current figures. The split sits beside the totals (panel and table columns) only when it is for the same year;
+  otherwise it has its own table labelled with its year and date. The panel's chart names states by their short
+  names (US, UK). The "Peak" line under it reads the highest world total in the series (the mid-1980s).
+- **The Soviet Union.** OWID files the Soviet Union's warheads under Russia's code through 1991. The figures stay on
+  Russia's shape (the basemap has no Soviet Union) and nothing moves between countries, but every place that shows a
+  year says "Soviet Union" for 1949–1991 (`FORMER` in src/lib/nuclear.ts; `names` per year in the layer file): the
+  panel, tooltip, ranking, the chart (a line of its own to 1991, then Russia's, in one colour) and the CSV (Soviet
+  Union, SUN, "Russia from 1992"), with Russia's note "Figures to 1991 are the Soviet Union's, shown on Russia's shape;
+  Russia from 1992."
+- **Year labels.** Only the year of FAS's current page (its split's year) says "FAS estimate, as of early {year}";
+  the historical series says "{year} · FAS, via Our World in Data". Every figure keeps the Estimate tag. A change from a
+  world total under 100 is given in warheads ("Up 59 warheads from 1949"), not a percentage.
+- **Sharing panel.** A country's arrangements are stacked full width (`stack` on the panel block): the arrangement and
+  who it is with, then whether it is stated or not officially confirmed with its key (the hatch for a host only FAS
+  reports), then the date and note. "Reported by FAS" is said once, in the headline. The table
+  under the map has the split and each state's first estimate; a CSV of every figure shown is at
+  `/downloads/nuclear-warheads.csv` (FAS confirmed CC BY 4.0 by email on 29 Oct 2026). The methodology note links to
+  FAS's own explanation.
+- **Treaties.** One map of the NPT and TPNW together, in five unordered classes: party to both, NPT party that signed
+  the TPNW, NPT party only, not a party to the NPT, and North Korea's announced withdrawal (with a note). From
+  `src/data/nuclear-treaties.csv` (place, treaty, status, date, source). **Hidden on real builds** until the file has
+  been checked against the UNODA Treaties Database and `TREATIES_CHECKED` is set: it was compiled in a session that
+  could not reach UNODA. Sample builds show it.
+- **Sharing.** Countries with nuclear weapons, countries that host another state's weapons, and countries covered by an
+  ally's guarantee, from `src/data/nuclear-sharing.csv` (place, provider, kind, status, date, source), one dated,
+  cited row per arrangement, like the alliance histories. An arrangement is shown as fact (`stated`) only when a
+  government or alliance has stated it (NATO's guarantee to its members, Russia on Belarus, the US to Japan, Korea and
+  Australia); a host only FAS reports (`reported`: the five European hosts of US weapons, which NATO does not name) is
+  drawn as a dense hatch of the stated hosts' colour over a light tint of it (class −2 and `hatch` in the layer file),
+  says "reported by FAS", and keeps its borders, so it reads as a host, less certain, never as no data. The stripes are
+  the colour with 15% ink: 3.4:1 against the no-data grey in the light theme (the plain colour is 2.75:1), 4.5:1 or more
+  in the dark one. A place both hosting and covered is shaded as a host; its panel lists both, and the counts (answer
+  and world panel, from `sharingCounts`) count it in both rows.
+- **Neutral colours.** Treaty and sharing classes have no order, so their layer files set `palette: 'cat'` and the
+  engine, legends and hub thumbnails draw them in the categorical colours (`--cat-1…`) rather than a sequential ramp.
+  The Atlas panel lists the layer's counts (`tally` in the layer file) instead of a "largest" list for these layers.
+- **Country pages.** The nine states' "More figures" section has a Nuclear weapons block: the latest estimate with its
+  Estimate tag and a link to the map with the country selected.
+
 ## Not done in this phase
 
 - Refining shares and trade flows on the minerals views: later phases, once their sources are in.

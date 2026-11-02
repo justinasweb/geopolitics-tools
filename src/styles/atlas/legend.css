@@ -15,6 +15,7 @@
 .gt-sw { display: inline-block; width: 16px; height: 12px; flex: none; }
 .gt-sw--nodata { background: var(--map-nodata); box-shadow: inset 0 0 0 1px var(--rule-strong); }
 .gt-sw--withheld { background-color: var(--map-nodata); background-image: repeating-linear-gradient(135deg, var(--map-withheld) 0 1.5px, transparent 1.5px 4px); box-shadow: inset 0 0 0 1px var(--rule-strong); }
+.gt-sw--hatch { background-color: color-mix(in srgb, var(--gt-hatch) 30%, var(--paper-raised)); background-image: repeating-linear-gradient(-45deg, color-mix(in srgb, var(--gt-hatch) 85%, var(--ink)) 0 2px, transparent 2px 5px); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--gt-hatch) 85%, var(--ink)); }
 .gt-sw--notyet { background-color: var(--paper-raised); background-image: radial-gradient(circle, var(--ink-muted) 1px, transparent 1.3px); background-size: 4px 4px; box-shadow: inset 0 0 0 1px var(--rule-strong); }
 .gt-legend__ticks--dense { font-size: 12px; line-height: 15px; }
 

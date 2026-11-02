@@ -44,6 +44,7 @@ export const NAV_HUBS: NavHub[] = [
     id: 'power', path: '/power', views: [
       { id: 'sanctions', path: '/sanctions' },
       { id: 'chinese-lending', path: '/chinese-lending' },
+      { id: 'nuclear', path: '/nuclear' },
       { id: 'blocs', path: '/blocs' },
       { id: 'alliance-history', path: '/blocs/nato/history' },
     ],

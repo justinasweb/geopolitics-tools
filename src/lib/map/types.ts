@@ -11,7 +11,8 @@ export type Status = 'estimate' | 'projection' | 'preliminary';
 
 /**
  * One place's entry for a year: [class, value, detail, status, rank].
- * Class: 1–5 on a sequential scale, 1–7 on a diverging one; 0 withheld by the source; -1 not yet reported.
+ * Class: 1–5 on a sequential scale, 1–7 on a diverging one; 0 withheld by the source; -1 not yet reported; -2 the
+ * layer's `hatch` class (a named class drawn as a pattern).
  * Value is the figure the map shades by ("32%"), detail the absolute figure ("92,000 t"); rank is among places listed.
  */
 export type Entry = [cls: number, value: string, detail: string, status: Status | 0, rank: number];
@@ -30,6 +31,9 @@ export interface LayerYear {
   order: string[];
   /** Panel line for each bloc this year ("BRICS members mined 35%…"). */
   blocs: Record<string, string>;
+  /** Names that differ in this year, by place id: a former state shown on its successor's shape (Russia's figures
+   *  before 1992 are the Soviet Union's). The figures stay with the shape; only the name changes. */
+  names?: Record<string, string>;
   /** Blocks for a selected place that change with the year (a period's alerts). */
   more?: Record<string, PanelBlock[]>;
 }
@@ -38,7 +42,12 @@ export interface LayerYear {
 export interface PanelBlock {
   label: string;
   caption?: string;
-  rows: { name: string; value: string; href?: string; note?: string }[];
+  rows: { name: string; value: string; href?: string; note?: string;
+    /** A key for the value, as the map draws it: a colour (CSS), drawn solid or, with `hatch`, as the hatch pattern. */
+    swatch?: { color: string; hatch?: boolean } }[];
+  /** Each row as one full-width item (name, then value with its swatch, then the note), for rows whose names are
+   *  sentences (an arrangement and who it is with) rather than short labels beside figures. */
+  stack?: boolean;
   /** A line under the rows ("and 12 more"). */
   more?: string;
   source?: string;
@@ -72,6 +81,14 @@ export interface LayerFile {
   year: number;
   ticks: string[];
   /** Named classes in place of a scale (a bloc's members; joined, member, left): each a sequential class and its word. */
+  /** Draw the named classes in the categorical colours (--cat-1…8) instead of the sequential ones: for classes with no
+   *  order, so no shade reads as more or better (treaty status). */
+  palette?: 'cat';
+  /** A named class drawn as a dense hatch of another class's colour over a light tint of it (class -2 in the entries):
+   *  the same kind of place, less certain (a host only FAS reports), so it reads as related, not as no data. */
+  hatch?: { cls: number; label: string };
+  /** What the world panel counts, where that is not one count per map class (a place in two arrangements counts in both). */
+  tally?: { label: string; n: number }[];
   categories?: { cls: number; label: string }[];
   /** Diverging scales: what each end means. */
   ends?: [string, string];

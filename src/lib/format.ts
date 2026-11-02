@@ -41,6 +41,13 @@ export function formatDate(d: string | Date, locale = 'en-US'): string {
   return `${get('day')} ${get('month')} ${get('year')}`;
 }
 
+/** A date as precise as its source gives it: "2023" for YYYY, "Jun 2023" for YYYY-MM, else formatDate ("6 Dec 2024"). */
+export function formatPartialDate(d: string, locale = 'en-US'): string {
+  if (/^\d{4}$/.test(d)) return d;
+  if (/^\d{4}-\d{2}$/.test(d)) return `${new Intl.DateTimeFormat(locale, { month: 'short', timeZone: 'UTC' }).format(new Date(`${d}-01`))} ${d.slice(0, 4)}`;
+  return formatDate(d, locale);
+}
+
 /**
  * A value split into the number and the words after it, for key figures that set the unit smaller:
  * { num: 'US$1.44', unit: 'trillion' }, { num: '285', unit: 'million' }, { num: '0.8', unit: '% of GDP' }.

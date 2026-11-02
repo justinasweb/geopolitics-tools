@@ -114,6 +114,7 @@ export const NAV_TEXT = {
     arms: ['Arms transfers', 'Exporters and importers'],
     sanctions: ['Sanctions', 'US, EU and UK lists'],
     'chinese-lending': ['Chinese lending', 'By sector'],
+    nuclear: ['Nuclear weapons', 'Warheads, treaties, sharing'],
     blocs: ['Blocs', '19 groupings'],
     'alliance-history': ['Alliance history', 'How blocs grew'],
   } as Record<string, [string, string]>,

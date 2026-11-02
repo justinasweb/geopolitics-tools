@@ -34,6 +34,14 @@
 .gt-prows li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: baseline; padding: 5px 0; border-bottom: 1px solid var(--rule); }
 .gt-prows li:last-child { border-bottom: 0; }
 .gt-prow__n small { display: block; color: var(--ink-muted); font-size: 13px; }
+/* Stacked rows (an arrangement and who it is with): one full-width item each, the value under the name with its key. */
+.gt-prows--stack li { display: grid; grid-template-columns: minmax(0, 1fr); gap: 2px; padding: 8px 0; }
+.gt-prow__t { font-weight: 600; }
+.gt-prow__s { display: flex; align-items: center; gap: 6px; }
+.gt-prow__s .gt-sw { flex: none; }
+.gt-prows--stack small { color: var(--ink-muted); font-size: 13px; line-height: 18px; }
+/* A lone fact (a membership or an arrangement, with no rank or year before) takes the panel's full width. */
+.gt-panel__facts > div:only-child { grid-column: 1 / -1; }
 .gt-prow__v { font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
 .gt-bars--rank .gt-bars__rank { display: inline-block; min-width: 1.6em; color: var(--ink-muted); font-variant-numeric: tabular-nums; }
 .gt-bars--rank li[data-selected="true"] .gt-bars__name { font-weight: 600; }

@@ -34,6 +34,7 @@ const SAMPLES: Record<string, string> = {
   'aiddata': 'aiddata/gcdf_v3.csv',
   'usgs': 'usgs/MCS2026_Commodities_Data.csv',
   'treasury-history': 'treasury/mfh_history.csv',
+  'fas-forces': 'fas-forces/status-world-nuclear-forces.csv',
 };
 
 const csvKind = (columns: string[], extra: Partial<(typeof KINDS)[string]> = {}) => ({ source: 't', save: 't.csv', about: '', how: 'csv' as const, columns, ...extra });

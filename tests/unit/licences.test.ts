@@ -2,14 +2,14 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { IMPORTED } from '../../pipeline/sources/imported.ts';
 import { SOURCES } from '../../pipeline/sources/index.ts';
-import { LICENCES } from '../../src/data/licences.ts';
+import { LICENCE_OF, LICENCES } from '../../src/data/licences.ts';
 import { licenceTable } from '../../scripts/licence-table.ts';
 
 describe('licence table', () => {
   it('has one record for every fetched and imported source', () => {
     const ids = LICENCES.map((l) => l.source);
     expect(new Set(ids).size).toBe(ids.length);
-    for (const s of [...SOURCES, ...IMPORTED]) expect(ids, s.id).toContain(s.id);
+    for (const s of [...SOURCES, ...IMPORTED]) expect(ids, s.id).toContain(LICENCE_OF[s.id] ?? s.id);
   });
 
   it('offers downloads only where the terms were found to allow it', () => {

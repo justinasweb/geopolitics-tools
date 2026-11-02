@@ -14,11 +14,11 @@ import { amount, listed, mineralPages, shareClass, shareText, withheld, nameOf, 
 import { list, inSentence } from '../../i18n/pages.en.ts';
 import { OUTAGE_TEXT, PARTS_TEXT as PX, VIEW_TEXT, VIEWS_TEXT } from '../../i18n/views.en.ts';
 import { classFor, creditOf, familyPages, partsOf, placeNote, shareOf, valueText, viewPages, type ViewPage } from '../views.ts';
-import { shared } from '../data.ts';
+import { data, shared } from '../data.ts';
 import { loadFlows } from '../../data/flows.ts';
 import { countClass, daysText, disasterPages, type DisasterPage } from '../disasters.ts';
 import { DISASTERS_TEXT, KIND_TEXT } from '../../i18n/disasters.en.ts';
-import { formatDate, formatValue } from '../format.ts';
+import { formatDate, formatPartialDate, formatValue } from '../format.ts';
 import { TOP_FLOWS, balanceOf, estimated as foodEstimated, classFor as foodClass, foodPages, mt, netText, shareOf as foodShare, sourceOf, valueText as foodValue, type FoodPage } from '../food.ts';
 import { FOOD_NOTES, FOOD_TEXT } from '../../i18n/food.en.ts';
 import { TOP_FLOWS as ENERGY_TOP, amount as energyAmount, balanceOf as energyBalance, balanceYear, classFor as energyClass, energyPages, shareOf as energyShare, valueText as energyValue, type EnergyPage } from '../energy.ts';
@@ -45,6 +45,8 @@ import { CONFLICT_TEXT, monthText } from '../../i18n/conflict.en.ts';
 import { latestAnalyses, monthSpan } from '../hunger.ts';
 import { HUNGER_TEXT } from '../../i18n/hunger.en.ts';
 import { POWER_TEXT } from '../../i18n/electricity.en.ts';
+import { FORMER, nameIn, NUCLEAR_PAGES, SHARING_CHECKED, SHARING_CLASSES, TREATIES_CHECKED, sharingCounts, TREATY_CLASSES, armedStates, nuclearLive, providerName, sharingClass, sharingNote, sharingRows, treaties, treatyClass, warheadClass, warheads, warheadsModel, type NuclearPage } from '../nuclear.ts';
+import { NUCLEAR_TEXT } from '../../i18n/nuclear.en.ts';
 import type { Pair } from '../../data/flows.ts';
 import type { Hazard } from '../../adapters/hazards.ts';
 import type { Arc, Entry, LayerFile, LayerYear, Overlay, PanelBlock, Point } from './types.ts';
@@ -1001,6 +1003,128 @@ function riverLayer(id: string): LayerFile {
   };
 }
 
+
+/** A nuclear page's class colours: categorical, one per named class, so no class reads as more or better. */
+const TREATY_CLS = Object.fromEntries(TREATY_CLASSES.map((c, i) => [c, i + 1]));
+const SHARING_CLS = Object.fromEntries(SHARING_CLASSES.filter((c) => c !== 'reported').map((c, i) => [c, i + 1]));
+
+/** The FAS warhead estimates since 1945 (/nuclear), the NPT and TPNW together (/nuclear/treaties), or hosted weapons and
+ *  guarantees (/nuclear/sharing). Treaties and sharing have one step, the facts as kept; a host only FAS reports is
+ *  class -1, drawn dotted, so colour is never the only cue. */
+function nuclearLayer(id: NuclearPage): LayerFile {
+  const c = common();
+  const N = NUCLEAR_TEXT;
+  const memberships = blocs();
+  const name = N.title[id];
+  const words = (o: Partial<LayerFile['text']>): LayerFile['text'] => ({
+    ...(c.words as LayerFile['text']),
+    measure: '', withheld: MAP_TEXT.withheldBy, withheldWhy: '', prev: '{year}: {value}', rank: VIEWS_TEXT.rank(0, 1).replace('0', '{rank}').replace('1', '{of}'),
+    kicker: `${name} · {year}`, shareLabel: '', none: '', ...o,
+  });
+  const base = { tags: c.tags, names: c.names, hrefs: c.hrefs, dossiers: c.dossiers, slugs: c.slugs, blocs: c.blocs };
+  if (id === 'warheads') {
+    const m = warheadsModel()!;
+    const f = m.forces;
+    const data: LayerYear[] = m.years.map((year) => {
+      const y = m.byYear[year];
+      const v: Record<string, Entry> = {};
+      // Only FAS's current page says "as of early {year}"; the historical series gives its year.
+      y.rows.forEach((r, i) => { v[r.id] = [warheadClass(r.value), warheads(r.value), year === m.current ? N.estimate(year) : String(year), 'estimate', i + 1]; });
+      const names = Object.fromEntries(y.rows.filter((r) => FORMER[r.id] && year <= FORMER[r.id].until).map((r) => [r.id, nameIn(r.id, year)]));
+      const bl: Record<string, string> = {};
+      for (const [b, members] of memberships) {
+        const inBloc = y.rows.filter((r) => members.includes(r.id));
+        bl[b] = N.blocLine(BLOC_TEXT[b] ?? b, inBloc.length, warheads(inBloc.reduce((t, r) => t + r.value, 0)), year);
+      }
+      return { year, status: 'estimate', legend: N.legend(year), v, order: y.rows.map((r) => r.id), blocs: bl, ...(Object.keys(names).length ? { names } : {}) };
+    });
+    const notes = { ...c.notes };
+    for (const [id, f] of Object.entries(FORMER)) {
+      if (m.states.includes(id) && m.years[0] <= f.until) notes[id] = [notes[id], N.formerNote(nameIn(id, f.until), nameIn(id, f.until + 1), f.until + 1)].filter(Boolean).join(' ');
+    }
+    const more: Record<string, PanelBlock[]> = {};
+    if (f) {
+      for (const x of Object.values(f.rows)) {
+        more[x.place] = [{
+          label: N.split(f.year), caption: N.splitCaption, source: f.asOf.length > 4 ? N.splitSource(formatPartialDate(f.asOf)) : N.splitSourceOwid(f.year),
+          rows: [
+            { name: N.deployed, value: warheads(x.deployed), note: x.deployedNonstrategic ? `${N.deployedStrategic} ${warheads(x.deployedStrategic)}, ${N.deployedNonstrategic.toLowerCase()} ${warheads(x.deployedNonstrategic)}` : undefined },
+            { name: N.reserve, value: warheads(x.reserve) },
+            { name: N.stockpile, value: warheads(x.stockpile) },
+            { name: N.retired, value: warheads(x.retired) },
+            { name: N.inventory, value: warheads(x.inventory) },
+          ],
+        }];
+      }
+    }
+    return {
+      ...base, id: 'nuclear-warheads', name, scale: 'seq', years: m.years, year: m.year, ticks: N.ticks,
+      missing: { none: N.none }, source: N.sourceOwid,
+      text: words({ kicker: `${name} · {year}`, measure: N.measure, shareLabel: N.figureLabel, none: N.noneIn, detailLabel: undefined, rankLabel: PT.rank, rankOf: PT.rankOf, statusLabel: PT.status, trend: PT.figureTrend(N.figureLabel), trendCaption: PT.trendCaption, ranking: PT.ranking }),
+      notes, data, more,
+      series: seriesOf(m.years.map((year) => Object.fromEntries(m.byYear[year].rows.map((r) => [r.id, r.value])))), format: { kind: 'count' },
+    };
+  }
+  const year = Number(SHARING_CHECKED.slice(0, 4));
+  const v: Record<string, Entry> = {};
+  const more: Record<string, PanelBlock[]> = {};
+  const notes = { ...c.notes };
+  let order: string[];
+  const bl: Record<string, string> = {};
+  if (id === 'treaties') {
+    for (const [pl, t] of treaties()) {
+      const k = treatyClass(pl);
+      if (k) v[pl] = [TREATY_CLS[k], N.treatyClass[k], '', 0, 0];
+      more[pl] = [{
+        label: N.treatyLegend,
+        rows: (['npt', 'tpnw'] as const).filter((x) => t[x]).map((x) => ({ name: N[x], value: N.status[t[x]!.status], note: t[x]!.date ? N.since(formatPartialDate(t[x]!.date)) : undefined })),
+        source: N.treatySource,
+      }];
+      if (N.treatyNotes[pl]) notes[pl] = notes[pl] ? `${notes[pl]} ${N.treatyNotes[pl]}` : N.treatyNotes[pl];
+    }
+    order = Object.keys(v).sort((a, b) => (c.names[a] ?? a).localeCompare(c.names[b] ?? b));
+    for (const [b, members] of memberships) bl[b] = N.treatyBloc(BLOC_TEXT[b] ?? b, members.filter((x) => treatyClass(x) === 'both').length, members.length);
+  } else {
+    const armed = armedStates();
+    const rows = sharingRows();
+    for (const pl of new Set([...armed, ...rows.map((r) => r.place)])) {
+      const k = sharingClass(pl);
+      if (!k) continue;
+      // "Reported by FAS" is said once, in the headline; the arrangement rows say whether it is confirmed.
+      v[pl] = k === 'reported' ? [-2, N.sharingClass.reported, '', 0, 0] : [SHARING_CLS[k], N.sharingClass[k], '', 0, 0];
+      const mine = rows.filter((r) => r.place === pl);
+      if (mine.length) {
+        more[pl] = [{
+          label: N.arrangements, stack: true,
+          rows: mine.map((r) => {
+            const colour = `var(--cat-${SHARING_CLS[r.kind === 'host' ? 'host' : 'umbrella']})`;
+            return {
+              name: `${N.kind[r.kind]} ${providerName(r.provider)}`, value: r.status === 'stated' ? N.stated : N.notConfirmed,
+              swatch: { color: colour, hatch: r.status === 'reported' }, note: [formatPartialDate(r.date), sharingNote(r)].filter(Boolean).join(' · '),
+            };
+          }),
+        }];
+      }
+    }
+    order = Object.keys(v).sort((a, b) => (c.names[a] ?? a).localeCompare(c.names[b] ?? b));
+    for (const [b, members] of memberships) bl[b] = N.sharingBloc(BLOC_TEXT[b] ?? b, members.filter((x) => { const k = sharingClass(x); return k && k !== 'armed'; }).length, members.length);
+  }
+  const treaty = id === 'treaties';
+  const label = treaty ? (TREATIES_CHECKED ? N.checked(formatDate(TREATIES_CHECKED)) : N.unchecked) : N.sharingFacts(formatDate(SHARING_CHECKED));
+  return {
+    ...base, id: `nuclear-${id}`, name, scale: 'seq', palette: 'cat', years: [year], year, ticks: [],
+    categories: treaty ? TREATY_CLASSES.map((k) => ({ cls: TREATY_CLS[k], label: N.treatyClass[k] }))
+      : SHARING_CLASSES.filter((k) => k !== 'reported').map((k) => ({ cls: SHARING_CLS[k], label: N.sharingClass[k] })),
+    missing: { none: treaty ? N.treatyNone : N.sharingNone },
+    ...(treaty ? {} : { hatch: { cls: SHARING_CLS.host, label: N.sharingClass.reported } }),
+    tally: treaty ? TREATY_CLASSES.map((k) => ({ label: N.treatyClass[k], n: Object.values(v).filter((e) => e[0] === TREATY_CLS[k]).length }))
+      : SHARING_CLASSES.map((k) => ({ label: N.sharingClass[k], n: sharingCounts()[k] })),
+    source: treaty ? N.treatySource : N.sharingSources,
+    text: words({ kicker: `${name} · {year}`, shareLabel: treaty ? N.treatyLegend : N.sharingLegend, none: treaty ? N.treatyNone : N.sharingNone, statusLabel: PT.status }),
+    notes, data: [{ year, label, legend: treaty ? N.treatyLegend : N.sharingLegend, v, order, blocs: bl }], more,
+  };
+}
+
 const placeNames = new Map(PLACES.map((x) => [x.id, x.name]));
 const nameOf2 = (id: string) => placeNames.get(id) ?? id;
 
@@ -1014,6 +1138,7 @@ export function mapLayers(): LayerDef[] {
     ...energyPages().map((p) => ({ id: `energy-${p.id}`, view: `view:${p.fuel}:${p.layer}`, family: p.fuel, ranks: p.layer !== 'trade', source: 'eia', build: () => energyLayer(p) })),
     ...(conflictPage() ? [{ id: 'conflict', view: 'view:conflict:events', family: 'conflict', ranks: true, source: 'ucdp', build: () => conflictLayer() }] : []),
     ...riverIds().map((id) => ({ id: `rivers-${id}`, view: `view:rivers:${id}`, family: 'rivers', ranks: false, source: 'gdw', build: () => riverLayer(id) })),
+    ...NUCLEAR_PAGES.filter((id) => nuclearLive(id, data().sample)).map((id) => ({ id: `nuclear-${id}`, view: `view:nuclear:${id}`, family: 'nuclear', ranks: id === 'warheads', ...(id === 'warheads' ? { source: 'fas' } : {}), build: () => nuclearLayer(id) })),
     ...HISTORY_BLOCS.map((id) => ({ id: `history-${id}`, view: `view:alliance-history:${id}`, family: 'alliance-history', ranks: false, build: () => historyLayer(id) })),
     ...['all', ...blocPages().map((b) => b.id)].map((id) => ({ id: `blocs-${id}`, view: `view:blocs:${id}`, family: 'blocs', ranks: false, build: () => blocLayer(id) })),
   ];

@@ -10,7 +10,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { rawDir, type Raw } from '../adapters/core.ts';
 import { registry, INDICATORS, type Loaded } from '../data/indicators.ts';
-import { LICENCES, type Licence } from '../data/licences.ts';
+import { LICENCE_OF, LICENCES, type Licence } from '../data/licences.ts';
 
 export interface SnapshotSource { name: string; attribution: string; licence: string; fetched: string; changed?: string; dataTo?: string; imported?: Record<string, { file?: string; date?: string }> }
 export interface Snapshot { id: string; created: string; sources: Record<string, SnapshotSource> }
@@ -119,7 +119,7 @@ export function shared<T>(f: (raw: Raw) => T): () => T | null {
 }
 
 const licenceBy = new Map(LICENCES.map((l) => [l.source, l]));
-export const licenceOf = (source: string): Licence | undefined => licenceBy.get(source);
+export const licenceOf = (source: string): Licence | undefined => licenceBy.get(LICENCE_OF[source] ?? source);
 
 /** When the site last refreshed a source: the snapshot's fetch time (not a file date on disk). */
 export function refreshed(source: string): string | undefined {

@@ -207,7 +207,7 @@ export function initMapView(root: HTMLElement): void {
               kbd = at < 0 ? (k === 'next' ? order[0] : order.at(-1)!) : order[(at + (k === 'next' ? 1 : order.length - 1)) % order.length];
               const p = ctrl!.pointOf(kbd);
               if (p) showTip(tipFor({ id: kbd, point: p }, false), p);
-              say(`${f.names[kbd]}: ${f.data[yi()].v[kbd]?.[1] ?? ''}`);
+              say(`${f.data[yi()].names?.[kbd] ?? f.names[kbd]}: ${f.data[yi()].v[kbd]?.[1] ?? ''}`);
             } else if (k === 'open') { if (kbd) select(kbd); }
             else { kbd = null; hideTip(); select(null); }
           },
