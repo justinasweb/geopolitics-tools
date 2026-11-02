@@ -72,6 +72,9 @@ export interface LayerFile {
   year: number;
   ticks: string[];
   /** Named classes in place of a scale (a bloc's members; joined, member, left): each a sequential class and its word. */
+  /** Draw the named classes in the categorical colours (--cat-1…8) instead of the sequential ones: for classes with no
+   *  order, so no shade reads as more or better (treaty status). */
+  palette?: 'cat';
   categories?: { cls: number; label: string }[];
   /** Diverging scales: what each end means. */
   ends?: [string, string];

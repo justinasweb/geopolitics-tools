@@ -1,6 +1,6 @@
 # Data pipeline
 
-How source data gets from 33 public sources into the site. Phase 1 of the development plan.
+How source data gets from the public sources in the licence table ([licences.md](licences.md), which gives their number) into the site. Phase 1 of the development plan.
 
 ## In short
 
@@ -78,6 +78,7 @@ back separately, from Cloudflare's deployments.
 | US Treasury TIC | 7 days | 45 days | Table 5, major foreign holders, last 13 months |
 | Epoch AI | 7 days | 60 days | Notable AI models, GPU clusters |
 | Our World in Data CO2 | 30 days | 400 days | 20 columns from 1990 |
+| FAS nuclear warheads (via Our World in Data) | 30 days | 400 days | OWID's grapher CSV of FAS's estimated warhead inventories, every state and year since 1945, kept whole (FAS publishes about twice a year) |
 | UNHCR | 30 days | 200 days | Totals by origin and by host, and origin–host pairs, since 2015 |
 | UK Sanctions List | 1 day | 10 days | Designations: type, regime, dates, countries |
 | World Bank Pink Sheet | 7 days | 45 days | Monthly food, fertiliser, metals and gas prices from 2010, in three files; refuses a workbook more than 3 months old |
@@ -125,7 +126,7 @@ build (`node pipeline/adapter-check.ts data/raw`), which takes seconds and spend
 
 Every fetcher takes its address from an environment variable when set (`WORLDBANK_BASE`, `GDACS_BASE`,
 `USGS_EQ_BASE`, `UNHCR_BASE`, `IODA_BASE`, `TIC_URL`, `OWID_URL`, `CELESTRAK_URL`, `CSL_URL`, `EU_FSF_URL`,
-`UK_SANCTIONS_URL`, `PINKSHEET_URL`, `OVERPASS_URL`, `FAOSTAT_BASE`, `IMF_DATAMAPPER_BASE`, `PORTWATCH_URL`), so it
+`UK_SANCTIONS_URL`, `FAS_URL`, `PINKSHEET_URL`, `OVERPASS_URL`, `FAOSTAT_BASE`, `IMF_DATAMAPPER_BASE`, `PORTWATCH_URL`), so it
 can be pointed at a stub.
 
 ## Importing a file
@@ -149,6 +150,7 @@ node pipeline/import.ts wpp-age WPP2024_PopulationByAge5GroupSex_Medium.csv.gz -
 | AidData | `aiddata` | Every few years |
 | USGS Mineral Commodity Summaries | `usgs` (one file per edition, so older ones can be added) | Each January |
 | US Treasury holdings, history | `treasury-history` | Built once |
+| FAS Status of World Nuclear Forces, current table | `fas-forces` | About twice a year: copy FAS's table by hand (below) |
 
 Without a local copy of the repository, the **import** workflow does the same with the repository's secrets: Actions
 tab → import → Run workflow, with the kind and the file's download address (and `name` when the address does not end
@@ -163,6 +165,19 @@ import (`--allow-shrink` when that is real). Columns we keep by hand, such as a 
 empty when the file lacks them. The file is then saved like a fetched one, recorded with its download name and date,
 and published in a new snapshot; the hourly run keeps it in every snapshot after that. `--store=r2` needs
 `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` in the environment, as for the runner.
+
+**The FAS table (`fas-forces`).** FAS's current split (deployed, reserve, retired) is only on its own page,
+fas.org/initiative/status-world-nuclear-forces. Copy the table, Total row included, into a CSV with the columns
+`Country, Deployed strategic, Deployed nonstrategic, Reserve/Nondeployed, Military stockpile, Total inventory, As of, Source`
+(`As of` the date FAS gives, as YYYY-MM or YYYY-MM-DD, the same on every row; `Source` the fas.org page), then import it
+like any file. The check refuses a row whose deployed and reserve warheads do not add up to the military stockpile, a
+stockpile above the total, a missing Total row or a link that is not fas.org. Its year replaces OWID's figure for that
+year, so the newest FAS estimate wins. It is kept under FAS's licence row (`LICENCE_OF` in src/data/licences.ts).
+
+**Hand-kept facts files.** Two sources are kept as dated, cited rows in the repository rather than fetched:
+`src/data/nuclear-treaties.csv` (UNODA Treaties Database: NPT and TPNW status) and `src/data/nuclear-sharing.csv`
+(hosted weapons and nuclear guarantees, from governments, NATO and FAS). Check both monthly against their sources and
+set `TREATIES_CHECKED` or `SHARING_CHECKED` in src/lib/nuclear.ts; the Sources page shows the treaty check date.
 
 ## Settings
 

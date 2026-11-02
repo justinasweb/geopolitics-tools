@@ -10,6 +10,7 @@ import worldbank from './worldbank.ts';
 import treasury from './treasury.ts';
 import epoch from './epoch.ts';
 import owid from './owid.ts';
+import fas from './fas.ts';
 import unhcr from './unhcr.ts';
 import ukSanctions from './uk-sanctions.ts';
 import pinksheet from './pinksheet.ts';
@@ -25,5 +26,5 @@ import ipc from './ipc.ts';
 
 export const SOURCES: Source[] = [
   gdacs, usgsQuakes, ioda, portwatch, celestrak, csl, euSanctions, ukSanctions, worldbank, pinksheet, treasury, epoch,
-  owid, unhcr, imfWeo, cables, faostat, eia, comtrade, ember, ucdp, ipc,
+  owid, fas, unhcr, imfWeo, cables, faostat, eia, comtrade, ember, ucdp, ipc,
 ];

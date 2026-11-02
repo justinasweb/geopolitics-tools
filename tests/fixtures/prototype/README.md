@@ -9,3 +9,7 @@ them. The figures are illustrative, not real data.
 `comtrade/fertiliser_flows_2023.json` is ours: the FAOSTAT sample's potash and phosphate flows in Comtrade's row format,
 turned from tonnes of nutrient into tonnes of product (potash at 60% K2O as HS 3104, phosphate at 46% P2O5 as DAP,
 HS 310530), since the prototype had no Comtrade fertiliser sample.
+
+`fas/` and `fas-forces/` are ours (no prototype sample existed): OWID's grapher CSV format with one total column, the
+nine states' totals interpolated between rounded FAS-like figures, and the FAS table as recalled for early 2025. Treat
+both as illustrative, like the rest.

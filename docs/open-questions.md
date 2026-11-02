@@ -157,3 +157,34 @@ banner.
 **Still open.** Explorer has no presets for most topics (its four presets are on GDP, emissions, refugees and military
 spending), so its tool entry on a hub has no links under it. Topic presets would give it some.
 
+
+## Nuclear weapons: data to check before or after merging (raised 2 Nov 2026)
+
+**The question.** The session that built the nuclear views could not reach fas.org, ourworldindata.org or
+treaties.unoda.org, so some data and links need a human check.
+
+**What the site does now.**
+- **Treaties** (`src/data/nuclear-treaties.csv`): compiled from memory, not from UNODA. NPT status is straightforward
+  (everyone a party except India, Israel, Pakistan and South Sudan; North Korea apart), but the TPNW list (76 parties,
+  17 signed only) and most dates are unchecked. `/nuclear/treaties` stays hidden until someone checks the file against
+  treaties.unoda.org/t/npt and /t/tpnw, fills in the dates and sets `TREATIES_CHECKED` in src/lib/nuclear.ts.
+- **North Korea and the NPT**: shown as its own class, "Announced NPT withdrawal", with a note that UNODA still lists
+  its 1985 accession. The alternative is to follow UNODA and show it as a party, with the note.
+- **Sharing links**: the Russia–Belarus rows link to the Kremlin's news index and the Japan row to the Foreign
+  Ministry's US page, not to the statements themselves; replace them with the exact pages.
+- **The United Kingdom**: FAS reported in 2025 that US weapons may have returned to RAF Lakenheath. It is not in the
+  sharing file; add it as `reported` if FAS's current estimate counts it.
+- **OWID's column names**: the fetcher saves OWID's grapher CSV as is and the adapter finds a total (or status)
+  column by name, so a renamed column still reads; the pull request's live check is the first run on the real file.
+- **The FAS table** (`fas-forces`) has to be copied from FAS's page and imported (docs/data-pipeline.md). Until it is,
+  `/nuclear` shows totals only, without the deployed, reserve and retired split.
+
+## Source count (raised 2 Nov 2026)
+
+**The question.** The brief for the nuclear view said the source count goes from 33 to 35. The licence table had 32
+rows before (docs/data-pipeline.md said 33; the Sources page showed 36, listing the four keyed sources twice), so with
+FAS and UNODA it is 34.
+
+**What the site does now.** The Sources page has one row per licence row (the FAS table imported by hand is part of
+FAS's row), and docs/licences.md prints the number; nothing else states a count. If the 33rd source was meant to be one
+the site uses without a licence row (Natural Earth's basemap, say), adding it to src/data/licences.ts updates every count.

@@ -6,7 +6,7 @@
 //
 // Map views, hubs and tools are registered but not live until their phase builds them; the menu and every link
 // skip routes that are not live, so nothing links to a page that does not exist.
-import { SECTION_SLUGS, INDICATOR_SLUGS, COMPARE_JOIN, VIEW_SLUGS, DISASTER_SLUGS, FOOD_SLUGS, FOOD_LAYER_SLUGS, ENERGY_LAYER_SLUGS, BLOC_SLUGS, BLOCS_OVERLAP_SLUG, EXPLORER_SLUGS, CHAIN_SLUGS } from '../i18n/slugs.en.ts';
+import { SECTION_SLUGS, INDICATOR_SLUGS, COMPARE_JOIN, VIEW_SLUGS, DISASTER_SLUGS, FOOD_SLUGS, FOOD_LAYER_SLUGS, ENERGY_LAYER_SLUGS, BLOC_SLUGS, NUCLEAR_SLUGS, BLOCS_OVERLAP_SLUG, EXPLORER_SLUGS, CHAIN_SLUGS } from '../i18n/slugs.en.ts';
 import { NAV_HUBS, NAV_TOOLS, NAV_TOP } from '../data/nav.ts';
 import { NAV_TEXT } from '../i18n/en.ts';
 import { INDICATORS } from '../data/indicators.ts';
@@ -24,6 +24,7 @@ import { blocPages } from './blocview.ts';
 import { BLOCS_CHECKED } from './blocs.ts';
 import { HISTORY_BLOCS } from './history.ts';
 import { riverIds } from './rivers.ts';
+import { NUCLEAR_PAGES, SHARING_CHECKED, TREATIES_CHECKED, nuclearLive } from './nuclear.ts';
 import { depsLive } from './dependence.ts';
 import { explorerMeasures } from './explorer.ts';
 import { liveChains } from './supply-chains.ts';
@@ -80,6 +81,8 @@ export const paths = {
   blocsOverlap: () => `/${S.blocs}/${BLOCS_OVERLAP_SLUG}`,
   /** Alliance history: /blocs/nato/history. */
   history: (bloc: string) => `/${S.blocs}/${BLOC_SLUGS[bloc]}/history`,
+  /** Nuclear weapons: /nuclear (warheads), /nuclear/treaties, /nuclear/sharing. */
+  nuclear: (id: string) => `/${S.nuclear}${NUCLEAR_SLUGS[id] ? `/${NUCLEAR_SLUGS[id]}` : ''}`,
   /** Disputed rivers: /water/rivers/nile. */
   river: (id: string) => `/${S.water}/rivers/${id}`,
   /** Explorer: /explorer (table), /explorer/over-time, /explorer/scatter. */
@@ -200,6 +203,17 @@ function build(): Route[] {
     out.push({
       key: `view:alliance-history:${id}`, kind: 'view', lang, path: paths.history(id), live: true, indexed: true,
       aliases: [], id: `history:${id}`, image: paths.image('views', `history-${id}`), lastmod: BLOCS_CHECKED,
+    });
+  }
+
+  // Nuclear weapons (phase 5a, D17): warheads at /nuclear once FAS's series is in the snapshot, treaties once the
+  // hand-kept file has been checked against UNODA, sharing from its facts file.
+  for (const id of NUCLEAR_PAGES) {
+    if (!nuclearLive(id, data().sample)) continue;
+    families.add('nuclear');
+    out.push({
+      key: `view:nuclear:${id}`, kind: 'view', lang, path: paths.nuclear(id), live: true, indexed: true,
+      aliases: [], id: `nuclear:${id}`, image: paths.image('views', `nuclear-${id}`), lastmod: id === 'warheads' ? changed('fas') : id === 'treaties' ? TREATIES_CHECKED || undefined : SHARING_CHECKED,
     });
   }
 

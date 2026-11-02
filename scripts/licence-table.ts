@@ -13,7 +13,7 @@ export function licenceTable(): string {
     '',
     `What each source's terms allow and what the site does with it (decision D9). Downloads are "Yes" only where the terms`,
     'allow redistribution; otherwise the site shows charts and figures only. Credits travel with every chart and export.',
-    `${count('checked')} checked against the terms page, ${count('to confirm')} to confirm, ${count('permission asked')} waiting on permission.`,
+    `${LICENCES.length} sources: ${count('checked')} checked against the terms page, ${count('to confirm')} to confirm, ${count('permission asked')} waiting on permission.`,
     '',
     '| Source | Licence | Downloads | Commercial use | Status | Note |',
     '|---|---|---|---|---|---|',

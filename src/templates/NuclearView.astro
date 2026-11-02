@@ -1,0 +1,257 @@
+---
+// The nuclear weapons views (src/lib/nuclear.ts): /nuclear maps FAS's estimated warhead inventories year by year since
+// 1945, with the nine states' lines and FAS's current split (deployed, reserve, retired) in the panel; /nuclear/treaties
+// maps NPT and TPNW status together; /nuclear/sharing maps hosted weapons and nuclear guarantees, each a dated, cited
+// fact. Every warhead figure carries the Estimate tag and "FAS estimate, as of early {year}".
+import Page from '../layouts/Page.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import SourceLine from '../components/SourceLine.astro';
+import StatusTag from '../components/StatusTag.astro';
+import Notice from '../components/Notice.astro';
+import ShareRow from '../components/ShareRow.astro';
+import MapStage from '../components/MapStage.astro';
+import MapControls from '../components/MapControls.astro';
+import LineChart from '../components/LineChart.astro';
+import '../styles/atlas/mapview.css';
+import '../styles/atlas/bars.css';
+import '../styles/atlas/keyfigure.css';
+import '../styles/atlas/table.css';
+import '../styles/atlas/tools.css';
+import { MAP_TEXT } from '../i18n/map.en';
+import { NUCLEAR_TEXT as N } from '../i18n/nuclear.en';
+import { formatDate } from '../lib/format';
+import { place } from '../lib/places';
+import { countryHref, live, route, hubCrumb } from '../lib/routes';
+import { layerFile, layerPath } from '../lib/map/layers';
+import { breadcrumbs } from '../lib/structured';
+import { refreshed } from '../lib/data';
+import {
+  NUCLEAR_CSV, NUCLEAR_PAGES, SHARING_CHECKED, SHARING_CLASSES, TREATIES_CHECKED, TREATY_CLASSES, nuclearAnswer, peakOf, providerName,
+  sharingClass, sharingNote, sharingRows, treaties, treatyClass, warheads, warheadsModel, type NuclearPage,
+} from '../lib/nuclear';
+
+interface Props { id: NuclearPage }
+const { id } = Astro.props;
+const key = (x: string) => `view:nuclear:${x}`;
+const path = route(key(id))!.path;
+const url = new URL(path, Astro.site).href;
+const title = N.title[id];
+const answer = nuclearAnswer(id);
+const nameOf = (x: string) => place(x)?.name ?? x;
+const file = layerFile(`nuclear-${id}`);
+const picker = NUCLEAR_PAGES.filter((x) => live(key(x))).map((x) => ({ label: N.pick[x], href: live(key(x))!.path, current: x === id }));
+const first = picker[0];
+const crumbs: { label: string; href?: string }[] = [hubCrumb('power'), ...(first && !first.current ? [{ label: N.section, href: first.href }] : []), { label: title }];
+const related = picker.filter((o) => !o.current).map((o) => ({ href: o.href, name: o.label, note: N.section }));
+
+// Warheads
+const m = id === 'warheads' ? warheadsModel()! : null;
+const forces = m?.forces ?? null;
+const lastYear = m ? m.year : file.year;
+const peak = m ? peakOf(m) : null;
+const chartYears = m ? m.years : [];
+const chartLines = m ? m.states.map((s, i) => ({ label: nameOf(s), values: m.years.map((y) => m.byYear[y].rows.find((r) => r.id === s)?.value ?? null), cls: i < 6 ? `gt-ser-${i + 1}` : 'gt-ser-med', noLabel: i > 3 })) : [];
+const updated = refreshed('fas');
+const csvHref = m && live(key('warheads')) ? `/downloads/${NUCLEAR_CSV}.csv` : null;
+
+// Treaties and sharing
+const t = id === 'treaties' ? treaties() : null;
+const treatyRows = t ? [...t.entries()].sort((a, b) => nameOf(a[0]).localeCompare(nameOf(b[0]), 'en')) : [];
+const sharing = id === 'sharing' ? sharingRows() : [];
+const sharingSorted = [...sharing].sort((a, b) => nameOf(a.place).localeCompare(nameOf(b.place), 'en') || a.kind.localeCompare(b.kind));
+const factsDate = formatDate((id === 'treaties' ? TREATIES_CHECKED : '') || SHARING_CHECKED);
+const factsSource = id === 'treaties' ? `${N.treatySource}, ${TREATIES_CHECKED ? N.checked(factsDate) : N.unchecked}` : `${N.sharingSources}, ${N.sharingFacts(factsDate).toLowerCase()}`;
+const counts = (cls: string[], f: (p: string) => string | null, of: string[]) => cls.map((k) => ({ k, n: of.filter((p) => f(p) === k).length }));
+const allPlaces = Object.keys(file.data[0].v);
+const label = id === 'warheads' ? N.mapLabel(lastYear, m!.byYear[lastYear].rows.length) : id === 'treaties' ? N.treatyLabel : N.sharingLabel;
+const legend = id === 'warheads'
+  ? { title: N.legend(lastYear), scale: 'seq' as const, ticks: N.ticks, none: N.none }
+  : { title: file.data[0].legend, scale: 'seq' as const, ticks: [], none: file.missing.none, notyet: file.missing.notyet, categories: file.categories, palette: 'cat' as const };
+---
+<Page title={title} description={N.description[id]} hub="power" container="mv" image={route(key(id))!.image}
+  jsonld={[breadcrumbs(crumbs.map((c) => ({ label: c.label, href: c.href })))]}>
+  <div class="gt-mvhead">
+    <Breadcrumbs items={crumbs} />
+    <h1 class="gt-title gt-mvhead__t">{title}{m && <span class="gt-mvhead__sub"> {m.years[0]}–{lastYear}</span>}</h1>
+    {answer && <p class="gt-lede gt-mvhead__a">{answer}</p>}
+    {m ? <SourceLine source={N.source} updated={updated} parts={[N.estimate(lastYear)]} status="estimate" /> : <SourceLine source={factsSource} />}
+  </div>
+
+  <MapControls pickerLabel={N.pickerLabel} picker={picker} years={m ? m.years : [file.year]} year={lastYear} yearStatus={m ? Object.fromEntries(m.years.map((y) => [y, 'estimate' as const])) : {}} />
+
+  <MapStage layer={layerPath(`nuclear-${id}`)} label={label} title={title} legend={legend}>
+    <div data-panel="world" slot="panel">
+      <div class="gt-panel__head">
+        <div class="gt-panel__title"><span class="gt-kicker">{title} · <span data-year-text>{m ? lastYear : file.data[0].label}</span></span><h2 class="gt-h3">{m ? N.world : MAP_TEXT.world}</h2></div>
+      </div>
+      <div class="gt-panel__body">
+        {m && m.years.map((yr) => {
+          const Y = m.byYear[yr];
+          const prev = m.byYear[yr - 1];
+          const ch = prev ? Y.world / prev.world - 1 : null;
+          return (
+            <div class="gt-pyear" data-year={yr} hidden={yr !== lastYear}>
+              <div class="gt-pkf">
+                <span class="gt-pkf__label">{N.worldTotal}</span>
+                <span class="gt-pkf__num">{N.about(warheads(Y.world))}</span>
+                <span class="gt-pkf__meta"><StatusTag status="estimate" small /> {N.estimate(yr)} · {N.states(Y.rows.length)}</span>
+                {ch !== null && <span class="gt-pkf__meta">{N.changeFrom(Math.abs(ch) < 0.005 ? 'flat' : ch > 0 ? 'up' : 'down', `${Math.round(Math.abs(ch) * 100)}%`, yr - 1)}</span>}
+              </div>
+              <div class="gt-pgroup">
+                <span class="gt-label">{N.legend(yr)}</span>
+                <ol class="gt-bars gt-bars--tight" aria-label={N.legend(yr)}>
+                  {Y.rows.map((r) => (
+                    <li><span class="gt-bars__name"><button type="button" data-select={r.id}>{nameOf(r.id)}</button></span><span class="gt-bars__track"><span class="gt-bars__fill" style={`width:${((100 * r.value) / Y.rows[0].value).toFixed(1)}%`}></span></span><span class="gt-bars__val">{warheads(r.value)}</span></li>
+                  ))}
+                </ol>
+              </div>
+            </div>
+          );
+        })}
+        {m && (
+          <div class="gt-pblock">
+            <div class="gt-pblock__head"><span class="gt-label">{N.chart(m.years[0], lastYear)}</span></div>
+            <LineChart label={N.chart(m.years[0], lastYear)} years={chartYears} lines={chartLines.slice(0, 4)} format={{ kind: 'count' }} height={180} />
+            <p class="gt-caption">{N.chartCaption} {peak && N.peak(N.about(warheads(peak.world)), peak.year)}.</p>
+          </div>
+        )}
+        {forces && (
+          <div class="gt-pblock">
+            <div class="gt-pblock__head"><span class="gt-label">{N.split(forces.year)}</span></div>
+            <ul class="gt-prows">
+              {(['deployed', 'reserve', 'retired'] as const).map((k) => {
+                const v = Object.values(forces.rows).reduce((s, x) => s + x[k], 0);
+                return <li><span class="gt-prow__n">{N[k]}</span><span class="gt-prow__v">{N.about(warheads(v))}</span></li>;
+              })}
+            </ul>
+            <p class="gt-caption gt-pblock__cap">{N.splitCaption}</p>
+            <SourceLine source={N.splitSource(formatDate(forces.asOf))} status="estimate" />
+          </div>
+        )}
+        {!m && (
+          <div class="gt-pblock">
+            <ul class="gt-prows">
+              {(id === 'treaties'
+                ? counts(TREATY_CLASSES, treatyClass, allPlaces).map((x) => ({ name: N.treatyClass[x.k as keyof typeof N.treatyClass], n: x.n }))
+                : [...counts(SHARING_CLASSES, sharingClass, allPlaces).map((x) => ({ name: N.sharingClass[x.k as keyof typeof N.sharingClass], n: x.n }))]
+              ).map((x) => <li><span class="gt-prow__n">{x.name}</span><span class="gt-prow__v">{x.n}</span></li>)}
+            </ul>
+          </div>
+        )}
+        <div class="gt-blocline" hidden><span class="gt-blocline__key" aria-hidden="true"></span><p></p></div>
+        <Notice>
+          {m ? <p>{N.methodologyNote} <a href={N.methodologyLink}>{N.methodology}</a></p> : <p>{id === 'treaties' ? N.treatyCaption : N.sharingCaption}</p>}
+          {m ? <SourceLine source={N.source} parts={[N.estimate(lastYear)]} status="estimate" /> : <SourceLine source={factsSource} />}
+        </Notice>
+      </div>
+    </div>
+  </MapStage>
+
+  <section class="gt-mvbelow" aria-labelledby="table">
+    <div class="gt-mvbelow__main">
+      {m && (
+        <>
+          <h2 class="gt-h2" id="table">{N.table}</h2>
+          <div class="gt-tablewrap" style="--gt-table-h:none" tabindex="0" role="region" aria-label={N.table}>
+            <table class="gt-table" data-gt-sort>
+              <caption class="gt-caption">{N.tableCaption(lastYear)}</caption>
+              <thead><tr>
+                <th scope="col" data-key="n"><button type="button">{N.country}</button></th>
+                <th scope="col" class="n" data-key="v" data-type="num" aria-sort="descending"><button type="button">{N.inventory}</button></th>
+                {forces && <th scope="col" class="n" data-key="d" data-type="num"><button type="button">{N.deployed}</button></th>}
+                {forces && <th scope="col" class="n" data-key="r" data-type="num"><button type="button">{N.reserve}</button></th>}
+                {forces && <th scope="col" class="n" data-key="t" data-type="num"><button type="button">{N.retired}</button></th>}
+                <th scope="col" class="n" data-key="f" data-type="num"><button type="button">{N.first}</button></th>
+              </tr></thead>
+              <tbody>
+                {m.byYear[lastYear].rows.map((r) => {
+                  const f = forces?.rows[r.id];
+                  const firstYear = m.years.find((y) => m.byYear[y].rows.some((x) => x.id === r.id));
+                  return (
+                    <tr data-place={r.id}>
+                      <th scope="row">{countryHref(r.id) ? <a href={countryHref(r.id)}>{nameOf(r.id)}</a> : nameOf(r.id)}</th>
+                      <td class="n" data-v={r.value}>{warheads(r.value)} <StatusTag status="estimate" small /></td>
+                      {forces && <td class="n" data-v={f?.deployed ?? -1}>{f ? warheads(f.deployed) : '–'}</td>}
+                      {forces && <td class="n" data-v={f?.reserve ?? -1}>{f ? warheads(f.reserve) : '–'}</td>}
+                      {forces && <td class="n" data-v={f?.retired ?? -1}>{f ? warheads(f.retired) : '–'}</td>}
+                      <td class="n" data-v={firstYear}>{firstYear}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          <SourceLine source={N.source} updated={updated} parts={[N.estimate(lastYear)]} status="estimate" />
+          {csvHref && <p><a class="gt-btn gt-btn--quiet" href={csvHref} download>{N.csv}</a></p>}
+          <h2 class="gt-h2">{N.chart(m.years[0], lastYear)}</h2>
+          <LineChart label={N.chart(m.years[0], lastYear)} years={chartYears} lines={chartLines} format={{ kind: 'count' }} />
+          <p class="gt-caption">{N.chartCaption}</p>
+        </>
+      )}
+      {t && (
+        <>
+          <h2 class="gt-h2" id="table">{N.treatyTable}</h2>
+          <div class="gt-tablewrap" style="--gt-table-h:560px" tabindex="0" role="region" aria-label={N.treatyTable}>
+            <table class="gt-table" data-gt-sort>
+              <caption class="gt-caption">{N.treatyTableCaption}</caption>
+              <thead><tr>
+                <th scope="col" data-key="n" aria-sort="ascending"><button type="button">{N.country}</button></th>
+                <th scope="col" data-key="a"><button type="button">{N.npt}</button></th>
+                <th scope="col" data-key="b"><button type="button">{N.tpnw}</button></th>
+              </tr></thead>
+              <tbody>
+                {treatyRows.map(([pl, x]) => (
+                  <tr data-place={pl}>
+                    <th scope="row">{countryHref(pl) ? <a href={countryHref(pl)}>{nameOf(pl)}</a> : nameOf(pl)}</th>
+                    {(['npt', 'tpnw'] as const).map((k) => <td>{x[k] ? `${N.status[x[k]!.status]}${x[k]!.date ? ` (${formatDate(x[k]!.date)})` : ''}` : '–'}</td>)}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <SourceLine source={factsSource} />
+          {Object.entries(N.treatyNotes).map(([pl, note]) => <p class="gt-caption"><strong>{nameOf(pl)}.</strong> {note}</p>)}
+        </>
+      )}
+      {id === 'sharing' && (
+        <>
+          <h2 class="gt-h2" id="table">{N.sharingTable}</h2>
+          <div class="gt-tablewrap" style="--gt-table-h:560px" tabindex="0" role="region" aria-label={N.sharingTable}>
+            <table class="gt-table" data-gt-sort>
+              <caption class="gt-caption">{N.sharingTableCaption}</caption>
+              <thead><tr>
+                <th scope="col" data-key="n" aria-sort="ascending"><button type="button">{N.country}</button></th>
+                <th scope="col" data-key="k"><button type="button">{N.arrangement}</button></th>
+                <th scope="col" data-key="b"><button type="button">{N.basis}</button></th>
+                <th scope="col" data-key="d"><button type="button">{N.date}</button></th>
+                <th scope="col" style="min-width:240px">{MAP_TEXT.note}</th>
+              </tr></thead>
+              <tbody>
+                {sharingSorted.map((r) => (
+                  <tr data-place={r.place}>
+                    <th scope="row">{countryHref(r.place) ? <a href={countryHref(r.place)}>{nameOf(r.place)}</a> : nameOf(r.place)}</th>
+                    <td>{N.kind[r.kind]} {providerName(r.provider)}</td>
+                    <td>{r.status === 'stated' ? N.stated : <><span class="gt-sw gt-sw--notyet" aria-hidden="true"></span> {N.reportedBy}</>}</td>
+                    <td data-v={r.date}><a href={r.source}>{formatDate(r.date)}</a></td>
+                    <td>{sharingNote(r)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <SourceLine source={factsSource} />
+        </>
+      )}
+    </div>
+    <aside class="gt-mvbelow__side">
+      <h2 class="gt-label">{N.related}</h2>
+      <ul class="gt-related">{related.map((r) => <li><a href={r.href}><span>{r.name}</span><small>{r.note}</small></a></li>)}</ul>
+      <div class="gt-mvbelow__share"><ShareRow url={url} text={answer ?? title} /></div>
+    </aside>
+  </section>
+</Page>
+
+<script>
+  import { initSortable } from '../scripts/table';
+  document.querySelectorAll<HTMLTableElement>('table[data-gt-sort]').forEach(initSortable);
+</script>

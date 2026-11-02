@@ -321,6 +321,7 @@ export const SOURCES_PAGE = {
   } as Record<string, string>,
   every: (hours: number) => (hours <= 1 ? 'Hourly' : hours < 24 ? `Every ${hours} hours` : hours === 24 ? 'Daily' : hours % 24 === 0 && hours / 24 === 7 ? 'Weekly' : `Every ${Math.round(hours / 24)} days`),
   onRelease: (release: string) => `On release (${release})`,
+  byHand: (every: string) => `By hand, ${every}`,
   never: 'Not yet',
   tableLabel: 'Data sources',
   corrections: 'Corrections',
@@ -479,4 +480,5 @@ export const SOURCE_FEEDS: Record<string, string[]> = {
   faostat: ['Dependencies at a glance', 'Food trade'], sipri: ['Arms transfers'], gem: ['Power plants and pipelines'], gdw: ['Dams'],
   aiddata: ['Chinese lending'], 'usgs-minerals': ['Critical minerals'], comtrade: ['Oil, gas, fertiliser and chip trade'], peeringdb: ['Internet exchange points'],
   eia: ['Oil and gas'], ember: ['Electricity'], ucdp: ['Conflict'], ipc: ['Food crises'],
+  fas: ['Nuclear weapons'], unoda: ['Nuclear treaties'],
 };

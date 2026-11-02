@@ -62,7 +62,7 @@ export interface MapController {
 }
 
 /** The token colours the style uses, read from the page so the map follows the design tokens. */
-const TOKENS = ['--seq-1', '--seq-2', '--seq-3', '--seq-4', '--seq-5', '--div-1', '--div-2', '--div-3', '--div-4', '--div-5', '--div-6', '--div-7',
+const TOKENS = ['--seq-1', '--seq-2', '--seq-3', '--seq-4', '--seq-5', '--div-1', '--div-2', '--div-3', '--div-4', '--div-5', '--div-6', '--div-7', '--cat-1', '--cat-2', '--cat-3', '--cat-4', '--cat-5', '--cat-6', '--cat-7', '--cat-8',
   '--map-nodata', '--map-withheld', '--map-border', '--paper-sunk', '--paper-raised', '--ink', '--ink-muted', '--accent', '--brand'] as const;
 type Token = (typeof TOKENS)[number];
 
@@ -118,7 +118,8 @@ export function createMap(container: HTMLElement, base: Basemap, first: LayerFil
   let shown = opts.overlays ?? layer.overlays ?? [];
   // The fill colour of a class on the layer's scale; classes off the scale (none, withheld, not yet) are no-data grey.
   const fillOf = (l: LayerFile): Expr => {
-    const colours = Array.from({ length: l.scale === 'seq' ? 5 : 7 }, (_, i) => T[`--${l.scale}-${i + 1}` as Token]);
+    const colours = l.palette === 'cat' ? Array.from({ length: 8 }, (_, i) => T[`--cat-${i + 1}` as Token])
+      : Array.from({ length: l.scale === 'seq' ? 5 : 7 }, (_, i) => T[`--${l.scale}-${i + 1}` as Token]);
     return ['match', ['coalesce', ['feature-state', 'c'], -9], ...colours.flatMap((c, i) => [i + 1, c]), T['--map-nodata']] as unknown as Expr;
   };
   // Where the map starts and the reset button returns: the layer's own area (a disputed river), else the lived-in world.

@@ -8,7 +8,7 @@ on:
       kind:
         description: What the file is
         type: choice
-        options: [usgs, sipri, wpp-total, wpp-indicators, wpp-age, gem-coal, gem-nuclear, gem-lng, gem-pipelines, aqueduct-baseline, aqueduct-future, aquastat, gdw, aiddata, treasury-history]
+        options: [usgs, sipri, wpp-total, wpp-indicators, wpp-age, gem-coal, gem-nuclear, gem-lng, gem-pipelines, aqueduct-baseline, aqueduct-future, aquastat, gdw, aiddata, treasury-history, fas-forces]
       url:
         description: The file's download address (a direct link, not a web page)
         required: true

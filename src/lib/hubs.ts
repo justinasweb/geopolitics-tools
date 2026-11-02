@@ -29,6 +29,8 @@ import { conflictPage, ledeFor as conflictLede } from './conflict.ts';
 import { blocLede } from './blocview.ts';
 import { HISTORY_BLOCS, historyLede } from './history.ts';
 import { riverIds, riverLede } from './rivers.ts';
+import { NUCLEAR_PAGES, nuclearAnswer } from './nuclear.ts';
+import { NUCLEAR_TEXT } from '../i18n/nuclear.en.ts';
 import { BLOC_ORDER } from './blocs.ts';
 import { BLOCS_TEXT } from '../i18n/blocs.en.ts';
 import { BLOC_TEXT } from '../i18n/map.en.ts';
@@ -89,6 +91,7 @@ export function answerOf(key: string): string | null {
   if (family === 'blocs') return blocLede(id);
   if (family === 'alliance-history') return historyLede(id);
   if (family === 'rivers') return riverLede(id);
+  if (family === 'nuclear') return nuclearAnswer(id);
   const p = viewPage(id);
   return p && p.family.id === family ? viewLede(p) : null;
 }
@@ -101,6 +104,7 @@ export function chipsOf(family: string): Link[] {
     : family === 'blocs' ? pick(['all', ...BLOC_ORDER], (id) => `view:blocs:${id}`, (id) => (id === 'all' ? BLOCS_TEXT.all : BLOC_TEXT[id] ?? id))
     : family === 'alliance-history' ? pick(HISTORY_BLOCS, (id) => `view:alliance-history:${id}`, (id) => BLOC_TEXT[id] ?? id)
     : family === 'rivers' ? pick(riverIds(), (id) => `view:rivers:${id}`, (id) => RIVERS_TEXT.name[id] ?? id)
+    : family === 'nuclear' ? pick([...NUCLEAR_PAGES], (id) => `view:nuclear:${id}`, (id) => NUCLEAR_TEXT.pick[id])
     : family === 'conflict' ? []
     : family === 'minerals'
     ? mineralPages().map((m) => (at(`view:minerals:${m.id}`) ? { label: m.title, href: at(`view:minerals:${m.id}`)! } : null))
@@ -120,14 +124,14 @@ function fillOf(f: LayerFile, cls: number | undefined, pattern: string): string 
   if (cls === undefined) return 'var(--map-nodata)';
   if (cls === 0) return `url(#${pattern}-w)`;
   if (cls === -1) return `url(#${pattern}-n)`;
-  return `var(--${f.scale}-${cls})`;
+  return `var(--${f.palette ?? f.scale}-${cls})`;
 }
 
 /** The thumbnail's key, worded as the layer's legend: the scale's two ends (or its named classes), then each state
  *  without a class the year shows (withheld, not yet reported) and no data. */
 function keyOf2(f: LayerFile, i: number): HubCard['key'] {
   const top = f.scale === 'seq' ? 5 : 7;
-  const scale: HubCard['key'] = f.categories?.length ? f.categories.map((c) => ({ fill: `var(--seq-${c.cls})`, label: c.label }))
+  const scale: HubCard['key'] = f.categories?.length ? f.categories.map((c) => ({ fill: `var(--${f.palette ?? 'seq'}-${c.cls})`, label: c.label }))
     : f.ends ? [{ fill: `var(--${f.scale}-1)`, label: f.ends[0] }, { fill: `var(--${f.scale}-${top})`, label: f.ends[1] }]
     : f.ticks.length ? [{ fill: `var(--${f.scale}-1)`, label: f.ticks[0] }, { fill: `var(--${f.scale}-${top})`, label: f.ticks.at(-1)! }]
     : [];

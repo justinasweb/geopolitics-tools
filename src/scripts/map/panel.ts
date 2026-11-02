@@ -162,6 +162,16 @@ export function worldPanelHtml(f: LayerFile, yearIndex: number, o: { hint: strin
   const rows = ids.map((pid, i) => `<li><span class="gt-bars__name"><span class="gt-bars__rank">${i + 1}</span><button type="button" data-select="${esc(pid)}">${esc(nameOf(f, pid))}</button></span>`
     + `<span class="gt-bars__track">${max ? `<span class="gt-bars__fill" style="width:${((100 * num(pid)) / max).toFixed(1)}%"></span>` : ''}</span><span class="gt-bars__val">${esc(y.v[pid]?.[1] ?? '')}</span></li>`).join('');
   const label = fill(o.top, { year: when(y) });
+  // Unordered classes (treaty status): how many places are in each, never a "largest" list.
+  const cats = f.palette === 'cat' && f.categories ? [...f.categories.map((c) => ({ label: c.label, n: Object.values(y.v).filter((e) => e[0] === c.cls).length })),
+    ...(f.missing.notyet ? [{ label: f.missing.notyet, n: Object.values(y.v).filter((e) => e[0] === -1).length }] : [])] : null;
+  if (cats) {
+    return `<div class="gt-panel__head"><div class="gt-panel__title"><span class="gt-kicker">${esc(fill(f.text.kicker, { year: when(y) }))}</span><h2 class="gt-h3" tabindex="-1">${esc(f.text.world)}</h2></div></div>`
+      + `<div class="gt-panel__body"><p class="gt-atpanel__tip">${esc(o.hint)}</p>`
+      + `<div class="gt-pblock"><ul class="gt-prows">${cats.map((c) => `<li><span class="gt-prow__n">${esc(c.label)}</span><span class="gt-prow__v">${c.n}</span></li>`).join('')}</ul></div>`
+      + `<p class="gt-source"><span>${esc(f.source)}</span></p></div>`
+      + (o.first ? `<div class="gt-panel__foot gt-plinks"><a class="gt-btn" href="${esc(o.first.href)}">${esc(o.first.label)}</a></div>` : '');
+  }
   return `<div class="gt-panel__head"><div class="gt-panel__title"><span class="gt-kicker">${esc(fill(f.text.kicker, { year: when(y) }))}</span><h2 class="gt-h3" tabindex="-1">${esc(f.text.world)}</h2></div></div>`
     + `<div class="gt-panel__body"><p class="gt-atpanel__tip">${esc(o.hint)}</p>`
     + (rows ? `<div class="gt-pblock gt-pgroup"><span class="gt-label">${esc(label)}</span><ol class="gt-bars gt-bars--tight gt-bars--rank" aria-label="${esc(label)}">${rows}</ol></div>` : '')

@@ -27,7 +27,7 @@ export function legendHtml(f: LayerFile, yi: number): string {
   const n = f.scale === 'seq' ? 5 : 7;
   const out = [`<span class="gt-legend__title">${esc(f.data[yi]?.legend ?? '')}</span>`];
   if (f.categories?.length) {
-    out.push(`<div class="gt-legend__extra gt-legend__cats">${f.categories.map((c) => `<span><i class="gt-sw" style="background:var(--seq-${c.cls})"></i>${esc(c.label)}</span>`).join('')}</div>`);
+    out.push(`<div class="gt-legend__extra gt-legend__cats">${f.categories.map((c) => `<span><i class="gt-sw" style="background:var(--${f.palette ?? 'seq'}-${c.cls})"></i>${esc(c.label)}</span>`).join('')}</div>`);
   } else {
     out.push(`<div class="gt-legend__scale" style="--n:${n}">${Array.from({ length: n }, (_, i) => `<i style="background:var(--${f.scale}-${i + 1})"></i>`).join('')}</div>`);
     if (f.ticks.length) out.push(`<div class="gt-legend__ticks${f.scale === 'div' ? ' gt-legend__ticks--dense' : ''}" style="--n:${n}">${f.ticks.map((t) => `<span>${esc(t)}</span>`).join('')}</div>`);

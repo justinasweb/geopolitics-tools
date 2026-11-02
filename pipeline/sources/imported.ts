@@ -60,6 +60,7 @@ export const IMPORTED: ImportedSource[] = [
   { id: 'gdw', name: 'Global Dam Watch', attribution: 'Global Dam Watch (globaldamwatch.org)', licence: 'CC BY 4.0', release: 'rarely' },
   { id: 'aiddata', name: 'AidData Chinese development finance', attribution: 'AidData, William & Mary', licence: 'To confirm (see docs/licences.md)', release: 'every few years' },
   { id: 'usgs-minerals', name: 'USGS Mineral Commodity Summaries', attribution: 'U.S. Geological Survey, Mineral Commodity Summaries', licence: 'Public domain (US government work)', release: 'each January' },
+  { id: 'fas-forces', name: 'FAS Status of World Nuclear Forces, current table', attribution: 'Federation of American Scientists, Status of World Nuclear Forces', licence: 'CC BY 4.0', release: 'about twice a year (copied by hand from the FAS page)' },
   { id: 'treasury-history', name: 'US Treasury holdings by country, history', attribution: 'U.S. Department of the Treasury, Treasury International Capital (TIC) system', licence: 'Public domain (US government work)', release: 'built once from the historical tables' },
 ];
 
@@ -115,6 +116,26 @@ function treasuryHistoryCheck(text: string) {
   const first = text.trim().split(/\r?\n/, 1)[0];
   check(/^"?Country"?,(\d{4},?)+$/.test(first.trim()), 'header must be Country followed by years');
   return (text.trim().match(/\n/g) ?? []).length;
+}
+
+/** The FAS table copied by hand: every figure a whole number, one "As of" date, a link to the page. */
+function fasForcesCheck(text: string) {
+  const rows = csvRecords(text);
+  for (const c of ['Country', 'Deployed strategic', 'Deployed nonstrategic', 'Reserve/Nondeployed', 'Military stockpile', 'Total inventory', 'As of', 'Source']) {
+    check(rows.length && c in rows[0], `missing the "${c}" column`);
+  }
+  check(rows.length >= 9, `${rows.length} rows; FAS's table has the nine states`);
+  check(rows.some((r) => /^total$/i.test(r.Country.trim())), 'no "Total" row; copy FAS\'s table whole, total included');
+  const dates = new Set(rows.map((r) => r['As of'].trim()));
+  check(dates.size === 1 && /^\d{4}-\d{2}(-\d{2})?$/.test([...dates][0]), 'every row needs the same "As of" date (YYYY-MM or YYYY-MM-DD)');
+  for (const r of rows) {
+    const n = (k: string) => Number(r[k].replace(/,/g, '') || 0);
+    check(Number.isInteger(n('Total inventory')) && n('Total inventory') > 0, `${r.Country}: no total inventory`);
+    check(n('Deployed strategic') + n('Deployed nonstrategic') + n('Reserve/Nondeployed') === n('Military stockpile'), `${r.Country}: deployed and reserve do not add up to the military stockpile`);
+    check(n('Military stockpile') <= n('Total inventory'), `${r.Country}: military stockpile above total inventory`);
+    check(/^https:\/\/(www\.)?fas\.org\//.test(r.Source.trim()), `${r.Country}: the source must be a fas.org link`);
+  }
+  return rows.length;
 }
 
 export const KINDS: Record<string, Kind> = {
@@ -210,6 +231,10 @@ export const KINDS: Record<string, Kind> = {
       return `${edition}_Commodities_Data.csv`;
     },
     about: 'USGS Mineral Commodity Summaries commodity CSV, MCS<year>_Commodities_Data.csv (ScienceBase refuses scripts; download it from the data release page)',
+  },
+  'fas-forces': {
+    source: 'fas-forces', save: 'status-world-nuclear-forces.csv', how: 'raw', check: fasForcesCheck,
+    about: 'FAS Status of World Nuclear Forces table with its Total row, copied by hand: Country, Deployed strategic, Deployed nonstrategic, Reserve/Nondeployed, Military stockpile, Total inventory, As of, Source',
   },
   'treasury-history': {
     source: 'treasury-history', save: 'mfh_history.csv', how: 'raw', check: treasuryHistoryCheck,

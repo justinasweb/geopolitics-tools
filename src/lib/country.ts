@@ -5,6 +5,7 @@ import { aggregate, sanctions as loadSanctions, type PlaceListings } from '../ad
 import { lending as loadLending } from '../adapters/aiddata.ts';
 import { minerals as loadMinerals, type Mineral } from '../adapters/minerals.ts';
 import { alertsIn, firstDay, lastDay } from './disasters.ts';
+import { warheadsModel } from './nuclear.ts';
 import { INDICATORS, type Loaded } from '../data/indicators.ts';
 import { INDICATOR_TEXT } from '../i18n/en.ts';
 import { DEP_TEXT, RESOURCE_TEXT, SOURCE_SHORT, SUMMARY, inSentence, mineralName } from '../i18n/pages.en.ts';
@@ -69,6 +70,8 @@ export interface Blocks {
   emissions?: Figure;
   sanctions?: { listings: PlaceListings | null };
   lending?: { total: number; from: number; to: number };
+  /** The nine states with nuclear weapons: FAS's latest estimate of the total inventory. */
+  nuclear?: { value: number; year: number };
 }
 
 function disastersFor(id: string): Blocks['disasters'] | undefined {
@@ -96,6 +99,9 @@ function blocksFor(id: string): Blocks {
     const total = Object.values(l.byYear[id]).reduce((a, b) => a + b, 0);
     if (total > 0) out.lending = { total, from: l.years[0], to: l.years.at(-1)! };
   }
+  const w = warheadsModel();
+  const mine = w?.byYear[w.year].rows.find((r) => r.id === id);
+  if (w && mine) out.nuclear = { value: mine.value, year: w.year };
   return out;
 }
 
@@ -177,6 +183,7 @@ export function countryModel(id: string): CountryModel | null {
       if (blocks.disasters) add('gdacs', 'Disasters');
       if (blocks.sanctions) for (const s of ['csl', 'eu-sanctions', 'uk-sanctions']) add(s, 'Sanctions');
       if (blocks.lending) add('aiddata', 'Chinese lending');
+      if (blocks.nuclear) add('fas', 'Nuclear weapons');
       const sources = [...feeds].map(([source, f]) => ({ source, feeds: [...f] }));
       const dates = sources.map((s) => changed(s.source)).filter((d): d is string => !!d).sort();
       const fetched = sources.map((s) => refreshed(s.source)).filter((d): d is string => !!d).sort();

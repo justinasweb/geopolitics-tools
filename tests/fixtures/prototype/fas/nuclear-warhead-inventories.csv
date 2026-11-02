@@ -1,0 +1,811 @@
+Entity,Code,Year,nuclear_weapons_inventory
+United States,USA,1945,2
+United States,USA,1946,61
+United States,USA,1947,121
+United States,USA,1948,180
+United States,USA,1949,240
+United States,USA,1950,299
+United States,USA,1951,724
+United States,USA,1952,1148
+United States,USA,1953,1573
+United States,USA,1954,1997
+United States,USA,1955,2422
+United States,USA,1956,5665
+United States,USA,1957,8908
+United States,USA,1958,12152
+United States,USA,1959,15395
+United States,USA,1960,18638
+United States,USA,1961,21138
+United States,USA,1962,23638
+United States,USA,1963,26139
+United States,USA,1964,28639
+United States,USA,1965,31139
+United States,USA,1966,31197
+United States,USA,1967,31255
+United States,USA,1968,29506
+United States,USA,1969,27757
+United States,USA,1970,26008
+United States,USA,1971,26310
+United States,USA,1972,26612
+United States,USA,1973,26915
+United States,USA,1974,27217
+United States,USA,1975,27519
+United States,USA,1976,26768
+United States,USA,1977,26017
+United States,USA,1978,25266
+United States,USA,1979,24515
+United States,USA,1980,23764
+United States,USA,1981,23638
+United States,USA,1982,23512
+United States,USA,1983,23387
+United States,USA,1984,23261
+United States,USA,1985,23135
+United States,USA,1986,22786
+United States,USA,1987,22438
+United States,USA,1988,22089
+United States,USA,1989,21741
+United States,USA,1990,21392
+United States,USA,1991,19294
+United States,USA,1992,17197
+United States,USA,1993,15099
+United States,USA,1994,13002
+United States,USA,1995,10904
+United States,USA,1996,10839
+United States,USA,1997,10773
+United States,USA,1998,10708
+United States,USA,1999,10642
+United States,USA,2000,10577
+United States,USA,2001,10521
+United States,USA,2002,10464
+United States,USA,2003,10408
+United States,USA,2004,10351
+United States,USA,2005,10295
+United States,USA,2006,10116
+United States,USA,2007,9937
+United States,USA,2008,9758
+United States,USA,2009,9579
+United States,USA,2010,9400
+United States,USA,2011,8940
+United States,USA,2012,8480
+United States,USA,2013,8020
+United States,USA,2014,7560
+United States,USA,2015,7100
+United States,USA,2016,6840
+United States,USA,2017,6580
+United States,USA,2018,6320
+United States,USA,2019,6060
+United States,USA,2020,5800
+United States,USA,2021,5682
+United States,USA,2022,5564
+United States,USA,2023,5446
+United States,USA,2024,5328
+United States,USA,2025,5177
+Russia,RUS,1945,0
+Russia,RUS,1946,0
+Russia,RUS,1947,0
+Russia,RUS,1948,0
+Russia,RUS,1949,1
+Russia,RUS,1950,5
+Russia,RUS,1951,44
+Russia,RUS,1952,83
+Russia,RUS,1953,122
+Russia,RUS,1954,161
+Russia,RUS,1955,200
+Russia,RUS,1956,481
+Russia,RUS,1957,762
+Russia,RUS,1958,1043
+Russia,RUS,1959,1324
+Russia,RUS,1960,1605
+Russia,RUS,1961,2510
+Russia,RUS,1962,3415
+Russia,RUS,1963,4319
+Russia,RUS,1964,5224
+Russia,RUS,1965,6129
+Russia,RUS,1966,7232
+Russia,RUS,1967,8335
+Russia,RUS,1968,9437
+Russia,RUS,1969,10540
+Russia,RUS,1970,11643
+Russia,RUS,1971,13203
+Russia,RUS,1972,14763
+Russia,RUS,1973,16323
+Russia,RUS,1974,17883
+Russia,RUS,1975,19443
+Russia,RUS,1976,21567
+Russia,RUS,1977,23691
+Russia,RUS,1978,25814
+Russia,RUS,1979,27938
+Russia,RUS,1980,30062
+Russia,RUS,1981,31745
+Russia,RUS,1982,33428
+Russia,RUS,1983,35110
+Russia,RUS,1984,36793
+Russia,RUS,1985,38476
+Russia,RUS,1986,40159
+Russia,RUS,1987,39369
+Russia,RUS,1988,38580
+Russia,RUS,1989,37790
+Russia,RUS,1990,37000
+Russia,RUS,1991,34600
+Russia,RUS,1992,32200
+Russia,RUS,1993,29800
+Russia,RUS,1994,27400
+Russia,RUS,1995,25000
+Russia,RUS,1996,24200
+Russia,RUS,1997,23400
+Russia,RUS,1998,22600
+Russia,RUS,1999,21800
+Russia,RUS,2000,21000
+Russia,RUS,2001,20200
+Russia,RUS,2002,19400
+Russia,RUS,2003,18600
+Russia,RUS,2004,17800
+Russia,RUS,2005,17000
+Russia,RUS,2006,16000
+Russia,RUS,2007,15000
+Russia,RUS,2008,14000
+Russia,RUS,2009,13000
+Russia,RUS,2010,12000
+Russia,RUS,2011,11100
+Russia,RUS,2012,10200
+Russia,RUS,2013,9300
+Russia,RUS,2014,8400
+Russia,RUS,2015,7500
+Russia,RUS,2016,7274
+Russia,RUS,2017,7048
+Russia,RUS,2018,6822
+Russia,RUS,2019,6596
+Russia,RUS,2020,6370
+Russia,RUS,2021,6172
+Russia,RUS,2022,5975
+Russia,RUS,2023,5778
+Russia,RUS,2024,5580
+Russia,RUS,2025,5459
+United Kingdom,GBR,1945,0
+United Kingdom,GBR,1946,0
+United Kingdom,GBR,1947,0
+United Kingdom,GBR,1948,0
+United Kingdom,GBR,1949,0
+United Kingdom,GBR,1950,0
+United Kingdom,GBR,1951,0
+United Kingdom,GBR,1952,0
+United Kingdom,GBR,1953,1
+United Kingdom,GBR,1954,5
+United Kingdom,GBR,1955,9
+United Kingdom,GBR,1956,13
+United Kingdom,GBR,1957,18
+United Kingdom,GBR,1958,22
+United Kingdom,GBR,1959,26
+United Kingdom,GBR,1960,30
+United Kingdom,GBR,1961,64
+United Kingdom,GBR,1962,99
+United Kingdom,GBR,1963,134
+United Kingdom,GBR,1964,168
+United Kingdom,GBR,1965,202
+United Kingdom,GBR,1966,237
+United Kingdom,GBR,1967,272
+United Kingdom,GBR,1968,306
+United Kingdom,GBR,1969,340
+United Kingdom,GBR,1970,375
+United Kingdom,GBR,1971,400
+United Kingdom,GBR,1972,425
+United Kingdom,GBR,1973,450
+United Kingdom,GBR,1974,475
+United Kingdom,GBR,1975,500
+United Kingdom,GBR,1976,470
+United Kingdom,GBR,1977,440
+United Kingdom,GBR,1978,410
+United Kingdom,GBR,1979,380
+United Kingdom,GBR,1980,350
+United Kingdom,GBR,1981,350
+United Kingdom,GBR,1982,350
+United Kingdom,GBR,1983,350
+United Kingdom,GBR,1984,350
+United Kingdom,GBR,1985,350
+United Kingdom,GBR,1986,350
+United Kingdom,GBR,1987,350
+United Kingdom,GBR,1988,350
+United Kingdom,GBR,1989,350
+United Kingdom,GBR,1990,350
+United Kingdom,GBR,1991,343
+United Kingdom,GBR,1992,336
+United Kingdom,GBR,1993,329
+United Kingdom,GBR,1994,322
+United Kingdom,GBR,1995,315
+United Kingdom,GBR,1996,308
+United Kingdom,GBR,1997,301
+United Kingdom,GBR,1998,294
+United Kingdom,GBR,1999,287
+United Kingdom,GBR,2000,280
+United Kingdom,GBR,2001,274
+United Kingdom,GBR,2002,269
+United Kingdom,GBR,2003,264
+United Kingdom,GBR,2004,258
+United Kingdom,GBR,2005,252
+United Kingdom,GBR,2006,247
+United Kingdom,GBR,2007,242
+United Kingdom,GBR,2008,236
+United Kingdom,GBR,2009,230
+United Kingdom,GBR,2010,225
+United Kingdom,GBR,2011,225
+United Kingdom,GBR,2012,225
+United Kingdom,GBR,2013,225
+United Kingdom,GBR,2014,225
+United Kingdom,GBR,2015,225
+United Kingdom,GBR,2016,225
+United Kingdom,GBR,2017,225
+United Kingdom,GBR,2018,225
+United Kingdom,GBR,2019,225
+United Kingdom,GBR,2020,225
+United Kingdom,GBR,2021,225
+United Kingdom,GBR,2022,225
+United Kingdom,GBR,2023,225
+United Kingdom,GBR,2024,225
+United Kingdom,GBR,2025,225
+France,FRA,1945,0
+France,FRA,1946,0
+France,FRA,1947,0
+France,FRA,1948,0
+France,FRA,1949,0
+France,FRA,1950,0
+France,FRA,1951,0
+France,FRA,1952,0
+France,FRA,1953,0
+France,FRA,1954,0
+France,FRA,1955,0
+France,FRA,1956,0
+France,FRA,1957,0
+France,FRA,1958,0
+France,FRA,1959,0
+France,FRA,1960,0
+France,FRA,1961,0
+France,FRA,1962,0
+France,FRA,1963,0
+France,FRA,1964,4
+France,FRA,1965,9
+France,FRA,1966,15
+France,FRA,1967,20
+France,FRA,1968,25
+France,FRA,1969,31
+France,FRA,1970,36
+France,FRA,1971,57
+France,FRA,1972,79
+France,FRA,1973,100
+France,FRA,1974,122
+France,FRA,1975,143
+France,FRA,1976,164
+France,FRA,1977,186
+France,FRA,1978,207
+France,FRA,1979,229
+France,FRA,1980,250
+France,FRA,1981,276
+France,FRA,1982,301
+France,FRA,1983,326
+France,FRA,1984,352
+France,FRA,1985,378
+France,FRA,1986,403
+France,FRA,1987,428
+France,FRA,1988,454
+France,FRA,1989,480
+France,FRA,1990,505
+France,FRA,1991,522
+France,FRA,1992,540
+France,FRA,1993,531
+France,FRA,1994,522
+France,FRA,1995,514
+France,FRA,1996,505
+France,FRA,1997,496
+France,FRA,1998,488
+France,FRA,1999,479
+France,FRA,2000,470
+France,FRA,2001,453
+France,FRA,2002,436
+France,FRA,2003,419
+France,FRA,2004,402
+France,FRA,2005,385
+France,FRA,2006,368
+France,FRA,2007,351
+France,FRA,2008,334
+France,FRA,2009,317
+France,FRA,2010,300
+France,FRA,2011,299
+France,FRA,2012,299
+France,FRA,2013,298
+France,FRA,2014,297
+France,FRA,2015,296
+France,FRA,2016,296
+France,FRA,2017,295
+France,FRA,2018,294
+France,FRA,2019,294
+France,FRA,2020,293
+France,FRA,2021,292
+France,FRA,2022,291
+France,FRA,2023,291
+France,FRA,2024,290
+France,FRA,2025,290
+China,CHN,1945,0
+China,CHN,1946,0
+China,CHN,1947,0
+China,CHN,1948,0
+China,CHN,1949,0
+China,CHN,1950,0
+China,CHN,1951,0
+China,CHN,1952,0
+China,CHN,1953,0
+China,CHN,1954,0
+China,CHN,1955,0
+China,CHN,1956,0
+China,CHN,1957,0
+China,CHN,1958,0
+China,CHN,1959,0
+China,CHN,1960,0
+China,CHN,1961,0
+China,CHN,1962,0
+China,CHN,1963,0
+China,CHN,1964,1
+China,CHN,1965,13
+China,CHN,1966,26
+China,CHN,1967,38
+China,CHN,1968,50
+China,CHN,1969,63
+China,CHN,1970,75
+China,CHN,1971,96
+China,CHN,1972,116
+China,CHN,1973,136
+China,CHN,1974,157
+China,CHN,1975,178
+China,CHN,1976,198
+China,CHN,1977,218
+China,CHN,1978,239
+China,CHN,1979,260
+China,CHN,1980,280
+China,CHN,1981,295
+China,CHN,1982,310
+China,CHN,1983,325
+China,CHN,1984,340
+China,CHN,1985,355
+China,CHN,1986,370
+China,CHN,1987,385
+China,CHN,1988,400
+China,CHN,1989,415
+China,CHN,1990,430
+China,CHN,1991,427
+China,CHN,1992,424
+China,CHN,1993,421
+China,CHN,1994,418
+China,CHN,1995,415
+China,CHN,1996,412
+China,CHN,1997,409
+China,CHN,1998,406
+China,CHN,1999,403
+China,CHN,2000,400
+China,CHN,2001,384
+China,CHN,2002,368
+China,CHN,2003,352
+China,CHN,2004,336
+China,CHN,2005,320
+China,CHN,2006,304
+China,CHN,2007,288
+China,CHN,2008,272
+China,CHN,2009,256
+China,CHN,2010,240
+China,CHN,2011,244
+China,CHN,2012,248
+China,CHN,2013,252
+China,CHN,2014,256
+China,CHN,2015,260
+China,CHN,2016,278
+China,CHN,2017,296
+China,CHN,2018,314
+China,CHN,2019,332
+China,CHN,2020,350
+China,CHN,2021,370
+China,CHN,2022,390
+China,CHN,2023,410
+China,CHN,2024,500
+China,CHN,2025,600
+Israel,ISR,1945,0
+Israel,ISR,1946,0
+Israel,ISR,1947,0
+Israel,ISR,1948,0
+Israel,ISR,1949,0
+Israel,ISR,1950,0
+Israel,ISR,1951,0
+Israel,ISR,1952,0
+Israel,ISR,1953,0
+Israel,ISR,1954,0
+Israel,ISR,1955,0
+Israel,ISR,1956,0
+Israel,ISR,1957,0
+Israel,ISR,1958,0
+Israel,ISR,1959,0
+Israel,ISR,1960,0
+Israel,ISR,1961,0
+Israel,ISR,1962,0
+Israel,ISR,1963,0
+Israel,ISR,1964,0
+Israel,ISR,1965,0
+Israel,ISR,1966,0
+Israel,ISR,1967,2
+Israel,ISR,1968,4
+Israel,ISR,1969,6
+Israel,ISR,1970,8
+Israel,ISR,1971,11
+Israel,ISR,1972,13
+Israel,ISR,1973,15
+Israel,ISR,1974,17
+Israel,ISR,1975,19
+Israel,ISR,1976,21
+Israel,ISR,1977,24
+Israel,ISR,1978,26
+Israel,ISR,1979,28
+Israel,ISR,1980,30
+Israel,ISR,1981,32
+Israel,ISR,1982,35
+Israel,ISR,1983,37
+Israel,ISR,1984,39
+Israel,ISR,1985,42
+Israel,ISR,1986,44
+Israel,ISR,1987,46
+Israel,ISR,1988,48
+Israel,ISR,1989,51
+Israel,ISR,1990,53
+Israel,ISR,1991,55
+Israel,ISR,1992,57
+Israel,ISR,1993,59
+Israel,ISR,1994,61
+Israel,ISR,1995,62
+Israel,ISR,1996,64
+Israel,ISR,1997,66
+Israel,ISR,1998,68
+Israel,ISR,1999,70
+Israel,ISR,2000,72
+Israel,ISR,2001,73
+Israel,ISR,2002,74
+Israel,ISR,2003,74
+Israel,ISR,2004,75
+Israel,ISR,2005,76
+Israel,ISR,2006,77
+Israel,ISR,2007,78
+Israel,ISR,2008,78
+Israel,ISR,2009,79
+Israel,ISR,2010,80
+Israel,ISR,2011,81
+Israel,ISR,2012,81
+Israel,ISR,2013,82
+Israel,ISR,2014,83
+Israel,ISR,2015,84
+Israel,ISR,2016,84
+Israel,ISR,2017,85
+Israel,ISR,2018,86
+Israel,ISR,2019,86
+Israel,ISR,2020,87
+Israel,ISR,2021,88
+Israel,ISR,2022,89
+Israel,ISR,2023,89
+Israel,ISR,2024,90
+Israel,ISR,2025,90
+India,IND,1945,0
+India,IND,1946,0
+India,IND,1947,0
+India,IND,1948,0
+India,IND,1949,0
+India,IND,1950,0
+India,IND,1951,0
+India,IND,1952,0
+India,IND,1953,0
+India,IND,1954,0
+India,IND,1955,0
+India,IND,1956,0
+India,IND,1957,0
+India,IND,1958,0
+India,IND,1959,0
+India,IND,1960,0
+India,IND,1961,0
+India,IND,1962,0
+India,IND,1963,0
+India,IND,1964,0
+India,IND,1965,0
+India,IND,1966,0
+India,IND,1967,0
+India,IND,1968,0
+India,IND,1969,0
+India,IND,1970,0
+India,IND,1971,0
+India,IND,1972,0
+India,IND,1973,0
+India,IND,1974,0
+India,IND,1975,0
+India,IND,1976,0
+India,IND,1977,0
+India,IND,1978,0
+India,IND,1979,0
+India,IND,1980,0
+India,IND,1981,0
+India,IND,1982,0
+India,IND,1983,0
+India,IND,1984,0
+India,IND,1985,0
+India,IND,1986,0
+India,IND,1987,0
+India,IND,1988,0
+India,IND,1989,0
+India,IND,1990,0
+India,IND,1991,0
+India,IND,1992,0
+India,IND,1993,0
+India,IND,1994,0
+India,IND,1995,0
+India,IND,1996,0
+India,IND,1997,0
+India,IND,1998,5
+India,IND,1999,10
+India,IND,2000,15
+India,IND,2001,20
+India,IND,2002,24
+India,IND,2003,28
+India,IND,2004,33
+India,IND,2005,38
+India,IND,2006,42
+India,IND,2007,46
+India,IND,2008,51
+India,IND,2009,56
+India,IND,2010,60
+India,IND,2011,70
+India,IND,2012,79
+India,IND,2013,89
+India,IND,2014,98
+India,IND,2015,108
+India,IND,2016,118
+India,IND,2017,127
+India,IND,2018,137
+India,IND,2019,146
+India,IND,2020,156
+India,IND,2021,160
+India,IND,2022,164
+India,IND,2023,168
+India,IND,2024,172
+India,IND,2025,180
+Pakistan,PAK,1945,0
+Pakistan,PAK,1946,0
+Pakistan,PAK,1947,0
+Pakistan,PAK,1948,0
+Pakistan,PAK,1949,0
+Pakistan,PAK,1950,0
+Pakistan,PAK,1951,0
+Pakistan,PAK,1952,0
+Pakistan,PAK,1953,0
+Pakistan,PAK,1954,0
+Pakistan,PAK,1955,0
+Pakistan,PAK,1956,0
+Pakistan,PAK,1957,0
+Pakistan,PAK,1958,0
+Pakistan,PAK,1959,0
+Pakistan,PAK,1960,0
+Pakistan,PAK,1961,0
+Pakistan,PAK,1962,0
+Pakistan,PAK,1963,0
+Pakistan,PAK,1964,0
+Pakistan,PAK,1965,0
+Pakistan,PAK,1966,0
+Pakistan,PAK,1967,0
+Pakistan,PAK,1968,0
+Pakistan,PAK,1969,0
+Pakistan,PAK,1970,0
+Pakistan,PAK,1971,0
+Pakistan,PAK,1972,0
+Pakistan,PAK,1973,0
+Pakistan,PAK,1974,0
+Pakistan,PAK,1975,0
+Pakistan,PAK,1976,0
+Pakistan,PAK,1977,0
+Pakistan,PAK,1978,0
+Pakistan,PAK,1979,0
+Pakistan,PAK,1980,0
+Pakistan,PAK,1981,0
+Pakistan,PAK,1982,0
+Pakistan,PAK,1983,0
+Pakistan,PAK,1984,0
+Pakistan,PAK,1985,0
+Pakistan,PAK,1986,0
+Pakistan,PAK,1987,0
+Pakistan,PAK,1988,0
+Pakistan,PAK,1989,0
+Pakistan,PAK,1990,0
+Pakistan,PAK,1991,0
+Pakistan,PAK,1992,0
+Pakistan,PAK,1993,0
+Pakistan,PAK,1994,0
+Pakistan,PAK,1995,0
+Pakistan,PAK,1996,0
+Pakistan,PAK,1997,0
+Pakistan,PAK,1998,5
+Pakistan,PAK,1999,12
+Pakistan,PAK,2000,20
+Pakistan,PAK,2001,25
+Pakistan,PAK,2002,30
+Pakistan,PAK,2003,35
+Pakistan,PAK,2004,40
+Pakistan,PAK,2005,45
+Pakistan,PAK,2006,50
+Pakistan,PAK,2007,55
+Pakistan,PAK,2008,60
+Pakistan,PAK,2009,65
+Pakistan,PAK,2010,70
+Pakistan,PAK,2011,80
+Pakistan,PAK,2012,89
+Pakistan,PAK,2013,98
+Pakistan,PAK,2014,108
+Pakistan,PAK,2015,118
+Pakistan,PAK,2016,127
+Pakistan,PAK,2017,136
+Pakistan,PAK,2018,146
+Pakistan,PAK,2019,156
+Pakistan,PAK,2020,165
+Pakistan,PAK,2021,166
+Pakistan,PAK,2022,168
+Pakistan,PAK,2023,169
+Pakistan,PAK,2024,170
+Pakistan,PAK,2025,170
+North Korea,PRK,1945,0
+North Korea,PRK,1946,0
+North Korea,PRK,1947,0
+North Korea,PRK,1948,0
+North Korea,PRK,1949,0
+North Korea,PRK,1950,0
+North Korea,PRK,1951,0
+North Korea,PRK,1952,0
+North Korea,PRK,1953,0
+North Korea,PRK,1954,0
+North Korea,PRK,1955,0
+North Korea,PRK,1956,0
+North Korea,PRK,1957,0
+North Korea,PRK,1958,0
+North Korea,PRK,1959,0
+North Korea,PRK,1960,0
+North Korea,PRK,1961,0
+North Korea,PRK,1962,0
+North Korea,PRK,1963,0
+North Korea,PRK,1964,0
+North Korea,PRK,1965,0
+North Korea,PRK,1966,0
+North Korea,PRK,1967,0
+North Korea,PRK,1968,0
+North Korea,PRK,1969,0
+North Korea,PRK,1970,0
+North Korea,PRK,1971,0
+North Korea,PRK,1972,0
+North Korea,PRK,1973,0
+North Korea,PRK,1974,0
+North Korea,PRK,1975,0
+North Korea,PRK,1976,0
+North Korea,PRK,1977,0
+North Korea,PRK,1978,0
+North Korea,PRK,1979,0
+North Korea,PRK,1980,0
+North Korea,PRK,1981,0
+North Korea,PRK,1982,0
+North Korea,PRK,1983,0
+North Korea,PRK,1984,0
+North Korea,PRK,1985,0
+North Korea,PRK,1986,0
+North Korea,PRK,1987,0
+North Korea,PRK,1988,0
+North Korea,PRK,1989,0
+North Korea,PRK,1990,0
+North Korea,PRK,1991,0
+North Korea,PRK,1992,0
+North Korea,PRK,1993,0
+North Korea,PRK,1994,0
+North Korea,PRK,1995,0
+North Korea,PRK,1996,0
+North Korea,PRK,1997,0
+North Korea,PRK,1998,0
+North Korea,PRK,1999,0
+North Korea,PRK,2000,0
+North Korea,PRK,2001,0
+North Korea,PRK,2002,0
+North Korea,PRK,2003,0
+North Korea,PRK,2004,0
+North Korea,PRK,2005,0
+North Korea,PRK,2006,1
+North Korea,PRK,2007,3
+North Korea,PRK,2008,4
+North Korea,PRK,2009,6
+North Korea,PRK,2010,8
+North Korea,PRK,2011,11
+North Korea,PRK,2012,14
+North Korea,PRK,2013,18
+North Korea,PRK,2014,21
+North Korea,PRK,2015,24
+North Korea,PRK,2016,27
+North Korea,PRK,2017,30
+North Korea,PRK,2018,34
+North Korea,PRK,2019,37
+North Korea,PRK,2020,40
+North Korea,PRK,2021,42
+North Korea,PRK,2022,45
+North Korea,PRK,2023,48
+North Korea,PRK,2024,50
+North Korea,PRK,2025,50
+World,OWID_WRL,1945,2
+World,OWID_WRL,1946,61
+World,OWID_WRL,1947,121
+World,OWID_WRL,1948,180
+World,OWID_WRL,1949,241
+World,OWID_WRL,1950,304
+World,OWID_WRL,1951,768
+World,OWID_WRL,1952,1231
+World,OWID_WRL,1953,1696
+World,OWID_WRL,1954,2163
+World,OWID_WRL,1955,2631
+World,OWID_WRL,1956,6159
+World,OWID_WRL,1957,9688
+World,OWID_WRL,1958,13217
+World,OWID_WRL,1959,16745
+World,OWID_WRL,1960,20273
+World,OWID_WRL,1961,23712
+World,OWID_WRL,1962,27152
+World,OWID_WRL,1963,30592
+World,OWID_WRL,1964,34036
+World,OWID_WRL,1965,37492
+World,OWID_WRL,1966,38707
+World,OWID_WRL,1967,39922
+World,OWID_WRL,1968,39328
+World,OWID_WRL,1969,38737
+World,OWID_WRL,1970,38145
+World,OWID_WRL,1971,40077
+World,OWID_WRL,1972,42008
+World,OWID_WRL,1973,43939
+World,OWID_WRL,1974,45871
+World,OWID_WRL,1975,47802
+World,OWID_WRL,1976,49188
+World,OWID_WRL,1977,50576
+World,OWID_WRL,1978,51962
+World,OWID_WRL,1979,53350
+World,OWID_WRL,1980,54736
+World,OWID_WRL,1981,56336
+World,OWID_WRL,1982,57936
+World,OWID_WRL,1983,59535
+World,OWID_WRL,1984,61135
+World,OWID_WRL,1985,62736
+World,OWID_WRL,1986,64112
+World,OWID_WRL,1987,63016
+World,OWID_WRL,1988,61921
+World,OWID_WRL,1989,60827
+World,OWID_WRL,1990,59730
+World,OWID_WRL,1991,55241
+World,OWID_WRL,1992,50754
+World,OWID_WRL,1993,46239
+World,OWID_WRL,1994,41725
+World,OWID_WRL,1995,37210
+World,OWID_WRL,1996,36328
+World,OWID_WRL,1997,35445
+World,OWID_WRL,1998,34574
+World,OWID_WRL,1999,33703
+World,OWID_WRL,2000,32834
+World,OWID_WRL,2001,31950
+World,OWID_WRL,2002,31065
+World,OWID_WRL,2003,30180
+World,OWID_WRL,2004,29295
+World,OWID_WRL,2005,28411
+World,OWID_WRL,2006,27205
+World,OWID_WRL,2007,26000
+World,OWID_WRL,2008,24793
+World,OWID_WRL,2009,23588
+World,OWID_WRL,2010,22383
+World,OWID_WRL,2011,21050
+World,OWID_WRL,2012,19715
+World,OWID_WRL,2013,18382
+World,OWID_WRL,2014,17048
+World,OWID_WRL,2015,15715
+World,OWID_WRL,2016,15269
+World,OWID_WRL,2017,14822
+World,OWID_WRL,2018,14378
+World,OWID_WRL,2019,13932
+World,OWID_WRL,2020,13486
+World,OWID_WRL,2021,13197
+World,OWID_WRL,2022,12911
+World,OWID_WRL,2023,12624
+World,OWID_WRL,2024,12405
+World,OWID_WRL,2025,12241

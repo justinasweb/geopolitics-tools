@@ -42,6 +42,8 @@ import type { View } from '../../../lib/explorer/model';
 import { ATLAS_TEXT } from '../../../i18n/atlas.en';
 import { atlasLayers } from '../../../lib/atlas';
 import { HUB_TEXT } from '../../../i18n/hubs.en';
+import { NUCLEAR_TEXT } from '../../../i18n/nuclear.en';
+import { nuclearAnswer, sharingRows, treatyCounts, warheads, warheadsModel } from '../../../lib/nuclear';
 import { hubModel } from '../../../lib/hubs';
 
 export const getStaticPaths = (() => {
@@ -149,6 +151,26 @@ function card(r: Route | null): Card {
       kicker: RIVERS_TEXT.section, title: RIVERS_TEXT.title(name), figure: String(p.dams.length), caption: RIVERS_TEXT.damsTitle,
       bars: dep ? p.countries.filter((x) => x.fromAbroad !== null).map((x) => ({ label: `${nameOf(x.id)}, ${RIVERS_TEXT.fromAbroad.toLowerCase()}`, value: x.fromAbroad!, text: valueText(dep, x.fromAbroad!) })) : [],
     };
+  }
+  if (r.kind === 'view' && r.id.startsWith('nuclear:')) {
+    const id = r.id.split(':')[1];
+    const N = NUCLEAR_TEXT;
+    if (id === 'warheads') {
+      const m = warheadsModel()!;
+      const y = m.byYear[m.year];
+      return {
+        kicker: N.section, title: N.title.warheads, figure: N.ogFigure(warheads(y.world)), caption: nuclearAnswer(id) ?? undefined, source: N.estimate(m.year),
+        bars: y.rows.slice(0, 5).map((x) => ({ label: nameOf(x.id), value: x.value, text: warheads(x.value) })),
+      };
+    }
+    if (id === 'treaties') {
+      const c = treatyCounts();
+      return {
+        kicker: N.section, title: N.title.treaties, caption: nuclearAnswer(id) ?? undefined, source: N.treatySource,
+        bars: [{ label: N.nptLong, value: c.npt, text: String(c.npt) }, { label: N.tpnwLong, value: c.tpnw, text: String(c.tpnw) }],
+      };
+    }
+    return { kicker: N.section, title: N.title.sharing, figure: String(new Set(sharingRows().map((x) => x.place)).size), caption: nuclearAnswer(id) ?? undefined, source: N.sharingLegend };
   }
   if (r.kind === 'view' && r.id.startsWith('food:')) {
     const p = foodPage(r.id.split(':')[1])!;

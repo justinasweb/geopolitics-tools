@@ -4,7 +4,7 @@ Generated from `src/data/licences.ts` by `node scripts/licence-table.ts > docs/l
 
 What each source's terms allow and what the site does with it (decision D9). Downloads are "Yes" only where the terms
 allow redistribution; otherwise the site shows charts and figures only. Credits travel with every chart and export.
-8 checked against the terms page, 21 to confirm, 3 waiting on permission.
+34 sources: 9 checked against the terms page, 22 to confirm, 3 waiting on permission.
 
 | Source | Licence | Downloads | Commercial use | Status | Note |
 |---|---|---|---|---|---|
@@ -24,6 +24,7 @@ allow redistribution; otherwise the site shows charts and figures only. Credits 
 | [UNHCR Refugee Data Finder](https://www.unhcr.org/terms-use-datasets) | CC BY 4.0, with UNHCR’s supplemental terms | Yes | Yes | Checked 2026-10-24 | Link the terms page when sharing the data; no UNHCR logo; no implied endorsement |
 | [IMF World Economic Outlook](https://www.imf.org/en/about/copyright-and-terms) | IMF copyright and usage terms | Shown only | No | Permission asked |  |
 | [Submarine cables (OpenStreetMap)](https://www.openstreetmap.org/copyright) | ODbL 1.0 | Yes | Yes | To confirm | A downloaded or derived database must be offered under ODbL too |
+| [FAS Status of World Nuclear Forces](https://fas.org/initiative/status-world-nuclear-forces/) | CC BY 4.0 | Yes | Yes | Checked 2026-10-29 | Confirmed by FAS by email on 29 Oct 2026: display, derived figures and a CSV of what we show are allowed, with credit. The series since 1945 is fetched from Our World in Data, which credits FAS; the current split is copied by hand from the FAS page (import kind fas-forces) |
 | [FAOSTAT](https://www.fao.org/contact-us/terms/db-terms-of-use) | CC BY 4.0, with FAO’s additional terms | Yes | Yes | Checked 2026-10-24 | Citation names the dataset, year of update, access date and URL. No use promoting a business or implying FAO endorsement; third-party data can carry its own terms |
 | [SIPRI Arms Transfers Database](https://www.sipri.org/about/terms-and-conditions) | SIPRI terms: non-commercial reuse of under 10% of a dataset, with credit | Shown only | No | To confirm | Spec: derived five-year totals only, no download |
 | [UN World Population Prospects](https://population.un.org/wpp/downloads/) | CC BY 3.0 IGO | Yes | Yes | To confirm | Licence as recorded by Our World in Data for the 2024 files; read it on the UN page |
@@ -34,6 +35,7 @@ allow redistribution; otherwise the site shows charts and figures only. Credits 
 | [AidData Chinese development finance](https://www.aiddata.org/data/aiddatas-global-chinese-development-finance-dataset-version-3-0) | Not stated on the dataset page | Shown only | To confirm | To confirm | The spec names CLG-Global 1.0, the prototype used GCDF 3.0: check which is current and its licence |
 | [USGS Mineral Commodity Summaries](https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits) | Public domain (US government work) | Yes | Yes | To confirm |  |
 | [US Treasury holdings, history](https://home.treasury.gov/data/treasury-international-capital-tic-system) | Public domain (US government work) | Yes | Yes | To confirm |  |
+| [UNODA Treaties Database](https://www.un.org/en/about-us/terms-of-use) | United Nations terms of use (not yet read) | Shown only | To confirm | To confirm | treaties.unoda.org could not be reached from the session that added it (2 Nov 2026). Treaty status is a public record; read the UN terms before offering a download |
 | [UN Comtrade](https://uncomtrade.org/docs/re-dissemination-of-data/) | UN Comtrade terms: a free, not-for-profit visualisation may show its figures; no bulk redistribution | Shown only | No | Checked 2026-10-26 | The terms list "free-of-charge data visualization" as needing no licence, and allow up to 100,000 records in a free extraction tool; the site shows charts, flows and aggregates only. Ads or a paid tier need a licence from subscriptions@un.org |
 | [U.S. Energy Information Administration](https://www.eia.gov/about/copyrights_reuse.php) | Public domain (US government work); EIA asks to be credited | Yes | Yes | Checked 2026-10-26 | The page asks for a credit with the publication date: "Source: U.S. Energy Information Administration (Oct 2026)" |
 | [Ember electricity data](https://ember-energy.org/data/api) | CC BY 4.0 | Yes | Yes | To confirm | The API page says all content is CC BY 4.0; confirm it covers the API data |

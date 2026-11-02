@@ -26,6 +26,9 @@ export interface Licence {
 
 const ON = '2026-10-24';
 
+/** Sources kept under another source's licence row: the FAS table imported by hand is part of FAS. */
+export const LICENCE_OF: Record<string, string> = { 'fas-forces': 'fas' };
+
 export const LICENCES: Licence[] = [
   // Fetched on a schedule.
   { source: 'gdacs', name: 'GDACS disaster alerts', licence: 'No licence stated; terms are a disclaimer only', terms: 'https://gdacs.org/About/termofuse.aspx', downloads: 'shown only', commercial: 'to confirm', credit: 'GDACS, a cooperation framework of the United Nations and the European Commission', status: 'to confirm', checked: ON, note: 'The terms say data is "as is" and should be confirmed before decisions; nothing on reuse. Ask the JRC before offering downloads' },
@@ -44,6 +47,7 @@ export const LICENCES: Licence[] = [
   { source: 'unhcr', name: 'UNHCR Refugee Data Finder', licence: 'CC BY 4.0, with UNHCR’s supplemental terms', terms: 'https://www.unhcr.org/terms-use-datasets', downloads: 'yes', commercial: 'yes', credit: 'UNHCR Refugee Population Statistics Database', status: 'checked', checked: ON, note: 'Link the terms page when sharing the data; no UNHCR logo; no implied endorsement' },
   { source: 'imf-weo', name: 'IMF World Economic Outlook', licence: 'IMF copyright and usage terms', terms: 'https://www.imf.org/en/about/copyright-and-terms', downloads: 'shown only', commercial: 'no', credit: 'IMF, World Economic Outlook database', status: 'permission asked', checked: ON },
   { source: 'cables', name: 'Submarine cables (OpenStreetMap)', licence: 'ODbL 1.0', terms: 'https://www.openstreetmap.org/copyright', downloads: 'yes', commercial: 'yes', credit: '© OpenStreetMap contributors (ODbL)', status: 'to confirm', checked: ON, note: 'A downloaded or derived database must be offered under ODbL too' },
+  { source: 'fas', name: 'FAS Status of World Nuclear Forces', licence: 'CC BY 4.0', terms: 'https://fas.org/initiative/status-world-nuclear-forces/', downloads: 'yes', commercial: 'yes', credit: 'Federation of American Scientists, Status of World Nuclear Forces (CC BY 4.0)', status: 'checked', checked: '2026-10-29', note: 'Confirmed by FAS by email on 29 Oct 2026: display, derived figures and a CSV of what we show are allowed, with credit. The series since 1945 is fetched from Our World in Data, which credits FAS; the current split is copied by hand from the FAS page (import kind fas-forces)' },
   { source: 'faostat', name: 'FAOSTAT', licence: 'CC BY 4.0, with FAO’s additional terms', terms: 'https://www.fao.org/contact-us/terms/db-terms-of-use', downloads: 'yes', commercial: 'yes', credit: 'FAO, FAOSTAT (CC BY 4.0)', status: 'checked', checked: ON, note: 'Citation names the dataset, year of update, access date and URL. No use promoting a business or implying FAO endorsement; third-party data can carry its own terms' },
 
   // Imported by hand.
@@ -56,6 +60,9 @@ export const LICENCES: Licence[] = [
   { source: 'aiddata', name: 'AidData Chinese development finance', licence: 'Not stated on the dataset page', terms: 'https://www.aiddata.org/data/aiddatas-global-chinese-development-finance-dataset-version-3-0', downloads: 'shown only', commercial: 'to confirm', credit: 'AidData (2023), Global Chinese Development Finance Dataset, Version 3.0', status: 'to confirm', checked: ON, note: 'The spec names CLG-Global 1.0, the prototype used GCDF 3.0: check which is current and its licence' },
   { source: 'usgs-minerals', name: 'USGS Mineral Commodity Summaries', licence: 'Public domain (US government work)', terms: 'https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits', downloads: 'yes', commercial: 'yes', credit: 'U.S. Geological Survey, Mineral Commodity Summaries', status: 'to confirm', checked: ON },
   { source: 'treasury-history', name: 'US Treasury holdings, history', licence: 'Public domain (US government work)', terms: 'https://home.treasury.gov/data/treasury-international-capital-tic-system', downloads: 'yes', commercial: 'yes', credit: 'U.S. Department of the Treasury, Treasury International Capital (TIC) system', status: 'to confirm', checked: ON },
+
+  // Kept by hand in the repository (src/data/nuclear-treaties.csv), checked monthly.
+  { source: 'unoda', name: 'UNODA Treaties Database', licence: 'United Nations terms of use (not yet read)', terms: 'https://www.un.org/en/about-us/terms-of-use', downloads: 'shown only', commercial: 'to confirm', credit: 'United Nations Office for Disarmament Affairs, Treaties Database', status: 'to confirm', checked: '2026-11-02', note: 'treaties.unoda.org could not be reached from the session that added it (2 Nov 2026). Treaty status is a public record; read the UN terms before offering a download' },
 
   // Waiting on a key or permission; listed so their pages can say so.
   { source: 'comtrade', name: 'UN Comtrade', licence: 'UN Comtrade terms: a free, not-for-profit visualisation may show its figures; no bulk redistribution', terms: 'https://uncomtrade.org/docs/re-dissemination-of-data/', downloads: 'shown only', commercial: 'no', credit: 'United Nations, UN Comtrade database', status: 'checked', checked: '2026-10-26', note: 'The terms list "free-of-charge data visualization" as needing no licence, and allow up to 100,000 records in a free extraction tool; the site shows charts, flows and aggregates only. Ads or a paid tier need a licence from subscriptions@un.org' },

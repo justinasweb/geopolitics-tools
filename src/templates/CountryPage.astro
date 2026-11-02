@@ -33,6 +33,8 @@ import { formatDate, formatParts, formatShare, formatValue } from '../lib/format
 import { notesFor, place } from '../lib/places';
 import { countryHref, indicatorHref, live, paths } from '../lib/routes';
 import { breadcrumbs, country as countryLd } from '../lib/structured';
+import { NUCLEAR_TEXT } from '../i18n/nuclear.en';
+import { warheads } from '../lib/nuclear';
 
 interface Props { id: string }
 const m = countryModel(Astro.props.id)!;
@@ -68,7 +70,7 @@ const depSourceNames = [...new Set(okDeps.map((d) => short(d.source)))].sort();
 const mineralYear = m.minerals[0]?.year;
 const blocks = m.blocks;
 const disasterParts = blocks.disasters ? Object.entries(blocks.disasters.byKind).sort((a, b) => b[1] - a[1]).map(([k, n]) => `${n} ${(BLOCK_TEXT.kinds[k] ?? [k, k])[n === 1 ? 0 : 1]}`) : [];
-const hasBlocks = Boolean(blocks.refugees || blocks.disasters || blocks.emissions || blocks.sanctions || blocks.lending);
+const hasBlocks = Boolean(blocks.refugees || blocks.disasters || blocks.emissions || blocks.sanctions || blocks.lending || blocks.nuclear);
 
 const buildYear = Number(data().snapshot.created.slice(0, 4));
 const d = m.dossier ? dossierFor(p.id, buildYear) : null;
@@ -326,6 +328,14 @@ const citation = COUNTRY_TEXT.citation(name, kind, url, Number(m.updated.slice(0
                   <h3 class="gt-h3">{BLOCK_TEXT.lending}</h3>
                   <CpStat num={formatParts(blocks.lending.total, INDICATORS.chinaloans.format).num} unit={formatParts(blocks.lending.total, INDICATORS.chinaloans.format).unit} caption={BLOCK_TEXT.lent(blocks.lending.from, blocks.lending.to)} />
                   <SourceLine source={sourceName('aiddata')} parts={[`${blocks.lending.from}–${blocks.lending.to}`]} />
+                </article>
+              )}
+              {blocks.nuclear && (
+                <article class="gt-cpblock">
+                  <h3 class="gt-h3">{NUCLEAR_TEXT.block}</h3>
+                  <CpStat num={warheads(blocks.nuclear.value)} caption={NUCLEAR_TEXT.blockCaption(blocks.nuclear.year)} />
+                  {live('view:nuclear:warheads') && <p class="gt-caption"><a href={`${live('view:nuclear:warheads')!.path}?country=${m.place.slug}`}>{NUCLEAR_TEXT.blockLink}</a></p>}
+                  <SourceLine source={sourceName('fas')} parts={[NUCLEAR_TEXT.estimate(blocks.nuclear.year)]} status="estimate" />
                 </article>
               )}
             </div>
