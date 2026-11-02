@@ -131,3 +131,46 @@ export const listingsAt = (s: Sanctions, year: number): Series => {
   for (const [id, c] of Object.entries(s.byPlace)) put(out, id, year, c.total);
   return out;
 };
+
+/**
+ * Every entry on each list by the list's own id (CSL `id`, EU `Entity_LogicalId`, UK `Unique ID`), with the place it
+ * is counted under (null when none): what This week compares between an earlier copy and a later one to count the
+ * entries added and removed. US: the SDN list and the Entity List, the two US lists the site reads. A list whose file
+ * is not in the copy is left out.
+ */
+export type Entries = Partial<Record<List, Map<string, string | null>>>;
+
+export function entries(raw: Raw): Entries {
+  const out: Entries = {};
+  if (raw.has('csl', 'consolidated.json')) {
+    const at = country('csl');
+    const m = new Map<string, string | null>();
+    for (const r of raw.json<{ results?: (CslRecord & { id?: string; entity_number?: string | number })[] }>('csl', 'consolidated.json').results ?? []) {
+      if (!SDN.test(r.source ?? '') && !ENTITY_LIST.test(r.source ?? '')) continue;
+      const id = String(r.id ?? r.entity_number ?? '');
+      if (id) m.set(id, at(r.addresses?.find((a) => a?.country)?.country) ?? at(r.nationalities?.[0]) ?? at(r.citizenships?.[0]));
+    }
+    out.US = m;
+  }
+  if (raw.has('eu-sanctions', 'sanctions.csv')) {
+    const at = country('eu-sanctions');
+    out.EU = new Map(groups(csvRecords(raw.text('eu-sanctions', 'sanctions.csv')), 'Entity_LogicalId')
+      .map((g) => [g[0].Entity_LogicalId, at(first(g, 'Address_CountryIso2Code')) ?? at(first(g, 'Citizenship_CountryIso2Code'))]));
+  }
+  if (raw.has('uk-sanctions', 'sanctions.csv')) {
+    const at = country('uk-sanctions');
+    const firstOf = (v: string) => v.split(/[;|]|\s{2,}/)[0]?.trim() ?? '';
+    out.UK = new Map(groups(csvRecords(raw.text('uk-sanctions', 'sanctions.csv')), 'Unique ID')
+      .map((g) => [g[0]['Unique ID'], at(first(g, 'Address Country')) ?? at(firstOf(first(g, 'Nationality(/ies)')))]));
+  }
+  return out;
+}
+
+/** Entries in `after` and not `before` (added) and the other way round (removed), per list both copies have. */
+export function changes(before: Entries, after: Entries): { list: List; added: string[]; removed: string[]; places: (string | null)[] }[] {
+  return LISTS.filter((l) => before[l] && after[l]).map((list) => {
+    const [b, a] = [before[list]!, after[list]!];
+    const added = [...a.keys()].filter((k) => !b.has(k));
+    return { list, added, removed: [...b.keys()].filter((k) => !a.has(k)), places: added.map((k) => a.get(k) ?? null) };
+  });
+}

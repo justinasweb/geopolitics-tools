@@ -34,16 +34,16 @@ describe('menu', () => {
     for (const t of NAV_TOOLS) expect(NAV_TEXT.tools[t.id]?.[1], t.id).toBeTruthy();
   });
 
-  it('builds from the sample files: Indicators in the top row, unbuilt tools left out', async () => {
+  it('builds from the sample files: Indicators and This week in the top row, unbuilt tools left out', async () => {
     const { menu } = await import('../../src/lib/menu.ts');
     const { route } = await import('../../src/lib/routes.ts');
     const m = menu();
     expect(m.top.map((u) => u.id)).toContain('indicators');
-    expect(m.top.map((u) => u.id)).not.toContain('this-week');
+    expect(m.top.map((u) => u.id)).toContain('this-week');
     expect(m.tools.map((u) => u.id)).toContain('atlas');
     expect(m.tools.map((u) => u.id)).toContain('blocs-overlap');
     // Bloc overlap has its own address, beside the bloc pages under /blocs.
     expect(route('tool:blocs-overlap')).toMatchObject({ path: '/blocs/overlap', live: true });
-    expect(route('tool:this-week')).toMatchObject({ path: '/this-week', live: false });
+    expect(route('week')).toMatchObject({ path: '/this-week', live: true, indexed: true });
   });
 });

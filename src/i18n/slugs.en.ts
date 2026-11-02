@@ -11,6 +11,7 @@ export const SECTION_SLUGS = {
   water: 'water', 'chinese-lending': 'chinese-lending', arms: 'arms', oil: 'oil', gas: 'gas', electricity: 'electricity', conflict: 'conflict', 'food-crises': 'food-crises',
   nuclear: 'nuclear',
   explorer: 'explorer', dependencies: 'dependencies', 'supply-chains': 'supply-chains', atlas: 'atlas',
+  'this-week': 'this-week',
 } as const;
 
 /** Supply chains after /supply-chains, by flow key (src/data/flows.ts). */

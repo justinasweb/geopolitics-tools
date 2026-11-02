@@ -92,8 +92,9 @@ for (const [name, viewport] of [['desktop', { width: 1440, height: 900 }], ['pho
   check(errors.length === 0, `${name}: no console errors${errors.length ? ` (${errors.join('; ')})` : ''}`);
   await page.screenshot({ path: `${out}/home-${name}.png`, fullPage: true });
 
-  // A dossier, Compare and an indicator page: no errors, nothing wider than the screen.
-  for (const [shot, path] of [['dossier', '/countries/china'], ['compare', '/compare/united-states-vs-china'], ['indicator', '/indicators/gdp']]) {
+  // A dossier, Compare, an indicator page and This week (when it is built): no errors, nothing wider than the screen.
+  const week = (await get('/this-week')).status === 200;
+  for (const [shot, path] of [['dossier', '/countries/china'], ['compare', '/compare/united-states-vs-china'], ['indicator', '/indicators/gdp'], ...(week ? [['this-week', '/this-week']] : [])]) {
     errors.length = 0;
     await page.goto(`${base}${path}`, { waitUntil: 'networkidle' });
     check(!(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth)), `${name}: ${path} has no sideways scroll`);

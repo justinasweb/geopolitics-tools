@@ -1,0 +1,10 @@
+---
+// A This week kind's shape glyph in its categorical colour (src/lib/week.ts GLYPHS): shipping a diamond, disasters a
+// triangle, conflict a dot, prices a line, food crises a hexagon, outages a square, sanctions lines. Decorative: the
+// kind's word always stands next to it.
+import { GLYPHS } from '../lib/week';
+
+interface Props { kind: string }
+const g = GLYPHS[Astro.props.kind] ?? GLYPHS.conflict;
+---
+<svg class="gt-glyph" viewBox="0 0 12 12" aria-hidden="true" style={`color:var(--cat-${g.cat});fill:currentColor`} set:html={g.svg} />

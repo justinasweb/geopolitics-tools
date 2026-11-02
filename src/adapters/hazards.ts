@@ -23,6 +23,8 @@ export interface Hazard {
   lat: number;
   from: string;
   to: string;
+  /** When it began, to the minute (UTC), where the source gives a time: GDACS does. */
+  start?: string;
   current: boolean;
   /** GDACS's own severity line ("Maximum wind speed: 132 km/h"); empty for quakes, which have mag. */
   severity: string;
@@ -33,6 +35,9 @@ export interface Hazard {
 
 /** YYYY-MM-DD from a time in ms or a GDACS date (UTC, written without a zone). */
 const day = (v: unknown) => (v == null || v === '' ? '' : new Date(typeof v === 'number' ? v : `${String(v).slice(0, 19)}Z`).toISOString().slice(0, 10));
+
+/** YYYY-MM-DDTHH:MMZ from a GDACS date (UTC, written without a zone), or undefined without a time. */
+const minute = (v: unknown) => (/^\d{4}-\d\d-\d\dT\d\d:\d\d/.test(String(v ?? '')) ? `${String(v).slice(0, 16)}Z` : undefined);
 
 const ALERTS = new Set(['green', 'orange', 'red']);
 
@@ -47,7 +52,7 @@ export function parseGdacs(json: { features?: GdacsFeature[] }): Hazard[] {
     return {
       id: `${p.eventtype}${p.eventid}`, kind: p.eventtype as HazardKind, name: String(p.name ?? ''), alert: (ALERTS.has(alert) ? alert : 'green') as Alert,
       place: places[0] ?? null, places, lon: g.coordinates[0], lat: g.coordinates[1], from: day(p.fromdate), to: day(p.todate ?? p.fromdate),
-      current: String(p.iscurrent) === 'true', severity: p.severitydata?.severitytext ?? '',
+      start: minute(p.fromdate), current: String(p.iscurrent) === 'true', severity: p.severitydata?.severitytext ?? '',
     };
   });
 }

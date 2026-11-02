@@ -26,6 +26,14 @@ import MapLegend from '../../components/MapLegend.astro';
 import MapTooltip from '../../components/MapTooltip.astro';
 import CountryPanel from '../../components/CountryPanel.astro';
 import PanelFacts from '../../components/PanelFacts.astro';
+import WeekCard from '../../components/WeekCard.astro';
+import WeekCardBody from '../../components/WeekCardBody.astro';
+import RefBars from '../../components/RefBars.astro';
+import CountRow from '../../components/CountRow.astro';
+import LatestFeed from '../../components/LatestFeed.astro';
+import WeekSummary from '../../components/WeekSummary.astro';
+import WeekNav from '../../components/WeekNav.astro';
+import type { Body, FeedView } from '../../lib/week';
 import tokensJson from '../../design/tokens.json';
 import type { Tokens } from '../../../scripts/tokens';
 
@@ -81,6 +89,47 @@ const colourGroups: [string, string[]][] = [
   ['Diverging', ['div-1', 'div-2', 'div-3', 'div-4', 'div-5', 'div-6', 'div-7']],
   ['Categorical', ['cat-1', 'cat-2', 'cat-3', 'cat-4', 'cat-5', 'cat-6', 'cat-7', 'cat-8']],
 ];
+// This week: the design's sample figures (all marked Sample).
+const wkCounts = [
+  { num: '7', label: 'disaster alerts, orange and red', source: 'GDACS · 15–21 Oct 2026', status: 'sample' as const },
+  { num: '5', label: 'chokepoints and ports below normal traffic: 2 chokepoints, 3 ports', source: 'IMF PortWatch · week to 19 Oct 2026', status: 'sample' as const },
+  { num: '4', label: 'countries with people in catastrophic hunger (IPC Phase 5)', source: 'IPC · analyses in force on 21 Oct 2026', status: 'sample' as const },
+];
+const wkShipping = [
+  { name: 'Bab el-Mandeb', width: 35, value: '42%', note: 'below normal' }, { name: 'Suez Canal', width: 42.5, value: '51%', note: 'below normal' },
+  { name: 'Strait of Hormuz', width: 80, value: '96%' }, { name: 'Strait of Malacca', width: 85.8, value: '103%' }, { name: 'Panama Canal', width: 81.7, value: '98%' },
+];
+const wkAlerts: Body = { type: 'alerts', notes: [], rows: [
+  { level: 'red', levelText: 'Red', what: 'Tropical cyclone, Philippines', date: '21 Oct' }, { level: 'orange', levelText: 'Orange', what: 'Earthquake, Peru', date: '20 Oct' },
+  { level: 'orange', levelText: 'Orange', what: 'Flood, Viet Nam', date: '19 Oct' }, { level: 'orange', levelText: 'Orange', what: 'Flood, Nigeria', date: 'since 12 Oct' },
+] };
+const wkPair: Body = { type: 'pair', label: 'Events of organised violence, August and September 2026', keyA: 'August', keyB: 'September', key: 'Events in September, change on August', notes: [], rows: [
+  ['Ukraine', 1840, 1710], ['Sudan', 521, 610], ['Myanmar', 480, 455], ['DR Congo', 308, 262], ['Syria', 205, 236],
+].map(([name, a, b]) => ({ name: String(name), a: Number(a), b: Number(b), aw: (100 * Number(a)) / 1840, bw: (100 * Number(b)) / 1840, value: new Intl.NumberFormat('en').format(Number(b)), change: `${Number(b) > Number(a) ? '+' : '−'}${Math.round(Math.abs(Number(b) / Number(a) - 1) * 100)}%` })) };
+const wkPrices: Body = { type: 'table', notes: ['Change on the month before and on the same month a year earlier. Monthly averages in US dollars.'],
+  cols: [{ text: 'Commodity' }, { text: 'Sep 2026', num: true }, { text: 'Month', num: true }, { text: 'Year', num: true }],
+  rows: [['Natural gas, Europe', '$/MMBtu', '11.2', 0.047, -0.056], ['Wheat, US hard red winter', '$/tonne', '231', 0.018, -0.042], ['Copper', '$/tonne', '10,480', 0.022, 0.114], ['Gold', '$/troy oz', '3,910', 0.05, 0.462]]
+    .map(([head, sub, v, m, y]) => ({ head: String(head), sub: String(sub), cells: [{ text: String(v), num: true }, ...[Number(m), Number(y)].map((c) => ({ text: `${c > 0 ? '+' : '−'}${Math.abs(c * 100).toFixed(1)}%`, num: true, dir: (c > 0 ? 'up' : 'down') as 'up' | 'down' }))] })) };
+const wkOutages: Body = { type: 'table', notes: ['IODA reports when an outage began and how long it lasted, not why.'], cols: [{ text: 'Country' }, { text: 'Began' }, { text: 'Length', num: true }],
+  rows: [['Cuba', '20 Oct, 22:45 UTC', '9 h'], ['Iraq', '19 Oct, 03:00 UTC', '3 h'], ['Pakistan', '18 Oct, 11:20 UTC', '5 h']].map(([head, a, b]) => ({ head, cells: [{ text: a }, { text: b, num: true }] })) };
+const wkSanctions: Body = { type: 'table', notes: ['Entries added most often give an address or nationality in Russia (29), Iran (11) and China (8).', 'An entry is a person, company, vessel or aircraft. Counts say how many entries changed, not what the measures do.'],
+  cols: [{ text: 'List' }, { text: 'Added', num: true }, { text: 'Removed', num: true }],
+  rows: [['United States', 'SDN list and Entity List', 34, 5], ['European Union', 'Financial sanctions file', 18, 2], ['United Kingdom', 'UK Sanctions List', 9, 0]]
+    .map(([head, sub, a, r]) => ({ head: String(head), sub: String(sub), cells: [{ text: String(a), num: true }, { text: String(r), num: true }] })) };
+const wkFoodQuiet = { title: 'No new data since 3 Oct', text: 'IPC has published no new analyses since 3 October 2026. The count of 4 countries above uses the analyses still in force.' };
+const wkFeed: FeedView[] = [
+  { kind: 'disaster', label: 'Disaster', date: '21 Oct', datetime: '2026-10-21', time: '04:10 UTC', text: 'Red alert: tropical cyclone, Philippines', href: '#', source: 'GDACS' },
+  { kind: 'outage', label: 'Internet outage', date: '20 Oct', datetime: '2026-10-20', time: '22:45 UTC', text: 'Internet outage began in Cuba, lasting 9 h', href: '#', source: 'IODA' },
+  { kind: 'shipping', label: 'Shipping', date: '19 Oct', datetime: '2026-10-19', text: 'Suez Canal transits at 51% of normal for the week', href: '#', source: 'IMF PortWatch' },
+  { kind: 'conflict', label: 'Conflict', date: '14 Oct', datetime: '2026-10-14', text: 'Conflict events for September 2026 published', href: '#', source: 'UCDP' },
+  { kind: 'food', label: 'Food crisis', date: '3 Oct', datetime: '2026-10-03', text: 'New IPC analysis: Haiti, Oct 2026 – Feb 2027', href: '#', source: 'IPC' },
+  { kind: 'prices', label: 'Prices', date: '2 Oct', datetime: '2026-10-02', text: 'Commodity prices for September 2026 published', source: 'World Bank' },
+  ...Array.from({ length: 6 }, (_, i): FeedView => ({ kind: 'disaster', label: 'Disaster', date: `${30 - i} Sep`, datetime: `2026-09-${30 - i}`, text: 'Orange alert: flood, Nigeria', href: '#', source: 'GDACS' })),
+];
+const wkNav = { prev: { href: '#', label: 'Week 42', range: '8–14 Oct' }, keptAt: '/this-week/2026-43', options: [
+  { value: '#43', label: 'Week 43 · 15–21 Oct', selected: true }, { value: '#42', label: 'Week 42 · 8–14 Oct', selected: false }, { value: '#41', label: 'Week 41 · 1–7 Oct', selected: false },
+] };
+const wkSummary = 'Two sea routes ran well below normal: Bab el-Mandeb at 42% and the Suez Canal at 51% of usual transits, while Hormuz, Malacca and Panama were close to normal. GDACS issued seven orange and red disaster alerts, including a red alert for a tropical cyclone near Luzon in the Philippines. In September, UCDP recorded the most conflict events in Ukraine; events rose on August in Sudan and Syria. Gold rose 5% in September. The United States, the EU and the UK added 61 entries to their sanctions lists.';
 const typeStyles = tokens.type.groups.flatMap((g) => g.styles.map((s) => ({ ...s, family: g.family })));
 ---
 <Base title="Components" description="The Atlas design system's components, for checking against the designs." noindex>
@@ -91,7 +140,7 @@ const typeStyles = tokens.type.groups.flatMap((g) => g.styles.map((s) => ({ ...s
       <h1 class="gt-title">Components</h1>
       <p class="gt-lede">Every Atlas component as code, in its states, at desktop width and in a 390px phone frame. Compare with the design previews.</p>
       <nav class="dev__toc" aria-label="Sections">
-        {['Tokens', 'Type', 'Page frame', 'Sources and status', 'Data display', 'Filters', 'Maps', 'Actions'].map((s) => <a href={`#${s.toLowerCase().replace(/ /g, '-')}`}>{s}</a>)}
+        {['Tokens', 'Type', 'Page frame', 'Sources and status', 'Data display', 'Filters', 'Maps', 'Actions', 'This week'].map((s) => <a href={`#${s.toLowerCase().replace(/ /g, '-')}`}>{s}</a>)}
       </nav>
     </header>
 
@@ -299,6 +348,33 @@ const typeStyles = tokens.type.groups.flatMap((g) => g.styles.map((s) => ({ ...s
       <div class="dev__split">
         <div class="dev__cell"><span class="dev__cap">Share row (Copy link works)</span><ShareRow url={PAGE_URL} text={HEADLINE} /></div>
         <div class="dev__phone dev__pad"><ShareRow url={PAGE_URL} text={HEADLINE} /></div>
+      </div>
+    </section>
+
+    <section id="this-week" class="dev__sec">
+      <h2 class="gt-h2">This week</h2>
+      <div class="dev__cell"><span class="dev__cap">Count row (three, then one)</span><div class="dev__desk dev__pad"><CountRow counts={wkCounts} /></div></div>
+      <div class="dev__phone dev__pad"><CountRow counts={wkCounts} /></div>
+      <div class="dev__cell"><span class="dev__cap">Week cards: two across, the last one full width</span>
+        <div class="dev__desk dev__pad" style="max-width:820px"><div class="gt-cards">
+          <WeekCard kind="shipping" label="Shipping" headline="Bab el-Mandeb and Suez Canal traffic below normal" source="IMF PortWatch" period="week to 19 Oct 2026" updated="Updated 21 Oct" tags={['sample']} href="#" go="Open the chokepoints map">
+            <RefBars label="Transits as a share of normal" ref={83.33} rows={wkShipping} key="Normal (100%): average for the same week in 2023–2025. Below normal: under 80%." />
+          </WeekCard>
+          <WeekCard kind="disaster" label="Disaster" headline="4 orange and red alerts, one of them red" source="GDACS" period="15–21 Oct 2026" updated="Updated 21 Oct, 06:00 UTC" tags={['sample']} href="#" go="Open the disasters map"><WeekCardBody body={wkAlerts} /></WeekCard>
+          <WeekCard kind="conflict" label="Conflict" headline="Most events in Ukraine; Sudan and Syria up on August" source="UCDP GED Candidate" period="Aug–Sep 2026" updated="Updated 14 Oct" tags={['preliminary', 'sample']} href="#" go="Open the conflict map"><WeekCardBody body={wkPair} /></WeekCard>
+          <WeekCard kind="prices" label="Prices" headline="Gold up 5% on the month" source="World Bank Pink Sheet" period="Sep 2026, monthly averages" updated="Updated 2 Oct" tags={['sample']}><WeekCardBody body={wkPrices} /></WeekCard>
+          <WeekCard kind="food" label="Food crisis" headline="Food crises" quiet={wkFoodQuiet} source="IPC" period="last analysis 3 Oct 2026" updated="Updated 21 Oct" tags={['sample']} href="#" go="Open the food crises map" />
+          <WeekCard kind="outage" label="Internet outage" headline="3 national-scale internet outages" source="IODA, Georgia Tech" period="15–21 Oct 2026" updated="Updated 21 Oct, 06:00 UTC" tags={['sample']} href="#" go="Open the outages map"><WeekCardBody body={wkOutages} /></WeekCard>
+          <WeekCard kind="sanctions" label="Sanctions" headline="61 entries added to US, EU and UK sanctions lists" wide source="US Consolidated Screening List; EU FSF; UK Sanctions List" period="15–21 Oct 2026" updated="Updated 21 Oct, 06:00 UTC" tags={['sample']} href="#" go="Open the sanctions map"><WeekCardBody body={wkSanctions} /></WeekCard>
+        </div></div>
+      </div>
+      <div class="dev__split">
+        <div class="dev__cell"><span class="dev__cap">Latest feed (10 items, then Show older items; chips filter)</span><div style="max-width:380px"><LatestFeed id="dev-feed" items={wkFeed} kinds={['disaster', 'shipping', 'conflict', 'outage', 'food', 'prices']} status="sample" /></div></div>
+        <div class="dev__phone dev__pad"><CountRow counts={wkCounts.slice(0, 1)} /></div>
+      </div>
+      <div class="dev__cell"><span class="dev__cap">The week in brief (only when the editor has approved a summary) and earlier weeks</span>
+        <WeekSummary id="dev-wsum" text={wkSummary} week={43} range="15–21 October 2026" approved="22 Oct 2026" method="#" status="sample" />
+        <WeekNav id="dev-wk" prev={wkNav.prev} options={wkNav.options} keptAt={wkNav.keptAt} />
       </div>
     </section>
   </main>
