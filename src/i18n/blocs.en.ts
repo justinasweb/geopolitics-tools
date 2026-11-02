@@ -2,6 +2,7 @@
 // and panel words. Same rules as pages.en.ts: templates take figures already formatted and return plain sentences,
 // and a sentence whose figure is missing is left out. Bloc names are in map.en.ts (BLOC_TEXT).
 import { list } from './pages.en.ts';
+import { todaysMembers } from './members.en.ts';
 
 const BLOC_COUNT = 19;
 
@@ -57,7 +58,7 @@ export const BLOCS_TEXT = {
   title: (bloc: string) => bloc,
   // The answer under the title.
   lede: (bloc: string, n: number, pop: string | null, gdp: string | null, year: number | null) =>
-    `${bloc} has ${n} members${pop && gdp ? `, with ${pop} of the world’s people and ${gdp} of its GDP in ${year}` : ''}.`,
+    `${bloc} has ${n} members${pop && gdp ? `; together, ${todaysMembers(bloc)} had ${pop} of the world’s people and ${gdp} of its GDP in ${year}` : ''}.`,
   allLede: (n: number, top: string[], k: number) => `${n} countries and territories belong to at least one of these ${BLOC_COUNT} groupings; ${list(top)} belong to the most, ${k} each.`,
   description: (bloc: string) => `${bloc}: its members on a map, their combined share of the world’s people, GDP, military spending and production, and the other groupings they belong to.`,
   allDescription: `Nineteen groupings and alliances on one map: how many each country belongs to, and each grouping’s members and share of the world.`,
@@ -81,7 +82,7 @@ export const BLOCS_TEXT = {
   allBlocLine: (bloc: string, n: number) => `${bloc} has ${n} members.`,
   overlapLine: (other: string, k: number, n: number, bloc: string) => (k ? `${k} of the ${n} ${other} members are also in ${bloc}.` : `No ${other} member is in ${bloc}.`),
   sharesLabel: 'Share of the world',
-  sharesCaption: 'Members’ combined share, latest year with figures',
+  sharesCaption: 'Combined share of today’s members, latest year with figures',
   mineralsLabel: 'Share of world mine production',
   mineralsCaption: 'Minerals where members mine at least 1%, USGS',
   have: (k: number, n: number) => `${k} of ${n} members have a figure`,
@@ -118,7 +119,9 @@ export const BLOCS_TEXT = {
   notes: 'Notes',
   source: 'Membership: the groupings’ own member lists',
   shareSources: 'World Bank; Global Carbon Budget; FAOSTAT; USGS',
-  summaryShares: (bloc: string, parts: string[]) => `${bloc}’s members account for ${list(parts)}.`,
+  summaryShares: (bloc: string, parts: string[]) => `${todaysMembers(bloc, { start: true })} account for ${list(parts)}.`,
+  /** The share image's caption under the bloc's bars. */
+  imageCaption: (bloc: string, n: number) => `Shares of the world: ${todaysMembers(bloc, { count: n })}`,
   sharePart: (share: string, what: string, year: number) => `${share} of the world’s ${what} (${year})`,
   summaryMinerals: (parts: string[]) => `Together they mine ${list(parts)}.`,
   mineralPart: (share: string, mineral: string) => `${share} of the world’s ${mineral}`,
@@ -222,7 +225,7 @@ export const HISTORY_TEXT = {
   mapLabel: (bloc: string, y: number, n: number) => `World map: members of ${bloc} in ${y}, ${n} countries. The timeline below lists every change.`,
   caveat: 'Countries are drawn on today’s borders. Years are those of accession or exit as the grouping records them; a year is not the exact date.',
   source: 'The groupings’ own member lists and histories',
-  blocLine: (other: string, k: number, n: number, bloc: string, y: number) => (k ? `${k} of today’s ${n} ${other} members were in ${bloc} in ${y}.` : `None of today’s ${other} members were in ${bloc} in ${y}.`),
+  blocLine: (other: string, k: number, n: number, bloc: string, y: number) => (k ? `${k} of ${todaysMembers(other, { count: n })} were in ${bloc} in ${y}.` : `None of ${todaysMembers(other)} were in ${bloc} in ${y}.`),
   today: 'Members today',
   history: 'Membership history',
 };

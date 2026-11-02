@@ -12,12 +12,14 @@ That was fixed on **2 November 2026**: the UAE was removed from OPEC (now 11 mem
 history ends in 2026, and the change is in Sources → Corrections. Only OPEC and OPEC+ were rechecked that day, so
 `BLOCS_CHECKED` still says 21 October 2026.
 
-**Outline sentences use today's members for every year.** A bloc's share on a map (the "Outline a bloc" line) adds
-up its members as they are today, whatever year the map shows, so OPEC's 2024 oil share leaves out the UAE, which
-was a member then. The oil and gas lines now say "Today's OPEC members produced…". About 30 other outline sentences
-(food, minerals, emissions, refugees, space, AI, lending, arms, sanctions, nuclear, conflict) still say "OPEC members"
-with a past year. Options: say "today's" in all of them, or use each year's members where a history exists (the 11
-groupings in `bloc-history.csv`).
+**Bloc shares count today's members: decided 2 Nov 2026.** A bloc's share or total on a map, a bloc page or a share
+image adds up its members as they are today, whatever year is shown, so OPEC's 2024 oil share leaves out the UAE,
+which was a member then. At launch every such sentence says so ("Today's OPEC members produced 30% of the world's oil
+in 2024."), built with one phrase (`todaysMembers` in `src/i18n/members.en.ts`); `tests/unit/bloc-lines.test.ts`
+fails on a bloc share line without it. Lines that state no share over a year keep plain wording: overlap between
+groupings, disaster alerts in the last days, treaty and sharing status, river disputes.
+Post-launch option: count each year's members for the 11 groupings with a history (`bloc-history.csv`), and keep
+"today's" for the other 8.
 
 **Before launch.** Check every one of the 19 groupings against its own member list, update `BLOCS_CHECKED` to that
 day, and log any change in `src/data/corrections.csv`. Known points to look at: BRICS (Saudi Arabia's status),

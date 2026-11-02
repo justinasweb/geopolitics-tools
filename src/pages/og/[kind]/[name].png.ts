@@ -128,7 +128,7 @@ function card(r: Route | null): Card {
     }
     const p = blocPage(id)!;
     return {
-      kicker: BLOCS_TEXT.section, title: BLOC_TEXT[id] ?? id, figure: String(p.members.length), caption: BLOCS_TEXT.sub(p.members.length),
+      kicker: BLOCS_TEXT.section, title: BLOC_TEXT[id] ?? id, figure: String(p.members.length), caption: BLOCS_TEXT.imageCaption(BLOC_TEXT[id] ?? id, p.members.length),
       bars: p.shares.slice(0, 5).map((s) => ({ label: `${MEASURE_TEXT[s.id]}, ${s.year}`, value: s.share, text: formatShare(s.share) })),
     };
   }

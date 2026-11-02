@@ -1,6 +1,7 @@
 // English words for the conflict view (src/lib/conflict.ts, src/templates/ConflictView.astro). Same rules as
 // pages.en.ts: plain verbs, no adjectives that judge, figures passed in already formatted.
 import type { Violence } from '../adapters/ucdp.ts';
+import { todaysMembers } from './members.en.ts';
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -64,8 +65,8 @@ export const CONFLICT_TEXT = {
   dossier: 'Full dossier',
   indicator: 'Deaths by country and year',
   refugees: 'Refugees and displaced people',
-  blocLine: (bloc: string, v: string, month: string) => `${bloc} members: ${v} deaths in the 12 months to ${month}.`,
-  blocNone: (bloc: string, month: string) => `No deaths recorded in ${bloc} members in the 12 months to ${month}.`,
+  blocLine: (bloc: string, v: string, month: string) => `${todaysMembers(bloc, { start: true })}: ${v} deaths in the 12 months to ${month}.`,
+  blocNone: (bloc: string, month: string) => `No deaths recorded in ${todaysMembers(bloc)} in the 12 months to ${month}.`,
   noneIn: 'No deaths recorded in the 12 months to {year}',
   movedMonth: 'That month is not in the data; showing the nearest one.',
   trend: 'Deaths over 12 months, {from} to {to}',

@@ -1,5 +1,6 @@
 // The nuclear weapons views (/nuclear, /nuclear/treaties, /nuclear/sharing): every word on their pages, layer files,
 // share images and the country page block. Figures arrive formatted; nothing here judges a state's choices.
+import { todaysMembers } from './members.en.ts';
 
 export type TreatyStatus = 'party' | 'signed' | 'not-party' | 'withdrew';
 /** A country's place on the treaties map: its NPT and TPNW standing together. */
@@ -75,7 +76,7 @@ export const NUCLEAR_TEXT = {
   splitTable: (year: number) => `Deployed, reserve and retired, early ${year}`,
   splitTableCaption: (year: number, latest: number) => `FAS’s split by status is for early ${year}; the totals above are for early ${latest}, so they are not set side by side.`,
   extendedNote: (year: number) => `${year} is FAS’s current estimate, from its own figures, which are newer than the series.`,
-  blocLine: (bloc: string, k: number, value: string, year: number) => (k ? `${bloc} members hold an estimated ${value} warheads in early ${year} (${k} ${k === 1 ? 'state' : 'states'}).` : `No ${bloc} member has nuclear weapons in FAS’s count for early ${year}.`),
+  blocLine: (bloc: string, k: number, value: string, year: number) => (k ? `${todaysMembers(bloc, { start: true })} hold an estimated ${value} warheads in early ${year} (${k} ${k === 1 ? 'state' : 'states'}).` : `None of ${todaysMembers(bloc)} has nuclear weapons in FAS’s count for early ${year}.`),
   mapLabel: (year: number, k: number) => `World map of estimated nuclear warheads in early ${year}: ${k} states have nuclear weapons. The same figures are in the table below.`,
   csv: 'Download the figures shown (CSV)',
   rank: 'Rank',

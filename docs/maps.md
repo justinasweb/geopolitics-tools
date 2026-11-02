@@ -43,7 +43,8 @@ before and without the map script.
   there. A layer with its own `bounds` (a disputed river) opens on that instead.
 - **Controls.** The mineral picker is a row of links (each mineral is its own page; a phone gets a select). The year
   slider plays through the years; estimated years carry the Estimate tag. "Outline a bloc" draws the members'
-  borders and adds one sentence to the panel ("BRICS members mined 35%…"). On a phone, year and bloc sit in a
+  borders and adds one sentence to the panel ("Today’s BRICS members mined 35%…": a bloc is its members today, for
+  every year shown, said with `todaysMembers` in `src/i18n/members.en.ts`). On a phone, year and bloc sit in a
   Filters sheet.
 - **URL state.** `?year=2024&country=australia&bloc=brics` (`src/scripts/map/state.ts`), kept with
   `history.replaceState`; defaults are left out and the canonical stays the bare path. A year a source does not
