@@ -27,6 +27,7 @@ import SupplyChainsIndex from '../templates/SupplyChainsIndex.astro';
 import BlocOverlapPage from '../templates/BlocOverlapPage.astro';
 import AtlasPage from '../templates/AtlasPage.astro';
 import HubPage from '../templates/HubPage.astro';
+import WeekPage from '../templates/WeekPage.astro';
 import { BUILT_KINDS, routes, type Route } from '../lib/routes';
 import type { View } from '../lib/explorer/model';
 
@@ -61,3 +62,4 @@ const [a, b] = route.id.split(',');
 {route.kind === 'tool' && route.id === 'blocs-overlap' && <BlocOverlapPage />}
 {route.kind === 'tool' && route.id === 'atlas' && <AtlasPage />}
 {route.kind === 'hub' && <HubPage id={route.id} />}
+{route.kind === 'week' && <WeekPage id={route.id || undefined} />}

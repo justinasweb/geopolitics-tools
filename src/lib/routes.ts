@@ -29,12 +29,13 @@ import { depsLive } from './dependence.ts';
 import { explorerMeasures } from './explorer.ts';
 import { liveChains } from './supply-chains.ts';
 import { VIEWS as EXPLORER_VIEWS } from './explorer/model.ts';
+import { archivedWeeks, liveWeek, weekIndexed } from './week.ts';
 
 export type Lang = 'en';
-export type Kind = 'countries' | 'country' | 'compare' | 'indicators' | 'indicator' | 'page' | 'sources' | 'view' | 'hub' | 'tool';
+export type Kind = 'countries' | 'country' | 'compare' | 'indicators' | 'indicator' | 'page' | 'sources' | 'view' | 'hub' | 'tool' | 'week';
 
 /** The kinds built so far (src/pages/[...path].astro); hubs and tools come in later phases. */
-export const BUILT_KINDS: Kind[] = ['countries', 'country', 'compare', 'indicators', 'indicator', 'page', 'sources', 'view', 'tool', 'hub'];
+export const BUILT_KINDS: Kind[] = ['countries', 'country', 'compare', 'indicators', 'indicator', 'page', 'sources', 'view', 'tool', 'hub', 'week'];
 
 /** The topic hubs built so far (phase 6). A built hub is live when at least one of its map views is. */
 export const HUBS_BUILT = ['resources', 'technology', 'climate', 'security', 'power'];
@@ -96,6 +97,8 @@ export const paths = {
   supplyChain: (key: string) => `/${S['supply-chains']}/${CHAIN_SLUGS[key] ?? key}`,
   /** Disasters: /disasters, /disasters/earthquakes. */
   disasters: (kind: string) => `/${S.disasters}${DISASTER_SLUGS[kind] ? `/${DISASTER_SLUGS[kind]}` : ''}`,
+  /** This week: /this-week, and a closed ISO week at /this-week/2026-45 for good. */
+  week: (id?: string) => `/${S['this-week']}${id ? `/${id}` : ''}`,
 };
 
 /** The Compare pairs: every pair of dossier countries, in a fixed order (United States, China, Russia). */
@@ -280,6 +283,17 @@ function build(): Route[] {
     });
   }
 
+  // This week (phase 7): live once a source on it is in the snapshot. Each closed ISO week the data run froze is kept
+  // at /this-week/{yyyy}-{ww}; it is indexed (and in the sitemap) once it holds a card with figures.
+  const week = liveWeek();
+  out.push({
+    key: 'week', kind: 'week', lang, path: paths.week(), live: week !== null, indexed: week !== null, aliases: [], id: '',
+    ...(week ? { image: paths.image('week', 'this-week'), lastmod: snapshotDate } : {}),
+  });
+  for (const [id, w] of archivedWeeks()) {
+    out.push({ key: `week:${id}`, kind: 'week', lang, path: paths.week(id), live: true, indexed: weekIndexed(w), aliases: [], id, image: paths.image('week', id), lastmod: w.made });
+  }
+
   // Topic hubs (phase 6): the parent page of their map views. Then what is not built yet (phases 5–8), registered so
   // links, the menu and redirects know about it.
   for (const hub of NAV_HUBS) {
@@ -297,8 +311,8 @@ function build(): Route[] {
   return out;
 }
 
-/** The route key behind a top link or a tool: Countries and Indicators are their own kinds, the rest are tools. */
-export const navKey = (id: string) => (id === 'countries' || id === 'indicators' ? id : `tool:${id}`);
+/** The route key behind a top link or a tool: Countries, Indicators and This week are their own kinds, the rest are tools. */
+export const navKey = (id: string) => (id === 'countries' || id === 'indicators' ? id : id === 'this-week' ? 'week' : `tool:${id}`);
 
 /** Fails on two routes with one path, an alias that is also a path, or a path that breaks the URL rules. */
 export function checkRoutes(routes: Route[]): void {

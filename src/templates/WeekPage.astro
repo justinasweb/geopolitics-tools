@@ -1,0 +1,63 @@
+---
+// This week (ThisWeekPage design): the last 7 days at /this-week, and each closed ISO week at /this-week/{yyyy}-{ww}:
+// title with the dates, when it was last updated (or that it is kept as it stood), share row, earlier weeks, the week in brief when
+// the editor has approved one, the counts, one card per source (two across, stacked on a phone) and the Latest feed in
+// a sticky column beside them (under them below 1100px). Built from data only; model in src/lib/week.ts.
+import Page from '../layouts/Page.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import ShareRow from '../components/ShareRow.astro';
+import Notice from '../components/Notice.astro';
+import CountRow from '../components/CountRow.astro';
+import WeekCard from '../components/WeekCard.astro';
+import WeekCardBody from '../components/WeekCardBody.astro';
+import LatestFeed from '../components/LatestFeed.astro';
+import WeekNav from '../components/WeekNav.astro';
+import WeekSummary from '../components/WeekSummary.astro';
+import '../styles/atlas/week.css';
+import { WEEK_TEXT as W, day } from '../i18n/week.en';
+import { LONGREAD_TEXT } from '../i18n/pages.en';
+import { weekPage } from '../lib/week';
+import { live, paths } from '../lib/routes';
+import { breadcrumbs } from '../lib/structured';
+import { weekNumber } from '../lib/week/period';
+
+interface Props { id?: string }
+const { id } = Astro.props;
+const m = weekPage(id)!;
+const url = new URL(m.path, Astro.site).href;
+const crumbs = [{ label: LONGREAD_TEXT.home, href: '/' }, ...(m.id ? [{ label: W.crumb, href: paths.week() }, { label: W.week(weekNumber(m.id)) }] : [{ label: W.crumb }])];
+const route = live(m.id ? `week:${m.id}` : 'week');
+const made = m.data.made;
+// Each side of the dates stays on one line; a range across months may break at its dash on a phone.
+const rangeParts = m.rangeText.split(' – ');
+const method = live('page:methodology')?.path;
+---
+<Page title={m.title} description={m.description} mainClass="gt-week" image={route?.image} noindex={!route?.indexed} jsonld={[breadcrumbs(crumbs)]}>
+  <Breadcrumbs items={crumbs} />
+  <div class="gt-week__intro">
+    <h1 class="gt-title">{m.id ? W.archiveLead(weekNumber(m.id)) : W.titleLead} {rangeParts.map((r, i) => <>{i > 0 && ' – '}<span class="gt-nowrap">{r}</span></>)}</h1>
+    <p class="gt-lede">{m.id ? W.archiveLede : W.lede}</p>
+    <p class="gt-week__upd">
+      {m.id
+        ? <span>{W.frozen(`${day(made, { year: true })}, ${made.slice(11, 16)} UTC`)}</span>
+        : <><span>{W.updatedDaily}</span><span class="gt-source__sep" aria-hidden="true">·</span><span>{W.lastUpdate(day(made, { year: true }), made.slice(11, 16))}</span></>}
+    </p>
+    <ShareRow url={url} text={m.shareText} />
+    <WeekNav id={m.id ? `wk-pick-${m.id}` : 'wk-pick'} prev={m.nav.prev} latest={m.nav.latest} options={m.nav.options} />
+  </div>
+  {m.summary && <WeekSummary id="wk-sum" text={m.summary.text} week={m.summary.week} range={m.summary.range} approved={day(m.summary.approved, { year: true })} method={method} />}
+  {m.id && <Notice><p>{W.frozenNote}</p></Notice>}
+  <CountRow counts={m.counts} />
+  <div class="gt-week__grid">
+    <section aria-label={W.cardsLabel}>
+      <div class="gt-cards">
+        {m.cards.map((c) => (
+          <WeekCard kind={c.kind} label={c.label} headline={c.headline} wide={c.wide} quiet={c.quiet} source={c.source} period={c.period} updated={c.updated} tags={c.tags} href={c.href} go={c.go}>
+            {c.body && <WeekCardBody body={c.body} />}
+          </WeekCard>
+        ))}
+      </div>
+    </section>
+    <LatestFeed id="wk-feed" items={m.feed} kinds={m.feedKinds} sub={m.id ? W.feedArchiveSub : W.feedSub} />
+  </div>
+</Page>

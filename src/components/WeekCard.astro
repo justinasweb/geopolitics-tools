@@ -1,0 +1,42 @@
+---
+// One source on This week (WeekCard design): kind label with its glyph, a headline that states the finding, one small
+// chart or table (the default slot), then the source in two short lines (source and period; updated and tags) and a
+// link to its map. `quiet` replaces the chart with the no-new-data state, so older figures never read as this week's.
+import '../styles/atlas/week.css';
+import '../styles/atlas/states.css';
+import '../styles/atlas/source.css';
+import StatusTag, { type Status } from './StatusTag.astro';
+import WeekGlyph from './WeekGlyph.astro';
+import { SOURCE_TEXT } from '../i18n/en';
+
+interface Props {
+  kind: string;
+  label: string;
+  headline: string;
+  /** Full width (the last card). */
+  wide?: boolean;
+  quiet?: { title: string; text: string };
+  source: string;
+  period: string;
+  updated: string;
+  tags?: Status[];
+  href?: string;
+  go?: string;
+}
+const { kind, label, headline, wide = false, quiet, source, period, updated, tags = [], href, go } = Astro.props;
+---
+<article class:list={['gt-card', { 'gt-card--wide': wide, 'gt-card--empty': quiet }]} data-kind={kind}>
+  <header class="gt-card__head"><span class="gt-card__kind"><WeekGlyph kind={kind} />{label}</span><h3 class="gt-h3">{headline}</h3></header>
+  <div class="gt-card__body">
+    {quiet ? (
+      <div class="gt-state gt-state--quiet"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" /><path d="M3 9h18M8 14h8" /></svg><h4>{quiet.title}</h4><p>{quiet.text}</p></div>
+    ) : <slot />}
+  </div>
+  <footer class="gt-card__foot">
+    <div class="gt-csrc">
+      <p class="gt-source"><span>{SOURCE_TEXT.source} <b>{source}</b></span><span class="gt-source__sep" aria-hidden="true">·</span><span>{period}</span></p>
+      <p class="gt-source"><span>{updated}</span>{tags.map((t) => <StatusTag status={t} small />)}</p>
+    </div>
+    {href && go && <a class="gt-card__go" href={href}>{go} <span aria-hidden="true">→</span></a>}
+  </footer>
+</article>

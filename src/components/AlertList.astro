@@ -1,0 +1,27 @@
+---
+// GDACS alerts on This week (.gt-alerts): the level as a word and a shape (red a solid triangle, orange an outline),
+// the kind and the first three countries, the rest behind a "+ 11 more" disclosure (a native <details>, so it opens
+// by keyboard and without scripts), and the date it began.
+import '../styles/atlas/week.css';
+import type { AlertRow } from '../lib/week';
+import { list } from '../i18n/pages.en';
+import { WEEK_TEXT as W } from '../i18n/week.en';
+
+interface Props { rows: AlertRow[] }
+const { rows } = Astro.props;
+const SOLID = '<path d="M6 1.2 11.2 10.6H.8z"/>';
+const OUTLINE = '<path d="M6 2.2 10.4 10H1.6z" fill="none" stroke="currentColor" stroke-width="1.6"/>';
+---
+<ul class="gt-alerts">
+  {rows.map((r) => (
+    <li>
+      <span class:list={['gt-alerts__lvl', `gt-alerts__lvl--${r.level}`]}><svg viewBox="0 0 12 12" aria-hidden="true" set:html={r.level === 'red' ? SOLID : OUTLINE} />{r.levelText}</span>
+      <span class="gt-alerts__what">
+        {r.what}{r.places.length > 0 && <>, {r.more ? r.places.join(', ') : list(r.places)}</>}
+        {r.more && <details class="gt-alerts__more"><summary><span class="gt-alerts__count">{r.more.text}<span class="gt-vh"> {r.more.label}</span></span><span class="gt-alerts__fewer">{W.fewerPlaces}</span></summary><span>{r.more.places}</span></details>}
+        {r.note && <small class="gt-alerts__note">{r.note}</small>}
+      </span>
+      <span class="gt-alerts__date tnum">{r.date}</span>
+    </li>
+  ))}
+</ul>

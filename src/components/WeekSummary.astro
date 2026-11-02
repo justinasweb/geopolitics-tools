@@ -1,0 +1,21 @@
+---
+// The week in brief (WeekSummary design): a 100–150 word summary drafted with AI from the week's facts, checked for
+// every number, date and country, and approved by the editor. Rendered only when an approved summary exists; a skipped
+// week shows the cards alone, with no empty box and no notice.
+import '../styles/atlas/week.css';
+import '../styles/atlas/source.css';
+import StatusTag, { type Status } from './StatusTag.astro';
+import { WEEK_TEXT as W } from '../i18n/week.en';
+
+interface Props { id: string; text: string; week: number; range: string; approved: string; method?: string; status?: Status }
+const { id, text, week, range, approved, method, status } = Astro.props;
+---
+<section class="gt-wsum" aria-labelledby={id}>
+  <div class="gt-wsum__head"><h2 class="gt-label" id={id}>{W.summaryTitle}</h2><span class="gt-ailabel"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 .8 7.3 4.7 11.2 6 7.3 7.3 6 11.2 4.7 7.3.8 6 4.7 4.7z" fill="currentColor" /></svg>{W.aiLabel}</span></div>
+  <p class="gt-wsum__t">{text}</p>
+  <p class="gt-source gt-wsum__meta">
+    <span>{W.summaryWeek(week, range)}</span><span class="gt-source__sep" aria-hidden="true">·</span><span>{W.approved(approved)}</span>
+    {method && <><span class="gt-source__sep" aria-hidden="true">·</span><a href={method}>{W.howMade}</a></>}
+    {status && <><span class="gt-source__sep" aria-hidden="true">·</span><StatusTag status={status} small /></>}
+  </p>
+</section>

@@ -55,6 +55,7 @@ servers never see the part after `#`.
 | Bloc overlap | `/blocs/overlap`: shared members between blocs, bridge countries and every country's memberships, from `src/data/blocs.csv`. See "Bloc overlap" below |
 | Topic hubs | `/resources`, `/technology`, `/climate`, `/security`, `/power`: the parent page of a topic's map views. See "Topic hubs" below |
 | Atlas | `/atlas`: every live map view's layer on one map, live when any map view is. Its states are noindex. See [maps.md](maps.md), "The Atlas" |
+| This week | `/this-week`, live once one of its sources is in the snapshot, and `/this-week/{yyyy}-{ww}` for every closed ISO week the data run froze; an archived week is indexed once one of its cards has figures. See "This week" below |
 | Supply chains | `/supply-chains` and `/supply-chains/{flow}` for each of the 11 flows whose source is in the snapshot with at least one pair; the index lists only those. See "Supply chains" below |
 
 A sample build has 129 country pages and 37 indicator pages; the real snapshot has more sources and more places.
@@ -197,6 +198,39 @@ it in the page, and `src/lib/overlap/render.ts` draws it, at build time for the 
   several places share the first figure as the page shows it, they are named as tied first instead (`topLine`), on
   every hub.
 
+## This week
+
+`src/templates/WeekPage.astro`, model `src/lib/week.ts` (build side) and `src/lib/week/model.ts` (figures, shared with
+the data run), words in `src/i18n/week.en.ts`. Built from data only.
+
+- **Period.** `/this-week` covers the last 7 days to the snapshot's day ("Last 7 days: 27 October – 2 November
+  2026"). Each closed ISO week, Monday to Sunday (UTC), is frozen by the data run at `/this-week/{yyyy}-{ww}` ("Week
+  44: 26 October – 1 November 2026"; see data-pipeline.md, "This week's archive") and read as frozen. On each page the
+  title, the counts and the cards name the same range; conflict and prices also give the month their figures are for.
+- **Counts.** New orange and red GDACS alerts: those that began in the week, or began earlier and rose to orange or
+  red in it (their level in GDACS's copy from the period's first day was lower). Orange and red alerts of every kind
+  that began earlier and are still active (lasting into the period, or listed as current by GDACS: a drought's end
+  date is its last update, often weeks back) are listed under "Still active" with their start dates and not counted. A named tropical cyclone that GDACS keeps as
+  two events with dates that meet is merged into one; other kinds are never merged. The PortWatch and IPC counts are
+  left out while those sources are hidden; the row works with one to three counts.
+- **Cards**, in this order, each only when its source is in the snapshot: disasters (GDACS, up to seven alerts, level
+  as a word and a solid or outline triangle, the first three countries and "+ 11 more" as a disclosure), conflict (UCDP events by country, latest month against the one before,
+  Preliminary when the month comes from a Candidate release), prices (six Pink Sheet series, month and year changes),
+  internet outages (IODA, began in the period, no cause) and sanctions (entries added and removed per list against
+  the lists on the period's first day). Shipping and food crises wait on PortWatch and IPC. Every card gives its
+  source, period and when the site last fetched it, and links to its map where there is one.
+- **No new data.** When a source's data last changed before the period began, its card shows "No new data since
+  {date}" and no figures, its box right under the headline.
+- **Latest feed.** Orange and red alerts, outages, and the conflict and price releases (dated when the site's copy
+  changed), newest first over 30 days (an archived week: its own days), filtered by kind; ten shown, then "Show older
+  items" (`src/scripts/week.ts`). Without scripts every item shows.
+- **The week in brief.** Per closed week: shown on that week's page, and on `/this-week` for the latest closed week
+  (labelled with its week), only when `data/raw/weeks/{id}.summary.json` holds an approved summary (`text`,
+  `approved`); otherwise nothing, not an empty box.
+- **Earlier weeks.** `/this-week` links to the latest closed week ("Previous weeks: week 44 →") once one exists, and
+  shows nothing before; an archived week links to the one before it. A week picker appears once there is a week to
+  pick. Archived pages carry a note that they keep the figures as they stood.
+
 ## Share images
 
 `src/lib/og.ts` renders a 1200 × 630 PNG per page at build time with Satori and resvg, in the site's fonts and light
@@ -205,4 +239,4 @@ theme colours: kicker, title, the headline figure or answer, up to five bars, an
 ## Not done in this phase
 
 - Dossier summaries drafted with AI from a facts file (spec, D15): the dossiers use the template summary for now.
-- Redeploying when new data arrives: today pages refresh on the next deploy.
+- Redeploying when new data arrives: today pages refresh on the next deploy (This week included; see open-questions.md).

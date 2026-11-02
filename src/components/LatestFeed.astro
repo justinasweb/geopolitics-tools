@@ -1,0 +1,38 @@
+---
+// Dated items from every This week source, newest first (LatestFeed design): date and UTC time when the source gives
+// one, the kind with its glyph, one line saying what happened and where, and the source. Kind chips filter the list
+// (src/scripts/controls.ts); the first `limit` items show, then "Show older items" (src/scripts/week.ts). Without
+// scripts every item shows.
+import '../styles/atlas/week.css';
+import Chips from './Chips.astro';
+import WeekGlyph from './WeekGlyph.astro';
+import StatusTag, { type Status } from './StatusTag.astro';
+import { WEEK_TEXT as W } from '../i18n/week.en';
+import type { FeedView } from '../lib/week';
+
+interface Props { id: string; items: FeedView[]; kinds: string[]; sub?: string; limit?: number; status?: Status }
+const { id, items, kinds, sub = W.feedSub, limit = 10, status } = Astro.props;
+const options = [{ value: 'all', label: W.feedAll, pressed: true }, ...kinds.map((k) => ({ value: k, label: W.feedKinds[k] ?? k }))];
+---
+<section class="gt-feedwrap" aria-labelledby={`${id}-h`} data-gt-feed={id} data-limit={limit}>
+  <div class="gt-sechead"><div><h2 class="gt-h2" id={`${id}-h`}>{W.feedTitle}</h2><p class="gt-sechead__sub">{sub}{status && <> <StatusTag status={status} small /></>}</p></div></div>
+  {kinds.length > 1 && <div class="gt-feed__filter"><Chips label={W.feedFilter} options={options} filter={`${id}-list`} /></div>}
+  {items.length ? (
+    <ol class="gt-feed" id={`${id}-list`}>
+      {items.map((f) => (
+        <li data-kind={f.kind}>
+          <time class="gt-feed__when tnum" datetime={f.datetime}>{f.date}{f.time && <small>{f.time}</small>}</time>
+          <span class="gt-feed__kind"><WeekGlyph kind={f.kind} />{f.label}</span>
+          {f.href ? <a class="gt-feed__what" href={f.href}>{f.text}</a> : <span class="gt-feed__what">{f.text}</span>}
+          <span class="gt-feed__src">{f.source}</span>
+        </li>
+      ))}
+    </ol>
+  ) : <p class="gt-feed__empty">{W.feedEmpty}</p>}
+  {items.length > limit && <button type="button" class="gt-feed__more" hidden data-gt-more>{W.feedMore} <span aria-hidden="true">→</span></button>}
+</section>
+
+<script>
+  import { initWeek } from '../scripts/week';
+  initWeek();
+</script>

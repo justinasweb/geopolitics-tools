@@ -45,6 +45,8 @@ import { HUB_TEXT } from '../../../i18n/hubs.en';
 import { NUCLEAR_TEXT } from '../../../i18n/nuclear.en';
 import { nuclearAnswer, sharingRows, treatyCounts, warheads, warheadsModel } from '../../../lib/nuclear';
 import { hubModel } from '../../../lib/hubs';
+import { weekPage } from '../../../lib/week';
+import { WEEK_TEXT } from '../../../i18n/week.en';
 
 export const getStaticPaths = (() => {
   if (process.env.GT_FAST === '1') return [{ params: { kind: 'page', name: 'default' }, props: { route: null } }];
@@ -205,6 +207,16 @@ function card(r: Route | null): Card {
   if (r.kind === 'tool' && r.id.startsWith('explorer:')) {
     const view = r.id.split(':')[1];
     return { kicker: EXPLORER_TEXT.title, title: EXPLORER_TEXT.views[view], caption: EXPLORER_TEXT.description[view as View](explorerMeasures().length) };
+  }
+  if (r.kind === 'week') {
+    // The alert count when there is one, else the first card's finding; every figure with its period.
+    const m = weekPage(r.id || undefined)!;
+    const c = m.counts[0];
+    const lead = m.cards.find((x) => !x.quiet) ?? m.cards[0];
+    return {
+      kicker: WEEK_TEXT.ogKicker, title: m.title, figure: c?.num, caption: c ? `${c.label}, ${c.source.split(' · ')[1]}` : lead?.headline,
+      source: c ? 'GDACS' : lead ? `${lead.source}, ${lead.period}` : undefined,
+    };
   }
   if (r.kind === 'hub') {
     const m = hubModel(r.id)!;

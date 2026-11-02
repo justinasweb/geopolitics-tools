@@ -2,6 +2,42 @@
 
 Decisions put off for later. Each says what the question is, what the site does now, and the options seen so far.
 
+## This week: choices to confirm (raised 2 Nov 2026)
+
+Made while building `/this-week` and its archive; each is easy to change.
+
+- **Merging storms.** GDACS sometimes keeps one cyclone as two events. Tropical cyclones with the same GDACS name
+  whose dates meet (within two days) are merged; the two red India rows reported on the Preview (1 Nov and since
+  26 Oct) are merged only if GDACS gives them the same storm name. The data could not be checked from the build
+  session (no R2 keys, GDACS not reachable); if they are two storms they stay apart, and the earlier one now sits
+  under "Still active".
+- **"Rose" has no exact day.** An earlier alert is counted when GDACS's copy from the period's first day shows a
+  lower level; the card says it rose in the period, not on which day.
+- **Live page and archive cover different days.** `/this-week` is the last 7 days; archived pages are ISO weeks. The
+  live page shows the latest closed week's approved summary, labelled with that week; it could instead show none.
+- **Still active.** Alerts GDACS lists as current count as still active even when GDACS's end date (for droughts, the
+  last update) is weeks back. The three drought alerts that went missing in round 2 were most likely dropped by our
+  filter (end date only) rather than closed by GDACS: the sample data's current droughts went missing the same way.
+  The real file could not be read from the build session; check the Preview's "Still active" list.
+- **No new data.** A card is "quiet" when its source's data last changed before the period began. Conflict and
+  prices change monthly, so their cards are quiet about three weeks in four and show only the date and latest month.
+- **The page refreshes on deploys.** The spec says it rebuilds after each data run; today pages refresh only on a
+  deploy (see "New data reaches the site only on a deploy" in data-pipeline.md). Decide whether the data run should
+  start a rebuild, say once a day when the snapshot changed.
+- **Archive timing.** A closed week is frozen by the first data run on the Monday or Tuesday after it; a week the
+  data run misses on both days is not archived. The first archived week is the one that closes after this is merged.
+  Sanctions changes and alerts that rose need a copy from the week's own Monday, so the first full week after merge
+  is the first with them. On the live page they need a copy from the first of its 7 days, so they appear about a week
+  after merge.
+- **Prices card.** Natural gas (Europe), wheat, maize, rice, copper and gold from the Pink Sheet files the pipeline
+  keeps; Brent is not among them (it comes from EIA). There is no prices page or map, so the card has no "Open" link.
+- **Sanctions.** US counts are the SDN list and the Entity List (the two US lists the site reads), not every list in
+  the CSL. Sanctions changes are not in the Latest feed, which lists alerts, outages and the conflict and price releases.
+- **Outages.** IODA's country-level outage events are called "national-scale" as in the design.
+- **Shipping and food crises cards.** Not built: PortWatch and IPC wait on permission. Their place in the order, the
+  glyphs, the `.gt-ref` bars (`RefBars`) and the counts' wording are ready; the model needs a builder for each in
+  `src/lib/week/model.ts` once a source is live.
+
 ## Refugees hosted in Russia (raised 25 Oct 2026)
 
 **The question.** UNHCR's figures stop counting Ukrainians in Russia from 2024. Russia's "refugees hosted" falls from 1.23 million (2023) to about 7,000 Ukrainians and 12,787 people in all (2025), and Ukraine's "fled from" total falls with it. On the map Russia looks as if it hosts almost no one, which reads as wrong.
@@ -46,7 +82,8 @@ permission for scheduled downloads (copyright@imf.org: WEO, reserves, PortWatch)
 (support@peeringdb.com: exchange points). EIA, UN Comtrade, Ember and UCDP keys are in.
 
 **Plan for launch without them.** None of the three blocks launch; each view stays hidden until its gates pass.
-- IPC: food crises and the This week food card stay hidden; they switch on by themselves when `IPC_API_KEY` is set.
+- IPC: food crises and the This week food card stay hidden. The food crises views switch on by themselves when
+  `IPC_API_KEY` is set; the This week food card and its count still need building then (see "This week" below).
 - IMF: chokepoints and ports stay hidden. WEO figures and reserves can be imported by hand instead, since the IMF's
   terms allow reuse with credit and only automated bulk downloads need permission.
 - PeeringDB: the exchange points layer stays off, as already planned.

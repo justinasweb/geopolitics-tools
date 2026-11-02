@@ -1,0 +1,18 @@
+---
+// The counts at the top of This week (CountRow design): number, label and source with its period. Works with one, two
+// or three counts; desktop three across under a 2px rule, phone a snap row with the next count peeking in. A count
+// whose source is hidden (PortWatch, IPC) is left out by the page model, never shown empty.
+import '../styles/atlas/week.css';
+import StatusTag, { type Status } from './StatusTag.astro';
+import { WEEK_TEXT } from '../i18n/week.en';
+
+interface Props { counts: { num: string; label: string; source: string; status?: Status }[]; label?: string }
+const { counts, label = WEEK_TEXT.countsLabel } = Astro.props;
+---
+{counts.length > 0 && (
+  <ul class="gt-counts" aria-label={label}>
+    {counts.map((c) => (
+      <li class="gt-count"><span class="gt-count__num">{c.num}</span><span class="gt-count__label">{c.label}</span><span class="gt-count__src">{c.source}</span>{c.status && <StatusTag status={c.status} small />}</li>
+    ))}
+  </ul>
+)}

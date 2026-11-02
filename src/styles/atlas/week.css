@@ -1,0 +1,141 @@
+/* Atlas design system: This week (batch 7, ThisWeekPage, WeekCard, CountRow, LatestFeed, WeekSummary).
+   Ported from the design system's bundle.css; colours and fonts come from tokens.css. The phone and narrow-screen
+   rules at the end are the page's: counts as a snap row with the next one peeking in, cards stacked, and the feed
+   under the cards below 1100px of page. */
+
+.gt-ailabel { display: inline-flex; align-items: center; gap: 6px; padding: 2px 8px; border: 1px solid var(--rule-strong); font: 600 13px/18px var(--sans); color: var(--ink); background: var(--paper-raised); }
+.gt-ailabel svg { width: 12px; height: 12px; color: var(--accent); flex: none; }
+.gt-wsum { display: grid; gap: 12px; padding: 20px 24px 18px; background: var(--paper-raised); border-top: 3px double var(--ink); border-bottom: 1px solid var(--rule); max-width: 860px; }
+.gt-wsum__head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; }
+.gt-wsum__head .gt-label { margin: 0; color: var(--ink); }
+.gt-wsum__t { margin: 0; font: 400 19px/30px var(--serif); font-variation-settings: "opsz" 18; max-width: 68ch; }
+.gt-wsum__meta { margin: 0; }
+.gt-weeknav { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding-top: 4px; }
+.gt a.gt-weeknav__prev { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; color: var(--brand); text-decoration: none; font: 600 15px/18px var(--sans); }
+.gt a.gt-weeknav__prev:hover { text-decoration: underline; }
+.gt-weeknav__prev svg { width: 14px; height: 14px; transform: rotate(90deg); stroke: currentColor; fill: none; stroke-width: 2; }
+.gt-weeknav__prev small { display: block; font: 400 13px/16px var(--sans); color: var(--ink-muted); }
+.gt-weeknav__pick { grid-template-columns: auto; }
+.gt-weeknav__pick select { min-width: 210px; }
+.gt-weeknav__url { font: 400 13px/18px var(--sans); color: var(--ink-muted); }
+.gt-weeknav__url code { font-size: 13px; }
+.gt-weekstrip__sum { grid-column: 1 / -1; margin: 0; padding-top: 12px; border-top: 1px solid var(--rule); font: 400 16px/24px var(--serif); display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
+.gt-weekstrip { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 16px 32px; align-items: center; padding: 18px 24px; background: var(--paper-sunk); border-top: 2px solid var(--ink); }
+.gt-weekstrip__head { display: grid; gap: 2px; }
+.gt-weekstrip__head .gt-label { margin: 0; color: var(--ink); }
+.gt-weekstrip ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+.gt-weekstrip li { display: grid; gap: 4px; align-content: start; }
+.gt-weekstrip li a { display: flex; align-items: baseline; gap: 10px; color: var(--ink); text-decoration: none; font: 600 15px/20px var(--sans); }
+.gt-weekstrip li a:hover span, .gt-weekstrip li a.is-hover span { text-decoration: underline; }
+.gt-weekstrip__num { font: 600 32px/34px var(--serif); font-variant-numeric: lining-nums; }
+.gt-weekstrip__src { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; font: 400 13px/18px var(--sans); color: var(--ink-muted); }
+.gt a.gt-weekstrip__more { font: 600 15px/1 var(--sans); color: var(--brand); text-decoration: none; white-space: nowrap; min-height: 44px; display: inline-flex; align-items: center; gap: 6px; }
+.gt a.gt-weekstrip__more:hover { text-decoration: underline; }
+.gt-week { gap: 32px; padding-top: 20px; }
+.gt-week__intro { display: grid; gap: 12px; max-width: 860px; }
+.gt-week__upd { margin: 0; display: flex; flex-wrap: wrap; gap: 4px 12px; font: 400 14px/20px var(--sans); color: var(--ink-muted); }
+.gt-counts { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+.gt-count { display: grid; gap: 6px; align-content: start; justify-items: start; padding: 16px 0 4px; border-top: 2px solid var(--ink); }
+.gt-count__num { font: 600 56px/56px var(--serif); font-variation-settings: "opsz" 60; font-variant-numeric: lining-nums tabular-nums; letter-spacing: -.02em; }
+/* Wide enough for "new disaster alerts, orange and red" on one line at desktop. */
+.gt-count__label { font: 600 15px/20px var(--sans); max-width: 36ch; }
+.gt-count__src { font: 400 13px/18px var(--sans); color: var(--ink-muted); }
+.gt-week__grid { display: grid; grid-template-columns: minmax(0, 8fr) minmax(0, 4fr); gap: 40px; align-items: start; }
+.gt-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; align-items: stretch; }
+.gt-card { container-type: inline-size; display: grid; grid-template-rows: auto 1fr auto; background: var(--paper-raised); border: 1px solid var(--rule); border-top: 2px solid var(--ink); min-width: 0; }
+.gt-card--wide { grid-column: 1 / -1; }
+.gt-card__head { display: grid; gap: 6px; padding: 14px 18px 0; }
+.gt-card__kind { display: inline-flex; align-items: center; gap: 6px; font: 600 12px/16px var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-muted); }
+.gt-card__head .gt-h3 { font-size: 20px; line-height: 26px; }
+.gt-card__body { padding: 14px 18px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.gt-card__foot { display: grid; gap: 8px; padding: 10px 18px 14px; border-top: 1px solid var(--rule); }
+.gt-csrc { display: grid; gap: 2px; }
+.gt-card__foot .gt-source { gap: 2px 8px; margin: 0; }
+.gt a.gt-card__go { font: 600 15px/20px var(--sans); color: var(--brand); text-decoration: none; min-height: 32px; display: inline-flex; align-items: center; gap: 6px; justify-self: start; }
+.gt a.gt-card__go:hover, .gt a.gt-card__go.is-hover { text-decoration: underline; }
+/* The no-new-data state sits right under the headline, not centred in a card stretched to its row. */
+.gt-card--empty .gt-card__body { align-content: start; }
+.gt-ref { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; font: 400 14px/20px var(--sans); }
+.gt-ref li { display: grid; grid-template-columns: minmax(0, 8.6em) minmax(0, 1fr) 3.4em; gap: 4px 10px; align-items: center; min-height: 26px; }
+.gt-ref__name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gt-ref__track { position: relative; height: 12px; }
+.gt-ref__track::after { content: ""; position: absolute; top: -5px; bottom: -5px; left: var(--ref); border-left: 2px solid var(--ink); }
+.gt-ref__fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--seq-4); }
+.gt-ref__val { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums lining-nums; }
+.gt-ref__note { grid-column: 2 / -1; margin-top: -4px; font: 600 12px/16px var(--sans); color: var(--ink); }
+.gt-ref li:has(.gt-ref__note) .gt-ref__fill { background: var(--seq-5); }
+.gt-ref__key { margin: 0; display: flex; gap: 8px; align-items: baseline; }
+.gt-ref__key i { flex: none; width: 0; height: 12px; border-left: 2px solid var(--ink); transform: translateY(2px); }
+.gt-alerts { list-style: none; margin: 0; padding: 0; display: grid; font: 400 15px/20px var(--sans); }
+.gt-alerts li { display: grid; grid-template-columns: 5.4em minmax(0, 1fr) auto; gap: 10px; align-items: baseline; padding: 6px 0; border-bottom: 1px solid var(--rule); }
+.gt-alerts li:last-child { border-bottom: 0; }
+.gt-alerts__lvl { display: inline-flex; align-items: center; gap: 5px; font: 600 13px/18px var(--sans); color: var(--ink); }
+.gt-alerts__lvl svg { width: 11px; height: 11px; fill: currentColor; color: var(--cat-4); }
+.gt-alerts__date { font-size: 13px; color: var(--ink-muted); }
+.gt-pair { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font: 400 14px/20px var(--sans); }
+.gt-pair li { display: grid; grid-template-columns: minmax(0, 6.4em) minmax(0, 1fr) 3.4em 3.4em; gap: 10px; align-items: center; }
+.gt-pair__bars { display: grid; gap: 2px; }
+.gt-pair__bars span { display: block; height: 7px; }
+.gt-pair .gt-pair__a, .gt-pair__key .gt-pair__a { background: transparent; box-shadow: inset 0 0 0 1.5px var(--seq-5); }
+.gt-pair .gt-pair__b, .gt-pair__key .gt-pair__b { background: var(--seq-5); }
+.gt-pair__val { text-align: right; font-weight: 600; }
+.gt-pair__ch { text-align: right; color: var(--ink-muted); font-size: 13px; }
+.gt-pair__key { margin: 0; display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.gt-pair__key span { display: inline-flex; align-items: center; gap: 6px; }
+.gt-pair__key i { display: inline-block; width: 14px; height: 7px; }
+.gt-feedwrap { display: grid; gap: 14px; align-content: start; position: sticky; top: 16px; }
+.gt-feed__filter .gt-chip { min-height: 32px; padding: 0 12px; font-size: 13px; }
+.gt-feed { list-style: none; margin: 0; padding: 0; display: grid; }
+.gt-feed li { display: grid; grid-template-columns: 4.6em minmax(0, 1fr); gap: 2px 12px; padding: 12px 0; border-bottom: 1px solid var(--rule); }
+.gt-feed__when { grid-row: span 3; font: 600 14px/20px var(--sans); }
+.gt-feed__when small { display: block; font: 400 12px/16px var(--sans); color: var(--ink-muted); }
+.gt-feed__kind { display: inline-flex; align-items: center; gap: 6px; font: 600 12px/16px var(--sans); letter-spacing: .06em; text-transform: uppercase; color: var(--ink-muted); }
+.gt-feed a.gt-feed__what { font: 400 15px/22px var(--sans); color: var(--ink); text-decoration: none; }
+.gt-feed a.gt-feed__what:hover, .gt-feed a.gt-feed__what.is-hover { text-decoration: underline; }
+.gt-feed__src { font: 400 13px/18px var(--sans); color: var(--ink-muted); }
+
+/* The feed's "Show older items" (src/scripts/week.ts): a button that looks like the section link. */
+.gt a.gt-sechead__link.gt-feed__more, .gt button.gt-feed__more { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0; border: 0; background: none; font: 600 15px/1 var(--sans); color: var(--brand); cursor: pointer; justify-self: start; }
+.gt button.gt-feed__more:hover { text-decoration: underline; }
+.gt-feed li.is-older { display: none; }
+.gt-feed__empty { margin: 0; font: 400 15px/22px var(--sans); color: var(--ink-muted); }
+/* A list cut to its first items by the script; without it every item shows. */
+.gt-feed li[hidden] { display: none; }
+.gt-alerts__lvl--orange svg { fill: none; }
+.gt-alerts__what { min-width: 0; overflow-wrap: anywhere; }
+.gt-alerts__more { display: inline; margin-left: 6px; }
+.gt-alerts__more summary { display: inline; cursor: pointer; list-style: none; color: var(--brand); font-weight: 600; white-space: nowrap; }
+.gt-alerts__more summary::-webkit-details-marker { display: none; }
+.gt-alerts__more summary:hover { text-decoration: underline; }
+.gt-alerts__more summary:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.gt-alerts__more .gt-alerts__fewer, .gt-alerts__more[open] .gt-alerts__count { display: none; }
+.gt-alerts__more[open] .gt-alerts__fewer { display: inline; }
+.gt-alerts__more[open] > span { display: block; }
+.gt-alerts__note { display: block; font: 400 13px/18px var(--sans); color: var(--ink-muted); }
+.gt-alerts__still { display: grid; gap: 4px; margin-top: 6px; }
+.gt-alerts__still .gt-label, .gt-alerts__still .gt-caption { margin: 0; }
+.gt-alerts__still .gt-alerts { opacity: 1; }
+.gt-card__body .gt-caption { margin: 0; }
+.gt-card__body .gt-tablewrap { max-height: none; border-top: 0; }
+.gt-week__intro .gt-title, .gt-week__intro .gt-lede { margin: 0; }
+.gt-week__notes { display: grid; gap: 4px; }
+
+@container page (max-width: 1099px) {
+  .gt-week__grid { grid-template-columns: minmax(0, 1fr); }
+  .gt-feedwrap { position: static; }
+}
+@container page (max-width: 759px) {
+  .gt-week { gap: 28px; padding-top: 12px; }
+  .gt-cards { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .gt-counts { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 16px; padding-bottom: 4px; }
+  .gt-count { flex: 0 0 72%; scroll-snap-align: start; }
+  .gt-count:only-child { flex-basis: 100%; }
+  .gt-count__num { font-size: 44px; line-height: 48px; }
+  .gt-wsum { padding: 16px; }
+  .gt-wsum__t { font-size: 17px; line-height: 27px; }
+  .gt-card__head, .gt-card__body, .gt-card__foot { padding-left: 14px; padding-right: 14px; }
+}
+@container (max-width: 340px) {
+  .gt-pair li { grid-template-columns: minmax(0, 5.4em) minmax(0, 1fr) 3em 3em; gap: 6px; }
+  .gt-ref li { grid-template-columns: minmax(0, 7em) minmax(0, 1fr) 3.2em; }
+}

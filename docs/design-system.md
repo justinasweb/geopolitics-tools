@@ -31,6 +31,8 @@ The Atlas design system (Claude Design, batches 1–7) as Astro components. Phas
 
 Page frame: `Header`, `PhoneMenu`, `Footer`, `Lockup` + `LogoSprite`, `Breadcrumbs`, `PageToc`, `Icon`. Sources and status: `SourceLine`, `StatusTag` (also Sample), `Notice`. Data display:
 `KeyFigure` (in a `.gt-kfrow`), `RankedBars`, `DataTable`, `ChartState`, buttons (`.gt-btn`, `.gt-btn--quiet`).
+This week: `CountRow`, `WeekCard` with `WeekCardBody` (alert list, paired bars, compact tables) and `RefBars`,
+`LatestFeed`, `WeekSummary`, `WeekNav`, `WeekGlyph` (styles in `week.css`).
 Filters: `SegmentedControl`, `Dropdown`, `CountrySearch`, `Chips`, `YearSlider`. Maps: `MapLegend`, `MapTooltip`,
 `CountryPanel` + `PanelFacts`; the interactive map view's `MapControls` and `MapStage` (phase 4, see
 [maps.md](maps.md)). Actions: `ShareRow`.
@@ -58,7 +60,7 @@ does not scroll, Tab stays in the bar and the panel, Esc or a link closes it, an
 
 ## Not in this phase
 
-Page-specific blocks from design batches 2–7 (homepage hero and sections, This week cards, country page
+Page-specific blocks from design batches 2–7 (homepage hero and sections, country page
 blocks, Explorer, Dependencies, Supply chains, Bloc overlap, hubs, long-read pages, Atlas, share images) are built with
 the pages that use them in phases 3–8, from the same `bundle.css`. The main menu lists every wave 1 view until phase 3's
 route registry can hide views that are not live.

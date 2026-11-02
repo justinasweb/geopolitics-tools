@@ -11,11 +11,15 @@
 //   --list                    print the sources and their schedules, and stop
 //   --test-alert              send a test message to Telegram, and stop (exit 1 if it was not delivered)
 //   --retention               print the R2 lifecycle rules the raw bucket needs (name, prefix, days), and stop
+//
+// Before fetching, a full run (not --only) keeps This week's archive (lib/weeks.ts): today's copy of the sanctions
+// lists, and the last closed week frozen once.
 import { appendFileSync } from 'node:fs';
 import { telegram } from './lib/alert.ts';
 import { createHttp } from './lib/http.ts';
 import { run, type RunReport } from './lib/runner.ts';
 import { openStores } from './lib/store.ts';
+import { weeks } from './lib/weeks.ts';
 import { IMPORTED } from './sources/imported.ts';
 import { SOURCES } from './sources/index.ts';
 
@@ -54,10 +58,19 @@ if (unknown?.length) {
 
 const http = createHttp();
 const alerter = telegram(http);
+const stores = openStores(value('store') ?? 'dir:.data');
+if (!only) {
+  // The archive never holds up the data: a failure here is a warning, and the next run tries again.
+  try {
+    await weeks(stores, new Date());
+  } catch (e) {
+    console.warn(`::warning::This week's archive: ${(e as Error).message}`);
+  }
+}
 const report = await run({
   sources: SOURCES,
   imported: IMPORTED,
-  stores: openStores(value('store') ?? 'dir:.data'),
+  stores,
   http,
   alerter,
   force: flag('force'),
