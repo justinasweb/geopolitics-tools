@@ -40,11 +40,12 @@ describe('FAS fetcher', () => {
     expect(r.files[0].body).toBe(OWID);
     expect(r.dataTo).toBe('2025');
     // What each file holds is logged before the checks, so a refused file still shows what came back.
-    expect(log.join('\n')).toMatch(/nuclear-warhead-inventories\.csv: columns Entity, Code, Year, .*figures in 1 years \(2026–2026\)/);
+    expect(log.join('\n')).toMatch(/nuclear-warhead-inventories\.csv: columns entity, code, year, .*figures in 1 years \(2026–2026\)/);
   });
 
   it('refuses a series that holds only the latest year (what the inventories chart gave on 2 Nov 2026)', () => {
-    expect(() => checkSeries(STATUS, now)).toThrow(/starts in 2026, not 1945/);
+    expect(() => checkSeries(STATUS, now)).toThrow(/no warhead column/);
+    expect(() => checkSeries(STATUS.replace('deployed_strategic', 'number_of_warheads'), now)).toThrow(/starts in 2026, not 1945/);
     expect(() => checkSeries(OWID.split('\n').filter((l) => !l.startsWith('Israel')).join('\n'), now)).toThrow(/ISR/);
     expect(() => checkSeries(OWID, new Date('2030-01-01'))).toThrow(/stale/);
     expect(() => checkSeries('country,year,co2\nA,2024,1\n', now)).toThrow(/Entity, Code, Year/);
@@ -67,6 +68,9 @@ describe('FAS adapter', () => {
 
   it('finds a total column by name, else adds up the status columns', () => {
     expect(columnsOf(['Entity', 'Code', 'Year', 'nuclear_weapons_inventory'])).toEqual({ total: 3, parts: [] });
+    // OWID's real headers (live check, 2 Nov 2026).
+    expect(columnsOf(['entity', 'code', 'year', 'number_of_warheads'])).toEqual({ total: 3, parts: [] });
+    expect(statusColumns(['entity', 'code', 'year', 'deployed_strategic', 'deployed_nonstrategic', 'reserve_nondeployed', 'retired'])).toEqual({ ds: 3, dn: 4, reserve: 5, retired: 6 });
     const parts = 'Entity,Code,Year,warheads_deployed_strategic,warheads_reserve,warheads_retired\nRussia,RUS,2025,1718,2591,1150\n';
     expect(parseInventory(parts).RUS[2025]).toBe(5459);
   });

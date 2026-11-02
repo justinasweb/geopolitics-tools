@@ -50,7 +50,8 @@ type Pick = { total?: number; parts: number[] };
 /** Which columns hold what, from the grapher CSV's header. */
 export function columnsOf(head: string[]): Pick {
   const lower = head.map((h) => h.toLowerCase());
-  const total = lower.findIndex((h, i) => i > 2 && /total|inventor|stockpile/.test(h) && !/retired|deployed|reserve/.test(h));
+  // OWID's stockpile chart names its one column number_of_warheads (live check, 2 Nov 2026).
+  const total = lower.findIndex((h, i) => i > 2 && /total|inventor|stockpile|warhead/.test(h) && !/retired|deployed|reserve/.test(h));
   const parts = lower.map((h, i) => (i > 2 && /retired|deployed|reserve/.test(h) ? i : -1)).filter((i) => i >= 0);
   return { total: total >= 0 ? total : undefined, parts };
 }

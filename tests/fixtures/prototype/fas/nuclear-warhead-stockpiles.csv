@@ -1,4 +1,4 @@
-Entity,Code,Year,nuclear_weapons_stockpile
+entity,code,year,number_of_warheads
 United States,USA,1945,2
 United States,USA,1946,61
 United States,USA,1947,121

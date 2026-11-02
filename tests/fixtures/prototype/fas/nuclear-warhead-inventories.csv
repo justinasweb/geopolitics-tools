@@ -1,4 +1,4 @@
-Entity,Code,Year,nuclear_weapons_deployed_strategic,nuclear_weapons_deployed_nonstrategic,nuclear_weapons_reserve_nondeployed,nuclear_weapons_retired
+entity,code,year,deployed_strategic,deployed_nonstrategic,reserve_nondeployed,retired
 China,CHN,2026,24,0,626,0
 France,FRA,2026,280,0,10,0
 India,IND,2026,0,0,180,0
