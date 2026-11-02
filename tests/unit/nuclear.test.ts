@@ -197,12 +197,13 @@ describe('sharing facts', () => {
 });
 
 describe('nuclear layers and pages', () => {
-  it('tags every warhead figure as an FAS estimate', () => {
+  it('tags every warhead figure as an estimate', () => {
     const f = L.layerFile('nuclear-warheads');
     expect(f.data[0].year).toBe(1945);
     for (const y of f.data) {
       expect(y.status).toBe('estimate');
-      for (const e of Object.values(y.v)) expect(e.slice(2, 4)).toEqual([`FAS estimate, as of early ${y.year}`, 'estimate']);
+      // Every figure is an estimate; the wording of its year is tested below.
+      for (const e of Object.values(y.v)) expect(e[3]).toBe('estimate');
     }
     expect(f.more?.USA?.[0].rows.map((r) => r.value)).toEqual(['1,770', '1,930', '3,700', '1,477', '5,177']);
   });
@@ -261,5 +262,50 @@ describe('fact dates', () => {
     expect(formatPartialDate('2023-06')).toBe('Jun 2023');
     expect(formatPartialDate('2024-12-06')).toBe('6 Dec 2024');
     expect(L.layerFile('nuclear-sharing').more!.BLR[0].rows.map((r) => r.note?.split(' · ')[0])).toEqual(['Jun 2023', '6 Dec 2024']);
+  });
+});
+
+describe('nuclear follow-ups', () => {
+  it('names Russia’s figures to 1991 the Soviet Union, on Russia’s shape, without moving them', () => {
+    expect(N.nameIn('RUS', 1986)).toBe('Soviet Union');
+    expect(N.nameIn('RUS', 1992)).toBe('Russia');
+    expect(N.codeIn('RUS', 1991)).toBe('SUN');
+    expect(N.codeIn('RUS', 1992)).toBe('RUS');
+    const f = L.layerFile('nuclear-warheads');
+    const y1986 = f.data.find((d) => d.year === 1986)!;
+    const y2000 = f.data.find((d) => d.year === 2000)!;
+    // Same place id and figure, only the name changes.
+    expect(y1986.v.RUS[1]).toBe('40,159');
+    expect(y1986.names).toEqual({ RUS: 'Soviet Union' });
+    expect(y2000.names).toBeUndefined();
+    expect(f.notes.RUS).toMatch(/Figures to 1991 are the Soviet Union’s, shown on Russia’s shape; Russia from 1992\./);
+  });
+
+  it('says "FAS estimate, as of early {year}" only for the year of FAS’s current page', () => {
+    const m = N.warheadsModel()!;
+    const f = L.layerFile('nuclear-warheads');
+    expect(m.current).toBe(m.forces!.year);
+    for (const y of f.data) for (const e of Object.values(y.v)) expect(e[2]).toBe(y.year === m.current ? `FAS estimate, as of early ${y.year}` : String(y.year));
+  });
+
+  it('gives a change from under 100 warheads in warheads, not a percentage', async () => {
+    const { NUCLEAR_TEXT: T } = await import('../../src/i18n/nuclear.en.ts');
+    expect(T.changeAbs('up', 59, 1949)).toBe('Up 59 warheads from 1949');
+    expect(T.changeAbs('down', 1, 1990)).toBe('Down 1 warhead from 1990');
+  });
+
+  it('stacks each arrangement in the sharing panel, saying "reported by FAS" once', async () => {
+    const { blockHtml, countryPanelHtml } = await import('../../src/scripts/map/panel.ts');
+    const s = L.layerFile('nuclear-sharing');
+    const de = s.more!.DEU[0];
+    expect(de.stack).toBe(true);
+    expect(de.rows.map((r) => r.name)).toEqual(['Hosts weapons of the United States', 'Covered by the nuclear guarantee of NATO (the United States, the United Kingdom and France)']);
+    expect(de.rows.map((r) => r.swatch?.hatch)).toEqual([true, false]);
+    expect(blockHtml(de)).toMatch(/gt-prows--stack/);
+    const html = countryPanelHtml(s, 0, 'DEU');
+    expect(html.match(/reported by FAS/gi)).toHaveLength(1);
+    // A guarantee only (Japan), and stated hosting (Belarus): solid keys, stated.
+    expect(s.more!.JPN[0].rows).toEqual([expect.objectContaining({ value: 'Stated by a government or alliance', swatch: { color: 'var(--cat-3)', hatch: false } })]);
+    expect(s.more!.BLR[0].rows[0]).toMatchObject({ name: 'Hosts weapons of Russia', swatch: { color: 'var(--cat-2)', hatch: false } });
   });
 });

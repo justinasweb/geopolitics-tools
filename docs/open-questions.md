@@ -189,3 +189,15 @@ FAS and UNODA it is 34.
 **What the site does now.** The Sources page has one row per licence row (the FAS table imported by hand is part of
 FAS's row), and docs/licences.md prints the number; nothing else states a count. If the 33rd source was meant to be one
 the site uses without a licence row (Natural Earth's basemap, say), adding it to src/data/licences.ts updates every count.
+
+## /nuclear page weight (raised 2 Nov 2026, for the launch performance check)
+
+**The question.** `/nuclear` is about 282 KB of HTML (26 KB gzipped), because the world panel for every year from 1945
+to 2026 (82 of them) is written into the page, so the panel reads without the map script and the slider only
+shows and hides them. The other year views do the same, but with fewer years.
+
+**Options.**
+- Keep it: gzipped it is small, and the page reads with scripts off.
+- Write only the latest year's panel into the HTML and draw the others from the layer file (`/map/nuclear-warheads.json`),
+  as the Atlas panel does; years then need the script.
+- Write every fifth year plus the latest, and draw the rest from the layer file.

@@ -26,7 +26,7 @@ import { layerFile, layerPath } from '../lib/map/layers';
 import { breadcrumbs } from '../lib/structured';
 import { refreshed } from '../lib/data';
 import {
-  NUCLEAR_CSV, NUCLEAR_PAGES, SHARING_CHECKED, TREATIES_CHECKED, nuclearAnswer, peakOf, providerName,
+  FORMER, nameIn, NUCLEAR_CSV, NUCLEAR_PAGES, SHARING_CHECKED, TREATIES_CHECKED, nuclearAnswer, peakOf, providerName,
   sharingNote, sharingRows, treaties, warheads, warheadsModel, type NuclearPage,
 } from '../lib/nuclear';
 
@@ -58,7 +58,20 @@ const chartYears = m ? m.years : [];
 // Short names (US, UK), as the other charts use, so the end labels fit the panel.
 const shortOf = (x: string) => place(x)?.short ?? nameOf(x);
 const sideBySide = !!(m?.splitIsLatest && forces);
-const chartLines = m ? m.states.map((s, i) => ({ label: shortOf(s), values: m.years.map((y) => m.byYear[y].rows.find((r) => r.id === s)?.value ?? null), cls: i < 6 ? `gt-ser-${i + 1}` : 'gt-ser-med', noLabel: i > 3 })) : [];
+const valueIn = (s: string, y: number) => m!.byYear[y].rows.find((r) => r.id === s)?.value ?? null;
+// A former state's years are their own line (the Soviet Union to 1991, then Russia), in the same colour; no figure moves.
+const chartLines = m ? m.states.flatMap((s, i) => {
+  const cls = i < 6 ? `gt-ser-${i + 1}` : 'gt-ser-med';
+  const f = FORMER[s];
+  if (!f || m.years[0] > f.until) return [{ label: shortOf(s), values: m.years.map((y) => valueIn(s, y)), cls, noLabel: i > 3 }];
+  const former = place(f.id)?.short ?? nameIn(s, f.until);
+  return [
+    { label: former, values: m.years.map((y) => (y <= f.until ? valueIn(s, y) : null)), cls, noLabel: true },
+    { label: shortOf(s), values: m.years.map((y) => (y > f.until ? valueIn(s, y) : null)), cls, noLabel: i > 3 },
+  ];
+}) : [];
+const formerCaption = m ? Object.entries(FORMER).filter(([s, f]) => m.states.includes(s) && m.years[0] <= f.until)
+  .map(([s, f]) => N.formerNote(nameIn(s, f.until), nameIn(s, f.until + 1), f.until + 1)).join(' ') : '';
 const updated = refreshed('fas');
 const csvHref = m && live(key('warheads')) ? `/downloads/${NUCLEAR_CSV}.csv` : null;
 
@@ -95,19 +108,24 @@ const legend = id === 'warheads'
           const Y = m.byYear[yr];
           const prev = m.byYear[yr - 1];
           const ch = prev ? Y.world / prev.world - 1 : null;
+          // From a total under 100, a percentage says little: the change is given in warheads.
+          const dir = (d: number, flat: boolean) => (flat ? 'flat' : d > 0 ? 'up' : 'down') as 'up' | 'down' | 'flat';
+          const change = !prev || ch === null ? null : prev.world < 100
+            ? N.changeAbs(dir(Y.world - prev.world, Y.world === prev.world), Math.round(Math.abs(Y.world - prev.world)), yr - 1)
+            : N.changeFrom(dir(ch, Math.abs(ch) < 0.005), `${Math.round(Math.abs(ch) * 100)}%`, yr - 1);
           return (
             <div class="gt-pyear" data-year={yr} hidden={yr !== lastYear}>
               <div class="gt-pkf">
                 <span class="gt-pkf__label">{N.worldTotal}</span>
                 <span class="gt-pkf__num">{N.about(warheads(Y.world))}</span>
-                <span class="gt-pkf__meta"><StatusTag status="estimate" small /> {N.estimate(yr)} · {N.states(Y.rows.length)}</span>
-                {ch !== null && <span class="gt-pkf__meta">{N.changeFrom(Math.abs(ch) < 0.005 ? 'flat' : ch > 0 ? 'up' : 'down', `${Math.round(Math.abs(ch) * 100)}%`, yr - 1)}</span>}
+                <span class="gt-pkf__meta"><StatusTag status="estimate" small /> {yr === m.current ? N.estimate(yr) : N.historical(yr)} · {N.states(Y.rows.length)}</span>
+                {change && <span class="gt-pkf__meta">{change}</span>}
               </div>
               <div class="gt-pgroup">
                 <span class="gt-label">{N.legend(yr)}</span>
                 <ol class="gt-bars gt-bars--tight" aria-label={N.legend(yr)}>
                   {Y.rows.map((r) => (
-                    <li><span class="gt-bars__name"><button type="button" data-select={r.id}>{nameOf(r.id)}</button></span><span class="gt-bars__track"><span class="gt-bars__fill" style={`width:${((100 * r.value) / Y.rows[0].value).toFixed(1)}%`}></span></span><span class="gt-bars__val">{warheads(r.value)}</span></li>
+                    <li><span class="gt-bars__name"><button type="button" data-select={r.id}>{nameIn(r.id, yr)}</button></span><span class="gt-bars__track"><span class="gt-bars__fill" style={`width:${((100 * r.value) / Y.rows[0].value).toFixed(1)}%`}></span></span><span class="gt-bars__val">{warheads(r.value)}</span></li>
                   ))}
                 </ol>
               </div>
@@ -118,7 +136,7 @@ const legend = id === 'warheads'
           <div class="gt-pblock">
             <div class="gt-pblock__head"><span class="gt-label">{N.chart(m.years[0], lastYear)}</span></div>
             <LineChart label={N.chart(m.years[0], lastYear)} years={chartYears} lines={chartLines.slice(0, 4)} format={{ kind: 'count' }} height={180} />
-            <p class="gt-caption">{N.chartCaption} {peak && N.peak(N.about(warheads(peak.world)), peak.year)}.</p>
+            <p class="gt-caption">{N.chartCaption} {peak && N.peak(N.about(warheads(peak.world)), peak.year)}. {formerCaption}</p>
           </div>
         )}
         {forces && (
@@ -215,7 +233,7 @@ const legend = id === 'warheads'
           {csvHref && <p><a class="gt-btn gt-btn--quiet" href={csvHref} download>{N.csv}</a></p>}
           <h2 class="gt-h2">{N.chart(m.years[0], lastYear)}</h2>
           <LineChart label={N.chart(m.years[0], lastYear)} years={chartYears} lines={chartLines} format={{ kind: 'count' }} />
-          <p class="gt-caption">{N.chartCaption}</p>
+          <p class="gt-caption">{N.chartCaption} {formerCaption}</p>
         </>
       )}
       {t && (

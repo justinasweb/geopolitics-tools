@@ -31,6 +31,9 @@ export interface LayerYear {
   order: string[];
   /** Panel line for each bloc this year ("BRICS members mined 35%…"). */
   blocs: Record<string, string>;
+  /** Names that differ in this year, by place id: a former state shown on its successor's shape (Russia's figures
+   *  before 1992 are the Soviet Union's). The figures stay with the shape; only the name changes. */
+  names?: Record<string, string>;
   /** Blocks for a selected place that change with the year (a period's alerts). */
   more?: Record<string, PanelBlock[]>;
 }
@@ -39,7 +42,12 @@ export interface LayerYear {
 export interface PanelBlock {
   label: string;
   caption?: string;
-  rows: { name: string; value: string; href?: string; note?: string }[];
+  rows: { name: string; value: string; href?: string; note?: string;
+    /** A key for the value, as the map draws it: a colour (CSS), drawn solid or, with `hatch`, as the hatch pattern. */
+    swatch?: { color: string; hatch?: boolean } }[];
+  /** Each row as one full-width item (name, then value with its swatch, then the note), for rows whose names are
+   *  sentences (an arrangement and who it is with) rather than short labels beside figures. */
+  stack?: boolean;
   /** A line under the rows ("and 12 more"). */
   more?: string;
   source?: string;

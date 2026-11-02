@@ -29,6 +29,12 @@ export const NUCLEAR_TEXT = {
   sourceShort: 'FAS',
   source: 'Federation of American Scientists, Status of World Nuclear Forces',
   sourceOwid: 'FAS, via Our World in Data',
+  /** A year of the historical series: its year and where it comes from. */
+  historical: (year: number) => `${year} · FAS, via Our World in Data`,
+  creditOwid: 'Federation of American Scientists, via Our World in Data',
+  /** A former state shown on its successor's shape. */
+  formerNote: (former: string, successor: string, from: number) => `Figures to ${from - 1} are the ${former}’s, shown on ${successor}’s shape; ${successor} from ${from}.`,
+  formerShort: (successor: string, from: number) => `${successor} from ${from}`,
   measure: 'warheads',
   figureLabel: 'Estimated warheads',
   legend: (year: number) => `Estimated warheads, early ${year}`,
@@ -43,6 +49,8 @@ export const NUCLEAR_TEXT = {
   about: (v: string) => `about ${v}`,
   states: (k: number) => `${k} ${k === 1 ? 'state' : 'states'} with nuclear weapons`,
   peak: (v: string, year: number) => `Peak: ${v} in ${year}`,
+  /** Change from a total under 100: in warheads, not a percentage. */
+  changeAbs: (dir: 'up' | 'down' | 'flat', n: number, year: number) => (dir === 'flat' ? `About the same as in ${year}` : `${dir === 'up' ? 'Up' : 'Down'} ${new Intl.NumberFormat('en').format(n)} ${n === 1 ? 'warhead' : 'warheads'} from ${year}`),
   changeFrom: (dir: 'up' | 'down' | 'flat', size: string, year: number) => (dir === 'flat' ? `About the same as in ${year}` : `${dir === 'up' ? 'Up' : 'Down'} ${size} from ${year}`),
   chart: (from: number, to: number) => `Estimated nuclear warheads, ${from}–${to}`,
   chartCaption: 'Each line is one state’s estimated stockpile, as FAS counts it.',
@@ -112,12 +120,15 @@ export const NUCLEAR_TEXT = {
     umbrella: 'Covered by an ally’s nuclear guarantee',
   } as Record<SharingClass, string>,
   sharingLegend: 'Sharing and guarantees',
+  arrangements: 'Arrangements',
   sharingSources: 'Governments, NATO and FAS',
   sharingNone: 'No arrangement listed',
   kind: { host: 'Hosts weapons of', umbrella: 'Covered by the nuclear guarantee of' } as Record<string, string>,
   provider: { nato: 'NATO (the United States, the United Kingdom and France)' } as Record<string, string>,
   stated: 'Stated by a government or alliance',
   reportedBy: 'Reported by FAS, not officially confirmed',
+  /** In the panel, where the headline already says "reported by FAS". */
+  notConfirmed: 'Not officially confirmed',
   sharingLede: (hosts: number, reported: number, umbrella: number) =>
     `${hosts + reported} countries host another state’s nuclear weapons (${reported} of them reported by FAS, not officially confirmed), and ${umbrella} are covered by an ally’s nuclear guarantee.`,
   sharingCaption: 'An arrangement is shown as fact only when a government or alliance has stated it. A host that is not officially confirmed is marked as reported by FAS, with its own hatched pattern.',

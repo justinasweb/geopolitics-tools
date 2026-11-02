@@ -339,7 +339,19 @@ words in src/i18n/nuclear.en.ts), in the Power and alliances hub after Chinese l
   retired warheads), found by matching the figures (`seriesMeasure`), and the page says that year comes from FAS's
   current figures. The split sits beside the totals (panel and table columns) only when it is for the same year;
   otherwise it has its own table labelled with its year and date. The panel's chart names states by their short
-  names (US, UK). The "Peak" line under it reads the highest world total in the series (the mid-1980s). The table
+  names (US, UK). The "Peak" line under it reads the highest world total in the series (the mid-1980s).
+- **The Soviet Union.** OWID files the Soviet Union's warheads under Russia's code through 1991. The figures stay on
+  Russia's shape (the basemap has no Soviet Union) and nothing moves between countries, but every place that shows a
+  year says "Soviet Union" for 1949–1991 (`FORMER` in src/lib/nuclear.ts; `names` per year in the layer file): the
+  panel, tooltip, ranking, the chart (a line of its own to 1991, then Russia's, in one colour) and the CSV (Soviet
+  Union, SUN, "Russia from 1992"), with Russia's note "Figures to 1991 are the Soviet Union's, shown on Russia's shape;
+  Russia from 1992."
+- **Year labels.** Only the year of FAS's current page (its split's year) says "FAS estimate, as of early {year}";
+  the historical series says "{year} · FAS, via Our World in Data". Every figure keeps the Estimate tag. A change from a
+  world total under 100 is given in warheads ("Up 59 warheads from 1949"), not a percentage.
+- **Sharing panel.** A country's arrangements are stacked full width (`stack` on the panel block): the arrangement and
+  who it is with, then whether it is stated or not officially confirmed with its key (the hatch for a host only FAS
+  reports), then the date and note. "Reported by FAS" is said once, in the headline. The table
   under the map has the split and each state's first estimate; a CSV of every figure shown is at
   `/downloads/nuclear-warheads.csv` (FAS confirmed CC BY 4.0 by email on 29 Oct 2026). The methodology note links to
   FAS's own explanation.

@@ -43,6 +43,21 @@ export const warheads = (v: number) => formatValue(Math.round(v), { kind: 'count
 
 const nuclearData = shared(nuclear);
 
+/**
+ * Former states whose figures the source files under a successor's code (OWID writes the Soviet Union's warheads as
+ * Russia's, RUS, through 1991). The figures stay with the successor's shape on the map (the basemap has no Soviet
+ * Union); every place that shows a year says the former state's name (docs/territories.md, historical states).
+ */
+export const FORMER: Record<string, { id: string; until: number }> = { RUS: { id: 'SUN', until: 1991 } };
+
+/** A state's name in a year: the former state's before its end (the Soviet Union to 1991), else its own. */
+export function nameIn(id: string, year: number): string {
+  const f = FORMER[id];
+  return f && year <= f.until ? place(f.id)?.name ?? f.id : place(id)?.name ?? id;
+}
+/** The id and ISO code a year's figure belongs to, for the CSV: SUN for the Soviet Union's years. */
+export const codeIn = (id: string, year: number) => (FORMER[id] && year <= FORMER[id].until ? place(FORMER[id].id)?.iso3 || FORMER[id].id : place(id)?.iso3 ?? id);
+
 export interface WarheadYear { year: number; rows: { id: string; value: number }[]; world: number }
 export interface WarheadsModel {
   years: number[];
@@ -58,6 +73,8 @@ export interface WarheadsModel {
   measure: 'stockpile' | 'inventory';
   /** The split is for the map's latest year, so it can sit beside that year's totals. */
   splitIsLatest: boolean;
+  /** The year FAS's current page gives (its split's year): only it says "FAS estimate, as of early {year}". */
+  current: number | null;
 }
 
 let wcache: WarheadsModel | null | undefined;
@@ -74,7 +91,7 @@ export function warheadsModel(): WarheadsModel | null {
   const year = years.at(-1)!;
   const last = (id: string) => { const y = d.inventory[id]; return y[Math.max(...Object.keys(y).map(Number))]; };
   const states = Object.keys(d.inventory).sort((a, b) => last(b) - last(a));
-  return (wcache = { years, year, byYear, states, forces: d.forces, extended: d.extended, measure: d.measure, splitIsLatest: d.forces?.year === year });
+  return (wcache = { years, year, byYear, states, forces: d.forces, extended: d.extended, measure: d.measure, splitIsLatest: d.forces?.year === year, current: d.forces && years.includes(d.forces.year) ? d.forces.year : null });
 }
 
 const nameOf = (id: string) => place(id)?.name ?? id;

@@ -7,7 +7,8 @@ import { licenceOf, refreshed, sourceName } from '../../lib/data';
 import { place } from '../../lib/places';
 import { ranked } from '../../lib/stats';
 import { live, routes } from '../../lib/routes';
-import { NUCLEAR_CSV, warheadsModel } from '../../lib/nuclear';
+import { FORMER, NUCLEAR_CSV, codeIn, nameIn, warheadsModel } from '../../lib/nuclear';
+import { NUCLEAR_TEXT } from '../../i18n/nuclear.en';
 
 export const getStaticPaths = (() => [
   ...routes().filter((r) => r.kind === 'indicator' && r.live && csvAllowed(indicatorModel(r.id)!))
@@ -24,14 +25,17 @@ const cell = (v: string | number) => {
 /** Every estimate the warheads map shows: one row per state and year, each an FAS estimate. */
 function nuclearCsv(): string {
   const m = warheadsModel()!;
-  const source = licenceOf('fas')!.credit;
+  // FAS's current page for its year; the historical series through Our World in Data for the rest.
+  const source = (y: number) => (y === m.current ? licenceOf('fas')!.credit : NUCLEAR_TEXT.creditOwid);
   const retrieved = (refreshed('fas') ?? '').slice(0, 10);
-  const lines = [['country', 'iso3', 'year', 'warheads', 'status', 'source', 'retrieved'].join(',')];
+  // A former state's years carry its own name and code (Soviet Union, SUN), with a note; the figures do not move.
+  const note = (id: string, y: number) => (FORMER[id] && y <= FORMER[id].until ? NUCLEAR_TEXT.formerShort(nameIn(id, FORMER[id].until + 1), FORMER[id].until + 1) : '');
+  const lines = [['country', 'iso3', 'year', 'warheads', 'status', 'source', 'retrieved', 'note'].join(',')];
   const ids = [...m.states].sort((a, b) => (place(a)?.name ?? a).localeCompare(place(b)?.name ?? b, 'en'));
   for (const id of ids) {
     for (const y of m.years) {
       const r = m.byYear[y].rows.find((x) => x.id === id);
-      if (r) lines.push([place(id)!.name, place(id)!.iso3, y, Math.round(r.value), 'estimate', source, retrieved].map(cell).join(','));
+      if (r) lines.push([nameIn(id, y), codeIn(id, y), y, Math.round(r.value), 'estimate', source(y), retrieved, note(id, y)].map(cell).join(','));
     }
   }
   return `${lines.join('\n')}\n`;

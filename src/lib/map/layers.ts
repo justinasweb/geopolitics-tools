@@ -45,7 +45,7 @@ import { CONFLICT_TEXT, monthText } from '../../i18n/conflict.en.ts';
 import { latestAnalyses, monthSpan } from '../hunger.ts';
 import { HUNGER_TEXT } from '../../i18n/hunger.en.ts';
 import { POWER_TEXT } from '../../i18n/electricity.en.ts';
-import { NUCLEAR_PAGES, SHARING_CHECKED, SHARING_CLASSES, TREATIES_CHECKED, sharingCounts, TREATY_CLASSES, armedStates, nuclearLive, providerName, sharingClass, sharingNote, sharingRows, treaties, treatyClass, warheadClass, warheads, warheadsModel, type NuclearPage } from '../nuclear.ts';
+import { FORMER, nameIn, NUCLEAR_PAGES, SHARING_CHECKED, SHARING_CLASSES, TREATIES_CHECKED, sharingCounts, TREATY_CLASSES, armedStates, nuclearLive, providerName, sharingClass, sharingNote, sharingRows, treaties, treatyClass, warheadClass, warheads, warheadsModel, type NuclearPage } from '../nuclear.ts';
 import { NUCLEAR_TEXT } from '../../i18n/nuclear.en.ts';
 import type { Pair } from '../../data/flows.ts';
 import type { Hazard } from '../../adapters/hazards.ts';
@@ -1028,14 +1028,20 @@ function nuclearLayer(id: NuclearPage): LayerFile {
     const data: LayerYear[] = m.years.map((year) => {
       const y = m.byYear[year];
       const v: Record<string, Entry> = {};
-      y.rows.forEach((r, i) => { v[r.id] = [warheadClass(r.value), warheads(r.value), N.estimate(year), 'estimate', i + 1]; });
+      // Only FAS's current page says "as of early {year}"; the historical series gives its year.
+      y.rows.forEach((r, i) => { v[r.id] = [warheadClass(r.value), warheads(r.value), year === m.current ? N.estimate(year) : String(year), 'estimate', i + 1]; });
+      const names = Object.fromEntries(y.rows.filter((r) => FORMER[r.id] && year <= FORMER[r.id].until).map((r) => [r.id, nameIn(r.id, year)]));
       const bl: Record<string, string> = {};
       for (const [b, members] of memberships) {
         const inBloc = y.rows.filter((r) => members.includes(r.id));
         bl[b] = N.blocLine(BLOC_TEXT[b] ?? b, inBloc.length, warheads(inBloc.reduce((t, r) => t + r.value, 0)), year);
       }
-      return { year, status: 'estimate', legend: N.legend(year), v, order: y.rows.map((r) => r.id), blocs: bl };
+      return { year, status: 'estimate', legend: N.legend(year), v, order: y.rows.map((r) => r.id), blocs: bl, ...(Object.keys(names).length ? { names } : {}) };
     });
+    const notes = { ...c.notes };
+    for (const [id, f] of Object.entries(FORMER)) {
+      if (m.states.includes(id) && m.years[0] <= f.until) notes[id] = [notes[id], N.formerNote(nameIn(id, f.until), nameIn(id, f.until + 1), f.until + 1)].filter(Boolean).join(' ');
+    }
     const more: Record<string, PanelBlock[]> = {};
     if (f) {
       for (const x of Object.values(f.rows)) {
@@ -1055,7 +1061,7 @@ function nuclearLayer(id: NuclearPage): LayerFile {
       ...base, id: 'nuclear-warheads', name, scale: 'seq', years: m.years, year: m.year, ticks: N.ticks,
       missing: { none: N.none }, source: N.sourceOwid,
       text: words({ kicker: `${name} · {year}`, measure: N.measure, shareLabel: N.figureLabel, none: N.noneIn, detailLabel: undefined, rankLabel: PT.rank, rankOf: PT.rankOf, statusLabel: PT.status, trend: PT.figureTrend(N.figureLabel), trendCaption: PT.trendCaption, ranking: PT.ranking }),
-      notes: c.notes, data, more,
+      notes, data, more,
       series: seriesOf(m.years.map((year) => Object.fromEntries(m.byYear[year].rows.map((r) => [r.id, r.value])))), format: { kind: 'count' },
     };
   }
@@ -1084,12 +1090,19 @@ function nuclearLayer(id: NuclearPage): LayerFile {
     for (const pl of new Set([...armed, ...rows.map((r) => r.place)])) {
       const k = sharingClass(pl);
       if (!k) continue;
-      v[pl] = k === 'reported' ? [-2, N.sharingClass.reported, N.reportedBy, 0, 0] : [SHARING_CLS[k], N.sharingClass[k], '', 0, 0];
+      // "Reported by FAS" is said once, in the headline; the arrangement rows say whether it is confirmed.
+      v[pl] = k === 'reported' ? [-2, N.sharingClass.reported, '', 0, 0] : [SHARING_CLS[k], N.sharingClass[k], '', 0, 0];
       const mine = rows.filter((r) => r.place === pl);
       if (mine.length) {
         more[pl] = [{
-          label: N.sharingLegend,
-          rows: mine.map((r) => ({ name: `${N.kind[r.kind]} ${providerName(r.provider)}`, value: r.status === 'stated' ? N.stated : N.reportedBy, note: [formatPartialDate(r.date), sharingNote(r)].filter(Boolean).join(' · ') })),
+          label: N.arrangements, stack: true,
+          rows: mine.map((r) => {
+            const colour = `var(--cat-${SHARING_CLS[r.kind === 'host' ? 'host' : 'umbrella']})`;
+            return {
+              name: `${N.kind[r.kind]} ${providerName(r.provider)}`, value: r.status === 'stated' ? N.stated : N.notConfirmed,
+              swatch: { color: colour, hatch: r.status === 'reported' }, note: [formatPartialDate(r.date), sharingNote(r)].filter(Boolean).join(' · '),
+            };
+          }),
         }];
       }
     }
