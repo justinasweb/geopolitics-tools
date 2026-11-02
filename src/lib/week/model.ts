@@ -1,4 +1,4 @@
-// This week's figures, worked out from one snapshot's raw files for one period: the live page's seven days, or a
+// This week's figures, worked out from one snapshot's raw files for one period: the current ISO week so far (the live page), or a
 // closed ISO week that the data run freezes (pipeline/lib/weeks.ts) so its archive page never changes. The result is
 // small, plain JSON with numbers, dates and place ids only; the words come from src/i18n/week.en.ts when a page is
 // built, so a frozen week reads in any language.
@@ -37,9 +37,29 @@ const FEED_MAX = 60;
 /** When the site last fetched a source, and when its data last changed. */
 export interface SourceInfo { fetched: string; changed: string }
 
-export interface AlertItem { id: string; level: 'red' | 'orange'; type: HazardKind; places: string[]; name: string; from: string; start?: string }
+export interface AlertItem {
+  id: string;
+  level: 'red' | 'orange';
+  type: HazardKind;
+  places: string[];
+  name: string;
+  from: string;
+  start?: string;
+  /** Began before the week and rose to orange or red in it (its level at the week's start was lower). */
+  rose?: boolean;
+  /** GDACS event ids merged into this one: records GDACS keeps apart for one named storm. */
+  merged?: string[];
+}
 export interface Base { src: SourceInfo; quiet: boolean }
-export interface DisasterCard extends Base { kind: 'disaster'; alerts: AlertItem[] }
+export interface DisasterCard extends Base {
+  kind: 'disaster';
+  /** What the card counts: orange and red alerts that began in the week, or rose to orange or red in it. */
+  alerts: AlertItem[];
+  /** Orange and red alerts that began earlier and are still active, listed apart and not counted. */
+  active: AlertItem[];
+  /** Whether GDACS's file from the week's start was there to tell which earlier alerts rose in the week. */
+  compared: boolean;
+}
 export interface ConflictCard extends Base {
   kind: 'conflict';
   /** The latest month and the one before (YYYY-MM). */
@@ -88,7 +108,10 @@ export interface WeekInput {
   period: Period;
   /** Per source: when the site last fetched it and when it last changed (the snapshot's fetched and changed). */
   sources: Record<string, { fetched: string; changed?: string } | undefined>;
-  /** The sanctions lists as they stood at the start of the period, and that day; null when no copy is kept. */
+  /**
+   * The copies kept from the start of the period (the week's Monday) and that day: the sanctions lists, to count
+   * entries added and removed, and GDACS's alerts, to tell which earlier alerts rose in the week. Null when none.
+   */
   baseline: { date: string; raw: Raw } | null;
   made: string;
   week?: string;
@@ -129,22 +152,66 @@ function info(input: WeekInput, ids: string[]): SourceInfo | null {
 /** Nothing new since the period began. */
 const quietOf = (src: SourceInfo, p: Period) => src.changed.slice(0, 10) < p.from;
 
+const RANK: Record<string, number> = { green: 0, none: 0, orange: 1, red: 2 };
+type Hz = ReturnType<typeof parseGdacs>[number];
+
+/**
+ * One named storm can reach GDACS as two events (a new id when a storm is re-detected or moves basin), which would list
+ * one cyclone twice. Tropical cyclones with the same name whose dates meet (within two days) are merged: earliest
+ * start, latest end, highest level, every country. Other kinds are never merged: floods and droughts share generic
+ * names ("Flood in India") across separate events.
+ */
+export function mergeStorms(list: Hz[]): (Hz & { merged?: string[] })[] {
+  const out: (Hz & { merged?: string[] })[] = [];
+  const key = (h: Hz) => (h.kind === 'TC' ? h.name.trim().toLowerCase().replace(/^tropical cyclone\s+/, '') : '');
+  for (const h of [...list].sort((a, b) => a.from.localeCompare(b.from) || a.id.localeCompare(b.id))) {
+    const k = key(h);
+    const m = k ? out.find((o) => key(o) === k && h.from <= addDays(o.to, 2) && o.from <= addDays(h.to, 2)) : undefined;
+    if (!m) {
+      out.push({ ...h });
+      continue;
+    }
+    m.merged = [...(m.merged ?? [m.id]), h.id];
+    if (RANK[h.alert] > RANK[m.alert]) m.alert = h.alert;
+    m.to = h.to > m.to ? h.to : m.to;
+    m.places = [...new Set([...m.places, ...h.places])];
+    m.place ??= h.place;
+  }
+  return out;
+}
+
 export function disasterCard(input: WeekInput): { card: DisasterCard; feed: FeedItem[] } | null {
   const src = info(input, CARD_SOURCES.disaster);
-  const all = src && attempt(() => cached(input.raw, 'gdacs', (r) => parseGdacs(r.json('gdacs', 'events.json'))));
+  const all = src && attempt(() => cached(input.raw, 'gdacs', (r) => mergeStorms(parseGdacs(r.json('gdacs', 'events.json')))));
   if (!src || !all) return null;
   const counted = all.filter((h) => h.alert === 'red' || h.alert === 'orange')
     .sort((a, b) => (b.start ?? b.from).localeCompare(a.start ?? a.from) || a.id.localeCompare(b.id));
-  const item = (h: (typeof counted)[number]): AlertItem => ({ id: h.id, level: h.alert as 'red' | 'orange', type: h.kind, places: h.places, name: h.name, from: h.from, ...(h.start ? { start: h.start } : {}) });
   const p = input.period;
+  // GDACS's alerts as they stood when the week began: an earlier alert that was lower then rose in the week.
+  const base = input.baseline?.raw.has('gdacs', 'events.json') ? mergeStorms(parseGdacs(input.baseline.raw.json('gdacs', 'events.json'))) : null;
+  const before = new Map<string, number>();
+  for (const h of base ?? []) for (const id of h.merged ?? [h.id]) before.set(id, Math.max(before.get(id) ?? 0, RANK[h.alert]));
+  const levelBefore = (h: Hz & { merged?: string[] }) => Math.max(0, ...(h.merged ?? [h.id]).map((id) => before.get(id) ?? 0));
+  const item = (h: Hz & { merged?: string[] }, rose = false): AlertItem => ({
+    id: h.id, level: h.alert as 'red' | 'orange', type: h.kind, places: h.places, name: h.name, from: h.from,
+    ...(h.start ? { start: h.start } : {}), ...(rose ? { rose } : {}), ...(h.merged ? { merged: h.merged } : {}),
+  });
   const quiet = quietOf(src, p);
-  // Counted as on the disasters map: an alert lasting into the period counts (src/lib/disasters.ts).
-  const alerts = quiet ? [] : counted.filter((h) => h.to >= p.from && h.from <= p.to).map(item);
+  const alerts: AlertItem[] = [];
+  const active: AlertItem[] = [];
+  if (!quiet) {
+    for (const h of counted) {
+      if (h.to < p.from || h.from > p.to) continue;
+      if (h.from >= p.from) alerts.push(item(h));
+      else if (base && levelBefore(h) < RANK[h.alert]) alerts.push(item(h, true));
+      else active.push(item(h));
+    }
+  }
   const from = input.feedFrom ?? addDays(p.to, -FEED_DAYS);
   const feed: FeedItem[] = counted.filter((h) => inPeriod(h.from, { from, to: p.to })).map((h) => ({
     kind: 'disaster', date: h.from, ...(h.start ? { time: h.start.slice(11, 16) } : {}), level: h.alert as 'red' | 'orange', type: h.kind, places: h.places,
   }));
-  return { card: { kind: 'disaster', src, quiet, alerts }, feed };
+  return { card: { kind: 'disaster', src, quiet, alerts, active, compared: base !== null }, feed };
 }
 
 export function conflictCard(input: WeekInput): { card: ConflictCard; feed: FeedItem[] } | null {

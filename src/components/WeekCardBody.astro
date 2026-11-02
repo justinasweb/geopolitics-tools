@@ -1,9 +1,10 @@
 ---
-// The chart or table inside a WeekCard, from the page model (src/lib/week.ts): the alert list (.gt-alerts, level as a
-// word and a solid or outline triangle), paired bars for the latest month against the one before (.gt-pair, the earlier
+// The chart or table inside a WeekCard, from the page model (src/lib/week.ts): the alert list (./AlertList.astro),
+// with the alerts still active from earlier under "Still active", paired bars for the latest month against the one before (.gt-pair, the earlier
 // month an outline bar), or a compact table (prices with arrows, outages, sanctions lists), then its notes.
 import '../styles/atlas/week.css';
 import '../styles/atlas/table.css';
+import AlertList from './AlertList.astro';
 import type { Body } from '../lib/week';
 
 interface Props { body: Body }
@@ -11,15 +12,15 @@ const { body } = Astro.props;
 const UP = '<path d="M6 10V2M2.5 5.5 6 2l3.5 3.5"/>';
 const DOWN = '<path d="M6 2v8M2.5 6.5 6 10l3.5-3.5"/>';
 const FLAT = '<path d="M2 6h8"/>';
-const SOLID = '<path d="M6 1.2 11.2 10.6H.8z"/>';
-const OUTLINE = '<path d="M6 2.2 10.4 10H1.6z" fill="none" stroke="currentColor" stroke-width="1.6"/>';
 ---
-{body.type === 'alerts' && body.rows.length > 0 && (
-  <ul class="gt-alerts">
-    {body.rows.map((r) => (
-      <li><span class:list={['gt-alerts__lvl', `gt-alerts__lvl--${r.level}`]}><svg viewBox="0 0 12 12" aria-hidden="true" set:html={r.level === 'red' ? SOLID : OUTLINE} />{r.levelText}</span><span class="gt-alerts__what">{r.what}</span><span class="gt-alerts__date tnum">{r.date}</span></li>
-    ))}
-  </ul>
+{body.type === 'alerts' && (body.rows.length > 0 ? <AlertList rows={body.rows} /> : body.empty && <p class="gt-caption">{body.empty}</p>)}
+{body.type === 'alerts' && body.active.length > 0 && (
+  <div class="gt-alerts__still">
+    <h4 class="gt-label">{body.activeTitle}</h4>
+    <p class="gt-caption">{body.activeNote}</p>
+    <AlertList rows={body.active} />
+    {body.activeMore && <p class="gt-caption">{body.activeMore}</p>}
+  </div>
 )}
 {body.type === 'pair' && body.rows.length > 0 && (
   <>

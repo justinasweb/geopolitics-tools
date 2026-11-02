@@ -8,7 +8,7 @@ import { LEDGER_KEY, loadLedger, weekKey, weeks, baselineFor } from '../../../pi
 import type { WeekData } from '../../../src/lib/week/model.ts';
 import { tempStores } from './helpers.ts';
 
-// This week's archive in the snapshots bucket: a copy of the sanctions lists recorded once a day, a closed week frozen
+// This week's archive in the snapshots bucket: copies of the sanctions lists and GDACS recorded once a day, a closed week frozen
 // once on the Monday or Tuesday after it and never written again, and the old copies dropped.
 
 const csl = (ids: string[]) => JSON.stringify({ results: ids.map((id) => ({ id, source: 'Specially Designated Nationals (SDN) - Treasury Department', addresses: [{ country: 'RU' }] })) });
@@ -65,6 +65,8 @@ describe('This week archive', () => {
     expect(ledger.weeks).toEqual(['2026-43', '2026-44']);
     expect(Object.keys(ledger.baselines)).toEqual(['2026-10-26', '2026-10-30', '2026-11-02', '2026-11-03']);
     expect(baselineFor(ledger, '2026-10-27', '2026-11-02')?.date).toBe('2026-10-30');
+    // GDACS is recorded with the lists, so a frozen week can tell which earlier alerts rose in it.
+    expect(Object.keys(ledger.baselines['2026-10-26']).sort()).toEqual(['csl', 'gdacs']);
     expect(await get(stores, LEDGER_KEY)).toBeTruthy();
   });
 

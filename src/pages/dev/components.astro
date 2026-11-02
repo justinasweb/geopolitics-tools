@@ -99,10 +99,15 @@ const wkShipping = [
   { name: 'Bab el-Mandeb', width: 35, value: '42%', note: 'below normal' }, { name: 'Suez Canal', width: 42.5, value: '51%', note: 'below normal' },
   { name: 'Strait of Hormuz', width: 80, value: '96%' }, { name: 'Strait of Malacca', width: 85.8, value: '103%' }, { name: 'Panama Canal', width: 81.7, value: '98%' },
 ];
-const wkAlerts: Body = { type: 'alerts', notes: [], rows: [
-  { level: 'red', levelText: 'Red', what: 'Tropical cyclone, Philippines', date: '21 Oct' }, { level: 'orange', levelText: 'Orange', what: 'Earthquake, Peru', date: '20 Oct' },
-  { level: 'orange', levelText: 'Orange', what: 'Flood, Viet Nam', date: '19 Oct' }, { level: 'orange', levelText: 'Orange', what: 'Flood, Nigeria', date: 'since 12 Oct' },
-] };
+const wkAlerts: Body = { type: 'alerts', notes: ['Counted: alerts that began, or rose to orange or red, this week.'],
+  activeTitle: 'Still active', activeNote: 'Began before this week and still active; not counted above.',
+  rows: [
+    { level: 'red', levelText: 'Red', what: 'Tropical cyclone', places: ['Philippines'], more: null, date: '21 Oct' },
+    { level: 'orange', levelText: 'Orange', what: 'Drought', places: ['Ethiopia', 'Kenya', 'Somalia'], more: { text: '+ 11 more', label: '(countries)', places: 'Sudan, South Sudan, Uganda, Tanzania, Rwanda, Burundi, Eritrea, Djibouti, Yemen, Oman, Saudi Arabia' }, date: '20 Oct' },
+    { level: 'orange', levelText: 'Orange', what: 'Flood', places: ['Viet Nam'], more: null, date: '14 Oct', note: 'Rose to orange this week' },
+  ],
+  active: [{ level: 'orange', levelText: 'Orange', what: 'Flood', places: ['Nigeria'], more: null, date: 'since 10 Oct' }],
+};
 const wkPair: Body = { type: 'pair', label: 'Events of organised violence, August and September 2026', keyA: 'August', keyB: 'September', key: 'Events in September, change on August', notes: [], rows: [
   ['Ukraine', 1840, 1710], ['Sudan', 521, 610], ['Myanmar', 480, 455], ['DR Congo', 308, 262], ['Syria', 205, 236],
 ].map(([name, a, b]) => ({ name: String(name), a: Number(a), b: Number(b), aw: (100 * Number(a)) / 1840, bw: (100 * Number(b)) / 1840, value: new Intl.NumberFormat('en').format(Number(b)), change: `${Number(b) > Number(a) ? '+' : '−'}${Math.round(Math.abs(Number(b) / Number(a) - 1) * 100)}%` })) };
@@ -360,7 +365,7 @@ const typeStyles = tokens.type.groups.flatMap((g) => g.styles.map((s) => ({ ...s
           <WeekCard kind="shipping" label="Shipping" headline="Bab el-Mandeb and Suez Canal traffic below normal" source="IMF PortWatch" period="week to 19 Oct 2026" updated="Updated 21 Oct" tags={['sample']} href="#" go="Open the chokepoints map">
             <RefBars label="Transits as a share of normal" ref={83.33} rows={wkShipping} key="Normal (100%): average for the same week in 2023–2025. Below normal: under 80%." />
           </WeekCard>
-          <WeekCard kind="disaster" label="Disaster" headline="4 orange and red alerts, one of them red" source="GDACS" period="15–21 Oct 2026" updated="Updated 21 Oct, 06:00 UTC" tags={['sample']} href="#" go="Open the disasters map"><WeekCardBody body={wkAlerts} /></WeekCard>
+          <WeekCard kind="disaster" label="Disaster" headline="3 new orange and red alerts, one of them red" source="GDACS" period="15–21 Oct 2026" updated="Updated 21 Oct, 06:00 UTC" tags={['sample']} href="#" go="Open the disasters map"><WeekCardBody body={wkAlerts} /></WeekCard>
           <WeekCard kind="conflict" label="Conflict" headline="Most events in Ukraine; Sudan and Syria up on August" source="UCDP GED Candidate" period="Aug–Sep 2026" updated="Updated 14 Oct" tags={['preliminary', 'sample']} href="#" go="Open the conflict map"><WeekCardBody body={wkPair} /></WeekCard>
           <WeekCard kind="prices" label="Prices" headline="Gold up 5% on the month" source="World Bank Pink Sheet" period="Sep 2026, monthly averages" updated="Updated 2 Oct" tags={['sample']}><WeekCardBody body={wkPrices} /></WeekCard>
           <WeekCard kind="food" label="Food crisis" headline="Food crises" quiet={wkFoodQuiet} source="IPC" period="last analysis 3 Oct 2026" updated="Updated 21 Oct" tags={['sample']} href="#" go="Open the food crises map" />

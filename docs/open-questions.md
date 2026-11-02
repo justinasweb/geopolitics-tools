@@ -6,19 +6,22 @@ Decisions put off for later. Each says what the question is, what the site does 
 
 Made while building `/this-week` and its archive; each is easy to change.
 
-- **Live page and archive cover different seven days.** `/this-week` shows the seven days to the snapshot's day
-  (the spec's "last 7 days"); an archived page shows one ISO week, Monday to Sunday. The live page's "Each week is
-  kept at" names the ISO week its last day falls in, and the summary slot shows that ISO week's approved summary.
-  Alternative: make the live page the current ISO week so far (thin on Mondays).
-- **No new data.** A card is "quiet" when its source's data last changed before the seven days began. Conflict and
+- **Merging storms.** GDACS sometimes keeps one cyclone as two events. Tropical cyclones with the same GDACS name
+  whose dates meet (within two days) are merged; the two red India rows reported on the Preview (1 Nov and since
+  26 Oct) are merged only if GDACS gives them the same storm name. The data could not be checked from the build
+  session (no R2 keys, GDACS not reachable); if they are two storms they stay apart, and the earlier one now sits
+  under "Still active".
+- **"Rose" has no exact day.** An earlier alert is counted when GDACS's copy from Monday shows a lower level; the
+  card says it rose this week, not on which day.
+- **No new data.** A card is "quiet" when its source's data last changed before the week began. Conflict and
   prices change monthly, so their cards are quiet about three weeks in four and show only the date and latest month.
 - **The page refreshes on deploys.** The spec says it rebuilds after each data run; today pages refresh only on a
   deploy (see "New data reaches the site only on a deploy" in data-pipeline.md). Decide whether the data run should
   start a rebuild, say once a day when the snapshot changed.
 - **Archive timing.** A closed week is frozen by the first data run on the Monday or Tuesday after it; a week the
-  data run misses on both days is not archived. The first archived week is the one that closes after this is merged,
-  and sanctions changes are counted from the first daily copy of the lists the data run records, so until then the
-  sanctions card says there is no earlier copy to compare.
+  data run misses on both days is not archived. The first archived week is the one that closes after this is merged.
+  Sanctions changes and alerts that rose need a copy from the week's own Monday, so the first full week after merge
+  is the first with them.
 - **Prices card.** Natural gas (Europe), wheat, maize, rice, copper and gold from the Pink Sheet files the pipeline
   keeps; Brent is not among them (it comes from EIA). There is no prices page or map, so the card has no "Open" link.
 - **Sanctions.** US counts are the SDN list and the Entity List (the two US lists the site reads), not every list in

@@ -1,13 +1,14 @@
 // This week's archive, kept by the data run in the snapshots bucket next to the snapshots:
 //
 //   weeks/ledger.json          the archive's memory: which weeks are frozen, and per day the raw copies of the
-//                              three sanctions lists as they stood at that day's first run (for added and removed)
+//                              three sanctions lists (for entries added and removed) and of GDACS's alerts (for
+//                              alerts that rose to orange or red in the week) as they stood at that day's first run
 //   weeks/<yyyy>-<ww>.json     a closed ISO week's cards and feed, frozen once and never written again
 //   weeks/<yyyy>-<ww>.summary.json   the editor's approved summary for that week (a later task writes it)
 //
 // It runs at the start of each scheduled run, before any fetch, so what it records is the data as it stood when the
-// day (or the week) ended. The raw copies the ledger points at are the runner's own files in gt-raw, kept for good for
-// the sanctions lists (only hourly sources have a retention rule), so nothing is copied.
+// day (or the week) ended. The raw copies the ledger points at are the runner's own files in gt-raw, so nothing is
+// copied: the sanctions lists' are kept for good; GDACS's for 14 days, longer than a week is ever compared.
 //
 // A closed week is frozen on the Monday or Tuesday after it, from the last good copies at that moment, with the week
 // as its period; later revisions by a source never reach it. A week the data run missed on both days is not frozen.
@@ -24,11 +25,12 @@ import type { Stores } from './store.ts';
 export const LEDGER_KEY = 'weeks/ledger.json';
 export const weekKey = (id: string) => `weeks/${id}.json`;
 export const summaryKey = (id: string) => `weeks/${id}.summary.json`;
-/** Sanctions copies are recorded once a day and kept this long (the live page needs seven days; the freeze, one week). */
+/** Copies are recorded once a day and listed this long (a week only ever compares with its own Monday's). */
 export const BASELINE_DAYS = 45;
 /** A closed week is frozen only this many days after its Sunday at most. */
 export const FREEZE_DAYS = 2;
-export const LIST_SOURCES = CARD_SOURCES.sanctions;
+/** The sources whose copies are recorded each day: the sanctions lists and GDACS. */
+export const BASELINE_SOURCES = [...CARD_SOURCES.sanctions, ...CARD_SOURCES.disaster];
 
 type Rec = { key: string; sha256: string };
 export interface Ledger {
@@ -47,10 +49,10 @@ export async function loadLedger(stores: Stores): Promise<Ledger> {
   return { baselines: l.baselines ?? {}, weeks: l.weeks ?? [] };
 }
 
-/** The sanctions lists' current copies, from the runner's state. */
-export function listCopies(state: State): Record<string, Record<string, Rec>> {
+/** The current copies of the sources recorded each day, from the runner's state. */
+export function baselineCopies(state: State): Record<string, Record<string, Rec>> {
   const out: Record<string, Record<string, Rec>> = {};
-  for (const id of LIST_SOURCES) {
+  for (const id of BASELINE_SOURCES) {
     const st = state.sources[id];
     if (!st?.lastSuccess || !Object.keys(st.files ?? {}).length) continue;
     out[id] = Object.fromEntries(Object.entries(st.files).map(([n, f]) => [n, { key: f.key, sha256: f.sha256 }]));
@@ -92,7 +94,8 @@ export async function freezeWeek(stores: Stores, state: State, ledger: Ledger, i
       }
     }
     await unpack(stores, sources, join(dir, 'now'));
-    const b = baselineFor(ledger, period.from, period.to);
+    // Only the week's own Monday: a later copy would make the counts cover fewer days than the week.
+    const b = baselineFor(ledger, period.from, period.from);
     if (b) await unpack(stores, b.files, join(dir, 'base'));
     return computeWeek({
       raw: rawDir(join(dir, 'now')), period, sources: info, baseline: b ? { date: b.date, raw: rawDir(join(dir, 'base')) } : null,
@@ -116,7 +119,7 @@ export async function weeks(stores: Stores, now: Date, log: (...a: unknown[]) =>
   const report: WeeksReport = {};
   let dirty = false;
   if (!ledger.baselines[today]) {
-    const copies = listCopies(state);
+    const copies = baselineCopies(state);
     if (Object.keys(copies).length) {
       ledger.baselines[today] = copies;
       report.baseline = today;
@@ -150,7 +153,7 @@ export async function weeks(stores: Stores, now: Date, log: (...a: unknown[]) =>
     ledger.weeks.sort();
     await stores.snapshots.put(LEDGER_KEY, enc(ledger), 'application/json');
   }
-  log('weeks', report.baseline ? `recorded the sanctions lists for ${report.baseline}` : 'lists already recorded today',
+  log('weeks', report.baseline ? `recorded the day's copies for ${report.baseline}` : 'copies already recorded today',
     report.frozen ? `; froze week ${report.frozen}` : report.skipped ? `; did not freeze week ${report.skipped}` : '');
   return report;
 }

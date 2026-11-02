@@ -1,5 +1,5 @@
 // Dates for This week (/this-week) and its archive: ISO weeks (Monday to Sunday, UTC, numbered so week 1 holds the
-// year's first Thursday), the rolling seven days the live page covers, and the weeks' permanent ids ("2026-45").
+// year's first Thursday), the current week so far that the live page covers, and the weeks' permanent ids ("2026-45").
 // Pure functions on YYYY-MM-DD strings, shared by the site build, the data run that freezes closed weeks
 // (pipeline/lib/weeks.ts) and pipeline/pull.ts.
 
@@ -45,8 +45,9 @@ export const prevWeek = (id: string) => weekId(addDays(weekRange(id).from, -7));
 /** The last week that has closed by a moment: the week before the one it falls in. */
 export const lastClosedWeek = (now: string) => weekId(addDays(now.slice(0, 10), -7));
 
-/** The live page's period: the seven days to the day of the data, that day included. */
-export const rollingWeek = (to: string): Period => ({ from: addDays(to, -6), to: to.slice(0, 10) });
+/** The live page's period: the ISO week the data's day falls in, from its Monday to that day (included). When the
+ *  week closes, the archive keeps it Monday to Sunday under the same id. */
+export const currentWeek = (day: string): Period => ({ from: weekRange(weekId(day)).from, to: day.slice(0, 10) });
 
 /** Whether a day (or a moment) falls in a period, both ends included. */
 export const inPeriod = (d: string, p: Period) => d.slice(0, 10) >= p.from && d.slice(0, 10) <= p.to;

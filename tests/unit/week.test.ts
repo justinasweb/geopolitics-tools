@@ -2,11 +2,13 @@ import { describe, expect, it } from 'vitest';
 import type { Raw } from '../../src/adapters/core.ts';
 import { entries, changes } from '../../src/adapters/sanctions.ts';
 import { computeWeek, hasFigures, alertCount, type WeekInput } from '../../src/lib/week/model.ts';
-import { addDays, isWeekId, isoWeek, lastClosedWeek, prevWeek, rollingWeek, weekId, weekRange } from '../../src/lib/week/period.ts';
+import { addDays, currentWeek, isWeekId, isoWeek, lastClosedWeek, prevWeek, weekId, weekRange } from '../../src/lib/week/period.ts';
 import { day, months, pct, range, WEEK_TEXT } from '../../src/i18n/week.en.ts';
 
-// This week: ISO weeks and the live page's seven days, the cards worked out from raw files in the sources' own
-// formats, the no-new-data rule, sanctions entries added and removed, and the words.
+// This week: ISO weeks (the live page is the current week so far, the archive the closed week), the cards worked out
+// from raw files in the sources' own formats, new and still-active alerts, the no-new-data rule, sanctions entries
+// added and removed, every range on a page naming the same days, and the words.
+process.env.GT_DATA = 'sample';
 
 /** A snapshot's raw files in memory: { 'gdacs/events.json': … }. */
 function memRaw(files: Record<string, unknown>): Raw {
@@ -23,9 +25,9 @@ function memRaw(files: Record<string, unknown>): Raw {
   };
 }
 
-const gdacs = (id: number, level: string, type: string, iso3: string, from: string, to: string) => ({
+const gdacs = (id: number, level: string, type: string, iso3: string, from: string, to: string, name = `${type} ${id}`) => ({
   geometry: { coordinates: [120, 15] },
-  properties: { eventtype: type, eventid: id, name: `${type} ${id}`, alertlevel: level, iso3, fromdate: from, todate: to, affectedcountries: [{ iso3 }] },
+  properties: { eventtype: type, eventid: id, name, alertlevel: level, iso3, fromdate: from, todate: to, affectedcountries: [{ iso3 }] },
 });
 const ged = (id: number, date: string, gw: number) => ({ id, date_start: date, latitude: 1, longitude: 1, type_of_violence: 1, country_id: gw, adm_1: '', best: 1 });
 const pink = (cols: Record<string, string>, rows: Record<string, unknown>[]) => ({ columns: cols, data: rows });
@@ -34,9 +36,13 @@ const csl = (ids: [string, string][]) => ({ results: ids.map(([id, c]) => ({ id,
 const files = {
   'gdacs/events.json': {
     features: [
-      gdacs(1, 'Red', 'TC', 'PHL', '2026-10-21T04:10:00', '2026-10-23T00:00:00'),
-      gdacs(2, 'Orange', 'FL', 'NGA', '2026-10-10T00:00:00', '2026-10-17T00:00:00'), // lasted into the period
-      gdacs(3, 'Orange', 'EQ', 'PER', '2026-09-01T00:00:00', '2026-09-02T00:00:00'), // before it
+      gdacs(1, 'Red', 'TC', 'PHL', '2026-10-21T04:10:00', '2026-10-23T00:00:00'), // began in the week
+      gdacs(2, 'Orange', 'FL', 'NGA', '2026-10-10T00:00:00', '2026-10-23T00:00:00'), // orange before the week: still active
+      gdacs(5, 'Orange', 'FL', 'IND', '2026-10-15T00:00:00', '2026-10-22T00:00:00'), // green on Monday: rose in the week
+      // One storm as two GDACS events, the second from the day the first ended: merged, still active.
+      gdacs(6, 'Red', 'TC', 'IND', '2026-10-14T00:00:00', '2026-10-20T00:00:00', 'MONTHA-26'),
+      gdacs(7, 'Red', 'TC', 'BGD', '2026-10-20T00:00:00', '2026-10-22T00:00:00', 'MONTHA-26'),
+      gdacs(3, 'Orange', 'EQ', 'PER', '2026-09-01T00:00:00', '2026-09-02T00:00:00'), // ended before the week
       gdacs(4, 'Green', 'TC', 'VNM', '2026-10-20T00:00:00', '2026-10-21T00:00:00'), // not counted
     ],
   },
@@ -47,12 +53,23 @@ const files = {
   'pinksheet/cmo_gas_prices.json': pink({ NGAS_EUR: 'Natural gas, Europe' }, [{ period: '2026M09', NGAS_EUR: 11 }]),
   'csl/consolidated.json': csl([['a', 'RU'], ['b', 'RU'], ['c', 'IR']]),
 };
-const period = { from: '2026-10-16', to: '2026-10-22' };
+/** Week 43 of 2026 so far: Monday 19 to Thursday 22 October. */
+const period = currentWeek('2026-10-22');
 const fresh = { fetched: '2026-10-22T06:00:00Z', changed: '2026-10-21T06:00:00Z' };
 const input = (over: Partial<WeekInput> = {}): WeekInput => ({
   raw: memRaw(files), period, made: '2026-10-22T06:00:00Z',
   sources: { gdacs: fresh, ioda: fresh, ucdp: fresh, pinksheet: fresh, csl: fresh },
-  baseline: { date: '2026-10-16', raw: memRaw({ 'csl/consolidated.json': csl([['a', 'RU'], ['z', 'CN']]) }) },
+  baseline: {
+    date: '2026-10-19',
+    raw: memRaw({
+      'csl/consolidated.json': csl([['a', 'RU'], ['z', 'CN']]),
+      'gdacs/events.json': { features: [
+        gdacs(2, 'Orange', 'FL', 'NGA', '2026-10-10T00:00:00', '2026-10-18T00:00:00'),
+        gdacs(5, 'Green', 'FL', 'IND', '2026-10-15T00:00:00', '2026-10-18T00:00:00'),
+        gdacs(6, 'Red', 'TC', 'IND', '2026-10-14T00:00:00', '2026-10-18T00:00:00', 'MONTHA-26'),
+      ] },
+    }),
+  },
   ...over,
 });
 
@@ -70,11 +87,13 @@ describe('weeks and periods', () => {
     expect(isWeekId('2026-5')).toBe(false);
   });
 
-  it('closes a week on the Monday after it; the live page covers the seven days to the data day', () => {
+  it('closes a week on the Monday after it; the live page covers its ISO week from Monday to the data day', () => {
     expect(lastClosedWeek('2026-11-02T00:23:00Z')).toBe('2026-44');
     expect(lastClosedWeek('2026-11-08')).toBe('2026-44');
     expect(lastClosedWeek('2026-11-09')).toBe('2026-45');
-    expect(rollingWeek('2026-10-22')).toEqual({ from: '2026-10-16', to: '2026-10-22' });
+    expect(currentWeek('2026-10-22')).toEqual({ from: '2026-10-19', to: '2026-10-22' });
+    expect(currentWeek('2026-11-02T00:23:00Z')).toEqual({ from: '2026-11-02', to: '2026-11-02' });
+    expect(currentWeek('2026-01-01')).toEqual({ from: '2025-12-29', to: '2026-01-01' });
     expect(addDays('2026-03-01', -1)).toBe('2026-02-28');
   });
 });
@@ -89,9 +108,28 @@ describe('This week cards', () => {
     expect(without.cards.map((c) => c.kind)).toEqual(['disaster']);
   });
 
-  it('counts orange and red alerts that lasted into the period, as the disasters map does', () => {
-    expect(card('disaster').alerts.map((a) => [a.id, a.level, a.places])).toEqual([['TC1', 'red', ['PHL']], ['FL2', 'orange', ['NGA']]]);
+  it('counts alerts that began, or rose to orange or red, in the week, and lists the earlier ones still active apart', () => {
+    const d = card('disaster');
+    expect(d.alerts.map((a) => [a.id, a.level, a.places, a.rose ?? false])).toEqual([['TC1', 'red', ['PHL'], false], ['FL5', 'orange', ['IND'], true]]);
     expect(alertCount(w)).toBe(2);
+    expect(d.active.map((a) => [a.id, a.from])).toEqual([['TC6', '2026-10-14'], ['FL2', '2026-10-10']]);
+    expect(d.compared).toBe(true);
+  });
+
+  it('merges one named storm GDACS keeps as two events, but never generic names of other kinds', () => {
+    const tc = card('disaster').active.find((a) => a.type === 'TC')!;
+    expect(tc).toMatchObject({ id: 'TC6', level: 'red', from: '2026-10-14', places: ['IND', 'BGD'], merged: ['TC6', 'TC7'] });
+    const floods = computeWeek(input({ raw: memRaw({ ...files, 'gdacs/events.json': { features: [
+      gdacs(8, 'Orange', 'FL', 'IND', '2026-10-20T00:00:00', '2026-10-21T00:00:00', 'Flood in India'),
+      gdacs(9, 'Orange', 'FL', 'IND', '2026-10-21T00:00:00', '2026-10-22T00:00:00', 'Flood in India'),
+    ] } }) })).cards.find((c) => c.kind === 'disaster');
+    expect(alertCount({ ...w, cards: [floods!] })).toBe(2);
+  });
+
+  it('without a GDACS copy from Monday, counts only alerts that began in the week', () => {
+    const d = computeWeek(input({ baseline: null })).cards.find((c) => c.kind === 'disaster')!;
+    expect(d).toMatchObject({ compared: false });
+    expect((d as { alerts: { id: string }[] }).alerts.map((a) => a.id)).toEqual(['TC1']);
   });
 
   it('compares the latest conflict month with the one before', () => {
@@ -115,7 +153,7 @@ describe('This week cards', () => {
   });
 
   it('counts sanctions entries added and removed against the earlier copy, and where the added ones are', () => {
-    expect(card('sanctions')).toMatchObject({ since: '2026-10-16', lists: [{ list: 'US', added: 2, removed: 1 }], places: [{ place: 'IRN', n: 1 }, { place: 'RUS', n: 1 }] });
+    expect(card('sanctions')).toMatchObject({ since: '2026-10-19', lists: [{ list: 'US', added: 2, removed: 1 }], places: [{ place: 'IRN', n: 1 }, { place: 'RUS', n: 1 }] });
     const none = computeWeek(input({ baseline: null })).cards.find((c) => c.kind === 'sanctions')!;
     expect(none).toMatchObject({ since: null, lists: [] });
     expect(hasFigures(none)).toBe(false);
@@ -135,7 +173,8 @@ describe('This week cards', () => {
 
   it('mixes alerts, outages and releases in the feed, newest first; an archived week keeps its own days', () => {
     expect(w.feed.map((f) => [f.kind, f.date])).toEqual([
-      ['disaster', '2026-10-21'], ['conflict', '2026-10-21'], ['prices', '2026-10-21'], ['outage', '2026-10-20'], ['disaster', '2026-10-10'],
+      ['disaster', '2026-10-21'], ['conflict', '2026-10-21'], ['prices', '2026-10-21'], ['outage', '2026-10-20'], ['disaster', '2026-10-15'],
+      ['disaster', '2026-10-14'], ['disaster', '2026-10-10'],
     ]);
     expect(w.feed[0]).toMatchObject({ time: '04:10' });
     const week = computeWeek(input({ week: '2026-43', period: weekRange('2026-43'), feedFrom: weekRange('2026-43').from }));
@@ -173,14 +212,71 @@ describe('This week words', () => {
 
   it('states findings as directions and counts, never as verdicts', () => {
     const W = WEEK_TEXT;
-    expect(W.alertsHead(7, 1)).toBe('7 orange and red alerts, one of them red');
-    expect(W.alertsHead(0, 0)).toBe('No orange or red alerts');
-    expect(W.alertsHead(2, 2)).toBe('2 red alerts');
+    expect(W.alertsHead(7, 1)).toBe('7 new orange and red alerts, one of them red');
+    expect(W.alertsHead(0, 0)).toBe('No new orange or red alerts');
+    expect(W.alertsHead(2, 2)).toBe('2 new red alerts');
     expect(W.conflictHead('Ukraine', ['Sudan', 'Syria'], 'August', 'September 2026')).toBe('Most events in Ukraine; Sudan and Syria up on August');
     expect(W.pricesHead({ name: 'Gold', c: 0.05 }, { name: 'Natural gas, Europe', c: -0.03 }, 'September 2026')).toBe('Gold up 5% on the month, natural gas, Europe down 3%');
     expect(W.sanctionsHead(61, 7, ['US', 'EU', 'UK'])).toBe('61 entries added to US, EU and UK sanctions lists');
     expect(W.outagesHead(1)).toBe('1 national-scale internet outage');
     const all = JSON.stringify(Object.values(W).map(String)).toLowerCase();
     expect(all).not.toMatch(/famine|dominant|vulnerable|cause:/);
+  });
+});
+
+describe('This week pages name one range everywhere', () => {
+  /** A week's files with one alert, one outage and the lists, dated inside the given week. */
+  const weekFiles = (d: string) => ({
+    'gdacs/events.json': { features: [
+      gdacs(11, 'Red', 'TC', 'PHL', `${d}T04:00:00`, `${d}T08:00:00`),
+      // Fourteen countries: three shown, the rest behind "+ 11 more".
+      { ...gdacs(12, 'Orange', 'DR', 'ETH', `${d}T00:00:00`, `${d}T00:00:00`), properties: { ...gdacs(12, 'Orange', 'DR', 'ETH', `${d}T00:00:00`, `${d}T00:00:00`).properties,
+        affectedcountries: ['ETH', 'KEN', 'SOM', 'SDN', 'SSD', 'UGA', 'TZA', 'RWA', 'BDI', 'ERI', 'DJI', 'YEM', 'OMN', 'SAU'].map((iso3) => ({ iso3 })) } },
+    ] },
+    'ioda/outage_events.json': { data: [{ location: 'country/CU', start: Date.parse(`${d}T10:00:00Z`) / 1000, duration: 3600, score: 1 }] },
+    'csl/consolidated.json': csl([['a', 'RU']]),
+  });
+  const pageFor = async (made: string, week?: string) => {
+    const { weekPageFor } = await import('../../src/lib/week.ts');
+    const p = week ? weekRange(week) : currentWeek(made);
+    const src = { fetched: `${made}T06:00:00Z`, changed: `${made}T06:00:00Z` };
+    const w = computeWeek({
+      raw: memRaw(weekFiles(made)), period: p, made: `${made}T06:00:00Z`, week, feedFrom: week ? p.from : undefined,
+      sources: { gdacs: src, ioda: src, csl: src },
+      baseline: { date: p.from, raw: memRaw({ 'csl/consolidated.json': csl([]) }) },
+    });
+    return weekPageFor(w, week ?? null);
+  };
+  const check = (m: Awaited<ReturnType<typeof pageFor>>, long: string, short: string, id: string) => {
+    expect(m.title).toBe(m.id ? `Week ${Number(id.slice(5))}: ${long}` : `This week: ${long}`);
+    expect(m.rangeText).toBe(long);
+    expect(m.counts.map((c) => c.source)).toEqual([`GDACS · ${short}`]);
+    for (const c of m.cards) expect(c.period, c.kind).toBe(short);
+    expect(m.nav.keptAt).toBe(`/this-week/${id}`);
+  };
+
+  it('a week across two months: live Monday to today, then archived Monday to Sunday', { timeout: 30_000 }, async () => {
+    check(await pageFor('2026-10-31'), '26–31 October 2026', '26–31 Oct 2026', '2026-44');
+    check(await pageFor('2026-11-01'), '26 October – 1 November 2026', '26 Oct – 1 Nov 2026', '2026-44');
+    check(await pageFor('2026-10-31', '2026-44'), '26 October – 1 November 2026', '26 Oct – 1 Nov 2026', '2026-44');
+  });
+
+  it('ISO week 1 across a new year', async () => {
+    check(await pageFor('2026-01-02'), '29 December 2025 – 2 January 2026', '29 Dec 2025 – 2 Jan 2026', '2026-01');
+    check(await pageFor('2026-01-02', '2026-01'), '29 December 2025 – 4 January 2026', '29 Dec 2025 – 4 Jan 2026', '2026-01');
+  });
+
+  it('a Monday reads as one day', async () => {
+    check(await pageFor('2026-11-02'), '2 November 2026', '2 Nov 2026', '2026-45');
+  });
+
+  it('folds a long country list after three: "+ 11 more"', async () => {
+    const m = await pageFor('2026-10-31');
+    const body = m.cards.find((c) => c.kind === 'disaster')!.body as { rows: { what: string; places: string[]; more: { text: string; places: string } | null }[] };
+    const dr = body.rows.find((r) => r.what === 'Drought')!;
+    expect(dr.places).toEqual(['Ethiopia', 'Kenya', 'Somalia']);
+    expect(dr.more?.text).toBe('+ 11 more');
+    expect(dr.more?.places.split(', ')).toHaveLength(11);
+    expect(m.feed.find((f) => f.text.startsWith('Orange alert: drought'))?.text).toBe('Orange alert: drought, Ethiopia, Kenya, Somalia and 11 more');
   });
 });

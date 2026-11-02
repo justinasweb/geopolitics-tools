@@ -1,9 +1,9 @@
 // This week (/this-week) and its archive (/this-week/{yyyy}-{ww}), as the build sees them.
 //
-// The live page is worked out from the build's snapshot for the seven days to the snapshot's day (./week/model.ts).
+// The live page is worked out from the build's snapshot for the current ISO week, Monday to the snapshot's day (./week/model.ts).
 // Closed ISO weeks are frozen by the data run when the week closes (pipeline/lib/weeks.ts) and kept in R2 next to the
 // snapshots (gt-snapshots/weeks/); pipeline/pull.ts brings them to data/raw/weeks/, with the sanctions lists as they
-// stood at the start of the live page's seven days (data/raw/weeks/baseline/). An archived week is read as frozen and
+// stood on the week's Monday, with GDACS's alerts (data/raw/weeks/baseline/). An archived week is read as frozen and
 // never worked out again, so a source revising its data later does not change it.
 //
 // The AI summary ("The week in brief") is optional: data/raw/weeks/{id}.summary.json once the editor has approved
@@ -14,8 +14,8 @@ import { rawDir } from '../adapters/core.ts';
 import { data } from './data.ts';
 import { place } from './places.ts';
 import { viewHref, paths } from './routes.ts';
-import { computeWeek, alertCount, hasFigures, CARD_ORDER, type Card, type FeedItem, type WeekData } from './week/model.ts';
-import { isWeekId, lastClosedWeek, rollingWeek, weekId as isoWeekOf, weekNumber, weekRange } from './week/period.ts';
+import { computeWeek, alertCount, hasFigures, CARD_ORDER, type AlertItem, type Card, type FeedItem, type WeekData } from './week/model.ts';
+import { currentWeek, isWeekId, lastClosedWeek, weekId as isoWeekOf, weekNumber, weekRange } from './week/period.ts';
 import { WEEK_TEXT as W, PRICE_TEXT, day, month, months, pct, range } from '../i18n/week.en.ts';
 import type { Status } from './tags.ts';
 
@@ -25,14 +25,15 @@ const readJson = <T>(p: string): T | null => (existsSync(p) ? (JSON.parse(readFi
 const snapshotSources = () => Object.fromEntries(Object.entries(data().snapshot.sources).map(([k, s]) => [k, { fetched: s.fetched, changed: s.changed }]));
 
 let liveCache: WeekData | null | undefined;
-/** The live page's week: the seven days to the snapshot's day. Null when no source on the page is in the snapshot. */
+/** The live page's week: the current ISO week, Monday to the snapshot's day. Null when no source on the page is in
+ *  the snapshot. */
 export function liveWeek(): WeekData | null {
   if (liveCache !== undefined) return liveCache;
   const d = data();
-  const period = rollingWeek(d.snapshot.created.slice(0, 10));
+  const period = currentWeek(d.snapshot.created.slice(0, 10));
   const b = d.sample ? null : readJson<{ date: string }>(join(weeksDir(), 'baseline.json'));
-  // A copy from before the period began would count earlier changes as this week's, so it is not used.
-  const baseline = b && b.date >= period.from && b.date <= period.to ? { date: b.date, raw: rawDir(join(weeksDir(), 'baseline')) } : null;
+  // Only the copy from the week's own Monday: any other would make the sanctions and alert counts cover another range.
+  const baseline = b && b.date === period.from ? { date: b.date, raw: rawDir(join(weeksDir(), 'baseline')) } : null;
   const w = computeWeek({ raw: d.raw, period, sources: snapshotSources(), baseline, made: d.snapshot.created });
   return (liveCache = w.cards.length ? w : null);
 }
@@ -94,11 +95,21 @@ export const GLYPHS: Record<string, { cat: number; svg: string }> = {
 /** Where each card's "Open the … map" goes, when that page is live. */
 const MAPS: Record<string, string> = { disaster: 'disasters', conflict: 'conflict', outage: 'internet', sanctions: 'sanctions' };
 
-export interface AlertRow { level: 'red' | 'orange'; levelText: string; what: string; date: string }
+export interface AlertRow {
+  level: 'red' | 'orange';
+  levelText: string;
+  /** The kind ("Tropical cyclone") and the first countries; the rest fold behind `more`. */
+  what: string;
+  places: string[];
+  more: { text: string; label: string; places: string } | null;
+  date: string;
+  /** "Rose to red this week", for an earlier alert counted because it rose. */
+  note?: string;
+}
 export interface PairRow { name: string; a: number; b: number; aw: number; bw: number; value: string; change: string }
 export interface TableRow { head: string; sub?: string; cells: { text: string; num?: boolean; dir?: 'up' | 'down' | 'flat' }[] }
 export type Body =
-  | { type: 'alerts'; rows: AlertRow[]; notes: string[] }
+  | { type: 'alerts'; rows: AlertRow[]; empty?: string; active: AlertRow[]; activeTitle: string; activeNote: string; activeMore?: string; notes: string[] }
   | { type: 'pair'; label: string; rows: PairRow[]; keyA: string; keyB: string; key: string; notes: string[] }
   | { type: 'table'; cols: { text: string; num?: boolean }[]; rows: TableRow[]; notes: string[] }
   | { type: 'notes'; notes: string[] };
@@ -120,6 +131,17 @@ export interface CardView {
 
 /** "+17%", "−7%", "0%": the conflict pairs' change, in whole percent as the design shows it. */
 const wholeChange = (c: number) => { const v = Math.round(c * 100); return `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v)}%`; };
+/** An alert's row: the kind, the first countries, and the rest behind a "+ 11 more" disclosure. */
+function alertRow(a: AlertItem, date: string): AlertRow {
+  const names = a.places.map(nameOf);
+  const k = W.placesShown;
+  const rest = names.length > k ? names.slice(k) : [];
+  return {
+    level: a.level, levelText: W.level(a.level), what: W.hazard(a.type), places: rest.length ? names.slice(0, k) : names,
+    more: rest.length ? { text: W.morePlaces(rest.length), label: W.morePlacesLabel(rest.length), places: rest.join(', ') } : null,
+    date, ...(a.rose ? { note: W.rose(a.level) } : {}),
+  };
+}
 const dirOf = (c: number | null): 'up' | 'down' | 'flat' | undefined => (c === null ? undefined : c > 0.0005 ? 'up' : c < -0.0005 ? 'down' : 'flat');
 const fmt = (v: number) => new Intl.NumberFormat('en', { maximumFractionDigits: v >= 100 ? 0 : v >= 10 ? 1 : 2 }).format(v);
 
@@ -139,12 +161,18 @@ function cardView(c: Card, w: WeekData): CardView {
       if (c.quiet) return { ...quiet(), source: W.source.disaster };
       const red = c.alerts.filter((a) => a.level === 'red').length;
       const shown = c.alerts.slice(0, 7);
+      const active = c.active ?? [];
+      const activeShown = active.slice(0, 5);
       return {
         ...base, headline: W.alertsHead(c.alerts.length, red), source: W.source.disaster, period: periodText,
         body: {
           type: 'alerts',
-          rows: shown.map((a) => ({ level: a.level, levelText: W.level(a.level), what: W.alertWhat(a.type, a.places.map(nameOf)), date: a.from < p.from ? W.sinceDay(day(a.from)) : day(a.from) })),
-          notes: [c.alerts.length ? '' : W.alertsNone, c.alerts.length > shown.length ? W.alertsMore(c.alerts.length - shown.length) : ''].filter(Boolean),
+          rows: shown.map((a) => alertRow(a, day(a.from))),
+          active: activeShown.map((a) => alertRow(a, W.sinceDay(day(a.from)))),
+          activeTitle: W.activeTitle, activeNote: W.activeNote,
+          ...(c.alerts.length ? {} : { empty: W.alertsNone }),
+          notes: [c.alerts.length > shown.length ? W.alertsMore(c.alerts.length - shown.length) : '', c.compared === false ? W.alertsRuleNew : W.alertsRule].filter(Boolean),
+          ...(active.length > activeShown.length ? { activeMore: W.activeMore(active.length - activeShown.length) } : {}),
         },
       };
     }
@@ -202,11 +230,11 @@ function cardView(c: Card, w: WeekData): CardView {
       const removed = c.lists.reduce((s, l) => s + l.removed, 0);
       return {
         ...base, headline: W.sanctionsHead(added, removed, c.lists.map((l) => W.list(l.list).short)), source: W.source.sanctions,
-        period: range(c.since, p.to),
+        period: periodText,
         body: {
           type: 'table', cols: [{ text: W.sanctionsCols.list }, { text: W.sanctionsCols.added, num: true }, { text: W.sanctionsCols.removed, num: true }],
           rows: c.lists.map((l) => ({ head: W.list(l.list).name, sub: W.list(l.list).sub, cells: [{ text: String(l.added), num: true }, { text: String(l.removed), num: true }] })),
-          notes: [c.places.length ? W.sanctionsPlaces(c.places.map((x) => `${nameOf(x.place)} (${x.n})`)) : '', W.sanctionsEntry, c.since > p.from ? W.sanctionsSince(day(c.since, { year: true })) : ''].filter(Boolean),
+          notes: [c.places.length ? W.sanctionsPlaces(c.places.map((x) => `${nameOf(x.place)} (${x.n})`)) : '', W.sanctionsEntry].filter(Boolean),
         },
       };
     }
@@ -245,9 +273,13 @@ export interface WeekPageModel {
 /** The page for the live week (no id) or an archived one. */
 export function weekPage(id?: string): WeekPageModel | null {
   const w = id ? archivedWeeks().get(id) : liveWeek();
-  if (!w) return null;
+  return w ? weekPageFor(w, id ?? null) : null;
+}
+
+/** The page for one week's figures: the live week (id null) or an archived one. Every range on it (title, counts,
+ *  cards, the address it is kept at) comes from the week's own period. */
+export function weekPageFor(w: WeekData, weekOf: string | null): WeekPageModel {
   const p = w.period;
-  const weekOf = id ?? null;
   const longRange = range(p.from, p.to, { long: true });
   const path = paths.week(weekOf ?? undefined);
   const n = alertCount(w);
@@ -265,7 +297,7 @@ export function weekPage(id?: string): WeekPageModel | null {
     ...archive.map(opt),
   ];
   // The live page shows the summary of the ISO week its last day falls in, once the editor has approved one.
-  const summaryId = weekOf ?? isoWeekOf(p.to);
+  const summaryId = weekOf ?? isoWeekOf(p.from);
   const s = weekSummary(summaryId);
   const sr = weekRange(summaryId);
   const feed = w.feed.map(feedView);
@@ -282,7 +314,7 @@ export function weekPage(id?: string): WeekPageModel | null {
     nav: {
       prev: prevId ? { href: paths.week(prevId), label: W.week(weekNumber(prevId)), range: range(weekRange(prevId).from, weekRange(prevId).to, { year: false }) } : undefined,
       options: options.length > 1 ? options : [],
-      keptAt: paths.week(weekOf ?? isoWeekOf(p.to)),
+      keptAt: paths.week(weekOf ?? isoWeekOf(p.from)),
     },
     summary: s ? { ...s, week: weekNumber(summaryId), range: range(sr.from, sr.to, { long: true }) } : null,
   };

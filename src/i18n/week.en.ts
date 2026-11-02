@@ -20,6 +20,7 @@ export function range(from: string, to: string, o: { long?: boolean; year?: bool
   const [a, b] = [parts(from), parts(to)];
   const M = o.long ? LONG : MONTHS;
   const y = o.year === false ? '' : ` ${b.y}`;
+  if (from === to) return `${b.d} ${M[b.m]}${y}`;
   if (a.y !== b.y) return o.year === false ? `${a.d} ${M[a.m]} – ${b.d} ${M[b.m]}` : `${a.d} ${M[a.m]} ${a.y} – ${b.d} ${M[b.m]}${y}`;
   if (a.m !== b.m) return `${a.d} ${M[a.m]} – ${b.d} ${M[b.m]}${y}`;
   return `${a.d}–${b.d} ${M[b.m]}${y}`;
@@ -82,7 +83,7 @@ export const WEEK_TEXT = {
   cardsLabel: 'By source',
 
   counts: {
-    disaster: (x: number) => (x === 1 ? 'disaster alert, orange or red' : 'disaster alerts, orange and red'),
+    disaster: (x: number) => (x === 1 ? 'new disaster alert, orange or red' : 'new disaster alerts, orange and red'),
   },
 
   kind: { shipping: 'Shipping', disaster: 'Disaster', conflict: 'Conflict', prices: 'Prices', food: 'Food crisis', outage: 'Internet outage', sanctions: 'Sanctions' } as Record<string, string>,
@@ -97,7 +98,7 @@ export const WEEK_TEXT = {
     sanctions: (d: string) => `None of the three lists has changed since ${d}, so no entries were added or removed this week.`,
   } as Record<string, (d: string, m: string) => string>,
   noBaseline: 'No earlier copy to compare yet',
-  noBaselineText: 'Entries added and removed are counted against the lists as they stood at the start of the week. The first such copy is kept from the next data run.',
+  noBaselineText: 'Entries added and removed are counted against the lists as they stood on the week’s Monday. There is no copy from this Monday yet; one is kept every day from now on.',
 
   source: {
     disaster: 'GDACS',
@@ -118,18 +119,28 @@ export const WEEK_TEXT = {
 
   // Disasters
   alertsHead: (total: number, red: number) => {
-    if (!total) return 'No orange or red alerts';
-    if (red === total) return s(total, 'red alert', 'red alerts');
-    if (!red) return s(total, 'orange alert', 'orange alerts');
-    return `${n(total)} orange and red alerts, ${red === 1 ? 'one of them red' : `${n(red)} of them red`}`;
+    if (!total) return 'No new orange or red alerts';
+    if (red === total) return s(total, 'new red alert', 'new red alerts');
+    if (!red) return s(total, 'new orange alert', 'new orange alerts');
+    return `${n(total)} new orange and red alerts, ${red === 1 ? 'one of them red' : `${n(red)} of them red`}`;
   },
   level: (l: string) => LEVEL[l] ?? l,
   hazard: (k: string) => HAZARD[k] ?? k,
-  alertWhat: (kind: string, places: string[]) => `${HAZARD[kind] ?? kind}${places.length ? `, ${list(places)}` : ''}`,
+  /** Places shown in an alert before the rest fold away behind "+ 11 more". */
+  placesShown: 3,
+  morePlaces: (x: number) => `+ ${n(x)} more`,
+  morePlacesLabel: (x: number) => `(${x === 1 ? 'country' : 'countries'})`,
+  fewerPlaces: 'Show fewer',
   /** An alert that began before the period and lasted into it. */
   sinceDay: (d: string) => `since ${d}`,
+  rose: (level: string) => `Rose to ${(LEVEL[level] ?? level).toLowerCase()} this week`,
   alertsMore: (x: number) => `And ${s(x, 'more alert', 'more alerts')} on the disasters map.`,
-  alertsNone: 'GDACS issued no orange or red alerts that lasted into these seven days.',
+  alertsNone: 'GDACS issued no new orange or red alerts this week.',
+  alertsRule: 'Counted: alerts that began, or rose to orange or red, this week.',
+  alertsRuleNew: 'Counted: alerts that began this week. Earlier alerts that rose to orange or red this week are counted from the first week with a copy of GDACS’s alerts from its Monday.',
+  activeTitle: 'Still active',
+  activeNote: 'Began before this week and still active; not counted above.',
+  activeMore: (x: number) => `And ${s(x, 'more', 'more')} on the disasters map.`,
   alertsKey: 'Levels are GDACS’s own: red, the highest, is a solid triangle; orange is an outline.',
 
   // Conflict
@@ -152,7 +163,7 @@ export const WEEK_TEXT = {
   outagesHead: (x: number) => (x ? s(x, 'national-scale internet outage', 'national-scale internet outages') : 'No national-scale internet outages recorded'),
   outagesCols: { place: 'Country', began: 'Began', length: 'Length' },
   hours: (h: number) => (h < 1 ? 'under 1 h' : `${n(Math.round(h))} h`),
-  outagesNone: 'IODA recorded no country-level outages that began in these seven days.',
+  outagesNone: 'IODA recorded no country-level outages that began this week.',
   outagesNote: 'IODA reports when an outage began and how long it lasted, not why.',
   // Sanctions
   sanctionsHead: (added: number, removed: number, lists: string[]) => {
@@ -177,7 +188,7 @@ export const WEEK_TEXT = {
   feedMore: 'Show older items',
   feedEmpty: 'Nothing new from these sources in this period.',
   feedItem: {
-    disaster: (level: string, kind: string, places: string[]) => `${LEVEL[level] ?? level} alert: ${(HAZARD[kind] ?? kind).toLowerCase()}${places.length ? `, ${list(places)}` : ''}`,
+    disaster: (level: string, kind: string, places: string[]) => `${LEVEL[level] ?? level} alert: ${(HAZARD[kind] ?? kind).toLowerCase()}${places.length ? `, ${places.length > 3 ? `${places.slice(0, 3).join(', ')} and ${n(places.length - 3)} more` : list(places)}` : ''}`,
     outage: (place: string, hours: string) => `Internet outage began in ${place}, lasting ${hours}`,
     conflict: (m: string) => `Conflict events for ${m} published`,
     prices: (m: string) => `Commodity prices for ${m} published`,

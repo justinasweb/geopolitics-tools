@@ -203,18 +203,23 @@ it in the page, and `src/lib/overlap/render.ts` draws it, at build time for the 
 `src/templates/WeekPage.astro`, model `src/lib/week.ts` (build side) and `src/lib/week/model.ts` (figures, shared with
 the data run), words in `src/i18n/week.en.ts`. Built from data only.
 
-- **Period.** The live page covers the seven days to the snapshot's day; an archived page one ISO week, frozen by
-  the data run when it closed (see data-pipeline.md, "This week's archive") and read as frozen.
-- **Counts.** Orange and red GDACS alerts that lasted into the period (the disasters map's rule). The PortWatch and
-  IPC counts are left out while those sources are hidden; the row works with one to three counts.
+- **Period.** An ISO week, Monday to Sunday (UTC). The live page covers the current week from its Monday to the
+  snapshot's day; when the week closes the data run freezes it at `/this-week/{yyyy}-{ww}` with the whole week (see
+  data-pipeline.md, "This week's archive"), read as frozen. The title, the counts, the cards and "Each week is kept
+  at" all name that range; conflict and prices also give the month their figures are for.
+- **Counts.** New orange and red GDACS alerts: those that began in the week, or began earlier and rose to orange or
+  red in it (their level in GDACS's copy from the week's Monday was lower). Alerts still active from earlier are
+  listed under "Still active" with their start dates and not counted. A named tropical cyclone that GDACS keeps as
+  two events with dates that meet is merged into one; other kinds are never merged. The PortWatch and IPC counts are
+  left out while those sources are hidden; the row works with one to three counts.
 - **Cards**, in this order, each only when its source is in the snapshot: disasters (GDACS, up to seven alerts, level
-  as a word and a solid or outline triangle), conflict (UCDP events by country, latest month against the one before,
+  as a word and a solid or outline triangle, the first three countries and "+ 11 more" as a disclosure), conflict (UCDP events by country, latest month against the one before,
   Preliminary when the month comes from a Candidate release), prices (six Pink Sheet series, month and year changes),
   internet outages (IODA, began in the period, no cause) and sanctions (entries added and removed per list against
-  the lists at the start of the period). Shipping and food crises wait on PortWatch and IPC. Every card gives its
+  the lists on the week's Monday). Shipping and food crises wait on PortWatch and IPC. Every card gives its
   source, period and when the site last fetched it, and links to its map where there is one.
 - **No new data.** When a source's data last changed before the period began, its card shows "No new data since
-  {date}" and no figures.
+  {date}" and no figures, its box right under the headline.
 - **Latest feed.** Orange and red alerts, outages, and the conflict and price releases (dated when the site's copy
   changed), newest first over 30 days (an archived week: its own days), filtered by kind; ten shown, then "Show older
   items" (`src/scripts/week.ts`). Without scripts every item shows.

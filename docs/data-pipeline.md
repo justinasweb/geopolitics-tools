@@ -53,7 +53,7 @@ The pipeline uses only Node's built-in modules: the hourly job installs nothing.
 | `gt-snapshots` | `snapshots/<run>.json` | A snapshot: for each source, its files (key, SHA-256, size), when fetched, latest period, credit and licence |
 | `gt-snapshots` | `latest.json` | The newest snapshot; the site build uses it |
 | `gt-snapshots` | `status.json` | Public summary per source (ok, stale, last success, last error), for the Sources page and the staleness check |
-| `gt-snapshots` | `weeks/ledger.json` | This week's archive: the frozen weeks, and per day the raw copies of the three sanctions lists at that day's first run (45 days) |
+| `gt-snapshots` | `weeks/ledger.json` | This week's archive: the frozen weeks, and per day the raw copies of the three sanctions lists and of GDACS's alerts at that day's first run (45 days) |
 | `gt-snapshots` | `weeks/<yyyy>-<ww>.json` | A closed ISO week's This week cards and feed, frozen once and never written again |
 | `gt-snapshots` | `weeks/<yyyy>-<ww>.summary.json` | The editor's approved AI summary for that week (written by a later task) |
 
@@ -70,15 +70,18 @@ back separately, from Cloudflare's deployments.
 Each closed ISO week is kept at `/this-week/{yyyy}-{ww}` with the cards as they stood when it closed
 (`pipeline/lib/weeks.ts`). At the start of every scheduled run (not `--only`), before any fetch:
 
-1. **Sanctions copies.** On the day's first run it records which raw copies of the US, EU and UK lists are current
-   (keys in `weeks/ledger.json`, no files copied: the lists' raw copies are kept for good). Entries added and removed
-   are counted by comparing a later copy with one of these, by each list's own ids.
+1. **Daily copies.** On the day's first run it records which raw copies of the US, EU and UK lists and of GDACS's
+   alerts are current (keys in `weeks/ledger.json`, no files copied: the lists' raw copies are kept for good,
+   GDACS's for 14 days). A week compares with its own Monday's copies: entries added and removed, by each list's own
+   ids, and alerts that were lower on Monday and rose to orange or red in the week.
 2. **Freezing.** On the Monday or Tuesday after a week closes, it unpacks the last good copies of the page's sources,
    works the week out (`src/lib/week/model.ts`, the same code the live page uses) and writes `weeks/<id>.json` if it is
    not there yet. It never overwrites one, so revisions by a source later do not change an archived week.
 
 A failure here is a warning in the run log and never holds up the data. `pipeline/pull.ts` brings the frozen weeks,
-their summaries and the sanctions copy from the start of the live page's seven days to `data/raw/weeks/`.
+their summaries and the current week's Monday copies to `data/raw/weeks/`. Without a copy from that Monday (the
+first week after this started), the sanctions card says there is nothing to compare yet and the disasters card counts
+only alerts that began in the week.
 
 **Why R2 and not files committed by the data run.** The archive sits beside the snapshots it is made from, in the
 bucket the build already pulls, written by the same hourly job with the same token. Committing from the data run

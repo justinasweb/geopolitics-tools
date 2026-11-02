@@ -52,7 +52,8 @@
 .gt-card__foot .gt-source { gap: 2px 8px; margin: 0; }
 .gt a.gt-card__go { font: 600 15px/20px var(--sans); color: var(--brand); text-decoration: none; min-height: 32px; display: inline-flex; align-items: center; gap: 6px; justify-self: start; }
 .gt a.gt-card__go:hover, .gt a.gt-card__go.is-hover { text-decoration: underline; }
-.gt-card--empty .gt-card__body { align-content: center; }
+/* The no-new-data state sits right under the headline, not centred in a card stretched to its row. */
+.gt-card--empty .gt-card__body { align-content: start; }
 .gt-ref { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; font: 400 14px/20px var(--sans); }
 .gt-ref li { display: grid; grid-template-columns: minmax(0, 8.6em) minmax(0, 1fr) 3.4em; gap: 4px 10px; align-items: center; min-height: 26px; }
 .gt-ref__name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -100,6 +101,19 @@
 /* A list cut to its first items by the script; without it every item shows. */
 .gt-feed li[hidden] { display: none; }
 .gt-alerts__lvl--orange svg { fill: none; }
+.gt-alerts__what { min-width: 0; overflow-wrap: anywhere; }
+.gt-alerts__more { display: inline; margin-left: 6px; }
+.gt-alerts__more summary { display: inline; cursor: pointer; list-style: none; color: var(--brand); font-weight: 600; white-space: nowrap; }
+.gt-alerts__more summary::-webkit-details-marker { display: none; }
+.gt-alerts__more summary:hover { text-decoration: underline; }
+.gt-alerts__more summary:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.gt-alerts__more .gt-alerts__fewer, .gt-alerts__more[open] .gt-alerts__count { display: none; }
+.gt-alerts__more[open] .gt-alerts__fewer { display: inline; }
+.gt-alerts__more[open] > span { display: block; }
+.gt-alerts__note { display: block; font: 400 13px/18px var(--sans); color: var(--ink-muted); }
+.gt-alerts__still { display: grid; gap: 4px; margin-top: 6px; }
+.gt-alerts__still .gt-label, .gt-alerts__still .gt-caption { margin: 0; }
+.gt-alerts__still .gt-alerts { opacity: 1; }
 .gt-card__body .gt-caption { margin: 0; }
 .gt-card__body .gt-tablewrap { max-height: none; border-top: 0; }
 .gt-week__intro .gt-title, .gt-week__intro .gt-lede { margin: 0; }
