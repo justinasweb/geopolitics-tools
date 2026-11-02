@@ -1,0 +1,71 @@
+{
+  "id": "page:privacy",
+  "kind": "page",
+  "subject": "Privacy",
+  "countries": [],
+  "names": [
+    "claude-sonnet-5-5",
+    "CC BY 4.0",
+    "CC BY 4.0, with UNHCR’s supplemental terms",
+    "CC BY 4.0, with FAO’s additional terms",
+    "UN Comtrade terms: a free, not-for-profit visualisation may show its figures; no bulk redistribution",
+    "Public domain (US government work); EIA asks to be credited",
+    "CC BY-NC-SA 3.0 IGO"
+  ],
+  "generated": "src/lib/ai/page-facts.ts",
+  "facts": [
+    {
+      "id": "fathom",
+      "statement": "Visits are counted with Fathom Analytics (site DNBPMMDA), which sets no cookies and stores no personal data; it counts pages read, referring sites, and country, browser and device type as totals.",
+      "source": "Fathom Analytics",
+      "link": "https://usefathom.com/legal/compliance",
+      "date": "2026-11-02",
+      "unverified": true,
+      "note": "Check Fathom’s compliance page says this for the plan used"
+    },
+    {
+      "id": "fathom-domain",
+      "statement": "Fathom counts visits on geopolitics.tools only, never on previews.",
+      "source": "geopolitics.tools code (src/lib/site.ts)",
+      "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/lib/site.ts",
+      "date": "2026-11-02"
+    },
+    {
+      "id": "cloudflare",
+      "statement": "The site is served by Cloudflare, whose servers see each visitor’s IP address and browser details to deliver pages and may keep them briefly in logs.",
+      "source": "Cloudflare",
+      "link": "https://www.cloudflare.com/privacypolicy/",
+      "date": "2026-11-02",
+      "unverified": true,
+      "note": "Check how long Cloudflare keeps logs for this plan"
+    },
+    {
+      "id": "share-links",
+      "statement": "The share buttons are plain links to X and Telegram; nothing loads from those sites until a reader clicks.",
+      "source": "geopolitics.tools code (src/components/ShareRow.astro)",
+      "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/components/ShareRow.astro",
+      "date": "2026-11-02"
+    },
+    {
+      "id": "no-third-party",
+      "statement": "The site sets no cookies and loads no third-party scripts besides Fathom.",
+      "source": "geopolitics.tools code (docs/deploy.md)",
+      "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/docs/deploy.md",
+      "date": "2026-11-02"
+    },
+    {
+      "id": "owner-logs",
+      "statement": "For the owner to fill in: \"[Owner to fill in: how long logs are kept, and Cloudflare’s role as processor.]\"",
+      "source": "geopolitics.tools code (src/content/pages/privacy.md)",
+      "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/content/pages/privacy.md",
+      "date": "2026-11-02"
+    },
+    {
+      "id": "owner-entity",
+      "statement": "For the owner to fill in: \"[Owner to fill in: who to contact about privacy, and the legal entity responsible for the site.]\"",
+      "source": "geopolitics.tools code (src/content/pages/privacy.md)",
+      "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/content/pages/privacy.md",
+      "date": "2026-11-02"
+    }
+  ]
+}

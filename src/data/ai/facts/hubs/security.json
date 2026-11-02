@@ -1,0 +1,44 @@
+{
+  "id": "hub:security",
+  "kind": "hub",
+  "subject": "Security",
+  "countries": [],
+  "generated": "src/lib/ai/page-facts.ts",
+  "facts": [
+    {
+      "id": "conflict",
+      "statement": "Deaths in organised violence by month and over 12 months, from UCDP.",
+      "value": 12,
+      "unit": "months",
+      "source": "geopolitics.tools code (src/data/views.ts)",
+      "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/views.ts",
+      "date": "2026-11-02"
+    },
+    {
+      "id": "refugees",
+      "statement": "Refugees by country of origin and host, and people displaced inside their country, from UNHCR.",
+      "source": "geopolitics.tools code (src/data/views.ts)",
+      "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/views.ts",
+      "date": "2026-11-02"
+    },
+    {
+      "id": "arms",
+      "statement": "Major arms exported and imported as five-year totals, from SIPRI.",
+      "value": 5,
+      "unit": "years",
+      "unitAliases": [
+        "five-year"
+      ],
+      "source": "geopolitics.tools code (src/data/views.ts)",
+      "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/views.ts",
+      "date": "2026-11-02"
+    },
+    {
+      "id": "rule",
+      "statement": "Each map shows one source’s own figures for each country, with the year or period it covers.",
+      "source": "geopolitics.tools code (docs/page-engine.md)",
+      "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/docs/page-engine.md",
+      "date": "2026-11-02"
+    }
+  ]
+}

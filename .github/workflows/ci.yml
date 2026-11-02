@@ -48,6 +48,11 @@ jobs:
       - name: Adapters on the latest data
         if: steps.data.outcome == 'success'
         run: node pipeline/adapter-check.ts data/raw
+      # Every AI-drafted text, draft or approved, against its facts file (docs/ai-drafting.md): a pasted draft that
+      # does not pass, or a text whose facts changed, shows red here.
+      - name: AI texts against their facts
+        if: steps.data.outcome == 'success'
+        run: npm run ai:check -- --all
       - name: Build
         run: ${{ steps.data.outcome == 'success' && 'npm run build' || 'npm run build:sample' }}
       - uses: actions/upload-artifact@v7

@@ -1,7 +1,7 @@
 ---
 // A disputed river (/water/rivers/{river}): the countries in the dispute shaded by water stress, with the river's
 // large dams as marks; the panel gives each country's figures and dams. Below: the countries and the dams as tables.
-// The river's summary is an AI draft approved by the owner (development plan, D14) and waits for phase 7.
+// The river's summary is an AI draft, shown only once the owner approved it (src/lib/ai/texts.ts); nothing otherwise.
 import Page from '../layouts/Page.astro';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
 import SourceLine from '../components/SourceLine.astro';
@@ -9,6 +9,7 @@ import Notice from '../components/Notice.astro';
 import ShareRow from '../components/ShareRow.astro';
 import MapStage from '../components/MapStage.astro';
 import MapControls from '../components/MapControls.astro';
+import AiText from '../components/AiText.astro';
 import '../styles/atlas/mapview.css';
 import '../styles/atlas/bars.css';
 import '../styles/atlas/keyfigure.css';
@@ -24,6 +25,7 @@ import { place } from '../lib/places';
 import { countryHref, live, route, hubCrumb } from '../lib/routes';
 import { layerPath } from '../lib/map/layers';
 import { breadcrumbs } from '../lib/structured';
+import { publishedText } from '../lib/ai/texts';
 
 interface Props { id: string }
 const { id } = Astro.props;
@@ -39,6 +41,7 @@ const title = R.title(name);
 const nameOf = (x: string) => place(x)?.name ?? x;
 const countries = list(p.river.countries.map(nameOf));
 const answer = riverLede(id);
+const summary = publishedText(`river:${id}`);
 const crumbs: { label: string; href?: string }[] = [hubCrumb('climate'), { label: R.section, href: live('view:water:waterstress')?.path }, { label: name }];
 const picker = riverIds().filter((r) => live(key(r))).map((r) => ({ label: R.name[r] ?? r, href: live(key(r))!.path, current: r === id }));
 const source = R.source;
@@ -57,6 +60,7 @@ const largest = p.dams[0];
     <h1 class="gt-title gt-mvhead__t">{title} <span class="gt-mvhead__sub">{R.sub}</span></h1>
     {answer && <p class="gt-lede gt-mvhead__a">{answer}</p>}
     <SourceLine source={creditOf(ws)} parts={[String(ws.year)]} updated={updated} />
+    {summary && <AiText text={summary} />}
   </div>
 
   <MapControls pickerLabel={R.pickerLabel} picker={picker} pickerSelect years={[ws.year]} year={ws.year} />

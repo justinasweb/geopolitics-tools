@@ -1,0 +1,157 @@
+{
+  "id": "history:quad",
+  "kind": "history",
+  "subject": "the Quad",
+  "countries": [
+    "AUS",
+    "IND",
+    "JPN",
+    "USA"
+  ],
+  "names": [
+    "Quad"
+  ],
+  "generated": "by hand, from src/data/bloc-history.csv and the events in src/i18n/blocs.en.ts",
+  "facts": [
+    {
+      "id": "join-IND-2007",
+      "statement": "India was a founding member of the Quad, in 2007.",
+      "period": "2007",
+      "places": [
+        "IND"
+      ],
+      "source": "Australian Government, Department of Foreign Affairs and Trade, The Quad",
+      "link": "https://www.dfat.gov.au/international-relations/regional-architecture/quad",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-JPN-2007",
+      "statement": "Japan was a founding member of the Quad, in 2007.",
+      "period": "2007",
+      "places": [
+        "JPN"
+      ],
+      "source": "Australian Government, Department of Foreign Affairs and Trade, The Quad",
+      "link": "https://www.dfat.gov.au/international-relations/regional-architecture/quad",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-USA-2007",
+      "statement": "United States was a founding member of the Quad, in 2007.",
+      "period": "2007",
+      "places": [
+        "USA"
+      ],
+      "source": "Australian Government, Department of Foreign Affairs and Trade, The Quad",
+      "link": "https://www.dfat.gov.au/international-relations/regional-architecture/quad",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-AUS-2007",
+      "statement": "Australia was a founding member of the Quad, in 2007.",
+      "period": "2007",
+      "places": [
+        "AUS"
+      ],
+      "source": "Australian Government, Department of Foreign Affairs and Trade, The Quad",
+      "link": "https://www.dfat.gov.au/international-relations/regional-architecture/quad",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "left-AUS-2008",
+      "statement": "Australia left the Quad in 2008.",
+      "period": "2008",
+      "places": [
+        "AUS"
+      ],
+      "source": "Australian Government, Department of Foreign Affairs and Trade, The Quad",
+      "link": "https://www.dfat.gov.au/international-relations/regional-architecture/quad",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-AUS-2017",
+      "statement": "Australia joined the Quad in 2017.",
+      "period": "2017",
+      "places": [
+        "AUS"
+      ],
+      "source": "Australian Government, Department of Foreign Affairs and Trade, The Quad",
+      "link": "https://www.dfat.gov.au/international-relations/regional-architecture/quad",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "note-2008",
+      "statement": "Australia withdrew in 2008, and the four countries stopped meeting.",
+      "period": "2008",
+      "places": [
+        "AUS"
+      ],
+      "source": "Australian Government, Department of Foreign Affairs and Trade, The Quad",
+      "link": "https://www.dfat.gov.au/international-relations/regional-architecture/quad",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "note-2017",
+      "statement": "The four countries revived the dialogue in 2017.",
+      "period": "2017",
+      "places": [
+        "AUS",
+        "IND",
+        "JPN",
+        "USA"
+      ],
+      "source": "Australian Government, Department of Foreign Affairs and Trade, The Quad",
+      "link": "https://www.dfat.gov.au/international-relations/regional-architecture/quad",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "founding-members",
+      "statement": "Members of the Quad at its founding.",
+      "value": 4,
+      "unit": "members",
+      "unitAliases": [
+        "countries",
+        "founding members",
+        "founders"
+      ],
+      "period": "2007",
+      "source": "Australian Government, Department of Foreign Affairs and Trade, The Quad",
+      "link": "https://www.dfat.gov.au/international-relations/regional-architecture/quad",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Count of the founding rows in src/data/bloc-history.csv; check against the link."
+    },
+    {
+      "id": "members-2026",
+      "statement": "Members of the Quad in 2026, as the membership table was checked on 21 October 2026.",
+      "value": 4,
+      "unit": "members",
+      "unitAliases": [
+        "countries",
+        "member countries"
+      ],
+      "period": "2026",
+      "source": "Australian Government, Department of Foreign Affairs and Trade, The Quad",
+      "link": "https://www.dfat.gov.au/international-relations/regional-architecture/quad",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Count of the open rows in src/data/bloc-history.csv; check against the link."
+    }
+  ]
+}

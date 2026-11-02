@@ -1,0 +1,218 @@
+{
+  "id": "history:sco",
+  "kind": "history",
+  "subject": "the Shanghai Cooperation Organisation",
+  "countries": [
+    "BLR",
+    "CHN",
+    "IND",
+    "IRN",
+    "KAZ",
+    "KGZ",
+    "PAK",
+    "RUS",
+    "TJK",
+    "UZB"
+  ],
+  "names": [
+    "Shanghai Five",
+    "Shanghai Cooperation Organisation",
+    "SCO"
+  ],
+  "generated": "by hand, from src/data/bloc-history.csv and the events in src/i18n/blocs.en.ts",
+  "facts": [
+    {
+      "id": "join-CHN-1996",
+      "statement": "China was a founding member of the SCO, in 1996.",
+      "period": "1996",
+      "places": [
+        "CHN"
+      ],
+      "source": "Shanghai Cooperation Organisation, General information",
+      "link": "https://eng.sectsco.org/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-KAZ-1996",
+      "statement": "Kazakhstan was a founding member of the SCO, in 1996.",
+      "period": "1996",
+      "places": [
+        "KAZ"
+      ],
+      "source": "Shanghai Cooperation Organisation, General information",
+      "link": "https://eng.sectsco.org/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-KGZ-1996",
+      "statement": "Kyrgyzstan was a founding member of the SCO, in 1996.",
+      "period": "1996",
+      "places": [
+        "KGZ"
+      ],
+      "source": "Shanghai Cooperation Organisation, General information",
+      "link": "https://eng.sectsco.org/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-RUS-1996",
+      "statement": "Russia was a founding member of the SCO, in 1996.",
+      "period": "1996",
+      "places": [
+        "RUS"
+      ],
+      "source": "Shanghai Cooperation Organisation, General information",
+      "link": "https://eng.sectsco.org/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-TJK-1996",
+      "statement": "Tajikistan was a founding member of the SCO, in 1996.",
+      "period": "1996",
+      "places": [
+        "TJK"
+      ],
+      "source": "Shanghai Cooperation Organisation, General information",
+      "link": "https://eng.sectsco.org/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-UZB-2001",
+      "statement": "Uzbekistan joined the SCO in 2001.",
+      "period": "2001",
+      "places": [
+        "UZB"
+      ],
+      "source": "Shanghai Cooperation Organisation, General information",
+      "link": "https://eng.sectsco.org/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-IND-2017",
+      "statement": "India joined the SCO in 2017.",
+      "period": "2017",
+      "places": [
+        "IND"
+      ],
+      "source": "Shanghai Cooperation Organisation, General information",
+      "link": "https://eng.sectsco.org/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-PAK-2017",
+      "statement": "Pakistan joined the SCO in 2017.",
+      "period": "2017",
+      "places": [
+        "PAK"
+      ],
+      "source": "Shanghai Cooperation Organisation, General information",
+      "link": "https://eng.sectsco.org/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-IRN-2023",
+      "statement": "Iran joined the SCO in 2023.",
+      "period": "2023",
+      "places": [
+        "IRN"
+      ],
+      "source": "Shanghai Cooperation Organisation, General information",
+      "link": "https://eng.sectsco.org/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-BLR-2024",
+      "statement": "Belarus joined the SCO in 2024.",
+      "period": "2024",
+      "places": [
+        "BLR"
+      ],
+      "source": "Shanghai Cooperation Organisation, General information",
+      "link": "https://eng.sectsco.org/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "note-1996",
+      "statement": "China, Kazakhstan, Kyrgyzstan, Russia and Tajikistan first met as the Shanghai Five in 1996.",
+      "period": "1996",
+      "places": [
+        "CHN",
+        "KAZ",
+        "KGZ",
+        "RUS",
+        "TJK"
+      ],
+      "source": "Shanghai Cooperation Organisation, General information",
+      "link": "https://eng.sectsco.org/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "note-2001",
+      "statement": "The Shanghai Cooperation Organisation was founded in 2001, with Uzbekistan joining.",
+      "period": "2001",
+      "places": [
+        "UZB"
+      ],
+      "source": "Shanghai Cooperation Organisation, General information",
+      "link": "https://eng.sectsco.org/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "founding-members",
+      "statement": "Members of the SCO at its founding.",
+      "value": 5,
+      "unit": "members",
+      "unitAliases": [
+        "countries",
+        "founding members",
+        "founders"
+      ],
+      "period": "1996",
+      "source": "Shanghai Cooperation Organisation, General information",
+      "link": "https://eng.sectsco.org/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Count of the founding rows in src/data/bloc-history.csv; check against the link."
+    },
+    {
+      "id": "members-2026",
+      "statement": "Members of the SCO in 2026, as the membership table was checked on 21 October 2026.",
+      "value": 10,
+      "unit": "members",
+      "unitAliases": [
+        "countries",
+        "member countries"
+      ],
+      "period": "2026",
+      "source": "Shanghai Cooperation Organisation, General information",
+      "link": "https://eng.sectsco.org/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Count of the open rows in src/data/bloc-history.csv; check against the link."
+    }
+  ]
+}

@@ -1,0 +1,85 @@
+{
+  "id": "river:amu-darya",
+  "kind": "river",
+  "subject": "the Amu Darya",
+  "countries": [
+    "AFG",
+    "TJK",
+    "UZB",
+    "TKM"
+  ],
+  "names": [
+    "Amu Darya",
+    "Vakhsh",
+    "Panj",
+    "Qosh Tepa",
+    "Rogun",
+    "Interstate Commission for Water Coordination",
+    "ICWC"
+  ],
+  "generated": "by hand",
+  "facts": [
+    {
+      "id": "almaty-1992",
+      "statement": "Kazakhstan, Kyrgyzstan, Tajikistan, Turkmenistan and Uzbekistan agreed in Almaty on 18 February 1992 to keep the water allocations already in force and set up the Interstate Commission for Water Coordination; Afghanistan is not a party.",
+      "period": "1992-02-18",
+      "places": [
+        "KAZ",
+        "KGZ",
+        "TJK",
+        "TKM",
+        "UZB",
+        "AFG"
+      ],
+      "source": "Interstate Commission for Water Coordination of Central Asia",
+      "link": "https://www.icwc-aral.uz/",
+      "date": "1992-02-18",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check it against the link."
+    },
+    {
+      "id": "rogun-2018",
+      "statement": "Tajikistan started the first unit of the Rogun hydropower plant on the Vakhsh in November 2018.",
+      "period": "2018-11",
+      "places": [
+        "TJK"
+      ],
+      "source": "Government of Tajikistan, President’s office",
+      "link": "https://www.president.tj/",
+      "date": "2018-11",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check it against the link."
+    },
+    {
+      "id": "qosh-tepa-2022",
+      "statement": "Afghanistan’s authorities began building the Qosh Tepa canal from the Amu Darya in March 2022.",
+      "period": "2022-03",
+      "places": [
+        "AFG"
+      ],
+      "source": "FAO AQUASTAT, Afghanistan",
+      "link": "https://www.fao.org/aquastat/en/",
+      "date": "2022-03",
+      "unverified": true,
+      "note": "No official Afghan source was found; check against a primary source, or keep it unverified."
+    },
+    {
+      "id": "qosh-tepa-length",
+      "statement": "The planned length of the Qosh Tepa canal.",
+      "value": 285,
+      "unit": "kilometres",
+      "unitAliases": [
+        "km"
+      ],
+      "period": "2022",
+      "places": [
+        "AFG"
+      ],
+      "source": "FAO AQUASTAT, Afghanistan",
+      "link": "https://www.fao.org/aquastat/en/",
+      "date": "2022",
+      "unverified": true,
+      "note": "No official source was found for the length; check it."
+    }
+  ]
+}

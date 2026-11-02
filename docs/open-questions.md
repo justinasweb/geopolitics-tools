@@ -2,6 +2,32 @@
 
 Decisions put off for later. Each says what the question is, what the site does now, and the options seen so far.
 
+## AI drafting: choices to confirm (raised 2 Nov 2026)
+
+Made while building the drafting pipeline (docs/ai-drafting.md); each is easy to change.
+
+- **Facts to verify before anything can be drafted.** Every alliance history and river fact is marked unverified:
+  the official sites (nato.int and the others) could not be reached from the build session. Each fact has its
+  official link and a note. A web search confirmed that the main cited pages exist, not what they say. Dates come
+  from `src/data/bloc-history.csv` and `HISTORY_EVENTS`; a few links point to a site's home page because no exact
+  page could be checked (ASEAN's Timor-Leste declaration, Ethiopia's Prime Minister's Office, Egypt's State
+  Information Service, Xinhua, the MEA). Privacy and Methodology also wait on the Fathom, Cloudflare and SIPRI facts
+  and the six territory notes.
+- **OPEC and the UAE.** One secondary source found while researching says the United Arab Emirates left OPEC in May
+  2026. `src/data/blocs.csv` and `bloc-history.csv` still have it as a member (checked 21 Oct 2026). Check opec.org
+  before drafting the OPEC note.
+- **Stale texts are hidden.** A short text whose facts changed disappears until it is redrafted; a long page shows
+  the draft banner again. For dossiers this happens whenever a figure they cite gets a new year. The alternative is
+  to keep showing the old text with its approval date until the redraft.
+- **Approval dates for long pages** are typed by the owner (`approvedOn`) in the pull request; CI fails without one.
+  A "approve" label or comment that fills it in would save the step.
+- **Hand-written texts** carry no label and are never flagged as stale, even when their facts change.
+- **Dossier summaries replace the template summary** in the dossier header once approved; the template summary stays
+  until then.
+- **Strictness.** The checker refuses "half", "doubled", rounding to one significant figure and any country the facts
+  do not name, including demonyms ("Chinese company"). If good drafts are dropped too often, loosen it in
+  `src/lib/ai/check.ts` with a test.
+
 ## This week: choices to confirm (raised 2 Nov 2026)
 
 Made while building `/this-week` and its archive; each is easy to change.

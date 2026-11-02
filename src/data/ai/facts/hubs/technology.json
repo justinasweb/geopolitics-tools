@@ -1,0 +1,46 @@
+{
+  "id": "hub:technology",
+  "kind": "hub",
+  "subject": "Technology",
+  "countries": [],
+  "generated": "src/lib/ai/page-facts.ts",
+  "facts": [
+    {
+      "id": "ai",
+      "statement": "Shares of known AI supercomputer power and notable AI models by country, from Epoch AI.",
+      "source": "geopolitics.tools code (src/data/views.ts)",
+      "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/views.ts",
+      "date": "2026-11-02"
+    },
+    {
+      "id": "chips",
+      "statement": "Imports of chips and chipmaking machines, from UN Comtrade, and US Entity List entries.",
+      "source": "geopolitics.tools code (src/data/views.ts)",
+      "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/views.ts",
+      "date": "2026-11-02"
+    },
+    {
+      "id": "space",
+      "statement": "Satellites in orbit by owning country and orbital launches by launch site country, from CelesTrak.",
+      "source": "geopolitics.tools code (src/data/views.ts)",
+      "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/views.ts",
+      "date": "2026-11-02"
+    },
+    {
+      "id": "internet",
+      "statement": "Internet outages detected in the last 12 months, from IODA.",
+      "value": 12,
+      "unit": "months",
+      "source": "geopolitics.tools code (src/data/views.ts)",
+      "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/views.ts",
+      "date": "2026-11-02"
+    },
+    {
+      "id": "rule",
+      "statement": "Each map shows one source’s own figures for each country, with the year or period it covers.",
+      "source": "geopolitics.tools code (docs/page-engine.md)",
+      "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/docs/page-engine.md",
+      "date": "2026-11-02"
+    }
+  ]
+}

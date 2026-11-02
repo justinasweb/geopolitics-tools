@@ -1,0 +1,46 @@
+{
+  "id": "river:dnipro",
+  "kind": "river",
+  "subject": "the Dnipro",
+  "countries": [
+    "UKR",
+    "RUS"
+  ],
+  "names": [
+    "Dnipro",
+    "Dnieper",
+    "Kakhovka",
+    "Nova Kakhovka",
+    "Kakhovka Hydroelectric Power Plant"
+  ],
+  "generated": "by hand",
+  "facts": [
+    {
+      "id": "agreement-1992",
+      "statement": "Russia and Ukraine signed an agreement on the joint use and protection of transboundary waters on 19 October 1992.",
+      "period": "1992-10-19",
+      "places": [
+        "RUS",
+        "UKR"
+      ],
+      "source": "UNECE, Water Convention",
+      "link": "https://unece.org/environment-policy/water",
+      "date": "1992-10-19",
+      "unverified": true,
+      "note": "Find the agreement text or a UNECE list of transboundary water agreements."
+    },
+    {
+      "id": "kakhovka-2023",
+      "statement": "The Kakhovka dam on the Dnipro was destroyed on 6 June 2023, flooding areas downstream.",
+      "period": "2023-06-06",
+      "places": [
+        "UKR"
+      ],
+      "source": "UN OCHA, Ukraine: Destruction of the Kakhovka dam, Flash update",
+      "link": "https://www.unocha.org/ukraine",
+      "date": "2023-06-06",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check it against the link."
+    }
+  ]
+}

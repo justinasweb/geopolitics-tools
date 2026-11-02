@@ -1,0 +1,577 @@
+{
+  "id": "history:nato",
+  "kind": "history",
+  "subject": "NATO",
+  "countries": [
+    "ALB",
+    "BEL",
+    "BGR",
+    "CAN",
+    "CZE",
+    "DDR",
+    "DEU",
+    "DNK",
+    "ESP",
+    "EST",
+    "FIN",
+    "FRA",
+    "GBR",
+    "GRC",
+    "HRV",
+    "HUN",
+    "ISL",
+    "ITA",
+    "LTU",
+    "LUX",
+    "LVA",
+    "MKD",
+    "MNE",
+    "NLD",
+    "NOR",
+    "POL",
+    "PRT",
+    "ROU",
+    "SVK",
+    "SVN",
+    "SWE",
+    "TUR",
+    "USA",
+    "XWG"
+  ],
+  "names": [
+    "NATO",
+    "North Atlantic Treaty"
+  ],
+  "generated": "by hand, from src/data/bloc-history.csv and the events in src/i18n/blocs.en.ts",
+  "facts": [
+    {
+      "id": "join-BEL-1949",
+      "statement": "Belgium was a founding member of NATO, in 1949.",
+      "period": "1949",
+      "places": [
+        "BEL"
+      ],
+      "source": "NATO, Member countries",
+      "link": "https://www.nato.int/cps/en/natohq/topics_52044.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-CAN-1949",
+      "statement": "Canada was a founding member of NATO, in 1949.",
+      "period": "1949",
+      "places": [
+        "CAN"
+      ],
+      "source": "NATO, Member countries",
+      "link": "https://www.nato.int/cps/en/natohq/topics_52044.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-DNK-1949",
+      "statement": "Denmark was a founding member of NATO, in 1949.",
+      "period": "1949",
+      "places": [
+        "DNK"
+      ],
+      "source": "NATO, Member countries",
+      "link": "https://www.nato.int/cps/en/natohq/topics_52044.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-FRA-1949",
+      "statement": "France was a founding member of NATO, in 1949.",
+      "period": "1949",
+      "places": [
+        "FRA"
+      ],
+      "source": "NATO, Member countries",
+      "link": "https://www.nato.int/cps/en/natohq/topics_52044.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-ISL-1949",
+      "statement": "Iceland was a founding member of NATO, in 1949.",
+      "period": "1949",
+      "places": [
+        "ISL"
+      ],
+      "source": "NATO, Member countries",
+      "link": "https://www.nato.int/cps/en/natohq/topics_52044.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-ITA-1949",
+      "statement": "Italy was a founding member of NATO, in 1949.",
+      "period": "1949",
+      "places": [
+        "ITA"
+      ],
+      "source": "NATO, Member countries",
+      "link": "https://www.nato.int/cps/en/natohq/topics_52044.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-LUX-1949",
+      "statement": "Luxembourg was a founding member of NATO, in 1949.",
+      "period": "1949",
+      "places": [
+        "LUX"
+      ],
+      "source": "NATO, Member countries",
+      "link": "https://www.nato.int/cps/en/natohq/topics_52044.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-NLD-1949",
+      "statement": "Netherlands was a founding member of NATO, in 1949.",
+      "period": "1949",
+      "places": [
+        "NLD"
+      ],
+      "source": "NATO, Member countries",
+      "link": "https://www.nato.int/cps/en/natohq/topics_52044.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-NOR-1949",
+      "statement": "Norway was a founding member of NATO, in 1949.",
+      "period": "1949",
+      "places": [
+        "NOR"
+      ],
+      "source": "NATO, Member countries",
+      "link": "https://www.nato.int/cps/en/natohq/topics_52044.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-PRT-1949",
+      "statement": "Portugal was a founding member of NATO, in 1949.",
+      "period": "1949",
+      "places": [
+        "PRT"
+      ],
+      "source": "NATO, Member countries",
+      "link": "https://www.nato.int/cps/en/natohq/topics_52044.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-GBR-1949",
+      "statement": "United Kingdom was a founding member of NATO, in 1949.",
+      "period": "1949",
+      "places": [
+        "GBR"
+      ],
+      "source": "NATO, Member countries",
+      "link": "https://www.nato.int/cps/en/natohq/topics_52044.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-USA-1949",
+      "statement": "United States was a founding member of NATO, in 1949.",
+      "period": "1949",
+      "places": [
+        "USA"
+      ],
+      "source": "NATO, Member countries",
+      "link": "https://www.nato.int/cps/en/natohq/topics_52044.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-GRC-1952",
+      "statement": "Greece joined NATO in 1952.",
+      "period": "1952",
+      "places": [
+        "GRC"
+      ],
+      "source": "NATO, Member countries",
+      "link": "https://www.nato.int/cps/en/natohq/topics_52044.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-TUR-1952",
+      "statement": "Türkiye joined NATO in 1952.",
+      "period": "1952",
+      "places": [
+        "TUR"
+      ],
+      "source": "NATO, Member countries",
+      "link": "https://www.nato.int/cps/en/natohq/topics_52044.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-DEU-1955",
+      "statement": "Germany joined NATO in 1955.",
+      "period": "1955",
+      "places": [
+        "DEU"
+      ],
+      "source": "NATO, Member countries",
+      "link": "https://www.nato.int/cps/en/natohq/topics_52044.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-ESP-1982",
+      "statement": "Spain joined NATO in 1982.",
+      "period": "1982",
+      "places": [
+        "ESP"
+      ],
+      "source": "NATO, Member countries",
+      "link": "https://www.nato.int/cps/en/natohq/topics_52044.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-CZE-1999",
+      "statement": "Czechia joined NATO in 1999.",
+      "period": "1999",
+      "places": [
+        "CZE"
+      ],
+      "source": "NATO, Member countries",
+      "link": "https://www.nato.int/cps/en/natohq/topics_52044.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-HUN-1999",
+      "statement": "Hungary joined NATO in 1999.",
+      "period": "1999",
+      "places": [
+        "HUN"
+      ],
+      "source": "NATO, Member countries",
+      "link": "https://www.nato.int/cps/en/natohq/topics_52044.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-POL-1999",
+      "statement": "Poland joined NATO in 1999.",
+      "period": "1999",
+      "places": [
+        "POL"
+      ],
+      "source": "NATO, Member countries",
+      "link": "https://www.nato.int/cps/en/natohq/topics_52044.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-BGR-2004",
+      "statement": "Bulgaria joined NATO in 2004.",
+      "period": "2004",
+      "places": [
+        "BGR"
+      ],
+      "source": "NATO, Member countries",
+      "link": "https://www.nato.int/cps/en/natohq/topics_52044.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-EST-2004",
+      "statement": "Estonia joined NATO in 2004.",
+      "period": "2004",
+      "places": [
+        "EST"
+      ],
+      "source": "NATO, Member countries",
+      "link": "https://www.nato.int/cps/en/natohq/topics_52044.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-LVA-2004",
+      "statement": "Latvia joined NATO in 2004.",
+      "period": "2004",
+      "places": [
+        "LVA"
+      ],
+      "source": "NATO, Member countries",
+      "link": "https://www.nato.int/cps/en/natohq/topics_52044.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-LTU-2004",
+      "statement": "Lithuania joined NATO in 2004.",
+      "period": "2004",
+      "places": [
+        "LTU"
+      ],
+      "source": "NATO, Member countries",
+      "link": "https://www.nato.int/cps/en/natohq/topics_52044.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-ROU-2004",
+      "statement": "Romania joined NATO in 2004.",
+      "period": "2004",
+      "places": [
+        "ROU"
+      ],
+      "source": "NATO, Member countries",
+      "link": "https://www.nato.int/cps/en/natohq/topics_52044.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-SVK-2004",
+      "statement": "Slovakia joined NATO in 2004.",
+      "period": "2004",
+      "places": [
+        "SVK"
+      ],
+      "source": "NATO, Member countries",
+      "link": "https://www.nato.int/cps/en/natohq/topics_52044.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-SVN-2004",
+      "statement": "Slovenia joined NATO in 2004.",
+      "period": "2004",
+      "places": [
+        "SVN"
+      ],
+      "source": "NATO, Member countries",
+      "link": "https://www.nato.int/cps/en/natohq/topics_52044.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-ALB-2009",
+      "statement": "Albania joined NATO in 2009.",
+      "period": "2009",
+      "places": [
+        "ALB"
+      ],
+      "source": "NATO, Member countries",
+      "link": "https://www.nato.int/cps/en/natohq/topics_52044.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-HRV-2009",
+      "statement": "Croatia joined NATO in 2009.",
+      "period": "2009",
+      "places": [
+        "HRV"
+      ],
+      "source": "NATO, Member countries",
+      "link": "https://www.nato.int/cps/en/natohq/topics_52044.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-MNE-2017",
+      "statement": "Montenegro joined NATO in 2017.",
+      "period": "2017",
+      "places": [
+        "MNE"
+      ],
+      "source": "NATO, Member countries",
+      "link": "https://www.nato.int/cps/en/natohq/topics_52044.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-MKD-2020",
+      "statement": "North Macedonia joined NATO in 2020.",
+      "period": "2020",
+      "places": [
+        "MKD"
+      ],
+      "source": "NATO, Member countries",
+      "link": "https://www.nato.int/cps/en/natohq/topics_52044.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-FIN-2023",
+      "statement": "Finland joined NATO in 2023.",
+      "period": "2023",
+      "places": [
+        "FIN"
+      ],
+      "source": "NATO, Finland joins NATO as 31st Ally (4 April 2023)",
+      "link": "https://www.nato.int/cps/en/natohq/news_213448.htm",
+      "date": "2023-04-04",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-SWE-2024",
+      "statement": "Sweden joined NATO in 2024.",
+      "period": "2024",
+      "places": [
+        "SWE"
+      ],
+      "source": "NATO, Sweden officially joins NATO (7 March 2024)",
+      "link": "https://www.nato.int/cps/en/natohq/news_223446.htm",
+      "date": "2024-03-07",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "note-1955",
+      "statement": "West Germany joined in 1955; the site draws it on today’s borders, as Germany.",
+      "period": "1955",
+      "places": [
+        "XWG",
+        "DEU"
+      ],
+      "source": "NATO, Member countries",
+      "link": "https://www.nato.int/cps/en/natohq/topics_52044.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "note-1966",
+      "statement": "France left NATO’s integrated military command in 1966 and stayed a member of the alliance.",
+      "period": "1966",
+      "places": [
+        "FRA"
+      ],
+      "source": "NATO, Member countries",
+      "link": "https://www.nato.int/cps/en/natohq/topics_52044.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "note-1974",
+      "statement": "Greece left the integrated military command in 1974.",
+      "period": "1974",
+      "places": [
+        "GRC"
+      ],
+      "source": "NATO, Member countries",
+      "link": "https://www.nato.int/cps/en/natohq/topics_52044.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "note-1980",
+      "statement": "Greece returned to the integrated military command in 1980.",
+      "period": "1980",
+      "places": [
+        "GRC"
+      ],
+      "source": "NATO, Member countries",
+      "link": "https://www.nato.int/cps/en/natohq/topics_52044.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "note-1990",
+      "statement": "Germany reunified in 1990, and the former East Germany became part of NATO with it.",
+      "period": "1990",
+      "places": [
+        "DEU",
+        "DDR"
+      ],
+      "source": "NATO, Member countries",
+      "link": "https://www.nato.int/cps/en/natohq/topics_52044.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "note-2009",
+      "statement": "France returned to the integrated military command in 2009.",
+      "period": "2009",
+      "places": [
+        "FRA"
+      ],
+      "source": "NATO, Member countries",
+      "link": "https://www.nato.int/cps/en/natohq/topics_52044.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "founding-members",
+      "statement": "Members of NATO at its founding.",
+      "value": 12,
+      "unit": "members",
+      "unitAliases": [
+        "countries",
+        "founding members",
+        "founders"
+      ],
+      "period": "1949",
+      "source": "NATO, Member countries",
+      "link": "https://www.nato.int/cps/en/natohq/topics_52044.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Count of the founding rows in src/data/bloc-history.csv; check against the link."
+    },
+    {
+      "id": "members-2026",
+      "statement": "Members of NATO in 2026, as the membership table was checked on 21 October 2026.",
+      "value": 32,
+      "unit": "members",
+      "unitAliases": [
+        "countries",
+        "member countries"
+      ],
+      "period": "2026",
+      "source": "NATO, Member countries",
+      "link": "https://www.nato.int/cps/en/natohq/topics_52044.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Count of the open rows in src/data/bloc-history.csv; check against the link."
+    }
+  ]
+}

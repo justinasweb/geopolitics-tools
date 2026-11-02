@@ -10,6 +10,7 @@ import Notice from '../components/Notice.astro';
 import ShareRow from '../components/ShareRow.astro';
 import MapStage from '../components/MapStage.astro';
 import MapControls from '../components/MapControls.astro';
+import AiText from '../components/AiText.astro';
 import '../styles/atlas/mapview.css';
 import '../styles/atlas/bars.css';
 import '../styles/atlas/keyfigure.css';
@@ -25,6 +26,7 @@ import { place } from '../lib/places';
 import { countryHref, live, route, hubCrumb } from '../lib/routes';
 import { layerFile, layerPath } from '../lib/map/layers';
 import { breadcrumbs } from '../lib/structured';
+import { publishedText } from '../lib/ai/texts';
 
 interface Props { id: string }
 const { id } = Astro.props;
@@ -39,6 +41,8 @@ const first = p.years[0];
 const last = p.years.at(-1)!;
 const events = HISTORY_EVENTS[id] ?? {};
 const answer = historyLede(id);
+// The history note: an AI draft shown only once the owner approved it (src/lib/ai/texts.ts); nothing otherwise.
+const note = publishedText(`history:${id}`);
 const crumbs: { label: string; href?: string }[] = [hubCrumb('power'), { label: BLOCS_TEXT.section, href: route('view:blocs:all')!.path }, ...(live(`view:blocs:${id}`) ? [{ label: name, href: live(`view:blocs:${id}`)!.path }] : []), { label: H.section }];
 const picker = HISTORY_BLOCS.filter((b) => live(key(b))).map((b) => ({ label: BLOC_TEXT[b] ?? b, href: live(key(b))!.path, current: b === id }));
 const timelineYears = [...new Set([...p.changes, ...Object.keys(events).map(Number)])].filter((y) => y >= first && y <= last).sort((a, b) => a - b);
@@ -56,6 +60,7 @@ const related = [
     <h1 class="gt-title gt-mvhead__t">{title} <span class="gt-mvhead__sub">{H.sub(first, last)}</span></h1>
     <p class="gt-lede gt-mvhead__a">{answer}</p>
     <SourceLine source={source} parts={[H.sub(first, last)]} />
+    {note && <AiText text={note} />}
   </div>
 
   <MapControls pickerLabel={H.pickerLabel} picker={picker} pickerSelect years={p.years} year={last} />

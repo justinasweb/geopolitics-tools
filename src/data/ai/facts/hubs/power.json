@@ -1,0 +1,60 @@
+{
+  "id": "hub:power",
+  "kind": "hub",
+  "subject": "Power",
+  "countries": [
+    "USA",
+    "GBR",
+    "CHN"
+  ],
+  "generated": "src/lib/ai/page-facts.ts",
+  "facts": [
+    {
+      "id": "sanctions",
+      "statement": "Listings by country on the US, EU and UK sanctions lists.",
+      "places": [
+        "USA",
+        "GBR"
+      ],
+      "source": "geopolitics.tools code (src/data/views.ts)",
+      "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/views.ts",
+      "date": "2026-11-02"
+    },
+    {
+      "id": "lending",
+      "statement": "Loans and grants from China committed 2000–2021, by recipient, from AidData.",
+      "period": "2000–2021",
+      "places": [
+        "CHN"
+      ],
+      "source": "geopolitics.tools code (src/data/views.ts)",
+      "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/views.ts",
+      "date": "2026-11-02"
+    },
+    {
+      "id": "blocs",
+      "statement": "Membership of groupings of countries, from the groupings’ own member lists.",
+      "value": 19,
+      "unit": "groupings",
+      "source": "geopolitics.tools code (src/data/blocs.csv)",
+      "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/blocs.csv",
+      "date": "2026-11-02"
+    },
+    {
+      "id": "history",
+      "statement": "Membership year by year for the groupings with a history.",
+      "value": 11,
+      "unit": "groupings",
+      "source": "geopolitics.tools code (src/data/bloc-history.csv)",
+      "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/bloc-history.csv",
+      "date": "2026-11-02"
+    },
+    {
+      "id": "rule",
+      "statement": "Each map shows one source’s own figures for each country, with the year it covers.",
+      "source": "geopolitics.tools code (docs/page-engine.md)",
+      "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/docs/page-engine.md",
+      "date": "2026-11-02"
+    }
+  ]
+}

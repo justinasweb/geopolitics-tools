@@ -1,0 +1,11 @@
+/* Atlas design system: the AI label (WeekSummary design) and the slot for an approved AI text on dossier, alliance
+   history and river pages (src/components/AiText.astro). The label is a link to Methodology there; the mark is
+   decoration, the words carry the meaning. */
+
+.gt-ailabel { display: inline-flex; align-items: center; gap: 6px; padding: 2px 8px; border: 1px solid var(--rule-strong); font: 600 13px/18px var(--sans); color: var(--ink); background: var(--paper-raised); max-width: 100%; }
+.gt-ailabel svg { width: 12px; height: 12px; color: var(--accent); flex: none; }
+a.gt-ailabel { text-decoration: none; }
+a.gt-ailabel:hover span { text-decoration: underline; text-underline-offset: 2px; }
+a.gt-ailabel:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.gt-aitext { display: grid; gap: 8px; justify-items: start; margin: 12px 0 0; max-width: 68ch; }
+.gt-aitext p { margin: 0; font: 400 17px/27px var(--serif); overflow-wrap: anywhere; }

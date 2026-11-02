@@ -15,6 +15,7 @@ import { DRAFT_BANNER, LONGREAD_TEXT as T, SOURCES_PAGE } from '../i18n/pages.en
 import { formatDate } from '../lib/format';
 import { paths } from '../lib/routes';
 import { breadcrumbs } from '../lib/structured';
+import { longApproved } from '../lib/ai/texts';
 
 interface Props { id: string }
 const entry = (await getEntry('pages', Astro.props.id))!;
@@ -23,6 +24,8 @@ const d = entry.data;
 const words = (entry.body ?? '').split(/\s+/).length;
 const items = headings.filter((h) => h.depth === 2).map((h) => ({ id: h.slug, label: h.text }));
 const crumbs = [{ label: T.home, href: '/' }, { label: d.title }];
+// Approved in its front matter and still drafted from the facts its file holds (src/lib/ai/texts.ts).
+const approved = longApproved(`page:${Astro.props.id}`);
 ---
 <Page title={d.title} description={d.description} container="tl" mainClass="gt-lr" fromData={false} image={paths.image('page', Astro.props.id)} jsonld={[breadcrumbs(crumbs)]}>
   <header class="gt-tlhead gt-lrhead">
@@ -31,7 +34,7 @@ const crumbs = [{ label: T.home, href: '/' }, { label: d.title }];
     <h1 class="gt-title">{d.title}</h1>
     <p class="gt-lede">{d.lede}</p>
     <p class="gt-source"><span>{T.changed(formatDate(d.updated))} · {T.read(Math.max(1, Math.round(words / 230)))}</span></p>
-    {!d.approved && <Notice><p>{DRAFT_BANNER}</p></Notice>}
+    {!approved && <Notice><p>{DRAFT_BANNER}</p></Notice>}
   </header>
   <div class="gt-cpbody gt-lrbody">
     {items.length > 1 && <SideMenu items={items} />}

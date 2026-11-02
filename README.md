@@ -24,6 +24,7 @@ Needs Node 24 (`.nvmrc`).
 | `npm run serve:fast` | `build:fast`, then `serve` |
 | `npm run check` | Lint, type check and unit tests |
 | `npm run test:e2e` | Route and browser checks against `BASE` (default http://localhost:8787) |
+| `npm run ai:status` | AI-drafted texts and their facts; `ai:facts`, `ai:draft`, `ai:paste`, `ai:check`, `ai:approve` (see [docs/ai-drafting.md](docs/ai-drafting.md)) |
 | `node pipeline/run.ts --only=<source>` | Fetch one data source into `.data/` (see [docs/data-pipeline.md](docs/data-pipeline.md)) |
 
 ## Layout
@@ -36,6 +37,7 @@ Needs Node 24 (`.nvmrc`).
 | `src/lib/map/`, `src/scripts/map/` | The map engine: basemap, layer files, overlays, and the MapLibre island (see [docs/maps.md](docs/maps.md)) |
 | `src/content/pages/` | About, Methodology and Privacy in Markdown |
 | `src/i18n/` | Words, sentence templates and slugs, one file per language |
+| `src/lib/ai/`, `src/data/ai/` | The AI drafting pipeline: facts files, the prompt, stored texts, the checker (see [docs/ai-drafting.md](docs/ai-drafting.md)) |
 | `src/components/`, `src/styles/`, `src/scripts/` | The Atlas design system in code (see [docs/design-system.md](docs/design-system.md)) |
 | `src/design/tokens.json` | Design tokens; `node scripts/tokens.ts` checks them and writes `src/styles/tokens.css` |
 | `src/layouts/` | Document shell (`Base`) and site page (`Page`: header, page container, footer) |

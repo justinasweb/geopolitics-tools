@@ -1,0 +1,80 @@
+{
+  "id": "river:mekong",
+  "kind": "river",
+  "subject": "the Mekong",
+  "countries": [
+    "CHN",
+    "MMR",
+    "LAO",
+    "THA",
+    "KHM",
+    "VNM"
+  ],
+  "names": [
+    "Mekong",
+    "Mekong River Commission",
+    "Mekong Agreement",
+    "Lancang",
+    "Lancang-Mekong Cooperation",
+    "Xayaburi"
+  ],
+  "generated": "by hand",
+  "facts": [
+    {
+      "id": "agreement-1995",
+      "statement": "Cambodia, Laos, Thailand and Vietnam signed the Agreement on the Cooperation for the Sustainable Development of the Mekong River Basin on 5 April 1995, setting up the Mekong River Commission.",
+      "period": "1995-04-05",
+      "places": [
+        "KHM",
+        "LAO",
+        "THA",
+        "VNM"
+      ],
+      "source": "Mekong River Commission, History",
+      "link": "https://www.mrcmekong.org/about/mrc/history/",
+      "date": "2025",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check it against the link."
+    },
+    {
+      "id": "dialogue-1996",
+      "statement": "China and Myanmar became dialogue partners of the Mekong River Commission in 1996.",
+      "period": "1996",
+      "places": [
+        "CHN",
+        "MMR"
+      ],
+      "source": "Mekong River Commission, Dialogue partners",
+      "link": "https://www.mrcmekong.org/",
+      "date": "2025",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check it against the link."
+    },
+    {
+      "id": "xayaburi-2019",
+      "statement": "The Xayaburi dam on the Mekong main stem in Laos began commercial operation in October 2019.",
+      "period": "2019-10",
+      "places": [
+        "LAO"
+      ],
+      "source": "Mekong River Commission",
+      "link": "https://www.mrcmekong.org/",
+      "date": "2019-10",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check it against the link."
+    },
+    {
+      "id": "data-2020",
+      "statement": "China agreed in October 2020 to share year-round hydrological data from the Lancang with the Mekong River Commission.",
+      "period": "2020-10",
+      "places": [
+        "CHN"
+      ],
+      "source": "Mekong River Commission, press release",
+      "link": "https://www.mrcmekong.org/news-and-events/",
+      "date": "2020-10",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check it against the link."
+    }
+  ]
+}

@@ -40,7 +40,8 @@ build; 100 Previews per Worker, oldest deleted automatically.
 - Repository secrets: `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` (set; the data pipeline uses them for R2 too),
   `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` (data alerts), and `GH_DISPATCH_TOKEN` (a fine-grained token for
   this repository with "Actions: read and write", so the Worker can start a data run GitHub skipped). The production
-  job copies the last three into the Worker's secrets. Optional: `CF_ACCESS_CLIENT_ID`
+  job copies the last three into the Worker's secrets. For AI drafting (`.github/workflows/ai-draft.yml`,
+  [ai-drafting.md](ai-drafting.md)): `ANTHROPIC_API_KEY`, and `GH_PR_TOKEN` so its pull requests get checks and a Preview. Optional: `CF_ACCESS_CLIENT_ID`
   and `CF_ACCESS_CLIENT_SECRET`, an Access service token, so CI can check Previews once they are private.
   Without it the Preview check notices the Access login page and skips.
 - Repository variables (optional): `PRODUCTION_URL` (leave unset until launch: the domain shows only the holding

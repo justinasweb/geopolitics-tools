@@ -16,6 +16,14 @@ const pages = defineCollection({
     updated: z.string(),
     /** False until the owner has read and approved the text; the page then shows the draft banner. */
     approved: z.boolean().default(false),
+    /** The drafting record (src/lib/ai/store.ts, docs/ai-drafting.md): who wrote it, the model, the hash of the facts
+     *  file it was drafted from, and when it was drafted and approved. */
+    author: z.enum(['ai', 'owner']).default('ai'),
+    model: z.string().optional(),
+    factsHash: z.string().optional(),
+    drafted: z.string().optional(),
+    approvedOn: z.string().optional(),
+    approvedVia: z.enum(['cli', 'telegram', 'pr']).optional(),
   }),
 });
 
@@ -25,10 +33,18 @@ const hubs = defineCollection({
   loader: glob({ pattern: '*.md', base: './src/content/hubs' }),
   schema: z.object({
     intro: z.string(),
-    /** What the draft was written from: the views and sources it describes, so it can be checked. */
-    facts: z.array(z.string()),
+    /** What the first draft was written from; the facts file src/data/ai/facts/hubs/<hub>.json replaces it. */
+    facts: z.array(z.string()).optional(),
     updated: z.string(),
     approved: z.boolean().default(false),
+    /** The drafting record (src/lib/ai/store.ts, docs/ai-drafting.md): who wrote it, the model, the hash of the facts
+     *  file it was drafted from, and when it was drafted and approved. */
+    author: z.enum(['ai', 'owner']).default('ai'),
+    model: z.string().optional(),
+    factsHash: z.string().optional(),
+    drafted: z.string().optional(),
+    approvedOn: z.string().optional(),
+    approvedVia: z.enum(['cli', 'telegram', 'pr']).optional(),
   }),
 });
 
