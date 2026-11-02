@@ -14,7 +14,7 @@ export const NUCLEAR_TEXT = {
   pick: { warheads: 'Warheads', treaties: 'Treaties', sharing: 'Sharing and guarantees' } as Record<string, string>,
   title: { warheads: 'Nuclear warheads', treaties: 'Nuclear treaties', sharing: 'Nuclear sharing and guarantees' } as Record<string, string>,
   description: {
-    warheads: 'Estimated nuclear warhead inventories of the nine states with nuclear weapons, since 1945, from the Federation of American Scientists.',
+    warheads: 'Estimated nuclear warheads of every state with nuclear weapons, year by year since 1945, from the Federation of American Scientists.',
     treaties: 'Which countries are party to the Non-Proliferation Treaty (NPT) and the Treaty on the Prohibition of Nuclear Weapons (TPNW).',
     sharing: 'Countries that host another state’s nuclear weapons, and countries covered by an ally’s nuclear guarantee.',
   } as Record<string, string>,
@@ -37,7 +37,7 @@ export const NUCLEAR_TEXT = {
   noneIn: 'No nuclear weapons in FAS’s count, {year}',
   lede: (top: string, value: string, second: string, value2: string, share: string, year: number) =>
     `${top} has the most estimated warheads, ${value}, then ${second} with ${value2}; together they hold ${share} of the world’s estimated total in early ${year}.`,
-  world: 'All nine states',
+  world: 'All states with nuclear weapons',
   worldTotal: 'Estimated world total',
   /** FAS rounds nothing smaller than its own figures; the total is their sum, said as about. */
   about: (v: string) => `about ${v}`,
@@ -67,7 +67,7 @@ export const NUCLEAR_TEXT = {
   splitTable: (year: number) => `Deployed, reserve and retired, early ${year}`,
   splitTableCaption: (year: number, latest: number) => `FAS’s split by status is for early ${year}; the totals above are for early ${latest}, so they are not set side by side.`,
   extendedNote: (year: number) => `${year} is FAS’s current estimate, from its own figures, which are newer than the series.`,
-  blocLine: (bloc: string, k: number, value: string, year: number) => (k ? `${bloc} members hold an estimated ${value} warheads in early ${year} (${k} ${k === 1 ? 'state' : 'states'}).` : `No ${bloc} member is among the nine states with nuclear weapons.`),
+  blocLine: (bloc: string, k: number, value: string, year: number) => (k ? `${bloc} members hold an estimated ${value} warheads in early ${year} (${k} ${k === 1 ? 'state' : 'states'}).` : `No ${bloc} member has nuclear weapons in FAS’s count for early ${year}.`),
   mapLabel: (year: number, k: number) => `World map of estimated nuclear warheads in early ${year}: ${k} states have nuclear weapons. The same figures are in the table below.`,
   csv: 'Download the figures shown (CSV)',
   rank: 'Rank',
