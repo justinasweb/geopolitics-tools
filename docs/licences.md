@@ -4,7 +4,7 @@ Generated from `src/data/licences.ts` by `node scripts/licence-table.ts > docs/l
 
 What each source's terms allow and what the site does with it (decision D9). Downloads are "Yes" only where the terms
 allow redistribution; otherwise the site shows charts and figures only. Credits travel with every chart and export.
-8 checked against the terms page, 22 to confirm, 2 waiting on permission.
+8 checked against the terms page, 21 to confirm, 3 waiting on permission.
 
 | Source | Licence | Downloads | Commercial use | Status | Note |
 |---|---|---|---|---|---|
@@ -39,4 +39,4 @@ allow redistribution; otherwise the site shows charts and figures only. Credits 
 | [Ember electricity data](https://ember-energy.org/data/api) | CC BY 4.0 | Yes | Yes | To confirm | The API page says all content is CC BY 4.0; confirm it covers the API data |
 | [UCDP Georeferenced Event Dataset](https://ucdp.uu.se/downloads/) | CC BY 4.0 | Yes | Yes | Checked 2026-10-26 | The downloads page: all datasets are free and CC BY 4.0, citing the publications listed with each. Cite Sundberg and Melander (2013) and Davies et al. for the GED; Candidate events are preliminary |
 | [IPC food insecurity analyses](https://docs.api.ipcinfo.org) | CC BY-NC-SA 3.0 IGO | Shown only | No | Checked 2026-10-26 | Non-commercial and share-alike; credit "IPC CC BY-NC-SA 3.0 IGO" with the date and a link; keys are per implementation; no military use. Ads or a paid tier need IPC’s agreement |
-| [PeeringDB](https://tools.peeringdb.com/aup) | PeeringDB acceptable use policy | Shown only | No | To confirm | Spec: exchange points left out unless PeeringDB gives permission |
+| [PeeringDB](https://tools.peeringdb.com/aup) | PeeringDB acceptable use policy | Shown only | No | Permission asked | Permission asked 26 Oct 2026 (support@peeringdb.com); exchange points left out until PeeringDB agrees |

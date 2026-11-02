@@ -18,7 +18,10 @@ Decisions put off for later. Each says what the question is, what the site does 
 
 **The question.** The spec puts submarine cables at `/internet`. TeleGeography's Submarine Cable Map is the standard
 source, but its data now needs a paid annual licence (the old CC BY-NC-SA terms covered only a GitHub repository that
-was taken down in 2022). Justinas is asking TeleGeography for a price.
+was taken down in 2022).
+
+**Decided 2 Nov 2026.** TeleGeography quoted USD 25,000 a year, which is far over budget, so it is dropped. `/internet`
+keeps waiting until a better open source of cable routes and landings turns up; outages stay live.
 
 **What the site does now.** `/internet` waits (`rootWaits` in src/data/views.ts); internet outages are live at
 `/internet/outages`. OpenStreetMap, the only open source tried, maps 819 cable ways, but 549 have no name and only 40
@@ -35,6 +38,24 @@ lintaojlu/submarine_cable_information (crawled from TeleGeography's site), map.k
 cables, no licence stated) and EMODnet's schematic cables (TeleGeography's 2014 data, EU waters only, reuse needs
 PriMetrica's written consent). EMODnet's separate "actual routes" layer, from European national sources, may be open but
 covers European seas only.
+
+## Sources waiting on replies (raised 2 Nov 2026)
+
+**The question.** Three requests sent on 26 Oct 2026 may never be answered: the IPC key (request form), the IMF's
+permission for scheduled downloads (copyright@imf.org: WEO, reserves, PortWatch) and PeeringDB's permission
+(support@peeringdb.com: exchange points). EIA, UN Comtrade, Ember and UCDP keys are in.
+
+**Plan for launch without them.** None of the three blocks launch; each view stays hidden until its gates pass.
+- IPC: food crises and the This week food card stay hidden; they switch on by themselves when `IPC_API_KEY` is set.
+- IMF: chokepoints and ports stay hidden. WEO figures and reserves can be imported by hand instead, since the IMF's
+  terms allow reuse with credit and only automated bulk downloads need permission.
+- PeeringDB: the exchange points layer stays off, as already planned.
+
+**Options.**
+- Send one short follow-up to IPC and the IMF, then wait.
+- Import WEO and reserves by hand when the IMF publishes (April and October for WEO).
+- Import PortWatch by hand on a schedule (for example monthly), if its terms allow manual reuse; daily transits would
+  then be up to a month old.
 
 ## Multi-year supply chain flows (raised 28 Oct 2026)
 
