@@ -48,7 +48,7 @@ servers never see the part after `#`.
 | Dossier | United States, China and Russia: the profile plus money, technology and climate sections |
 | Compare | The three pairs of dossier countries |
 | Indicator | Every registry measure with data in the snapshot. Fewer than 20 places reporting in the common year: built, `noindex`. Measures waiting on a key or permission have no page and are listed on the index as waiting |
-| About, Methodology, Privacy | `src/content/pages/*.md`. Each shows the draft banner until its front matter says `approved: true` |
+| About, Methodology, Privacy | `src/content/pages/*.md`. Each shows the draft banner until its front matter says `approved: true` and its facts are unchanged since (see [ai-drafting.md](ai-drafting.md)) |
 | Sources | Generated from the source registry, the licence table and the last snapshot; corrections from `src/data/corrections.csv` |
 | Explorer | `/explorer` (table), `/explorer/over-time`, `/explorer/scatter`: every measure with an indicator page. See "Explorer" below |
 | Dependencies | `/dependencies`: countries against the ten commodities of each country page's dependencies table, with the single points of failure. See "Dependencies" below |
@@ -144,6 +144,14 @@ country focused and in the browser (`src/scripts/supply-chains.ts`) when the rea
 - **CSV.** Every flow shown, when the source's licence allows downloads (FAOSTAT, UNHCR); UN Comtrade and SIPRI flows
   are shown only, with a note.
 
+## Who counts as a member
+
+Counts on bloc pages, alliance histories, Bloc overlap and their share images are of countries, the units the map
+can draw. The G20's and G7's other members are named next to the count in one template (`membersText`,
+`src/i18n/members.en.ts`), with a note under the panel's count saying what the map outlines; shares of those
+groupings say "today's member countries". A history whose first years belong to a predecessor names it
+(`BEGAN_AS` in `src/i18n/blocs.en.ts`), with the founders' names as they were then (West Germany).
+
 ## Bloc overlap
 
 `/blocs/overlap` reads the same membership table as the blocs views (`src/lib/blocs.ts`); `src/lib/overlap.ts` embeds
@@ -231,12 +239,28 @@ the data run), words in `src/i18n/week.en.ts`. Built from data only.
   shows nothing before; an archived week links to the one before it. A week picker appears once there is a week to
   pick. Archived pages carry a note that they keep the figures as they stood.
 
+## AI-drafted texts
+
+Dossier summaries, alliance history notes and disputed river summaries are drafted with AI from facts files, checked
+and approved by the owner before they show; unapproved texts show nothing. A dossier keeps its template summary until
+its AI summary is approved. See [ai-drafting.md](ai-drafting.md).
+
 ## Share images
 
 `src/lib/og.ts` renders a 1200 × 630 PNG per page at build time with Satori and resvg, in the site's fonts and light
-theme colours: kicker, title, the headline figure or answer, up to five bars, and the source.
+theme colours: kicker, title, the headline figure or answer, up to five bars, and the source. What each page's card
+says is in `src/lib/og-cards.ts`.
+
+- **Bar labels** are measured in the font Satori draws them with (its own opentype.js, pinned in `package.json`) and
+  fitted first: wrapped to two lines at spaces, or cut after a whole word with "…", keeping a trailing year or
+  bracketed short name ("Treaty on the Non-Proliferation… (NPT)"). A word is never split, and a year never stands
+  alone on the second line.
+- **Rows** get the space left beside the figure column: the value column is as wide as the widest value, the label
+  column up to 240px, the bar the rest. When five two-line rows would not fit under the title, the rows get tighter,
+  then smaller, then one line each.
+- `tests/unit/og.test.ts` checks every card the site builds, and the longest label of each view family five times
+  over under its longest title, rendered with nothing in the card's margins.
 
 ## Not done in this phase
 
-- Dossier summaries drafted with AI from a facts file (spec, D15): the dossiers use the template summary for now.
 - Redeploying when new data arrives: today pages refresh on the next deploy (This week included; see open-questions.md).

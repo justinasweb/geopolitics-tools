@@ -15,6 +15,9 @@ import '../styles/atlas/source.css';
 import '../styles/atlas/explorer.css';
 import '../styles/atlas/overlap.css';
 import { OVERLAP_TEXT as T } from '../i18n/overlap.en';
+import { BLOC_TEXT } from '../i18n/map.en';
+import { NON_COUNTRY_MEMBERS, membersText } from '../i18n/members.en';
+import { blocs } from '../lib/blocs';
 import { bridges, overlapData } from '../lib/overlap';
 import { DEFAULTS } from '../lib/overlap/model';
 import { bridgeHtml, chipsHtml, matrixHtml, phoneTableHtml, tableHtml, twoHtml } from '../lib/overlap/render';
@@ -33,7 +36,7 @@ const json = JSON.stringify({ data }).replace(/</g, '\\u003c');
     <h1 class="gt-title gt-tlhead__t">{T.title}</h1>
     <p class="gt-lede gt-tlhead__a">{T.lede}</p>
     <SourceLine source={T.source} parts={[T.checked(data.checkedText)]} />
-    <p class="gt-caption">{T.note}</p>
+    <p class="gt-caption">{T.note(Object.keys(NON_COUNTRY_MEMBERS).map((b) => ({ bloc: BLOC_TEXT[b] ?? b, text: membersText(b, blocs().get(b)!.length) })))}</p>
   </header>
   <div class="gt-presets gt-ovdesk" role="group" aria-labelledby="o-chips-l" data-o-chips set:html={chipsHtml(state, data)} />
   <div class="gt-indgrid gt-indgrid--bl" data-o-grid>

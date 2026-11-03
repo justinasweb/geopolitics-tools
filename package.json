@@ -17,9 +17,17 @@
     "test:e2e": "node tests/e2e/smoke.mjs",
     "check": "npm run lint && npm run typecheck && npm test",
     "build:sample": "GT_DATA=sample astro build && ALLOW_SAMPLE=1 node scripts/check-dist.mjs",
-    "data:pull": "node --env-file-if-exists=.env pipeline/pull.ts"
+    "data:pull": "node --env-file-if-exists=.env pipeline/pull.ts",
+    "ai:status": "node scripts/ai.ts status",
+    "ai:facts": "node scripts/ai.ts facts",
+    "ai:draft": "node --env-file-if-exists=.env scripts/ai.ts draft",
+    "ai:paste": "node scripts/ai.ts paste",
+    "ai:own": "node scripts/ai.ts own",
+    "ai:check": "node scripts/ai.ts check",
+    "ai:approve": "node scripts/ai.ts approve"
   },
   "devDependencies": {
+    "@anthropic-ai/sdk": "^1.3.0",
     "@astrojs/check": "^0.9.12",
     "@cloudflare/workers-types": "^5.20261024.1",
     "@eslint/js": "^10.0.1",
@@ -28,6 +36,7 @@
     "@fontsource/newsreader": "^5.3.0",
     "@fontsource/source-sans-3": "^5.3.1",
     "@resvg/resvg-js": "^2.6.2",
+    "@shuding/opentype.js": "1.4.0-beta.0",
     "@types/geojson": "^7946.0.16",
     "@types/node": "^26.6.5",
     "astro": "^7.4.2",

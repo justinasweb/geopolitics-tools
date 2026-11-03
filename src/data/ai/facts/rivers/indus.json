@@ -1,0 +1,78 @@
+{
+  "id": "river:indus",
+  "kind": "river",
+  "subject": "the Indus",
+  "countries": [
+    "CHN",
+    "IND",
+    "AFG",
+    "PAK"
+  ],
+  "names": [
+    "Indus",
+    "Indus Waters Treaty",
+    "World Bank",
+    "Ravi",
+    "Beas",
+    "Sutlej",
+    "Jhelum",
+    "Chenab"
+  ],
+  "generated": "by hand",
+  "facts": [
+    {
+      "id": "treaty-1960",
+      "statement": "India and Pakistan signed the Indus Waters Treaty on 19 September 1960, with the World Bank as a signatory.",
+      "period": "1960-09-19",
+      "places": [
+        "IND",
+        "PAK"
+      ],
+      "source": "World Bank, Fact Sheet: The Indus Waters Treaty 1960 and the Role of the World Bank",
+      "link": "https://www.worldbank.org/en/region/sar/brief/fact-sheet-the-indus-waters-treaty-1960-and-the-world-bank",
+      "date": "2018-06-11",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check it against the link."
+    },
+    {
+      "id": "treaty-rivers",
+      "statement": "Under the treaty the eastern rivers (Ravi, Beas and Sutlej) are for India’s use and the western rivers (Indus, Jhelum and Chenab) for Pakistan’s, with some uses allowed to India.",
+      "period": "1960",
+      "places": [
+        "IND",
+        "PAK"
+      ],
+      "source": "World Bank, Fact Sheet: The Indus Waters Treaty 1960 and the Role of the World Bank",
+      "link": "https://www.worldbank.org/en/region/sar/brief/fact-sheet-the-indus-waters-treaty-1960-and-the-world-bank",
+      "date": "2018-06-11",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check it against the link."
+    },
+    {
+      "id": "abeyance-2025",
+      "statement": "India said on 23 April 2025 that it would hold the Indus Waters Treaty in abeyance.",
+      "period": "2025-04-23",
+      "places": [
+        "IND"
+      ],
+      "source": "Ministry of External Affairs of India, press releases",
+      "link": "https://www.mea.gov.in/press-releases.htm",
+      "date": "2025-04-23",
+      "unverified": true,
+      "note": "Find the MEA briefing of 23 April 2025 and check its wording."
+    },
+    {
+      "id": "pakistan-2025",
+      "statement": "Pakistan’s National Security Committee said on 24 April 2025 that it rejected India’s step and that the treaty could not be suspended by one side.",
+      "period": "2025-04-24",
+      "places": [
+        "PAK"
+      ],
+      "source": "Prime Minister’s Office of Pakistan",
+      "link": "https://www.pmo.gov.pk/",
+      "date": "2025-04-24",
+      "unverified": true,
+      "note": "Find the National Security Committee statement of 24 April 2025 and check its wording."
+    }
+  ]
+}

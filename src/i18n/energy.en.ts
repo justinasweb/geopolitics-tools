@@ -3,6 +3,7 @@
 // pages.en.ts: templates take figures already formatted and return plain sentences, plain verbs, no adjectives that
 // judge, and a sentence whose figure is missing is left out. Another language is another file with the same keys.
 import { list } from './pages.en.ts';
+import { todaysMembers } from './members.en.ts';
 
 export type EnergyLayer = 'production' | 'consumption' | 'trade' | 'reserves';
 export type FuelId = 'oil' | 'gas';
@@ -142,14 +143,14 @@ export const ENERGY_TEXT = {
   trendCaption: '{first} in {from}; {last} in {to}.',
   ranking: 'Ranking, {year}',
   share: 'Share of world',
-  // Bloc lines.
+  // Bloc lines: today's members, for every year (./members.en.ts).
   bloc: {
-    production: (b: string, share: string, name: string, y: number) => `${b} members produced ${share} of the world’s ${name} in ${y}.`,
-    consumption: (b: string, share: string, name: string, y: number) => `${b} members used ${share} of the world’s ${name} in ${y}.`,
-    reserves: (b: string, share: string, name: string, y: number) => `${b} members held ${share} of the world’s proved ${name} reserves in ${y}.`,
-    trade: (b: string, v: string, exports: boolean, name: string, y: number) => `${b} members together were net ${exports ? 'exporters' : 'importers'} of ${v} of ${name} in ${y}.`,
+    production: (b: string, share: string, name: string, y: number) => `${todaysMembers(b, { start: true })} produced ${share} of the world’s ${name} in ${y}.`,
+    consumption: (b: string, share: string, name: string, y: number) => `${todaysMembers(b, { start: true })} used ${share} of the world’s ${name} in ${y}.`,
+    reserves: (b: string, share: string, name: string, y: number) => `${todaysMembers(b, { start: true })} held ${share} of the world’s proved ${name} reserves in ${y}.`,
+    trade: (b: string, v: string, exports: boolean, name: string, y: number) => `${todaysMembers(b, { start: true })} together were net ${exports ? 'exporters' : 'importers'} of ${v} of ${name} in ${y}.`,
   },
-  blocNone: (b: string, y: number) => `No ${b} member has a figure for ${y}.`,
+  blocNone: (b: string, y: number) => `None of ${todaysMembers(b)} has a figure for ${y}.`,
   // The tables.
   summary: 'Summary',
   all: 'All countries',

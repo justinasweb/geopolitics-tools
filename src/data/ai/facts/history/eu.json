@@ -1,0 +1,504 @@
+{
+  "id": "history:eu",
+  "kind": "history",
+  "subject": "the European Union",
+  "countries": [
+    "AUT",
+    "BEL",
+    "BGR",
+    "CYP",
+    "CZE",
+    "DDR",
+    "DEU",
+    "DNK",
+    "ESP",
+    "EST",
+    "FIN",
+    "FRA",
+    "GBR",
+    "GRC",
+    "HRV",
+    "HUN",
+    "IRL",
+    "ITA",
+    "LTU",
+    "LUX",
+    "LVA",
+    "MLT",
+    "NLD",
+    "POL",
+    "PRT",
+    "ROU",
+    "SVK",
+    "SVN",
+    "SWE"
+  ],
+  "names": [
+    "European Economic Community",
+    "European Union",
+    "Maastricht Treaty",
+    "EU"
+  ],
+  "generated": "by hand, from src/data/bloc-history.csv and the events in src/i18n/blocs.en.ts",
+  "facts": [
+    {
+      "id": "join-BEL-1958",
+      "statement": "Belgium was a founding member of the European Union, in 1958.",
+      "period": "1958",
+      "places": [
+        "BEL"
+      ],
+      "source": "European Union, EU countries",
+      "link": "https://european-union.europa.eu/principles-countries-history/eu-countries_en",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-FRA-1958",
+      "statement": "France was a founding member of the European Union, in 1958.",
+      "period": "1958",
+      "places": [
+        "FRA"
+      ],
+      "source": "European Union, EU countries",
+      "link": "https://european-union.europa.eu/principles-countries-history/eu-countries_en",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-DEU-1958",
+      "statement": "Germany was a founding member of the European Union, in 1958.",
+      "period": "1958",
+      "places": [
+        "DEU"
+      ],
+      "source": "European Union, EU countries",
+      "link": "https://european-union.europa.eu/principles-countries-history/eu-countries_en",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-ITA-1958",
+      "statement": "Italy was a founding member of the European Union, in 1958.",
+      "period": "1958",
+      "places": [
+        "ITA"
+      ],
+      "source": "European Union, EU countries",
+      "link": "https://european-union.europa.eu/principles-countries-history/eu-countries_en",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-LUX-1958",
+      "statement": "Luxembourg was a founding member of the European Union, in 1958.",
+      "period": "1958",
+      "places": [
+        "LUX"
+      ],
+      "source": "European Union, EU countries",
+      "link": "https://european-union.europa.eu/principles-countries-history/eu-countries_en",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-NLD-1958",
+      "statement": "Netherlands was a founding member of the European Union, in 1958.",
+      "period": "1958",
+      "places": [
+        "NLD"
+      ],
+      "source": "European Union, EU countries",
+      "link": "https://european-union.europa.eu/principles-countries-history/eu-countries_en",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-DNK-1973",
+      "statement": "Denmark joined the European Union in 1973.",
+      "period": "1973",
+      "places": [
+        "DNK"
+      ],
+      "source": "European Union, EU countries",
+      "link": "https://european-union.europa.eu/principles-countries-history/eu-countries_en",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-IRL-1973",
+      "statement": "Ireland joined the European Union in 1973.",
+      "period": "1973",
+      "places": [
+        "IRL"
+      ],
+      "source": "European Union, EU countries",
+      "link": "https://european-union.europa.eu/principles-countries-history/eu-countries_en",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-GBR-1973",
+      "statement": "United Kingdom joined the European Union in 1973.",
+      "period": "1973",
+      "places": [
+        "GBR"
+      ],
+      "source": "European Union, EU countries",
+      "link": "https://european-union.europa.eu/principles-countries-history/eu-countries_en",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "left-GBR-2020",
+      "statement": "The United Kingdom left the European Union on 31 January 2020.",
+      "period": "2020-01-31",
+      "places": [
+        "GBR"
+      ],
+      "source": "EUR-Lex, Agreement on the withdrawal of the United Kingdom from the European Union",
+      "link": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:12020W/TXT",
+      "date": "2020-01-31",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-GRC-1981",
+      "statement": "Greece joined the European Union in 1981.",
+      "period": "1981",
+      "places": [
+        "GRC"
+      ],
+      "source": "European Union, EU countries",
+      "link": "https://european-union.europa.eu/principles-countries-history/eu-countries_en",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-PRT-1986",
+      "statement": "Portugal joined the European Union in 1986.",
+      "period": "1986",
+      "places": [
+        "PRT"
+      ],
+      "source": "European Union, EU countries",
+      "link": "https://european-union.europa.eu/principles-countries-history/eu-countries_en",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-ESP-1986",
+      "statement": "Spain joined the European Union in 1986.",
+      "period": "1986",
+      "places": [
+        "ESP"
+      ],
+      "source": "European Union, EU countries",
+      "link": "https://european-union.europa.eu/principles-countries-history/eu-countries_en",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-AUT-1995",
+      "statement": "Austria joined the European Union in 1995.",
+      "period": "1995",
+      "places": [
+        "AUT"
+      ],
+      "source": "European Union, EU countries",
+      "link": "https://european-union.europa.eu/principles-countries-history/eu-countries_en",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-FIN-1995",
+      "statement": "Finland joined the European Union in 1995.",
+      "period": "1995",
+      "places": [
+        "FIN"
+      ],
+      "source": "European Union, EU countries",
+      "link": "https://european-union.europa.eu/principles-countries-history/eu-countries_en",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-SWE-1995",
+      "statement": "Sweden joined the European Union in 1995.",
+      "period": "1995",
+      "places": [
+        "SWE"
+      ],
+      "source": "European Union, EU countries",
+      "link": "https://european-union.europa.eu/principles-countries-history/eu-countries_en",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-CYP-2004",
+      "statement": "Cyprus joined the European Union in 2004.",
+      "period": "2004",
+      "places": [
+        "CYP"
+      ],
+      "source": "European Union, EU countries",
+      "link": "https://european-union.europa.eu/principles-countries-history/eu-countries_en",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-CZE-2004",
+      "statement": "Czechia joined the European Union in 2004.",
+      "period": "2004",
+      "places": [
+        "CZE"
+      ],
+      "source": "European Union, EU countries",
+      "link": "https://european-union.europa.eu/principles-countries-history/eu-countries_en",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-EST-2004",
+      "statement": "Estonia joined the European Union in 2004.",
+      "period": "2004",
+      "places": [
+        "EST"
+      ],
+      "source": "European Union, EU countries",
+      "link": "https://european-union.europa.eu/principles-countries-history/eu-countries_en",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-HUN-2004",
+      "statement": "Hungary joined the European Union in 2004.",
+      "period": "2004",
+      "places": [
+        "HUN"
+      ],
+      "source": "European Union, EU countries",
+      "link": "https://european-union.europa.eu/principles-countries-history/eu-countries_en",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-LVA-2004",
+      "statement": "Latvia joined the European Union in 2004.",
+      "period": "2004",
+      "places": [
+        "LVA"
+      ],
+      "source": "European Union, EU countries",
+      "link": "https://european-union.europa.eu/principles-countries-history/eu-countries_en",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-LTU-2004",
+      "statement": "Lithuania joined the European Union in 2004.",
+      "period": "2004",
+      "places": [
+        "LTU"
+      ],
+      "source": "European Union, EU countries",
+      "link": "https://european-union.europa.eu/principles-countries-history/eu-countries_en",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-MLT-2004",
+      "statement": "Malta joined the European Union in 2004.",
+      "period": "2004",
+      "places": [
+        "MLT"
+      ],
+      "source": "European Union, EU countries",
+      "link": "https://european-union.europa.eu/principles-countries-history/eu-countries_en",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-POL-2004",
+      "statement": "Poland joined the European Union in 2004.",
+      "period": "2004",
+      "places": [
+        "POL"
+      ],
+      "source": "European Union, EU countries",
+      "link": "https://european-union.europa.eu/principles-countries-history/eu-countries_en",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-SVK-2004",
+      "statement": "Slovakia joined the European Union in 2004.",
+      "period": "2004",
+      "places": [
+        "SVK"
+      ],
+      "source": "European Union, EU countries",
+      "link": "https://european-union.europa.eu/principles-countries-history/eu-countries_en",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-SVN-2004",
+      "statement": "Slovenia joined the European Union in 2004.",
+      "period": "2004",
+      "places": [
+        "SVN"
+      ],
+      "source": "European Union, EU countries",
+      "link": "https://european-union.europa.eu/principles-countries-history/eu-countries_en",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-BGR-2007",
+      "statement": "Bulgaria joined the European Union in 2007.",
+      "period": "2007",
+      "places": [
+        "BGR"
+      ],
+      "source": "European Union, EU countries",
+      "link": "https://european-union.europa.eu/principles-countries-history/eu-countries_en",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-ROU-2007",
+      "statement": "Romania joined the European Union in 2007.",
+      "period": "2007",
+      "places": [
+        "ROU"
+      ],
+      "source": "European Union, EU countries",
+      "link": "https://european-union.europa.eu/principles-countries-history/eu-countries_en",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-HRV-2013",
+      "statement": "Croatia joined the European Union in 2013.",
+      "period": "2013",
+      "places": [
+        "HRV"
+      ],
+      "source": "European Union, EU countries",
+      "link": "https://european-union.europa.eu/principles-countries-history/eu-countries_en",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "note-1958",
+      "statement": "The European Economic Community began in 1958.",
+      "period": "1958",
+      "places": [],
+      "source": "European Union, EU countries",
+      "link": "https://european-union.europa.eu/principles-countries-history/eu-countries_en",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "note-1990",
+      "statement": "Germany reunified in 1990, and the former East Germany became part of the community with it.",
+      "period": "1990",
+      "places": [
+        "DEU",
+        "DDR"
+      ],
+      "source": "European Union, EU countries",
+      "link": "https://european-union.europa.eu/principles-countries-history/eu-countries_en",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "note-1993",
+      "statement": "The Maastricht Treaty came into force in 1993, founding the European Union.",
+      "period": "1993",
+      "places": [],
+      "source": "European Union, EU countries",
+      "link": "https://european-union.europa.eu/principles-countries-history/eu-countries_en",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "note-2016",
+      "statement": "The United Kingdom voted to leave in a referendum in 2016.",
+      "period": "2016",
+      "places": [
+        "GBR"
+      ],
+      "source": "European Union, EU countries",
+      "link": "https://european-union.europa.eu/principles-countries-history/eu-countries_en",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "founding-members",
+      "statement": "Members of the European Union at its founding.",
+      "value": 6,
+      "unit": "members",
+      "unitAliases": [
+        "countries",
+        "founding members",
+        "founders"
+      ],
+      "period": "1958",
+      "source": "European Union, EU countries",
+      "link": "https://european-union.europa.eu/principles-countries-history/eu-countries_en",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Count of the founding rows in src/data/bloc-history.csv; check against the link."
+    },
+    {
+      "id": "members-2026",
+      "statement": "Members of the European Union in 2026, as the membership table was checked on 21 October 2026.",
+      "value": 27,
+      "unit": "members",
+      "unitAliases": [
+        "countries",
+        "member countries"
+      ],
+      "period": "2026",
+      "source": "European Union, EU countries",
+      "link": "https://european-union.europa.eu/principles-countries-history/eu-countries_en",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Count of the open rows in src/data/bloc-history.csv; check against the link."
+    }
+  ]
+}

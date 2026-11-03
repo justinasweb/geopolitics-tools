@@ -1,0 +1,135 @@
+import { beforeAll, describe, expect, it } from 'vitest';
+import { Resvg } from '@resvg/resvg-js';
+import { barLayout, fitLabel, G, measure, shareSvg, type Card } from '../../src/lib/og.ts';
+
+// Share images (src/lib/og.ts): bar labels wrap to two lines or are cut after a whole word, never mid-word, and every
+// row fits the card, whatever the label.
+process.env.GT_DATA = 'sample';
+
+const COL = G.innerW - G.leftW - G.columnsGap;
+
+/** True when nothing is drawn in the card's right margin or below its footer: the paper colour only. */
+async function marginsClear(c: Card): Promise<boolean> {
+  const img = new Resvg(await shareSvg(c)).render();
+  // `pixels` copies the image on every read: read it once.
+  const data = img.pixels;
+  const px = (x: number, y: number) => data.subarray((y * img.width + x) * 4, (y * img.width + x) * 4 + 3);
+  const paper = px(img.width - 1, 0).join(',');
+  for (let y = 0; y < img.height; y++) for (let x = G.width - G.padX + 4; x < img.width; x++) if (px(x, y).join(',') !== paper) return false;
+  for (let y = G.height - 30; y < img.height; y++) for (let x = 0; x < img.width; x++) if (px(x, y).join(',') !== paper) return false;
+  return true;
+}
+const words = (s: string) => s.replace(/…/g, ' ').split(/[\s,]+/).filter(Boolean);
+/** Every word on the lines is a whole word of the label: nothing split, nothing invented. */
+const whole = (label: string, lines: string[]) => {
+  const all = new Set(words(label));
+  return lines.flatMap(words).every((w) => all.has(w));
+};
+
+describe('fitLabel', () => {
+  it('keeps a short label on one line', () => {
+    expect(fitLabel('Population, 2024', 210, 22)).toEqual({ lines: ['Population, 2024'], cut: false });
+  });
+
+  it('wraps a label that is too wide to two lines, at a space', () => {
+    // The OPEC card's label that was clipped to "Wheat production, 20".
+    const f = fitLabel('Wheat production, 2024', 190, 22)!;
+    expect(f.cut).toBe(false);
+    // The year does not stand alone on the second line.
+    expect(f.lines).toEqual(['Wheat', 'production, 2024']);
+  });
+
+  it('keeps a bracketed short name when it cuts a label', () => {
+    const f = fitLabel('Treaty on the Non-Proliferation of Nuclear Weapons (NPT)', 210, 22)!;
+    expect(f.cut).toBe(true);
+    expect(f.lines.at(-1)).toMatch(/… \(NPT\)$/);
+    for (const l of f.lines) expect(measure(l, 22)).toBeLessThanOrEqual(210);
+  });
+
+  it('cuts a longer label after a whole word, with "…" and the year kept', () => {
+    const label = 'Military spending as a share of gross domestic product, constant prices, 2024';
+    const f = fitLabel(label, 210, 22)!;
+    expect(f.cut).toBe(true);
+    expect(f.lines).toHaveLength(2);
+    expect(f.lines[1]).toMatch(/…, 2024$/);
+    expect(f.lines[1]).not.toMatch(/[,;:]…/);
+    for (const l of f.lines) expect(measure(l, 22)).toBeLessThanOrEqual(210);
+    expect(whole(label, f.lines)).toBe(true);
+  });
+
+  it('cuts a label without a year with "…" alone', () => {
+    const f = fitLabel('Democratic Republic of the Congo and the Central African Republic together', 210, 22, 1)!;
+    expect(f.lines).toHaveLength(1);
+    expect(f.lines[0]).toMatch(/[A-Za-z]…$/);
+    expect(measure(f.lines[0], 22)).toBeLessThanOrEqual(210);
+  });
+
+  it('never splits a word: one too wide is refused, so a smaller size is tried, or left out', () => {
+    const giant = 'Herfindahl–Hirschman-concentration-index-of-supplier-shares';
+    expect(fitLabel(`${giant}, 2024`, 210, 22)).toBeNull();
+    const f = fitLabel(`Index ${giant}, 2024`, 210, 22, 2, true)!;
+    expect(f.lines.join(' ')).not.toContain('Herfindahl');
+    expect(whole(`Index ${giant}, 2024`, f.lines)).toBe(true);
+    for (const l of f.lines) expect(measure(l, 22)).toBeLessThanOrEqual(210);
+  });
+
+  it('fits every label length from 1 to 120 characters', () => {
+    const base = 'Natural gas production from conventional and unconventional fields onshore and offshore in every region of the world';
+    for (let n = 1; n <= base.length; n++) {
+      const label = `${base.slice(0, n).trim()}, 2024`;
+      const f = fitLabel(label, 190, 22) ?? fitLabel(label, 190, 22, 2, true)!;
+      expect(f.lines.length, label).toBeLessThanOrEqual(2);
+      for (const l of f.lines) expect(measure(l, 22), `${label} → ${l}`).toBeLessThanOrEqual(190);
+      // The last word of a cut-off label may be partial only where the input itself ends mid-word.
+      expect(whole(label, f.lines), `${label} → ${f.lines.join(' / ')}`).toBe(true);
+    }
+  });
+});
+
+/** Checks a card's bars fit: widths, lines, whole words and height. */
+function fitsCard(c: Card, what: string) {
+  const L = barLayout(c);
+  if (!L) return;
+  expect(L.labelW + L.barW + L.valueW + 2 * G.cellGap, `${what}: row width`).toBeLessThanOrEqual(COL);
+  expect(L.barW, `${what}: bar width`).toBeGreaterThanOrEqual(40);
+  expect(L.height, `${what}: rows under "${c.title}"`).toBeLessThanOrEqual(L.room);
+  (c.bars ?? []).slice(0, 5).forEach((b, i) => {
+    expect(L.labels[i].length, `${what}: ${b.label}`).toBeLessThanOrEqual(2);
+    for (const l of L.labels[i]) expect(measure(l, L.labelSize), `${what}: "${l}"`).toBeLessThanOrEqual(L.labelW);
+    expect(whole(b.label, L.labels[i]), `${what}: ${b.label} → ${L.labels[i].join(' / ')}`).toBe(true);
+    expect(measure(b.text, L.labelSize, 'sans600'), `${what}: value ${b.text}`).toBeLessThanOrEqual(L.valueW);
+  });
+}
+
+describe('share image cards', () => {
+  let cards: { family: string; key: string; card: Card }[];
+  beforeAll(async () => {
+    const { routes } = await import('../../src/lib/routes.ts');
+    const { card } = await import('../../src/lib/og-cards.ts');
+    cards = routes().filter((r) => r.live && r.image).map((r) => {
+      const [kind, family] = r.key.split(':');
+      return { family: kind === 'view' ? family : kind === 'country' && ['USA', 'CHN', 'RUS'].includes(r.key.split(':')[1]) ? 'dossier' : kind, key: r.key, card: card(r) };
+    });
+  }, 300_000);
+
+  it('fit every card the site builds', () => {
+    expect(cards.length).toBeGreaterThan(300);
+    for (const c of cards) fitsCard(c.card, c.key);
+  });
+
+  it('fit the longest label of each view family, five times over, under its longest title, and render inside the card', async () => {
+    const families = [...new Set(cards.map((c) => c.family))];
+    expect(families).toEqual(expect.arrayContaining(['blocs', 'minerals', 'oil', 'food', 'dossier', 'country', 'indicator']));
+    for (const f of families) {
+      const mine = cards.filter((c) => c.family === f && c.card.bars?.length);
+      if (!mine.length) continue;
+      const bars = mine.flatMap((c) => c.card.bars!);
+      const label = bars.reduce((a, b) => (b.label.length > a.label.length ? b : a)).label;
+      const text = bars.reduce((a, b) => (measure(b.text, 22, 'sans600') > measure(a.text, 22, 'sans600') ? b : a)).text;
+      const title = mine.reduce((a, b) => (b.card.title.length > a.card.title.length ? b : a)).card.title;
+      const worst: Card = { ...mine[0].card, title, bars: [1, 0.8, 0.6, 0.4, 0.2].map((value) => ({ label, value, text })) };
+      fitsCard(worst, `${f} (longest label "${label}")`);
+      expect(await marginsClear(worst), `${f}: nothing drawn in the card's right and bottom margins`).toBe(true);
+    }
+  }, 300_000);
+});

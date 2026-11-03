@@ -72,7 +72,23 @@ We show data for the unit the source reports and never move figures from one pla
 
 The sentences at the top of country, Compare and indicator pages are written by templates from the figures on the page, not by AI. Each sentence names its source and year, and a sentence whose figure is missing is left out rather than guessed.
 
-Some longer texts are drafted with AI and approved by the editor: the dossier summaries and the About, Privacy and Methodology pages. Each draft is written only from a facts file kept with the site, in which every fact has its source, link and date. A script checks every number, date and country in the draft against those facts; a draft that fails twice is dropped. Nothing is published without the editor's approval, and drafted summaries carry a label saying so.
+Some texts are drafted with AI and approved by the editor. The next section says how.
+
+## AI drafting
+
+These texts are drafted with AI: the summaries on the United States, China and Russia dossier pages, the notes on the alliance history pages and the summaries on the disputed river pages. The first drafts of About, Privacy, Methodology and the introductions to the five topic sections were made the same way. Dossier, history and river texts carry the label "Drafted with AI from cited sources and reviewed by the editor", which links here.
+
+**Facts first.** Each text has a facts file kept with the site's code. Every fact in it has its value, unit and period, the name of its source, a link to it and a date. A dossier's facts are the figures its page already shows; a history's are the dated joins and departures of the grouping, each with a citation such as a treaty or an official announcement; a river's are its treaties, dam milestones and official statements, each dated and cited. A fact that has not yet been checked against its source is marked as unverified, and nothing is drafted from a file that has one.
+
+**Drafting.** A script sends the facts file to Anthropic's Claude Sonnet 5.5 model (`claude-sonnet-5-5`) with a fixed prompt, kept with the code in `src/data/ai/prompt.md`. The prompt asks for plain, neutral text written only from the facts: no forecasts, no blame, no claims the facts do not support, no judging adjectives, and every figure with its unit and period.
+
+**Checking.** A second script, which is not AI, reads every number, date and country name in the draft and looks for it in the facts file. A figure passes only if it is a fact's value, written exactly or rounded the way it is written to at least two significant figures, with the fact's unit and period in the same sentence. Dates must be dates in the facts, and countries must be countries the facts name, under any of their usual names. A draft that fails is sent back once with the list of what failed; if the second draft fails too, it is dropped and nothing is published.
+
+**Approval.** Nothing drafted is published until the editor has read and approved it. Each approved text is stored with the date of approval and a fingerprint of the facts it was drafted from. When the facts change, for example when a source publishes a new year, the text is no longer shown until it has been redrafted and approved again. Texts that are not approved show nothing at all.
+
+**The editor's own words.** The editor can replace any draft with text written by hand. Such a text is marked as hand-written, is never overwritten by the drafting script and carries no AI label.
+
+The summaries at the top of other country pages, and every sentence on Compare and indicator pages, are written by templates, not by AI.
 
 ## Known limits
 

@@ -1,0 +1,289 @@
+{
+  "id": "history:csto",
+  "kind": "history",
+  "subject": "the Collective Security Treaty Organization",
+  "countries": [
+    "ARM",
+    "AZE",
+    "BLR",
+    "GEO",
+    "KAZ",
+    "KGZ",
+    "RUS",
+    "TJK",
+    "UZB"
+  ],
+  "names": [
+    "Collective Security Treaty",
+    "Collective Security Treaty Organization",
+    "CSTO"
+  ],
+  "generated": "by hand, from src/data/bloc-history.csv and the events in src/i18n/blocs.en.ts",
+  "facts": [
+    {
+      "id": "join-ARM-1992",
+      "statement": "Armenia was a founding member of the CSTO, in 1992.",
+      "period": "1992",
+      "places": [
+        "ARM"
+      ],
+      "source": "Collective Security Treaty Organization, From the treaty to the organization",
+      "link": "https://en.odkb-csto.org/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-KAZ-1992",
+      "statement": "Kazakhstan was a founding member of the CSTO, in 1992.",
+      "period": "1992",
+      "places": [
+        "KAZ"
+      ],
+      "source": "Collective Security Treaty Organization, From the treaty to the organization",
+      "link": "https://en.odkb-csto.org/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-KGZ-1992",
+      "statement": "Kyrgyzstan was a founding member of the CSTO, in 1992.",
+      "period": "1992",
+      "places": [
+        "KGZ"
+      ],
+      "source": "Collective Security Treaty Organization, From the treaty to the organization",
+      "link": "https://en.odkb-csto.org/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-RUS-1992",
+      "statement": "Russia was a founding member of the CSTO, in 1992.",
+      "period": "1992",
+      "places": [
+        "RUS"
+      ],
+      "source": "Collective Security Treaty Organization, From the treaty to the organization",
+      "link": "https://en.odkb-csto.org/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-TJK-1992",
+      "statement": "Tajikistan was a founding member of the CSTO, in 1992.",
+      "period": "1992",
+      "places": [
+        "TJK"
+      ],
+      "source": "Collective Security Treaty Organization, From the treaty to the organization",
+      "link": "https://en.odkb-csto.org/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-UZB-1992",
+      "statement": "Uzbekistan was a founding member of the CSTO, in 1992.",
+      "period": "1992",
+      "places": [
+        "UZB"
+      ],
+      "source": "Collective Security Treaty Organization, From the treaty to the organization",
+      "link": "https://en.odkb-csto.org/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "left-UZB-1999",
+      "statement": "Uzbekistan left the CSTO in 1999.",
+      "period": "1999",
+      "places": [
+        "UZB"
+      ],
+      "source": "Collective Security Treaty Organization, From the treaty to the organization",
+      "link": "https://en.odkb-csto.org/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-UZB-2006",
+      "statement": "Uzbekistan joined the CSTO in 2006.",
+      "period": "2006",
+      "places": [
+        "UZB"
+      ],
+      "source": "Collective Security Treaty Organization, From the treaty to the organization",
+      "link": "https://en.odkb-csto.org/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "left-UZB-2012",
+      "statement": "Uzbekistan suspended its membership of the CSTO in 2012.",
+      "period": "2012",
+      "places": [
+        "UZB"
+      ],
+      "source": "Collective Security Treaty Organization, From the treaty to the organization",
+      "link": "https://en.odkb-csto.org/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-BLR-1993",
+      "statement": "Belarus joined the CSTO in 1993.",
+      "period": "1993",
+      "places": [
+        "BLR"
+      ],
+      "source": "Collective Security Treaty Organization, From the treaty to the organization",
+      "link": "https://en.odkb-csto.org/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-AZE-1993",
+      "statement": "Azerbaijan joined the CSTO in 1993.",
+      "period": "1993",
+      "places": [
+        "AZE"
+      ],
+      "source": "Collective Security Treaty Organization, From the treaty to the organization",
+      "link": "https://en.odkb-csto.org/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "left-AZE-1999",
+      "statement": "Azerbaijan left the CSTO in 1999.",
+      "period": "1999",
+      "places": [
+        "AZE"
+      ],
+      "source": "Collective Security Treaty Organization, From the treaty to the organization",
+      "link": "https://en.odkb-csto.org/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-GEO-1993",
+      "statement": "Georgia joined the CSTO in 1993.",
+      "period": "1993",
+      "places": [
+        "GEO"
+      ],
+      "source": "Collective Security Treaty Organization, From the treaty to the organization",
+      "link": "https://en.odkb-csto.org/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "left-GEO-1999",
+      "statement": "Georgia left the CSTO in 1999.",
+      "period": "1999",
+      "places": [
+        "GEO"
+      ],
+      "source": "Collective Security Treaty Organization, From the treaty to the organization",
+      "link": "https://en.odkb-csto.org/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "note-1992",
+      "statement": "The Collective Security Treaty was signed in 1992.",
+      "period": "1992",
+      "places": [],
+      "source": "Collective Security Treaty Organization, From the treaty to the organization",
+      "link": "https://en.odkb-csto.org/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "note-1999",
+      "statement": "Azerbaijan, Georgia and Uzbekistan did not renew the treaty in 1999.",
+      "period": "1999",
+      "places": [
+        "AZE",
+        "GEO",
+        "UZB"
+      ],
+      "source": "Collective Security Treaty Organization, From the treaty to the organization",
+      "link": "https://en.odkb-csto.org/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "note-2002",
+      "statement": "The treaty’s members founded the Collective Security Treaty Organization in 2002.",
+      "period": "2002",
+      "places": [],
+      "source": "Collective Security Treaty Organization, From the treaty to the organization",
+      "link": "https://en.odkb-csto.org/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "note-2024",
+      "statement": "Armenia froze its participation in 2024; it has not left.",
+      "period": "2024",
+      "places": [
+        "ARM"
+      ],
+      "source": "Collective Security Treaty Organization, From the treaty to the organization",
+      "link": "https://en.odkb-csto.org/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "founding-members",
+      "statement": "Members of the CSTO at its founding.",
+      "value": 6,
+      "unit": "members",
+      "unitAliases": [
+        "countries",
+        "founding members",
+        "founders"
+      ],
+      "period": "1992",
+      "source": "Collective Security Treaty Organization, From the treaty to the organization",
+      "link": "https://en.odkb-csto.org/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Count of the founding rows in src/data/bloc-history.csv; check against the link."
+    },
+    {
+      "id": "members-2026",
+      "statement": "Members of the CSTO in 2026, as the membership table was checked on 21 October 2026.",
+      "value": 6,
+      "unit": "members",
+      "unitAliases": [
+        "countries",
+        "member countries"
+      ],
+      "period": "2026",
+      "source": "Collective Security Treaty Organization, From the treaty to the organization",
+      "link": "https://en.odkb-csto.org/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Count of the open rows in src/data/bloc-history.csv; check against the link."
+    }
+  ]
+}

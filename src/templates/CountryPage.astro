@@ -19,6 +19,7 @@ import SourceLine from '../components/SourceLine.astro';
 import ShareRow from '../components/ShareRow.astro';
 import StatusTag from '../components/StatusTag.astro';
 import Icon from '../components/Icon.astro';
+import AiText from '../components/AiText.astro';
 import '../styles/atlas/country.css';
 import '../styles/atlas/bars.css';
 import { INDICATORS } from '../data/indicators';
@@ -35,6 +36,7 @@ import { countryHref, indicatorHref, live, paths } from '../lib/routes';
 import { breadcrumbs, country as countryLd } from '../lib/structured';
 import { NUCLEAR_TEXT } from '../i18n/nuclear.en';
 import { warheads } from '../lib/nuclear';
+import { publishedText } from '../lib/ai/texts';
 
 interface Props { id: string }
 const m = countryModel(Astro.props.id)!;
@@ -44,6 +46,9 @@ const subject = inSentence(name, true);
 const url = new URL(paths.country(p.id), Astro.site).href;
 const kind = m.dossier ? COUNTRY_TEXT.kindDossier : p.kind === 'territory' ? COUNTRY_TEXT.kindTerritory : COUNTRY_TEXT.kindProfile;
 const updated = formatDate(m.updated);
+// A dossier's summary drafted with AI from its figures, once the owner approved it and while those figures are
+// unchanged (src/lib/ai/texts.ts); until then, and on every other profile, the template summary.
+const aiSummary = m.dossier ? publishedText(`dossier:${p.id}`) : null;
 
 const label = (id: string) => INDICATOR_TEXT[id].short ?? INDICATOR_TEXT[id].label;
 const parts = (f: Figure) => formatParts(f.value, INDICATORS[f.id].format, INDICATOR_TEXT[f.id].unit);
@@ -118,10 +123,12 @@ const citation = COUNTRY_TEXT.citation(name, kind, url, Number(m.updated.slice(0
         <Breadcrumbs items={crumbs} />
         <span class="gt-cphead__kind">{kind} · {COUNTRY_TEXT.updated(updated)}</span>
         <h1 class="gt-title gt-cphead__t">{name}</h1>
-        <div class="gt-prose gt-cphead__sum">
-          <p>{m.summary.join(' ')}</p>
-          <p class="gt-caption">{COUNTRY_TEXT.auto}</p>
-        </div>
+        {aiSummary ? <div class="gt-cphead__sum"><AiText text={aiSummary} /></div> : (
+          <div class="gt-prose gt-cphead__sum">
+            <p>{m.summary.join(' ')}</p>
+            <p class="gt-caption">{COUNTRY_TEXT.auto}</p>
+          </div>
+        )}
         <dl class="gt-cpfacts">
           {pop && <div><dt>{COUNTRY_TEXT.facts.population}</dt><dd>{formatValue(pop.value, INDICATORS.population.format)} <span class="gt-caption">({pop.year})</span></dd></div>}
           {p.kind === 'territory' && p.parent && <div><dt>{COUNTRY_TEXT.facts.administered}</dt><dd>{countryHref(p.parent) ? <a href={countryHref(p.parent)}>{nameOf(p.parent)}</a> : nameOf(p.parent)}</dd></div>}

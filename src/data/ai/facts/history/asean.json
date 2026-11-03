@@ -1,0 +1,200 @@
+{
+  "id": "history:asean",
+  "kind": "history",
+  "subject": "ASEAN",
+  "countries": [
+    "BRN",
+    "IDN",
+    "KHM",
+    "LAO",
+    "MMR",
+    "MYS",
+    "PHL",
+    "SGP",
+    "THA",
+    "TLS",
+    "VNM"
+  ],
+  "names": [
+    "ASEAN"
+  ],
+  "generated": "by hand, from src/data/bloc-history.csv and the events in src/i18n/blocs.en.ts",
+  "facts": [
+    {
+      "id": "join-IDN-1967",
+      "statement": "Indonesia was a founding member of ASEAN, in 1967.",
+      "period": "1967",
+      "places": [
+        "IDN"
+      ],
+      "source": "ASEAN, Member states",
+      "link": "https://asean.org/member-states/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-MYS-1967",
+      "statement": "Malaysia was a founding member of ASEAN, in 1967.",
+      "period": "1967",
+      "places": [
+        "MYS"
+      ],
+      "source": "ASEAN, Member states",
+      "link": "https://asean.org/member-states/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-PHL-1967",
+      "statement": "Philippines was a founding member of ASEAN, in 1967.",
+      "period": "1967",
+      "places": [
+        "PHL"
+      ],
+      "source": "ASEAN, Member states",
+      "link": "https://asean.org/member-states/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-SGP-1967",
+      "statement": "Singapore was a founding member of ASEAN, in 1967.",
+      "period": "1967",
+      "places": [
+        "SGP"
+      ],
+      "source": "ASEAN, Member states",
+      "link": "https://asean.org/member-states/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-THA-1967",
+      "statement": "Thailand was a founding member of ASEAN, in 1967.",
+      "period": "1967",
+      "places": [
+        "THA"
+      ],
+      "source": "ASEAN, Member states",
+      "link": "https://asean.org/member-states/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-BRN-1984",
+      "statement": "Brunei joined ASEAN in 1984.",
+      "period": "1984",
+      "places": [
+        "BRN"
+      ],
+      "source": "ASEAN, Member states",
+      "link": "https://asean.org/member-states/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-VNM-1995",
+      "statement": "Vietnam joined ASEAN in 1995.",
+      "period": "1995",
+      "places": [
+        "VNM"
+      ],
+      "source": "ASEAN, Member states",
+      "link": "https://asean.org/member-states/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-LAO-1997",
+      "statement": "Laos joined ASEAN in 1997.",
+      "period": "1997",
+      "places": [
+        "LAO"
+      ],
+      "source": "ASEAN, Member states",
+      "link": "https://asean.org/member-states/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-MMR-1997",
+      "statement": "Myanmar joined ASEAN in 1997.",
+      "period": "1997",
+      "places": [
+        "MMR"
+      ],
+      "source": "ASEAN, Member states",
+      "link": "https://asean.org/member-states/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-KHM-1999",
+      "statement": "Cambodia joined ASEAN in 1999.",
+      "period": "1999",
+      "places": [
+        "KHM"
+      ],
+      "source": "ASEAN, Member states",
+      "link": "https://asean.org/member-states/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-TLS-2025",
+      "statement": "Timor-Leste joined ASEAN in 2025.",
+      "period": "2025",
+      "places": [
+        "TLS"
+      ],
+      "source": "ASEAN, Declaration on the admission of Timor-Leste into ASEAN (26 October 2025)",
+      "link": "https://asean.org/",
+      "date": "2025-10-26",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "founding-members",
+      "statement": "Members of ASEAN at its founding.",
+      "value": 5,
+      "unit": "members",
+      "unitAliases": [
+        "countries",
+        "founding members",
+        "founders"
+      ],
+      "period": "1967",
+      "source": "ASEAN, Member states",
+      "link": "https://asean.org/member-states/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Count of the founding rows in src/data/bloc-history.csv; check against the link."
+    },
+    {
+      "id": "members-2026",
+      "statement": "Members of ASEAN in 2026, as the membership table was checked on 21 October 2026.",
+      "value": 11,
+      "unit": "members",
+      "unitAliases": [
+        "countries",
+        "member countries"
+      ],
+      "period": "2026",
+      "source": "ASEAN, Member states",
+      "link": "https://asean.org/member-states/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Count of the open rows in src/data/bloc-history.csv; check against the link."
+    }
+  ]
+}

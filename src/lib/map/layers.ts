@@ -854,7 +854,7 @@ function blocLayer(id: string): LayerFile {
   const bl: Record<string, string> = {};
   const more: Record<string, PanelBlock[]> = {};
   const groupsOf = (pl: string, except?: string) => blocsOf(pl).filter((b) => b !== except)
-    .map((b) => ({ name: BLOC_TEXT[b] ?? b, value: B.sub(all.get(b)!.length), href: live(`view:blocs:${b}`)?.path }));
+    .map((b) => ({ name: BLOC_TEXT[b] ?? b, value: B.sub(b, all.get(b)!.length), href: live(`view:blocs:${b}`)?.path }));
   let order: string[];
   let series: Record<string, (number | null)[]> | undefined;
   if (id === 'all') {
@@ -863,7 +863,7 @@ function blocLayer(id: string): LayerFile {
     order = counts.map((r) => r.id);
     series = Object.fromEntries(counts.map((r) => [r.id, [r.n]]));
     for (const r of counts) more[r.id] = [{ label: B.itsBlocs, rows: groupsOf(r.id) }];
-    for (const [b, m] of all) bl[b] = B.allBlocLine(BLOC_TEXT[b] ?? b, m.length);
+    for (const [b, m] of all) bl[b] = B.allBlocLine(b, BLOC_TEXT[b] ?? b, m.length);
   } else {
     const p = blocPage(id)!;
     order = p.byPopulation;
@@ -881,7 +881,7 @@ function blocLayer(id: string): LayerFile {
     for (const [b, m] of all) {
       if (b === id) continue;
       const shared = m.filter((x) => p.members.includes(x));
-      bl[b] = B.overlapLine(BLOC_TEXT[b] ?? b, shared.length, m.length, name);
+      bl[b] = B.overlapLine(b, BLOC_TEXT[b] ?? b, shared.length, m.length, name);
     }
   }
   const notes = { ...c.notes };

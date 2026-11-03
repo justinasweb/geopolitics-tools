@@ -19,6 +19,7 @@ import { DRAFT_BANNER, LONGREAD_TEXT } from '../i18n/pages.en';
 import { hubModel } from '../lib/hubs';
 import { paths } from '../lib/routes';
 import { breadcrumbs } from '../lib/structured';
+import { longApproved } from '../lib/ai/texts';
 
 interface Props { id: string }
 const { id } = Astro.props;
@@ -27,6 +28,7 @@ const intro = await getEntry('hubs', id);
 if (!intro) throw new Error(`hub ${id}: no intro in src/content/hubs/${id}.md`);
 const crumbs = [{ label: LONGREAD_TEXT.home, href: '/' }, { label: m.name }];
 const views = m.cards.map((c) => c.kicker);
+const approved = longApproved(`hub:${id}`);
 ---
 <Page title={H.title(m.name)} description={H.description(m.name, views)} hub={id} container="tl" mainClass="gt-hub" image={paths.image('hubs', id)}
   jsonld={[breadcrumbs(crumbs)]}>
@@ -35,7 +37,7 @@ const views = m.cards.map((c) => c.kicker);
     <span class="gt-kicker">{H.kicker}</span>
     <h1 class="gt-title">{m.name}</h1>
     <p class="gt-lede">{intro.data.intro}</p>
-    {!intro.data.approved && <Notice inline><p>{DRAFT_BANNER}</p></Notice>}
+    {!approved && <Notice inline><p>{DRAFT_BANNER}</p></Notice>}
   </header>
 
   <section class="gt-sec" aria-labelledby="hub-maps">

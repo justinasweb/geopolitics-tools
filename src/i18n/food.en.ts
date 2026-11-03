@@ -3,6 +3,7 @@
 // already formatted and return plain sentences, plain verbs, no adjectives that judge, and a sentence whose figure is
 // missing is left out. Another language is another file with the same keys.
 import { list } from './pages.en.ts';
+import { todaysMembers } from './members.en.ts';
 
 export interface CommodityText {
   /** The picker's word and the start of a title ("Wheat"). */
@@ -131,11 +132,11 @@ export const FOOD_TEXT = {
   share: 'Share of world',
   // Bloc lines.
   bloc: {
-    production: (b: string, share: string, name: string, y: number) => `${b} members produced ${share} of the world’s ${name} in ${y}.`,
-    use: (b: string, share: string, name: string, y: number) => `${b} members used ${share} of the world’s ${name} in ${y}.`,
-    trade: (b: string, v: string, exports: boolean, name: string, y: number) => `${b} members together were net ${exports ? 'exporters' : 'importers'} of ${v} of ${name} in ${y}.`,
+    production: (b: string, share: string, name: string, y: number) => `${todaysMembers(b, { start: true })} produced ${share} of the world’s ${name} in ${y}.`,
+    use: (b: string, share: string, name: string, y: number) => `${todaysMembers(b, { start: true })} used ${share} of the world’s ${name} in ${y}.`,
+    trade: (b: string, v: string, exports: boolean, name: string, y: number) => `${todaysMembers(b, { start: true })} together were net ${exports ? 'exporters' : 'importers'} of ${v} of ${name} in ${y}.`,
   },
-  blocNone: (b: string, y: number) => `No ${b} member has a figure for ${y}.`,
+  blocNone: (b: string, y: number) => `None of ${todaysMembers(b)} has a figure for ${y}.`,
   // The tables.
   summary: 'Summary',
   all: 'All countries',

@@ -1,0 +1,20 @@
+---
+// An approved AI text (spec, D15): the text, then the label "Drafted with AI from cited sources and reviewed by the
+// editor", linking to Methodology. A text the owner wrote by hand shows without the label. The page passes only what
+// publishedText (src/lib/ai/texts.ts) returned, so an unapproved or stale text never reaches here: no placeholder.
+import '../styles/atlas/ailabel.css';
+import { DRAFTING_TEXT as T } from '../i18n/drafting.en';
+import { live } from '../lib/routes';
+import type { Published } from '../lib/ai/texts';
+
+interface Props { text: Published }
+const { text } = Astro.props;
+const method = live('page:methodology')?.path;
+const mark = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 .8 7.3 4.7 11.2 6 7.3 7.3 6 11.2 4.7 7.3.8 6 4.7 4.7z" fill="currentColor" /></svg>';
+---
+<div class="gt-aitext" data-ai={text.ai ? 'ai' : 'owner'}>
+  {text.text.split(/\n{2,}/).map((p) => <p>{p}</p>)}
+  {text.ai && (method
+    ? <a class="gt-ailabel" href={`${method}#ai-drafting`} aria-label={`${T.label}. ${T.labelLink}`}><Fragment set:html={mark} /><span>{T.label}</span></a>
+    : <span class="gt-ailabel"><Fragment set:html={mark} /><span>{T.label}</span></span>)}
+</div>

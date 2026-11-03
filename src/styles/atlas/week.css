@@ -3,8 +3,6 @@
    rules at the end are the page's: counts as a snap row with the next one peeking in, cards stacked, and the feed
    under the cards below 1100px of page. */
 
-.gt-ailabel { display: inline-flex; align-items: center; gap: 6px; padding: 2px 8px; border: 1px solid var(--rule-strong); font: 600 13px/18px var(--sans); color: var(--ink); background: var(--paper-raised); }
-.gt-ailabel svg { width: 12px; height: 12px; color: var(--accent); flex: none; }
 .gt-wsum { display: grid; gap: 12px; padding: 20px 24px 18px; background: var(--paper-raised); border-top: 3px double var(--ink); border-bottom: 1px solid var(--rule); max-width: 860px; }
 .gt-wsum__head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; }
 .gt-wsum__head .gt-label { margin: 0; color: var(--ink); }

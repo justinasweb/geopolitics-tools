@@ -2,6 +2,63 @@
 
 Decisions put off for later. Each says what the question is, what the site does now, and the options seen so far.
 
+## Re-check bloc memberships before launch (raised 2 Nov 2026)
+
+**The question.** The membership table (`src/data/blocs.csv`, `bloc-history.csv`) is kept by hand, and the
+weekly Wikidata cross-check planned for phase 5a is not built yet. It was last checked in full on **21 October 2026**
+(`BLOCS_CHECKED` in `src/lib/blocs.ts`), but it missed the United Arab Emirates leaving OPEC and OPEC+ on
+1 May 2026 (announced on 28 April 2026, [WAM](https://www.wam.ae/en/article/bzxzuh7-uae-announces-decision-exit-opec-opec+)).
+That was fixed on **2 November 2026**: the UAE was removed from OPEC (now 11 members) and OPEC+ (now 21), its OPEC
+history ends in 2026, and the change is in Sources → Corrections. Only OPEC and OPEC+ were rechecked that day, so
+`BLOCS_CHECKED` still says 21 October 2026.
+
+**Bloc shares count today's members: decided 2 Nov 2026.** A bloc's share or total on a map, a bloc page or a share
+image adds up its members as they are today, whatever year is shown, so OPEC's 2024 oil share leaves out the UAE,
+which was a member then. At launch every such sentence says so ("Today's OPEC members produced 30% of the world's oil
+in 2024."), built with one phrase (`todaysMembers` in `src/i18n/members.en.ts`); `tests/unit/bloc-lines.test.ts`
+fails on a bloc share line without it. Lines that state no share over a year keep plain wording: overlap between
+groupings, disaster alerts in the last days, treaty and sharing status, river disputes.
+Post-launch option: count each year's members for the 11 groupings with a history (`bloc-history.csv`), and keep
+"today's" for the other 8.
+
+**Members that are not countries, and predecessors: decided 3 Nov 2026.** Counts are of countries, and a grouping
+with other members names them in one template (`membersText` in `src/i18n/members.en.ts`): "19 countries, plus the
+European Union and, since 2023, the African Union" (G20) and "7 countries, with the European Union taking part as a
+non-enumerated member since 1977" (G7), on the bloc page, its title, panel, member table, history page, Bloc overlap
+and share images. A history that began under another name says so (`BEGAN_AS` in `src/i18n/blocs.en.ts`): the SCO
+(Shanghai Five, 1996), the EU (European Economic Community, 1958), the CSTO (Collective Security Treaty, 1992), BRICS
+(BRIC, 2009; South Africa joined in 2010) and the G7 (a summit of six countries in 1975; Canada joined in 1976).
+Confirmed by the owner on 3 Nov 2026: the EU's G7 participation **since 1977**, and calling the 1975 summit "a summit
+of six countries" rather than a named "G6". `tests/unit/bloc-members.test.ts` holds the wording.
+
+**Before launch.** Check every one of the 19 groupings against its own member list, update `BLOCS_CHECKED` to that
+day, and log any change in `src/data/corrections.csv`. Known points to look at: BRICS (Saudi Arabia's status),
+the CSTO (Armenia's frozen participation), OPEC+ (its list of non-OPEC producers) and the G20 (the African Union is
+not a country, so not on the map).
+
+## AI drafting: choices to confirm (raised 2 Nov 2026)
+
+Made while building the drafting pipeline (docs/ai-drafting.md); each is easy to change.
+
+- **Facts to verify before anything can be drafted.** Every alliance history and river fact is marked unverified:
+  the official sites (nato.int and the others) could not be reached from the build session. Each fact has its
+  official link and a note. A web search confirmed that the main cited pages exist, not what they say. Dates come
+  from `src/data/bloc-history.csv` and `HISTORY_EVENTS`; a few links point to a site's home page because no exact
+  page could be checked (ASEAN's Timor-Leste declaration, Ethiopia's Prime Minister's Office, Egypt's State
+  Information Service, Xinhua, the MEA). Privacy and Methodology also wait on the Fathom, Cloudflare and SIPRI facts
+  and the six territory notes.
+- **Stale texts are hidden.** A short text whose facts changed disappears until it is redrafted; a long page shows
+  the draft banner again. For dossiers this happens whenever a figure they cite gets a new year. The alternative is
+  to keep showing the old text with its approval date until the redraft.
+- **Approval dates for long pages** are typed by the owner (`approvedOn`) in the pull request; CI fails without one.
+  A "approve" label or comment that fills it in would save the step.
+- **Hand-written texts** carry no label and are never flagged as stale, even when their facts change.
+- **Dossier summaries replace the template summary** in the dossier header once approved; the template summary stays
+  until then.
+- **Strictness.** The checker refuses "half", "doubled", rounding to one significant figure and any country the facts
+  do not name, including demonyms ("Chinese company"). If good drafts are dropped too often, loosen it in
+  `src/lib/ai/check.ts` with a test.
+
 ## This week: choices to confirm (raised 2 Nov 2026)
 
 Made while building `/this-week` and its archive; each is easy to change.

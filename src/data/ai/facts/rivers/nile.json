@@ -1,0 +1,132 @@
+{
+  "id": "river:nile",
+  "kind": "river",
+  "subject": "the Nile",
+  "countries": [
+    "ETH",
+    "SDN",
+    "EGY"
+  ],
+  "names": [
+    "Nile",
+    "Blue Nile",
+    "Grand Ethiopian Renaissance Dam",
+    "GERD",
+    "Declaration of Principles",
+    "Agreement for the Full Utilization of the Nile Waters"
+  ],
+  "generated": "by hand",
+  "facts": [
+    {
+      "id": "agreement-1959",
+      "statement": "Egypt and Sudan signed the Agreement for the Full Utilization of the Nile Waters on 8 November 1959.",
+      "period": "1959-11-08",
+      "places": [
+        "EGY",
+        "SDN"
+      ],
+      "source": "United Nations Treaty Series, vol. 453, No. 6519",
+      "link": "https://treaties.un.org/Pages/UNTSOnline.aspx?id=1",
+      "date": "1963",
+      "unverified": true,
+      "note": "Search the UN Treaty Collection for UNTS volume 453, No. 6519 (Egypt, then the United Arab Republic, and Sudan)."
+    },
+    {
+      "id": "egypt-1959",
+      "statement": "The 1959 agreement allocates Egypt water measured at Aswan.",
+      "value": 55.5,
+      "unit": "billion cubic metres a year",
+      "unitAliases": [
+        "bcm a year",
+        "billion cubic metres of water a year"
+      ],
+      "period": "1959",
+      "places": [
+        "EGY"
+      ],
+      "source": "United Nations Treaty Series, vol. 453, No. 6519",
+      "link": "https://treaties.un.org/Pages/UNTSOnline.aspx?id=1",
+      "date": "1963",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check it against the link."
+    },
+    {
+      "id": "sudan-1959",
+      "statement": "The 1959 agreement allocates Sudan water measured at Aswan.",
+      "value": 18.5,
+      "unit": "billion cubic metres a year",
+      "unitAliases": [
+        "bcm a year",
+        "billion cubic metres of water a year"
+      ],
+      "period": "1959",
+      "places": [
+        "SDN"
+      ],
+      "source": "United Nations Treaty Series, vol. 453, No. 6519",
+      "link": "https://treaties.un.org/Pages/UNTSOnline.aspx?id=1",
+      "date": "1963",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check it against the link."
+    },
+    {
+      "id": "dop-2015",
+      "statement": "Egypt, Ethiopia and Sudan signed the Declaration of Principles on the Grand Ethiopian Renaissance Dam in Khartoum on 23 March 2015.",
+      "period": "2015-03-23",
+      "places": [
+        "EGY",
+        "ETH",
+        "SDN"
+      ],
+      "source": "State Information Service of Egypt",
+      "link": "https://www.sis.gov.eg/",
+      "date": "2015-03-23",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check it against the link."
+    },
+    {
+      "id": "gerd-filling",
+      "statement": "Ethiopia began filling the dam’s reservoir in July 2020.",
+      "period": "2020-07",
+      "places": [
+        "ETH"
+      ],
+      "source": "Office of the Prime Minister of Ethiopia",
+      "link": "https://www.pmo.gov.et/",
+      "date": "2020-07",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check it against the link."
+    },
+    {
+      "id": "gerd-inauguration",
+      "statement": "Ethiopia inaugurated the Grand Ethiopian Renaissance Dam on 9 September 2025.",
+      "period": "2025-09-09",
+      "places": [
+        "ETH"
+      ],
+      "source": "Office of the Prime Minister of Ethiopia",
+      "link": "https://www.pmo.gov.et/",
+      "date": "2025-09-09",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check it against the link."
+    },
+    {
+      "id": "gerd-capacity",
+      "statement": "The installed capacity of the Grand Ethiopian Renaissance Dam.",
+      "value": 5150,
+      "unit": "megawatts",
+      "unitAliases": [
+        "MW"
+      ],
+      "period": "2025",
+      "places": [
+        "ETH"
+      ],
+      "source": "Office of the Prime Minister of Ethiopia",
+      "link": "https://www.pmo.gov.et/",
+      "date": "2025-09-09",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check it against the link."
+    }
+  ]
+}

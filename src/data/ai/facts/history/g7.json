@@ -1,0 +1,219 @@
+{
+  "id": "history:g7",
+  "kind": "history",
+  "subject": "the G7",
+  "countries": [
+    "CAN",
+    "DEU",
+    "FRA",
+    "GBR",
+    "ITA",
+    "JPN",
+    "RUS",
+    "UKR",
+    "USA",
+    "XWG"
+  ],
+  "names": [
+    "G7",
+    "G8"
+  ],
+  "generated": "by hand, from src/data/bloc-history.csv and the events in src/i18n/blocs.en.ts",
+  "facts": [
+    {
+      "id": "join-FRA-1975",
+      "statement": "France was a founding member of the G7, in 1975.",
+      "period": "1975",
+      "places": [
+        "FRA"
+      ],
+      "source": "Ministry of Foreign Affairs of Japan, G7 summits",
+      "link": "https://www.mofa.go.jp/policy/economy/summit/index.html",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-DEU-1975",
+      "statement": "Germany was a founding member of the G7, in 1975.",
+      "period": "1975",
+      "places": [
+        "DEU"
+      ],
+      "source": "Ministry of Foreign Affairs of Japan, G7 summits",
+      "link": "https://www.mofa.go.jp/policy/economy/summit/index.html",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-ITA-1975",
+      "statement": "Italy was a founding member of the G7, in 1975.",
+      "period": "1975",
+      "places": [
+        "ITA"
+      ],
+      "source": "Ministry of Foreign Affairs of Japan, G7 summits",
+      "link": "https://www.mofa.go.jp/policy/economy/summit/index.html",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-JPN-1975",
+      "statement": "Japan was a founding member of the G7, in 1975.",
+      "period": "1975",
+      "places": [
+        "JPN"
+      ],
+      "source": "Ministry of Foreign Affairs of Japan, G7 summits",
+      "link": "https://www.mofa.go.jp/policy/economy/summit/index.html",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-GBR-1975",
+      "statement": "United Kingdom was a founding member of the G7, in 1975.",
+      "period": "1975",
+      "places": [
+        "GBR"
+      ],
+      "source": "Ministry of Foreign Affairs of Japan, G7 summits",
+      "link": "https://www.mofa.go.jp/policy/economy/summit/index.html",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-USA-1975",
+      "statement": "United States was a founding member of the G7, in 1975.",
+      "period": "1975",
+      "places": [
+        "USA"
+      ],
+      "source": "Ministry of Foreign Affairs of Japan, G7 summits",
+      "link": "https://www.mofa.go.jp/policy/economy/summit/index.html",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-CAN-1976",
+      "statement": "Canada joined the G7 in 1976.",
+      "period": "1976",
+      "places": [
+        "CAN"
+      ],
+      "source": "Ministry of Foreign Affairs of Japan, G7 summits",
+      "link": "https://www.mofa.go.jp/policy/economy/summit/index.html",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-RUS-1997",
+      "statement": "Russia joined the G7 in 1997.",
+      "period": "1997",
+      "places": [
+        "RUS"
+      ],
+      "source": "Ministry of Foreign Affairs of Japan, G7 summits",
+      "link": "https://www.mofa.go.jp/policy/economy/summit/index.html",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "left-RUS-2014",
+      "statement": "Russia was suspended from the G7 in 2014.",
+      "period": "2014",
+      "places": [
+        "RUS"
+      ],
+      "source": "The White House, The Hague Declaration (24 March 2014)",
+      "link": "https://obamawhitehouse.archives.gov/the-press-office/2014/03/24/hague-declaration",
+      "date": "2014-03-24",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "note-1975",
+      "statement": "France, West Germany, Italy, Japan, the United Kingdom and the United States held the first summit in 1975.",
+      "period": "1975",
+      "places": [
+        "FRA",
+        "XWG",
+        "ITA",
+        "JPN",
+        "GBR",
+        "USA"
+      ],
+      "source": "Ministry of Foreign Affairs of Japan, G7 summits",
+      "link": "https://www.mofa.go.jp/policy/economy/summit/index.html",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "note-1997",
+      "statement": "With Russia, the group met as the G8 from 1997.",
+      "period": "1997",
+      "places": [
+        "RUS"
+      ],
+      "source": "Ministry of Foreign Affairs of Japan, G7 summits",
+      "link": "https://www.mofa.go.jp/policy/economy/summit/index.html",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "note-2014",
+      "statement": "Russia was suspended in 2014 after its annexation of Crimea, and the group met as the G7 again.",
+      "period": "2014",
+      "places": [
+        "RUS",
+        "UKR"
+      ],
+      "source": "Ministry of Foreign Affairs of Japan, G7 summits",
+      "link": "https://www.mofa.go.jp/policy/economy/summit/index.html",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "founding-members",
+      "statement": "Members of the G7 at its founding.",
+      "value": 6,
+      "unit": "members",
+      "unitAliases": [
+        "countries",
+        "founding members",
+        "founders"
+      ],
+      "period": "1975",
+      "source": "Ministry of Foreign Affairs of Japan, G7 summits",
+      "link": "https://www.mofa.go.jp/policy/economy/summit/index.html",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Count of the founding rows in src/data/bloc-history.csv; check against the link."
+    },
+    {
+      "id": "members-2026",
+      "statement": "Members of the G7 in 2026, as the membership table was checked on 21 October 2026.",
+      "value": 7,
+      "unit": "members",
+      "unitAliases": [
+        "countries",
+        "member countries"
+      ],
+      "period": "2026",
+      "source": "Ministry of Foreign Affairs of Japan, G7 summits",
+      "link": "https://www.mofa.go.jp/policy/economy/summit/index.html",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Count of the open rows in src/data/bloc-history.csv; check against the link."
+    }
+  ]
+}

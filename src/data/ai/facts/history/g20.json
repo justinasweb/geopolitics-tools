@@ -1,0 +1,385 @@
+{
+  "id": "history:g20",
+  "kind": "history",
+  "subject": "the G20",
+  "countries": [
+    "ARG",
+    "AUS",
+    "BRA",
+    "CAN",
+    "CHN",
+    "DEU",
+    "FRA",
+    "GBR",
+    "IDN",
+    "IND",
+    "ITA",
+    "JPN",
+    "KOR",
+    "MEX",
+    "RUS",
+    "SAU",
+    "TUR",
+    "USA",
+    "ZAF"
+  ],
+  "names": [
+    "G20",
+    "African Union"
+  ],
+  "generated": "by hand, from src/data/bloc-history.csv and the events in src/i18n/blocs.en.ts",
+  "facts": [
+    {
+      "id": "join-EU-1999",
+      "statement": "The European Union was a founding member of the G20, in 1999.",
+      "period": "1999",
+      "places": [],
+      "source": "G20, About the G20",
+      "link": "https://g20.org/about-the-g20/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "The EU is not a country, so it is not in src/data/bloc-history.csv or on the map; check against the link."
+    },
+    {
+      "id": "join-ARG-1999",
+      "statement": "Argentina was a founding member of the G20, in 1999.",
+      "period": "1999",
+      "places": [
+        "ARG"
+      ],
+      "source": "G20, About the G20",
+      "link": "https://g20.org/about-the-g20/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-AUS-1999",
+      "statement": "Australia was a founding member of the G20, in 1999.",
+      "period": "1999",
+      "places": [
+        "AUS"
+      ],
+      "source": "G20, About the G20",
+      "link": "https://g20.org/about-the-g20/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-BRA-1999",
+      "statement": "Brazil was a founding member of the G20, in 1999.",
+      "period": "1999",
+      "places": [
+        "BRA"
+      ],
+      "source": "G20, About the G20",
+      "link": "https://g20.org/about-the-g20/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-CAN-1999",
+      "statement": "Canada was a founding member of the G20, in 1999.",
+      "period": "1999",
+      "places": [
+        "CAN"
+      ],
+      "source": "G20, About the G20",
+      "link": "https://g20.org/about-the-g20/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-CHN-1999",
+      "statement": "China was a founding member of the G20, in 1999.",
+      "period": "1999",
+      "places": [
+        "CHN"
+      ],
+      "source": "G20, About the G20",
+      "link": "https://g20.org/about-the-g20/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-FRA-1999",
+      "statement": "France was a founding member of the G20, in 1999.",
+      "period": "1999",
+      "places": [
+        "FRA"
+      ],
+      "source": "G20, About the G20",
+      "link": "https://g20.org/about-the-g20/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-DEU-1999",
+      "statement": "Germany was a founding member of the G20, in 1999.",
+      "period": "1999",
+      "places": [
+        "DEU"
+      ],
+      "source": "G20, About the G20",
+      "link": "https://g20.org/about-the-g20/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-IND-1999",
+      "statement": "India was a founding member of the G20, in 1999.",
+      "period": "1999",
+      "places": [
+        "IND"
+      ],
+      "source": "G20, About the G20",
+      "link": "https://g20.org/about-the-g20/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-IDN-1999",
+      "statement": "Indonesia was a founding member of the G20, in 1999.",
+      "period": "1999",
+      "places": [
+        "IDN"
+      ],
+      "source": "G20, About the G20",
+      "link": "https://g20.org/about-the-g20/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-ITA-1999",
+      "statement": "Italy was a founding member of the G20, in 1999.",
+      "period": "1999",
+      "places": [
+        "ITA"
+      ],
+      "source": "G20, About the G20",
+      "link": "https://g20.org/about-the-g20/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-JPN-1999",
+      "statement": "Japan was a founding member of the G20, in 1999.",
+      "period": "1999",
+      "places": [
+        "JPN"
+      ],
+      "source": "G20, About the G20",
+      "link": "https://g20.org/about-the-g20/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-KOR-1999",
+      "statement": "South Korea was a founding member of the G20, in 1999.",
+      "period": "1999",
+      "places": [
+        "KOR"
+      ],
+      "source": "G20, About the G20",
+      "link": "https://g20.org/about-the-g20/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-MEX-1999",
+      "statement": "Mexico was a founding member of the G20, in 1999.",
+      "period": "1999",
+      "places": [
+        "MEX"
+      ],
+      "source": "G20, About the G20",
+      "link": "https://g20.org/about-the-g20/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-RUS-1999",
+      "statement": "Russia was a founding member of the G20, in 1999.",
+      "period": "1999",
+      "places": [
+        "RUS"
+      ],
+      "source": "G20, About the G20",
+      "link": "https://g20.org/about-the-g20/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-SAU-1999",
+      "statement": "Saudi Arabia was a founding member of the G20, in 1999.",
+      "period": "1999",
+      "places": [
+        "SAU"
+      ],
+      "source": "G20, About the G20",
+      "link": "https://g20.org/about-the-g20/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-ZAF-1999",
+      "statement": "South Africa was a founding member of the G20, in 1999.",
+      "period": "1999",
+      "places": [
+        "ZAF"
+      ],
+      "source": "G20, About the G20",
+      "link": "https://g20.org/about-the-g20/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-TUR-1999",
+      "statement": "Türkiye was a founding member of the G20, in 1999.",
+      "period": "1999",
+      "places": [
+        "TUR"
+      ],
+      "source": "G20, About the G20",
+      "link": "https://g20.org/about-the-g20/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-GBR-1999",
+      "statement": "United Kingdom was a founding member of the G20, in 1999.",
+      "period": "1999",
+      "places": [
+        "GBR"
+      ],
+      "source": "G20, About the G20",
+      "link": "https://g20.org/about-the-g20/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-USA-1999",
+      "statement": "United States was a founding member of the G20, in 1999.",
+      "period": "1999",
+      "places": [
+        "USA"
+      ],
+      "source": "G20, About the G20",
+      "link": "https://g20.org/about-the-g20/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "note-1999",
+      "statement": "Finance ministers and central bank governors first met as the G20 in 1999.",
+      "period": "1999",
+      "places": [],
+      "source": "G20, About the G20",
+      "link": "https://g20.org/about-the-g20/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "note-2008",
+      "statement": "Leaders held the first G20 summit in 2008.",
+      "period": "2008",
+      "places": [],
+      "source": "G20, About the G20",
+      "link": "https://g20.org/about-the-g20/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "note-2023",
+      "statement": "The African Union became a member of the G20 in 2023.",
+      "period": "2023",
+      "places": [],
+      "source": "G20, About the G20",
+      "link": "https://g20.org/about-the-g20/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "founding-members",
+      "statement": "Members of the G20 at its founding, counting the European Union with the countries.",
+      "value": 20,
+      "unit": "members",
+      "unitAliases": [
+        "founding members",
+        "members"
+      ],
+      "period": "1999",
+      "source": "G20, About the G20",
+      "link": "https://g20.org/about-the-g20/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "19 countries (the founding rows of src/data/bloc-history.csv) and the European Union; check against the link."
+    },
+    {
+      "id": "founding-countries",
+      "statement": "Countries in the G20 at its founding.",
+      "value": 19,
+      "unit": "countries",
+      "unitAliases": [
+        "member countries"
+      ],
+      "period": "1999",
+      "source": "G20, About the G20",
+      "link": "https://g20.org/about-the-g20/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Count of the founding rows in src/data/bloc-history.csv; check against the link."
+    },
+    {
+      "id": "countries-2026",
+      "statement": "Countries in the G20 in 2026, besides the European Union and the African Union.",
+      "value": 19,
+      "unit": "countries",
+      "unitAliases": [
+        "member countries"
+      ],
+      "period": "2026",
+      "source": "G20, About the G20",
+      "link": "https://g20.org/about-the-g20/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Count of the open rows in src/data/bloc-history.csv; check against the link."
+    },
+    {
+      "id": "members-2026",
+      "statement": "Members of the G20 in 2026, counting the European Union and the African Union with the countries.",
+      "value": 21,
+      "unit": "members",
+      "unitAliases": [
+        "members"
+      ],
+      "period": "2026",
+      "source": "G20, About the G20",
+      "link": "https://g20.org/about-the-g20/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "19 countries (the open rows of src/data/bloc-history.csv), the European Union and the African Union; check against the link."
+    }
+  ]
+}

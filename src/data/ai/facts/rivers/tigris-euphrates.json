@@ -1,0 +1,102 @@
+{
+  "id": "river:tigris-euphrates",
+  "kind": "river",
+  "subject": "the Tigris and Euphrates",
+  "countries": [
+    "TUR",
+    "IRN",
+    "SYR",
+    "IRQ"
+  ],
+  "names": [
+    "Tigris",
+    "Euphrates",
+    "Atatürk Dam",
+    "Ilısu Dam",
+    "Ilisu Dam",
+    "Southeastern Anatolia Project"
+  ],
+  "generated": "by hand",
+  "facts": [
+    {
+      "id": "protocol-1987",
+      "statement": "Under a 1987 protocol Turkey undertook to release an average flow of the Euphrates at its border with Syria.",
+      "value": 500,
+      "unit": "cubic metres per second",
+      "unitAliases": [
+        "m³/s",
+        "cubic metres a second"
+      ],
+      "period": "1987",
+      "places": [
+        "TUR",
+        "SYR"
+      ],
+      "source": "FAO AQUASTAT, Euphrates-Tigris basin",
+      "link": "https://www.fao.org/aquastat/en/countries-and-basins/transboundary-river-basins/euphrates-tigris",
+      "date": "2009",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check it against the link."
+    },
+    {
+      "id": "syria-iraq-1990",
+      "statement": "Under a 1990 agreement Syria and Iraq share the Euphrates water entering Syria from Turkey; Iraq’s share.",
+      "value": 58,
+      "unit": "%",
+      "unitAliases": [
+        "of the water",
+        "of the Euphrates"
+      ],
+      "period": "1990",
+      "places": [
+        "SYR",
+        "IRQ"
+      ],
+      "source": "FAO AQUASTAT, Euphrates-Tigris basin",
+      "link": "https://www.fao.org/aquastat/en/countries-and-basins/transboundary-river-basins/euphrates-tigris",
+      "date": "2009",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check it against the link."
+    },
+    {
+      "id": "ataturk-1990",
+      "statement": "Turkey began filling the reservoir of the Atatürk Dam on the Euphrates in January 1990.",
+      "period": "1990-01",
+      "places": [
+        "TUR"
+      ],
+      "source": "FAO AQUASTAT, Euphrates-Tigris basin",
+      "link": "https://www.fao.org/aquastat/en/countries-and-basins/transboundary-river-basins/euphrates-tigris",
+      "date": "2009",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check it against the link."
+    },
+    {
+      "id": "ilisu-2019",
+      "statement": "Turkey began filling the reservoir of the Ilısu Dam on the Tigris in July 2019.",
+      "period": "2019-07",
+      "places": [
+        "TUR"
+      ],
+      "source": "General Directorate of State Hydraulic Works (DSİ), Türkiye",
+      "link": "https://www.dsi.gov.tr/",
+      "date": "2019-07",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check it against the link."
+    },
+    {
+      "id": "framework-2024",
+      "statement": "Türkiye and Iraq signed a framework agreement on cooperation in the water sector on 22 April 2024.",
+      "period": "2024-04-22",
+      "places": [
+        "TUR",
+        "IRQ"
+      ],
+      "source": "Presidency of the Republic of Türkiye",
+      "link": "https://www.tccb.gov.tr/en/",
+      "date": "2024-04-22",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check it against the link."
+    }
+  ]
+}

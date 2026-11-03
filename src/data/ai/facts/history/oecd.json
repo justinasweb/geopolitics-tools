@@ -1,0 +1,590 @@
+{
+  "id": "history:oecd",
+  "kind": "history",
+  "subject": "the OECD",
+  "countries": [
+    "AUS",
+    "AUT",
+    "BEL",
+    "CAN",
+    "CHE",
+    "CHL",
+    "COL",
+    "CRI",
+    "CZE",
+    "DEU",
+    "DNK",
+    "ESP",
+    "EST",
+    "FIN",
+    "FRA",
+    "GBR",
+    "GRC",
+    "HUN",
+    "IRL",
+    "ISL",
+    "ISR",
+    "ITA",
+    "JPN",
+    "KOR",
+    "LTU",
+    "LUX",
+    "LVA",
+    "MEX",
+    "NLD",
+    "NOR",
+    "NZL",
+    "POL",
+    "PRT",
+    "SVK",
+    "SVN",
+    "SWE",
+    "TUR",
+    "USA"
+  ],
+  "names": [
+    "OECD",
+    "Organisation for European Economic Co-operation"
+  ],
+  "generated": "by hand, from src/data/bloc-history.csv and the events in src/i18n/blocs.en.ts",
+  "facts": [
+    {
+      "id": "join-AUT-1961",
+      "statement": "Austria was a founding member of the OECD, in 1961.",
+      "period": "1961",
+      "places": [
+        "AUT"
+      ],
+      "source": "OECD, List of OECD member countries: ratification of the Convention on the OECD",
+      "link": "https://www.oecd.org/about/document/ratification-oecd-convention.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-BEL-1961",
+      "statement": "Belgium was a founding member of the OECD, in 1961.",
+      "period": "1961",
+      "places": [
+        "BEL"
+      ],
+      "source": "OECD, List of OECD member countries: ratification of the Convention on the OECD",
+      "link": "https://www.oecd.org/about/document/ratification-oecd-convention.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-CAN-1961",
+      "statement": "Canada was a founding member of the OECD, in 1961.",
+      "period": "1961",
+      "places": [
+        "CAN"
+      ],
+      "source": "OECD, List of OECD member countries: ratification of the Convention on the OECD",
+      "link": "https://www.oecd.org/about/document/ratification-oecd-convention.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-DNK-1961",
+      "statement": "Denmark was a founding member of the OECD, in 1961.",
+      "period": "1961",
+      "places": [
+        "DNK"
+      ],
+      "source": "OECD, List of OECD member countries: ratification of the Convention on the OECD",
+      "link": "https://www.oecd.org/about/document/ratification-oecd-convention.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-FRA-1961",
+      "statement": "France was a founding member of the OECD, in 1961.",
+      "period": "1961",
+      "places": [
+        "FRA"
+      ],
+      "source": "OECD, List of OECD member countries: ratification of the Convention on the OECD",
+      "link": "https://www.oecd.org/about/document/ratification-oecd-convention.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-DEU-1961",
+      "statement": "Germany was a founding member of the OECD, in 1961.",
+      "period": "1961",
+      "places": [
+        "DEU"
+      ],
+      "source": "OECD, List of OECD member countries: ratification of the Convention on the OECD",
+      "link": "https://www.oecd.org/about/document/ratification-oecd-convention.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-GRC-1961",
+      "statement": "Greece was a founding member of the OECD, in 1961.",
+      "period": "1961",
+      "places": [
+        "GRC"
+      ],
+      "source": "OECD, List of OECD member countries: ratification of the Convention on the OECD",
+      "link": "https://www.oecd.org/about/document/ratification-oecd-convention.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-ISL-1961",
+      "statement": "Iceland was a founding member of the OECD, in 1961.",
+      "period": "1961",
+      "places": [
+        "ISL"
+      ],
+      "source": "OECD, List of OECD member countries: ratification of the Convention on the OECD",
+      "link": "https://www.oecd.org/about/document/ratification-oecd-convention.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-IRL-1961",
+      "statement": "Ireland was a founding member of the OECD, in 1961.",
+      "period": "1961",
+      "places": [
+        "IRL"
+      ],
+      "source": "OECD, List of OECD member countries: ratification of the Convention on the OECD",
+      "link": "https://www.oecd.org/about/document/ratification-oecd-convention.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-LUX-1961",
+      "statement": "Luxembourg was a founding member of the OECD, in 1961.",
+      "period": "1961",
+      "places": [
+        "LUX"
+      ],
+      "source": "OECD, List of OECD member countries: ratification of the Convention on the OECD",
+      "link": "https://www.oecd.org/about/document/ratification-oecd-convention.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-NLD-1961",
+      "statement": "Netherlands was a founding member of the OECD, in 1961.",
+      "period": "1961",
+      "places": [
+        "NLD"
+      ],
+      "source": "OECD, List of OECD member countries: ratification of the Convention on the OECD",
+      "link": "https://www.oecd.org/about/document/ratification-oecd-convention.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-NOR-1961",
+      "statement": "Norway was a founding member of the OECD, in 1961.",
+      "period": "1961",
+      "places": [
+        "NOR"
+      ],
+      "source": "OECD, List of OECD member countries: ratification of the Convention on the OECD",
+      "link": "https://www.oecd.org/about/document/ratification-oecd-convention.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-PRT-1961",
+      "statement": "Portugal was a founding member of the OECD, in 1961.",
+      "period": "1961",
+      "places": [
+        "PRT"
+      ],
+      "source": "OECD, List of OECD member countries: ratification of the Convention on the OECD",
+      "link": "https://www.oecd.org/about/document/ratification-oecd-convention.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-ESP-1961",
+      "statement": "Spain was a founding member of the OECD, in 1961.",
+      "period": "1961",
+      "places": [
+        "ESP"
+      ],
+      "source": "OECD, List of OECD member countries: ratification of the Convention on the OECD",
+      "link": "https://www.oecd.org/about/document/ratification-oecd-convention.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-SWE-1961",
+      "statement": "Sweden was a founding member of the OECD, in 1961.",
+      "period": "1961",
+      "places": [
+        "SWE"
+      ],
+      "source": "OECD, List of OECD member countries: ratification of the Convention on the OECD",
+      "link": "https://www.oecd.org/about/document/ratification-oecd-convention.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-CHE-1961",
+      "statement": "Switzerland was a founding member of the OECD, in 1961.",
+      "period": "1961",
+      "places": [
+        "CHE"
+      ],
+      "source": "OECD, List of OECD member countries: ratification of the Convention on the OECD",
+      "link": "https://www.oecd.org/about/document/ratification-oecd-convention.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-TUR-1961",
+      "statement": "Türkiye was a founding member of the OECD, in 1961.",
+      "period": "1961",
+      "places": [
+        "TUR"
+      ],
+      "source": "OECD, List of OECD member countries: ratification of the Convention on the OECD",
+      "link": "https://www.oecd.org/about/document/ratification-oecd-convention.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-GBR-1961",
+      "statement": "United Kingdom was a founding member of the OECD, in 1961.",
+      "period": "1961",
+      "places": [
+        "GBR"
+      ],
+      "source": "OECD, List of OECD member countries: ratification of the Convention on the OECD",
+      "link": "https://www.oecd.org/about/document/ratification-oecd-convention.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-USA-1961",
+      "statement": "United States was a founding member of the OECD, in 1961.",
+      "period": "1961",
+      "places": [
+        "USA"
+      ],
+      "source": "OECD, List of OECD member countries: ratification of the Convention on the OECD",
+      "link": "https://www.oecd.org/about/document/ratification-oecd-convention.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-ITA-1962",
+      "statement": "Italy signed the OECD Convention as a founding member in 1960 and became a member in 1962, when it ratified it.",
+      "period": "1962",
+      "places": [
+        "ITA"
+      ],
+      "source": "OECD, List of OECD member countries: ratification of the Convention on the OECD",
+      "link": "https://www.oecd.org/about/document/ratification-oecd-convention.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-JPN-1964",
+      "statement": "Japan joined the OECD in 1964.",
+      "period": "1964",
+      "places": [
+        "JPN"
+      ],
+      "source": "OECD, List of OECD member countries: ratification of the Convention on the OECD",
+      "link": "https://www.oecd.org/about/document/ratification-oecd-convention.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-FIN-1969",
+      "statement": "Finland joined the OECD in 1969.",
+      "period": "1969",
+      "places": [
+        "FIN"
+      ],
+      "source": "OECD, List of OECD member countries: ratification of the Convention on the OECD",
+      "link": "https://www.oecd.org/about/document/ratification-oecd-convention.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-AUS-1971",
+      "statement": "Australia joined the OECD in 1971.",
+      "period": "1971",
+      "places": [
+        "AUS"
+      ],
+      "source": "OECD, List of OECD member countries: ratification of the Convention on the OECD",
+      "link": "https://www.oecd.org/about/document/ratification-oecd-convention.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-NZL-1973",
+      "statement": "New Zealand joined the OECD in 1973.",
+      "period": "1973",
+      "places": [
+        "NZL"
+      ],
+      "source": "OECD, List of OECD member countries: ratification of the Convention on the OECD",
+      "link": "https://www.oecd.org/about/document/ratification-oecd-convention.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-MEX-1994",
+      "statement": "Mexico joined the OECD in 1994.",
+      "period": "1994",
+      "places": [
+        "MEX"
+      ],
+      "source": "OECD, List of OECD member countries: ratification of the Convention on the OECD",
+      "link": "https://www.oecd.org/about/document/ratification-oecd-convention.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-CZE-1995",
+      "statement": "Czechia joined the OECD in 1995.",
+      "period": "1995",
+      "places": [
+        "CZE"
+      ],
+      "source": "OECD, List of OECD member countries: ratification of the Convention on the OECD",
+      "link": "https://www.oecd.org/about/document/ratification-oecd-convention.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-HUN-1996",
+      "statement": "Hungary joined the OECD in 1996.",
+      "period": "1996",
+      "places": [
+        "HUN"
+      ],
+      "source": "OECD, List of OECD member countries: ratification of the Convention on the OECD",
+      "link": "https://www.oecd.org/about/document/ratification-oecd-convention.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-POL-1996",
+      "statement": "Poland joined the OECD in 1996.",
+      "period": "1996",
+      "places": [
+        "POL"
+      ],
+      "source": "OECD, List of OECD member countries: ratification of the Convention on the OECD",
+      "link": "https://www.oecd.org/about/document/ratification-oecd-convention.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-KOR-1996",
+      "statement": "South Korea joined the OECD in 1996.",
+      "period": "1996",
+      "places": [
+        "KOR"
+      ],
+      "source": "OECD, List of OECD member countries: ratification of the Convention on the OECD",
+      "link": "https://www.oecd.org/about/document/ratification-oecd-convention.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-SVK-2000",
+      "statement": "Slovakia joined the OECD in 2000.",
+      "period": "2000",
+      "places": [
+        "SVK"
+      ],
+      "source": "OECD, List of OECD member countries: ratification of the Convention on the OECD",
+      "link": "https://www.oecd.org/about/document/ratification-oecd-convention.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-CHL-2010",
+      "statement": "Chile joined the OECD in 2010.",
+      "period": "2010",
+      "places": [
+        "CHL"
+      ],
+      "source": "OECD, List of OECD member countries: ratification of the Convention on the OECD",
+      "link": "https://www.oecd.org/about/document/ratification-oecd-convention.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-SVN-2010",
+      "statement": "Slovenia joined the OECD in 2010.",
+      "period": "2010",
+      "places": [
+        "SVN"
+      ],
+      "source": "OECD, List of OECD member countries: ratification of the Convention on the OECD",
+      "link": "https://www.oecd.org/about/document/ratification-oecd-convention.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-ISR-2010",
+      "statement": "Israel joined the OECD in 2010.",
+      "period": "2010",
+      "places": [
+        "ISR"
+      ],
+      "source": "OECD, List of OECD member countries: ratification of the Convention on the OECD",
+      "link": "https://www.oecd.org/about/document/ratification-oecd-convention.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-EST-2010",
+      "statement": "Estonia joined the OECD in 2010.",
+      "period": "2010",
+      "places": [
+        "EST"
+      ],
+      "source": "OECD, List of OECD member countries: ratification of the Convention on the OECD",
+      "link": "https://www.oecd.org/about/document/ratification-oecd-convention.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-LVA-2016",
+      "statement": "Latvia joined the OECD in 2016.",
+      "period": "2016",
+      "places": [
+        "LVA"
+      ],
+      "source": "OECD, List of OECD member countries: ratification of the Convention on the OECD",
+      "link": "https://www.oecd.org/about/document/ratification-oecd-convention.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-LTU-2018",
+      "statement": "Lithuania joined the OECD in 2018.",
+      "period": "2018",
+      "places": [
+        "LTU"
+      ],
+      "source": "OECD, List of OECD member countries: ratification of the Convention on the OECD",
+      "link": "https://www.oecd.org/about/document/ratification-oecd-convention.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-COL-2020",
+      "statement": "Colombia joined the OECD in 2020.",
+      "period": "2020",
+      "places": [
+        "COL"
+      ],
+      "source": "OECD, List of OECD member countries: ratification of the Convention on the OECD",
+      "link": "https://www.oecd.org/about/document/ratification-oecd-convention.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-CRI-2021",
+      "statement": "Costa Rica joined the OECD in 2021.",
+      "period": "2021",
+      "places": [
+        "CRI"
+      ],
+      "source": "OECD, List of OECD member countries: ratification of the Convention on the OECD",
+      "link": "https://www.oecd.org/about/document/ratification-oecd-convention.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "note-1961",
+      "statement": "The OECD replaced the Organisation for European Economic Co-operation in 1961.",
+      "period": "1961",
+      "places": [],
+      "source": "OECD, List of OECD member countries: ratification of the Convention on the OECD",
+      "link": "https://www.oecd.org/about/document/ratification-oecd-convention.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "founding-members",
+      "statement": "Members of the OECD at its founding.",
+      "value": 19,
+      "unit": "members",
+      "unitAliases": [
+        "countries",
+        "founding members",
+        "founders"
+      ],
+      "period": "1961",
+      "source": "OECD, List of OECD member countries: ratification of the Convention on the OECD",
+      "link": "https://www.oecd.org/about/document/ratification-oecd-convention.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Count of the founding rows in src/data/bloc-history.csv; check against the link."
+    },
+    {
+      "id": "members-2026",
+      "statement": "Members of the OECD in 2026, as the membership table was checked on 21 October 2026.",
+      "value": 38,
+      "unit": "members",
+      "unitAliases": [
+        "countries",
+        "member countries"
+      ],
+      "period": "2026",
+      "source": "OECD, List of OECD member countries: ratification of the Convention on the OECD",
+      "link": "https://www.oecd.org/about/document/ratification-oecd-convention.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Count of the open rows in src/data/bloc-history.csv; check against the link."
+    }
+  ]
+}

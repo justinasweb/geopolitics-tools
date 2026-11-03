@@ -1,0 +1,86 @@
+{
+  "id": "river:brahmaputra",
+  "kind": "river",
+  "subject": "the Brahmaputra",
+  "countries": [
+    "CHN",
+    "IND",
+    "BGD"
+  ],
+  "names": [
+    "Brahmaputra",
+    "Yarlung Tsangpo",
+    "Zangmu",
+    "Medog"
+  ],
+  "generated": "by hand",
+  "facts": [
+    {
+      "id": "mou-2002",
+      "statement": "China and India signed a memorandum of understanding in 2002 under which China provides hydrological data on the Brahmaputra in the flood season.",
+      "period": "2002",
+      "places": [
+        "CHN",
+        "IND"
+      ],
+      "source": "Ministry of External Affairs of India",
+      "link": "https://www.mea.gov.in/",
+      "date": "2002",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check it against the link."
+    },
+    {
+      "id": "zangmu-2015",
+      "statement": "The Zangmu hydropower station on the Yarlung Tsangpo began full operation in October 2015.",
+      "period": "2015-10",
+      "places": [
+        "CHN"
+      ],
+      "source": "Xinhua",
+      "link": "https://english.news.cn/",
+      "date": "2015-10",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check it against the link."
+    },
+    {
+      "id": "approval-2024",
+      "statement": "China approved a hydropower project on the lower reaches of the Yarlung Tsangpo in December 2024.",
+      "period": "2024-12",
+      "places": [
+        "CHN"
+      ],
+      "source": "Xinhua",
+      "link": "https://english.news.cn/",
+      "date": "2024-12",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check it against the link."
+    },
+    {
+      "id": "construction-2025",
+      "statement": "Construction of the lower Yarlung Tsangpo hydropower project began on 19 July 2025.",
+      "period": "2025-07-19",
+      "places": [
+        "CHN"
+      ],
+      "source": "Xinhua",
+      "link": "https://english.news.cn/",
+      "date": "2025-07-19",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check it against the link."
+    },
+    {
+      "id": "india-2025",
+      "statement": "India said in January 2025 that it had conveyed its concerns about the project to China.",
+      "period": "2025-01",
+      "places": [
+        "IND",
+        "CHN"
+      ],
+      "source": "Ministry of External Affairs of India",
+      "link": "https://www.mea.gov.in/",
+      "date": "2025-01",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check it against the link."
+    }
+  ]
+}

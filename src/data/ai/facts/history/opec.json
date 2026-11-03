@@ -1,0 +1,414 @@
+{
+  "id": "history:opec",
+  "kind": "history",
+  "subject": "OPEC",
+  "countries": [
+    "AGO",
+    "ARE",
+    "COG",
+    "DZA",
+    "ECU",
+    "GAB",
+    "GNQ",
+    "IDN",
+    "IRN",
+    "IRQ",
+    "KWT",
+    "LBY",
+    "NGA",
+    "QAT",
+    "SAU",
+    "VEN"
+  ],
+  "names": [
+    "OPEC",
+    "OPEC+"
+  ],
+  "generated": "by hand, from src/data/bloc-history.csv and the events in src/i18n/blocs.en.ts",
+  "facts": [
+    {
+      "id": "join-IRN-1960",
+      "statement": "Iran was a founding member of OPEC, in 1960.",
+      "period": "1960",
+      "places": [
+        "IRN"
+      ],
+      "source": "OPEC, Member countries",
+      "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-IRQ-1960",
+      "statement": "Iraq was a founding member of OPEC, in 1960.",
+      "period": "1960",
+      "places": [
+        "IRQ"
+      ],
+      "source": "OPEC, Member countries",
+      "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-KWT-1960",
+      "statement": "Kuwait was a founding member of OPEC, in 1960.",
+      "period": "1960",
+      "places": [
+        "KWT"
+      ],
+      "source": "OPEC, Member countries",
+      "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-SAU-1960",
+      "statement": "Saudi Arabia was a founding member of OPEC, in 1960.",
+      "period": "1960",
+      "places": [
+        "SAU"
+      ],
+      "source": "OPEC, Member countries",
+      "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-VEN-1960",
+      "statement": "Venezuela was a founding member of OPEC, in 1960.",
+      "period": "1960",
+      "places": [
+        "VEN"
+      ],
+      "source": "OPEC, Member countries",
+      "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-QAT-1961",
+      "statement": "Qatar joined OPEC in 1961.",
+      "period": "1961",
+      "places": [
+        "QAT"
+      ],
+      "source": "OPEC, Member countries",
+      "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "left-QAT-2019",
+      "statement": "Qatar left OPEC in 2019.",
+      "period": "2019",
+      "places": [
+        "QAT"
+      ],
+      "source": "OPEC, Member countries",
+      "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-IDN-1962",
+      "statement": "Indonesia joined OPEC in 1962.",
+      "period": "1962",
+      "places": [
+        "IDN"
+      ],
+      "source": "OPEC, Member countries",
+      "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "left-IDN-2009",
+      "statement": "Indonesia suspended its membership of OPEC in 2009.",
+      "period": "2009",
+      "places": [
+        "IDN"
+      ],
+      "source": "OPEC, Member countries",
+      "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-LBY-1962",
+      "statement": "Libya joined OPEC in 1962.",
+      "period": "1962",
+      "places": [
+        "LBY"
+      ],
+      "source": "OPEC, Member countries",
+      "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-ARE-1967",
+      "statement": "United Arab Emirates joined OPEC in 1967.",
+      "period": "1967",
+      "places": [
+        "ARE"
+      ],
+      "source": "OPEC, Member countries",
+      "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "announce-ARE-2026",
+      "statement": "The United Arab Emirates announced on 28 April 2026 that it would leave OPEC and OPEC+.",
+      "period": "2026-04-28",
+      "places": [
+        "ARE"
+      ],
+      "source": "WAM, Emirates News Agency: UAE announces decision to exit OPEC & OPEC+",
+      "link": "https://www.wam.ae/en/article/bzxzuh7-uae-announces-decision-exit-opec-opec+",
+      "date": "2026-04-28",
+      "unverified": true,
+      "note": "Official UAE statement found by web search; wam.ae was not reachable from the build session. Check the date and wording against the link."
+    },
+    {
+      "id": "left-ARE-2026",
+      "statement": "The United Arab Emirates left OPEC and OPEC+ on 1 May 2026.",
+      "period": "2026-05-01",
+      "places": [
+        "ARE"
+      ],
+      "source": "WAM, Emirates News Agency: UAE announces decision to exit OPEC & OPEC+",
+      "link": "https://www.wam.ae/en/article/bzxzuh7-uae-announces-decision-exit-opec-opec+",
+      "date": "2026-04-28",
+      "unverified": true,
+      "note": "Official UAE statement found by web search; wam.ae was not reachable from the build session. Check the date and wording against the link."
+    },
+    {
+      "id": "join-DZA-1969",
+      "statement": "Algeria joined OPEC in 1969.",
+      "period": "1969",
+      "places": [
+        "DZA"
+      ],
+      "source": "OPEC, Member countries",
+      "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-NGA-1971",
+      "statement": "Nigeria joined OPEC in 1971.",
+      "period": "1971",
+      "places": [
+        "NGA"
+      ],
+      "source": "OPEC, Member countries",
+      "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-ECU-1973",
+      "statement": "Ecuador joined OPEC in 1973.",
+      "period": "1973",
+      "places": [
+        "ECU"
+      ],
+      "source": "OPEC, Member countries",
+      "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "left-ECU-1992",
+      "statement": "Ecuador left OPEC in 1992.",
+      "period": "1992",
+      "places": [
+        "ECU"
+      ],
+      "source": "OPEC, Member countries",
+      "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-ECU-2007",
+      "statement": "Ecuador joined OPEC in 2007.",
+      "period": "2007",
+      "places": [
+        "ECU"
+      ],
+      "source": "OPEC, Member countries",
+      "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "left-ECU-2020",
+      "statement": "Ecuador left OPEC in 2020.",
+      "period": "2020",
+      "places": [
+        "ECU"
+      ],
+      "source": "OPEC, Member countries",
+      "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-GAB-1975",
+      "statement": "Gabon joined OPEC in 1975.",
+      "period": "1975",
+      "places": [
+        "GAB"
+      ],
+      "source": "OPEC, Member countries",
+      "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "left-GAB-1995",
+      "statement": "Gabon left OPEC in 1995.",
+      "period": "1995",
+      "places": [
+        "GAB"
+      ],
+      "source": "OPEC, Member countries",
+      "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-GAB-2016",
+      "statement": "Gabon joined OPEC in 2016.",
+      "period": "2016",
+      "places": [
+        "GAB"
+      ],
+      "source": "OPEC, Member countries",
+      "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-AGO-2007",
+      "statement": "Angola joined OPEC in 2007.",
+      "period": "2007",
+      "places": [
+        "AGO"
+      ],
+      "source": "OPEC, Member countries",
+      "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "left-AGO-2024",
+      "statement": "Angola left OPEC in 2024.",
+      "period": "2024",
+      "places": [
+        "AGO"
+      ],
+      "source": "OPEC, Member countries",
+      "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-GNQ-2017",
+      "statement": "Equatorial Guinea joined OPEC in 2017.",
+      "period": "2017",
+      "places": [
+        "GNQ"
+      ],
+      "source": "OPEC, Member countries",
+      "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "join-COG-2018",
+      "statement": "Republic of the Congo joined OPEC in 2018.",
+      "period": "2018",
+      "places": [
+        "COG"
+      ],
+      "source": "OPEC, Member countries",
+      "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "note-2016",
+      "statement": "Indonesia rejoined in January 2016 and suspended its membership again in November 2016.",
+      "period": "2016",
+      "places": [
+        "IDN"
+      ],
+      "source": "OPEC, Member countries",
+      "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Covers both 2016 rows of src/data/bloc-history.csv (rejoined and suspended in the same year). Not opened from the build session (official sites were not reachable); check the date against the link."
+    },
+    {
+      "id": "founding-members",
+      "statement": "Members of OPEC at its founding.",
+      "value": 5,
+      "unit": "members",
+      "unitAliases": [
+        "countries",
+        "founding members",
+        "founders"
+      ],
+      "period": "1960",
+      "source": "OPEC, Member countries",
+      "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Count of the founding rows in src/data/bloc-history.csv; check against the link."
+    },
+    {
+      "id": "members-2026",
+      "statement": "Members of OPEC in 2026, after the United Arab Emirates left on 1 May 2026; counted on 2 November 2026.",
+      "value": 11,
+      "unit": "members",
+      "unitAliases": [
+        "countries",
+        "member countries"
+      ],
+      "period": "2026",
+      "source": "OPEC, Member countries",
+      "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "Count of the open rows in src/data/bloc-history.csv, recounted on 2 November 2026 after the UAE left; check against the link."
+    }
+  ]
+}
