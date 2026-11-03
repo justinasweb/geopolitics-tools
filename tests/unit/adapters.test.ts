@@ -177,6 +177,16 @@ describe('indicator registry and flows', () => {
   it('formats values the registry way', () => {
     expect(formatValue(2.345e12, { kind: 'money' })).toBe('$2.35 tn');
     expect(formatValue(-4.2e9, { kind: 'money' })).toBe('−$4.2 bn');
+    // Units are picked after rounding; sums under a million are not written to the dollar.
+    expect(formatValue(999_640_274, { kind: 'money' })).toBe('$1.0 bn');
+    expect(formatValue(999_400_000, { kind: 'money' })).toBe('$999 m');
+    expect(formatValue(9.96e9, { kind: 'money' })).toBe('$10 bn');
+    expect(formatValue(32_624, { kind: 'money', millions: true })).toBe('under $1 m');
+    expect(formatValue(-300_000, { kind: 'money', millions: true })).toBe('−$0.3 m');
+    expect(formatValue(0, { kind: 'money', millions: true })).toBe('$0');
+    expect(formatValue(2_512, { kind: 'money' })).toBe('$2,512');
+    // A value that rounds to zero has no sign.
+    expect(formatValue(-0.0001, { kind: 'share' })).toBe('0.0%');
     expect(formatValue(8_123_456, { kind: 'count' })).toBe('8.1 m');
     expect(formatValue(0.053, { kind: 'share' })).toBe('5.3%');
     expect(formatValue(12.345, { kind: 'percent', digits: 1 })).toBe('12.3%');

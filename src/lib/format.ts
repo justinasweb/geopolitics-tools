@@ -3,32 +3,42 @@
 import type { Format } from '../data/indicators.ts';
 
 const MINUS = '−';
+/** Any total under a million dollars, for money formats with `millions`. */
+export const MONEY_SMALL = 'under $1 m';
 
 export function formatValue(v: number | null | undefined, f: Format, locale = 'en'): string {
   if (v === null || v === undefined || !Number.isFinite(v)) return '–';
   const n = (x: number, digits: number) => new Intl.NumberFormat(locale, { maximumFractionDigits: digits, minimumFractionDigits: digits }).format(x);
-  const sign = v < 0 ? MINUS : '';
   const a = Math.abs(v);
+  // A small negative total (a net outflow) keeps its sign, in tenths of a million.
+  const text = f.kind === 'money' && f.millions && v < 0 && a < 1e6 ? (a < 5e4 ? '$0' : `$${n(a / 1e6, 1)} m`) : formatAbs(a, f, n);
+  // A value that rounds to zero has no sign ("0%", not "−0%").
+  return v < 0 && /[1-9]/.test(text) ? `${MINUS}${text}` : text;
+}
+
+/** A value's size as formatValue writes it, without its sign. Units are picked after rounding. */
+function formatAbs(a: number, f: Format, n: (x: number, digits: number) => string): string {
   switch (f.kind) {
     case 'money':
-      if (a >= 1e12) return `${sign}$${n(a / 1e12, 2)} tn`;
-      if (a >= 1e9) return `${sign}$${n(a / 1e9, a < 1e10 ? 1 : 0)} bn`;
-      if (a >= 1e6) return `${sign}$${n(a / 1e6, 0)} m`;
-      return `${sign}$${n(a, 0)}`;
+      if (a >= 999.5e9) return `$${n(a / 1e12, 2)} tn`;
+      if (a >= 999.5e6) return `$${n(a / 1e9, a < 9.95e9 ? 1 : 0)} bn`;
+      if (a >= 1e6) return `$${n(a / 1e6, 0)} m`;
+      // Small totals are not written to the dollar: a source's figures are not that precise.
+      return f.millions && a > 0 ? MONEY_SMALL : `$${n(a, 0)}`;
     case 'count':
-      if (a >= 1e9) return `${sign}${n(a / 1e9, 2)} bn`;
-      if (a >= 1e6) return `${sign}${n(a / 1e6, a < 1e7 ? 1 : 0)} m`;
-      return `${sign}${n(a, 0)}`;
+      if (a >= 999.995e6) return `${n(a / 1e9, 2)} bn`;
+      if (a >= 1e6) return `${n(a / 1e6, a < 9.95e6 ? 1 : 0)} m`;
+      return n(a, 0);
     case 'percent':
-      return `${sign}${n(a, f.digits ?? 1)}%`;
+      return `${n(a, f.digits ?? 1)}%`;
     case 'share':
-      return `${sign}${n(a * 100, a < 0.1 ? 1 : 0)}%`;
+      return `${n(a * 100, a < 0.1 ? 1 : 0)}%`;
     case 'number':
-      return `${sign}${n(a, f.digits ?? 0)}${f.unit ? ` ${f.unit}` : ''}`;
+      return `${n(a, f.digits ?? 0)}${f.unit ? ` ${f.unit}` : ''}`;
     case 'mt':
-      if (a >= 100) return `${sign}${n(a, 0)} Mt`;
-      if (a >= 1) return `${sign}${n(a, 1)} Mt`;
-      return `${sign}${n(a >= 0.001 ? Math.round(a * 1000) * 1000 : Math.round(a * 1e6), 0)} t`;
+      if (a >= 100) return `${n(a, 0)} Mt`;
+      if (a >= 1) return `${n(a, 1)} Mt`;
+      return `${n(a >= 0.001 ? Math.round(a * 1000) * 1000 : Math.round(a * 1e6), 0)} t`;
   }
 }
 
@@ -58,9 +68,9 @@ export function formatParts(v: number, f: Format, unit = '', locale = 'en'): { n
   const sign = v < 0 ? MINUS : '';
   const a = Math.abs(v);
   const scaled = (prefix: string) => {
-    if (a >= 1e12) return { num: `${sign}${prefix}${n(a / 1e12, 2)}`, unit: 'trillion' };
-    if (a >= 1e9) return { num: `${sign}${prefix}${n(a / 1e9, a < 1e10 ? 2 : a < 1e11 ? 1 : 0)}`, unit: 'billion' };
-    if (a >= 1e6) return { num: `${sign}${prefix}${n(a / 1e6, a < 1e7 ? 1 : 0)}`, unit: 'million' };
+    if (a >= 999.5e9) return { num: `${sign}${prefix}${n(a / 1e12, 2)}`, unit: 'trillion' };
+    if (a >= 999.5e6) return { num: `${sign}${prefix}${n(a / 1e9, a < 9.995e9 ? 2 : a < 99.95e9 ? 1 : 0)}`, unit: 'billion' };
+    if (a >= 1e6) return { num: `${sign}${prefix}${n(a / 1e6, a < 9.95e6 ? 1 : 0)}`, unit: 'million' };
     return { num: `${sign}${prefix}${n(a, 0)}`, unit: '' };
   };
   switch (f.kind) {

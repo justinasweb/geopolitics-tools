@@ -31,7 +31,8 @@ export type Group = 'economy' | 'people' | 'energy' | 'food' | 'climate' | 'secu
 export const GROUPS: Group[] = ['economy', 'people', 'energy', 'food', 'climate', 'security', 'tech', 'influence'];
 
 /** How a value is written: money in US$, a count, a percentage (value 12.5 → 12.5%), a share (0.125 → 12.5%), or a number with a unit. */
-export type Format = { kind: 'money' } | { kind: 'count' } | { kind: 'percent'; digits?: number } | { kind: 'share' } | { kind: 'number'; digits?: number; unit?: string }
+/** Money with `millions` writes any sum under a million dollars as "under $1 m" (totals, not amounts per person). */
+export type Format = { kind: 'money'; millions?: boolean } | { kind: 'count' } | { kind: 'percent'; digits?: number } | { kind: 'share' } | { kind: 'number'; digits?: number; unit?: string }
   /** Million tonnes, written in tonnes below one million ("148 Mt", "12.3 Mt", "540,000 t"). */
   | { kind: 'mt' };
 
@@ -161,7 +162,7 @@ const LIST: Indicator[] = [
     load: (raw) => { const a = aiOf(raw); const c = computeAt(a.clusters, a.lastYear); return staticYear(Object.fromEntries(Object.entries(c.by).map(([id, v]) => [id, c.total ? v / c.total : null])), a.lastYear); } },
   // ITU's figures and the IMF's balance-of-payments figures, as the World Bank publishes them.
   { id: 'netuser', group: 'tech', source: 'worldbank', format: share, scale: 'linear', load: wbShare('IT.NET.USER.ZS') },
-  { id: 'ictexp', group: 'tech', source: 'worldbank', format: money, scale: 'log', load: wb('BX.GSR.CCIS.CD') },
+  { id: 'ictexp', group: 'tech', source: 'worldbank', format: { kind: 'money', millions: true }, scale: 'log', load: wb('BX.GSR.CCIS.CD') },
   { id: 'ictshare', group: 'tech', source: 'worldbank', format: share, scale: 'linear', load: wbShare('BX.GSR.CCIS.ZS') },
   // Influence
   { id: 'sanctions', group: 'influence', source: ['csl', 'eu-sanctions', 'uk-sanctions'], format: count, scale: 'log', static: true,

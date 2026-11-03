@@ -354,6 +354,9 @@ Made while adding `/internet/users` and `/internet/ict-exports` (spec D18, [maps
   communications, an older BPM5 wording.
 - **Latest years.** Both default to 2024: internet use has 182 countries for 2024 and 10 for 2025; ICT exports 162 for
   2024 and 133 for 2025. 2025 shows once enough countries report, by the usual coverage rule.
-- **Ireland first in ICT exports** ($305 bn in 2024, 24% of the total reported), as Ireland's balance of payments
-  records the sales of multinational firms based there. The page states the figure without comment.
+- **Ireland first in ICT exports** ($305 bn in 2024, 24% of the total reported). A place note says much of it is
+  services sold by multinational firms' Irish subsidiaries, booked in Ireland (`PLACE_NOTES.ictexp`).
+- **Totals under $1 m.** ICT exports write any figure under a million dollars as "under $1 m", and show no percentage
+  change from one (`millions` on the money format). Other money measures keep exact small figures, since GDP per
+  person is money too; chip imports and Chinese lending could take the flag if wanted.
 - **The menu still opens Internet at outages**, its first layer; users or ICT exports could come first instead.

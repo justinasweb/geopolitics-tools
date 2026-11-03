@@ -18,7 +18,7 @@ import '../styles/atlas/table.css';
 import '../styles/atlas/tools.css';
 import { MAP_TEXT } from '../i18n/map.en';
 import { PARTS_TEXT as PX, VIEW_TEXT, VIEWS_TEXT as W } from '../i18n/views.en';
-import { changeSize, changeText, flat, creditOf, familyPages, lede, partsOf, placeNote, shareOf, summary, valueText, viewPage, worldChange, indicatorLabel, prevOf, yearText } from '../lib/views';
+import { changeSize, changeText, flat, placeChange, creditOf, familyPages, lede, partsOf, placeNote, shareOf, summary, valueText, viewPage, worldChange, indicatorLabel, prevOf, yearText } from '../lib/views';
 import { refreshed } from '../lib/data';
 import { formatValue } from '../lib/format';
 import { place } from '../lib/places';
@@ -67,7 +67,7 @@ const pct = (ch: number) => changeText(p, ch);
 const rows = y.rows.map((r) => {
   const q = prev?.rows.find((x) => x.id === r.id);
   // Shares of a country's own total (electricity) change in percentage points.
-  const ch = div || !q ? null : p.layer.points ? r.value - q.value : q.value ? r.value / q.value - 1 : null;
+  const ch = div || !q ? null : placeChange(p, r.value, q.value);
   return { r, q, ch, parts: partsOf(p, r.id, p.year) };
 });
 // Refugees: the three groups UNHCR adds together, as columns; notes on single countries, numbered under the table.
@@ -182,7 +182,7 @@ const bars = (rs: Row[], max: number) => rs.map((r) => ({ id: r.id, text: valueT
           <thead><tr>
             <th scope="col" data-key="n"><button type="button">{W.country}</button></th>
             <th scope="col" class="n" data-key="v" data-type="num" aria-sort="descending"><button type="button">{when}</button></th>
-            {p.layer.sums && <th scope="col" class="n" data-key="s" data-type="num"><button type="button">{W.share}</button></th>}
+            {p.layer.sums && <th scope="col" class="n" data-key="s" data-type="num"><button type="button">{T.totalOf?.column ?? W.share}</button></th>}
             {prev && <th scope="col" class="n" data-key="q" data-type="num"><button type="button">{yearText(p, prev.year)}</button></th>}
             {prev && !div && <th scope="col" class="n" data-key="c" data-type="num"><button type="button">{W.change}</button></th>}
             {hasParts && <th scope="col" class="n" data-key="pr" data-type="num"><button type="button">{PX.refugees}</button></th>}

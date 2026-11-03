@@ -19,6 +19,8 @@ export interface LayerText {
   legend: (year: number) => string;
   /** The panel's key figure label, when the layer has a world figure. */
   worldLabel?: string;
+  /** What the shares are of, where the total is not the world's ("the total for countries reporting"), and the table's column for them. */
+  totalOf?: { phrase: string; column: string };
   /** The one-sentence answer under the title: `top` starts a sentence ("The United States"), `topIn` sits inside one. */
   lede: (p: { top: string; topIn: string; value: string; share?: string; top3?: string; world?: string; year: number; up?: number; down?: number; of?: number }) => string;
   /** The first summary sentence, on the world figure. */
@@ -408,7 +410,7 @@ export const VIEW_TEXT: Record<string, FamilyText> = {
       },
       ictexp: {
         pick: 'ICT exports', title: 'ICT service exports', sub: 'by exporting country', measure: 'of ICT services exported', figureLabel: 'ICT service exports',
-        legend: (y) => `Exports of ICT services, US dollars, ${y}`, worldLabel: 'Total, countries reporting',
+        legend: (y) => `Exports of ICT services, US dollars, ${y}`, worldLabel: 'Total, countries reporting', totalOf: { phrase: 'the total for countries reporting', column: 'Share of total' },
         lede: ({ top, value, share, top3, year }) => `${top} exported ${value} of ICT services in ${year}, ${share} of the total for countries reporting${top3 ? `; the top three exporters made ${top3}` : ''}.`,
         total: (v, y) => `Countries reporting exported ${v} of ICT services in ${y}.`,
         bloc: (b, s, y) => `${todaysMembers(b, { start: true })} exported ${s} of them in ${y}.`,
@@ -494,6 +496,9 @@ PLACE_NOTES.satellites = {
   RUS: 'Soviet satellites still in orbit count for Russia from 1992, as CelesTrak records them under one owner code.',
   USA: 'Most of the total is SpaceX’s Starlink constellation.',
 };
+PLACE_NOTES.ictexp = {
+  IRL: 'Much of Ireland’s figure is services sold by multinational firms’ Irish subsidiaries, booked in Ireland.',
+};
 PLACE_NOTES.launches = {
   NZL: 'Launches from Mahia are by Rocket Lab, a US company, and count for New Zealand because the site is there.',
   FRA: 'Launches from Kourou, in French Guiana, count for France; most are European Space Agency or Arianespace missions.',
@@ -526,7 +531,7 @@ export const VIEWS_TEXT = {
   pointsLong: (n: string) => `${n} percentage points`,
   periodLabel: (years: number) => `${years}-year period`,
   sameAs: (prev: number | string) => `Same as ${prev}`,
-  top: (parts: string[], together: string | null) => `${parts.join(', ').replace(/, ([^,]*)$/, ' and $1')}${together ? `; together, ${together} of the world total` : ''}.`,
+  top: (parts: string[], together: string | null, of = 'the world total') => `${parts.join(', ').replace(/, ([^,]*)$/, ' and $1')}${together ? `; together, ${together} of ${of}` : ''}.`,
   topPart: (name: string, value: string, share: string | null) => `${name} ${value}${share ? ` (${share})` : ''}`,
   topNoShare: (parts: string[]) => `The highest: ${parts.join(', ').replace(/, ([^,]*)$/, ' and $1')}.`,
   divTop: (names: string[], values: string[]) => `The largest differences: ${names.map((n, i) => `${n} ${values[i]}`).join(', ').replace(/, ([^,]*)$/, ' and $1')}.`,
