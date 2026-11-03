@@ -5,8 +5,9 @@ import { describe, expect, it } from 'vitest';
 import { parseCsv } from '../../pipeline/lib/csv.ts';
 import eurepocSource, { RECORD, VERSION } from '../../pipeline/sources/eurepoc.ts';
 import { parseEurepoc } from '../../src/adapters/eurepoc.ts';
-import { affecting, attributedTo, cyberSeries, pairs, since, whoOf, yearSplit, yearTotal } from '../../src/lib/cyber.ts';
+import { affecting, attributedTo, cyberSeries, ownState, pairs, since, undated, whoOf, yearSplit, yearTotal } from '../../src/lib/cyber.ts';
 import { CYBER_TEXT } from '../../src/i18n/cyber.en.ts';
+import { diffText, type ViewPage } from '../../src/lib/views.ts';
 import { ctxFor, fakeHttp, type Route } from './pipeline/helpers.ts';
 
 const fixture = (f: string) => readFileSync(new URL(`../fixtures/eurepoc/${f}`, import.meta.url), 'utf8');
@@ -91,31 +92,43 @@ describe('cyber incidents', () => {
     expect(since(c, 'USA', 2000)).toBe(2);
   });
 
-  it('counts every attribution: states (state-affiliated groups included), else group kinds, else other or none', () => {
-    const one = whoOf(inc('1'));
-    expect(one).toHaveLength(1);
-    expect(one[0].who).toEqual({ state: 'RUS' });
-    expect([...one[0].bases].sort()).toEqual(['government', 'security']);
-    expect(one[0].affiliatedOnly).toBe(false);
+  it('counts every attribution: states, and apart from them the groups EuRepoC links to a state; else group kinds, else other or none', () => {
+    // Incident 1: Russia itself (by IT-security firms) and a group EuRepoC links to Russia (by Ukraine's government).
+    expect(whoOf(inc('1')).map((x) => [x.who, [...x.bases]])).toEqual([[{ state: 'RUS' }, ['security']], [{ affiliated: 'RUS' }, ['government']]]);
     // Killnet-style: a hacktivist group linked to Russia counts as hacktivists, never as Russia.
     expect(whoOf(inc('2')).map((x) => x.who)).toEqual([{ group: 'hacktivist' }]);
     expect(whoOf(inc('3')).map((x) => x.who)).toEqual([{ none: true }]);
     expect(whoOf(inc('5')).map((x) => x.who)).toEqual([{ state: 'CHN' }, { state: 'RUS' }]);
     expect(whoOf(inc('6')).map((x) => x.who)).toEqual([{ other: true }]);
-    expect(yearSplit(c, 2024)).toEqual({ state: 1, group: 1, other: 1, none: 1 });
+    expect(yearSplit(c, 2024)).toEqual({ state: 1, affiliated: 0, group: 1, other: 1, none: 1 });
+    expect(undated(c)).toEqual({ all: 6, undated: 1 });
   });
 
-  it('breaks a country down by attribution, and a state down by the country affected', () => {
-    expect(affecting(c, 'UKR', 2024).map((t) => [t.who, t.n])).toEqual([[{ state: 'RUS' }, 1], [{ other: true }, 1]]);
+  it('breaks a country down by attribution, and a state down by the country affected, affiliated groups apart', () => {
+    expect(affecting(c, 'UKR', 2024).map((t) => [t.who, t.n])).toEqual([[{ state: 'RUS' }, 1], [{ affiliated: 'RUS' }, 1], [{ other: true }, 1]]);
     expect(attributedTo(c, 'RUS', 2023).map((t) => [t.who, t.n])).toEqual([[{ state: 'USA' }, 1]]);
-    expect(pairs(c, 2024)).toEqual([{ from: 'RUS', to: 'UKR', n: 1, by: { government: 1, security: 1 } }]);
+    expect(attributedTo(c, 'RUS', 2024, true).map((t) => [t.who, t.n])).toEqual([[{ state: 'UKR' }, 1]]);
+    // Only attributions to the state itself make pairs.
+    expect(pairs(c, 2024)).toEqual([{ from: 'RUS', to: 'UKR', n: 1, by: { security: 1 } }]);
+    expect(ownState({ from: 'SRB', to: 'SRB' })).toBe(true);
   });
 
   it('says "attributed to … by …", never as fact', () => {
     expect(CYBER_TEXT.toState('Russia')).toBe('Attributed to Russia');
     expect(CYBER_TEXT.by([['government', 4], ['security', 2]])).toBe('by the affected country’s government (4) and IT-security firms or researchers (2)');
+    expect(CYBER_TEXT.by([['self', 11]])).toBe('claimed by the group (11)');
+    expect(CYBER_TEXT.by([['self', 11], ['media', 1]])).toBe('by media reports (1); claimed by the group (11)');
+    expect(CYBER_TEXT.toAffiliated('Russia')).toBe('State-affiliated groups (EuRepoC links them to Russia)');
     const words = JSON.stringify(Object.values(CYBER_TEXT).map((v) => (typeof v === 'function' ? String(v) : v)));
     expect(words).not.toMatch(/\b(attacked|hacked by|attacker)\b/i);
     expect(CYBER_TEXT.credit(c.version)).toBe('EuRepoC Global Dataset of Cyber Incidents 1.3.2 (4 Mar 2025), CC BY-NC 4.0');
+  });
+
+  it('gives a small count’s change as a difference in incidents, not a percentage', () => {
+    const p = { layer: { diffUnder: 10 }, format: { kind: 'count' } } as unknown as ViewPage;
+    expect(diffText(p, 5, 1)).toBe('+4');
+    expect(diffText(p, 2, 6)).toBe('−4');
+    expect(diffText(p, 3, 3)).toBe('0');
+    expect(diffText(p, 30, 12)).toBeNull();
   });
 });

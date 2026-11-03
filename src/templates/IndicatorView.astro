@@ -18,7 +18,7 @@ import '../styles/atlas/table.css';
 import '../styles/atlas/tools.css';
 import { MAP_TEXT } from '../i18n/map.en';
 import { PARTS_TEXT as PX, VIEW_TEXT, VIEWS_TEXT as W } from '../i18n/views.en';
-import { changeSize, changeText, flat, placeChange, creditOf, familyPages, lede, partsOf, placeNote, shareOf, summary, valueText, viewPage, worldChange, indicatorLabel, prevOf, yearText } from '../lib/views';
+import { changeSize, changeText, diffText, flat, placeChange, creditOf, familyPages, lede, partsOf, placeNote, shareOf, summary, valueText, viewPage, worldChange, indicatorLabel, prevOf, yearText } from '../lib/views';
 import { refreshed } from '../lib/data';
 import { formatValue } from '../lib/format';
 import { place } from '../lib/places';
@@ -42,7 +42,7 @@ import { groupsOf, worldMix } from '../lib/electricity';
 import { catastrophe, monthSpan } from '../lib/hunger';
 import { HUNGER_TEXT as HG } from '../i18n/hunger.en';
 import { POWER_TEXT as PW } from '../i18n/electricity.en';
-import { basesOf, cyberData, pairs as cyberPairs } from '../lib/cyber';
+import { basesOf, cyberData, ownState, pairs as cyberPairs } from '../lib/cyber';
 import { CYBER_TEXT as CX } from '../i18n/cyber.en';
 
 interface Props { id: string }
@@ -70,7 +70,9 @@ const rows = y.rows.map((r) => {
   const q = prev?.rows.find((x) => x.id === r.id);
   // Shares of a country's own total (electricity) change in percentage points.
   const ch = div || !q ? null : placeChange(p, r.value, q.value);
-  return { r, q, ch, parts: partsOf(p, r.id, p.year) };
+  // Small counts (cyber incidents under 10) change by a number of incidents, not a percentage.
+  const diff = div || !q ? null : diffText(p, r.value, q.value);
+  return { r, q, ch, diff, parts: partsOf(p, r.id, p.year) };
 });
 // Refugees: the three groups UNHCR adds together, as columns; notes on single countries, numbered under the table.
 const hasParts = p.layer.sums && rows.some((x) => x.parts);
@@ -109,7 +111,8 @@ const flows = armsNow.slice(0, 20).map((x) => {
 const tiv = (v: number) => formatValue(v, { kind: 'number' });
 // Cyber incidents: the year's state and country pairs with the most incidents, with who attributed them.
 const cyber = p.id === 'cyber' ? cyberData() : null;
-const attributions = cyber ? cyberPairs(cyber, p.year).slice(0, 20) : [];
+// A state's incidents in its own country are not a pair between countries, so they stay in the panel only.
+const attributions = cyber ? cyberPairs(cyber, p.year).filter((x) => !ownState(x)).slice(0, 20) : [];
 const spaceDate = spaceAsOf() ? formatDate(spaceAsOf()!) : '';
 const bars = (rs: Row[], max: number) => rs.map((r) => ({ id: r.id, text: valueText(p, r.value), w: max ? (100 * Math.abs(r.value)) / max : 0 }));
 ---
@@ -195,13 +198,13 @@ const bars = (rs: Row[], max: number) => rs.map((r) => ({ id: r.id, text: valueT
             {hasParts && <th scope="col" class="n" data-key="po" data-type="num"><button type="button">{PX.oipShort}</button></th>}
           </tr></thead>
           <tbody>
-            {rows.map(({ r, q, ch, parts }) => (
+            {rows.map(({ r, q, ch, diff, parts }) => (
               <tr data-place={r.id}>
                 <th scope="row">{countryHref(r.id) ? <a href={countryHref(r.id)}>{nameOf(r.id)}</a> : nameOf(r.id)}{noteNo(r.id) > 0 && <sup class="gt-fn"><a href={`#mv-note-${noteNo(r.id)}`} aria-label={`${W.notes} ${noteNo(r.id)}`}>{noteNo(r.id)}</a></sup>}</th>
                 <td class="n" data-v={r.value}>{valueText(p, r.value)}</td>
                 {p.layer.sums && <td class="n" data-v={y.world ? r.value / y.world : ''}>{shareOf(r.value, y.world) ?? '–'}</td>}
                 {prev && (q ? <td class="n" data-v={q.value}>{valueText(p, q.value)}</td> : <td class="n gt-na" data-v="">–</td>)}
-                {prev && !div && (ch === null ? <td class="n gt-na" data-v="">–</td> : <td class="n" data-v={ch}><span class="gt-chg"><Icon name={flat(p, ch) ? 'flat' : ch > 0 ? 'up' : 'down'} />{pct(ch)}</span></td>)}
+                {prev && !div && (ch === null ? <td class="n gt-na" data-v="">–</td> : <td class="n" data-v={ch}><span class="gt-chg"><Icon name={flat(p, ch) ? 'flat' : ch > 0 ? 'up' : 'down'} />{diff ?? pct(ch)}</span></td>)}
                 {hasParts && (parts ? [parts.refugees, parts.asylum, parts.oip].map((v) => <td class="n" data-v={v}>{count(v)}</td>) : [0, 1, 2].map(() => <td class="n gt-na" data-v="">–</td>))}
               </tr>
             ))}

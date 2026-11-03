@@ -13,7 +13,7 @@ import { indicator, refreshed, shared, sourceName, tryLoad } from './data.ts';
 import { VIEW_MEASURES } from '../data/view-measures.ts';
 import { yearsOf } from '../adapters/core.ts';
 import { worldShare } from './electricity.ts';
-import { cyberData, yearSplit, yearTotal } from './cyber.ts';
+import { cyberData, undated, yearSplit, yearTotal } from './cyber.ts';
 import { CYBER_TEXT } from '../i18n/cyber.en.ts';
 import { formatValue } from './format.ts';
 import { place } from './places.ts';
@@ -179,6 +179,13 @@ export function placeChange(p: ViewPage, now: number, before: number): number | 
   return now / before - 1;
 }
 
+/** A small count's change as a difference ("+4", "−2", "0"), for layers with `diffUnder`, when the year before is under it. */
+export function diffText(p: ViewPage, now: number, before: number): string | null {
+  if (!p.layer.diffUnder || before >= p.layer.diffUnder) return null;
+  const d = now - before;
+  return `${d > 0 ? '+' : d < 0 ? '−' : ''}${formatValue(Math.abs(d), p.format)}`;
+}
+
 /** A change's size without its sign, for sentences: "4.2%", or "1.3 pts" ("1.3 percentage points" with `long`). */
 export function changeSize(p: ViewPage, ch: number, long = false): string {
   if (!p.layer.points) return formatValue(Math.abs(ch), { kind: 'share' });
@@ -223,7 +230,7 @@ export function summary(p: ViewPage, year = p.year): string[] {
     // No top three: what the year's incidents were attributed to instead.
     const c = cyberData();
     const s = c ? yearSplit(c, year) : null;
-    if (s) first.push(CYBER_TEXT.split({ state: valueText(p, s.state), group: valueText(p, s.group), none: valueText(p, s.none) }));
+    if (s) first.push(CYBER_TEXT.split({ state: valueText(p, s.state), affiliated: valueText(p, s.affiliated), group: valueText(p, s.group), none: valueText(p, s.none) }));
   } else if (p.layer.sums) {
     const top = y.rows.slice(0, 3);
     const together = top.length === 3 ? shareOf(top.reduce((s, r) => s + r.value, 0), y.world) : null;
@@ -231,8 +238,16 @@ export function summary(p: ViewPage, year = p.year): string[] {
   } else {
     first.push(W.topNoShare(y.rows.slice(0, 3).map((r) => W.topPart(inSentence(nameOf(r.id)), valueText(p, r.value), null))));
   }
-  const second = [W.coverage(y.rows.length, p.text.period ? p.text.period(year) : year), ...(ANSWER[p.id]?.caveats ?? []), ...(p.layer.neutral ? [CYBER_TEXT.attribution] : [])];
+  const second = [W.coverage(y.rows.length, p.text.period ? p.text.period(year) : year), ...(ANSWER[p.id]?.caveats ?? []), ...(p.layer.neutral ? [CYBER_TEXT.attribution, ...cyberMethod(p)] : [])];
   return [first.join(' '), second.join(' ')];
+}
+
+/** The cyber view's method note: how many incidents the file has and how many no year can show. */
+function cyberMethod(p: ViewPage): string[] {
+  const c = cyberData();
+  if (!c) return [];
+  const u = undated(c);
+  return [CYBER_TEXT.method(valueText(p, u.all), valueText(p, u.undated))];
 }
 
 /** The page's label for the indicator page link. */

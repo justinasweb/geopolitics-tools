@@ -39,7 +39,7 @@ import { viewPage } from '../views.ts';
 import { anchors, boxOf } from './basemap.ts';
 import { armsPeriod, armsPeriods, supplierMix, SPAN } from '../arms.ts';
 import { ARMS_TEXT } from '../../i18n/arms.en.ts';
-import { type Tally, affecting, attributedTo, basesOf, cyberData, pairs as cyberPairs } from '../cyber.ts';
+import { type Tally, affecting, attributedTo, basesOf, cyberData, ownState, pairs as cyberPairs, placeOf } from '../cyber.ts';
 import { CYBER_TEXT } from '../../i18n/cyber.en.ts';
 import { groupsOf, mixOf } from '../electricity.ts';
 import { cells, conflictPage, deathClass, VIOLENCE } from '../conflict.ts';
@@ -335,21 +335,23 @@ function armsBlocks(exports: boolean, end: number, ids: string[]): Record<string
   return out;
 }
 
-/** A cyber breakdown row's name: who the incidents were attributed to. */
-function cyberWho(t: Tally): string {
+/** A cyber breakdown row's name: who the incidents were attributed to; a state in its own country says so. */
+function cyberWho(t: Tally, place: string): string {
   const w = t.who;
-  return 'state' in w ? CYBER_TEXT.toState(inSentence(nameOf2(w.state))) : 'group' in w ? CYBER_TEXT.toGroup(w.group) : 'other' in w ? CYBER_TEXT.other : CYBER_TEXT.none;
+  if ('state' in w) {
+    const n = inSentence(nameOf2(w.state));
+    return CYBER_TEXT.toState(w.state === place ? CYBER_TEXT.ownState(n) : n);
+  }
+  return 'affiliated' in w ? CYBER_TEXT.toAffiliated(inSentence(nameOf2(w.affiliated))) : 'group' in w ? CYBER_TEXT.toGroup(w.group) : 'other' in w ? CYBER_TEXT.other : CYBER_TEXT.none;
 }
 
-/** Who attributed a row's incidents, and how many of a state's went to state-affiliated groups only. */
-function cyberNote(t: Tally): string | undefined {
-  const parts = [basesOf(t.by).length ? CYBER_TEXT.by(basesOf(t.by)) : '', t.affiliated ? CYBER_TEXT.affiliated(t.affiliated, t.affiliated === t.n) : ''].filter(Boolean);
-  return parts.length ? parts.join('; ') : undefined;
-}
+/** Who attributed a row's incidents ("by …", "claimed by the group"). */
+const cyberNote = (t: Tally) => CYBER_TEXT.by(basesOf(t.by)) || undefined;
 
 const CYBER_ROWS = 6;
 /** Cyber incidents: for each country in the year, the incidents affecting it by who they were attributed to (every
- *  attribution, "Not attributed" its own row), and the incidents attributed to it by the country affected. */
+ *  attribution, "Not attributed" its own row), then the incidents attributed to it and to groups EuRepoC links to it,
+ *  by the country affected. */
 function cyberBlocks(year: number): Record<string, PanelBlock[]> {
   const c = cyberData();
   if (!c) return {};
@@ -358,34 +360,33 @@ function cyberBlocks(year: number): Record<string, PanelBlock[]> {
   const inYear = c.incidents.filter((i) => i.year === year);
   const affected = new Set(inYear.flatMap((i) => i.receivers));
   const attributed = new Set(inYear.flatMap((i) => i.attributions.flatMap((a) => a.states)));
+  const block = (label: string, caption: string, rows: Tally[], name: (t: Tally) => string): PanelBlock => ({
+    label, caption,
+    rows: rows.slice(0, CYBER_ROWS).map((t) => ({ name: name(t), value: f(t.n), note: cyberNote(t) })),
+    more: rows.length > CYBER_ROWS ? CYBER_TEXT.more(rows.length - CYBER_ROWS) : undefined,
+  });
   for (const id of new Set([...affected, ...attributed])) {
     const blocks: PanelBlock[] = [];
+    const own = inSentence(nameOf2(id));
     const rows = affected.has(id) ? affecting(c, id, year) : [];
-    if (rows.length) {
-      blocks.push({
-        label: CYBER_TEXT.affecting(year), caption: CYBER_TEXT.affectingCaption,
-        rows: rows.slice(0, CYBER_ROWS).map((t) => ({ name: cyberWho(t), value: f(t.n), note: cyberNote(t) })),
-        more: rows.length > CYBER_ROWS ? CYBER_TEXT.more(rows.length - CYBER_ROWS) : undefined,
-      });
-    }
-    const to = attributed.has(id) ? attributedTo(c, id, year) : [];
-    if (to.length) {
-      blocks.push({
-        label: CYBER_TEXT.attributedTo(inSentence(nameOf2(id)), year), caption: CYBER_TEXT.attributedCaption,
-        rows: to.slice(0, CYBER_ROWS).map((t) => ({ name: 'state' in t.who ? nameOf2(t.who.state) : '', value: f(t.n), note: cyberNote(t) })),
-        more: to.length > CYBER_ROWS ? CYBER_TEXT.more(to.length - CYBER_ROWS) : undefined,
-      });
-    }
+    if (rows.length) blocks.push(block(CYBER_TEXT.affecting(year), CYBER_TEXT.affectingCaption, rows, (t) => cyberWho(t, id)));
+    // The rows' `who` is the country affected; the state's own country is marked as such.
+    const to = (t: Tally) => (placeOf(t.who) === id ? CYBER_TEXT.ownState(nameOf2(id)) : nameOf2(placeOf(t.who) ?? ''));
+    const direct = attributed.has(id) ? attributedTo(c, id, year) : [];
+    if (direct.length) blocks.push(block(CYBER_TEXT.attributedTo(own, year), CYBER_TEXT.attributedCaption, direct, to));
+    const linked = attributed.has(id) ? attributedTo(c, id, year, true) : [];
+    if (linked.length) blocks.push(block(CYBER_TEXT.affiliatedTo(own, year), CYBER_TEXT.affiliatedCaption, linked, to));
     if (blocks.length) out[id] = blocks;
   }
   return out;
 }
 
-/** Cyber incidents: each year's 12 largest state → affected country pairs as arcs, in their year. */
+/** Cyber incidents: each year's 12 largest state → affected country pairs as arcs, in their year. Attributions to a
+ *  state itself only: not to state-affiliated groups, and not in the state's own country. */
 function cyberArcs(p: ViewPage): Overlay {
   const c = cyberData();
   const at = anchors();
-  const items: Arc[] = !c ? [] : p.years.flatMap((year, i) => cyberPairs(c, year).filter((q) => q.from !== q.to && at[q.from] && at[q.to]).slice(0, 12).map((q) => ({
+  const items: Arc[] = !c ? [] : p.years.flatMap((year, i) => cyberPairs(c, year).filter((q) => !ownState(q) && at[q.from] && at[q.to]).slice(0, 12).map((q) => ({
     p: arcXY(at[q.from], at[q.to]), w: q.n, m: 2 ** i,
     tip: CYBER_TEXT.arcTip(inSentence(nameOf2(q.from)), nameOf2(q.to), formatValue(q.n, { kind: 'count' }), year, CYBER_TEXT.by(basesOf(q.by))),
   })));

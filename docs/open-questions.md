@@ -365,21 +365,28 @@ Made while adding `/internet/users` and `/internet/ict-exports` (spec D18, [maps
 
 Made while adding `/internet/cyber-operations` from EuRepoC (spec D18, [maps.md](maps.md)).
 
-- **Incident count.** The brief says 3,416 incidents; version 1.3.2's main file has 3,414 rows (3,322 with receivers,
-  92 with no start date, which the map leaves out). The site counts what the file holds.
+- **Incident count.** The brief says 3,416 incidents; version 1.3.2's main file has 3,414. 92 have no start date, so
+  they are left off the map; the page's summary says so.
 - **The country page block sits under More figures**, not in Technology: the Technology section exists only on the
   three dossiers, while More figures is on every country page, next to disasters, sanctions and nuclear weapons. It
   shows incidents since 2000, or says there are none, with a link to the map.
-- **State-affiliated groups count for their state.** EuRepoC codes them as "non-state actor, state-affiliation
-  suggested". The panel counts them under the state and says how many were state-affiliated only ("4 to
-  state-affiliated groups"). Counting only direct state attributions would cut Russia's and China's rows a lot.
+- **State-affiliated groups have their own row** ("State-affiliated groups (EuRepoC links them to Russia)"), apart from
+  the state, and are left out of the arcs and the pairs table. A state's panel lists them in a block of their own. They
+  did not get a lighter arc of their own; that could be added if the map should show them.
+- **Claims by the group.** When the group itself is the source, the note says "claimed by the group (n)"; other sources
+  for the same row follow "by". This applies to states too (Ukraine's 2024 row against Russia is mostly claims).
+- **Own state.** A state attributed with incidents in its own country is labelled "(own state)" and left out of the
+  arcs and the pairs table.
 - **Every attribution, settled or not.** EuRepoC marks one attribution per incident as "settled"; the site shows all of
-  them as the brief asks, so an incident attributed to two states counts for both. Contested attributions show as "by
-  sources EuRepoC codes as contested".
+  them, so an incident attributed to two states counts for both. Contested attributions show as "by sources EuRepoC
+  codes as contested".
 - **Who attributed** is EuRepoC's attribution basis, not the named actor (the FBI, Microsoft): the actor field is
   free text, often empty, and repeats a basis once per person quoted.
-- **Arcs.** The map draws each year's 12 largest state → country pairs. They read clearly but most run to the United
-  States and Ukraine; the table under the map has the same pairs with who attributed them. Say if they should go.
+- **Change column.** Under 10 incidents in the year before, the change is a difference ("+4"), not a percentage. The
+  column still sorts by the percentage, so +4 from 1 sorts above +40% from 20. Other count layers (launches, AI models)
+  keep percentages; `diffUnder` on a layer would switch them too.
+- **Arcs.** Each year's 12 largest state → country pairs; most run to the United States and Ukraine. The table under
+  the map has the same pairs with who attributed them. Say if they should go.
 - **Severity is not used.** EuRepoC's `impact_indicator_label` (Minor to Very high) and `weighted_intensity` are
   missing for about 40% of incidents, so the map counts incidents without weighing them.
 - **Source count.** The licence table now has 35 rows (EuRepoC added); the spec's 37 also counts Access Now STOP,
