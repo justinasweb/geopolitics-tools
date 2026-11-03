@@ -144,32 +144,6 @@
       "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
     },
     {
-      "id": "join-IDN-2016",
-      "statement": "Indonesia joined OPEC in 2016.",
-      "period": "2016",
-      "places": [
-        "IDN"
-      ],
-      "source": "OPEC, Member countries",
-      "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
-    },
-    {
-      "id": "left-IDN-2016",
-      "statement": "Indonesia suspended its membership of OPEC in 2016.",
-      "period": "2016",
-      "places": [
-        "IDN"
-      ],
-      "source": "OPEC, Member countries",
-      "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
-    },
-    {
       "id": "join-LBY-1962",
       "statement": "Libya joined OPEC in 1962.",
       "period": "1962",
@@ -401,7 +375,7 @@
       "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
       "date": "2026-10-21",
       "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "note": "Covers both 2016 rows of src/data/bloc-history.csv (rejoined and suspended in the same year). Not opened from the build session (official sites were not reachable); check the date against the link."
     },
     {
       "id": "founding-members",

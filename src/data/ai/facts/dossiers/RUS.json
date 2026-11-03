@@ -29,7 +29,7 @@
     },
     {
       "id": "gdp-rank",
-      "statement": "Russia's place on gdp, largest first.",
+      "statement": "Russia’s place on GDP, largest first.",
       "value": 10,
       "unit": "rank",
       "period": "2024",
@@ -42,7 +42,7 @@
     },
     {
       "id": "gdp-of",
-      "statement": "Places ranked on gdp.",
+      "statement": "Places ranked on GDP.",
       "value": 107,
       "unit": "places",
       "unitAliases": [
@@ -75,7 +75,7 @@
     },
     {
       "id": "population-rank",
-      "statement": "Russia's place on population, largest first.",
+      "statement": "Russia’s place on population, largest first.",
       "value": 9,
       "unit": "rank",
       "period": "2024",
@@ -121,7 +121,7 @@
     },
     {
       "id": "gdppc-rank",
-      "statement": "Russia's place on gdp per person, largest first.",
+      "statement": "Russia’s place on GDP per person, largest first.",
       "value": 37,
       "unit": "rank",
       "period": "2024",
@@ -134,7 +134,7 @@
     },
     {
       "id": "gdppc-of",
-      "statement": "Places ranked on gdp per person.",
+      "statement": "Places ranked on GDP per person.",
       "value": 107,
       "unit": "places",
       "unitAliases": [
@@ -163,7 +163,7 @@
     },
     {
       "id": "milpct-rank",
-      "statement": "Russia's place on military spending, share of gdp, largest first.",
+      "statement": "Russia’s place on military spending, share of GDP, largest first.",
       "value": 4,
       "unit": "rank",
       "period": "2024",
@@ -176,7 +176,7 @@
     },
     {
       "id": "milpct-of",
-      "statement": "Places ranked on military spending, share of gdp.",
+      "statement": "Places ranked on military spending, share of GDP.",
       "value": 98,
       "unit": "places",
       "unitAliases": [
@@ -205,7 +205,7 @@
     },
     {
       "id": "co2pc-rank",
-      "statement": "Russia's place on co2 per person, largest first.",
+      "statement": "Russia’s place on CO2 per person, largest first.",
       "value": 8,
       "unit": "rank",
       "period": "2024",
@@ -218,7 +218,7 @@
     },
     {
       "id": "co2pc-of",
-      "statement": "Places ranked on co2 per person.",
+      "statement": "Places ranked on CO2 per person.",
       "value": 41,
       "unit": "places",
       "unitAliases": [
@@ -251,7 +251,7 @@
     },
     {
       "id": "reserves-rank",
-      "statement": "Russia's place on reserves, including gold, largest first.",
+      "statement": "Russia’s place on reserves, including gold, largest first.",
       "value": 3,
       "unit": "rank",
       "period": "2024",
@@ -293,7 +293,7 @@
     },
     {
       "id": "trade-rank",
-      "statement": "Russia's place on trade, largest first.",
+      "statement": "Russia’s place on trade, largest first.",
       "value": 1,
       "unit": "rank",
       "period": "2024",
@@ -339,7 +339,7 @@
     },
     {
       "id": "fdi-rank",
-      "statement": "Russia's place on foreign investment in, largest first.",
+      "statement": "Russia’s place on foreign investment in, largest first.",
       "value": 3,
       "unit": "rank",
       "period": "2024",
@@ -381,7 +381,7 @@
     },
     {
       "id": "tfr-rank",
-      "statement": "Russia's place on births per woman, largest first.",
+      "statement": "Russia’s place on births per woman, largest first.",
       "value": 2,
       "unit": "rank",
       "period": "2023",
@@ -423,7 +423,7 @@
     },
     {
       "id": "median-rank",
-      "statement": "Russia's place on median age, largest first.",
+      "statement": "Russia’s place on median age, largest first.",
       "value": 1,
       "unit": "rank",
       "period": "2023",
@@ -465,7 +465,7 @@
     },
     {
       "id": "satellites-rank",
-      "statement": "Russia's place on satellites in orbit, largest first.",
+      "statement": "Russia’s place on satellites in orbit, largest first.",
       "value": 4,
       "unit": "rank",
       "period": "2026",
@@ -507,7 +507,7 @@
     },
     {
       "id": "launches-rank",
-      "statement": "Russia's place on orbital launches, largest first.",
+      "statement": "Russia’s place on orbital launches, largest first.",
       "value": 4,
       "unit": "rank",
       "period": "2025",
@@ -549,7 +549,7 @@
     },
     {
       "id": "co2-rank",
-      "statement": "Russia's place on co2 emissions, largest first.",
+      "statement": "Russia’s place on CO2 emissions, largest first.",
       "value": 4,
       "unit": "rank",
       "period": "2024",
@@ -562,7 +562,7 @@
     },
     {
       "id": "co2-of",
-      "statement": "Places ranked on co2 emissions.",
+      "statement": "Places ranked on CO2 emissions.",
       "value": 41,
       "unit": "places",
       "unitAliases": [
@@ -591,7 +591,7 @@
     },
     {
       "id": "co2cum-rank",
-      "statement": "Russia's place on co2 emitted since 1750, largest first.",
+      "statement": "Russia’s place on CO2 emitted since 1750, largest first.",
       "value": 3,
       "unit": "rank",
       "period": "2024",
@@ -604,7 +604,7 @@
     },
     {
       "id": "co2cum-of",
-      "statement": "Places ranked on co2 emitted since 1750.",
+      "statement": "Places ranked on CO2 emitted since 1750.",
       "value": 41,
       "unit": "places",
       "unitAliases": [
@@ -633,7 +633,7 @@
     },
     {
       "id": "waterstress-rank",
-      "statement": "Russia's place on water stress, largest first.",
+      "statement": "Russia’s place on water stress, largest first.",
       "value": 61,
       "unit": "rank",
       "period": "2023",
@@ -662,7 +662,7 @@
     },
     {
       "id": "exports-oil",
-      "statement": "Russia's net exports of oil as a share of its production.",
+      "statement": "Russia’s net exports of oil as a share of its production.",
       "value": 66.0124,
       "unit": "%",
       "unitAliases": [
@@ -681,7 +681,7 @@
     },
     {
       "id": "exports-gas",
-      "statement": "Russia's net exports of gas as a share of its production.",
+      "statement": "Russia’s net exports of gas as a share of its production.",
       "value": 27.5436,
       "unit": "%",
       "unitAliases": [
@@ -700,7 +700,7 @@
     },
     {
       "id": "exports-wheat",
-      "statement": "Russia's net exports of wheat as a share of its production.",
+      "statement": "Russia’s net exports of wheat as a share of its production.",
       "value": 47.7777,
       "unit": "%",
       "unitAliases": [
@@ -719,7 +719,7 @@
     },
     {
       "id": "exports-maize",
-      "statement": "Russia's net exports of maize as a share of its production.",
+      "statement": "Russia’s net exports of maize as a share of its production.",
       "value": 26.5728,
       "unit": "%",
       "unitAliases": [
@@ -738,7 +738,7 @@
     },
     {
       "id": "imports-soy",
-      "statement": "Russia's net imports of soybeans as a share of its use.",
+      "statement": "Russia’s net imports of soybeans as a share of its use.",
       "value": 6.31836,
       "unit": "%",
       "unitAliases": [
@@ -757,7 +757,7 @@
     },
     {
       "id": "main-supplier-soy",
-      "statement": "Brazil is the main supplier of Russia's soybeans imports.",
+      "statement": "Brazil is the main supplier of Russia’s soybeans imports.",
       "value": 50.5748,
       "unit": "%",
       "unitAliases": [
@@ -775,7 +775,7 @@
     },
     {
       "id": "exports-potash",
-      "statement": "Russia's net exports of potash as a share of its production.",
+      "statement": "Russia’s net exports of potash as a share of its production.",
       "value": 92.6621,
       "unit": "%",
       "unitAliases": [
@@ -794,7 +794,7 @@
     },
     {
       "id": "main-supplier-chips",
-      "statement": "China is the main supplier of Russia's chips imports.",
+      "statement": "China is the main supplier of Russia’s chips imports.",
       "value": 65.5308,
       "unit": "%",
       "unitAliases": [
@@ -812,7 +812,7 @@
     },
     {
       "id": "mineral-palladium",
-      "statement": "Russia's share of world mine production of palladium (estimated).",
+      "statement": "Russia’s share of world mine production of palladium (estimated).",
       "value": 41.0571,
       "unit": "%",
       "unitAliases": [
@@ -828,7 +828,7 @@
     },
     {
       "id": "mineral-palladium-rank",
-      "statement": "Russia's place among producers of palladium, largest first.",
+      "statement": "Russia’s place among producers of palladium, largest first.",
       "value": 1,
       "unit": "rank",
       "period": "2025",
@@ -858,7 +858,7 @@
     },
     {
       "id": "refin-rank",
-      "statement": "Russia's place on refugees hosted, largest first.",
+      "statement": "Russia’s place on refugees hosted, largest first.",
       "value": 8,
       "unit": "rank",
       "period": "2025",
@@ -887,7 +887,7 @@
     },
     {
       "id": "nuclear-warheads",
-      "statement": "Russia's estimated total inventory of nuclear warheads.",
+      "statement": "Russia’s estimated total inventory of nuclear warheads.",
       "value": 5459,
       "unit": "warheads",
       "period": "2026",

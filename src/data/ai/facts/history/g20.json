@@ -30,6 +30,17 @@
   "generated": "by hand, from src/data/bloc-history.csv and the events in src/i18n/blocs.en.ts",
   "facts": [
     {
+      "id": "join-EU-1999",
+      "statement": "The European Union was a founding member of the G20, in 1999.",
+      "period": "1999",
+      "places": [],
+      "source": "G20, About the G20",
+      "link": "https://g20.org/about-the-g20/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "The EU is not a country, so it is not in src/data/bloc-history.csv or on the map; check against the link."
+    },
+    {
       "id": "join-ARG-1999",
       "statement": "Argentina was a founding member of the G20, in 1999.",
       "period": "1999",
@@ -300,7 +311,7 @@
     },
     {
       "id": "note-2023",
-      "statement": "The African Union became a member in 2023.",
+      "statement": "The African Union became a member of the G20 in 2023.",
       "period": "2023",
       "places": [],
       "source": "G20, About the G20",
@@ -311,13 +322,27 @@
     },
     {
       "id": "founding-members",
-      "statement": "Members of the G20 at its founding.",
-      "value": 19,
+      "statement": "Members of the G20 at its founding, counting the European Union with the countries.",
+      "value": 20,
       "unit": "members",
       "unitAliases": [
-        "countries",
         "founding members",
-        "founders"
+        "members"
+      ],
+      "period": "1999",
+      "source": "G20, About the G20",
+      "link": "https://g20.org/about-the-g20/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "19 countries (the founding rows of src/data/bloc-history.csv) and the European Union; check against the link."
+    },
+    {
+      "id": "founding-countries",
+      "statement": "Countries in the G20 at its founding.",
+      "value": 19,
+      "unit": "countries",
+      "unitAliases": [
+        "member countries"
       ],
       "period": "1999",
       "source": "G20, About the G20",
@@ -327,12 +352,11 @@
       "note": "Count of the founding rows in src/data/bloc-history.csv; check against the link."
     },
     {
-      "id": "members-2026",
-      "statement": "Members of the G20 in 2026, as the membership table was checked on 21 October 2026.",
+      "id": "countries-2026",
+      "statement": "Countries in the G20 in 2026, besides the European Union and the African Union.",
       "value": 19,
-      "unit": "members",
+      "unit": "countries",
       "unitAliases": [
-        "countries",
         "member countries"
       ],
       "period": "2026",
@@ -341,6 +365,21 @@
       "date": "2026-10-21",
       "unverified": true,
       "note": "Count of the open rows in src/data/bloc-history.csv; check against the link."
+    },
+    {
+      "id": "members-2026",
+      "statement": "Members of the G20 in 2026, counting the European Union and the African Union with the countries.",
+      "value": 21,
+      "unit": "members",
+      "unitAliases": [
+        "members"
+      ],
+      "period": "2026",
+      "source": "G20, About the G20",
+      "link": "https://g20.org/about-the-g20/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "19 countries (the open rows of src/data/bloc-history.csv), the European Union and the African Union; check against the link."
     }
   ]
 }

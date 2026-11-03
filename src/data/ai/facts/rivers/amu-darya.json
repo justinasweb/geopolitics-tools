@@ -57,11 +57,11 @@
       "places": [
         "AFG"
       ],
-      "source": "FAO AQUASTAT, Afghanistan",
-      "link": "https://www.fao.org/aquastat/en/",
+      "source": "Office of the First Deputy Prime Minister for Economic Affairs, Afghanistan (de facto authorities): The First Deputy Prime Minister traveled to Balkh to inaugurate the Qosh Tepa Canal",
+      "link": "https://dpmea.gov.af/node/571",
       "date": "2022-03",
       "unverified": true,
-      "note": "No official Afghan source was found; check against a primary source, or keep it unverified."
+      "note": "Found by web search; dpmea.gov.af was not reachable from the build session. Check that the page is the March 2022 launch."
     },
     {
       "id": "qosh-tepa-length",
@@ -75,11 +75,11 @@
       "places": [
         "AFG"
       ],
-      "source": "FAO AQUASTAT, Afghanistan",
-      "link": "https://www.fao.org/aquastat/en/",
-      "date": "2022",
+      "source": "Office of the First Deputy Prime Minister for Economic Affairs, Afghanistan (de facto authorities): The First Deputy Prime Minister traveled to Balkh to inaugurate the Qosh Tepa Canal",
+      "link": "https://dpmea.gov.af/node/571",
+      "date": "2022-03",
       "unverified": true,
-      "note": "No official source was found for the length; check it."
+      "note": "The page gives a total length of 285 km in three phases (as quoted in search results); check it on the page."
     }
   ]
 }

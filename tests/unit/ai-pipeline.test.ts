@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { checkDraft, strayNumbers } from '../../src/lib/ai/check.ts';
 import { AI_MODEL } from '../../src/lib/ai/config.ts';
 import { anthropicClient, cleanReply, draftText, NoKeyError, type DraftClient, type Turn } from '../../src/lib/ai/draft.ts';
-import { factsHash, refusals, validateFacts, type FactsFile } from '../../src/lib/ai/facts.ts';
+import { duplicateFacts, factsHash, refusals, validateFacts, type FactsFile } from '../../src/lib/ai/facts.ts';
 import { buildPrompt, promptSections } from '../../src/lib/ai/prompt.ts';
 import { approveText, readText, saveDraft, stateOf, textHash, writeText } from '../../src/lib/ai/store.ts';
 import { HISTORY_BLOCS, historySpans } from '../../src/lib/history.ts';
@@ -196,6 +196,37 @@ describe('a drafting run', () => {
   });
 });
 
+describe('duplicate facts', () => {
+  const base = { source: 'S', link: 'https://example.org', date: '2026' };
+  const f = (...facts: FactsFile['facts']): FactsFile => ({ id: 'history:csto', kind: 'history', subject: 'CSTO', generated: 'test', facts });
+
+  it('flag the same event said twice in other words', () => {
+    const d = duplicateFacts(f(
+      { id: 'left-UZB-2012', statement: 'Uzbekistan suspended its membership of the CSTO in 2012.', period: '2012', places: ['UZB'], ...base },
+      { id: 'note-2012', statement: 'Uzbekistan suspended its membership in 2012.', period: '2012', places: ['UZB'], ...base },
+    ));
+    expect(d.map(([a, b]) => [a.id, b.id])).toEqual([['left-UZB-2012', 'note-2012']]);
+    // A dated note against a year-only fact still counts: the year is what is compared.
+    expect(duplicateFacts(f(
+      { id: 'left-GBR-2020', statement: 'United Kingdom left the European Union in 2020.', period: '2020', places: ['GBR'], ...base },
+      { id: 'note-2020', statement: 'The United Kingdom left on 31 January 2020.', period: '2020-01-31', places: ['GBR'], ...base },
+    ))).toHaveLength(1);
+  });
+
+  it('leave apart different places, years and measures', () => {
+    expect(duplicateFacts(f(
+      { id: 'a', statement: 'Kazakhstan joined in 1992.', period: '1992', places: ['KAZ'], ...base },
+      { id: 'b', statement: 'Armenia joined in 1992.', period: '1992', places: ['ARM'], ...base },
+      { id: 'c', statement: 'Kazakhstan joined in 1993.', period: '1993', places: ['KAZ'], ...base },
+    ))).toEqual([]);
+    // One template, two measures, the same rank: not a duplicate.
+    expect(duplicateFacts(f(
+      { id: 'gdp-rank', statement: 'China’s place on GDP, largest first.', value: 2, unit: 'rank', period: '2024', places: ['CHN'], ...base },
+      { id: 'population-rank', statement: 'China’s place on population, largest first.', value: 2, unit: 'rank', period: '2024', places: ['CHN'], ...base },
+    ))).toEqual([]);
+  });
+});
+
 describe('the facts files in the repository', () => {
   const dir = 'src/data/ai/facts';
   const all = readdirSync(dir).flatMap((k) => readdirSync(join(dir, k)).map((f) => JSON.parse(readFileSync(join(dir, k, f), 'utf8')) as FactsFile));
@@ -212,14 +243,21 @@ describe('the facts files in the repository', () => {
     const ids = new Set(all.map((f) => f.id));
     for (const b of HISTORY_BLOCS) expect(ids.has(`history:${b}`), b).toBe(true);
     for (const r of RIVERS) expect(ids.has(`river:${r.id}`), r.id).toBe(true);
+    // A join or departure is covered by its own fact (join-IDN-1962), or by one fact about that place in that year:
+    // Indonesia rejoined OPEC and suspended its membership again in 2016, said in one fact. A date may be to the day.
+    const covered = (f: FactsFile, id: string, p: string, y: number) =>
+      f.facts.some((x) => (x.id === id || (x.places?.includes(p) && !x.id.startsWith('join-') && !x.id.startsWith('left-'))) && x.period?.slice(0, 4) === String(y));
     for (const b of HISTORY_BLOCS) {
       const f = all.find((x) => x.id === `history:${b}`)!;
       for (const s of historySpans().get(b)!) {
-        expect(f.facts.find((x) => x.id === `join-${s.place}-${s.from}`)?.period, `${b} ${s.place} ${s.from}`).toBe(String(s.from));
-        // A departure may be dated to the day (the UAE left OPEC on 2026-05-01); its year is the CSV's.
-        if (s.to !== null) expect(f.facts.find((x) => x.id === `left-${s.place}-${s.to}`)?.period?.slice(0, 4), `${b} ${s.place} left ${s.to}`).toBe(String(s.to));
+        expect(covered(f, `join-${s.place}-${s.from}`, s.place, s.from), `${b} ${s.place} joined ${s.from}`).toBe(true);
+        if (s.to !== null) expect(covered(f, `left-${s.place}-${s.to}`, s.place, s.to), `${b} ${s.place} left ${s.to}`).toBe(true);
       }
     }
+  });
+
+  it('say nothing twice', () => {
+    for (const f of all) expect(duplicateFacts(f).map(([a, b]) => `${a.id} = ${b.id}`), f.id).toEqual([]);
   });
 
   it('pass their own statements through the checker, so a draft that repeats a fact is accepted', () => {

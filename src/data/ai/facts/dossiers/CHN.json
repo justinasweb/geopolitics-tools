@@ -31,7 +31,7 @@
     },
     {
       "id": "gdp-rank",
-      "statement": "China's place on gdp, largest first.",
+      "statement": "China’s place on GDP, largest first.",
       "value": 2,
       "unit": "rank",
       "period": "2024",
@@ -44,7 +44,7 @@
     },
     {
       "id": "gdp-of",
-      "statement": "Places ranked on gdp.",
+      "statement": "Places ranked on GDP.",
       "value": 107,
       "unit": "places",
       "unitAliases": [
@@ -77,7 +77,7 @@
     },
     {
       "id": "population-rank",
-      "statement": "China's place on population, largest first.",
+      "statement": "China’s place on population, largest first.",
       "value": 2,
       "unit": "rank",
       "period": "2024",
@@ -123,7 +123,7 @@
     },
     {
       "id": "gdppc-rank",
-      "statement": "China's place on gdp per person, largest first.",
+      "statement": "China’s place on GDP per person, largest first.",
       "value": 41,
       "unit": "rank",
       "period": "2024",
@@ -136,7 +136,7 @@
     },
     {
       "id": "gdppc-of",
-      "statement": "Places ranked on gdp per person.",
+      "statement": "Places ranked on GDP per person.",
       "value": 107,
       "unit": "places",
       "unitAliases": [
@@ -165,7 +165,7 @@
     },
     {
       "id": "milpct-rank",
-      "statement": "China's place on military spending, share of gdp, largest first.",
+      "statement": "China’s place on military spending, share of GDP, largest first.",
       "value": 51,
       "unit": "rank",
       "period": "2023",
@@ -178,7 +178,7 @@
     },
     {
       "id": "milpct-of",
-      "statement": "Places ranked on military spending, share of gdp.",
+      "statement": "Places ranked on military spending, share of GDP.",
       "value": 99,
       "unit": "places",
       "unitAliases": [
@@ -207,7 +207,7 @@
     },
     {
       "id": "co2pc-rank",
-      "statement": "China's place on co2 per person, largest first.",
+      "statement": "China’s place on CO2 per person, largest first.",
       "value": 12,
       "unit": "rank",
       "period": "2024",
@@ -220,7 +220,7 @@
     },
     {
       "id": "co2pc-of",
-      "statement": "Places ranked on co2 per person.",
+      "statement": "Places ranked on CO2 per person.",
       "value": 41,
       "unit": "places",
       "unitAliases": [
@@ -253,7 +253,7 @@
     },
     {
       "id": "reserves-rank",
-      "statement": "China's place on reserves, including gold, largest first.",
+      "statement": "China’s place on reserves, including gold, largest first.",
       "value": 1,
       "unit": "rank",
       "period": "2024",
@@ -295,7 +295,7 @@
     },
     {
       "id": "trade-rank",
-      "statement": "China's place on trade, largest first.",
+      "statement": "China’s place on trade, largest first.",
       "value": 2,
       "unit": "rank",
       "period": "2024",
@@ -341,7 +341,7 @@
     },
     {
       "id": "fdi-rank",
-      "statement": "China's place on foreign investment in, largest first.",
+      "statement": "China’s place on foreign investment in, largest first.",
       "value": 2,
       "unit": "rank",
       "period": "2024",
@@ -383,7 +383,7 @@
     },
     {
       "id": "tfr-rank",
-      "statement": "China's place on births per woman, largest first.",
+      "statement": "China’s place on births per woman, largest first.",
       "value": 3,
       "unit": "rank",
       "period": "2023",
@@ -425,7 +425,7 @@
     },
     {
       "id": "median-rank",
-      "statement": "China's place on median age, largest first.",
+      "statement": "China’s place on median age, largest first.",
       "value": 2,
       "unit": "rank",
       "period": "2023",
@@ -467,7 +467,7 @@
     },
     {
       "id": "satellites-rank",
-      "statement": "China's place on satellites in orbit, largest first.",
+      "statement": "China’s place on satellites in orbit, largest first.",
       "value": 2,
       "unit": "rank",
       "period": "2026",
@@ -509,7 +509,7 @@
     },
     {
       "id": "launches-rank",
-      "statement": "China's place on orbital launches, largest first.",
+      "statement": "China’s place on orbital launches, largest first.",
       "value": 2,
       "unit": "rank",
       "period": "2025",
@@ -551,7 +551,7 @@
     },
     {
       "id": "aicompute-rank",
-      "statement": "China's place on share of ai computing power, largest first.",
+      "statement": "China’s place on share of AI computing power, largest first.",
       "value": 2,
       "unit": "rank",
       "period": "2026",
@@ -564,7 +564,7 @@
     },
     {
       "id": "aicompute-of",
-      "statement": "Places ranked on share of ai computing power.",
+      "statement": "Places ranked on share of AI computing power.",
       "value": 19,
       "unit": "places",
       "unitAliases": [
@@ -593,7 +593,7 @@
     },
     {
       "id": "co2-rank",
-      "statement": "China's place on co2 emissions, largest first.",
+      "statement": "China’s place on CO2 emissions, largest first.",
       "value": 1,
       "unit": "rank",
       "period": "2024",
@@ -606,7 +606,7 @@
     },
     {
       "id": "co2-of",
-      "statement": "Places ranked on co2 emissions.",
+      "statement": "Places ranked on CO2 emissions.",
       "value": 41,
       "unit": "places",
       "unitAliases": [
@@ -635,7 +635,7 @@
     },
     {
       "id": "co2cum-rank",
-      "statement": "China's place on co2 emitted since 1750, largest first.",
+      "statement": "China’s place on CO2 emitted since 1750, largest first.",
       "value": 2,
       "unit": "rank",
       "period": "2024",
@@ -648,7 +648,7 @@
     },
     {
       "id": "co2cum-of",
-      "statement": "Places ranked on co2 emitted since 1750.",
+      "statement": "Places ranked on CO2 emitted since 1750.",
       "value": 41,
       "unit": "places",
       "unitAliases": [
@@ -677,7 +677,7 @@
     },
     {
       "id": "waterstress-rank",
-      "statement": "China's place on water stress, largest first.",
+      "statement": "China’s place on water stress, largest first.",
       "value": 37,
       "unit": "rank",
       "period": "2023",
@@ -706,7 +706,7 @@
     },
     {
       "id": "imports-oil",
-      "statement": "China's net imports of oil as a share of its use.",
+      "statement": "China’s net imports of oil as a share of its use.",
       "value": 69.0424,
       "unit": "%",
       "unitAliases": [
@@ -725,7 +725,7 @@
     },
     {
       "id": "main-supplier-oil",
-      "statement": "Russia is the main supplier of China's oil imports.",
+      "statement": "Russia is the main supplier of China’s oil imports.",
       "value": 24.1573,
       "unit": "%",
       "unitAliases": [
@@ -743,7 +743,7 @@
     },
     {
       "id": "imports-gas",
-      "statement": "China's net imports of gas as a share of its use.",
+      "statement": "China’s net imports of gas as a share of its use.",
       "value": 44.306,
       "unit": "%",
       "unitAliases": [
@@ -762,7 +762,7 @@
     },
     {
       "id": "main-supplier-gas",
-      "statement": "Russia is the main supplier of China's gas imports.",
+      "statement": "Russia is the main supplier of China’s gas imports.",
       "value": 24.5509,
       "unit": "%",
       "unitAliases": [
@@ -780,7 +780,7 @@
     },
     {
       "id": "imports-wheat",
-      "statement": "China's net imports of wheat as a share of its use.",
+      "statement": "China’s net imports of wheat as a share of its use.",
       "value": 6.26991,
       "unit": "%",
       "unitAliases": [
@@ -799,7 +799,7 @@
     },
     {
       "id": "main-supplier-wheat",
-      "statement": "Canada is the main supplier of China's wheat imports.",
+      "statement": "Canada is the main supplier of China’s wheat imports.",
       "value": 34.7478,
       "unit": "%",
       "unitAliases": [
@@ -817,7 +817,7 @@
     },
     {
       "id": "imports-maize",
-      "statement": "China's net imports of maize as a share of its use.",
+      "statement": "China’s net imports of maize as a share of its use.",
       "value": 0.805418,
       "unit": "%",
       "unitAliases": [
@@ -836,7 +836,7 @@
     },
     {
       "id": "main-supplier-maize",
-      "statement": "Brazil is the main supplier of China's maize imports.",
+      "statement": "Brazil is the main supplier of China’s maize imports.",
       "value": 44.2724,
       "unit": "%",
       "unitAliases": [
@@ -854,7 +854,7 @@
     },
     {
       "id": "imports-soy",
-      "statement": "China's net imports of soybeans as a share of its use.",
+      "statement": "China’s net imports of soybeans as a share of its use.",
       "value": 83.401,
       "unit": "%",
       "unitAliases": [
@@ -873,7 +873,7 @@
     },
     {
       "id": "main-supplier-soy",
-      "statement": "Brazil is the main supplier of China's soybeans imports.",
+      "statement": "Brazil is the main supplier of China’s soybeans imports.",
       "value": 69.9455,
       "unit": "%",
       "unitAliases": [
@@ -891,7 +891,7 @@
     },
     {
       "id": "imports-potash",
-      "statement": "China's net imports of potash as a share of its use.",
+      "statement": "China’s net imports of potash as a share of its use.",
       "value": 42.125,
       "unit": "%",
       "unitAliases": [
@@ -910,7 +910,7 @@
     },
     {
       "id": "main-supplier-potash",
-      "statement": "Russia is the main supplier of China's potash imports.",
+      "statement": "Russia is the main supplier of China’s potash imports.",
       "value": 33.6369,
       "unit": "%",
       "unitAliases": [
@@ -928,7 +928,7 @@
     },
     {
       "id": "main-supplier-arms",
-      "statement": "Russia is the main supplier of China's major arms imports.",
+      "statement": "Russia is the main supplier of China’s major arms imports.",
       "value": 100,
       "unit": "%",
       "unitAliases": [
@@ -946,7 +946,7 @@
     },
     {
       "id": "main-supplier-chips",
-      "statement": "Taiwan is the main supplier of China's chips imports.",
+      "statement": "Taiwan is the main supplier of China’s chips imports.",
       "value": 34.8098,
       "unit": "%",
       "unitAliases": [
@@ -964,7 +964,7 @@
     },
     {
       "id": "mineral-gallium",
-      "statement": "China's share of world mine production of gallium (estimated).",
+      "statement": "China’s share of world mine production of gallium (estimated).",
       "value": 98.7055,
       "unit": "%",
       "unitAliases": [
@@ -980,7 +980,7 @@
     },
     {
       "id": "mineral-gallium-rank",
-      "statement": "China's place among producers of gallium, largest first.",
+      "statement": "China’s place among producers of gallium, largest first.",
       "value": 1,
       "unit": "rank",
       "period": "2025",
@@ -993,7 +993,7 @@
     },
     {
       "id": "mineral-tungsten",
-      "statement": "China's share of world mine production of tungsten (estimated).",
+      "statement": "China’s share of world mine production of tungsten (estimated).",
       "value": 82.1605,
       "unit": "%",
       "unitAliases": [
@@ -1009,7 +1009,7 @@
     },
     {
       "id": "mineral-tungsten-rank",
-      "statement": "China's place among producers of tungsten, largest first.",
+      "statement": "China’s place among producers of tungsten, largest first.",
       "value": 1,
       "unit": "rank",
       "period": "2025",
@@ -1022,7 +1022,7 @@
     },
     {
       "id": "mineral-graphite",
-      "statement": "China's share of world mine production of natural graphite (estimated).",
+      "statement": "China’s share of world mine production of natural graphite (estimated).",
       "value": 78.4425,
       "unit": "%",
       "unitAliases": [
@@ -1038,7 +1038,7 @@
     },
     {
       "id": "mineral-graphite-rank",
-      "statement": "China's place among producers of natural graphite, largest first.",
+      "statement": "China’s place among producers of natural graphite, largest first.",
       "value": 1,
       "unit": "rank",
       "period": "2025",
@@ -1051,7 +1051,7 @@
     },
     {
       "id": "mineral-rare-earths",
-      "statement": "China's share of world mine production of rare earths (estimated).",
+      "statement": "China’s share of world mine production of rare earths (estimated).",
       "value": 68.0667,
       "unit": "%",
       "unitAliases": [
@@ -1067,7 +1067,7 @@
     },
     {
       "id": "mineral-rare-earths-rank",
-      "statement": "China's place among producers of rare earths, largest first.",
+      "statement": "China’s place among producers of rare earths, largest first.",
       "value": 1,
       "unit": "rank",
       "period": "2025",
@@ -1080,7 +1080,7 @@
     },
     {
       "id": "mineral-lithium",
-      "statement": "China's share of world mine production of lithium (estimated).",
+      "statement": "China’s share of world mine production of lithium (estimated).",
       "value": 17.0542,
       "unit": "%",
       "unitAliases": [
@@ -1096,7 +1096,7 @@
     },
     {
       "id": "mineral-lithium-rank",
-      "statement": "China's place among producers of lithium, largest first.",
+      "statement": "China’s place among producers of lithium, largest first.",
       "value": 3,
       "unit": "rank",
       "period": "2025",
@@ -1109,7 +1109,7 @@
     },
     {
       "id": "nuclear-warheads",
-      "statement": "China's estimated total inventory of nuclear warheads.",
+      "statement": "China’s estimated total inventory of nuclear warheads.",
       "value": 650,
       "unit": "warheads",
       "period": "2026",

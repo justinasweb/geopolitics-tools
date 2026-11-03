@@ -23,7 +23,7 @@
   "facts": [
     {
       "id": "join-CHN-1996",
-      "statement": "China was a founding member of the SCO, in 1996.",
+      "statement": "China was a founding member of the Shanghai Five, in 1996.",
       "period": "1996",
       "places": [
         "CHN"
@@ -36,7 +36,7 @@
     },
     {
       "id": "join-KAZ-1996",
-      "statement": "Kazakhstan was a founding member of the SCO, in 1996.",
+      "statement": "Kazakhstan was a founding member of the Shanghai Five, in 1996.",
       "period": "1996",
       "places": [
         "KAZ"
@@ -49,7 +49,7 @@
     },
     {
       "id": "join-KGZ-1996",
-      "statement": "Kyrgyzstan was a founding member of the SCO, in 1996.",
+      "statement": "Kyrgyzstan was a founding member of the Shanghai Five, in 1996.",
       "period": "1996",
       "places": [
         "KGZ"
@@ -62,7 +62,7 @@
     },
     {
       "id": "join-RUS-1996",
-      "statement": "Russia was a founding member of the SCO, in 1996.",
+      "statement": "Russia was a founding member of the Shanghai Five, in 1996.",
       "period": "1996",
       "places": [
         "RUS"
@@ -75,7 +75,7 @@
     },
     {
       "id": "join-TJK-1996",
-      "statement": "Tajikistan was a founding member of the SCO, in 1996.",
+      "statement": "Tajikistan was a founding member of the Shanghai Five, in 1996.",
       "period": "1996",
       "places": [
         "TJK"
@@ -183,13 +183,14 @@
     },
     {
       "id": "founding-members",
-      "statement": "Members of the SCO at its founding.",
+      "statement": "Members of the Shanghai Five, the group the SCO grew out of, in 1996.",
       "value": 5,
       "unit": "members",
       "unitAliases": [
         "countries",
         "founding members",
-        "founders"
+        "founders",
+        "members"
       ],
       "period": "1996",
       "source": "Shanghai Cooperation Organisation, General information",
@@ -197,6 +198,23 @@
       "date": "2026-10-21",
       "unverified": true,
       "note": "Count of the founding rows in src/data/bloc-history.csv; check against the link."
+    },
+    {
+      "id": "founding-members-2001",
+      "statement": "Members of the Shanghai Cooperation Organisation when it was founded.",
+      "value": 6,
+      "unit": "members",
+      "unitAliases": [
+        "countries",
+        "founding members",
+        "members"
+      ],
+      "period": "2001",
+      "source": "Shanghai Cooperation Organisation, General information",
+      "link": "https://eng.sectsco.org/",
+      "date": "2026-10-21",
+      "unverified": true,
+      "note": "The five Shanghai Five countries and Uzbekistan (src/data/bloc-history.csv); check against the link."
     },
     {
       "id": "members-2026",

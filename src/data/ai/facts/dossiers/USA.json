@@ -13,7 +13,7 @@
   "facts": [
     {
       "id": "gdp",
-      "statement": "GDP of United States.",
+      "statement": "GDP of the United States.",
       "value": 29180000000000,
       "unit": "US$",
       "unitAliases": [
@@ -30,7 +30,7 @@
     },
     {
       "id": "gdp-rank",
-      "statement": "United States's place on gdp, largest first.",
+      "statement": "The United States’ place on GDP, largest first.",
       "value": 1,
       "unit": "rank",
       "period": "2024",
@@ -43,7 +43,7 @@
     },
     {
       "id": "gdp-of",
-      "statement": "Places ranked on gdp.",
+      "statement": "Places ranked on GDP.",
       "value": 107,
       "unit": "places",
       "unitAliases": [
@@ -59,7 +59,7 @@
     },
     {
       "id": "population",
-      "statement": "Population of United States.",
+      "statement": "Population of the United States.",
       "value": 340100000,
       "unit": "people",
       "unitAliases": [
@@ -76,7 +76,7 @@
     },
     {
       "id": "population-rank",
-      "statement": "United States's place on population, largest first.",
+      "statement": "The United States’ place on population, largest first.",
       "value": 3,
       "unit": "rank",
       "period": "2024",
@@ -105,7 +105,7 @@
     },
     {
       "id": "gdppc",
-      "statement": "GDP per person of United States.",
+      "statement": "GDP per person of the United States.",
       "value": 85798.3,
       "unit": "US$",
       "unitAliases": [
@@ -122,7 +122,7 @@
     },
     {
       "id": "gdppc-rank",
-      "statement": "United States's place on gdp per person, largest first.",
+      "statement": "The United States’ place on GDP per person, largest first.",
       "value": 5,
       "unit": "rank",
       "period": "2024",
@@ -135,7 +135,7 @@
     },
     {
       "id": "gdppc-of",
-      "statement": "Places ranked on gdp per person.",
+      "statement": "Places ranked on GDP per person.",
       "value": 107,
       "unit": "places",
       "unitAliases": [
@@ -151,7 +151,7 @@
     },
     {
       "id": "milpct",
-      "statement": "Military spending, share of GDP of United States.",
+      "statement": "Military spending, share of GDP of the United States.",
       "value": 3.4,
       "unit": "% of GDP",
       "period": "2024",
@@ -164,7 +164,7 @@
     },
     {
       "id": "milpct-rank",
-      "statement": "United States's place on military spending, share of gdp, largest first.",
+      "statement": "The United States’ place on military spending, share of GDP, largest first.",
       "value": 17,
       "unit": "rank",
       "period": "2024",
@@ -177,7 +177,7 @@
     },
     {
       "id": "milpct-of",
-      "statement": "Places ranked on military spending, share of gdp.",
+      "statement": "Places ranked on military spending, share of GDP.",
       "value": 98,
       "unit": "places",
       "unitAliases": [
@@ -193,7 +193,7 @@
     },
     {
       "id": "co2pc",
-      "statement": "CO2 per person of United States.",
+      "statement": "CO2 per person of the United States.",
       "value": 14.256,
       "unit": "t",
       "period": "2024",
@@ -206,7 +206,7 @@
     },
     {
       "id": "co2pc-rank",
-      "statement": "United States's place on co2 per person, largest first.",
+      "statement": "The United States’ place on CO2 per person, largest first.",
       "value": 4,
       "unit": "rank",
       "period": "2024",
@@ -219,7 +219,7 @@
     },
     {
       "id": "co2pc-of",
-      "statement": "Places ranked on co2 per person.",
+      "statement": "Places ranked on CO2 per person.",
       "value": 41,
       "unit": "places",
       "unitAliases": [
@@ -235,7 +235,7 @@
     },
     {
       "id": "reserves",
-      "statement": "Reserves, including gold of United States.",
+      "statement": "Reserves, including gold of the United States.",
       "value": 926445000000,
       "unit": "US$",
       "unitAliases": [
@@ -252,7 +252,7 @@
     },
     {
       "id": "reserves-rank",
-      "statement": "United States's place on reserves, including gold, largest first.",
+      "statement": "The United States’ place on reserves, including gold, largest first.",
       "value": 2,
       "unit": "rank",
       "period": "2024",
@@ -281,7 +281,7 @@
     },
     {
       "id": "trade",
-      "statement": "Trade of United States (Exports plus imports of goods and services).",
+      "statement": "Trade of the United States (Exports plus imports of goods and services).",
       "value": 25,
       "unit": "% of GDP",
       "period": "2024",
@@ -294,7 +294,7 @@
     },
     {
       "id": "trade-rank",
-      "statement": "United States's place on trade, largest first.",
+      "statement": "The United States’ place on trade, largest first.",
       "value": 3,
       "unit": "rank",
       "period": "2024",
@@ -323,7 +323,7 @@
     },
     {
       "id": "fdi",
-      "statement": "Foreign investment in of United States (Foreign direct investment, net inflows).",
+      "statement": "Foreign investment in of the United States (Foreign direct investment, net inflows).",
       "value": 300000000000,
       "unit": "US$",
       "unitAliases": [
@@ -340,7 +340,7 @@
     },
     {
       "id": "fdi-rank",
-      "statement": "United States's place on foreign investment in, largest first.",
+      "statement": "The United States’ place on foreign investment in, largest first.",
       "value": 1,
       "unit": "rank",
       "period": "2024",
@@ -369,7 +369,7 @@
     },
     {
       "id": "tfr",
-      "statement": "Births per woman of United States.",
+      "statement": "Births per woman of the United States.",
       "value": 1.625,
       "unit": "children",
       "period": "2023",
@@ -382,7 +382,7 @@
     },
     {
       "id": "tfr-rank",
-      "statement": "United States's place on births per woman, largest first.",
+      "statement": "The United States’ place on births per woman, largest first.",
       "value": 1,
       "unit": "rank",
       "period": "2023",
@@ -411,7 +411,7 @@
     },
     {
       "id": "median",
-      "statement": "Median age of United States.",
+      "statement": "Median age of the United States.",
       "value": 37.2,
       "unit": "years",
       "period": "2023",
@@ -424,7 +424,7 @@
     },
     {
       "id": "median-rank",
-      "statement": "United States's place on median age, largest first.",
+      "statement": "The United States’ place on median age, largest first.",
       "value": 3,
       "unit": "rank",
       "period": "2023",
@@ -453,7 +453,7 @@
     },
     {
       "id": "satellites",
-      "statement": "Satellites in orbit of United States.",
+      "statement": "Satellites in orbit of the United States.",
       "value": 12653,
       "unit": "satellites",
       "period": "2026",
@@ -466,7 +466,7 @@
     },
     {
       "id": "satellites-rank",
-      "statement": "United States's place on satellites in orbit, largest first.",
+      "statement": "The United States’ place on satellites in orbit, largest first.",
       "value": 1,
       "unit": "rank",
       "period": "2026",
@@ -495,7 +495,7 @@
     },
     {
       "id": "launches",
-      "statement": "Orbital launches of United States.",
+      "statement": "Orbital launches of the United States.",
       "value": 190,
       "unit": "launches",
       "period": "2025",
@@ -508,7 +508,7 @@
     },
     {
       "id": "launches-rank",
-      "statement": "United States's place on orbital launches, largest first.",
+      "statement": "The United States’ place on orbital launches, largest first.",
       "value": 1,
       "unit": "rank",
       "period": "2025",
@@ -537,7 +537,7 @@
     },
     {
       "id": "aicompute",
-      "statement": "Share of AI computing power of United States.",
+      "statement": "Share of AI computing power of the United States.",
       "value": 77.1354,
       "unit": "%",
       "period": "2026",
@@ -550,7 +550,7 @@
     },
     {
       "id": "aicompute-rank",
-      "statement": "United States's place on share of ai computing power, largest first.",
+      "statement": "The United States’ place on share of AI computing power, largest first.",
       "value": 1,
       "unit": "rank",
       "period": "2026",
@@ -563,7 +563,7 @@
     },
     {
       "id": "aicompute-of",
-      "statement": "Places ranked on share of ai computing power.",
+      "statement": "Places ranked on share of AI computing power.",
       "value": 19,
       "unit": "places",
       "unitAliases": [
@@ -579,7 +579,7 @@
     },
     {
       "id": "co2",
-      "statement": "CO2 emissions of United States.",
+      "statement": "CO2 emissions of the United States.",
       "value": 4847.05,
       "unit": "Mt",
       "period": "2024",
@@ -592,7 +592,7 @@
     },
     {
       "id": "co2-rank",
-      "statement": "United States's place on co2 emissions, largest first.",
+      "statement": "The United States’ place on CO2 emissions, largest first.",
       "value": 2,
       "unit": "rank",
       "period": "2024",
@@ -605,7 +605,7 @@
     },
     {
       "id": "co2-of",
-      "statement": "Places ranked on co2 emissions.",
+      "statement": "Places ranked on CO2 emissions.",
       "value": 41,
       "unit": "places",
       "unitAliases": [
@@ -621,7 +621,7 @@
     },
     {
       "id": "co2cum",
-      "statement": "CO2 emitted since 1750 of United States.",
+      "statement": "CO2 emitted since 1750 of the United States.",
       "value": 435000,
       "unit": "Mt",
       "period": "2024",
@@ -634,7 +634,7 @@
     },
     {
       "id": "co2cum-rank",
-      "statement": "United States's place on co2 emitted since 1750, largest first.",
+      "statement": "The United States’ place on CO2 emitted since 1750, largest first.",
       "value": 1,
       "unit": "rank",
       "period": "2024",
@@ -647,7 +647,7 @@
     },
     {
       "id": "co2cum-of",
-      "statement": "Places ranked on co2 emitted since 1750.",
+      "statement": "Places ranked on CO2 emitted since 1750.",
       "value": 41,
       "unit": "places",
       "unitAliases": [
@@ -663,7 +663,7 @@
     },
     {
       "id": "waterstress",
-      "statement": "Water stress of United States.",
+      "statement": "Water stress of the United States.",
       "value": 2.7,
       "unit": "score 0–5",
       "period": "2023",
@@ -676,7 +676,7 @@
     },
     {
       "id": "waterstress-rank",
-      "statement": "United States's place on water stress, largest first.",
+      "statement": "The United States’ place on water stress, largest first.",
       "value": 40,
       "unit": "rank",
       "period": "2023",
@@ -705,7 +705,7 @@
     },
     {
       "id": "exports-oil",
-      "statement": "United States's net exports of oil as a share of its production.",
+      "statement": "The United States’ net exports of oil as a share of its production.",
       "value": 10.1211,
       "unit": "%",
       "unitAliases": [
@@ -724,7 +724,7 @@
     },
     {
       "id": "exports-gas",
-      "statement": "United States's net exports of gas as a share of its production.",
+      "statement": "The United States’ net exports of gas as a share of its production.",
       "value": 13.742,
       "unit": "%",
       "unitAliases": [
@@ -743,7 +743,7 @@
     },
     {
       "id": "exports-wheat",
-      "statement": "United States's net exports of wheat as a share of its production.",
+      "statement": "The United States’ net exports of wheat as a share of its production.",
       "value": 45.2864,
       "unit": "%",
       "unitAliases": [
@@ -762,7 +762,7 @@
     },
     {
       "id": "exports-maize",
-      "statement": "United States's net exports of maize as a share of its production.",
+      "statement": "The United States’ net exports of maize as a share of its production.",
       "value": 16.0264,
       "unit": "%",
       "unitAliases": [
@@ -781,7 +781,7 @@
     },
     {
       "id": "exports-soy",
-      "statement": "United States's net exports of soybeans as a share of its production.",
+      "statement": "The United States’ net exports of soybeans as a share of its production.",
       "value": 43.6742,
       "unit": "%",
       "unitAliases": [
@@ -800,7 +800,7 @@
     },
     {
       "id": "imports-potash",
-      "statement": "United States's net imports of potash as a share of its use.",
+      "statement": "The United States’ net imports of potash as a share of its use.",
       "value": 89.3818,
       "unit": "%",
       "unitAliases": [
@@ -819,7 +819,7 @@
     },
     {
       "id": "main-supplier-potash",
-      "statement": "Canada is the main supplier of United States's potash imports.",
+      "statement": "Canada is the main supplier of the United States’ potash imports.",
       "value": 98.0583,
       "unit": "%",
       "unitAliases": [
@@ -837,7 +837,7 @@
     },
     {
       "id": "main-supplier-arms",
-      "statement": "United Kingdom is the main supplier of United States's major arms imports.",
+      "statement": "United Kingdom is the main supplier of the United States’ major arms imports.",
       "value": 34.7334,
       "unit": "%",
       "unitAliases": [
@@ -855,7 +855,7 @@
     },
     {
       "id": "main-supplier-chips",
-      "statement": "Malaysia is the main supplier of United States's chips imports.",
+      "statement": "Malaysia is the main supplier of the United States’ chips imports.",
       "value": 22.254,
       "unit": "%",
       "unitAliases": [
@@ -873,7 +873,7 @@
     },
     {
       "id": "mineral-rare-earths",
-      "statement": "United States's share of world mine production of rare earths (estimated).",
+      "statement": "The United States’ share of world mine production of rare earths (estimated).",
       "value": 11.3872,
       "unit": "%",
       "unitAliases": [
@@ -889,7 +889,7 @@
     },
     {
       "id": "mineral-rare-earths-rank",
-      "statement": "United States's place among producers of rare earths, largest first.",
+      "statement": "The United States’ place among producers of rare earths, largest first.",
       "value": 2,
       "unit": "rank",
       "period": "2025",
@@ -902,7 +902,7 @@
     },
     {
       "id": "refin",
-      "statement": "Refugees hosted of United States.",
+      "statement": "Refugees hosted of the United States.",
       "value": 847403,
       "unit": "people",
       "unitAliases": [
@@ -919,7 +919,7 @@
     },
     {
       "id": "refin-rank",
-      "statement": "United States's place on refugees hosted, largest first.",
+      "statement": "The United States’ place on refugees hosted, largest first.",
       "value": 14,
       "unit": "rank",
       "period": "2025",
@@ -948,7 +948,7 @@
     },
     {
       "id": "nuclear-warheads",
-      "statement": "United States's estimated total inventory of nuclear warheads.",
+      "statement": "The United States’ estimated total inventory of nuclear warheads.",
       "value": 5177,
       "unit": "warheads",
       "period": "2026",
@@ -961,7 +961,7 @@
     },
     {
       "id": "ai-models",
-      "statement": "Notable AI models from organisations in United States.",
+      "statement": "Notable AI models from organisations in the United States.",
       "value": 70,
       "unit": "models",
       "period": "2025",

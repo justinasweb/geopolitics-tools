@@ -121,3 +121,28 @@ export function loadFacts(id: string, root = process.cwd()): FactsFile | null {
   const p = factsPath(id, root);
   return existsSync(p) ? (JSON.parse(readFileSync(p, 'utf8')) as FactsFile) : null;
 }
+
+const STOPWORDS = new Set(['a', 'an', 'the', 'of', 'in', 'on', 'at', 'to', 'and', 'its', 'it', 'as', 'by', 'from', 'with', 'for', 'was', 'were', 'is', 'are', 'has', 'had', 'again']);
+const contentWords = (s: string) => new Set(s.toLowerCase().normalize('NFKD').replace(/[^\p{L}\p{N}\s]/gu, ' ').split(/\s+/).filter((w) => w && !STOPWORDS.has(w)));
+
+/** Pairs of facts in one file that state the same thing: about the same places in the same year, with the same
+ *  figure or none, in mostly the same words. Events (no figure) count when half their content words are shared;
+ *  figures, whose statements are often one template with a different measure ("China's place on GDP", "…on
+ *  population"), only when four in five are. A drafted text would otherwise say it twice. */
+export function duplicateFacts(f: FactsFile): [Fact, Fact][] {
+  const out: [Fact, Fact][] = [];
+  const key = (x: Fact) => [...(x.places ?? [])].sort().join(',');
+  for (let i = 0; i < f.facts.length; i++) {
+    for (let j = i + 1; j < f.facts.length; j++) {
+      const [a, b] = [f.facts[i], f.facts[j]];
+      if (!key(a) || key(a) !== key(b)) continue;
+      if ((a.period ?? '').slice(0, 4) !== (b.period ?? '').slice(0, 4)) continue;
+      if ((a.value ?? null) !== (b.value ?? null) || (a.unit ?? '') !== (b.unit ?? '')) continue;
+      const [wa, wb] = [contentWords(a.statement), contentWords(b.statement)];
+      const shared = [...wa].filter((w) => wb.has(w)).length;
+      const figure = a.value !== undefined && a.value !== null;
+      if (shared / new Set([...wa, ...wb]).size >= (figure ? 0.8 : 0.5)) out.push([a, b]);
+    }
+  }
+  return out;
+}

@@ -240,19 +240,6 @@
       "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
     },
     {
-      "id": "note-2012",
-      "statement": "Uzbekistan suspended its membership in 2012.",
-      "period": "2012",
-      "places": [
-        "UZB"
-      ],
-      "source": "Collective Security Treaty Organization, From the treaty to the organization",
-      "link": "https://en.odkb-csto.org/",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
-    },
-    {
       "id": "note-2024",
       "statement": "Armenia froze its participation in 2024; it has not left.",
       "period": "2024",

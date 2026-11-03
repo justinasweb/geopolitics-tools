@@ -160,8 +160,8 @@
     },
     {
       "id": "left-GBR-2020",
-      "statement": "United Kingdom left the European Union in 2020.",
-      "period": "2020",
+      "statement": "The United Kingdom left the European Union on 31 January 2020.",
+      "period": "2020-01-31",
       "places": [
         "GBR"
       ],
@@ -458,19 +458,6 @@
       "id": "note-2016",
       "statement": "The United Kingdom voted to leave in a referendum in 2016.",
       "period": "2016",
-      "places": [
-        "GBR"
-      ],
-      "source": "European Union, EU countries",
-      "link": "https://european-union.europa.eu/principles-countries-history/eu-countries_en",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
-    },
-    {
-      "id": "note-2020",
-      "statement": "The United Kingdom left on 31 January 2020.",
-      "period": "2020",
       "places": [
         "GBR"
       ],

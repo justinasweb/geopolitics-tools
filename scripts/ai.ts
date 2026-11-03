@@ -16,7 +16,7 @@ import { dirname } from 'node:path';
 import { checkDraft, problemLines, strayNumbers } from '../src/lib/ai/check.ts';
 import { AI_MODEL, MANUAL_MODEL } from '../src/lib/ai/config.ts';
 import { anthropicClient, draftText, NoKeyError, type DraftClient } from '../src/lib/ai/draft.ts';
-import { canonical, factsHash, factsPath, kindOf, loadFacts, refusals, validateFacts, type FactsFile } from '../src/lib/ai/facts.ts';
+import { canonical, duplicateFacts, factsHash, factsPath, kindOf, loadFacts, refusals, validateFacts, type FactsFile } from '../src/lib/ai/facts.ts';
 import { tryLoadDossierFacts } from '../src/lib/ai/current.ts';
 import { hubFacts, pageFacts } from '../src/lib/ai/page-facts.ts';
 import { approveText, isLong, readText, saveDraft, stateOf, textHash, writeText, type Via } from '../src/lib/ai/store.ts';
@@ -54,7 +54,10 @@ function writeFacts(f: FactsFile) {
 /** Problems that make a facts file unusable, and warnings the owner should see. */
 function lint(f: FactsFile): { errors: string[]; warnings: string[] } {
   const errors = validateFacts(f, (p) => Boolean(place(p)));
-  const warnings = f.facts.flatMap((x) => strayNumbers(x, f.names).map((n) => `fact "${x.id}": "${n}" in the statement is not its value; give it a fact of its own`));
+  const warnings = [
+    ...f.facts.flatMap((x) => strayNumbers(x, f.names).map((n) => `fact "${x.id}": "${n}" in the statement is not its value; give it a fact of its own`)),
+    ...duplicateFacts(f).map(([a, b]) => `facts "${a.id}" and "${b.id}" say the same thing; keep one ("${a.statement}" / "${b.statement}")`),
+  ];
   return { errors, warnings };
 }
 
@@ -88,6 +91,8 @@ function factsState(id: string): string {
   const g = kindOf(id) === 'page' || kindOf(id) === 'hub' ? generated(id) : null;
   if (g && factsHash(g) !== factsHash(f)) bits.push('out of date with the code: run npm run ai:facts');
   if (validateFacts(f, (p) => Boolean(place(p))).length) bits.push('invalid');
+  const dups = duplicateFacts(f).length;
+  if (dups) bits.push(`${dups} duplicate${dups === 1 ? '' : 's'}: see npm run ai:facts`);
   return bits.join(', ');
 }
 
