@@ -240,7 +240,18 @@ its AI summary is approved. See [ai-drafting.md](ai-drafting.md).
 ## Share images
 
 `src/lib/og.ts` renders a 1200 × 630 PNG per page at build time with Satori and resvg, in the site's fonts and light
-theme colours: kicker, title, the headline figure or answer, up to five bars, and the source.
+theme colours: kicker, title, the headline figure or answer, up to five bars, and the source. What each page's card
+says is in `src/lib/og-cards.ts`.
+
+- **Bar labels** are measured in the font Satori draws them with (its own opentype.js, pinned in `package.json`) and
+  fitted first: wrapped to two lines at spaces, or cut after a whole word with "…", keeping a trailing year or
+  bracketed short name ("Treaty on the Non-Proliferation… (NPT)"). A word is never split, and a year never stands
+  alone on the second line.
+- **Rows** get the space left beside the figure column: the value column is as wide as the widest value, the label
+  column up to 240px, the bar the rest. When five two-line rows would not fit under the title, the rows get tighter,
+  then smaller, then one line each.
+- `tests/unit/og.test.ts` checks every card the site builds, and the longest label of each view family five times
+  over under its longest title, rendered with nothing in the card's margins.
 
 ## Not done in this phase
 
