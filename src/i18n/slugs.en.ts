@@ -31,7 +31,7 @@ export const VIEW_SLUGS: Record<string, string> = {
   refout: '', refin: 'hosted', refinpc: 'per-person', idps: 'displaced',
   satellites: '', launches: 'launches',
   aicompute: '', aimodels: 'models', entitylist: 'export-controls', chipimports: 'chips', chipmachines: 'chip-machines',
-  outages: 'outages', netuser: 'users', ictexp: 'ict-exports',
+  outages: 'outages', netuser: 'users', ictexp: 'ict-exports', cyber: 'cyber-operations',
   waterstress: '', waterstress2050: '2050', waterdep: 'from-abroad',
   lendall: '', lendenergy: 'energy', lendtransport: 'transport', lendindustry: 'mining', lendbanking: 'banking', lendother: 'other',
   armsexp5: '', armsimp5: 'importers',

@@ -109,6 +109,7 @@ as the rest of the pipeline does. Week files are a few kilobytes and are never r
 | US Treasury TIC | 7 days | 45 days | Table 5, major foreign holders, last 13 months |
 | Epoch AI | 7 days | 60 days | Notable AI models, GPU clusters |
 | Our World in Data CO2 | 30 days | 400 days | 20 columns from 1990 |
+| EuRepoC cyber incidents | 30 days | 400 days | The pinned Zenodo version (1.3.2): incidents (id, start date, receiver countries and codes) and every attribution (basis, initiator, its kind), trimmed from the main and attribution CSVs, plus the version for the credit. A newer version on Zenodo sends a notice once and is never switched to by the fetcher (below) |
 | FAS nuclear warheads (via Our World in Data) | 30 days | 400 days | Two OWID grapher CSVs crediting FAS, kept whole: estimated stockpiles, every state and year since 1945 (the series), and the latest estimate by status (deployed, reserve, retired). Each file's columns and years are logged before its checks |
 | UNHCR | 30 days | 200 days | Totals by origin and by host, and origin–host pairs, since 2015 |
 | UK Sanctions List | 1 day | 10 days | Designations: type, regime, dates, countries |
@@ -139,6 +140,12 @@ or much smaller than the last good copy. FAOSTAT has no fertiliser trade matrix,
 from UN Comtrade (HS 3104; phosphate is HS 3103 plus DAP 310530 and MAP 310540, not all of 3105, which includes
 NPK blends).
 
+**Notices.** A fetcher can return a `notice`: something to know that is not a failure. The runner sends it on
+Telegram once, and again only when its wording changes; it is not an alert, so the run stays green. EuRepoC uses it
+when Zenodo has a newer version of the dataset than the pinned one. To switch, change `RECORD` and `VERSION` in
+`pipeline/sources/eurepoc.ts` in a pull request: the counts and the credit change with the version, so they are
+reviewed like any other change.
+
 ## Running it
 
 | Command | What |
@@ -157,7 +164,7 @@ build (`node pipeline/adapter-check.ts data/raw`), which takes seconds and spend
 
 Every fetcher takes its address from an environment variable when set (`WORLDBANK_BASE`, `GDACS_BASE`,
 `USGS_EQ_BASE`, `UNHCR_BASE`, `IODA_BASE`, `TIC_URL`, `OWID_URL`, `CELESTRAK_URL`, `CSL_URL`, `EU_FSF_URL`,
-`UK_SANCTIONS_URL`, `FAS_SERIES_URL`, `FAS_STATUS_URL`, `PINKSHEET_URL`, `OVERPASS_URL`, `FAOSTAT_BASE`, `IMF_DATAMAPPER_BASE`, `PORTWATCH_URL`), so it
+`UK_SANCTIONS_URL`, `FAS_SERIES_URL`, `FAS_STATUS_URL`, `PINKSHEET_URL`, `OVERPASS_URL`, `FAOSTAT_BASE`, `IMF_DATAMAPPER_BASE`, `PORTWATCH_URL`, `ZENODO_BASE`), so it
 can be pointed at a stub.
 
 ## Importing a file

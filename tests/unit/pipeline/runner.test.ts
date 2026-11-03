@@ -88,6 +88,23 @@ describe('runner', () => {
     expect(alerts.sent.at(-1)).toMatch(/working again/);
   });
 
+  it('sends a fetcher’s notice once, again only when it changes, and never counts it as an alert', async () => {
+    const stores = tempStores();
+    let notice: string | undefined = 'version 2 is out';
+    const a = fakeSource('a', () => ({ files: [{ name: 'x.json', body: 'v1' }], rows: 1, ...(notice ? { notice } : {}) }));
+    const alerts = recorder();
+    const r1 = await run({ sources: [a], stores, http, alerter: alerts, now: hour(10), log: () => {} });
+    await run({ sources: [a], stores, http, alerter: alerts, now: hour(11), log: () => {} });
+    expect(alerts.sent).toEqual(['ℹ️ geopolitics.tools data: Source a. version 2 is out']);
+    expect(r1.alerts).toBe(0);
+    notice = 'version 3 is out';
+    await run({ sources: [a], stores, http, alerter: alerts, now: hour(12), log: () => {} });
+    expect(alerts.sent).toHaveLength(2);
+    notice = undefined;
+    await run({ sources: [a], stores, http, alerter: alerts, now: hour(13), log: () => {} });
+    expect((await loadState(stores)).sources.a.notice).toBeUndefined();
+  });
+
   it('skips sources that are not due or switched off, unless named with --only', async () => {
     const stores = tempStores();
     let calls = 0;

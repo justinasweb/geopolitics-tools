@@ -252,6 +252,12 @@ export async function run(opts: RunOptions): Promise<RunReport> {
       delete st.lastError;
       st.rows = result.rows;
       st.dataTo = result.dataTo;
+      if (result.notice && result.notice !== st.notice) {
+        // Not counted as an alert: nothing failed, so the run stays green.
+        await opts.alerter.send(`ℹ️ geopolitics.tools data: ${src.name}. ${result.notice}`);
+      }
+      if (result.notice) st.notice = result.notice;
+      else delete st.notice;
       const size = Object.values(fresh).reduce((s, f) => s + f.bytes, 0);
       report = {
         id: src.id, name: src.name, outcome: isNew ? 'changed' : 'unchanged',

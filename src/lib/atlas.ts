@@ -143,6 +143,8 @@ export function atlasOverlays(): AtlasOverlay[] {
   // The same flows on several layers (arms exports and imports) are offered once, named for their family.
   const seen = new Map<string, AtlasOverlayVariant>();
   for (const l of layers) {
+    // Attributions of cyber incidents are not trade, so their arcs stay on their own view.
+    if (l.id === 'internet-cyber') continue;
     const f = layerFile(l.id);
     const arcs = (f.overlays ?? []).filter((o) => o.kind === 'arcs' && o.items.length);
     const sig = JSON.stringify(arcs.map((o) => o.items));

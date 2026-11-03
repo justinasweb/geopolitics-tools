@@ -36,6 +36,8 @@ import { countryHref, indicatorHref, live, paths } from '../lib/routes';
 import { breadcrumbs, country as countryLd } from '../lib/structured';
 import { NUCLEAR_TEXT } from '../i18n/nuclear.en';
 import { warheads } from '../lib/nuclear';
+import { CYBER_TEXT } from '../i18n/cyber.en';
+import { cyberData } from '../lib/cyber';
 import { publishedText } from '../lib/ai/texts';
 
 interface Props { id: string }
@@ -75,7 +77,7 @@ const depSourceNames = [...new Set(okDeps.map((d) => short(d.source)))].sort();
 const mineralYear = m.minerals[0]?.year;
 const blocks = m.blocks;
 const disasterParts = blocks.disasters ? Object.entries(blocks.disasters.byKind).sort((a, b) => b[1] - a[1]).map(([k, n]) => `${n} ${(BLOCK_TEXT.kinds[k] ?? [k, k])[n === 1 ? 0 : 1]}`) : [];
-const hasBlocks = Boolean(blocks.refugees || blocks.disasters || blocks.emissions || blocks.sanctions || blocks.lending || blocks.nuclear);
+const hasBlocks = Boolean(blocks.refugees || blocks.disasters || blocks.emissions || blocks.sanctions || blocks.lending || blocks.nuclear || blocks.cyber);
 
 const buildYear = Number(data().snapshot.created.slice(0, 4));
 const d = m.dossier ? dossierFor(p.id, buildYear) : null;
@@ -343,6 +345,16 @@ const citation = COUNTRY_TEXT.citation(name, kind, url, Number(m.updated.slice(0
                   <CpStat num={warheads(blocks.nuclear.value)} caption={NUCLEAR_TEXT.blockCaption(blocks.nuclear.year)} />
                   {live('view:nuclear:warheads') && <p class="gt-caption"><a href={`${live('view:nuclear:warheads')!.path}?country=${m.place.slug}`}>{NUCLEAR_TEXT.blockLink}</a></p>}
                   <SourceLine source={sourceName('fas')} parts={[NUCLEAR_TEXT.estimate(blocks.nuclear.year)]} status="estimate" />
+                </article>
+              )}
+              {blocks.cyber && (
+                <article class="gt-cpblock">
+                  <h3 class="gt-h3">{CYBER_TEXT.block}</h3>
+                  {blocks.cyber.count > 0
+                    ? <CpStat num={new Intl.NumberFormat('en').format(blocks.cyber.count)} caption={CYBER_TEXT.blockCaption(inSentence(name), blocks.cyber.from, blocks.cyber.to)} />
+                    : <p class="gt-caption">{CYBER_TEXT.blockNone(inSentence(name), blocks.cyber.from, blocks.cyber.to)}</p>}
+                  <p class="gt-caption">{CYBER_TEXT.blockNote}{blocks.cyber.count > 0 && live('view:internet:cyber') && <> <a href={`${live('view:internet:cyber')!.path}?country=${m.place.slug}`}>{CYBER_TEXT.blockLink}</a></>}</p>
+                  <SourceLine source={CYBER_TEXT.credit(cyberData()?.version ?? null)} parts={[`${blocks.cyber.from}–${blocks.cyber.to}`]} />
                 </article>
               )}
             </div>

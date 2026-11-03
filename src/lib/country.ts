@@ -6,6 +6,7 @@ import { lending as loadLending } from '../adapters/aiddata.ts';
 import { minerals as loadMinerals, type Mineral } from '../adapters/minerals.ts';
 import { alertsIn, firstDay, lastDay } from './disasters.ts';
 import { warheadsModel } from './nuclear.ts';
+import { cyberData, since } from './cyber.ts';
 import { INDICATORS, type Loaded } from '../data/indicators.ts';
 import { INDICATOR_TEXT } from '../i18n/en.ts';
 import { DEP_TEXT, RESOURCE_TEXT, SOURCE_SHORT, SUMMARY, inSentence, mineralName } from '../i18n/pages.en.ts';
@@ -73,7 +74,12 @@ export interface Blocks {
   lending?: { total: number; from: number; to: number };
   /** The nine states with nuclear weapons: FAS's latest estimate of the total inventory. */
   nuclear?: { value: number; year: number };
+  /** Publicly known cyber incidents affecting it from `from` to the dataset's last year (EuRepoC); 0 is shown too. */
+  cyber?: { count: number; from: number; to: number };
 }
+
+/** The first year the cyber incidents block counts from, as the map view's slider does. */
+export const CYBER_FROM = 2000;
 
 function disastersFor(id: string): Blocks['disasters'] | undefined {
   if (!data().raw.has('gdacs', 'events.json')) return undefined;
@@ -103,6 +109,8 @@ function blocksFor(id: string): Blocks {
   const w = warheadsModel();
   const mine = w?.byYear[w.year].rows.find((r) => r.id === id);
   if (w && mine) out.nuclear = { value: mine.value, year: w.year };
+  const c = cyberData();
+  if (c) out.cyber = { count: since(c, id, CYBER_FROM), from: CYBER_FROM, to: Math.max(...c.incidents.map((i) => i.year ?? 0)) };
   return out;
 }
 
@@ -185,6 +193,7 @@ export function countryModel(id: string): CountryModel | null {
       if (blocks.sanctions) for (const s of ['csl', 'eu-sanctions', 'uk-sanctions']) add(s, 'Sanctions');
       if (blocks.lending) add('aiddata', 'Chinese lending');
       if (blocks.nuclear) add('fas', 'Nuclear weapons');
+      if (blocks.cyber) add('eurepoc', 'Cyber incidents');
       const sources = [...feeds].map(([source, f]) => ({ source, feeds: [...f] }));
       const dates = sources.map((s) => changed(s.source)).filter((d): d is string => !!d).sort();
       const fetched = sources.map((s) => refreshed(s.source)).filter((d): d is string => !!d).sort();

@@ -26,6 +26,8 @@ export interface SourceState {
   imported?: Record<string, { from: string; at: string; rows: number }>;
   /** The open alert, so it is sent once and then at most daily, not every hour. */
   alert?: { kind: Problem; at: string };
+  /** The last notice the fetcher sent (FetchResult.notice), so the same one is not sent again. */
+  notice?: string;
 }
 
 export interface State {

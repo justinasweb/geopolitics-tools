@@ -39,6 +39,8 @@ import { viewPage } from '../views.ts';
 import { anchors, boxOf } from './basemap.ts';
 import { armsPeriod, armsPeriods, supplierMix, SPAN } from '../arms.ts';
 import { ARMS_TEXT } from '../../i18n/arms.en.ts';
+import { type Tally, affecting, attributedTo, basesOf, cyberData, ownState, pairs as cyberPairs, placeOf } from '../cyber.ts';
+import { CYBER_TEXT } from '../../i18n/cyber.en.ts';
 import { groupsOf, mixOf } from '../electricity.ts';
 import { cells, conflictPage, deathClass, VIOLENCE } from '../conflict.ts';
 import { CONFLICT_TEXT, monthText } from '../../i18n/conflict.en.ts';
@@ -192,7 +194,8 @@ function indicatorLayer(p: ViewPage): LayerFile {
     const v: Record<string, Entry> = {};
     y.rows.forEach((r, i) => {
       const share = p.layer.sums ? shareOf(r.value, y.world) : null;
-      v[r.id] = [classFor(p, r.value), valueText(p, r.value), share ? (y.worldOwn ? W.ofWorld(share) : W.ofTotal(share)) : '', 0, i + 1];
+      // No rank on a neutral layer (documented cyber incidents): the panel shows no "3 of 120".
+      v[r.id] = [classFor(p, r.value), valueText(p, r.value), share ? (y.worldOwn ? W.ofWorld(share) : W.ofTotal(share)) : '', 0, p.layer.neutral ? 0 : i + 1];
     });
     const bl: Record<string, string> = {};
     for (const [id, members] of memberships) {
@@ -214,6 +217,7 @@ function indicatorLayer(p: ViewPage): LayerFile {
     }
     if (p.family.id === 'arms') Object.assign(more, armsBlocks(p.id === 'armsexp5', year, y.rows.map((r) => r.id)));
     if (p.id === 'ictexp') Object.assign(more, ictShares(year, y.rows.map((r) => r.id)));
+    if (p.id === 'cyber') Object.assign(more, cyberBlocks(year));
     return { year, ...(p.text.period ? { label: p.text.period(year) } : {}), legend: p.text.legend(year), v, order: y.rows.map((r) => r.id), blocs: bl, ...(Object.keys(more).length ? { more } : {}) };
   });
   const notes = { ...c.notes };
@@ -223,19 +227,20 @@ function indicatorLayer(p: ViewPage): LayerFile {
   }
   return {
     id: `${p.family.id}-${p.id}`, name: p.text.title, scale: p.layer.scale, years: p.years, year: p.year, ticks: p.ticks, ends: p.text.ends,
-    missing: { none: VIEW_TEXT[p.family.id].none ?? W.noData }, source: creditOf(p),
+    missing: { none: p.text.none ?? VIEW_TEXT[p.family.id].none ?? W.noData }, source: creditOf(p), ...(p.layer.neutral ? { unranked: true, caveat: p.text.caveat } : {}),
     text: {
       ...(c.words as LayerFile['text']),
-      kicker: `${p.text.title} · ${p.text.period ? p.text.period(p.year) : '{year}'}`, measure: p.text.measure, shareLabel: p.text.figureLabel, none: W.notListed(0).replace('0', '{year}'),
+      kicker: `${p.text.title} · ${p.text.period ? p.text.period(p.year) : '{year}'}`, measure: p.text.measure, shareLabel: p.text.figureLabel, none: p.text.noneIn?.('{year}') ?? W.notListed(0).replace('0', '{year}'),
       withheld: MAP_TEXT.withheldBy, withheldWhy: '', prev: W.prevYear(0, '{value}').replace('0', '{year}'),
       rank: W.rank(0, 1).replace('0', '{rank}').replace('1', '{of}'),
       detailLabel: p.layer.sums ? PT.share : undefined, rankLabel: PT.rank, rankOf: PT.rankOf, statusLabel: PT.status,
       trend: PT.figureTrend(p.text.figureLabel), trendCaption: PT.trendCaption, ranking: PT.ranking,
+      ...(p.text.barsLabel ? { bars: `${p.text.barsLabel}, {year}` } : {}),
     },
     tags: c.tags, names: c.names, hrefs: c.hrefs, dossiers: c.dossiers, slugs: c.slugs, notes, blocs: c.blocs, data,
     series: seriesOf(p.years.map((year) => Object.fromEntries(p.byYear[year].rows.map((r) => [r.id, r.value])))),
     format: p.format, more: p.family.id === 'space' ? withSpace(viewMore(p)) : p.family.id === 'sanctions' ? withSanctions(viewMore(p), p.id) : p.id === 'outages' ? withOutages(viewMore(p)) : p.family.id === 'chinese-lending' ? withLending(viewMore(p), p.id) : p.family.id === 'electricity' ? withMix(viewMore(p), p) : p.family.id === 'food-crises' ? withPhases(viewMore(p)) : CHIP_LAYERS[p.id] ? withSuppliers(viewMore(p), p) : viewMore(p),
-    ...(p.id === 'launches' ? { overlays: [launchSites(p)] } : p.id === 'aicompute' ? { overlays: [aiClusters(p)] } : p.id === 'waterstress' ? { overlays: [damMarks()] } : p.family.id === 'arms' ? { overlays: [armsArcs(p)] } : CHIP_LAYERS[p.id] ? { overlays: [chipArcs(p)] } : {}),
+    ...(p.id === 'launches' ? { overlays: [launchSites(p)] } : p.id === 'aicompute' ? { overlays: [aiClusters(p)] } : p.id === 'waterstress' ? { overlays: [damMarks()] } : p.family.id === 'arms' ? { overlays: [armsArcs(p)] } : p.id === 'cyber' ? { overlays: [cyberArcs(p)] } : CHIP_LAYERS[p.id] ? { overlays: [chipArcs(p)] } : {}),
   };
 }
 
@@ -328,6 +333,64 @@ function armsBlocks(exports: boolean, end: number, ids: string[]): Record<string
     if (blocks.length) out[id] = blocks;
   }
   return out;
+}
+
+/** A cyber breakdown row's name: who the incidents were attributed to; a state in its own country says so. */
+function cyberWho(t: Tally, place: string): string {
+  const w = t.who;
+  if ('state' in w) {
+    const n = inSentence(nameOf2(w.state));
+    return CYBER_TEXT.toState(w.state === place ? CYBER_TEXT.ownState(n) : n);
+  }
+  return 'affiliated' in w ? CYBER_TEXT.toAffiliated(inSentence(nameOf2(w.affiliated))) : 'group' in w ? CYBER_TEXT.toGroup(w.group) : 'other' in w ? CYBER_TEXT.other : CYBER_TEXT.none;
+}
+
+/** Who attributed a row's incidents ("by …", "claimed by the actor itself"). */
+const cyberNote = (t: Tally) => CYBER_TEXT.by(basesOf(t.by)) || undefined;
+
+const CYBER_ROWS = 6;
+/** Cyber incidents: for each country in the year, the incidents affecting it by who they were attributed to (every
+ *  attribution, "Not attributed" its own row), then the incidents attributed to it and to groups EuRepoC links to it,
+ *  by the country affected. */
+function cyberBlocks(year: number): Record<string, PanelBlock[]> {
+  const c = cyberData();
+  if (!c) return {};
+  const f = (v: number) => formatValue(v, { kind: 'count' });
+  const out: Record<string, PanelBlock[]> = {};
+  const inYear = c.incidents.filter((i) => i.year === year);
+  const affected = new Set(inYear.flatMap((i) => i.receivers));
+  const attributed = new Set(inYear.flatMap((i) => i.attributions.flatMap((a) => a.states)));
+  const block = (label: string, caption: string, rows: Tally[], name: (t: Tally) => string): PanelBlock => ({
+    label, caption,
+    rows: rows.slice(0, CYBER_ROWS).map((t) => ({ name: name(t), value: f(t.n), note: cyberNote(t) })),
+    more: rows.length > CYBER_ROWS ? CYBER_TEXT.more(rows.length - CYBER_ROWS) : undefined,
+  });
+  for (const id of new Set([...affected, ...attributed])) {
+    const blocks: PanelBlock[] = [];
+    const own = inSentence(nameOf2(id));
+    const rows = affected.has(id) ? affecting(c, id, year) : [];
+    if (rows.length) blocks.push(block(CYBER_TEXT.affecting(year), CYBER_TEXT.affectingCaption, rows, (t) => cyberWho(t, id)));
+    // The rows' `who` is the country affected; the state's own country is marked as such.
+    const to = (t: Tally) => (placeOf(t.who) === id ? CYBER_TEXT.ownState(nameOf2(id)) : nameOf2(placeOf(t.who) ?? ''));
+    const direct = attributed.has(id) ? attributedTo(c, id, year) : [];
+    if (direct.length) blocks.push(block(CYBER_TEXT.attributedTo(own, year), CYBER_TEXT.attributedCaption, direct, to));
+    const linked = attributed.has(id) ? attributedTo(c, id, year, true) : [];
+    if (linked.length) blocks.push(block(CYBER_TEXT.affiliatedTo(own, year), CYBER_TEXT.affiliatedCaption, linked, to));
+    if (blocks.length) out[id] = blocks;
+  }
+  return out;
+}
+
+/** Cyber incidents: each year's 12 largest state → affected country pairs as arcs, in their year. Attributions to a
+ *  state itself only: not to state-affiliated groups, and not in the state's own country. */
+function cyberArcs(p: ViewPage): Overlay {
+  const c = cyberData();
+  const at = anchors();
+  const items: Arc[] = !c ? [] : p.years.flatMap((year, i) => cyberPairs(c, year).filter((q) => !ownState(q) && at[q.from] && at[q.to]).slice(0, 12).map((q) => ({
+    p: arcXY(at[q.from], at[q.to]), w: q.n, m: 2 ** i,
+    tip: CYBER_TEXT.arcTip(inSentence(nameOf2(q.from)), nameOf2(q.to), formatValue(q.n, { kind: 'count' }), year, CYBER_TEXT.by(basesOf(q.by))),
+  })));
+  return { id: 'cyber', kind: 'arcs', label: CYBER_TEXT.arcs, items };
 }
 
 /** Arms: the largest flows of each period as arcs, shown with the period they belong to. */

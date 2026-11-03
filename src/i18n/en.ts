@@ -102,7 +102,7 @@ export const NAV_TEXT = {
     gas: ['Natural gas', 'Pipelines and LNG'],
     electricity: ['Electricity', 'Power mix by source'],
     food: ['Food and fertiliser', 'Wheat, maize, rice, soybeans, potash, phosphate'],
-    internet: ['Internet', 'Users, ICT exports and outages'],
+    internet: ['Internet', 'Users, ICT exports, outages, cyber incidents'],
     ai: ['AI and chips', 'Compute, models, chips'],
     space: ['Space', 'Satellites and launches'],
     emissions: ['Emissions', 'Total, per person, since 1750, imported'],

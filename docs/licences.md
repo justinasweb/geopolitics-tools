@@ -4,7 +4,7 @@ Generated from `src/data/licences.ts` by `node scripts/licence-table.ts > docs/l
 
 What each source's terms allow and what the site does with it (decision D9). Downloads are "Yes" only where the terms
 allow redistribution; otherwise the site shows charts and figures only. Credits travel with every chart and export.
-34 sources: 9 checked against the terms page, 22 to confirm, 3 waiting on permission.
+35 sources: 10 checked against the terms page, 22 to confirm, 3 waiting on permission.
 
 | Source | Licence | Downloads | Commercial use | Status | Note |
 |---|---|---|---|---|---|
@@ -25,6 +25,7 @@ allow redistribution; otherwise the site shows charts and figures only. Credits 
 | [IMF World Economic Outlook](https://www.imf.org/en/about/copyright-and-terms) | IMF copyright and usage terms | Shown only | No | Permission asked |  |
 | [Submarine cables (OpenStreetMap)](https://www.openstreetmap.org/copyright) | ODbL 1.0 | Yes | Yes | To confirm | A downloaded or derived database must be offered under ODbL too |
 | [FAS Status of World Nuclear Forces](https://fas.org/initiative/status-world-nuclear-forces/) | CC BY 4.0 | Yes | Yes | Checked 2026-10-29 | Confirmed by FAS by email on 29 Oct 2026: display, derived figures and a CSV of what we show are allowed, with credit. The series since 1945 is fetched from Our World in Data, which credits FAS; the current split is copied by hand from the FAS page (import kind fas-forces) |
+| [EuRepoC cyber incidents](https://eurepoc.eu/database/) | CC BY-NC 4.0 (since 2 April 2025) | Yes | No | Checked 2026-11-03 | Zenodo lists the record as CC BY-NC 4.0 (checked 2026-11-03). Downloads of what we show are allowed with credit; the site is non-commercial, so ads or a paid tier would need EuRepoC’s agreement. The credit names the version (1.3.2); a new version is announced on Telegram and switched by hand |
 | [FAOSTAT](https://www.fao.org/contact-us/terms/db-terms-of-use) | CC BY 4.0, with FAO’s additional terms | Yes | Yes | Checked 2026-10-24 | Citation names the dataset, year of update, access date and URL. No use promoting a business or implying FAO endorsement; third-party data can carry its own terms |
 | [SIPRI Arms Transfers Database](https://www.sipri.org/about/terms-and-conditions) | SIPRI terms: non-commercial reuse of under 10% of a dataset, with credit | Shown only | No | To confirm | Spec: derived five-year totals only, no download |
 | [UN World Population Prospects](https://population.un.org/wpp/downloads/) | CC BY 3.0 IGO | Yes | Yes | To confirm | Licence as recorded by Our World in Data for the 2024 files; read it on the UN page |

@@ -462,3 +462,5 @@ ucdp,code,920,NZL,,,Gleditsch–Ward number
 ucdp,code,935,VUT,,,Gleditsch–Ward number
 ucdp,code,940,SLB,,,Gleditsch–Ward number
 ucdp,code,950,FJI,,,Gleditsch–Ward number
+eurepoc,iso2,EU,,,,"EU institutions or the EU as a region, not a country"
+eurepoc,iso2,OC,,,,"Oceania (region), not a country"
