@@ -56,6 +56,12 @@ export interface Indicator {
 export const WEO_LAST_ACTUAL = 2025;
 
 const wb = (code: string) => (raw: Raw) => worldBank(raw, code);
+/** A World Bank percentage (62.5) as a share (0.625), so changes are in percentage points like the other share measures. */
+const wbShare = (code: string) => (raw: Raw) => {
+  const out: Series = {};
+  for (const [id, ys] of Object.entries(worldBank(raw, code))) for (const [y, v] of Object.entries(ys)) put(out, id, Number(y), v / 100);
+  return out;
+};
 const once = <T>(f: (raw: Raw) => T) => {
   const cache = new WeakMap<Raw, T>();
   return (raw: Raw) => { if (!cache.has(raw)) cache.set(raw, f(raw)); return cache.get(raw)!; };
@@ -153,6 +159,10 @@ const LIST: Indicator[] = [
   { id: 'launches', group: 'tech', source: 'celestrak', format: count, scale: 'linear', load: (raw) => spaceOf(raw).launches },
   { id: 'aicompute', group: 'tech', source: 'epoch', format: share, scale: 'linear', static: true,
     load: (raw) => { const a = aiOf(raw); const c = computeAt(a.clusters, a.lastYear); return staticYear(Object.fromEntries(Object.entries(c.by).map(([id, v]) => [id, c.total ? v / c.total : null])), a.lastYear); } },
+  // ITU's figures and the IMF's balance-of-payments figures, as the World Bank publishes them.
+  { id: 'netuser', group: 'tech', source: 'worldbank', format: share, scale: 'linear', load: wbShare('IT.NET.USER.ZS') },
+  { id: 'ictexp', group: 'tech', source: 'worldbank', format: money, scale: 'log', load: wb('BX.GSR.CCIS.CD') },
+  { id: 'ictshare', group: 'tech', source: 'worldbank', format: share, scale: 'linear', load: wbShare('BX.GSR.CCIS.ZS') },
   // Influence
   { id: 'sanctions', group: 'influence', source: ['csl', 'eu-sanctions', 'uk-sanctions'], format: count, scale: 'log', static: true,
     load: (raw) => { const s = sanctionsOf(raw); return listingsAt(s, Math.max(0, ...LISTS.flatMap((l) => Object.keys(s.added[l]).map(Number)))); } },

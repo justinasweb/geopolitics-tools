@@ -31,7 +31,7 @@ export const VIEW_SLUGS: Record<string, string> = {
   refout: '', refin: 'hosted', refinpc: 'per-person', idps: 'displaced',
   satellites: '', launches: 'launches',
   aicompute: '', aimodels: 'models', entitylist: 'export-controls', chipimports: 'chips', chipmachines: 'chip-machines',
-  outages: 'outages',
+  outages: 'outages', netuser: 'users', ictexp: 'ict-exports',
   waterstress: '', waterstress2050: '2050', waterdep: 'from-abroad',
   lendall: '', lendenergy: 'energy', lendtransport: 'transport', lendindustry: 'mining', lendbanking: 'banking', lendother: 'other',
   armsexp5: '', armsimp5: 'importers',
@@ -86,6 +86,7 @@ export const INDICATOR_SLUGS: Record<string, string> = {
   milpct: 'military-spending-share-of-gdp', milusd: 'military-spending-usd', conflictdeaths: 'conflict-deaths',
   armsimp: 'arms-imports', armsexp: 'arms-exports', hunger: 'people-in-food-crisis', hungershare: 'share-in-food-crisis',
   satellites: 'satellites-in-orbit', launches: 'orbital-launches', aicompute: 'ai-computing-power-share',
+  netuser: 'people-using-the-internet', ictexp: 'ict-service-exports', ictshare: 'ict-share-of-service-exports',
   sanctions: 'sanctions-listings', chinaloans: 'chinese-loans-and-grants',
 };
 

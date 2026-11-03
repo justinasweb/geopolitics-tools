@@ -322,6 +322,18 @@ analysis", never "No data" or zero. The total covers the countries analysed, whi
 change is not shown. A country's panel gives its latest analysis by phase; the page lists countries with people in
 Phase 5, which counts people in catastrophe, not famine (an area classification this endpoint does not give).
 
+## Internet (phase 6)
+
+`/internet` itself waits for a cable source (`rootWaits`), so each layer has its own address: `/internet/outages`
+(IODA, last 12 months), `/internet/users` and `/internet/ict-exports` (spec D18). Users is the registry's `netuser`,
+ITU's share of people who used the internet in the last three months, as the World Bank publishes it
+(`IT.NET.USER.ZS`), stored as a share so changes are in percentage points, on fixed bands of 20%. ICT exports is
+`ictexp`, telecom, computer and information services exported, in current US$, from IMF balance-of-payments data via
+the World Bank (`BX.GSR.CCIS.CD`); the total covers the countries that report, which change from year to year, so its
+change is not shown (`noTotalChange`). A country's panel adds the same exports as a share of its service exports
+(`ictshare`, `BX.GSR.CCIS.ZS`) in the year shown. The API marks no value as an estimate, so neither layer carries the
+Estimate tag. Credits name the original publisher, then "via World Bank, CC BY 4.0".
+
 ## Nuclear weapons (phase 5a)
 
 `/nuclear` (warheads), `/nuclear/treaties` and `/nuclear/sharing` (src/lib/nuclear.ts, src/templates/NuclearView.astro,

@@ -69,6 +69,9 @@ export const INDICATOR_TEXT: Record<string, IndicatorText> = {
   satellites: { label: 'Satellites in orbit', unit: 'satellites' },
   launches: { label: 'Orbital launches', unit: 'launches' },
   aicompute: { label: 'Share of AI computing power', short: 'AI compute share', unit: 'share' },
+  netuser: { label: 'People using the internet', short: 'Internet users', rate: '% of population', unit: 'share', note: 'Used the internet in the last three months, from any place and device.' },
+  ictexp: { label: 'ICT service exports', short: 'ICT exports', unit: 'US$', note: 'Telecom, computer and information services sold abroad.' },
+  ictshare: { label: 'ICT service exports, share of service exports', short: 'ICT, % of services', unit: 'share' },
   sanctions: { label: 'Sanctions listings (US, EU, UK)', short: 'Sanctions listings', unit: 'listings' },
   chinaloans: { label: 'Chinese loans and grants received', short: 'Chinese lending', unit: 'US$ (2021)', note: 'Commitments: what China agreed to lend or give, not what was paid out.' },
 };
@@ -99,7 +102,7 @@ export const NAV_TEXT = {
     gas: ['Natural gas', 'Pipelines and LNG'],
     electricity: ['Electricity', 'Power mix by source'],
     food: ['Food and fertiliser', 'Wheat, maize, rice, soybeans, potash, phosphate'],
-    internet: ['Internet', 'Cables and outages'],
+    internet: ['Internet', 'Users, ICT exports and outages'],
     ai: ['AI and chips', 'Compute, models, chips'],
     space: ['Space', 'Satellites and launches'],
     emissions: ['Emissions', 'Total, per person, since 1750, imported'],

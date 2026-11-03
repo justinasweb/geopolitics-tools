@@ -51,6 +51,7 @@ const chipsCaveat = (what: string) => `Imports of ${what} as the importing count
 const power5 = ['Under 20%', '20–40%', '40–60%', '60–80%', '80% or more'];
 const powerCaveat = 'Shares of the electricity generated inside each country, before trade in electricity. A small system can reach a high share with one large plant. Changes are in percentage points.';
 const armsPeriod = (y: number) => `${y - 4}–${y}`;
+const ictCaveat = 'ICT services are telecom, computer and information services sold to buyers abroad, from balance-of-payments data. They don’t include goods such as phones or chips.';
 const armsCaveat = 'SIPRI’s trend-indicator value measures the military capability of major weapons delivered, not the price paid, so it is not money. Deliveries are lumpy, so figures are five-year totals. Small arms, ammunition and transfers to or from groups that are not states are left out.';
 
 export const VIEW_TEXT: Record<string, FamilyText> = {
@@ -398,6 +399,22 @@ export const VIEW_TEXT: Record<string, FamilyText> = {
         caveat: 'Outages that IODA, at Georgia Tech, detected from drops in internet traffic signals for a whole country. It reports when an outage happened, not why: power cuts, cable damage and shutdowns ordered by governments all count, and one long disruption can show as several outages.',
         description: () => 'Internet outages by country over the last 12 months, on a map and in a table, with each country’s most recent outages. Source: IODA (Georgia Tech).',
       },
+      netuser: {
+        pick: 'Users', title: 'People using the internet', sub: 'share of the population, by country', measure: 'of people used the internet', figureLabel: 'People using the internet',
+        legend: (y) => `Share of people who used the internet, ${y}`, ticks: ['Under 20%', '20–40%', '40–60%', '60–80%', '80% or more'],
+        lede: ({ up, of, year }) => `In ${year}, 80% or more of people used the internet in ${up} of the ${of} countries with a figure.`,
+        caveat: 'People who used the internet in the last three months, from any place and on any device, as a share of the population. ITU gathers the figures from national surveys and statistics, and how well countries measure it varies. Changes are in percentage points.',
+        description: (y) => `Share of people using the internet by country, ${y}, on a map and in a table. Source: ITU, via the World Bank.`,
+      },
+      ictexp: {
+        pick: 'ICT exports', title: 'ICT service exports', sub: 'by exporting country', measure: 'of ICT services exported', figureLabel: 'ICT service exports',
+        legend: (y) => `Exports of ICT services, US dollars, ${y}`, worldLabel: 'Total, countries reporting',
+        lede: ({ top, value, share, top3, year }) => `${top} exported ${value} of ICT services in ${year}, ${share} of the total for countries reporting${top3 ? `; the top three exporters made ${top3}` : ''}.`,
+        total: (v, y) => `Countries reporting exported ${v} of ICT services in ${y}.`,
+        bloc: (b, s, y) => `${todaysMembers(b, { start: true })} exported ${s} of them in ${y}.`,
+        caveat: `${ictCaveat} The total is for the countries that report, which change from year to year.`,
+        description: (y) => `ICT service exports by country, ${y}: telecom, computer and information services sold abroad, on a map and in a table. Source: IMF balance of payments, via the World Bank.`,
+      },
     },
   },
   sanctions: {
@@ -522,6 +539,13 @@ export const VIEWS_TEXT = {
   ofWorld: (share: string) => `${share} of world`,
   ofTotal: (share: string) => `${share} of the total`,
   notes: 'Notes',
+};
+
+/** The ICT service exports panel: the same exports as a share of the country's service exports. */
+export const ICT_TEXT = {
+  block: (year: number) => `Share of its service exports, ${year}`,
+  caption: 'ICT services against every service the country sold abroad.',
+  name: 'ICT services',
 };
 
 /** The internet outages panel: a country's latest outages. */

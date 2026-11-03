@@ -93,6 +93,8 @@ const HUB_FACTS: Record<string, (on: string) => Fact[]> = {
     { id: 'chips', statement: 'Imports of chips and chipmaking machines, from UN Comtrade, and US Entity List entries.', ...code('src/data/views.ts', on) },
     { id: 'space', statement: 'Satellites in orbit by owning country and orbital launches by launch site country, from CelesTrak.', ...code('src/data/views.ts', on) },
     { id: 'internet', statement: 'Internet outages detected in the last 12 months, from IODA.', value: 12, unit: 'months', ...code('src/data/views.ts', on) },
+    { id: 'internet-use', statement: 'The share of people using the internet, from ITU via the World Bank.', ...code('src/data/views.ts', on) },
+    { id: 'ict-exports', statement: 'Exports of ICT services (telecom, computer and information services), from IMF balance-of-payments data via the World Bank.', ...code('src/data/views.ts', on) },
     { id: 'rule', statement: 'Each map shows one source’s own figures for each country, with the year or period it covers.', ...code('docs/page-engine.md', on) },
   ],
   climate: (on) => [

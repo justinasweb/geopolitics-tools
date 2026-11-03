@@ -12,9 +12,9 @@ import { PLACES, NOTES } from '../places.ts';
 import { countryHref, live } from '../routes.ts';
 import { amount, listed, mineralPages, shareClass, shareText, withheld, nameOf, type MineralPage } from '../minerals.ts';
 import { list, inSentence } from '../../i18n/pages.en.ts';
-import { OUTAGE_TEXT, PARTS_TEXT as PX, VIEW_TEXT, VIEWS_TEXT } from '../../i18n/views.en.ts';
+import { ICT_TEXT, OUTAGE_TEXT, PARTS_TEXT as PX, VIEW_TEXT, VIEWS_TEXT } from '../../i18n/views.en.ts';
 import { classFor, creditOf, familyPages, partsOf, placeNote, shareOf, valueText, viewPages, type ViewPage } from '../views.ts';
-import { data, shared } from '../data.ts';
+import { data, indicator, shared } from '../data.ts';
 import { loadFlows } from '../../data/flows.ts';
 import { countClass, daysText, disasterPages, type DisasterPage } from '../disasters.ts';
 import { DISASTERS_TEXT, KIND_TEXT } from '../../i18n/disasters.en.ts';
@@ -213,6 +213,7 @@ function indicatorLayer(p: ViewPage): LayerFile {
       }];
     }
     if (p.family.id === 'arms') Object.assign(more, armsBlocks(p.id === 'armsexp5', year, y.rows.map((r) => r.id)));
+    if (p.id === 'ictexp') Object.assign(more, ictShares(year, y.rows.map((r) => r.id)));
     return { year, ...(p.text.period ? { label: p.text.period(year) } : {}), legend: p.text.legend(year), v, order: y.rows.map((r) => r.id), blocs: bl, ...(Object.keys(more).length ? { more } : {}) };
   });
   const notes = { ...c.notes };
@@ -397,6 +398,17 @@ function withLending(more: Record<string, PanelBlock[]>, layer: string): Record<
       ...(projects.length ? [{ label: T.projects, caption: T.projectsCaption, rows: projects.map((x) => ({ name: x.title, value: f(x.amount), note: String(x.year) })) }] : []),
       ...(out[id] ?? []),
     ];
+  }
+  return out;
+}
+
+/** ICT service exports: the same exports as a share of each country's service exports, in the year shown. */
+function ictShares(year: number, ids: string[]): Record<string, PanelBlock[]> {
+  const s = indicator('ictshare')?.values ?? {};
+  const out: Record<string, PanelBlock[]> = {};
+  for (const id of ids) {
+    const v = s[id]?.[year];
+    if (v !== undefined) out[id] = [{ label: ICT_TEXT.block(year), caption: ICT_TEXT.caption, rows: [{ name: ICT_TEXT.name, value: formatValue(v, { kind: 'share' }) }] }];
   }
   return out;
 }
