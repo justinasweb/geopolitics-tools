@@ -126,5 +126,5 @@ export function blocLede(id: string): string | null {
   if (!p) return null;
   const pop = p.shares.find((s) => s.id === 'population');
   const gdp = p.shares.find((s) => s.id === 'gdp');
-  return BLOCS_TEXT.lede(BLOC_TEXT[id] ?? id, p.members.length, pop ? shareText(pop.share) : null, gdp ? shareText(gdp.share) : null, pop?.year ?? null);
+  return BLOCS_TEXT.lede(id, BLOC_TEXT[id] ?? id, p.members.length, pop ? shareText(pop.share) : null, gdp ? shareText(gdp.share) : null, pop?.year ?? null);
 }

@@ -144,6 +144,14 @@ country focused and in the browser (`src/scripts/supply-chains.ts`) when the rea
 - **CSV.** Every flow shown, when the source's licence allows downloads (FAOSTAT, UNHCR); UN Comtrade and SIPRI flows
   are shown only, with a note.
 
+## Who counts as a member
+
+Counts on bloc pages, alliance histories, Bloc overlap and their share images are of countries, the units the map
+can draw. The G20's and G7's other members are named next to the count in one template (`membersText`,
+`src/i18n/members.en.ts`), with a note under the panel's count saying what the map outlines; shares of those
+groupings say "today's member countries". A history whose first years belong to a predecessor names it
+(`BEGAN_AS` in `src/i18n/blocs.en.ts`), with the founders' names as they were then (West Germany).
+
 ## Bloc overlap
 
 `/blocs/overlap` reads the same membership table as the blocs views (`src/lib/blocs.ts`); `src/lib/overlap.ts` embeds

@@ -53,15 +53,17 @@ describe('bloc share sentences', () => {
 
   it('say it on the bloc pages and their share images', async () => {
     const { BLOCS_TEXT } = await import('../../src/i18n/blocs.en.ts');
-    expect(BLOCS_TEXT.lede('OPEC', 11, '6.3%', '2.4%', 2024)).toBe('OPEC has 11 members; together, today’s OPEC members had 6.3% of the world’s people and 2.4% of its GDP in 2024.');
+    expect(BLOCS_TEXT.lede('opec', 'OPEC', 11, '6.3%', '2.4%', 2024)).toBe('OPEC has 11 members; together, today’s OPEC members had 6.3% of the world’s people and 2.4% of its GDP in 2024.');
     expect(BLOCS_TEXT.summaryShares('OPEC', ['6.3% of the world’s people (2024)'])).toContain('Today’s OPEC members account for');
-    expect(BLOCS_TEXT.imageCaption('OPEC', 11)).toBe('Shares of the world: today’s 11 OPEC members');
-    expect(BLOCS_TEXT.sharesCaption).toContain('today’s members');
+    expect(BLOCS_TEXT.imageCaption('opec', 'OPEC', 11)).toBe('Shares of the world: today’s 11 OPEC members');
+    expect(BLOCS_TEXT.sharesCaption('opec')).toContain('today’s members');
+    expect(BLOCS_TEXT.sharesCaption('g20')).toContain('today’s member countries');
   });
 
   it('are never written another way: no "{bloc} members" phrase in src/i18n outside the shared phrase and the non-share lines', () => {
     // Lines that count members today and state no share over a year (see NOT_SHARES), and labels.
-    const allowed = ['overlapLine', 'description', 'disasters.en.ts:  blocLine', 'membersOf', 'keyMembers', 'treatyBloc', 'sharingBloc', 'water.en.ts:  blocLine', 'members.en.ts'];
+    // "G20 members: 19 countries, plus …" is a count (src/i18n/members.en.ts), not a share.
+    const allowed = ['overlapLine', 'description', 'disasters.en.ts:  blocLine', 'membersOf', 'keyMembers', 'treatyBloc', 'sharingBloc', 'water.en.ts:  blocLine', 'members.en.ts', 'members: ${membersText('];
     const found: string[] = [];
     for (const file of readdirSync('src/i18n')) {
       readFileSync(`src/i18n/${file}`, 'utf8').split('\n').forEach((l, i) => {

@@ -7,7 +7,9 @@ import { join } from 'node:path';
 import { parseCsv } from '../../pipeline/lib/csv.ts';
 import { BLOCS_CHECKED } from './blocs.ts';
 import { place } from './places.ts';
-import { HISTORY_TEXT } from '../i18n/blocs.en.ts';
+import { BEGAN_AS, HISTORY_TEXT } from '../i18n/blocs.en.ts';
+import { NON_COUNTRY_MEMBERS } from '../i18n/members.en.ts';
+import { inSentence } from '../i18n/pages.en.ts';
 import { BLOC_TEXT } from '../i18n/map.en.ts';
 
 export const HISTORY_BLOCS = ['nato', 'eu', 'g7', 'g20', 'brics', 'sco', 'asean', 'opec', 'csto', 'quad', 'oecd'];
@@ -99,5 +101,16 @@ export function historyLede(id: string): string | null {
   const p = historyPage(id);
   if (!p) return null;
   const first = p.years[0], last = p.years.at(-1)!;
-  return HISTORY_TEXT.lede(BLOC_TEXT[id] ?? id, first, p.byYear[first].members.length, p.byYear[last].members.length, last, p.changes.length);
+  const b = BEGAN_AS[id];
+  // Names as the grouping's founders were then (West Germany), with "the" where English uses it.
+  const nameIn = (x: string) => b?.names?.[x] ?? inSentence(place(x)?.name ?? x);
+  // Members that are not countries joining change the membership too (the African Union, G20, 2023).
+  const others = (NON_COUNTRY_MEMBERS[id]?.others ?? []).map((o) => o.since).filter((y): y is number => y !== undefined && y >= first && y <= last && !p.changes.includes(y));
+  return HISTORY_TEXT.lede({
+    id, bloc: BLOC_TEXT[id] ?? id, first, last,
+    n0: p.byYear[first].members.length,
+    founders: [...p.byYear[first].members].sort((x, y) => (place(x)?.name ?? x).localeCompare(place(y)?.name ?? y, 'en')).map(nameIn),
+    became: b ? (p.byYear[b.year]?.joined ?? []).map(nameIn) : [],
+    n: p.byYear[last].members.length, changes: p.changes.length + new Set(others).size,
+  });
 }

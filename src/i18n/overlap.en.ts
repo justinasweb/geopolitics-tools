@@ -18,7 +18,7 @@ export const OVERLAP_TEXT = {
   description: (n: number) => `${n} groupings side by side: how many members each pair shares, the countries in at least one of NATO, the EU, the G7 and the Quad and at least one of BRICS and the SCO, and every country’s memberships.`,
   source: 'Membership: the groupings’ own member lists',
   checked: (date: string) => `Members as of ${date}`,
-  note: 'G7 also includes the EU; G20 also includes the EU and the African Union. Only countries are counted here. Partners and observers are not counted.',
+  note: (rows: { bloc: string; text: string }[]) => `${rows.map((r) => `${r.bloc}: ${r.text}.`).join(' ')} Only countries are counted here. Partners and observers are not counted.`,
 
   // Chips
   compare: 'Compare',

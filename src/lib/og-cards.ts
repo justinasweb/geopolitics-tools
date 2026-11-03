@@ -119,7 +119,7 @@ export function card(r: Route | null): Card {
     }
     const p = blocPage(id)!;
     return {
-      kicker: BLOCS_TEXT.section, title: BLOC_TEXT[id] ?? id, figure: String(p.members.length), caption: BLOCS_TEXT.imageCaption(BLOC_TEXT[id] ?? id, p.members.length),
+      kicker: BLOCS_TEXT.section, title: BLOC_TEXT[id] ?? id, figure: String(p.members.length), caption: BLOCS_TEXT.imageCaption(id, BLOC_TEXT[id] ?? id, p.members.length),
       bars: p.shares.slice(0, 5).map((s) => ({ label: `${MEASURE_TEXT[s.id]}, ${s.year}`, value: s.share, text: formatShare(s.share) })),
     };
   }
@@ -131,7 +131,7 @@ export function card(r: Route | null): Card {
     const last = p.years.at(-1)!;
     const steps = [...new Set([first, ...p.changes.filter((y) => y % 5 === 0 || y === p.changes.at(-1)), last])].slice(-5);
     return {
-      kicker: HISTORY_TEXT.section, title: HISTORY_TEXT.title(name), figure: String(p.byYear[last].members.length), caption: HISTORY_TEXT.sub(first, last),
+      kicker: HISTORY_TEXT.section, title: HISTORY_TEXT.title(name), figure: String(p.byYear[last].members.length), caption: HISTORY_TEXT.imageCaption(id, first, last, p.byYear[last].members.length),
       bars: steps.map((y) => ({ label: String(y), value: p.byYear[y].members.length, text: String(p.byYear[y].members.length) })),
     };
   }

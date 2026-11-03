@@ -78,10 +78,12 @@ const related = [
           return (
             <div class="gt-pyear" data-year={yr} hidden={yr !== last}>
               <div class="gt-pkf">
-                <span class="gt-pkf__label">{H.members}</span>
+                <span class="gt-pkf__label">{BLOCS_TEXT.countLabel(id)}</span>
                 <span class="gt-pkf__num">{Y.members.length}</span>
+                {BLOCS_TEXT.countMore(id, yr) && <span class="gt-pkf__meta">{BLOCS_TEXT.countMore(id, yr)}</span>}
                 {prev && prev.members.length !== Y.members.length && <span class="gt-pkf__meta">{yr - 1}: {prev.members.length}</span>}
               </div>
+              {BLOCS_TEXT.mapNote(id, Y.members.length, yr) && <p class="gt-caption">{BLOCS_TEXT.mapNote(id, Y.members.length, yr)}</p>}
               <div class="gt-pblock">
                 <div class="gt-pblock__head"><span class="gt-label">{H.changesIn(yr)}</span></div>
                 {Y.joined.length === 0 && Y.left.length === 0 && !events[yr] && <p class="gt-caption">{H.noChange}</p>}

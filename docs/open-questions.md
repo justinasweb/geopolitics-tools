@@ -21,6 +21,16 @@ groupings, disaster alerts in the last days, treaty and sharing status, river di
 Post-launch option: count each year's members for the 11 groupings with a history (`bloc-history.csv`), and keep
 "today's" for the other 8.
 
+**Members that are not countries, and predecessors: decided 3 Nov 2026.** Counts are of countries, and a grouping
+with other members names them in one template (`membersText` in `src/i18n/members.en.ts`): "19 countries, plus the
+European Union and, since 2023, the African Union" (G20) and "7 countries, with the European Union taking part as a
+non-enumerated member since 1977" (G7), on the bloc page, its title, panel, member table, history page, Bloc overlap
+and share images. A history that began under another name says so (`BEGAN_AS` in `src/i18n/blocs.en.ts`): the SCO
+(Shanghai Five, 1996), the EU (European Economic Community, 1958), the CSTO (Collective Security Treaty, 1992), BRICS
+(BRIC, 2009; South Africa joined in 2010) and the G7 (a summit of six countries in 1975; Canada joined in 1976).
+To confirm: the EU's G7 participation **since 1977**, and calling the 1975 summit "a summit of six countries" rather
+than a named "G6". `tests/unit/bloc-members.test.ts` holds the wording.
+
 **Before launch.** Check every one of the 19 groupings against its own member list, update `BLOCS_CHECKED` to that
 day, and log any change in `src/data/corrections.csv`. Known points to look at: BRICS (Saudi Arabia's status),
 the CSTO (Armenia's frozen participation), OPEC+ (its list of non-OPEC producers) and the G20 (the African Union is
