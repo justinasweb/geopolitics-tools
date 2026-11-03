@@ -1,13 +1,24 @@
 // Every AI-drafted text on the site (spec, D15), with what it is drafted from and what the page shows. Pages call
 // `publishedText`: it gives the text only when the owner approved it and its facts have not changed since, or when
 // the owner wrote it by hand. Anything else shows nothing: no placeholder, no empty box.
+import { existsSync, readdirSync } from 'node:fs';
+import { join } from 'node:path';
 import { HISTORY_BLOCS } from '../history.ts';
 import { RIVERS } from '../../data/rivers.ts';
 import { DOSSIERS } from '../country.ts';
 import { tryLoadDossierFacts } from './current.ts';
-import { loadFacts, type FactsFile } from './facts.ts';
+import { FACTS_DIR, loadFacts, type FactsFile } from './facts.ts';
 import { HUB_IDS, PAGE_IDS } from './page-facts.ts';
 import { readText, stateOf, type StoredText, type TextState } from './store.ts';
+
+/** This week's summaries: one text per closed ISO week, "week:2026-45". */
+export const WEEK_TEXT_ID = /^week:\d{4}-(0[1-9]|[1-4]\d|5[0-3])$/;
+
+/** The weeks whose facts were written (scripts/week.ts summary), oldest first. */
+export function weekTextIds(root = process.cwd()): string[] {
+  const dir = join(root, FACTS_DIR, 'weeks');
+  return existsSync(dir) ? readdirSync(dir).filter((f) => f.endsWith('.json')).map((f) => `week:${f.slice(0, -5)}`).filter((id) => WEEK_TEXT_ID.test(id)).sort() : [];
+}
 
 /** Every text id, in the order the status list shows them. */
 export const TEXT_IDS = [
@@ -16,7 +27,11 @@ export const TEXT_IDS = [
   ...RIVERS.map((r) => `river:${r.id}`),
   ...PAGE_IDS.map((p) => `page:${p}`),
   ...HUB_IDS.map((h) => `hub:${h}`),
+  ...weekTextIds(),
 ];
+
+/** A text id the pipeline knows: one of TEXT_IDS, or any week's summary (its facts may not be written yet). */
+export const isTextId = (id: string) => TEXT_IDS.includes(id) || WEEK_TEXT_ID.test(id);
 
 /** The facts a text is checked against now: a dossier's from the current data, every other text's from its file. */
 export function currentFacts(id: string): FactsFile | null {

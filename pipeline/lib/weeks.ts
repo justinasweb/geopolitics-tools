@@ -4,11 +4,13 @@
 //                              three sanctions lists (for entries added and removed) and of GDACS's alerts (for
 //                              alerts that rose to orange or red in the week) as they stood at that day's first run
 //   weeks/<yyyy>-<ww>.json     a closed ISO week's cards and feed, frozen once and never written again
-//   weeks/<yyyy>-<ww>.summary.json   the editor's approved summary for that week (a later task writes it)
 //
 // It runs at the start of each scheduled run, before any fetch, so what it records is the data as it stood when the
 // day (or the week) ended. The raw copies the ledger points at are the runner's own files in gt-raw, so nothing is
 // copied: the sanctions lists' are kept for good; GDACS's for 14 days, longer than a week is ever compared.
+//
+// The week's AI summary is not kept here: it is a text of the drafting pipeline, in the repository
+// (src/data/ai/texts/weeks/, docs/ai-drafting.md), drafted after the run that froze the week (scripts/week.ts).
 //
 // A closed week is frozen on the Monday or Tuesday after it, from the last good copies at that moment, with the week
 // as its period; later revisions by a source never reach it. A week the data run missed on both days is not frozen.
@@ -24,7 +26,6 @@ import type { Stores } from './store.ts';
 
 export const LEDGER_KEY = 'weeks/ledger.json';
 export const weekKey = (id: string) => `weeks/${id}.json`;
-export const summaryKey = (id: string) => `weeks/${id}.summary.json`;
 /** Copies are recorded once a day and listed this long (a week only ever compares with its own Monday's). */
 export const BASELINE_DAYS = 45;
 /** A closed week is frozen only this many days after its Sunday at most. */

@@ -233,16 +233,17 @@ the data run), words in `src/i18n/week.en.ts`. Built from data only.
   changed), newest first over 30 days (an archived week: its own days), filtered by kind; ten shown, then "Show older
   items" (`src/scripts/week.ts`). Without scripts every item shows.
 - **The week in brief.** Per closed week: shown on that week's page, and on `/this-week` for the latest closed week
-  (labelled with its week), only when `data/raw/weeks/{id}.summary.json` holds an approved summary (`text`,
-  `approved`); otherwise nothing, not an empty box.
+  (labelled with its week), only when the drafting pipeline's text `week:{id}` is approved and its facts unchanged
+  (`src/data/ai/texts/weeks/{id}.json`, approved on Telegram: [telegram.md](telegram.md)); otherwise nothing, not an
+  empty box and no notice. The label and "How this summary is made" link to Methodology's "AI drafting" section.
 - **Earlier weeks.** `/this-week` links to the latest closed week ("Previous weeks: week 44 →") once one exists, and
   shows nothing before; an archived week links to the one before it. A week picker appears once there is a week to
   pick. Archived pages carry a note that they keep the figures as they stood.
 
 ## AI-drafted texts
 
-Dossier summaries, alliance history notes and disputed river summaries are drafted with AI from facts files, checked
-and approved by the owner before they show; unapproved texts show nothing. A dossier keeps its template summary until
+Dossier summaries, alliance history notes, disputed river summaries and This week's summaries are drafted with AI
+from facts files, checked and approved by the owner (on Telegram, [telegram.md](telegram.md)) before they show; unapproved texts show nothing. A dossier keeps its template summary until
 its AI summary is approved. See [ai-drafting.md](ai-drafting.md).
 
 ## Share images

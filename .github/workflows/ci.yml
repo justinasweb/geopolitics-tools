@@ -179,22 +179,29 @@ jobs:
           node pipeline/run.ts --retention | add_rules gt-raw
           echo "keep-ci ci/ 2" | add_rules gt-snapshots
       - name: Deploy to production
+        env:
+          DIGEST_AT: ${{ vars.DIGEST_AT }}
         run: |
           set -o pipefail
-          # HOLDING keeps geopolitics.tools on the holding page (worker/index.ts) until SITE_HOLDING is false.
-          npx wrangler deploy --message "${{ github.sha }}" --var "HOLDING:$SITE_HOLDING" | tee deploy.log
+          # HOLDING keeps geopolitics.tools on the holding page (worker/index.ts) until SITE_HOLDING is false; it
+          # also stops the weekly digest. DIGEST_AT (repository variable, "mon 08" by default) is the digest's hour.
+          npx wrangler deploy --message "${{ github.sha }}" --var "HOLDING:$SITE_HOLDING" ${DIGEST_AT:+--var "DIGEST_AT:$DIGEST_AT"} | tee deploy.log
           url="${{ vars.PRODUCTION_URL }}"
           [ -n "$url" ] || url=$(grep -o 'https://geopolitics-tools\.[a-z0-9-]*\.workers\.dev' deploy.log | head -1)
           echo "BASE=$url" >> "$GITHUB_ENV"
           echo "Production: $url" >> "$GITHUB_STEP_SUMMARY"
-      - name: Secrets for the Worker's data watch (worker/watch.ts)
+      - name: Secrets for the Worker's data watch (worker/watch.ts) and Telegram bot (worker/telegram.ts)
         env:
           GH_DISPATCH_TOKEN: ${{ secrets.GH_DISPATCH_TOKEN }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_WEBHOOK_SECRET: ${{ secrets.TELEGRAM_WEBHOOK_SECRET }}
+          TELEGRAM_CHANNEL_ID: ${{ secrets.TELEGRAM_CHANNEL_ID }}
         run: |
-          # Each is optional: without the GitHub token the watch only checks staleness, without Telegram it only logs.
-          for k in GH_DISPATCH_TOKEN TELEGRAM_BOT_TOKEN TELEGRAM_CHAT_ID; do
+          # Each is optional: without the GitHub token the watch only checks staleness and the review buttons do
+          # nothing, without Telegram it only logs, without the webhook secret the bot's webhook answers 503, and
+          # without the channel id nothing is ever posted. docs/telegram.md.
+          for k in GH_DISPATCH_TOKEN TELEGRAM_BOT_TOKEN TELEGRAM_CHAT_ID TELEGRAM_WEBHOOK_SECRET TELEGRAM_CHANNEL_ID; do
             if [ -n "${!k}" ]; then printf '%s' "${!k}" | npx wrangler secret put "$k" > /dev/null && echo "$k set"; else echo "$k not set"; fi
           done
       - name: Check production

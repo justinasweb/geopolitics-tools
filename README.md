@@ -24,7 +24,7 @@ Needs Node 24 (`.nvmrc`).
 | `npm run serve:fast` | `build:fast`, then `serve` |
 | `npm run check` | Lint, type check and unit tests |
 | `npm run test:e2e` | Route and browser checks against `BASE` (default http://localhost:8787) |
-| `npm run ai:status` | AI-drafted texts and their facts; `ai:facts`, `ai:draft`, `ai:paste`, `ai:check`, `ai:approve` (see [docs/ai-drafting.md](docs/ai-drafting.md)) |
+| `npm run ai:status` | AI-drafted texts and their facts; `ai:facts`, `ai:draft`, `ai:paste`, `ai:check`, `ai:approve` (see [docs/ai-drafting.md](docs/ai-drafting.md)); `ai:review`, `week:summary`, `week:digest` (the Telegram review step, [docs/telegram.md](docs/telegram.md)) |
 | `node pipeline/run.ts --only=<source>` | Fetch one data source into `.data/` (see [docs/data-pipeline.md](docs/data-pipeline.md)) |
 
 ## Layout
@@ -42,7 +42,7 @@ Needs Node 24 (`.nvmrc`).
 | `src/design/tokens.json` | Design tokens; `node scripts/tokens.ts` checks them and writes `src/styles/tokens.css` |
 | `src/layouts/` | Document shell (`Base`) and site page (`Page`: header, page container, footer) |
 | `src/holding/` | Temporary holding page served as the production home page until launch |
-| `worker/` | The only server code: `/api/*` (health check, the correction form's `/api/correction`; review button later) and the hourly data watch |
+| `worker/` | The only server code: `/api/*` (health check, the correction form's `/api/correction`, the Telegram bot's `/api/telegram`) and the hourly cron (data watch, weekly digest) |
 | `public/` | Files copied as-is (`_headers`, favicon, share image) |
 | `scripts/` | Build helpers |
 | `pipeline/` | Data fetchers and the hourly runner (raw files and snapshots in R2) |

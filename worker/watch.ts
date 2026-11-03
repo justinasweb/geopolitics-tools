@@ -7,16 +7,14 @@
 //   2. If the published status.json is older than 6 hours, alert on Telegram: once when it crosses
 //      6 hours, then once a day while it lasts. Needs the SNAPSHOTS binding and the Telegram secrets.
 
-export interface WatchEnv {
+import { gh, type GitHubEnv } from './github';
+
+export interface WatchEnv extends GitHubEnv {
   SNAPSHOTS?: R2Bucket;
-  GH_DISPATCH_TOKEN?: string;
   TELEGRAM_BOT_TOKEN?: string;
   TELEGRAM_CHAT_ID?: string;
-  /** owner/name; defaults to the project's repository. */
-  GH_REPO?: string;
 }
 
-const REPO = 'justinasweb/geopolitics-tools';
 const WORKFLOW = 'data.yml';
 const H = 3_600_000;
 
@@ -27,18 +25,6 @@ export interface WatchResult {
   alerted: boolean;
   errors: string[];
 }
-
-const gh = (env: WatchEnv, path: string, init: RequestInit = {}) =>
-  fetch(`https://api.github.com/repos/${env.GH_REPO ?? REPO}${path}`, {
-    ...init,
-    headers: {
-      Authorization: `Bearer ${env.GH_DISPATCH_TOKEN}`,
-      Accept: 'application/vnd.github+json',
-      'X-GitHub-Api-Version': '2022-11-28',
-      'User-Agent': 'geopolitics-tools-watch',
-      ...(init.body ? { 'Content-Type': 'application/json' } : {}),
-    },
-  });
 
 /** Alert when the status first passes 6 hours old, then once in each later 24-hour period (the trigger runs hourly). */
 export const shouldAlert = (ageHours: number) => (ageHours >= 6 && ageHours < 7) || (ageHours >= 24 && ageHours % 24 < 1);

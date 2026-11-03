@@ -10,3 +10,6 @@ export const AI_ATTEMPTS = 2;
 export const AI_KEY_ENV = 'ANTHROPIC_API_KEY';
 /** The model recorded for a draft the owner pasted from a Claude chat. */
 export const MANUAL_MODEL = 'manual (Claude chat)';
+/** Length a drafted text must have, in words, for the kinds that set one (This week's summary: 100 to 150 words).
+ *  A draft outside it is sent back once like any other failed check. An owner's correction (Edit) is not held to it. */
+export const WORD_LIMITS: Partial<Record<string, [number, number]>> = { week: [100, 150] };

@@ -33,10 +33,10 @@ export interface Fact {
   note?: string;
 }
 
-export type FactsKind = 'dossier' | 'history' | 'river' | 'page' | 'hub';
+export type FactsKind = 'dossier' | 'history' | 'river' | 'page' | 'hub' | 'week';
 
 export interface FactsFile {
-  /** Text id: "dossier:USA", "history:nato", "river:nile", "page:about", "hub:power". */
+  /** Text id: "dossier:USA", "history:nato", "river:nile", "page:about", "hub:power", "week:2026-45". */
   id: string;
   kind: FactsKind;
   /** What the text is about, in words ("NATO", "the Nile"). */
@@ -53,11 +53,11 @@ export interface FactsFile {
 }
 
 export const FACTS_DIR = 'src/data/ai/facts';
-const KIND_DIR: Record<FactsKind, string> = { dossier: 'dossiers', history: 'history', river: 'rivers', page: 'pages', hub: 'hubs' };
+const KIND_DIR: Record<FactsKind, string> = { dossier: 'dossiers', history: 'history', river: 'rivers', page: 'pages', hub: 'hubs', week: 'weeks' };
 
 export const kindOf = (id: string): FactsKind => {
   const k = id.split(':')[0] as FactsKind;
-  if (!(k in KIND_DIR)) throw new Error(`Unknown text id "${id}": expected dossier:, history:, river:, page: or hub:`);
+  if (!(k in KIND_DIR)) throw new Error(`Unknown text id "${id}": expected dossier:, history:, river:, page:, hub: or week:`);
   return k;
 };
 export const factsPath = (id: string, root = process.cwd()) => join(root, FACTS_DIR, KIND_DIR[kindOf(id)], `${id.split(':')[1]}.json`);

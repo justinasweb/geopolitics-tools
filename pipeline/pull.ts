@@ -5,7 +5,7 @@
 // and checks every file against its recorded SHA-256. Rolling the site's data back is a build
 // with an earlier --snapshot.
 //
-// It also brings This week's archive (lib/weeks.ts) to <out>/weeks/: every frozen week and approved summary, and the
+// It also brings This week's archive (lib/weeks.ts) to <out>/weeks/: every frozen week, and the
 // copies kept on the first of the live page's 7 days (<out>/weeks/baseline/, with baseline.json giving the day): the
 // sanctions lists, to count entries added and removed, and GDACS's alerts, to tell which earlier alerts rose.
 import { createHash } from 'node:crypto';
@@ -13,7 +13,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { readRaw, type Snapshot } from './lib/runner.ts';
 import { openStores } from './lib/store.ts';
-import { baselineFor, loadLedger, summaryKey, unpack, weekKey } from './lib/weeks.ts';
+import { baselineFor, loadLedger, unpack, weekKey } from './lib/weeks.ts';
 import { rollingWeek } from '../src/lib/week/period.ts';
 
 const args = process.argv.slice(2);
@@ -54,8 +54,6 @@ for (const w of ledger.weeks) {
   if (!body) continue;
   writeFileSync(join(weeksOut, `${w}.json`), body);
   frozen++;
-  const summary = await stores.snapshots.get(summaryKey(w));
-  if (summary) writeFileSync(join(weeksOut, `${w}.summary.json`), summary);
 }
 // The live page covers the last 7 days: the copies from their first day only, so every count covers the same days.
 const live = rollingWeek(snap.created.slice(0, 10));

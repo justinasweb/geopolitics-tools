@@ -1,0 +1,100 @@
+# The Telegram review step (docs/telegram.md). The Worker starts this run when the owner taps Approve or Skip under
+# a draft, or replies to Edit with a corrected text; it records the decision in the repository with the same steps as
+# `npm run ai:approve` (src/lib/ai/store.ts), tells the owner on Telegram how it went, commits, and starts the
+# production deploy (ci.yml). Only the version the owner saw is acted on: the button carries its text hash.
+#
+# It also sends drafts for review: by hand (Run workflow, action "send", ids such as "river:nile dossier:USA"), and on
+# its own when a push to main (a merged ai-draft pull request) adds or changes a short text's draft.
+#
+# Commits are pushed with the default token, which starts no workflows by itself, so the deploy is started explicitly
+# (workflow_dispatch is allowed with it).
+name: ai-review
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'send (drafts to review), approve, skip or edit'
+        required: true
+        type: choice
+        options: [send, approve, skip, edit]
+        default: send
+      id:
+        description: 'Text id, such as week:2026-45 or river:nile (send takes several, space-separated)'
+        required: true
+      hash:
+        description: 'Text hash of the version reviewed (approve, skip, edit)'
+        required: false
+        default: ''
+      text:
+        description: 'The corrected text (edit)'
+        required: false
+        default: ''
+  push:
+    branches: [main]
+    paths: ['src/data/ai/texts/**']
+permissions:
+  contents: write
+  actions: write
+concurrency:
+  group: ai-review
+  cancel-in-progress: false
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+    steps:
+      - uses: actions/checkout@v7
+        with: { ref: main, fetch-depth: 0 }
+      - uses: actions/setup-node@v7
+        with: { node-version-file: .nvmrc, cache: npm }
+      - run: npm ci
+      # Dossier summaries are checked against facts made from the latest data, as on the site.
+      - name: Pull the latest data snapshot
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: node pipeline/pull.ts --store=r2 --out=data/raw
+      - name: Send new drafts for review
+        if: github.event_name == 'push'
+        env:
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.event.after }}
+        run: npm run ai:review -- send --changed "$BEFORE" "$AFTER"
+      # Inputs reach the script through the environment only, never pasted into the shell line.
+      - name: Record the decision
+        id: review
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          ACTION: ${{ inputs.action }}
+          ID: ${{ inputs.id }}
+          HASH: ${{ inputs.hash }}
+          REVIEW_TEXT: ${{ inputs.text }}
+        run: |
+          if [ "$ACTION" = send ]; then
+            # ID is split on spaces on purpose: each word is a text id.
+            # shellcheck disable=SC2086
+            npm run ai:review -- send $ID
+          else
+            npm run ai:review -- "$ACTION" "$ID" --text-hash "$HASH"
+          fi
+      - name: Commit
+        if: steps.review.outputs.commit == 'true'
+        env:
+          ACTION: ${{ inputs.action }}
+          ID: ${{ inputs.id }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/data/ai
+          git commit -m "AI review on Telegram: $ACTION $ID"
+          git pull --rebase origin main
+          git push origin HEAD:main
+      - name: Deploy
+        if: steps.review.outputs.deploy == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run ci.yml --ref main
