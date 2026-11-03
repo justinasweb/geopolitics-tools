@@ -22,7 +22,7 @@ The site is served by Cloudflare. Like any web host, its servers see your IP add
 
 ## Correction reports
 
-If you report a correction, the form sends what you write, the page link and your email (if you give one) to the site owner by Telegram message; the site itself stores none of it, and your email is used only to reply, then deleted.
+If you report a correction, the form sends what you write, the page link and your email (if you give one) to the editor by Telegram message; the site itself stores none of it. Your email is used only to reply to you. Reports are kept in the editor’s Telegram and deleted within 90 days.
 
 ## Sharing and links
 

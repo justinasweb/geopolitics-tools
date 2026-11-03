@@ -16,7 +16,7 @@ export const CORRECTION_TEXT = {
   email: 'Your email',
   optional: 'optional',
   emailPlaceholder: 'Only if you want a reply',
-  emailHint: 'Used only to reply, then deleted.',
+  emailHint: 'Used only to reply to you. Reports are kept in the editor’s Telegram and deleted within 90 days.',
   send: 'Send report',
   sending: 'Sending…',
   orEmail: `Or email ${CORRECTION_EMAIL}`,

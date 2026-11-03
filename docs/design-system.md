@@ -63,7 +63,9 @@ Without JavaScript it is an email link to data@geopolitics.tools with the page i
 `src/scripts/correction.ts` opens `CorrectionForm`, a native modal `<dialog>` that the `Page` layout puts on every page
 (centred on wide screens, a sheet from the bottom under 760px): what is wrong (required), the page (filled in from the
 address, query string included, read-only) and an optional email. Focus moves to the first field and stays in the
-dialog; Esc, Close or a click on the backdrop closes it and focus goes back to the link. Errors appear in words under
+dialog; Esc, Close or a click on the backdrop closes it and focus goes back to the link. The backdrop is the
+`scrim-modal` token (ink at 55%, darker than the map sheets' `scrim`), so the dialog's surface stands 3.8:1 against the
+dimmed page; `scripts/tokens.ts` checks it stays above 3:1. On dark paper no scrim can do that, so the dialog has a border there. Errors appear in words under
 their field (with `aria-invalid`) or in an alert above the button; after sending, a confirmation points to
 Corrections on the Sources page. A link on a source line also sends that line's source name with the report. The
 form posts to the Worker (`worker/correction.ts`, see [deploy.md](deploy.md#correction-form)). Styles are in

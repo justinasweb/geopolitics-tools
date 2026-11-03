@@ -111,6 +111,15 @@ export function checkTokens(tokens: Tokens): string[] {
       }
     }
   }
+  // Modal dialogs: in light, the dialog's surface (paper-raised) must stand 3:1 against the page dimmed by scrim-modal
+  // (WCAG 1.4.11, the dialog's edge is a UI boundary). Dark paper is too dark for any scrim to reach that, so there
+  // the dialog carries a rule-strong border instead (checked as a control border above).
+  if (names.has('scrim-modal')) {
+    const paper = rgb(colour(tokens, 'paper', 'light'));
+    const dimmed = rgb(colour(tokens, 'scrim-modal', 'light'), paper).map(Math.round);
+    const ratio = contrast(colour(tokens, 'paper-raised', 'light'), `#${dimmed.map((v) => v.toString(16).padStart(2, '0')).join('')}`);
+    if (ratio < 3) errors.push(`paper-raised against paper under scrim-modal (light) is ${ratio.toFixed(2)}:1, needs 3:1 for a modal's edge`);
+  }
   // Data scales: sequential steps must keep growing in contrast with paper (lighter to darker in light, the
   // reverse in dark), so the largest values always stand out.
   for (const theme of THEMES) {

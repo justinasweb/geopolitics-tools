@@ -30,6 +30,7 @@
   --tooltip-ink: #f3f2ee;
   --tooltip-muted: #b8bec6;
   --scrim: rgba(15,18,22,0.45);
+  --scrim-modal: rgba(27,36,48,0.55);
   --map-nodata: #e6e3da;
   --map-withheld: #7d786b;
   --map-border: var(--paper);
@@ -136,6 +137,7 @@
   --tooltip-ink: #16191d;
   --tooltip-muted: #4f5660;
   --scrim: rgba(0,0,0,0.6);
+  --scrim-modal: rgba(0,0,0,0.7);
   --map-nodata: #2a2f36;
   --map-withheld: #828a94;
   --map-border: var(--paper);

@@ -308,6 +308,7 @@ shows and hides them. The other year views do the same, but with fewer years.
   the real brake. A signed server timestamp would be stronger but needs a new secret.
 - **Source line links.** Every source line now ends with "Report a correction". On pages with many charts that is a
   lot of repeated links; the alternative is the footer link alone plus one per section.
-- **Privacy wording.** One line added to the Privacy page (still `approved: false`). Reports travel by Telegram, so the
-  message stays in the owner's chat; whether and when those messages are deleted is the owner's call.
+- **Privacy wording.** The Privacy page (still `approved: false`) and the form's email hint say reports are kept in the
+  editor's Telegram and deleted within 90 days. Owner to confirm the 90-day period, and to delete reports older than
+  that from the Telegram chat by hand (nothing deletes them automatically).
 
