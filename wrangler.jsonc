@@ -25,6 +25,12 @@
   // are set by the production deploy from the repository secrets.
   "triggers": { "crons": ["41 * * * *"] },
   "r2_buckets": [{ "binding": "SNAPSHOTS", "bucket_name": "gt-snapshots" }],
+  // Per-IP limit on the correction form (worker/correction.ts): 5 reports a minute. The period can only be 10 or 60
+  // seconds. namespace_id is any number unique to this limiter on the account.
+  "ratelimits": [{ "name": "CORRECTION_LIMIT", "namespace_id": "1001", "simple": { "limit": 5, "period": 60 } }],
   // Branch Previews (wrangler preview). They inherit nothing from production, so add bindings here as they arrive.
-  "previews": {}
+  // Previews have no Telegram secrets, so their correction form answers "could not send" and offers the email.
+  "previews": {
+    "ratelimits": [{ "name": "CORRECTION_LIMIT", "namespace_id": "1002", "simple": { "limit": 5, "period": 60 } }]
+  }
 }

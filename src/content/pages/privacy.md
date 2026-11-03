@@ -20,6 +20,10 @@ The site is served by Cloudflare. Like any web host, its servers see your IP add
 
 [Owner to fill in: how long logs are kept, and Cloudflare's role as processor.]
 
+## Correction reports
+
+If you report a correction, the form sends what you write, the page link and your email (if you give one) to the site owner by Telegram message; the site itself stores none of it, and your email is used only to reply, then deleted.
+
 ## Sharing and links
 
 The share buttons are plain links to X and Telegram; nothing loads from those sites until you click. Links to sources take you to their own sites, which have their own privacy terms.

@@ -50,6 +50,28 @@ build; 100 Previews per Worker, oldest deleted automatically.
   opens `robots.txt`), `SITE_HOLDING` (`false` at launch: production stops serving the holding page as
   the home page; until then production builds get it and pull request builds get the development index).
 
+## Correction form
+
+`POST /api/correction` (`worker/correction.ts`) takes the correction form's report and sends it to the owner's
+Telegram (the `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` Worker secrets the data watch already uses). It stores
+nothing and sets no cookies. It checks and size-limits the input (report up to 2,000 characters, body up to 8 KB,
+page must be a path on this site, email optional but well formed), escapes it for Telegram's HTML mode, and answers
+with a short code the form turns into words (`{ ok: false, error: "too_fast", field? }`).
+
+Abuse protection, all without cookies or third-party scripts:
+
+- **Honeypot**: a field people never see (`website`). If it is filled, the answer is "ok" and nothing is sent.
+- **Minimum fill time**: the form sends how long it was open; under 3 seconds is refused (`too_fast`).
+- **Per-IP rate limit**: Cloudflare's [rate limiting binding](https://developers.cloudflare.com/workers/runtime-apis/bindings/rate-limit/)
+  `CORRECTION_LIMIT` in `wrangler.jsonc`, 5 reports a minute per IP (the binding allows only 10- or 60-second periods),
+  answering 429 `rate_limited`. Previews have their own limiter (`previews.ratelimits`). The binding counts per
+  Cloudflare location and is meant for abuse protection, not exact accounting. If the binding is missing, the Worker
+  falls back to an in-memory limit per isolate.
+- Requests whose `Origin` is another site are refused (`origin`).
+
+Previews get no Telegram secrets, so on a Preview the form answers "Reports cannot be sent from here right now" and
+offers the email link; only production delivers reports.
+
 ## Before launch: noindex everywhere
 
 Until `SITE_INDEXABLE` is `true`, every build, production and Previews alike, carries three signals:

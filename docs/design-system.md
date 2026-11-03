@@ -35,7 +35,7 @@ This week: `CountRow`, `WeekCard` with `WeekCardBody` (alert list, paired bars, 
 `LatestFeed`, `WeekSummary`, `WeekNav`, `WeekGlyph` (styles in `week.css`).
 Filters: `SegmentedControl`, `Dropdown`, `CountrySearch`, `Chips`, `YearSlider`. Maps: `MapLegend`, `MapTooltip`,
 `CountryPanel` + `PanelFacts`; the interactive map view's `MapControls` and `MapStage` (phase 4, see
-[maps.md](maps.md)). Actions: `ShareRow`.
+[maps.md](maps.md)). Actions: `ShareRow`. Corrections: `CorrectionLink` and `CorrectionForm` (below).
 
 Controls tell the page what changed with bubbling events: `gt-change` (segmented control, chips, year slider) and `gt-pick`
 (country search). The header's search buttons and the `/` key send `gt-search`, which site search (phase 8) will answer.
@@ -57,6 +57,19 @@ out, and Tools is left out when no tool is live. Phone (under 760px): the menu b
 under the bar, which never moves; the same button closes it. While it is open the rest of the page is `inert` and
 does not scroll, Tab stays in the bar and the panel, Esc or a link closes it, and it closes if the header grows past
 760px (`src/scripts/header.ts`).
+
+**Correction form** (decision D10). Every `SourceLine` and the footer carry `CorrectionLink`, "Report a correction".
+Without JavaScript it is an email link to data@geopolitics.tools with the page in the subject. With it,
+`src/scripts/correction.ts` opens `CorrectionForm`, a native modal `<dialog>` that the `Page` layout puts on every page
+(centred on wide screens, a sheet from the bottom under 760px): what is wrong (required), the page (filled in from the
+address, query string included, read-only) and an optional email. Focus moves to the first field and stays in the
+dialog; Esc, Close or a click on the backdrop closes it and focus goes back to the link. Errors appear in words under
+their field (with `aria-invalid`) or in an alert above the button; after sending, a confirmation points to
+Corrections on the Sources page. A link on a source line also sends that line's source name with the report. The
+form posts to the Worker (`worker/correction.ts`, see [deploy.md](deploy.md#correction-form)). Styles are in
+`correction.css`: the design bundle's rules (its `.gt-corrsheet` preview rule is scoped to `.gt-corrbox`, the
+/dev/components previews) plus the live dialog's placement, `.gt-input`, errors and the honeypot, which the bundle
+did not have. Words: `src/i18n/correction.en.ts`.
 
 ## Not in this phase
 

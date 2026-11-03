@@ -1,0 +1,55 @@
+/* Atlas design system: CorrectionForm ("Report a correction" link, the dialog and its confirmation).
+   Ported from the design system's bundle.css; colours and fonts come from tokens.css.
+   The design's .gt-corrsheet rule draws the sheet in place for the design preview; here it is scoped to .gt-corrbox
+   (the /dev/components previews), and the live dialog gets its own placement below. */
+
+/* ---------- from the design ---------- */
+.gt-ndemo { display: grid; gap: 40px; }
+.gt-ndemo > section { display: grid; gap: 12px; }
+.gt-ndemo > section > .gt-label { margin: 0; }
+.gt-ndemo--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+.gt-ndemo--2 > section:first-child { grid-column: 1 / -1; }
+.gt-corrlink { display: inline-flex; gap: 6px; align-items: center; color: var(--link); }
+.gt-corrlink svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.6; }
+.gt-corrbox { position: relative; max-width: 520px; }
+.gt-corrbox .gt-fsheet, .gt-corrbox .gt-corrsheet { position: relative; inset: auto; max-height: none; box-shadow: var(--shadow-pop); }
+.gt-corr-f { display: grid; gap: 16px; }
+.gt-corr-f textarea { min-height: 104px; resize: vertical; padding: 10px 12px; font: 400 16px/24px var(--sans); }
+.gt-corr-f .gt-field { display: grid; gap: 6px; }
+.gt-corr-f input[readonly] { background: var(--paper-sunk); color: var(--ink-muted); }
+.gt-opt { font-weight: 400; color: var(--ink-muted); }
+.gt-corr-f__go { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; }
+.gt-corr-f__go a { color: var(--link); font: 500 15px/20px var(--sans); }
+
+/* ---------- not in the design bundle: the live dialog, inputs, errors, honeypot ---------- */
+/* The sheet's own look (bar, body) matches the map view's filter sheet (.gt-fsheet in mapview.css), repeated here so
+   pages without a map do not load that file. */
+.gt-corrsheet { padding: 0; border: 0; border-radius: 4px; background: var(--paper-raised); color: var(--ink); }
+.gt-corrsheet .gt-fsheet__bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 4px 8px 16px; border-bottom: 1px solid var(--rule); }
+.gt-corrsheet .gt-fsheet__body { padding: 16px; display: grid; gap: 20px; overflow: auto; align-content: start; }
+.gt-corrbox .gt-corrsheet { display: grid; }
+/* Centred on wide screens; a sheet from the bottom on phones. */
+dialog.gt-corrsheet { position: fixed; inset: 0; margin: auto; width: min(520px, calc(100% - 32px)); max-width: none; height: fit-content;
+  max-height: calc(100dvh - 48px); box-shadow: var(--shadow-pop); overflow: hidden; }
+dialog.gt-corrsheet[open] { display: grid; grid-template-rows: auto minmax(0, 1fr); }
+dialog.gt-corrsheet::backdrop { background: var(--scrim); }
+@media (max-width: 759px) {
+  dialog.gt-corrsheet { inset: auto 0 0 0; width: 100%; max-height: 92dvh; margin: 0; border-radius: 4px 4px 0 0; }
+}
+.gt-corrsheet .gt-state { padding: 16px 8px 8px; }
+.gt-corrsheet .gt-state p { max-width: 44ch; }
+.gt-corrsheet [hidden] { display: none; }
+.gt-input { width: 100%; min-height: 44px; padding: 0 12px; border: 1px solid var(--rule-strong); border-radius: 2px; background: var(--paper-raised);
+  color: var(--ink); font: 400 16px/1 var(--sans); }
+.gt-input::placeholder { color: var(--ink-muted); }
+.gt-input:hover:not([readonly]) { border-color: var(--ink); }
+.gt-input[aria-invalid="true"] { border-color: var(--error); border-width: 2px; }
+.gt-corr-f .gt-caption { margin: 0; }
+/* Errors say what to do in words, with a mark before them, so colour is never the only cue. */
+.gt-corr-f__err { margin: 0; font: 600 14px/20px var(--sans); color: var(--error); }
+.gt-corr-f__err::before { content: "! "; }
+.gt-corr-f__err:empty { display: none; }
+.gt-corr-f__err--form { padding: 10px 12px; background: var(--error-bg); color: var(--ink); border-left: 3px solid var(--error); }
+.gt-corr-f__err--form::before { content: none; }
+/* Off screen rather than display:none, so naive bots still fill it; hidden from screen readers and the Tab order. */
+.gt-corr-f__hp { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }

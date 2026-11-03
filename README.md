@@ -42,7 +42,7 @@ Needs Node 24 (`.nvmrc`).
 | `src/design/tokens.json` | Design tokens; `node scripts/tokens.ts` checks them and writes `src/styles/tokens.css` |
 | `src/layouts/` | Document shell (`Base`) and site page (`Page`: header, page container, footer) |
 | `src/holding/` | Temporary holding page served as the production home page until launch |
-| `worker/` | The only server code: `/api/*` (health check now; correction form and review button later) |
+| `worker/` | The only server code: `/api/*` (health check, the correction form's `/api/correction`; review button later) and the hourly data watch |
 | `public/` | Files copied as-is (`_headers`, favicon, share image) |
 | `scripts/` | Build helpers |
 | `pipeline/` | Data fetchers and the hourly runner (raw files and snapshots in R2) |

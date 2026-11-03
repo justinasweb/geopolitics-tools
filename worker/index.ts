@@ -1,10 +1,11 @@
-// The site's only server code. It runs before every request: it handles /api/* (later: the correction form and
-// the Telegram review button), keeps the public domain on the holding page until launch, and passes anything
+// The site's only server code. It runs before every request: it handles /api/* (the correction form; later the
+// Telegram review button), keeps the public domain on the holding page until launch, and passes anything
 // else to the static assets.
 // Its hourly Cron Trigger watches the data pipeline from outside GitHub (decision D11): see watch.ts.
 import { watch, type WatchEnv } from './watch';
+import { correction, type CorrectionEnv } from './correction';
 
-export interface Env extends WatchEnv {
+export interface Env extends WatchEnv, CorrectionEnv {
   ASSETS: Fetcher;
   // "true" while the production deploy serves the holding page (ci.yml passes SITE_HOLDING); unset elsewhere.
   HOLDING?: string;
@@ -33,6 +34,7 @@ export default {
       if (request.method !== 'GET' && request.method !== 'HEAD') return json({ ok: false, error: 'method not allowed' }, 405);
       return json({ ok: true });
     }
+    if (pathname === '/api/correction') return correction(request, env);
     if (pathname.startsWith('/api/')) return json({ ok: false, error: 'not found' }, 404);
     const res = await env.ASSETS.fetch(request);
     if (search && STATE_PAGES.has(pathname) && res.ok) {

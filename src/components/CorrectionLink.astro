@@ -1,0 +1,19 @@
+---
+// "Report a correction": on every source line and in the footer. Without JavaScript it is an email link to
+// data@geopolitics.tools with the page in the subject; with it, src/scripts/correction.ts opens the correction form
+// (CorrectionForm, in the Page layout) instead, passing on the source line it came from.
+import '../styles/atlas/correction.css';
+import { CORRECTION_TEXT, correctionMailto } from '../i18n/correction.en';
+
+interface Props {
+  /** The source named on the line this link sits on, sent with the report. */
+  source?: string;
+}
+const { source } = Astro.props;
+---
+<a class="gt-corrlink" href={correctionMailto(Astro.url.pathname)} data-gt-corr data-gt-corr-source={source}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 20h20z"/><path d="M12 10v4.5M12 17.2v.3"/></svg>{CORRECTION_TEXT.link}</a>
+
+<script>
+  import { initCorrection } from '../scripts/correction';
+  initCorrection();
+</script>

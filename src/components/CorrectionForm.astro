@@ -1,0 +1,68 @@
+---
+// The correction form (decision D10): a modal dialog that "Report a correction" (CorrectionLink) opens from any
+// source line or the footer; a bottom sheet on phones. Three fields: what is wrong (required), the page (filled in,
+// read-only) and an optional email for a reply. It posts to the Worker (/api/correction), which forwards the report
+// to Telegram and keeps nothing. The email link under the button is the fallback, and the link itself is one when
+// scripts are off. Behaviour: src/scripts/correction.ts.
+//
+// `preview` draws it open, as a plain section, for /dev/components ("form" or "done").
+import '../styles/atlas/correction.css';
+import Icon from './Icon.astro';
+import { CORRECTION_TEXT as T, correctionMailto } from '../i18n/correction.en';
+import { CORRECTION_LIMITS } from '../lib/correction';
+import { paths } from '../lib/routes';
+
+interface Props {
+  preview?: 'form' | 'done';
+}
+const { preview } = Astro.props;
+const id = preview ? `gt-corr-${preview}` : 'gt-corr';
+const path = Astro.url.pathname;
+const Tag = preview ? 'section' : 'dialog';
+const attrs: Record<string, string> = preview ? { role: 'dialog', 'aria-labelledby': `${id}-t` } : { 'aria-labelledby': `${id}-t`, 'data-gt-corr-dialog': '' };
+---
+<Tag class="gt-fsheet gt-corrsheet" {...attrs}>
+  <div class="gt-fsheet__bar">
+    <h2 class="gt-h3" id={`${id}-t`}>{T.title}</h2>
+    <button class="gt-iconbtn" type="button" aria-label={T.close} data-gt-corr-close><Icon name="close" /></button>
+  </div>
+  <div class="gt-fsheet__body">
+    <form class="gt-corr-f" novalidate data-gt-corr-form hidden={preview === 'done'}>
+      <div class="gt-field">
+        <label for={`${id}-w`}>{T.what}</label>
+        <textarea class="gt-input" id={`${id}-w`} name="message" rows="4" required maxlength={CORRECTION_LIMITS.message}
+          aria-describedby={`${id}-w-err ${id}-w-hint`} data-gt-corr-field="message"></textarea>
+        <p class="gt-corr-f__err" id={`${id}-w-err`} data-gt-corr-err="message"></p>
+        <small class="gt-caption" id={`${id}-w-hint`}>{T.whatHint}</small>
+      </div>
+      <div class="gt-field">
+        <label for={`${id}-p`}>{T.page}</label>
+        <input class="gt-input" id={`${id}-p`} name="page" value={`geopolitics.tools${path}`} readonly aria-describedby={`${id}-p-hint`} data-gt-corr-page />
+        <small class="gt-caption" id={`${id}-p-hint`}>{T.pageHint}</small>
+      </div>
+      <div class="gt-field">
+        <label for={`${id}-e`}>{T.email} <span class="gt-opt">{T.optional}</span></label>
+        <input class="gt-input" id={`${id}-e`} name="email" type="email" autocomplete="email" maxlength={CORRECTION_LIMITS.email}
+          placeholder={T.emailPlaceholder} aria-describedby={`${id}-e-err ${id}-e-hint`} data-gt-corr-field="email" />
+        <p class="gt-corr-f__err" id={`${id}-e-err`} data-gt-corr-err="email"></p>
+        <small class="gt-caption" id={`${id}-e-hint`}>{T.emailHint}</small>
+      </div>
+      <div class="gt-corr-f__hp" aria-hidden="true">
+        <label for={`${id}-hp`}>{T.honeypot}</label>
+        <input id={`${id}-hp`} name="website" type="text" tabindex="-1" autocomplete="off" />
+      </div>
+      <input type="hidden" name="source" value="" />
+      <p class="gt-corr-f__err gt-corr-f__err--form" role="alert" data-gt-corr-err="form"></p>
+      <div class="gt-corr-f__go">
+        <button class="gt-btn" type="submit" data-gt-corr-send>{T.send}</button>
+        <a href={correctionMailto(path)} data-gt-corr-mail>{T.orEmail}</a>
+      </div>
+    </form>
+    <div class="gt-state" data-gt-corr-done hidden={preview !== 'done'}>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M7.5 12.5 10.5 15.5 16.5 9"/></svg>
+      <h2 class="gt-h3" tabindex="-1">{T.doneTitle}</h2>
+      <p>{T.doneBefore} <a href={`${paths.page('sources')}#corrections`}>{T.doneLink}</a>{T.doneAfter}</p>
+      <button class="gt-btn gt-btn--quiet" type="button" data-gt-corr-close>{T.close}</button>
+    </div>
+  </div>
+</Tag>
