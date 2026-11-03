@@ -101,6 +101,7 @@
 .gt-feed li[hidden] { display: none; }
 .gt-alerts__lvl--orange svg { fill: none; }
 .gt-alerts__what { min-width: 0; overflow-wrap: anywhere; }
+.gt-alerts__place { display: inline-block; vertical-align: top; }
 .gt-alerts__more { display: inline; margin-left: 6px; }
 .gt-alerts__more summary { display: inline; cursor: pointer; list-style: none; color: var(--brand); font-weight: 600; white-space: nowrap; }
 .gt-alerts__more summary::-webkit-details-marker { display: none; }
