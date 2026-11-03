@@ -339,6 +339,32 @@ and get no percentage change, which would otherwise run to thousands of percent 
 a place note on multinational firms' subsidiaries. The API marks no value as an estimate, so neither layer carries the
 Estimate tag. Credits name the original publisher, then "via World Bank, CC BY 4.0".
 
+## Cyber incidents (Internet, D18)
+
+`/internet/cyber-operations` (layer `internet-cyber`, src/lib/cyber.ts, words in src/i18n/cyber.en.ts): EuRepoC's
+Global Dataset of Cyber Incidents, the version pinned in pipeline/sources/eurepoc.ts, named in every credit.
+
+- **Measure.** Publicly known incidents affecting each country, by the year the incident started; one incident
+  affecting several countries counts once for each. Receivers are matched by ISO alpha-2; regions, the EU and unknown
+  receivers are left out. The world figure is every incident starting in the year, counted once. The slider runs from
+  2000 (`from` in src/data/views.ts) although the early years have few incidents; fixed classes 1, 2–4, 5–14, 15–49
+  and 50 or more. A country with none reads "No incidents recorded", not "No data".
+- **No ranking words** (`neutral` on the layer, `unranked` in the layer file): no rank in the panel, no ranking around
+  the country, no numbers on the world panel's bars, "Incidents recorded, by country" instead of "Highest", no top
+  three in the summary (what the year's incidents were attributed to instead), and no first places on the hub
+  (`ranks: false`). Every panel carries the caveat beside the figure (`caveat` in the layer file).
+- **Attributions.** Every attribution EuRepoC records, each said as "Attributed to {state}" with "by {who}" from its
+  attribution basis (the affected country's government, IT-security firms or researchers, the actor itself, media
+  reports…). An initiator counts for a state when EuRepoC codes it as a state or a state-affiliated group, and the
+  panel says how many were state-affiliated only. Non-state groups and individuals count by their kind (hacktivists,
+  criminal groups), never by their country; an attribution naming neither has its own row, and "Not attributed" is
+  its own row. An incident attributed to two states counts for each.
+- **Panel.** For the year shown: the incidents affecting the country by who they were attributed to, and the incidents
+  attributed to it by the country affected. **Arcs**: each year's 12 largest state → country pairs, with a table of the
+  20 largest pairs and who attributed them under the main table.
+- **Country pages.** A "Cyber incidents" block under More figures on every country page: incidents affecting it since
+  2000, or "No publicly known incidents", the caveat's last sentence and a link to the map with the country selected.
+
 ## Nuclear weapons (phase 5a)
 
 `/nuclear` (warheads), `/nuclear/treaties` and `/nuclear/sharing` (src/lib/nuclear.ts, src/templates/NuclearView.astro,

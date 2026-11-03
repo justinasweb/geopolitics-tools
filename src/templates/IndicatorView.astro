@@ -42,6 +42,8 @@ import { groupsOf, worldMix } from '../lib/electricity';
 import { catastrophe, monthSpan } from '../lib/hunger';
 import { HUNGER_TEXT as HG } from '../i18n/hunger.en';
 import { POWER_TEXT as PW } from '../i18n/electricity.en';
+import { basesOf, cyberData, pairs as cyberPairs } from '../lib/cyber';
+import { CYBER_TEXT as CX } from '../i18n/cyber.en';
 
 interface Props { id: string }
 const p = viewPage(Astro.props.id)!;
@@ -105,6 +107,9 @@ const flows = armsNow.slice(0, 20).map((x) => {
   return { ...x, share: into ? formatValue(x.amount / into, { kind: 'share' }) : '' };
 });
 const tiv = (v: number) => formatValue(v, { kind: 'number' });
+// Cyber incidents: the year's state and country pairs with the most incidents, with who attributed them.
+const cyber = p.id === 'cyber' ? cyberData() : null;
+const attributions = cyber ? cyberPairs(cyber, p.year).slice(0, 20) : [];
 const spaceDate = spaceAsOf() ? formatDate(spaceAsOf()!) : '';
 const bars = (rs: Row[], max: number) => rs.map((r) => ({ id: r.id, text: valueText(p, r.value), w: max ? (100 * Math.abs(r.value)) / max : 0 }));
 ---
@@ -124,7 +129,7 @@ const bars = (rs: Row[], max: number) => rs.map((r) => ({ id: r.id, text: valueT
     periods={p.layer.span ? { label: W.periodLabel(p.layer.span), options: Object.fromEntries(p.years.map((yr) => [yr, yearText(p, yr)])) } : undefined} />
 
   <MapStage layer={layerPath(`${p.family.id}-${p.id}`)} label={`${T.legend(p.year)}. ${mapTop}. ${W.caption(p.year, null)}`} title={T.title}
-    legend={{ title: T.legend(p.year), scale: p.layer.scale, ticks: p.ticks, ends: T.ends, none: fam.none ?? W.noData, ...(p.id === 'launches' ? { marks: [{ symbol: 'hollow', label: SP.sitesMark }] } : p.id === 'aicompute' ? { marks: [{ symbol: 'hollow', label: AX.mark }] } : p.id === 'waterstress' ? { marks: [{ symbol: 'triangle', label: DX.mark }] } : CHIP_LAYERS[p.id] ? { marks: [{ symbol: 'arc', label: AX.arcs }] } : {}) }}>
+    legend={{ title: T.legend(p.year), scale: p.layer.scale, ticks: p.ticks, ends: T.ends, none: T.none ?? fam.none ?? W.noData, ...(p.id === 'launches' ? { marks: [{ symbol: 'hollow', label: SP.sitesMark }] } : p.id === 'aicompute' ? { marks: [{ symbol: 'hollow', label: AX.mark }] } : p.id === 'waterstress' ? { marks: [{ symbol: 'triangle', label: DX.mark }] } : CHIP_LAYERS[p.id] ? { marks: [{ symbol: 'arc', label: AX.arcs }] } : p.id === 'cyber' ? { marks: [{ symbol: 'arc', label: CX.arcs }] } : {}) }}>
     <div data-panel="world" slot="panel">
       <div class="gt-panel__head">
         <div class="gt-panel__title"><span class="gt-kicker">{T.title} · <span data-year-text>{when}</span></span><h2 class="gt-h3">{MAP_TEXT.world}</h2></div>
@@ -136,7 +141,7 @@ const bars = (rs: Row[], max: number) => rs.map((r) => ({ id: r.id, text: valueT
           const max = Math.max(...Y.rows.map((r) => Math.abs(r.value)));
           const groups = div
             ? [{ label: W.importers, items: bars(Y.rows.filter((r) => r.value > 0).slice(0, 5), max) }, { label: W.exporters, items: bars(Y.rows.filter((r) => r.value < 0).reverse().slice(0, 5), max) }]
-            : [{ label: W.highest, items: bars(Y.rows.slice(0, 8), max) }];
+            : [{ label: T.barsLabel ?? W.highest, items: bars(Y.rows.slice(0, 8), max) }];
           return (
             <div class="gt-pyear" data-year={yr} hidden={yr !== p.year}>
               {Y.world !== null && T.worldLabel && (
@@ -217,6 +222,23 @@ const bars = (rs: Row[], max: number) => rs.map((r) => ({ id: r.id, text: valueT
           <h3 class="gt-label">{W.notes}</h3>
           <ol class="gt-caption">{notes.map((n, i) => <li id={`mv-note-${i + 1}`}><b>{nameOf(n.id)}:</b> {n.text}</li>)}</ol>
         </div>
+      )}
+      {attributions.length > 0 && (
+        <>
+          <h2 class="gt-h2" id="attributions">{CX.pairs}</h2>
+          <div class="gt-tablewrap" style="--gt-table-h:560px" tabindex="0" role="region" aria-label={CX.pairs}>
+            <table class="gt-table">
+              <caption class="gt-caption">{CX.pairsCaption(attributions.length, p.year)}</caption>
+              <thead><tr>
+                <th scope="col"><span class="gt-th">{CX.state}</span></th><th scope="col"><span class="gt-th">{CX.country}</span></th>
+                <th scope="col" class="n"><span class="gt-th">{CX.incidents}</span></th>
+              </tr></thead>
+              <tbody>{attributions.map((x) => <tr><td>{nameOf(x.from)}</td><th scope="row">{nameOf(x.to)}<small class="gt-caption" style="display:block;font-weight:400">{CX.by(basesOf(x.by))}</small></th><td class="n">{count(x.n)}</td></tr>)}</tbody>
+            </table>
+          </div>
+          <p class="gt-caption">{CX.caveat}</p>
+          <SourceLine source={source} parts={[String(p.year)]} updated={updated} />
+        </>
       )}
       {chipFlows.length > 0 && (
         <>

@@ -3,6 +3,7 @@
 // adjectives that judge, and a sentence whose figure is missing is left out. Another language is another file with
 // the same keys.
 import { todaysMembers } from './members.en.ts';
+import { CYBER_TEXT } from './cyber.en.ts';
 
 export interface LayerText {
   /** The layer's name in the picker ("Per person"). */
@@ -37,6 +38,12 @@ export interface LayerText {
   caveat: string;
   /** The page's meta description. */
   description: (year: number) => string;
+  /** A place with no figure, where "No data" would mislead (no documented incidents): the legend's word, and the
+   *  panel's line with the year. */
+  none?: string;
+  noneIn?: (year: string) => string;
+  /** The world panel's label over its bars, for layers that must not read as a ranking ("Highest" otherwise). */
+  barsLabel?: string;
 }
 
 export interface FamilyText {
@@ -416,6 +423,17 @@ export const VIEW_TEXT: Record<string, FamilyText> = {
         bloc: (b, s, y) => `${todaysMembers(b, { start: true })} exported ${s} of them in ${y}.`,
         caveat: `${ictCaveat} The total is for the countries that report, which change from year to year.`,
         description: (y) => `ICT service exports by country, ${y}: telecom, computer and information services sold abroad, on a map and in a table. Source: IMF balance of payments, via the World Bank.`,
+      },
+      // No ranking words: the counts are of documented incidents (CYBER_TEXT.caveat).
+      cyber: {
+        pick: 'Cyber incidents', title: 'Cyber incidents', sub: 'publicly known, by country affected', measure: 'incidents', figureLabel: 'Incidents affecting it',
+        legend: (y) => `Publicly known cyber incidents affecting the country, started in ${y}`, worldLabel: 'Incidents that started in the year',
+        ticks: ['1', '2–4', '5–14', '15–49', '50 or more'],
+        lede: ({ world, of, year }) => `EuRepoC coded ${world} publicly known cyber incidents that started in ${year}, affecting organisations or people in ${of} countries and territories.`,
+        total: (v, y, ch) => `EuRepoC coded ${v} publicly known cyber incidents that started in ${y}${ch ? `, ${ch}` : ''}.`,
+        caveat: CYBER_TEXT.caveat,
+        description: (y) => `Publicly known cyber incidents by country affected, ${y}, with the states they were attributed to and who attributed them, on a map and in a table. Source: EuRepoC.`,
+        none: 'No incidents recorded', noneIn: (y) => `No incidents recorded for ${y}`, barsLabel: 'Incidents recorded, by country',
       },
     },
   },

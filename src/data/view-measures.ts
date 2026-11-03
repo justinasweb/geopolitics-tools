@@ -1,6 +1,6 @@
 // Measures that only the map views show (no indicator page, profile row or Compare column): the AI and chips
 // view's notable models, US Entity List counts and chip imports, each sanctions list on its own,
-// internet outages, electricity from gas and nuclear, water stress in 2050, Chinese lending by sector and five-year arms totals. Same shape as the registry (./indicators.ts); `load` also gets
+// internet outages, cyber incidents, electricity from gas and nuclear, water stress in 2050, Chinese lending by sector and five-year arms totals. Same shape as the registry (./indicators.ts); `load` also gets
 // the year the source was fetched, for lists that hold only what is current.
 import type { Raw, Series } from '../adapters/core.ts';
 import { put } from '../adapters/core.ts';
@@ -12,6 +12,8 @@ import { type List, sanctions } from '../adapters/sanctions.ts';
 import { arms } from '../adapters/sipri.ts';
 import { ember, powerSeries } from '../adapters/ember.ts';
 import { chipFlows, comtrade } from '../adapters/comtrade.ts';
+import { eurepoc } from '../adapters/eurepoc.ts';
+import { cyberSeries } from '../lib/cyber.ts';
 import { periodEnds, totalsBy, windowPairs } from '../lib/arms.ts';
 import type { Indicator } from './indicators.ts';
 
@@ -73,6 +75,8 @@ export const VIEW_MEASURES: Record<string, ViewMeasure> = {
       return out;
     },
   },
+  // EuRepoC: publicly known cyber incidents affecting each country, by the year they started.
+  cyber: { id: 'cyber', group: 'tech', source: 'eurepoc', format: { kind: 'count' }, scale: 'linear', load: (raw) => cyberSeries(eurepoc(raw)) },
   // Aqueduct's 2050 projection under business as usual.
   waterstress2050: {
     id: 'waterstress2050', group: 'climate', source: 'aqueduct', format: { kind: 'number', digits: 1 }, scale: 'linear', static: true,

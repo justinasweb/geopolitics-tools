@@ -360,3 +360,28 @@ Made while adding `/internet/users` and `/internet/ict-exports` (spec D18, [maps
   change from one (`millions` on the money format). Other money measures keep exact small figures, since GDP per
   person is money too; chip imports and Chinese lending could take the flag if wanted.
 - **The menu still opens Internet at outages**, its first layer; users or ICT exports could come first instead.
+
+## Cyber incidents (3 Nov 2026)
+
+Made while adding `/internet/cyber-operations` from EuRepoC (spec D18, [maps.md](maps.md)).
+
+- **Incident count.** The brief says 3,416 incidents; version 1.3.2's main file has 3,414 rows (3,322 with receivers,
+  92 with no start date, which the map leaves out). The site counts what the file holds.
+- **The country page block sits under More figures**, not in Technology: the Technology section exists only on the
+  three dossiers, while More figures is on every country page, next to disasters, sanctions and nuclear weapons. It
+  shows incidents since 2000, or says there are none, with a link to the map.
+- **State-affiliated groups count for their state.** EuRepoC codes them as "non-state actor, state-affiliation
+  suggested". The panel counts them under the state and says how many were state-affiliated only ("4 to
+  state-affiliated groups"). Counting only direct state attributions would cut Russia's and China's rows a lot.
+- **Every attribution, settled or not.** EuRepoC marks one attribution per incident as "settled"; the site shows all of
+  them as the brief asks, so an incident attributed to two states counts for both. Contested attributions show as "by
+  sources EuRepoC codes as contested".
+- **Who attributed** is EuRepoC's attribution basis, not the named actor (the FBI, Microsoft): the actor field is
+  free text, often empty, and repeats a basis once per person quoted.
+- **Arcs.** The map draws each year's 12 largest state → country pairs. They read clearly but most run to the United
+  States and Ukraine; the table under the map has the same pairs with who attributed them. Say if they should go.
+- **Severity is not used.** EuRepoC's `impact_indicator_label` (Minor to Very high) and `weighted_intensity` are
+  missing for about 40% of incidents, so the map counts incidents without weighing them.
+- **Source count.** The licence table now has 35 rows (EuRepoC added); the spec's 37 also counts Access Now STOP,
+  which is not in yet.
+- **Ads or a paid tier** would need EuRepoC's agreement (CC BY-NC 4.0), as for IPC.

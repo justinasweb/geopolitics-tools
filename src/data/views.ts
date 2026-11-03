@@ -23,6 +23,10 @@ export interface ViewLayer {
   noTotalChange?: boolean;
   /** Fixed class edges, for scores with named bands (water stress); the layer's words give the ticks. */
   edges?: number[];
+  /** The slider's first year, whatever the coverage then (cyber incidents from 2000, when few were documented). */
+  from?: number;
+  /** Counts that must not read as a ranking (documented cyber incidents): no rank, no "highest", no top three. */
+  neutral?: boolean;
 }
 
 export interface ViewFamily {
@@ -117,6 +121,9 @@ export const VIEW_FAMILIES: ViewFamily[] = [
       { indicator: 'netuser', scale: 'seq', sums: false, points: true, edges: [0.2, 0.4, 0.6, 0.8] },
       // Exports as each country reports them in its balance of payments; the total is of countries reporting.
       { indicator: 'ictexp', scale: 'seq', sums: true, noTotalChange: true },
+      // An incident affecting several countries counts once for each, so the countries do not add up to the year's
+      // incidents; the world figure is EuRepoC's own count (../lib/cyber.ts).
+      { indicator: 'cyber', scale: 'seq', sums: false, ranks: false, neutral: true, from: 2000, edges: [2, 5, 15, 50] },
     ],
   },
   {

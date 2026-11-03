@@ -20,6 +20,9 @@ export interface FetchResult {
   rows: number;
   /** Latest period with data, as the source states it ("2025", "2026-08", "2026-10-24"). */
   dataTo?: string;
+  /** Something the owner should know that is not a failure (a newer version of a pinned dataset): sent once, and again
+   *  only when it changes. */
+  notice?: string;
 }
 
 export interface FetchContext {

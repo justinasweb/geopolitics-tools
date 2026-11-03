@@ -140,10 +140,11 @@ export function countryPanelHtml(f: LayerFile, yearIndex: number, id: string, op
   }
   if (o.after) body.push(o.after);
   if (f.axis !== 'days') body.push(sparkHtml(f, id, fill(f.text.trend ?? f.text.shareLabel, { from: when(f.data[0]), to: when(f.data.at(-1)!) })));
-  if (e && e[0] > 0 && f.series) body.push(rankingHtml(f, yearIndex, id, fill(f.text.ranking ?? '', { year: when(y) })));
+  if (e && e[0] > 0 && f.series && !f.unranked) body.push(rankingHtml(f, yearIndex, id, fill(f.text.ranking ?? '', { year: when(y) })));
   for (const b of y.more?.[id] ?? []) body.push(blockHtml(b));
   for (const b of f.more?.[id] ?? []) body.push(blockHtml(b));
   if (f.notes[id]) body.push(`<div class="gt-notice gt-notice--inline" role="note">${INFO}<div class="gt-notice__body"><p>${esc(f.notes[id])}</p></div></div>`);
+  if (f.caveat) body.splice(o.after ? 2 : 1, 0, `<div class="gt-notice gt-notice--inline" role="note">${INFO}<div class="gt-notice__body"><p>${esc(f.caveat)}</p></div></div>`);
   body.push(`<p class="gt-source"><span>${esc(f.source)}</span></p>`);
   const links: string[] = [];
   if (o.first) links.push(`<a class="gt-btn" href="${esc(o.first.href)}">${esc(o.first.label)}</a>`);
@@ -167,9 +168,9 @@ export function worldPanelHtml(f: LayerFile, yearIndex: number, o: { hint: strin
   const ids = y.order.slice(0, o.n ?? 10);
   const num = (pid: string) => Math.abs(f.series?.[pid]?.[yearIndex] ?? 0);
   const max = Math.max(0, ...ids.map(num));
-  const rows = ids.map((pid, i) => `<li><span class="gt-bars__name"><span class="gt-bars__rank">${i + 1}</span><button type="button" data-select="${esc(pid)}">${esc(nameOf(f, pid, y))}</button></span>`
+  const rows = ids.map((pid, i) => `<li><span class="gt-bars__name">${f.unranked ? '' : `<span class="gt-bars__rank">${i + 1}</span>`}<button type="button" data-select="${esc(pid)}">${esc(nameOf(f, pid, y))}</button></span>`
     + `<span class="gt-bars__track">${max ? `<span class="gt-bars__fill" style="width:${((100 * num(pid)) / max).toFixed(1)}%"></span>` : ''}</span><span class="gt-bars__val">${esc(y.v[pid]?.[1] ?? '')}</span></li>`).join('');
-  const label = fill(o.top, { year: when(y) });
+  const label = fill(f.unranked && f.text.bars ? f.text.bars : o.top, { year: when(y) });
   // Unordered classes (treaty status): how many places are in each, never a "largest" list.
   const cats = f.tally ?? (f.palette === 'cat' && f.categories ? f.categories.map((c) => ({ label: c.label, n: Object.values(y.v).filter((e) => e[0] === c.cls).length })) : null);
   if (cats) {
@@ -181,7 +182,7 @@ export function worldPanelHtml(f: LayerFile, yearIndex: number, o: { hint: strin
   }
   return `<div class="gt-panel__head"><div class="gt-panel__title"><span class="gt-kicker">${esc(fill(f.text.kicker, { year: when(y) }))}</span><h2 class="gt-h3" tabindex="-1">${esc(f.text.world)}</h2></div></div>`
     + `<div class="gt-panel__body"><p class="gt-atpanel__tip">${esc(o.hint)}</p>`
-    + (rows ? `<div class="gt-pblock gt-pgroup"><span class="gt-label">${esc(label)}</span><ol class="gt-bars gt-bars--tight gt-bars--rank" aria-label="${esc(label)}">${rows}</ol></div>` : '')
+    + (rows ? `<div class="gt-pblock gt-pgroup"><span class="gt-label">${esc(label)}</span><ol class="gt-bars gt-bars--tight${f.unranked ? '' : ' gt-bars--rank'}" aria-label="${esc(label)}">${rows}</ol></div>` : '')
     + `<p class="gt-source"><span>${esc(f.source)}</span></p></div>`
     + (o.first ? `<div class="gt-panel__foot gt-plinks"><a class="gt-btn" href="${esc(o.first.href)}">${esc(o.first.label)}</a></div>` : '');
 }

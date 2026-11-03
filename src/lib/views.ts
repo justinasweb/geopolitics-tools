@@ -13,6 +13,8 @@ import { indicator, refreshed, shared, sourceName, tryLoad } from './data.ts';
 import { VIEW_MEASURES } from '../data/view-measures.ts';
 import { yearsOf } from '../adapters/core.ts';
 import { worldShare } from './electricity.ts';
+import { cyberData, yearSplit, yearTotal } from './cyber.ts';
+import { CYBER_TEXT } from '../i18n/cyber.en.ts';
 import { formatValue } from './format.ts';
 import { place } from './places.ts';
 import { breaks, classOf, counts, defaultYear, ranking, type Row } from './stats.ts';
@@ -76,6 +78,9 @@ function worldOf(layer: ViewLayer, year: number, rows: Row[]): { world: number |
   if (layer.indicator === 'co2' && own?.co2 != null) return { world: own.co2, worldOwn: true };
   if (layer.indicator === 'co2cum' && own?.cum != null) return { world: own.cum, worldOwn: true };
   if (layer.indicator === 'co2pc' && own?.pc != null) return { world: own.pc, worldOwn: true };
+  // Cyber incidents: every incident EuRepoC coded as starting in the year, counted once however many countries it affected.
+  const cyber = layer.indicator === 'cyber' ? cyberData() : null;
+  if (cyber) return { world: yearTotal(cyber, year), worldOwn: true };
   const power = worldShare(layer.indicator, year);
   if (power) return { world: power.value, worldOwn: power.own };
   if (layer.sums) return { world: rows.reduce((s, r) => s + r.value, 0), worldOwn: false };
@@ -101,8 +106,9 @@ function buildPage(family: ViewFamily, layer: ViewLayer): ViewPage | null {
   // Counts of events (launches, models) are complete once the year ends, so the latest full year is the default.
   const year = layer.fullYears ? Math.max(...c.keys()) : defaultYear(loaded);
   if (year === undefined || !c.size) return null;
-  // Years up to the default one with at least half its coverage, so the slider never lands on a near-empty map.
-  const years = [...c.keys()].filter((y) => y <= year && c.get(y)! >= 0.5 * c.get(year)!).sort((a, b) => a - b);
+  // Years up to the default one with at least half its coverage, so the slider never lands on a near-empty map; or
+  // every year from the layer's own first year.
+  const years = [...c.keys()].filter((y) => y <= year && (layer.from ? y >= layer.from : c.get(y)! >= 0.5 * c.get(year)!)).sort((a, b) => a - b);
   const byYear: Record<number, ViewYear> = {};
   for (const y of years) {
     const rows = ranking(loaded, y);
@@ -213,6 +219,11 @@ export function summary(p: ViewPage, year = p.year): string[] {
   if (p.layer.scale === 'div') {
     const ends = [...y.rows.slice(0, 2), ...y.rows.slice(-2).reverse()];
     first.push(W.divTop(ends.map((r, i) => inSentence(nameOf(r.id), i === 0)), ends.map((r) => valueText(p, r.value))));
+  } else if (p.layer.neutral) {
+    // No top three: what the year's incidents were attributed to instead.
+    const c = cyberData();
+    const s = c ? yearSplit(c, year) : null;
+    if (s) first.push(CYBER_TEXT.split({ state: valueText(p, s.state), group: valueText(p, s.group), none: valueText(p, s.none) }));
   } else if (p.layer.sums) {
     const top = y.rows.slice(0, 3);
     const together = top.length === 3 ? shareOf(top.reduce((s, r) => s + r.value, 0), y.world) : null;
@@ -220,7 +231,7 @@ export function summary(p: ViewPage, year = p.year): string[] {
   } else {
     first.push(W.topNoShare(y.rows.slice(0, 3).map((r) => W.topPart(inSentence(nameOf(r.id)), valueText(p, r.value), null))));
   }
-  const second = [W.coverage(y.rows.length, p.text.period ? p.text.period(year) : year), ...(ANSWER[p.id]?.caveats ?? [])];
+  const second = [W.coverage(y.rows.length, p.text.period ? p.text.period(year) : year), ...(ANSWER[p.id]?.caveats ?? []), ...(p.layer.neutral ? [CYBER_TEXT.attribution] : [])];
   return [first.join(' '), second.join(' ')];
 }
 
@@ -228,7 +239,7 @@ export function summary(p: ViewPage, year = p.year): string[] {
 export const indicatorLabel = (p: ViewPage) => INDICATOR_TEXT[p.id]?.label ?? p.text.title;
 
 /** The source credit, as the indicator page writes it ("Global Carbon Budget", "UNHCR; World Bank population"). */
-export const creditOf = (p: ViewPage) => SOURCE_NOTE[p.id] ?? [p.loaded.indicator.source].flat().map((s) => SOURCE_SHORT[s] ?? sourceName(s)).join('; ');
+export const creditOf = (p: ViewPage) => p.id === 'cyber' ? CYBER_TEXT.credit(cyberData()?.version ?? null) : SOURCE_NOTE[p.id] ?? [p.loaded.indicator.source].flat().map((s) => SOURCE_SHORT[s] ?? sourceName(s)).join('; ');
 
 export interface Parts { refugees: number; asylum: number; oip: number }
 

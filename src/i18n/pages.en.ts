@@ -385,6 +385,8 @@ export const SOURCE_NOTE: Record<string, string> = {
   gdppc: 'World Bank', sanctions: 'US CSL; EU sanctions list; UK Sanctions List',
   entitylist: 'US Consolidated Screening List (Entity List)',
   outages: 'IODA (Georgia Tech)',
+  // The view's credit adds the dataset version (src/lib/views.ts creditOf).
+  cyber: 'EuRepoC Global Dataset of Cyber Incidents, CC BY-NC 4.0',
   // The original publisher as the World Bank's series metadata names it, then the World Bank and its licence.
   netuser: 'ITU World Telecommunication/ICT Indicators Database, via World Bank, CC BY 4.0',
   ictexp: 'IMF Balance of Payments Statistics, via World Bank, CC BY 4.0',
@@ -491,5 +493,5 @@ export const SOURCE_FEEDS: Record<string, string[]> = {
   faostat: ['Dependencies at a glance', 'Food trade'], sipri: ['Arms transfers'], gem: ['Power plants and pipelines'], gdw: ['Dams'],
   aiddata: ['Chinese lending'], 'usgs-minerals': ['Critical minerals'], comtrade: ['Oil, gas, fertiliser and chip trade'], peeringdb: ['Internet exchange points'],
   eia: ['Oil and gas'], ember: ['Electricity'], ucdp: ['Conflict'], ipc: ['Food crises'],
-  fas: ['Nuclear weapons'], unoda: ['Nuclear treaties'],
+  fas: ['Nuclear weapons'], unoda: ['Nuclear treaties'], eurepoc: ['Cyber incidents'],
 };

@@ -92,6 +92,12 @@ export interface LayerFile {
   categories?: { cls: number; label: string }[];
   /** Diverging scales: what each end means. */
   ends?: [string, string];
+  /** Figures that must not read as a ranking (documented cyber incidents): no rank, no ranking around the place, and
+   *  the world panel's bars without numbers. */
+  unranked?: boolean;
+  /** A caveat every place's panel shows next to its figure, with or without one (documented incidents are not how
+   *  often a country is targeted). */
+  caveat?: string;
   /** Legend words for the shapes without a class. */
   missing: { none: string; withheld?: string; notyet?: string };
   source: string;
@@ -113,6 +119,8 @@ export interface LayerFile {
     /** The selected place's panel: fact labels, the trend's title ({from}, {to}) and caption ({first}, {from}, {last}, {to}), the ranking's title ({year}). */
     detailLabel?: string; rankLabel?: string; rankOf?: string; statusLabel?: string;
     trend?: string; trendCaption?: string; ranking?: string;
+    /** The world panel's label over its bars ({year}), for an `unranked` layer, in place of the page's "Largest". */
+    bars?: string;
   };
   /** Status tags as HTML (their glyph and word). */
   tags: Record<Status, string>;
