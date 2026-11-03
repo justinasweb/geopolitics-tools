@@ -2,7 +2,7 @@
 // panel and the country pages. An incident counts once for each country it affected, in the year it started.
 //
 // Attributions are kept as EuRepoC records them, all of them: an incident attributed to two states counts for both,
-// and each row says who attributed it (government, IT-security firms, a claim by the group…). A state and the
+// and each row says who attributed it (government, IT-security firms, a claim by the actor itself…). A state and the
 // state-affiliated groups EuRepoC links to it are separate rows; only attributions to a state itself make the
 // state → country pairs (arcs and the pairs table). An incident attributed to neither counts for the kinds of
 // non-state group it was attributed to (hacktivists, criminals), never for a country; one with no attribution is

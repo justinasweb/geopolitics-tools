@@ -345,7 +345,7 @@ function cyberWho(t: Tally, place: string): string {
   return 'affiliated' in w ? CYBER_TEXT.toAffiliated(inSentence(nameOf2(w.affiliated))) : 'group' in w ? CYBER_TEXT.toGroup(w.group) : 'other' in w ? CYBER_TEXT.other : CYBER_TEXT.none;
 }
 
-/** Who attributed a row's incidents ("by …", "claimed by the group"). */
+/** Who attributed a row's incidents ("by …", "claimed by the actor itself"). */
 const cyberNote = (t: Tally) => CYBER_TEXT.by(basesOf(t.by)) || undefined;
 
 const CYBER_ROWS = 6;

@@ -116,8 +116,8 @@ describe('cyber incidents', () => {
   it('says "attributed to … by …", never as fact', () => {
     expect(CYBER_TEXT.toState('Russia')).toBe('Attributed to Russia');
     expect(CYBER_TEXT.by([['government', 4], ['security', 2]])).toBe('by the affected country’s government (4) and IT-security firms or researchers (2)');
-    expect(CYBER_TEXT.by([['self', 11]])).toBe('claimed by the group (11)');
-    expect(CYBER_TEXT.by([['self', 11], ['media', 1]])).toBe('by media reports (1); claimed by the group (11)');
+    expect(CYBER_TEXT.by([['self', 11]])).toBe('claimed by the actor itself (11)');
+    expect(CYBER_TEXT.by([['self', 11], ['media', 1]])).toBe('by media reports (1); claimed by the actor itself (11)');
     expect(CYBER_TEXT.toAffiliated('Russia')).toBe('State-affiliated groups (EuRepoC links them to Russia)');
     const words = JSON.stringify(Object.values(CYBER_TEXT).map((v) => (typeof v === 'function' ? String(v) : v)));
     expect(words).not.toMatch(/\b(attacked|hacked by|attacker)\b/i);

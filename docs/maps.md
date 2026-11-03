@@ -358,7 +358,8 @@ Global Dataset of Cyber Incidents, the version pinned in pipeline/sources/eurepo
   (`ranks: false`). Every panel carries the caveat beside the figure (`caveat` in the layer file).
 - **Attributions.** Every attribution EuRepoC records, each said as "Attributed to {state}" with "by {who}" from its
   attribution basis (the affected country's government, IT-security firms or researchers, media reports…). When the
-  source is the group itself, the note says "claimed by the group", never "attributed … by the actor itself". Only an
+  source is the actor itself (a group, or a state agency), the note says "claimed by the actor itself", not
+  "attributed … by". Only an
   initiator EuRepoC codes as a state counts for the state. Groups it codes as state-affiliated have their own row,
   "State-affiliated groups (EuRepoC links them to {state})", and stay out of the state arcs and the pairs table.
   Other non-state groups and individuals count by their kind (hacktivists, criminal groups), never by their country;

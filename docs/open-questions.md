@@ -373,8 +373,8 @@ Made while adding `/internet/cyber-operations` from EuRepoC (spec D18, [maps.md]
 - **State-affiliated groups have their own row** ("State-affiliated groups (EuRepoC links them to Russia)"), apart from
   the state, and are left out of the arcs and the pairs table. A state's panel lists them in a block of their own. They
   did not get a lighter arc of their own; that could be added if the map should show them.
-- **Claims by the group.** When the group itself is the source, the note says "claimed by the group (n)"; other sources
-  for the same row follow "by". This applies to states too (Ukraine's 2024 row against Russia is mostly claims).
+- **Claims by the actor.** When the actor itself is the source (a group, or a state agency), the note says "claimed by
+  the actor itself (n)"; other sources for the same row follow "by". This applies to states too (Ukraine's 2024 row against Russia is mostly claims).
 - **Own state.** A state attributed with incidents in its own country is labelled "(own state)" and left out of the
   arcs and the pairs table.
 - **Every attribution, settled or not.** EuRepoC marks one attribution per incident as "settled"; the site shows all of
