@@ -55,7 +55,10 @@ The pipeline uses only Node's built-in modules: the hourly job installs nothing.
 | `gt-snapshots` | `status.json` | Public summary per source (ok, stale, last success, last error), for the Sources page and the staleness check |
 | `gt-snapshots` | `weeks/ledger.json` | This week's archive: the frozen weeks, and per day the raw copies of the three sanctions lists and of GDACS's alerts at that day's first run (45 days) |
 | `gt-snapshots` | `weeks/<yyyy>-<ww>.json` | A closed ISO week's This week cards and feed, frozen once and never written again |
-| `gt-snapshots` | `weeks/<yyyy>-<ww>.summary.json` | The editor's approved AI summary for that week (written by a later task) |
+
+The run that freezes a week writes `frozen=<yyyy>-<ww>` to its step output, and `data.yml` then starts `week.yml` to
+draft that week's summary ([telegram.md](telegram.md)). The summary itself is kept in the repository with the other AI
+texts, not in R2.
 
 A run is named by its start time, such as `2026-10-24T1623Z`. A run in which nothing changed saves no copies and no
 snapshot, only the state and status. The retention rules are created by the production deploy job from
@@ -212,7 +215,7 @@ set `TREATIES_CHECKED` or `SHARING_CHECKED` in src/lib/nuclear.ts; the Sources p
 | Repository secret | Needed for |
 |---|---|
 | `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` | R2 (already set for deploys) |
-| `GH_DISPATCH_TOKEN` | The Worker's outside watch, to start a run GitHub skipped (fine-grained, this repository, "Actions: read and write") |
+| `GH_DISPATCH_TOKEN` | The Worker's outside watch, to start a run GitHub skipped (fine-grained, this repository, "Actions: read and write"); also the Telegram review buttons and the weekly digest ([telegram.md](telegram.md)) |
 | `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` | Alerts. Without them alerts are only printed in the run log, and the run fails so GitHub emails. To check them: Run workflow with "test alert" ticked |
 
 Errors are written without query strings, so an API key in an address never reaches a log or `status.json`.

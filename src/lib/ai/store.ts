@@ -2,8 +2,9 @@
 // owner's approval, and an approval is tied to the facts it was given on: each text stores the hash of its facts
 // file, so a text whose facts changed reads as stale (flagged for redrafting) instead of staying on the page.
 //
-// - Short texts (dossier, history, river) are JSON files in src/data/ai/texts/<kind>/<id>.json. They are approved
-//   with `npm run ai:approve` (the Telegram review button will call the same step, see docs/ai-drafting.md).
+// - Short texts (dossier, history, river, and This week's summary) are JSON files in
+//   src/data/ai/texts/<kind>/<id>.json. They are approved with `npm run ai:approve` or the Telegram review buttons
+//   (Approve, Edit, Skip; docs/telegram.md), which run the same steps here from a GitHub Actions run.
 // - Long pages and hub intros keep living in src/content/pages/*.md and src/content/hubs/*.md, with the `approved`
 //   front matter they already had and the same record next to it (author, model, factsHash, drafted, approvedOn).
 //   They are approved in a pull request: merging with `approved: true` (and `approvedOn`) is the approval.
@@ -34,12 +35,16 @@ export interface StoredText {
   approvedOn?: string;
   /** Where it was approved. */
   approvedVia?: Via;
+  /** The day the owner tapped Skip (YYYY-MM-DD): this draft is not published, and is not sent for review again. */
+  skipped?: string;
+  /** The day the owner replaced the draft with corrected text through Edit (YYYY-MM-DD). It passed the same check. */
+  edited?: string;
 }
 
-export type TextState = 'none' | 'draft' | 'approved' | 'stale' | 'owner';
+export type TextState = 'none' | 'draft' | 'approved' | 'stale' | 'owner' | 'skipped';
 
 export const TEXTS_DIR = 'src/data/ai/texts';
-const DIR: Record<string, string> = { dossier: 'dossiers', history: 'history', river: 'rivers' };
+const DIR: Record<string, string> = { dossier: 'dossiers', history: 'history', river: 'rivers', week: 'weeks' };
 export const isLong = (id: string) => ['page', 'hub'].includes(kindOf(id));
 
 export function textPath(id: string, root = process.cwd()): string {
@@ -110,8 +115,8 @@ export function writeText(t: StoredText, root = process.cwd()): void {
   const p = textPath(t.id, root);
   if (!isLong(t.id)) {
     mkdirSync(dirname(p), { recursive: true });
-    const { id, text, author, model, factsHash: fh, drafted, approved, approvedOn, approvedVia } = t;
-    writeFileSync(p, `${JSON.stringify({ id, author, text, model, factsHash: fh, drafted, approved, approvedOn: approvedOn ?? null, approvedVia: approvedVia ?? null }, null, 2)}\n`);
+    const { id, text, author, model, factsHash: fh, drafted, approved, approvedOn, approvedVia, skipped, edited } = t;
+    writeFileSync(p, `${JSON.stringify({ id, author, text, model, factsHash: fh, drafted, edited, approved, approvedOn: approvedOn ?? null, approvedVia: approvedVia ?? null, skipped }, null, 2)}\n`);
     return;
   }
   const md = splitMd(readFileSync(p, 'utf8'));
@@ -129,6 +134,7 @@ export function stateOf(t: StoredText | null, facts: FactsFile | null): TextStat
   // A draft written before the pipeline has no facts hash: still a draft, but an approval needs one.
   if (!t.factsHash) return t.approved ? 'stale' : 'draft';
   if (facts && t.factsHash !== factsHash(facts)) return 'stale';
+  if (t.skipped && !t.approved) return 'skipped';
   return t.approved ? 'approved' : 'draft';
 }
 
@@ -160,7 +166,46 @@ export function approveText(id: string, facts: FactsFile, o: ApproveOptions, roo
   if (o.textHash && o.textHash !== textHash(t.text)) throw new Error(`${id}: the text changed since it was sent for review; review it again.`);
   const r = checkDraft(t.text, facts);
   if (!r.ok) throw new Error(`${id}: the text no longer passes the check:\n${problemLines(r).join('\n')}`);
-  const out = { ...t, approved: true, approvedOn: o.on, approvedVia: o.via };
+  const out = { ...t, approved: true, approvedOn: o.on, approvedVia: o.via, skipped: undefined };
+  writeText(out, root);
+  return out;
+}
+
+export interface ReviewOptions {
+  on: string;
+  /** The text hash the owner was shown: the step acts only on that version. */
+  textHash: string;
+}
+
+/** The owner tapped Skip: the draft stays unpublished (an approved one is withdrawn) and is not sent for review again.
+ *  For This week's summary this records that the week has no summary. Only short texts are reviewed this way. */
+export function skipText(id: string, o: ReviewOptions, root = process.cwd()): StoredText {
+  if (isLong(id)) throw new Error(`${id}: long pages are approved in a pull request, not skipped.`);
+  const t = readText(id, root);
+  if (!t || !t.text.trim()) throw new Error(`${id}: there is no draft to skip.`);
+  if (t.author === 'owner') throw new Error(`${id}: the owner wrote this text; there is nothing to skip.`);
+  if (o.textHash !== textHash(t.text)) throw new Error(`${id}: the text changed since it was sent for review; review it again.`);
+  const out: StoredText = { ...t, approved: false, approvedOn: undefined, approvedVia: undefined, skipped: o.on };
+  writeText(out, root);
+  return out;
+}
+
+/** The owner replied to Edit with corrected text. It replaces the draft only if it passes the same number and fact
+ *  check as a drafted text; it is then a draft again, sent back for review, so it is published only on Approve.
+ *  Throws with the checker's findings otherwise, and the stored draft is left as it was. */
+export function editText(id: string, text: string, facts: FactsFile, o: ReviewOptions, root = process.cwd()): StoredText {
+  if (isLong(id)) throw new Error(`${id}: long pages are edited in a pull request.`);
+  const t = readText(id, root);
+  if (!t || !t.text.trim()) throw new Error(`${id}: there is no draft to edit.`);
+  if (t.author === 'owner') throw new Error(`${id}: the owner wrote this text; change it with npm run ai:own.`);
+  if (o.textHash !== textHash(t.text)) throw new Error(`${id}: the text changed since it was sent for review; edit the latest version.`);
+  const refused = refusals(facts);
+  if (refused.length) throw new Error(`${id}: its facts are not ready:\n${refused.join('\n')}`);
+  const clean = text.replace(/\r\n?/g, '\n').trim();
+  if (!clean) throw new Error(`${id}: the corrected text is empty.`);
+  const r = checkDraft(clean, facts);
+  if (!r.ok) throw new Error(`${id}: the corrected text does not pass the check:\n${problemLines(r).join('\n')}`);
+  const out: StoredText = { ...t, text: clean, factsHash: factsHash(facts), edited: o.on, approved: false, approvedOn: undefined, approvedVia: undefined, skipped: undefined };
   writeText(out, root);
   return out;
 }

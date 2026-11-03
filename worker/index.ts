@@ -1,11 +1,13 @@
-// The site's only server code. It runs before every request: it handles /api/* (the correction form; later the
-// Telegram review button), keeps the public domain on the holding page until launch, and passes anything
+// The site's only server code. It runs before every request: it handles /api/* (the correction form and the
+// Telegram bot's webhook), keeps the public domain on the holding page until launch, and passes anything
 // else to the static assets.
-// Its hourly Cron Trigger watches the data pipeline from outside GitHub (decision D11): see watch.ts.
+// Its hourly Cron Trigger watches the data pipeline from outside GitHub (decision D11, see watch.ts) and starts the
+// weekly digest at its hour (telegram.ts, digestCron).
 import { watch, type WatchEnv } from './watch';
 import { correction, type CorrectionEnv } from './correction';
+import { digestCron, telegramWebhook, type TelegramEnv } from './telegram';
 
-export interface Env extends WatchEnv, CorrectionEnv {
+export interface Env extends WatchEnv, CorrectionEnv, TelegramEnv {
   ASSETS: Fetcher;
   // "true" while the production deploy serves the holding page (ci.yml passes SITE_HOLDING); unset elsewhere.
   HOLDING?: string;
@@ -35,6 +37,7 @@ export default {
       return json({ ok: true });
     }
     if (pathname === '/api/correction') return correction(request, env);
+    if (pathname === '/api/telegram') return telegramWebhook(request, env);
     if (pathname.startsWith('/api/')) return json({ ok: false, error: 'not found' }, 404);
     const res = await env.ASSETS.fetch(request);
     if (search && STATE_PAGES.has(pathname) && res.ok) {
@@ -45,6 +48,8 @@ export default {
     return res;
   },
   async scheduled(_controller, env, ctx): Promise<void> {
-    ctx.waitUntil(watch(env, new Date()).then((r) => console.log(JSON.stringify(r))));
+    const now = new Date();
+    ctx.waitUntil(watch(env, now).then((r) => console.log(JSON.stringify(r))));
+    ctx.waitUntil(digestCron(env, now).then((r) => console.log(JSON.stringify(r))));
   },
 } satisfies ExportedHandler<Env>;

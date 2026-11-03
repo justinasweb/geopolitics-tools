@@ -20,7 +20,7 @@ import { canonical, duplicateFacts, factsHash, factsPath, kindOf, loadFacts, ref
 import { tryLoadDossierFacts } from '../src/lib/ai/current.ts';
 import { hubFacts, pageFacts } from '../src/lib/ai/page-facts.ts';
 import { approveText, isLong, readText, saveDraft, stateOf, textHash, writeText, type Via } from '../src/lib/ai/store.ts';
-import { currentFacts, TEXT_IDS } from '../src/lib/ai/texts.ts';
+import { currentFacts, isTextId, TEXT_IDS } from '../src/lib/ai/texts.ts';
 import { place } from '../src/lib/places.ts';
 
 const today = () => new Date().toISOString().slice(0, 10);
@@ -31,7 +31,7 @@ const stop = (s: string): never => { throw new Stop(s); };
 function ids(args: string[], all: boolean): string[] {
   const named = args.filter((a) => !a.startsWith('--'));
   if (all || !named.length) return TEXT_IDS;
-  for (const id of named) if (!TEXT_IDS.includes(id)) stop(`Unknown text "${id}". Texts: ${TEXT_IDS.join(', ')}`);
+  for (const id of named) if (!isTextId(id)) stop(`Unknown text "${id}". Texts: ${TEXT_IDS.join(', ')}`);
   return named;
 }
 const flag = (args: string[], name: string) => { const i = args.indexOf(`--${name}`); return i >= 0 ? args[i + 1] : undefined; };
@@ -139,7 +139,7 @@ function cmdCheck(args: string[]) {
 function cmdPaste(args: string[], author: 'ai' | 'owner') {
   const [id, file] = args.filter((a) => !a.startsWith('--'));
   if (!id || !file) stop(`Usage: npm run ai:${author === 'ai' ? 'paste' : 'own'} -- <text id> <file>`);
-  if (!TEXT_IDS.includes(id)) stop(`Unknown text "${id}".`);
+  if (!isTextId(id)) stop(`Unknown text "${id}".`);
   if (!existsSync(file)) stop(`No file ${file}.`);
   const text = readFileSync(file, 'utf8').trim();
   if (author === 'owner') {
@@ -159,7 +159,7 @@ function cmdPaste(args: string[], author: 'ai' | 'owner') {
 
 function cmdApprove(args: string[]) {
   const [id] = args.filter((a) => !a.startsWith('--'));
-  if (!id || !TEXT_IDS.includes(id)) stop('Usage: npm run ai:approve -- <text id> [--text-hash <hash>] [--via cli|telegram]');
+  if (!id || !isTextId(id)) stop('Usage: npm run ai:approve -- <text id> [--text-hash <hash>] [--via cli|telegram]');
   const via = (flag(args, 'via') ?? (isLong(id) ? 'pr' : 'cli')) as Via;
   if (!['cli', 'telegram', 'pr'].includes(via)) stop('--via is cli, telegram or pr');
   const f = currentFacts(id) ?? stop(`${id}: no facts to check against.`);
@@ -199,7 +199,7 @@ export function prBody(run: DraftRun): string {
     lines.push('');
   }
   if (short.length) {
-    lines.push('## Short texts', '', 'These are saved as drafts and show nothing on the site until approved (`npm run ai:approve -- <id>`, later the Telegram button).', '');
+    lines.push('## Short texts', '', 'These are saved as drafts and show nothing on the site until approved. Once this pull request is merged, each is sent to the owner on Telegram with Approve, Edit and Skip (docs/telegram.md); `npm run ai:approve -- <id>` still works too.', '');
     for (const d of short) lines.push(`### ${d.id}`, '', `> ${d.text.replace(/\n+/g, ' ')}`, '', `Text hash ${textHash(d.text)}, ${d.model}, ${d.attempts === 1 ? 'passed first time' : 'passed on the redraft'}.`, '');
   }
   if (run.dropped.length) {

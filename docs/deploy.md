@@ -24,8 +24,9 @@ Workers wins on what comes next:
   misbehave, the fallback is Version URLs with `wrangler versions upload --preview-alias pr-<n>`.
 - **Private previews in one place.** A Worker's Access tab can protect "Previews only", leaving production public
   ([docs](https://developers.cloudflare.com/workers/configuration/cloudflare-access/)).
-- **One Worker for everything server-side.** The correction form, Telegram review button and the staleness
-  check (a Cron Trigger, which Pages does not have) live in `worker/` with the site.
+- **One Worker for everything server-side.** The correction form, the Telegram bot's webhook (review buttons and the
+  digest's Post button, [telegram.md](telegram.md)) and the hourly cron (staleness check and the digest's clock; Pages
+  has no Cron Triggers) live in `worker/` with the site.
 - `_headers`, `_redirects`, clean URLs and a real 404 page work the same as on Pages
   ([docs](https://developers.cloudflare.com/workers/static-assets/migrate-from-pages/)).
 
@@ -39,8 +40,9 @@ build; 100 Previews per Worker, oldest deleted automatically.
   unknown addresses get `404.html` with status 404, `/page.html` redirects to `/page`.
 - Repository secrets: `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` (set; the data pipeline uses them for R2 too),
   `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` (data alerts), and `GH_DISPATCH_TOKEN` (a fine-grained token for
-  this repository with "Actions: read and write", so the Worker can start a data run GitHub skipped). The production
-  job copies the last three into the Worker's secrets. For AI drafting (`.github/workflows/ai-draft.yml`,
+  this repository with "Actions: read and write", so the Worker can start a data run GitHub skipped, and the review
+  and digest runs), `TELEGRAM_WEBHOOK_SECRET` and `TELEGRAM_CHANNEL_ID` (the bot's webhook and the digest's channel,
+  [telegram.md](telegram.md)). The production job copies these five into the Worker's secrets. For AI drafting (`.github/workflows/ai-draft.yml`,
   [ai-drafting.md](ai-drafting.md)): `ANTHROPIC_API_KEY`, and `GH_PR_TOKEN` so its pull requests get checks and a Preview. Optional: `CF_ACCESS_CLIENT_ID`
   and `CF_ACCESS_CLIENT_SECRET`, an Access service token, so CI can check Previews once they are private.
   Without it the Preview check notices the Access login page and skips.
@@ -48,7 +50,9 @@ build; 100 Previews per Worker, oldest deleted automatically.
   page until then, so the production checks run on the workers.dev address; set it to `https://geopolitics.tools`
   at launch), `SITE_INDEXABLE` (`true` at launch: removes `noindex` and
   opens `robots.txt`), `SITE_HOLDING` (`false` at launch: production stops serving the holding page as
-  the home page; until then production builds get it and pull request builds get the development index).
+  the home page; until then production builds get it and pull request builds get the development index; nothing is
+  posted to the Telegram channel while it is on), `DIGEST_AT` (the weekly digest's day and hour in UTC, `mon 08` when
+  unset).
 
 ## Correction form
 

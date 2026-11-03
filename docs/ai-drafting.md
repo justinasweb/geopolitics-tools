@@ -5,13 +5,14 @@ draft → check → approve → publish, and nothing reaches a page without the 
 
 | Text | Facts file | Where it is kept | Approved | Label |
 | --- | --- | --- | --- | --- |
-| Dossier summaries (`dossier:USA`, `dossier:CHN`, `dossier:RUS`) | Generated from the figures the dossier page shows (`src/lib/ai/dossier-facts.ts`) | `src/data/ai/texts/dossiers/*.json` | `npm run ai:approve`, later the Telegram button | Yes |
+| Dossier summaries (`dossier:USA`, `dossier:CHN`, `dossier:RUS`) | Generated from the figures the dossier page shows (`src/lib/ai/dossier-facts.ts`) | `src/data/ai/texts/dossiers/*.json` | The Telegram buttons ([telegram.md](telegram.md)), or `npm run ai:approve` | Yes |
 | Alliance history notes (`history:nato` … 11) | By hand: every join and departure in `src/data/bloc-history.csv` with a citation, plus the year notes | `src/data/ai/texts/history/*.json` | Same | Yes |
 | Disputed river summaries (`river:nile` … 8) | By hand: treaties, dam milestones, official statements, dated and cited | `src/data/ai/texts/rivers/*.json` | Same | Yes |
+| This week's summary (`week:2026-45`, one per closed week) | Generated from the frozen week the archive page shows (`src/lib/ai/week-facts.ts`), by `npm run week:summary` | `src/data/ai/texts/weeks/*.json` | Same | Yes |
 | About, Privacy, Methodology (`page:about` …) | Generated from the licence table, the site's rules in code and the territory notes (`src/lib/ai/page-facts.ts`) | `src/content/pages/*.md` | In a pull request | No |
 | Hub intros (`hub:power` … 5) | Generated from the view registry (`src/lib/ai/page-facts.ts`) | `src/content/hubs/*.md` (`intro`) | In a pull request | No |
 
-Facts files are in `src/data/ai/facts/<kind>/<id>.json`. The code is in `src/lib/ai/`, the commands in `scripts/ai.ts`.
+Facts files are in `src/data/ai/facts/<kind>/<id>.json` (`weeks/` for This week's summaries). The code is in `src/lib/ai/`, the commands in `scripts/ai.ts`.
 
 ## Commands
 
@@ -24,6 +25,9 @@ Facts files are in `src/data/ai/facts/<kind>/<id>.json`. The code is in `src/lib
 | `npm run ai:own -- <id> <file>` | Saves the owner's own text: marked `author: owner`, never overwritten, no AI label |
 | `npm run ai:check [-- <id>…]` | Checks stored texts against their current facts; CI runs it with `--all` on every pull request |
 | `npm run ai:approve -- <id> [--text-hash <h>] [--via cli\|telegram]` | Approves a short text |
+| `npm run ai:review -- send\|approve\|skip\|edit …` | The Telegram review step ([telegram.md](telegram.md)): sends drafts with Approve, Edit and Skip, and records a decision |
+| `npm run week:summary [-- --week 2026-45]` | Writes a closed week's facts, drafts its summary (100 to 150 words), checks it and sends it for review |
+| `npm run week:digest [-- --week 2026-45]` | Sends the owner the weekly digest for the Telegram channel, with a Post button |
 
 On GitHub: Actions → **ai-draft** → Run workflow does `ai:draft --pr` with the `ANTHROPIC_API_KEY` secret and the latest
 data snapshot. Set `GH_PR_TOKEN` (fine-grained, this repository, Contents and Pull requests read and write) so the
@@ -59,7 +63,10 @@ Without `ANTHROPIC_API_KEY` the script stops with a message pointing to the manu
 `prompt.md` into a Claude chat, save the reply to a file, and run `npm run ai:paste -- <id> <file>`. The same checker
 runs on it, and the text is recorded as `manual (Claude chat)`. A pasted text can also be committed straight into the
 text's file (with `author: ai`, `approved: false` and the hash `npm run ai:status` or `ai:check` prints): CI checks
-it on the pull request.
+it on the pull request. A week's summary without the key is simply not drafted: the week shows the cards only.
+
+**Length.** `WORD_LIMITS` (`src/lib/ai/config.ts`) holds This week's summary to 100 to 150 words. A draft outside
+it is sent back with the other problems; the owner's corrections through Edit are not held to it.
 
 ## 3. Check
 
@@ -94,14 +101,21 @@ A draft that fails is sent back once with the list of problems; a second failure
 | `none` | Not drafted | Nothing |
 | `draft` | Drafted, not approved (or drafted before this pipeline, with no hash) | Nothing; long pages show the draft banner |
 | `approved` | Approved, and its facts are unchanged | The text, with the label |
+| `skipped` | The owner tapped Skip on Telegram | Nothing; not sent for review again |
 | `stale` | Approved, but its facts changed since | Nothing (short texts); the draft banner again (long pages). The build log and `ai:status` say so |
 | `owner` | Written by the owner | The text, without the label |
 
-**Short texts** are approved with `npm run ai:approve -- <id>`. The step (`approveText`) approves only an AI draft whose
-facts are unchanged and verified and which still passes the check. `--text-hash` makes it approve only the exact
-version the owner was shown: **the Telegram review button (next task) plugs in here**. It sends the text with its
-hash (`textHash`), and on a tap the Worker starts a workflow that runs
-`npm run ai:approve -- <id> --via telegram --text-hash <hash>` and commits the result.
+**Short texts** are approved with `npm run ai:approve -- <id>` or on Telegram ([telegram.md](telegram.md)). The step
+(`approveText`) approves only an AI draft whose facts are unchanged and verified and which still passes the check.
+`--text-hash` makes it approve only the exact version the owner was shown: every draft sent for review carries its hash
+(`textHash`) in its buttons, and a tap starts a workflow (`ai-review.yml`) that runs
+`npm run ai:review -- approve <id> --text-hash <hash>` (the same step, `approvedVia: telegram`), commits the result and
+starts the deploy. On Telegram the owner can also:
+
+- **Skip** (`skipText`): the text records `skipped` and is neither published nor sent for review again. For This
+  week's summary this means the week has no summary. A redraft from new facts clears it.
+- **Edit** (`editText`): the owner's corrected text replaces the draft only if it passes the same checker (not the
+  word limit), and is then a draft again, recorded with `edited`, and sent back for Approve.
 
 **Long pages and hub intros** are approved in the pull request `ai:draft --pr` opens: the owner opens the pages on its
 Preview, edits the file in the pull request to `approved: true` with `approvedOn: "YYYY-MM-DD"`, and merges.
@@ -113,7 +127,8 @@ Templates call `publishedText(id)` (`src/lib/ai/texts.ts`) and render `src/compo
 header (instead of the template summary, which stays until a summary is approved), under the answer on alliance history
 pages and on river pages. AI texts carry the label (`.gt-ailabel`, shared with This week's summary, now in
 `src/styles/atlas/ailabel.css`) linking to Methodology's "AI drafting" section. Long pages and hubs call
-`longApproved(id)` to decide on the draft banner.
+`longApproved(id)` to decide on the draft banner. This week's summary is read by `weekSummary` (`src/lib/week.ts`)
+through the same `publishedText`, and rendered in `WeekSummary.astro` with the week's own label.
 
 ## What the owner verifies
 

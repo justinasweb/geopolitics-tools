@@ -2,7 +2,7 @@
 // checker's findings, and dropped if it fails again. The model client is passed in, so tests use a stub and nothing
 // here calls the API by itself.
 import Anthropic from '@anthropic-ai/sdk';
-import { AI_ATTEMPTS, AI_KEY_ENV, AI_MAX_TOKENS, AI_MODEL } from './config.ts';
+import { AI_ATTEMPTS, AI_KEY_ENV, AI_MAX_TOKENS, AI_MODEL, WORD_LIMITS } from './config.ts';
 import { checkDraft, problemLines, type CheckResult } from './check.ts';
 import { refusals, type FactsFile } from './facts.ts';
 import { buildPrompt, promptSections, redraftMessage } from './prompt.ts';
@@ -17,6 +17,17 @@ export type DraftOutcome =
   | { ok: true; text: string; model: string; attempts: number }
   | { ok: false; reason: 'refused' | 'failed-check'; problems: string[]; attempts: number; last?: CheckResult };
 
+/** Words in a text, as a reader counts them. */
+export const wordCount = (s: string) => s.trim().split(/\s+/).filter((w) => /[\p{L}\p{N}]/u.test(w)).length;
+
+/** The length rule for a kind of text (WORD_LIMITS), as problem lines; empty when it fits or the kind has none. */
+export function lengthProblems(text: string, kind: string): string[] {
+  const lim = WORD_LIMITS[kind];
+  if (!lim) return [];
+  const n = wordCount(text);
+  return n < lim[0] || n > lim[1] ? [`- The text has ${n} words; it must have ${lim[0]} to ${lim[1]}.`] : [];
+}
+
 /** Clean up what a model sends back: trims, drops a code fence it may wrap the text in. */
 export const cleanReply = (s: string) => s.trim().replace(/^```(?:markdown|md|text)?\n([\s\S]*?)\n```$/, '$1').trim();
 
@@ -29,14 +40,17 @@ export async function draftText(facts: FactsFile, client: DraftClient, opts: { m
   const max = opts.attempts ?? AI_ATTEMPTS;
   const messages: Turn[] = [{ role: 'user', content: user }];
   let last: CheckResult | undefined;
+  let lastProblems: string[] = [];
   for (let attempt = 1; attempt <= max; attempt++) {
     const reply = await client.complete({ model, system, messages });
     const text = cleanReply(reply.text);
     last = checkDraft(text, facts);
-    if (last.ok) return { ok: true, text, model: reply.model, attempts: attempt };
-    messages.push({ role: 'assistant', content: text }, { role: 'user', content: redraftMessage(problemLines(last), sections) });
+    const problems = [...problemLines(last), ...lengthProblems(text, facts.kind)];
+    if (!problems.length) return { ok: true, text, model: reply.model, attempts: attempt };
+    lastProblems = problems;
+    messages.push({ role: 'assistant', content: text }, { role: 'user', content: redraftMessage(problems, sections) });
   }
-  return { ok: false, reason: 'failed-check', problems: last ? problemLines(last) : [], attempts: max, last };
+  return { ok: false, reason: 'failed-check', problems: lastProblems, attempts: max, last };
 }
 
 /** Thrown when there is no API key: the scripts catch it and stop with this message. */

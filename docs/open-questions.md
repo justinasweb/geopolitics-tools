@@ -312,3 +312,31 @@ shows and hides them. The other year views do the same, but with fewer years.
   editor's Telegram and deleted within 90 days. Owner to confirm the 90-day period, and to delete reports older than
   that from the Telegram chat by hand (nothing deletes them automatically).
 
+
+## Telegram review and weekly digest: choices to confirm (raised 3 Nov 2026)
+
+Made while building the review buttons, This week's summary and the digest ([telegram.md](telegram.md)); each is easy
+to change.
+
+- **Edit asks for Approve again.** A correction that passes the check comes back with the buttons, so it is published
+  only on Approve (one more tap). It could instead be published as soon as it passes, since the owner wrote it.
+- **The correction is not held to 100–150 words.** Only drafts are; the owner's own wording is trusted on length.
+- **Commits go straight to `main`** from `ai-review.yml` and `week.yml`, with the workflow's own token. If `main` gets
+  a rule requiring pull requests, those pushes will fail; the runs would then need a bypass for GitHub Actions or a
+  token allowed to push.
+- **`TELEGRAM_CHAT_ID` must be the owner's private chat** with the bot. The Worker takes taps and replies only from a
+  private chat whose id is that value. If alerts go to a group today, the secret needs changing (alerts then go to the
+  private chat too).
+- **The three counts** in a digest without a summary are new orange and red disaster alerts, national-scale internet
+  outages and sanctions entries added (the page's count row shows only the first). A card with no new data that week
+  is left out, so a digest can show fewer than three.
+- **A summary approved after the digest's hour** is not in that week's digest, which then gives the counts. Running
+  Actions → week → digest again (with the week) sends a new one; Monday 08:00 UTC leaves about eight hours after the
+  week is archived. `DIGEST_AT` moves it.
+- **A deploy after each archived week.** Since production rebuilds only on a deploy (see "The page refreshes on
+  deploys" above), the summary run starts one so the archive page is live before the digest links to it. The digest
+  checks the page answers and tells the owner if it does not.
+- **Monthly figures in a weekly summary.** Conflict and price figures are monthly and enter the facts only when their
+  card has new data that week; the summary names their month.
+- **Link preview.** The channel post shows Telegram's preview of the archive page (its share image). It can be turned
+  off in `worker/telegram.ts`.

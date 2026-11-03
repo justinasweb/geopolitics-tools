@@ -6,12 +6,15 @@
 // stood on the week's Monday, with GDACS's alerts (data/raw/weeks/baseline/). An archived week is read as frozen and
 // never worked out again, so a source revising its data later does not change it.
 //
-// The AI summary ("The week in brief") is optional: data/raw/weeks/{id}.summary.json once the editor has approved
-// one. Without it the page shows the cards only, with no empty box.
+// The AI summary ("The week in brief") is optional: the text week:{id} of the drafting pipeline
+// (src/data/ai/texts/weeks/{id}.json, docs/ai-drafting.md), shown once the editor approved it on Telegram
+// (docs/telegram.md). A skipped week, one whose draft failed the check twice, or a run without an API key has none,
+// and the page shows the cards only, with no empty box and no notice.
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { rawDir } from '../adapters/core.ts';
 import { data } from './data.ts';
+import { publishedText } from './ai/texts.ts';
 import { place } from './places.ts';
 import { viewHref, paths } from './routes.ts';
 import { computeWeek, alertCount, hasFigures, CARD_ORDER, type AlertItem, type Card, type FeedItem, type WeekData } from './week/model.ts';
@@ -66,11 +69,11 @@ export function archivedWeeks(): Map<string, WeekData> {
 export const weekIndexed = (w: WeekData) => w.cards.some(hasFigures);
 
 export interface Summary { text: string; approved: string }
-/** The editor's approved summary for a week, if there is one. */
+/** The editor's approved summary for a week, if there is one: an approved AI draft whose facts are unchanged. */
 export function weekSummary(id: string): Summary | null {
   if (data().sample) return null;
-  const s = readJson<Partial<Summary>>(join(weeksDir(), `${id}.summary.json`));
-  return s && typeof s.text === 'string' && s.text.trim() && typeof s.approved === 'string' ? { text: s.text.trim(), approved: s.approved } : null;
+  const t = publishedText(`week:${id}`);
+  return t && t.ai && t.approvedOn ? { text: t.text, approved: t.approvedOn } : null;
 }
 
 // ---- What the page shows ---------------------------------------------------------------------------------------

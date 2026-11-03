@@ -1,0 +1,86 @@
+# This week's summary and the weekly digest (docs/telegram.md).
+#   summary   started by the data run that froze a closed week (data.yml): writes the week's facts, drafts "The week
+#             in brief" (ANTHROPIC_API_KEY), checks it and sends it to the owner on Telegram for review. The draft and
+#             facts are committed to main; nothing shows on the site until the owner taps Approve (ai-review.yml).
+#             Without the key, or if the draft fails the check twice, the week shows the cards only. It then starts
+#             the production deploy, so the week's archive page is live before the digest links to it.
+#   digest    started by the Worker's hourly cron at the digest's hour (DIGEST_AT, default Monday 08:00 UTC): sends
+#             the owner the post for the Telegram channel with a Post button. Nothing reaches the channel until the
+#             owner taps it, and nothing at all while the site is on the holding page (SITE_HOLDING).
+# Both can be run by hand: Actions → week → Run workflow, with an ISO week such as 2026-45 or empty for the last one.
+name: week
+on:
+  workflow_dispatch:
+    inputs:
+      task:
+        description: 'summary or digest'
+        required: true
+        type: choice
+        options: [summary, digest]
+        default: summary
+      week:
+        description: 'ISO week, such as 2026-45 (empty: the last closed week)'
+        required: false
+        default: ''
+permissions:
+  contents: write
+  # To start the production deploy (ci.yml) so a newly archived week's page goes live.
+  actions: write
+concurrency:
+  group: week-${{ inputs.task }}
+  cancel-in-progress: false
+env:
+  # As in ci.yml: the site is on the holding page until the repository variable SITE_HOLDING is false.
+  SITE_HOLDING: ${{ vars.SITE_HOLDING != 'false' }}
+
+jobs:
+  week:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      WEEK: ${{ inputs.week }}
+    steps:
+      - name: Nothing to post while the site is on the holding page
+        if: inputs.task == 'digest' && env.SITE_HOLDING == 'true'
+        run: echo "No digest, SITE_HOLDING is true." >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/checkout@v7
+        if: inputs.task == 'summary' || env.SITE_HOLDING != 'true'
+        with: { ref: main }
+      - uses: actions/setup-node@v7
+        if: inputs.task == 'summary' || env.SITE_HOLDING != 'true'
+        with: { node-version-file: .nvmrc, cache: npm }
+      - if: inputs.task == 'summary' || env.SITE_HOLDING != 'true'
+        run: npm ci
+      # The frozen weeks come with the snapshot (pipeline/pull.ts, data/raw/weeks/).
+      - name: Pull the latest data snapshot
+        if: inputs.task == 'summary' || env.SITE_HOLDING != 'true'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: node pipeline/pull.ts --store=r2 --out=data/raw
+      - name: Draft the week's summary and send it for review
+        id: summary
+        if: inputs.task == 'summary'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: npm run week:summary -- ${WEEK:+--week "$WEEK"}
+      - name: Commit the facts and the draft
+        if: steps.summary.outputs.commit == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/data/ai
+          git diff --cached --quiet && exit 0
+          git commit -m "This week: facts and summary draft for ${WEEK:-the last closed week}"
+          git pull --rebase origin main
+          git push origin HEAD:main
+      - name: Deploy, so the archived week's page is live
+        if: steps.summary.outputs.deploy == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run ci.yml --ref main
+      - name: Send the digest to the owner for review
+        if: inputs.task == 'digest' && env.SITE_HOLDING != 'true'
+        run: npm run week:digest -- ${WEEK:+--week "$WEEK"}

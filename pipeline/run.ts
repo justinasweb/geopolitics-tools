@@ -62,7 +62,9 @@ const stores = openStores(value('store') ?? 'dir:.data');
 if (!only) {
   // The archive never holds up the data: a failure here is a warning, and the next run tries again.
   try {
-    await weeks(stores, new Date());
+    const w = await weeks(stores, new Date());
+    // data.yml starts the week's summary (week.yml) when a week was frozen.
+    if (w.frozen && process.env.GITHUB_OUTPUT) appendFileSync(process.env.GITHUB_OUTPUT, `frozen=${w.frozen}\n`);
   } catch (e) {
     console.warn(`::warning::This week's archive: ${(e as Error).message}`);
   }
