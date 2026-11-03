@@ -20,6 +20,9 @@ export const INDICATORS: Record<string, string> = {
   'BX.KLT.DINV.CD.WD': 'Foreign direct investment, net inflows',
   'BX.TRF.PWKR.DT.GD.ZS': 'Remittances received, % of GDP',
   'NE.TRD.GNFS.ZS': 'Trade, % of GDP',
+  'IT.NET.USER.ZS': 'Individuals using the internet, % of population',
+  'BX.GSR.CCIS.CD': 'ICT service exports, BoP, current US$',
+  'BX.GSR.CCIS.ZS': 'ICT service exports, % of service exports, BoP',
 };
 const FROM = 2000;
 

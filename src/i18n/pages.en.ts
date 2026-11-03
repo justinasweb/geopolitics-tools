@@ -302,6 +302,9 @@ export const ANSWER: Record<string, { verb: string; caveats?: string[] }> = {
   coalpower: { verb: 'had the highest share of electricity from coal' },
   windsolar: { verb: 'had the highest share of electricity from wind and solar' },
   aicompute: { verb: 'had the largest share of AI computing power', caveats: ['Counts known GPU clusters in operation; many private clusters are not public.'] },
+  netuser: { verb: 'had the largest share of people using the internet', caveats: ['People who used the internet in the last three months, from national surveys and statistics that ITU gathers; how well countries measure it varies.'] },
+  ictexp: { verb: 'exported the most ICT services', caveats: ['ICT services are telecom, computer and information services sold to buyers abroad, from balance-of-payments data. They don’t include goods such as phones or chips.'] },
+  ictshare: { verb: 'had the largest share of ICT in its service exports', caveats: ['ICT services are telecom, computer and information services sold to buyers abroad, from balance-of-payments data. They don’t include goods such as phones or chips.'] },
   sanctions: { verb: 'was named in the most sanctions listings', caveats: ['Counts measure how many targets a list names, not how severe the measures are.'] },
   chinaloans: { verb: 'received the most Chinese loans and grants', caveats: ['Commitments, not disbursements: what was agreed, not what was paid out.'] },
 };
@@ -382,6 +385,10 @@ export const SOURCE_NOTE: Record<string, string> = {
   gdppc: 'World Bank', sanctions: 'US CSL; EU sanctions list; UK Sanctions List',
   entitylist: 'US Consolidated Screening List (Entity List)',
   outages: 'IODA (Georgia Tech)',
+  // The original publisher as the World Bank's series metadata names it, then the World Bank and its licence.
+  netuser: 'ITU World Telecommunication/ICT Indicators Database, via World Bank, CC BY 4.0',
+  ictexp: 'IMF Balance of Payments Statistics, via World Bank, CC BY 4.0',
+  ictshare: 'IMF Balance of Payments Statistics, via World Bank, CC BY 4.0',
   sanctionsus: 'US CSL (SDN list)', sanctionseu: 'EU sanctions list', sanctionsuk: 'UK Sanctions List',
 };
 
@@ -456,6 +463,9 @@ export const DEFINITION: Record<string, string> = {
   satellites: 'Payloads in orbit at the end of the year, counted by owning country, whether working or not.',
   launches: 'Orbital launches in the year that put at least one satellite in orbit, counted for the country of the launch site.',
   aicompute: 'The country’s share of the computing power of known AI supercomputers in operation, in H100-equivalents.',
+  netuser: 'Share of the population who used the internet in the last three months, from any place and on any device: computer, phone, games machine or TV.',
+  ictexp: 'Exports of telecom, computer and information services, in current US dollars, as each country reports them in its balance of payments.',
+  ictshare: 'ICT service exports as a share of all the country’s service exports, from its balance of payments.',
   sanctions: 'Listings on the US Consolidated Screening List, the EU financial sanctions list and the UK Sanctions List that give the country as an address or nationality.',
   chinaloans: 'Loans and grants committed by Chinese government and state-owned lenders, in constant 2021 US dollars.',
 };

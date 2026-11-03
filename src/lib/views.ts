@@ -156,10 +156,21 @@ export function worldChange(p: ViewPage, y: number): number | null {
 
 /** A change as the layer writes it: "+12%", or for share layers in percentage points ("+3.1 pts"). */
 export function changeText(p: ViewPage, ch: number): string {
-  const sign = ch > 0 ? '+' : ch < 0 ? '−' : '';
-  return p.layer.points
-    ? W.points(`${sign}${new Intl.NumberFormat('en', { maximumFractionDigits: 1, minimumFractionDigits: 1 }).format(Math.abs(ch * 100))}`)
-    : `${sign}${new Intl.NumberFormat('en', { maximumFractionDigits: 0 }).format(Math.abs(ch * 100))}%`;
+  const digits = p.layer.points ? 1 : 0;
+  const n = new Intl.NumberFormat('en', { maximumFractionDigits: digits, minimumFractionDigits: digits }).format(Math.abs(ch * 100));
+  // A change that rounds to zero has no sign ("0%", "0.0 pts").
+  const sign = !/[1-9]/.test(n) ? '' : ch > 0 ? '+' : '−';
+  return p.layer.points ? W.points(`${sign}${n}`) : `${sign}${n}%`;
+}
+
+/** Below this, a total in the year before (money with `millions`) is too small for a percentage change to mean anything. */
+const MONEY_BASE = 1e6;
+
+/** A place's change from the year before: in points for share layers, else as a share; none from a total under $1 m. */
+export function placeChange(p: ViewPage, now: number, before: number): number | null {
+  if (p.layer.points) return now - before;
+  if (!before || (p.format.kind === 'money' && p.format.millions && Math.abs(before) < MONEY_BASE)) return null;
+  return now / before - 1;
 }
 
 /** A change's size without its sign, for sentences: "4.2%", or "1.3 pts" ("1.3 percentage points" with `long`). */
@@ -205,7 +216,7 @@ export function summary(p: ViewPage, year = p.year): string[] {
   } else if (p.layer.sums) {
     const top = y.rows.slice(0, 3);
     const together = top.length === 3 ? shareOf(top.reduce((s, r) => s + r.value, 0), y.world) : null;
-    first.push(W.top(top.map((r, i) => W.topPart(inSentence(nameOf(r.id), i === 0), valueText(p, r.value), shareOf(r.value, y.world))), together));
+    first.push(W.top(top.map((r, i) => W.topPart(inSentence(nameOf(r.id), i === 0), valueText(p, r.value), shareOf(r.value, y.world))), together, p.text.totalOf?.phrase));
   } else {
     first.push(W.topNoShare(y.rows.slice(0, 3).map((r) => W.topPart(inSentence(nameOf(r.id)), valueText(p, r.value), null))));
   }

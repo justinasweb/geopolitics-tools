@@ -340,3 +340,23 @@ to change.
   card has new data that week; the summary names their month.
 - **Link preview.** The channel post shows Telegram's preview of the archive page (its share image). It can be turned
   off in `worker/telegram.ts`.
+
+## Internet use and ICT service exports (3 Nov 2026)
+
+Made while adding `/internet/users` and `/internet/ict-exports` (spec D18, [maps.md](maps.md)).
+
+- **No Estimate tag on internet use.** ITU fills gaps with its own estimates for countries that don't report, but the
+  World Bank API marks no value as an estimate (`obs_status` is empty on every row) and the series metadata doesn't
+  call it modelled. So the layer carries no Estimate tag; the caveat says measurement varies between countries. Tagging
+  estimates would need ITU's own files, whose DataHub licence is CC BY-NC-SA 3.0 IGO.
+- **What counts as ICT services.** The page says "telecom, computer and information services", as BPM6 (the basis
+  of these figures) groups them. The World Bank's long definition still lists postal and courier services under
+  communications, an older BPM5 wording.
+- **Latest years.** Both default to 2024: internet use has 182 countries for 2024 and 10 for 2025; ICT exports 162 for
+  2024 and 133 for 2025. 2025 shows once enough countries report, by the usual coverage rule.
+- **Ireland first in ICT exports** ($305 bn in 2024, 24% of the total reported). A place note says much of it is
+  services sold by multinational firms' Irish subsidiaries, booked in Ireland (`PLACE_NOTES.ictexp`).
+- **Totals under $1 m.** ICT exports write any figure under a million dollars as "under $1 m", and show no percentage
+  change from one (`millions` on the money format). Other money measures keep exact small figures, since GDP per
+  person is money too; chip imports and Chinese lending could take the flag if wanted.
+- **The menu still opens Internet at outages**, its first layer; users or ICT exports could come first instead.

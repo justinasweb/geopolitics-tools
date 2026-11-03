@@ -10,7 +10,7 @@ interface Props {
   min: number;
   max: number;
   value?: number;
-  /** Ticks to label (default: every other year, ending on max). */
+  /** Ticks to label (default: up to six, evenly spread, the first and the last always, so each sits where its year is). */
   ticks?: number[];
   /** Years the source marks as estimates. */
   estimated?: number[];
@@ -26,8 +26,8 @@ interface Props {
 }
 const { id, min, max, value = max, estimated = [], play = true, disabled = false, tags, labels, label = YEAR_TEXT.year, step: stop = 1 } = Astro.props;
 const word = (v: number) => labels?.[v] ?? v;
-const step = Math.max(1, Math.ceil((max - min) / 5));
-const ticks = Astro.props.ticks ?? Array.from({ length: Math.floor((max - min) / step) + 1 }, (_, i) => max - (Math.floor((max - min) / step) - i) * step);
+const k = Math.min(5, max - min);
+const ticks = Astro.props.ticks ?? [...new Set(Array.from({ length: k + 1 }, (_, i) => min + Math.round((i * (max - min)) / Math.max(1, k))))];
 ---
 <div class:list={["gt-years", { "gt-years--noplay": !play, "gt-years--two": max - min === 1 }]} data-gt-years data-est={estimated.join(' ')} data-labels={labels ? JSON.stringify(labels) : undefined}>
   {play && <button class="gt-play" type="button" aria-label={YEAR_TEXT.play} disabled={disabled}></button>}

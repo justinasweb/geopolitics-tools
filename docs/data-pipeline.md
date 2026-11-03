@@ -105,7 +105,7 @@ as the rest of the pipeline does. Week files are a few kilobytes and are never r
 | CelesTrak SATCAT | 1 day | 10 days | The whole satellite catalogue |
 | US Consolidated Screening List | 1 day | 10 days | All records, trimmed to list, programmes, country, dates |
 | EU sanctions list | 1 day | 10 days | Entity rows: type, programme, dates, countries |
-| World Bank Indicators | 7 days | 45 days | 14 indicators since 2000, aggregates dropped |
+| World Bank Indicators | 7 days | 45 days | 17 indicators since 2000, aggregates dropped |
 | US Treasury TIC | 7 days | 45 days | Table 5, major foreign holders, last 13 months |
 | Epoch AI | 7 days | 60 days | Notable AI models, GPU clusters |
 | Our World in Data CO2 | 30 days | 400 days | 20 columns from 1990 |

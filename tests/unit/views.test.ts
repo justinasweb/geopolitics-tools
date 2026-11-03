@@ -65,6 +65,18 @@ describe('registry map views', () => {
       for (const s of V.summary(p)) expect(s).not.toMatch(/undefined|NaN/);
     }
   });
+  it('writes no sign on a change that rounds to zero, and no change from a tiny money figure', () => {
+    type P = Parameters<Views['changeText']>[0];
+    const pts = { layer: { points: true }, format: { kind: 'share' } } as unknown as P;
+    const usd = { layer: {}, format: { kind: 'money', millions: true } } as unknown as P;
+    expect(V.changeText(usd, -0.003)).toBe('0%');
+    expect(V.changeText(pts, -0.0002)).toBe('0.0 pts');
+    expect(V.changeText(usd, 0.12)).toBe('+12%');
+    expect(V.placeChange(usd, 16_311_722, 32_624)).toBeNull();
+    expect(V.placeChange(usd, 383e6, 85e6)).toBeCloseTo(3.506, 2);
+    expect(V.placeChange(pts, 0.41, 0.4)).toBeCloseTo(0.01);
+  });
+
   it('splits a refugees figure into the three groups UNHCR adds together', () => {
     for (const id of ['refout', 'refin']) {
       const p = V.viewPage(id)!;

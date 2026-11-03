@@ -58,6 +58,9 @@ before and without the map script.
   page's live region.
 - **Reduced motion.** No fades, instant zooms, and a slower play.
 
+Year sliders label up to six ticks, evenly spread, the first and the last always (`YearSlider`), so the first tick is
+the slider's first year; the slider runs over every year with at least half the default year's coverage.
+
 ## The Atlas (phase 6)
 
 `/atlas` (`src/templates/AtlasPage.astro`, `src/lib/atlas.ts`, `src/scripts/atlas.ts`): one full-screen map with the
@@ -321,6 +324,20 @@ country's latest IPC or Cadre Harmonisé analysis starting in the year. A countr
 analysis", never "No data" or zero. The total covers the countries analysed, which change from year to year, so its
 change is not shown. A country's panel gives its latest analysis by phase; the page lists countries with people in
 Phase 5, which counts people in catastrophe, not famine (an area classification this endpoint does not give).
+
+## Internet (phase 6)
+
+`/internet` itself waits for a cable source (`rootWaits`), so each layer has its own address: `/internet/outages`
+(IODA, last 12 months), `/internet/users` and `/internet/ict-exports` (spec D18). Users is the registry's `netuser`,
+ITU's share of people who used the internet in the last three months, as the World Bank publishes it
+(`IT.NET.USER.ZS`), stored as a share so changes are in percentage points, on fixed bands of 20%. ICT exports is
+`ictexp`, telecom, computer and information services exported, in current US$, from IMF balance-of-payments data via
+the World Bank (`BX.GSR.CCIS.CD`); the total covers the countries that report, which change from year to year, so its
+change is not shown (`noTotalChange`). A country's panel adds the same exports as a share of its service exports
+(`ictshare`, `BX.GSR.CCIS.ZS`) in the year shown. Its money format has `millions`: figures under $1 m read "under $1 m"
+and get no percentage change, which would otherwise run to thousands of percent (Sudan, $33,000 to $16 m). Ireland has
+a place note on multinational firms' subsidiaries. The API marks no value as an estimate, so neither layer carries the
+Estimate tag. Credits name the original publisher, then "via World Bank, CC BY 4.0".
 
 ## Nuclear weapons (phase 5a)
 

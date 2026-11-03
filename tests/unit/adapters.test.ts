@@ -55,6 +55,24 @@ describe('adapters on the prototype samples', () => {
     expect(matchReports().every((r) => r.includes('every'))).toBe(true);
   });
 
+  it('internet use and ICT export shares as shares (0–1), ICT exports in US$', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'gt-wb-'));
+    mkdirSync(join(dir, 'worldbank'));
+    const write = (code: string, v: number) => writeFileSync(join(dir, 'worldbank', `${code}.json`), JSON.stringify([{ page: 1, pages: 1, total: 2 }, [
+      { countryiso3code: 'NGA', date: '2024', value: v }, { countryiso3code: 'NGA', date: '2023', value: null },
+    ]]));
+    write('IT.NET.USER.ZS', 41.2);
+    write('BX.GSR.CCIS.CD', 2.5e9);
+    write('BX.GSR.CCIS.ZS', 18);
+    const reg = registry(rawDir(dir));
+    expect(Object.keys(reg.get('netuser').NGA)).toEqual(['2024']);
+    expect(reg.get('netuser').NGA[2024]).toBeCloseTo(0.412);
+    expect(reg.get('ictexp').NGA[2024]).toBe(2.5e9);
+    expect(reg.get('ictshare').NGA[2024]).toBeCloseTo(0.18);
+    expect(INDICATORS.netuser.group).toBe('tech');
+    expect(formatValue(reg.get('netuser').NGA[2024], INDICATORS.netuser.format)).toBe('41%');
+  });
+
   it('UNHCR origins, hosts, internally displaced and pairs', () => {
     const d = displacement(raw);
     expect(Object.keys(d.origin)).toContain('SYR');
@@ -159,6 +177,16 @@ describe('indicator registry and flows', () => {
   it('formats values the registry way', () => {
     expect(formatValue(2.345e12, { kind: 'money' })).toBe('$2.35 tn');
     expect(formatValue(-4.2e9, { kind: 'money' })).toBe('−$4.2 bn');
+    // Units are picked after rounding; sums under a million are not written to the dollar.
+    expect(formatValue(999_640_274, { kind: 'money' })).toBe('$1.0 bn');
+    expect(formatValue(999_400_000, { kind: 'money' })).toBe('$999 m');
+    expect(formatValue(9.96e9, { kind: 'money' })).toBe('$10 bn');
+    expect(formatValue(32_624, { kind: 'money', millions: true })).toBe('under $1 m');
+    expect(formatValue(-300_000, { kind: 'money', millions: true })).toBe('−$0.3 m');
+    expect(formatValue(0, { kind: 'money', millions: true })).toBe('$0');
+    expect(formatValue(2_512, { kind: 'money' })).toBe('$2,512');
+    // A value that rounds to zero has no sign.
+    expect(formatValue(-0.0001, { kind: 'share' })).toBe('0.0%');
     expect(formatValue(8_123_456, { kind: 'count' })).toBe('8.1 m');
     expect(formatValue(0.053, { kind: 'share' })).toBe('5.3%');
     expect(formatValue(12.345, { kind: 'percent', digits: 1 })).toBe('12.3%');
