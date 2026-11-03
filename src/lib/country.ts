@@ -21,7 +21,8 @@ export const DOSSIERS = ['USA', 'CHN', 'RUS'];
 /** Key figures, in order, with the measure that replaces one when the place has no value for it. */
 const KEY_FIGURES: [string, string?][] = [['gdp'], ['population'], ['gdppc'], ['milpct', 'milusd'], ['co2pc', 'co2']];
 
-/** A mineral counts as "what it dominates" from this share of world mine production. */
+/** A mineral is listed in the minerals section ("Where it supplies 10% or more of the world") from this share of world
+ *  mine production. */
 export const MINERAL_SHARE = 0.1;
 /** Fewer figures than this, and the profile is built but not indexed (the indexing rule; ThinProfile design). */
 export const THIN_BELOW = 4;

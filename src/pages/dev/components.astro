@@ -10,6 +10,8 @@ import Lockup from '../../components/Lockup.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import PageToc from '../../components/PageToc.astro';
 import SourceLine from '../../components/SourceLine.astro';
+import CorrectionForm from '../../components/CorrectionForm.astro';
+import CorrectionLink from '../../components/CorrectionLink.astro';
 import StatusTag from '../../components/StatusTag.astro';
 import Notice from '../../components/Notice.astro';
 import KeyFigure from '../../components/KeyFigure.astro';
@@ -204,6 +206,13 @@ const typeStyles = tokens.type.groups.flatMap((g) => g.styles.map((s) => ({ ...s
         <SourceLine source={USGS} updated={UPDATED} status="estimate" citation={CITE} />
         <SourceLine source={USGS} updated={UPDATED} citeDisabled />
       </div>
+      <div class="gt-ndemo gt-ndemo--2">
+        <section><h3 class="gt-label">Correction form · the link on every source line and in the footer (opens the live dialog)</h3>
+          <p class="gt-source"><span>Page last updated 21 Oct 2026</span><span class="gt-source__sep" aria-hidden="true">·</span><a href="/methodology">How we measure</a><span class="gt-source__sep" aria-hidden="true">·</span><CorrectionLink /></p>
+        </section>
+        <section><h3 class="gt-label">Dialog (a sheet on phone)</h3><div class="gt-corrbox"><CorrectionForm preview="form" /></div></section>
+        <section><h3 class="gt-label">After sending</h3><div class="gt-corrbox"><CorrectionForm preview="done" /></div></section>
+      </div>
       <div class="dev__cell"><span class="dev__cap">Status tags · default and small</span>
         <div class="dev__line">{(['estimate', 'projection', 'preliminary', 'notyet'] as const).map((s) => <StatusTag status={s} />)}</div>
         <div class="dev__line">{(['estimate', 'projection', 'preliminary', 'notyet'] as const).map((s) => <StatusTag status={s} small />)}</div>
@@ -384,6 +393,7 @@ const typeStyles = tokens.type.groups.flatMap((g) => g.styles.map((s) => ({ ...s
       </div>
     </section>
   </main>
+  <CorrectionForm />
 </Base>
 
 <style>
@@ -399,7 +409,7 @@ const typeStyles = tokens.type.groups.flatMap((g) => g.styles.map((s) => ({ ...s
   .dev__three { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
   .dev__line { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
   /* The open mega menu only exists at desktop widths; on a phone the demo would be an empty box. */
-  @media (max-width: 759px) { .dev__deskonly { display: none; } }
+  @media (max-width: 759px) { .dev__deskonly { display: none; } .dev :global(.gt-ndemo--2) { grid-template-columns: minmax(0, 1fr); } }
   .dev__desk { border: 1px solid var(--rule); background: var(--paper); container: page / inline-size; }
   .dev__phone { width: 390px; max-width: min(100%, calc(100vw - 32px)); border: 1px solid var(--rule); background: var(--paper); overflow: hidden; container: page / inline-size; }
   .dev__pad { padding: 16px; }

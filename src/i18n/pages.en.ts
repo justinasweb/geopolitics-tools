@@ -88,7 +88,8 @@ export const COUNTRY_TEXT = {
   onThisPage: 'On this page',
   jumpTo: 'Jump to',
   backToTop: 'Back to top',
-  mineralsHeading: 'What it dominates',
+  /** The minerals section: every mineral where its share of world production is at least `pct`%. */
+  mineralsHeading: (pct: number) => `Where it supplies ${pct}% or more of the world`,
   mineralsMenu: 'Minerals',
   mineralsBars: (c: string, year: number) => `${possessive(c)} share of world production, ${year}`,
   /** After a mineral counted as primary production, not mine production (gallium). */

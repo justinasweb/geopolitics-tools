@@ -295,3 +295,20 @@ shows and hides them. The other year views do the same, but with fewer years.
 - Write only the latest year's panel into the HTML and draw the others from the layer file (`/map/nuclear-warheads.json`),
   as the Atlas panel does; years then need the script.
 - Write every fifth year plus the latest, and draw the rest from the layer file.
+
+## Correction form (raised 3 Nov 2026)
+
+**What the site does now.** Reports go only to Telegram, from production. Open points for the owner:
+- **Previews cannot send.** They have no Telegram secrets, so the form shows its "cannot be sent from here" message there.
+  To try it end to end on a Preview, the Telegram secrets would need adding to Previews (or a separate test chat).
+- **Rate limit binding.** The Cloudflare docs could not be read from the build session; the binding is configured from
+  wrangler 4.152's own schema (`ratelimits`, 5 a minute), and `wrangler dev` loads it. If the first deploy rejects it
+  on this plan, remove the `ratelimits` entries: the Worker then falls back to a weaker per-isolate limit by itself.
+- **Minimum fill time** is 3 seconds and measured by the page, so a determined script can fake it; the rate limit is
+  the real brake. A signed server timestamp would be stronger but needs a new secret.
+- **Source line links.** Every source line now ends with "Report a correction". On pages with many charts that is a
+  lot of repeated links; the alternative is the footer link alone plus one per section.
+- **Privacy wording.** The Privacy page (still `approved: false`) and the form's email hint say reports are kept in the
+  editor's Telegram and deleted within 90 days. Owner to confirm the 90-day period, and to delete reports older than
+  that from the Telegram chat by hand (nothing deletes them automatically).
+

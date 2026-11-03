@@ -1,5 +1,5 @@
 // Checks a running copy of the site (local `wrangler dev` or a deployed preview/production URL):
-// status codes, clean URLs, the 404 page, the API, then the home page in a browser at desktop and phone width.
+// status codes, clean URLs, the 404 page, the API (the correction endpoint refuses an empty report), then the home page in a browser at desktop and phone width.
 // Usage: BASE=https://… node tests/e2e/smoke.mjs [screenshot dir]
 // Behind Cloudflare Access, set CF_ACCESS_CLIENT_ID and CF_ACCESS_CLIENT_SECRET (a service token).
 import { mkdirSync } from 'node:fs';
@@ -69,6 +69,11 @@ check(robots.status === 200 && (expectIndexable ? /Allow: \//.test(robotsText) :
 
 const health = await get('/api/health');
 check(health.status === 200 && (await health.json()).ok === true, `/api/health answers (got ${health.status})`);
+
+// The correction endpoint: an empty report is refused with its code, and never reaches Telegram.
+const corr = await fetch(base + '/api/correction', { method: 'POST', headers: { ...headers, 'Content-Type': 'application/json' }, body: JSON.stringify({ message: '', page: '/', elapsed: 10_000 }) });
+const corrBody = await corr.json().catch(() => ({}));
+check([400, 429].includes(corr.status) && ['required', 'rate_limited'].includes(corrBody.error), `/api/correction refuses an empty report (got ${corr.status} ${corrBody.error})`);
 
 const favicon = await get('/favicon.svg');
 check(favicon.status === 200, `favicon loads (got ${favicon.status})`);
@@ -190,6 +195,35 @@ for (const [name, viewport] of [['desktop', { width: 1440, height: 900 }], ['pho
     check(await page.evaluate(() => document.querySelector('[data-gt-menu]').hidden && window.scrollY === 20 && !document.querySelector('main').inert), `${name}: the menu button closes the menu, at the same scroll`);
   }
   check(errors.length === 0, `${name}: the header has no console errors${errors.length ? ` (${errors.join('; ')})` : ''}`);
+
+  // The correction form (never sent here: that would reach the owner's Telegram). From the keyboard: Enter on the
+  // footer link opens the dialog with focus in "What is wrong?"; Esc closes it and focus returns to the link; Shift+Tab
+  // reaches Close, which closes it too. On a source line the link opens the same dialog. Nothing wider than the screen.
+  errors.length = 0;
+  const dialogOpen = () => page.evaluate(() => document.querySelector('dialog[data-gt-corr-dialog]')?.open ?? false);
+  const foot = page.locator('.gt-footer .gt-corrlink');
+  check(/^mailto:data@geopolitics\.tools\?subject=/.test(await foot.getAttribute('href') ?? ''), `${name}: Report a correction falls back to an email link`);
+  await foot.focus();
+  await page.keyboard.press('Enter');
+  check(await dialogOpen(), `${name}: Enter on Report a correction opens the form`);
+  check(await page.evaluate(() => document.activeElement?.getAttribute('name') === 'message'), `${name}: the form opens with focus in What is wrong?`);
+  check(await page.evaluate(() => { const d = document.querySelector('dialog[data-gt-corr-dialog]').getBoundingClientRect(); return d.left >= 0 && d.right <= window.innerWidth && document.documentElement.scrollWidth <= window.innerWidth; }), `${name}: the form fits the screen`);
+  await page.keyboard.press('Escape');
+  check(!(await dialogOpen()), `${name}: Esc closes the form`);
+  check(await page.evaluate(() => document.activeElement?.closest('.gt-footer') !== null && document.activeElement?.matches('.gt-corrlink')), `${name}: closing the form returns focus to its link`);
+  await page.keyboard.press('Enter');
+  await page.keyboard.press('Shift+Tab');
+  check(await page.evaluate(() => document.activeElement?.matches('[data-gt-corr-dialog] [data-gt-corr-close]')), `${name}: Shift+Tab from the first field reaches Close`);
+  await page.keyboard.press('Enter');
+  check(!(await dialogOpen()), `${name}: Close closes the form from the keyboard`);
+  const sourceLink = page.locator('.gt-source .gt-corrlink').first();
+  if (await sourceLink.count()) {
+    await sourceLink.focus();
+    await page.keyboard.press('Enter');
+    check(await dialogOpen(), `${name}: a source line's Report a correction opens the form`);
+    await page.keyboard.press('Escape');
+  }
+  check(errors.length === 0, `${name}: the correction form has no console errors${errors.length ? ` (${errors.join('; ')})` : ''}`);
 
   // Bloc overlap: the matrix (or, on a phone, two blocs side by side) and the membership table draw, India is the
   // bridge country, and choosing blocs goes into the address.

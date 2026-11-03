@@ -15,7 +15,10 @@
 .gt-social { display: inline-grid; place-items: center; width: 40px; height: 40px; color: var(--ink); border: 1px solid transparent; }
 .gt-social svg { width: 18px; height: 18px; fill: currentColor; }
 .gt-social:hover, .gt-social.is-hover { border-color: var(--rule-strong); background: var(--paper-sunk); }
-.gt-footer__base { border-top: 1px solid var(--rule); padding-top: 14px; margin: 0; font: 400 13px/18px var(--sans); color: var(--ink-muted); }
+.gt-footer__base { border-top: 1px solid var(--rule); padding-top: 14px; margin: 0; font: 400 13px/18px var(--sans); color: var(--ink-muted);
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 24px; }
+.gt-footer__base p { margin: 0; min-width: 0; flex: 1 1 32ch; }
+.gt-footer__base .gt-corrlink { min-height: 44px; font: 600 14px/20px var(--sans); }
 @container (max-width: 759px) {
   .gt-footer__in { padding: 24px 16px 20px; gap: 16px; }
   .gt-footer__row, .gt-footer__end { display: grid; gap: 12px; justify-content: stretch; }
