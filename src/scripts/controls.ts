@@ -57,7 +57,14 @@ function combo(el: HTMLElement) {
   };
   const render = () => {
     const q = input.value.trim().toLowerCase();
-    shown = opts.filter((o) => !q || o.name.toLowerCase().includes(q)).slice(0, 8);
+    shown = opts.filter((o) => !q || o.name.toLowerCase().includes(q));
+    // data-rank="prefix" (the homepage's search over many kinds of page): names starting with what was typed first,
+    // then names with a word starting with it, then the rest, each in the list's own order.
+    if (q && el.dataset.rank === 'prefix') {
+      const score = (n: string) => (n.startsWith(q) ? 0 : n.includes(` ${q}`) ? 1 : 2);
+      shown = shown.map((o, i) => ({ o, i, s: score(o.name.toLowerCase()) })).sort((a, b) => a.s - b.s || a.i - b.i).map((x) => x.o);
+    }
+    shown = shown.slice(0, 8);
     list.replaceChildren(...(shown.length ? shown.map((o, i) => {
       const li = document.createElement('li');
       li.setAttribute('role', 'option');

@@ -132,6 +132,22 @@ export const NAV_TEXT = {
   footer: { about: 'About', methodology: 'Methodology', sources: 'Sources', privacy: 'Privacy' } as Record<string, string>,
 };
 
+// The homepage hero's tool row (HeroToolRow design): each tool's name and one plain line of at most about 45
+// characters, no figures. Supply chains counts its goods from the flows that are live.
+export const TRAIL_TEXT = {
+  label: 'Or open a tool',
+  how: 'How the tools work',
+  tools: {
+    atlas: ['Atlas', 'Every map layer on one map'],
+    explorer: ['Explorer', 'Any measure as a table, lines or scatter'],
+    dependencies: ['Dependencies', 'Who imports what, and from whom'],
+    'supply-chains': ['Supply chains', 'Supplier to buyer flows'],
+    'blocs-overlap': ['Bloc overlap', 'Countries that sit in more than one bloc'],
+    'this-week': ['This week', 'Disasters, conflict and prices, updated daily'],
+  } as Record<string, [string, string]>,
+  goods: (n: number) => `Supplier to buyer flows for ${n} ${n === 1 ? 'good' : 'goods'}`,
+};
+
 export const UI_TEXT = {
   home: 'geopolitics.tools home',
   mainNav: 'Main',

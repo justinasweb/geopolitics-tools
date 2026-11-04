@@ -1,0 +1,178 @@
+---
+// The homepage (HomepageOptionC design, spec D19): hero option C (headline and lede, the big search with Try links,
+// the tool row, three worked questions), the This week strip, Explore by topic, Questions to start from, Countries
+// and rankings, and the trust strip. Everything is in the HTML; the only script is the search. No map. Model:
+// src/lib/home.ts.
+import Page from '../layouts/Page.astro';
+import CountrySearch from '../components/CountrySearch.astro';
+import Icon from '../components/Icon.astro';
+import StatusTag from '../components/StatusTag.astro';
+import ToolIcon from '../components/ToolIcon.astro';
+import '../styles/atlas/source.css';
+import '../styles/atlas/tags.css';
+import '../styles/atlas/filters.css';
+import '../styles/atlas/week.css';
+import '../styles/atlas/hub.css';
+import '../styles/atlas/home.css';
+import { HOME_TEXT as T } from '../i18n/home.en';
+import { SOURCE_TEXT, TRAIL_TEXT } from '../i18n/en';
+import { places, questionCards, questions, searchOptions, toolRow, topics, trust, tryLinks, weekStrip } from '../lib/home';
+import { hashRedirectScript, live, paths } from '../lib/routes';
+import { website } from '../lib/structured';
+
+const tools = toolRow();
+const cards = questionCards();
+const week = weekStrip();
+const hubs = topics();
+const qs = questions();
+const pl = places();
+const tr = trust();
+const tries = tryLinks();
+const method = live('page:methodology')?.path;
+const countryOptions = searchOptions().filter((o) => o.note === T.kind.country || o.note === T.kind.dossier || o.note === T.kind.territory);
+---
+<Page title={T.title} description={T.description} mainClass="gt-home" jsonld={[website()]}>
+  <script is:inline set:html={hashRedirectScript()} />
+  <section class="gt-hero gt-hero--c">
+    <div class="gt-hero__lead">
+      <h1 class="gt-display">{T.headline}</h1>
+      <p class="gt-lede">{T.lede}</p>
+    </div>
+    <form class="gt-bigsearch" role="search" data-home-search>
+      <label class="gt-vh" for="home-q-i">{T.search}</label>
+      <div class="gt-combo" id="home-q" data-gt-combo data-rank="prefix" data-options={JSON.stringify(searchOptions())} data-empty={T.searchEmpty}>
+        <div class="gt-bigsearch__box">
+          <Icon name="search" />
+          <input id="home-q-i" type="search" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="home-q-l" placeholder={T.search} autocomplete="off" />
+          <button class="gt-btn" type="submit">{T.searchButton}</button>
+        </div>
+        <ul class="gt-combo__list" role="listbox" id="home-q-l" hidden></ul>
+      </div>
+      {tries.length > 0 && <p class="gt-bigsearch__try"><span>{T.try}</span>{tries.map((t) => <a href={t.href}>{t.label}</a>)}</p>}
+    </form>
+
+    {tools.length > 0 && (
+      <nav class="gt-trail" aria-labelledby="home-tools">
+        <div class="gt-trail__head">
+          <h2 class="gt-label" id="home-tools">{TRAIL_TEXT.label}</h2>
+          {method && <a class="gt-trail__all" href={method}>{TRAIL_TEXT.how} <span aria-hidden="true">→</span></a>}
+        </div>
+        <ul class="gt-trail__list">
+          {tools.map((t) => (
+            <li class="gt-trail__item"><a href={t.href}><ToolIcon tool={t.id} circles /><span class="gt-trail__name">{t.name}</span><span class="gt-trail__desc">{t.desc}</span></a></li>
+          ))}
+        </ul>
+      </nav>
+    )}
+
+    {cards.length > 0 && (
+      <div class="gt-hero__qs">
+        <h2 class="gt-label">{T.questions}</h2>
+        <ul class="gt-qcards">
+          {cards.map((c) => (
+            <li class="gt-qcard">
+              <h3 class="gt-qcard__q"><a href={c.href}>{c.q}</a></h3>
+              <p class="gt-qcard__m">{c.measure}</p>
+              {c.bars && (
+                <ol class="gt-qbars">
+                  {c.bars.map((b) => <li><span class="gt-qbars__name">{b.name}</span><span class="gt-qbars__track"><span style={`width:${b.width.toFixed(1)}%`}></span></span><span class="gt-qbars__val">{b.value}</span></li>)}
+                </ol>
+              )}
+              {c.dep && (
+                <div class="gt-dep">
+                  <div class="gt-dep__bar" role="img" aria-label={c.dep.label}>{c.dep.segments.map((s) => <span class={`gt-dep__${s.cls}`} style={`width:${s.width.toFixed(1)}%`}></span>)}</div>
+                  <p class="gt-dep__num"><b>{c.dep.num}</b> {c.dep.lead}</p>
+                  <ul class="gt-dep__key">{c.dep.segments.map((s) => <li><i class={`gt-dep__${s.cls}`}></i>{s.label}</li>)}</ul>
+                  <p class="gt-dep__note">{c.dep.note}</p>
+                </div>
+              )}
+              <p class="gt-source">
+                <span>{SOURCE_TEXT.source} <b>{c.source}</b></span>
+                {c.parts.map((p) => <><span class="gt-source__sep" aria-hidden="true">·</span><span>{p}</span></>)}
+                {c.status && <><span class="gt-source__sep" aria-hidden="true">·</span><StatusTag status={c.status} small /></>}
+              </p>
+              <span class="gt-qcard__go" aria-hidden="true">{c.go} <span>→</span></span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
+  </section>
+
+  {week && (
+    <section class="gt-weekstrip" aria-labelledby="home-week">
+      <div class="gt-weekstrip__head"><h2 class="gt-label" id="home-week">{T.week}</h2><span class="gt-caption">{week.range} · {T.weekUpdated}</span></div>
+      {week.counts.length > 0 ? (
+        <ul aria-label={T.weekLabel}>
+          {week.counts.map((c) => <li><a href={week.href}><b class="gt-weekstrip__num">{c.num}</b><span>{c.label}</span></a><span class="gt-weekstrip__src">{c.source}</span></li>)}
+        </ul>
+      ) : <span></span>}
+      <a class="gt-weekstrip__more" href={week.href}>{T.weekMore} <span aria-hidden="true">→</span></a>
+    </section>
+  )}
+
+  {hubs.length > 0 && (
+    <section class="gt-sec" aria-labelledby="home-topics">
+      <div class="gt-sechead"><div><h2 class="gt-h2" id="home-topics">{T.topics}</h2></div></div>
+      <ul class="gt-topics">
+        {hubs.map((h) => (
+          <li class="gt-topic">
+            <h3 class="gt-h3">{h.href ? <a href={h.href}>{h.name}</a> : h.name}</h3>
+            {h.line && <p>{h.line}</p>}
+            <ul>{h.views.map((v) => <li><a href={v.href}>{v.label}</a></li>)}</ul>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+
+  {qs.length > 0 && (
+    <section class="gt-sec" aria-labelledby="home-qs">
+      <div class="gt-sechead"><div><h2 class="gt-h2" id="home-qs">{T.startFrom}</h2></div></div>
+      <ol class="gt-qlist">
+        {qs.map((q) => <li><a href={q.href}><span class="gt-qlist__q">{q.label}</span><span class="gt-qlist__to">{q.to}</span></a></li>)}
+      </ol>
+    </section>
+  )}
+
+  <section class="gt-sec" aria-labelledby="home-places">
+    <div class="gt-sechead"><div><h2 class="gt-h2" id="home-places">{T.countries}</h2></div></div>
+    <div class="gt-cr">
+      <div class="gt-cr__c">
+        <CountrySearch id="home-cs" label={T.findCountry} placeholder={T.findPlaceholder} options={countryOptions.map((o) => ({ name: o.name, note: o.note === T.kind.country ? undefined : o.note, href: o.href }))} />
+        {pl.dossiers.length > 0 && (
+          <ul class="gt-dossiers">
+            {pl.dossiers.map((d) => <li><a class="gt-doss" href={d.href}><span class="gt-label">{T.dossier}</span><span class="gt-doss__name">{d.label}</span><span class="gt-doss__what">{T.dossierWhat}</span></a></li>)}
+          </ul>
+        )}
+        {pl.profiles && <p class="gt-cr__pop"><span>{T.profiles(pl.profiles.year)}</span> {pl.profiles.links.map((l, i) => <Fragment>{i > 0 ? ', ' : ''}<a href={l.href}>{l.label}</a></Fragment>)}</p>}
+        <a class="gt-sechead__link" href={paths.countries()}>{T.allCountries} <span aria-hidden="true">→</span></a>
+      </div>
+      {pl.rankings.length > 0 && (
+        <div class="gt-cr__r">
+          <h3 class="gt-label">{T.rankings}</h3>
+          <ul class="gt-ranks">
+            {pl.rankings.map((r) => <li><a href={r.href}><span class="gt-ranks__name">{r.label}</span><span class="gt-ranks__what">{r.top}</span></a></li>)}
+          </ul>
+          <a class="gt-sechead__link" href={paths.indicators()}>{T.allRankings} <span aria-hidden="true">→</span></a>
+        </div>
+      )}
+    </div>
+  </section>
+
+  <section class="gt-trust" aria-label={T.trustLabel}>
+    <p>
+      <a href={tr.sourcesHref}><b>{tr.sources}</b> {T.sources}</a>
+      <span class="gt-trust__sep" aria-hidden="true">·</span>
+      <span>{T.refreshed(tr.when)}</span>
+      {tr.methodHref && <><span class="gt-trust__sep" aria-hidden="true">·</span><a href={tr.methodHref}>{T.howWeMeasure}</a></>}
+    </p>
+  </section>
+</Page>
+
+<script>
+  import { initControls } from '../scripts/controls';
+  import { initHomeSearch } from '../scripts/home';
+  initControls();
+  initHomeSearch();
+</script>

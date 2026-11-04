@@ -50,7 +50,7 @@ build; 100 Previews per Worker, oldest deleted automatically.
   page until then, so the production checks run on the workers.dev address; set it to `https://geopolitics.tools`
   at launch), `SITE_INDEXABLE` (`true` at launch: removes `noindex` and
   opens `robots.txt`), `SITE_HOLDING` (`false` at launch: production stops serving the holding page as
-  the home page; until then production builds get it and pull request builds get the development index; nothing is
+  the home page; until then production builds get it and pull request builds get the homepage, with the development index at `/dev`; nothing is
   posted to the Telegram channel while it is on), `DIGEST_AT` (the weekly digest's day and hour in UTC, `mon 08` when
   unset).
 
