@@ -63,4 +63,15 @@ describe('homepage tool row', () => {
     // No name and address offered twice.
     expect(new Set(opts.map((o) => `${o.name} ${o.href}`)).size).toBe(opts.length);
   });
+
+  it("shows the This week strip with the current week's counts, and hides it with no counts or no /this-week", async () => {
+    const { weekStrip } = await import('../../src/lib/home.ts');
+    const live = (k: string) => (k === 'week' ? { path: '/this-week' } : undefined);
+    const counts = [{ num: '3', label: 'new disaster alerts, orange and red', source: 'GDACS · 27 Oct – 2 Nov 2026' }];
+    expect(weekStrip(() => ({ rangeText: '27 October – 2 November 2026', counts }), live))
+      .toEqual({ range: '27 October – 2 November 2026', href: '/this-week', counts });
+    expect(weekStrip(() => ({ rangeText: '27 October – 2 November 2026', counts: [] }), live)).toBeNull();
+    expect(weekStrip(() => ({ rangeText: '27 October – 2 November 2026', counts }), () => undefined)).toBeNull();
+    expect(weekStrip(() => null, live)).toBeNull();
+  });
 });

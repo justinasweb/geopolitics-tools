@@ -102,11 +102,9 @@ const countryOptions = searchOptions().filter((o) => o.note === T.kind.country |
   {week && (
     <section class="gt-weekstrip" aria-labelledby="home-week">
       <div class="gt-weekstrip__head"><h2 class="gt-label" id="home-week">{T.week}</h2><span class="gt-caption">{week.range} · {T.weekUpdated}</span></div>
-      {week.counts.length > 0 ? (
-        <ul aria-label={T.weekLabel}>
-          {week.counts.map((c) => <li><a href={week.href}><b class="gt-weekstrip__num">{c.num}</b><span>{c.label}</span></a><span class="gt-weekstrip__src">{c.source}</span></li>)}
-        </ul>
-      ) : <span></span>}
+      <ul aria-label={T.weekLabel}>
+        {week.counts.map((c) => <li><a href={week.href}><b class="gt-weekstrip__num">{c.num}</b><span>{c.label}</span></a><span class="gt-weekstrip__src">{c.source}</span></li>)}
+      </ul>
       <a class="gt-weekstrip__more" href={week.href}>{T.weekMore} <span aria-hidden="true">→</span></a>
     </section>
   )}

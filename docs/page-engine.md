@@ -164,8 +164,8 @@ part links only to live pages; a part with nothing to show is left out.
   is no Treasuries map) and Hungary's gas (the Dependencies tool's row: the main supplier's share of imports from
   UN Comtrade, and net imports against use from EIA, each with its own year, never multiplied together). Each card
   is left out when its data is missing.
-- **This week strip.** The live week's dates and counts, as /this-week shows them; hidden until the data run has
-  closed a week.
+- **This week strip.** The current week's dates, counts and sources, as /this-week shows them, between the hero and
+  the topics; hidden when /this-week is not live or the week has no count.
 - **Topics.** One card per live hub, in menu order, with its live views. **Questions to start from:** the first six
   live of eight prepared questions (`QUESTIONS`).
 - **Countries and rankings.** The three dossiers; then the six largest economies after them by GDP in the common year,

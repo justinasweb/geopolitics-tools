@@ -1,6 +1,6 @@
 // The homepage at / (HomepageOptionC design, spec D19), as the build sees it. Every part links only to live pages and
 // every figure comes from the snapshot with its source and period: the tool row (live tools only, in a fixed order),
-// the three worked questions, the This week strip (once a week has closed), the topics, the prepared questions, the
+// the three worked questions, the This week strip (the current week's counts), the topics, the prepared questions, the
 // countries and rankings (by stated rules), and the trust strip. A part with nothing to show is left out.
 import { HOME_TEXT as T, QUESTION_TEXT } from '../i18n/home.en.ts';
 import { FLOW_TEXT, INDICATOR_TEXT, NAV_TEXT, TRAIL_TEXT } from '../i18n/en.ts';
@@ -22,7 +22,7 @@ import { place } from './places.ts';
 import { countryHref, live, navKey, paths, routes, type Route } from './routes.ts';
 import { sourceRows } from './sources.ts';
 import { chainOf, liveChains } from './supply-chains.ts';
-import { archivedWeeks, weekPage } from './week.ts';
+import { weekPage, type WeekPageModel } from './week.ts';
 import type { Status } from './tags.ts';
 
 export interface Link { label: string; href: string }
@@ -126,11 +126,13 @@ export const questionCards = (): QCard[] => [rareEarths(), treasuries(), gasCard
 
 export interface WeekStrip { range: string; href: string; counts: { num: string; label: string; source: string }[] }
 
-/** The live week's counts and dates, as /this-week shows them; nothing until the data run has closed a week. */
-export function weekStrip(): WeekStrip | null {
-  const m = archivedWeeks().size ? weekPage() : null;
-  const r = live('week');
-  return m && r ? { range: m.rangeText, href: r.path, counts: m.counts } : null;
+/** The current week's counts, dates and sources, exactly as /this-week shows them; nothing when /this-week is not
+ *  live or its week has no count. `page` and `liveRoute` are the week model's and the route registry's, replaceable
+ *  in tests. */
+export function weekStrip(page: () => Pick<WeekPageModel, 'rangeText' | 'counts'> | null = weekPage, liveRoute: (key: string) => { path: string } | undefined = live): WeekStrip | null {
+  const r = liveRoute('week');
+  const m = r ? page() : null;
+  return m && r && m.counts.length ? { range: m.rangeText, href: r.path, counts: m.counts } : null;
 }
 
 // ---- Topics and questions ----------------------------------------------------------------------------------------
