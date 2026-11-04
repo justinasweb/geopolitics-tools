@@ -145,7 +145,7 @@
 
 /* This week strip (week.css) on a phone: one count per row */
 @container page (max-width: 759px) {
-  .gt-weekstrip { grid-template-columns: minmax(0, 1fr); gap: 12px; padding: 16px; margin: 0 -16px; }
+  .gt-weekstrip { grid-template-columns: minmax(0, 1fr); gap: 12px; padding: 16px; }
   .gt-weekstrip ul { grid-template-columns: minmax(0, 1fr); gap: 0; }
   .gt-weekstrip li { padding: 10px 0; border-top: 1px solid var(--rule); }
   .gt-weekstrip__num { font-size: 26px; line-height: 28px; min-width: 1.2em; }
