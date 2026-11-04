@@ -5,8 +5,8 @@ who depends on whom, for what.
 
 Static site built with [Astro](https://astro.build) and served by a Cloudflare Worker with static assets.
 Until launch the production home page is the holding page in `src/holding/index.html`, and every page is `noindex`.
-Local and Preview builds show a development index of every built page at `/` instead (`SITE_HOLDING=true` gives the
-holding page locally).
+Local and Preview builds show the homepage at `/` instead (`SITE_HOLDING=true` gives the holding page locally); the
+development index of every built page is at `/dev`.
 
 ## Commands
 

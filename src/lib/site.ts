@@ -4,9 +4,9 @@ export const indexable = process.env.SITE_INDEXABLE === 'true';
 
 export const siteName = 'geopolitics.tools';
 
-// Until launch the production home page is the holding page. Local and Preview builds get a plain index of the
-// built pages instead, so the work in progress can be clicked through. CI sets SITE_HOLDING=true for production
-// builds; at launch the repository variable SITE_HOLDING is set to `false` (and the dev index goes).
+// Until launch the production home page is the holding page. Local and Preview builds get the homepage instead,
+// and the index of the built pages at /dev, so the work in progress can be clicked through. CI sets SITE_HOLDING=true
+// for production builds; at launch the repository variable SITE_HOLDING is set to `false`.
 export const holdingHome = process.env.SITE_HOLDING === 'true';
 
 // Fathom Analytics, cookieless (see the privacy page). The tag goes on every page, but Fathom counts visits only on

@@ -1,5 +1,6 @@
 // Checks a running copy of the site (local `wrangler dev` or a deployed preview/production URL):
-// status codes, clean URLs, the 404 page, the API (the correction endpoint refuses an empty report), then the home page in a browser at desktop and phone width.
+// status codes, clean URLs, the 404 page, the API (the correction endpoint refuses an empty report), then the home page in a browser at desktop and phone width
+// (the homepage's own checks run wherever / is not the holding page).
 // Usage: BASE=https://… node tests/e2e/smoke.mjs [screenshot dir]
 // Behind Cloudflare Access, set CF_ACCESS_CLIENT_ID and CF_ACCESS_CLIENT_SECRET (a service token).
 import { mkdirSync } from 'node:fs';
@@ -96,6 +97,21 @@ for (const [name, viewport] of [['desktop', { width: 1440, height: 900 }], ['pho
   check(!sideways, `${name}: no sideways scroll`);
   check(errors.length === 0, `${name}: no console errors${errors.length ? ` (${errors.join('; ')})` : ''}`);
   await page.screenshot({ path: `${out}/home-${name}.png`, fullPage: true });
+  // The homepage (hero option C), wherever / is not the holding page: the tool row in its fixed order, two columns on
+  // a phone, and every link, button and field in the page at least 44px tall on a phone.
+  if (await page.$('.gt-hero--c')) {
+    const tools = await page.$$eval('.gt-trail__name', (els) => els.map((e) => e.textContent?.trim()));
+    const order = ['Atlas', 'Explorer', 'Dependencies', 'Supply chains', 'Bloc overlap', 'This week'];
+    check(tools.length > 0 && tools.every((t, i) => order.indexOf(t) > (i ? order.indexOf(tools[i - 1]) : -1)), `${name}: / lists the tools in order (${tools.join(', ')})`);
+    if (name === 'phone') {
+      const cols = await page.$eval('.gt-trail__list', (el) => getComputedStyle(el).gridTemplateColumns.split(' ').length);
+      check(cols === 2, `phone: the tool row has two columns (got ${cols})`);
+      const small = await page.$$eval('main a, main button, main input', (els) => els.filter((el) => el.getClientRects().length && !el.closest('.gt-qcard__q'))
+        .map((el) => [el.textContent?.trim() || el.getAttribute('placeholder'), Math.round(el.closest('.gt-combo__box, .gt-bigsearch__box')?.getBoundingClientRect().height ?? el.getBoundingClientRect().height)])
+        .filter(([, h]) => h < 44).map(([t]) => t));
+      check(small.length === 0, `phone: / has 44px touch targets${small.length ? ` (smaller: ${small.slice(0, 5).join('; ')})` : ''}`);
+    }
+  }
 
   // A dossier, Compare, an indicator page and This week (when it is built): no errors, nothing wider than the screen.
   const week = (await get('/this-week')).status === 200;

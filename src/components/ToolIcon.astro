@@ -1,7 +1,8 @@
 ---
-// A tool's small pictogram (TopicHub and HomeSections designs): drawn from the design tokens, decorative only.
-interface Props { tool: string }
-const { tool } = Astro.props;
+// A tool's small pictogram (TopicHub, HomeSections and HeroToolRow designs): drawn from the design tokens, decorative
+// only. `circles` draws Bloc overlap as two overlapping circles, as the homepage's tool row does; hubs keep the matrix.
+interface Props { tool: string; circles?: boolean }
+const { tool, circles = false } = Astro.props;
 const DEP = ['div-1', 'div-2', 'div-4', 'div-6', 'div-3', 'div-7', 'div-2', 'div-4', 'div-6', 'div-4', 'div-1', 'div-3', 'div-2', 'div-5', 'div-7', 'div-4'];
 ---
 <svg class="gt-toolicon" viewBox="0 0 48 32" aria-hidden="true">
@@ -26,7 +27,19 @@ const DEP = ['div-1', 'div-2', 'div-4', 'div-6', 'div-3', 'div-7', 'div-2', 'div
       <path d="M6 10Q20 2 34 12" fill="none" stroke="var(--ink)" stroke-width="1.4" /><path d="M36 21l3 3-3 3-3-3z" fill="var(--paper-raised)" stroke="var(--ink)" />
     </>
   )}
-  {tool === 'blocs-overlap' && (
+  {tool === 'blocs-overlap' && circles && (
+    <>
+      <circle cx="18" cy="16" r="12" fill="var(--cat-1)" fill-opacity=".35" stroke="var(--cat-1)" stroke-width="1.5" />
+      <circle cx="30" cy="16" r="12" fill="var(--cat-4)" fill-opacity=".35" stroke="var(--cat-4)" stroke-width="1.5" />
+    </>
+  )}
+  {tool === 'this-week' && (
+    <>
+      <rect x="2" y="2" width="20" height="12" fill="var(--seq-2)" /><rect x="26" y="2" width="20" height="12" fill="var(--seq-3)" />
+      <rect x="2" y="18" width="20" height="12" fill="var(--seq-4)" /><rect x="26" y="18" width="20" height="12" fill="var(--seq-1)" stroke="var(--rule-strong)" />
+    </>
+  )}
+  {tool === 'blocs-overlap' && !circles && (
     <>
       {[0, 1, 2, 3].flatMap((r) => [0, 1, 2, 3].map((c) => <rect x={10 + c * 9} y={r * 8} width="8" height="7" fill={`var(--seq-${r === c ? 5 : 1 + ((r + c) % 3)})`} />))}
     </>

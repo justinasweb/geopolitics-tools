@@ -56,6 +56,8 @@ servers never see the part after `#`.
 | Topic hubs | `/resources`, `/technology`, `/climate`, `/security`, `/power`: the parent page of a topic's map views. See "Topic hubs" below |
 | Atlas | `/atlas`: every live map view's layer on one map, live when any map view is. Its states are noindex. See [maps.md](maps.md), "The Atlas" |
 | This week | `/this-week`, live once one of its sources is in the snapshot, and `/this-week/{yyyy}-{ww}` for every closed ISO week the data run froze; an archived week is indexed once one of its cards has figures. See "This week" below |
+| Homepage | `/`: hero option C, the This week strip, topics, questions, countries and rankings, trust strip. Production serves the holding page there until `SITE_HOLDING` is `false`. See "Homepage" below |
+| Development index | `/dev`: every built page, noindex, disallowed in robots.txt; never linked |
 | Supply chains | `/supply-chains` and `/supply-chains/{flow}` for each of the 11 flows whose source is in the snapshot with at least one pair; the index lists only those. See "Supply chains" below |
 
 A sample build has 129 country pages and 37 indicator pages; the real snapshot has more sources and more places.
@@ -143,6 +145,34 @@ country focused and in the browser (`src/scripts/supply-chains.ts`) when the rea
   sideways inside its own box.
 - **CSV.** Every flow shown, when the source's licence allows downloads (FAOSTAT, UNHCR); UN Comtrade and SIPRI flows
   are shown only, with a note.
+
+## Homepage
+
+`src/templates/HomePage.astro`, model `src/lib/home.ts`, words in `src/i18n/home.en.ts` (the tool row's in
+`src/i18n/en.ts`, `TRAIL_TEXT`). Hero option C (spec D19): everything is in the HTML, there is no map, and every
+part links only to live pages; a part with nothing to show is left out.
+
+- **Search.** A combobox (`src/scripts/controls.ts`, `data-rank="prefix"`: names starting with what was typed come
+  first) over every live hub, tool, map view, mineral, bloc, river, supply chain, ranking and country; picking one or
+  pressing Search opens it. Site search does not exist yet (phase 8), so on the homepage the header's search button
+  and the `/` key (`gt-search`) bring the reader to this box. "Try" links are live pages only.
+- **Tool row.** Atlas, Explorer, Dependencies, Supply chains, Bloc overlap, This week, in that order (`TRAIL`); a tool
+  that is not live is left out. Bloc overlap is drawn as two circles here (`ToolIcon circles`); hubs keep the matrix.
+  Supply chains counts its live flows of goods (refugees are not a good).
+- **Worked questions.** Rare earths (USGS, the view's latest year, with its Estimate tag), US Treasury holders (TIC
+  Table 5's latest month; links to the dossier of the first dossier country among the top three, China, since there
+  is no Treasuries map) and Hungary's gas (the Dependencies tool's row: the main supplier's share of imports from
+  UN Comtrade, and net imports against use from EIA, each with its own year, never multiplied together). Each card
+  is left out when its data is missing.
+- **This week strip.** The current week's dates, counts and sources, as /this-week shows them, between the hero and
+  the topics; hidden when /this-week is not live or the week has no count.
+- **Topics.** One card per live hub, in menu order, with its live views. **Questions to start from:** the first six
+  live of eight prepared questions (`QUESTIONS`).
+- **Countries and rankings.** The three dossiers, each with the first sentence of its page's template summary (with
+  the Estimate tag when that is USGS's estimated year; the plain line when there is none); then the six largest economies after them by GDP in the common year,
+  a rule the page states (there is no traffic data, so nothing is "popular"); rankings for military spending, CO2 per
+  person and refugees hosted, worded as on the hubs.
+- **Trust strip.** The Sources page's count and the snapshot's time.
 
 ## Who counts as a member
 

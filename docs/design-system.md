@@ -38,7 +38,7 @@ Filters: `SegmentedControl`, `Dropdown`, `CountrySearch`, `Chips`, `YearSlider`.
 [maps.md](maps.md)). Actions: `ShareRow`. Corrections: `CorrectionLink` and `CorrectionForm` (below).
 
 Controls tell the page what changed with bubbling events: `gt-change` (segmented control, chips, year slider) and `gt-pick`
-(country search). The header's search buttons and the `/` key send `gt-search`, which site search (phase 8) will answer.
+(country search). The header's search buttons and the `/` key send `gt-search`, which site search (phase 8) will answer; until then the homepage answers it by focusing its big search. The homepage's own parts (`gt-hero--c`, `gt-trail`, `gt-qcard`, `gt-topics`, `gt-qlist`, `gt-doss`, `gt-trust`) are in `src/styles/atlas/home.css`.
 
 **Charts.** The SVG charts drawn on the server or in the page (`LineChart`, `Pyramid`, the map panel's trend line, the
 supply-chain diagram) have no `viewBox` on their outer SVG: it is as wide as its column and a fixed height in pixels, so

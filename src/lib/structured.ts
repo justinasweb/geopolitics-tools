@@ -1,5 +1,5 @@
 // Structured data (schema.org JSON-LD): Organization on every page with the social accounts, Dataset on indicator
-// pages, Country or Place on country pages (spec, "SEO").
+// pages, Country or Place on country pages, WebSite on the home page (spec, "SEO"; SEO plan: how Google picks the site name).
 import { SOCIAL } from '../data/nav';
 import { siteName } from './site';
 
@@ -10,6 +10,8 @@ export const organization = () => ({
   '@context': 'https://schema.org', '@type': 'Organization', name: siteName, url: SITE, logo: abs('/favicon.svg'),
   sameAs: [SOCIAL.x, SOCIAL.telegram],
 });
+
+export const website = () => ({ '@context': 'https://schema.org', '@type': 'WebSite', name: siteName, url: `${SITE}/` });
 
 export interface DatasetInput {
   name: string; description: string; path: string; creator: string; licenceUrl?: string; years?: [number, number];

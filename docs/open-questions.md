@@ -392,3 +392,24 @@ Made while adding `/internet/cyber-operations` from EuRepoC (spec D18, [maps.md]
 - **Source count.** The licence table now has 35 rows (EuRepoC added); the spec's 37 also counts Access Now STOP,
   which is not in yet.
 - **Ads or a paid tier** would need EuRepoC's agreement (CC BY-NC 4.0), as for IPC.
+
+## Homepage, hero option C (raised 4 Nov 2026)
+
+- **Treasuries card destination.** There is no US Treasuries map, so "Who holds US government debt?" opens the China
+  dossier's money section (the first dossier country among the top three holders). A Treasuries view would be the
+  better destination; the design's "Open the US Treasuries map" waits for one.
+- **Hungary's gas card is real data**, from the Dependencies tool's own row: Russia 73% of Hungary's gas imports
+  (UN Comtrade, 2025) and net imports 80% of gas use (EIA, 2024). The design's single bar (Russia 74% of use, other
+  imports, own production) would need the two sources multiplied across different years, so the card shows the two
+  shares apart. Comtrade's partner is the country of origin or consignment as reported; Serbia and Austria appear as
+  suppliers for gas that may come from further away (see the trade terms in Methodology).
+- **Search.** Site search is phase 8; until then the big search is a jump list over live pages' names (no full-text
+  search, no results page). The header's search button and "/" focus it on the homepage only.
+- **Profiles under the dossiers** are the six largest economies after them by GDP (a stated rule), not "popular
+  profiles": there is no traffic data. The rankings column (military spending, CO2 per person, refugees hosted) is a
+  fixed choice.
+- **Left out for now.** The weekly summary line in the This week strip (the approved summary is 100–150 words, too long
+  for the strip, and is not cut); the chokepoints question and the "Strait of Hormuz" Try link (chokepoints not live;
+  the question returns by itself when they are). The strip shows one count until PortWatch and IPC are live.
+- **Topic sentences** describe the views live now; Security and people will need "sea routes and hunger" added when
+  chokepoints and food crises go live.
