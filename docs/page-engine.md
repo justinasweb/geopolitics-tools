@@ -168,7 +168,8 @@ part links only to live pages; a part with nothing to show is left out.
   the topics; hidden when /this-week is not live or the week has no count.
 - **Topics.** One card per live hub, in menu order, with its live views. **Questions to start from:** the first six
   live of eight prepared questions (`QUESTIONS`).
-- **Countries and rankings.** The three dossiers; then the six largest economies after them by GDP in the common year,
+- **Countries and rankings.** The three dossiers, each with the first sentence of its page's template summary (with
+  the Estimate tag when that is USGS's estimated year; the plain line when there is none); then the six largest economies after them by GDP in the common year,
   a rule the page states (there is no traffic data, so nothing is "popular"); rankings for military spending, CO2 per
   person and refugees hosted, worded as on the hubs.
 - **Trust strip.** The Sources page's count and the snapshot's time.

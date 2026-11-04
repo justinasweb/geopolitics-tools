@@ -65,6 +65,7 @@ export const HOME_TEXT = {
   findCountry: 'Go to a country',
   findPlaceholder: 'Find a country',
   dossier: 'Full dossier',
+  /** A dossier card's line when its page has no summary sentence. */
   dossierWhat: 'The profile, plus money, technology and climate',
   /** The stated rule for the other profiles listed. */
   profiles: (year: number) => `Largest economies after these three, by GDP in ${year}:`,

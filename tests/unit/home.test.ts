@@ -74,4 +74,17 @@ describe('homepage tool row', () => {
     expect(weekStrip(() => ({ rangeText: '27 October – 2 November 2026', counts }), () => undefined)).toBeNull();
     expect(weekStrip(() => null, live)).toBeNull();
   });
+
+  it('gives each dossier card the first sentence of its page summary, tagged when the USGS year is an estimate', async () => {
+    const { dossierFact } = await import('../../src/lib/home.ts');
+    const { countryModel } = await import('../../src/lib/country.ts');
+    for (const id of ['USA', 'CHN', 'RUS']) {
+      const m = countryModel(id);
+      const f = dossierFact(id);
+      expect(f.fact).toBe(m?.summary[0] ?? null);
+      const lead = m?.minerals.slice(0, 3).find((x) => x.measure === 'mine') ?? m?.minerals[0];
+      expect(f.estimated).toBe(Boolean(f.fact && lead?.estimated));
+    }
+    expect(dossierFact('XXX')).toEqual({ fact: null, estimated: false });
+  });
 });

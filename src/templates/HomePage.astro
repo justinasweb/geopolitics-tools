@@ -140,7 +140,7 @@ const countryOptions = searchOptions().filter((o) => o.note === T.kind.country |
         <CountrySearch id="home-cs" label={T.findCountry} placeholder={T.findPlaceholder} options={countryOptions.map((o) => ({ name: o.name, note: o.note === T.kind.country ? undefined : o.note, href: o.href }))} />
         {pl.dossiers.length > 0 && (
           <ul class="gt-dossiers">
-            {pl.dossiers.map((d) => <li><a class="gt-doss" href={d.href}><span class="gt-label">{T.dossier}</span><span class="gt-doss__name">{d.label}</span><span class="gt-doss__what">{T.dossierWhat}</span></a></li>)}
+            {pl.dossiers.map((d) => <li><a class="gt-doss" href={d.href}><span class="gt-label">{T.dossier}</span><span class="gt-doss__name">{d.label}</span><span class="gt-doss__what">{d.fact ?? T.dossierWhat}{d.fact && d.estimated && <> <StatusTag status="estimate" small /></>}</span></a></li>)}
           </ul>
         )}
         {pl.profiles && <p class="gt-cr__pop"><span>{T.profiles(pl.profiles.year)}</span> {pl.profiles.links.map((l, i) => <Fragment>{i > 0 ? ', ' : ''}<a href={l.href}>{l.label}</a></Fragment>)}</p>}

@@ -9,7 +9,7 @@ import { BLOC_TEXT } from '../i18n/map.en.ts';
 import { RIVERS_TEXT } from '../i18n/water.en.ts';
 import { treasuryHolders } from '../adapters/treasury.ts';
 import { INDICATORS } from '../data/indicators.ts';
-import { DOSSIERS } from './country.ts';
+import { DOSSIERS, countryModel } from './country.ts';
 import { data, shared } from './data.ts';
 import { dependencies } from './dependence.ts';
 import { explorerMeasures } from './explorer.ts';
@@ -165,7 +165,8 @@ export const questions = (): (Link & { to: string })[] => QUESTIONS.flatMap((q) 
 // ---- Countries and rankings --------------------------------------------------------------------------------------
 
 export interface Places {
-  dossiers: (Link & { id: string })[];
+  /** Each with the first sentence of its page's template summary, and whether that sentence's USGS year is an estimate. */
+  dossiers: (Link & { id: string; fact: string | null; estimated: boolean })[];
   /** The largest economies after the dossiers, by GDP in the common year: a stated rule, not popularity. */
   profiles: { year: number; links: Link[] } | null;
   rankings: (Link & { top: string })[];
@@ -173,8 +174,19 @@ export interface Places {
 
 const RANKINGS = ['milusd', 'co2pc', 'refin'];
 
+/** A dossier card's fact: the first sentence of the country page's template summary (src/lib/country.ts), with its
+ *  source and year in it. With mineral shares that sentence is always the USGS one, for the lead mineral's year, so
+ *  its Estimate tag follows that mineral, as on the minerals pages. */
+export function dossierFact(id: string): { fact: string | null; estimated: boolean } {
+  const m = countryModel(id);
+  const fact = m?.summary[0] ?? null;
+  const top = m?.minerals.slice(0, 3) ?? [];
+  const lead = top.find((x) => x.measure === 'mine') ?? top[0];
+  return { fact, estimated: Boolean(fact && lead?.estimated) };
+}
+
 export function places(): Places {
-  const dossiers = DOSSIERS.flatMap((id) => { const href = countryHref(id); return href ? [{ id, label: nameOf(id), href }] : []; });
+  const dossiers = DOSSIERS.flatMap((id) => { const href = countryHref(id); return href ? [{ id, label: nameOf(id), href, ...dossierFact(id) }] : []; });
   const gdp = indicatorModel('gdp');
   const links = gdp ? gdp.common.filter((r) => !DOSSIERS.includes(r.id)).flatMap((r) => { const href = countryHref(r.id); return href ? [{ label: nameOf(r.id), href }] : []; }).slice(0, 6) : [];
   const rankings = RANKINGS.flatMap((id) => {
