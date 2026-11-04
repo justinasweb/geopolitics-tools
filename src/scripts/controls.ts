@@ -43,6 +43,19 @@ function toggleChip(chip: HTMLButtonElement) {
 
 interface Option { name: string; value?: string; note?: string; href?: string }
 
+/** The options whose name contains what was typed, eight at most. With `rank` "prefix" (the homepage's search over
+ *  many kinds of page): names starting with it first, then names with a word starting with it, then the rest, each in
+ *  the list's own order. */
+export function matchOptions<T extends Option>(opts: T[], typed: string, rank?: string): T[] {
+  const q = typed.trim().toLowerCase();
+  let shown = opts.filter((o) => !q || o.name.toLowerCase().includes(q));
+  if (q && rank === 'prefix') {
+    const score = (n: string) => (n.startsWith(q) ? 0 : n.includes(` ${q}`) ? 1 : 2);
+    shown = shown.map((o, i) => ({ o, i, s: score(o.name.toLowerCase()) })).sort((a, b) => a.s - b.s || a.i - b.i).map((x) => x.o);
+  }
+  return shown.slice(0, 8);
+}
+
 function combo(el: HTMLElement) {
   const input = el.querySelector('input')!;
   const list = el.querySelector<HTMLUListElement>('.gt-combo__list')!;
@@ -57,30 +70,22 @@ function combo(el: HTMLElement) {
   };
   const render = () => {
     const q = input.value.trim().toLowerCase();
-    shown = opts.filter((o) => !q || o.name.toLowerCase().includes(q));
-    // data-rank="prefix" (the homepage's search over many kinds of page): names starting with what was typed first,
-    // then names with a word starting with it, then the rest, each in the list's own order.
-    if (q && el.dataset.rank === 'prefix') {
-      const score = (n: string) => (n.startsWith(q) ? 0 : n.includes(` ${q}`) ? 1 : 2);
-      shown = shown.map((o, i) => ({ o, i, s: score(o.name.toLowerCase()) })).sort((a, b) => a.s - b.s || a.i - b.i).map((x) => x.o);
-    }
-    shown = shown.slice(0, 8);
+    shown = matchOptions(opts, q, el.dataset.rank);
     list.replaceChildren(...(shown.length ? shown.map((o, i) => {
       const li = document.createElement('li');
       li.setAttribute('role', 'option');
       li.id = `${el.id}-o${i}`;
       li.setAttribute('aria-selected', String(i === active));
+      // The name in one element, so the row's flex layout only ever sees two items: the name and its note.
+      const name = Object.assign(document.createElement('span'), { className: 'gt-combo__name' });
       const k = q ? o.name.toLowerCase().indexOf(q) : -1;
       if (k > -1) {
         const m = document.createElement('mark');
         m.textContent = o.name.slice(k, k + q.length);
-        li.append(o.name.slice(0, k), m, o.name.slice(k + q.length));
-      } else li.append(o.name);
-      if (o.note) {
-        const s = document.createElement('span');
-        s.textContent = o.note;
-        li.append(s);
-      }
+        name.append(o.name.slice(0, k), m, o.name.slice(k + q.length));
+      } else name.append(o.name);
+      li.append(name);
+      if (o.note) li.append(Object.assign(document.createElement('span'), { className: 'gt-combo__note', textContent: o.note }));
       return li;
     }) : [Object.assign(document.createElement('li'), {
       className: 'gt-combo__empty',

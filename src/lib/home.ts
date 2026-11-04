@@ -194,7 +194,9 @@ export interface SearchOption { name: string; note: string; href: string }
 export function searchOptions(): SearchOption[] {
   const K = T.kind;
   const out: SearchOption[] = [];
-  const add = (name: string | undefined, note: string, href: string | undefined) => { if (name && href && !out.some((o) => o.href === href)) out.push({ name, note, href }); };
+  // One entry per name and page: a view family's own entry (Critical minerals) and its first page's (Lithium) share an
+  // address but are both offered.
+  const add = (name: string | undefined, note: string, href: string | undefined) => { if (name && href && !out.some((o) => o.href === href && o.name === name)) out.push({ name, note, href }); };
   const m = menu();
   for (const h of m.hubs) add(NAV_TEXT.hubs[h.id], K.hub, h.href);
   for (const t of m.tools) add(NAV_TEXT.tools[t.id][0], K.tool, t.path);

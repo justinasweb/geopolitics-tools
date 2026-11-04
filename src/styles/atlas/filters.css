@@ -26,8 +26,9 @@
 .gt-combo.is-disabled input::placeholder { color: var(--ink-disabled); }
 .gt-combo__list { position: absolute; z-index: 15; left: 0; right: 0; top: calc(100% + 4px); margin: 0; padding: 4px 0; list-style: none; background: var(--paper-raised); border: 1px solid var(--rule); box-shadow: var(--shadow-pop); max-height: 260px; overflow: auto; }
 .gt-combo__list[hidden] { display: none; }
-.gt-combo__list li { display: flex; justify-content: space-between; gap: 12px; padding: 9px 12px; font: 400 15px/22px var(--sans); cursor: pointer; }
-.gt-combo__list li span { color: var(--ink-muted); font-size: 13px; }
+.gt-combo__list li { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 9px 12px; font: 400 15px/22px var(--sans); cursor: pointer; }
+.gt-combo__name { min-width: 0; overflow-wrap: anywhere; }
+.gt-combo__note { flex: none; color: var(--ink-muted); font-size: 13px; }
 .gt-combo__list li[aria-selected="true"], .gt-combo__list li:hover { background: var(--brand-soft); }
 .gt-combo__list mark { background: transparent; color: inherit; font-weight: 700; }
 .gt-combo__empty { color: var(--ink-muted); cursor: default !important; background: transparent !important; }

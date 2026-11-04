@@ -46,4 +46,21 @@ describe('homepage tool row', () => {
     expect(qs.length).toBeLessThanOrEqual(6);
     for (const q of qs) expect(paths.has(path(q.href))).toBe(true);
   });
+
+  it('offers every mineral page in the search, so "lith" finds Lithium before Lithuania', async () => {
+    const { searchOptions } = await import('../../src/lib/home.ts');
+    const { matchOptions } = await import('../../src/scripts/controls.ts');
+    const { mineralPages } = await import('../../src/lib/minerals.ts');
+    const opts = searchOptions();
+    // Critical minerals opens its first mineral's page; that page keeps its own entry.
+    for (const m of mineralPages()) expect(opts.some((o) => o.name === m.title)).toBe(true);
+    // The sample files have no Lithuania page; the real list has it with the countries, after the maps.
+    const withLt = opts.some((o) => o.name === 'Lithuania') ? opts : [...opts, { name: 'Lithuania', note: 'Country', href: '/countries/lithuania' }];
+    const names = matchOptions(withLt, 'lith', 'prefix').map((o) => o.name);
+    expect(names).toContain('Lithium');
+    expect(names).toContain('Lithuania');
+    expect(names.indexOf('Lithium')).toBeLessThan(names.indexOf('Lithuania'));
+    // No name and address offered twice.
+    expect(new Set(opts.map((o) => `${o.name} ${o.href}`)).size).toBe(opts.length);
+  });
 });
