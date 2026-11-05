@@ -21,7 +21,8 @@ describe('topic hubs', async () => {
       const hm = hubModel(h.id)!;
       expect(hm.cards.map((c) => c.family)).toEqual(h.views.map((v) => v.id).filter((f) => R.viewHref(f)));
       for (const c of hm.cards) expect(c.headline.length).toBeGreaterThan(10);
-      expect(readFileSync(new URL(`../../src/content/hubs/${h.id}.md`, import.meta.url), 'utf8')).toMatch(/^approved: false$/m);
+      // Approved in the launch review pull request, with its date.
+      expect(readFileSync(new URL(`../../src/content/hubs/${h.id}.md`, import.meta.url), 'utf8')).toMatch(/^approved: true\napprovedOn: "\d{4}-\d{2}-\d{2}"$/m);
     }
   });
 
@@ -95,9 +96,9 @@ describe('topic hubs', async () => {
     expect(g.links[0].path).toBe('/resources');
   });
 
-  it('keeps its intro a draft until approved', () => {
+  it('keeps its approved intro to two plain sentences', () => {
     const md = readFileSync(new URL('../../src/content/hubs/resources.md', import.meta.url), 'utf8');
-    expect(md).toMatch(/^approved: false$/m);
+    expect(md).toMatch(/^approved: true$/m);
     const intro = /^intro: "(.*)"$/m.exec(md)![1];
     expect(intro.split(/(?<=\.) /).length).toBe(2);
     expect(intro).not.toMatch(/\b(dominant|vulnerable|crucial|popular)\b/i);
