@@ -47,8 +47,8 @@ Made while building the drafting pipeline (docs/ai-drafting.md); each is easy to
   page could be checked (ASEAN's Timor-Leste declaration, Ethiopia's Prime Minister's Office, Egypt's State
   Information Service, Xinhua, the MEA). Privacy and Methodology also wait on the Fathom, Cloudflare and SIPRI facts
   and the six territory notes.
-  *Update 5 Nov 2026 (launch review):* the river facts and most history facts are verified. Still open: OPEC and
-  G20 (their sites refused the session's connections), the Quad and the Dnipro facts; see the next section.
+  *Update 5 Nov 2026 (launch review):* the river facts and most history facts are verified. Still open: the Quad
+  and the Dnipro facts; see the next section.
 - **Stale texts are hidden.** A short text whose facts changed disappears until it is redrafted; a long page shows
   the draft banner again. For dossiers this happens whenever a figure they cite gets a new year. The alternative is
   to keep showing the old text with its approval date until the redraft.
@@ -70,7 +70,12 @@ Made while building the drafting pipeline (docs/ai-drafting.md); each is easy to
   illegal attempt to annex Crimea", not an annexation, so Crimea is no longer named.
 - **NATO and Greece (decided 5 Nov 2026).** The 1974 and 1980 notes were removed, from the facts and from the history
   page's events: no NATO page stating them could be opened.
-- **OPEC and G20.** opec.org (HTTP 402) and g20.org (HTTP 403) refused the session, so both files stay unverified.
+- **OPEC and G20 (verified 5 Nov 2026).** OPEC's facts cite [Member countries](https://www.opec.org/member-countries.html),
+  checked on 5 November 2026. That page still lists the United Arab Emirates, so the UAE's exit stays on the WAM link,
+  and `members-2026` (11) relies on it. The G20 founding countries and 1999 note cite the
+  [1999 communiqué](https://www.g20.utoronto.ca/1999/1999communique.htm). The EU and the 2008 and 2023 notes cite
+  [What is the G20?](https://www.g20.utoronto.ca/g20whatisit.html), both from the G20 Research Group. The member-count
+  facts keep their g20.org link.
 - **SCO link.** eng.sectsco.org did not resolve from the session, so the facts keep the site's home page as their
   link. Paste the "General information" page's address.
 - **Dnipro.** Cabinet of Ministers Resolution No. 1488 of 30 December 2022 ends the agreement "done on 19 October
