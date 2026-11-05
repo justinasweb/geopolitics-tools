@@ -3,7 +3,8 @@ title: "About"
 lede: "Maps and figures on resources, technology, climate, security and power, from official and research sources, each with its source and date."
 description: "What geopolitics.tools is, where its figures come from, and how to get in touch."
 updated: "2026-11-05"
-approved: false
+approved: true
+approvedOn: "2026-11-05"
 author: "ai"
 model: "manual (Claude chat)"
 factsHash: "sha256:edb4a6cb4654c30d589558697356b517"

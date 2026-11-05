@@ -7,7 +7,8 @@ facts:
   - "Disasters: orange and red alerts over 30, 90 or 365 days (GDACS), earthquakes of magnitude 5.5 and over (USGS)"
   - "Every figure carries its source and year (site rules)"
 updated: '2026-10-29'
-approved: false
+approved: true
+approvedOn: "2026-11-05"
 author: "ai"
 model: "manual (Claude chat)"
 factsHash: "sha256:9992bf5a690c5d1e8ae522165c7d477a"

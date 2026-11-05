@@ -3,7 +3,8 @@ title: "Privacy"
 lede: "The site sets no cookies, has no accounts and does not track you across sites."
 description: "What geopolitics.tools records when you visit: cookieless page counts and the host’s server logs, and who to contact."
 updated: "2026-11-05"
-approved: false
+approved: true
+approvedOn: "2026-11-05"
 author: "ai"
 model: "manual (Claude chat)"
 factsHash: "sha256:d4df4487d0d91f0ffb8e9d1204064d48"

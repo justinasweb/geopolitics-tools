@@ -6,7 +6,8 @@ facts:
   - "Internet: share of people using the internet (ITU, via World Bank); ICT service exports (IMF balance of payments, via World Bank); outages detected in the last 12 months (IODA); publicly known cyber incidents by country affected since 2000, with who they were attributed to and by whom (EuRepoC)"
   - "Every figure carries its source and year (site rules)"
 updated: '2026-11-03'
-approved: false
+approved: true
+approvedOn: "2026-11-05"
 author: "ai"
 model: "manual (Claude chat)"
 factsHash: "sha256:0ae045af7905ce8b8e152b4e403ac2c7"

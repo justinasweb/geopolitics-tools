@@ -7,7 +7,8 @@ facts:
   - "Food and fertiliser: production, use, net trade and flows of six commodities, FAOSTAT and UN Comtrade"
   - "Every figure carries its source and year (site rules)"
 updated: '2026-10-29'
-approved: false
+approved: true
+approvedOn: "2026-11-05"
 author: "ai"
 model: "manual (Claude chat)"
 factsHash: "sha256:d2e391e053ada13f2fdc03bb31335928"
