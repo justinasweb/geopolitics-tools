@@ -170,7 +170,7 @@ describe('the store and the approval step', () => {
   });
 
   it('reads a draft written before the pipeline as a draft that cannot be approved as it is', () => {
-    const t = readText('page:about')!;
+    const t = readText('page:methodology')!;
     expect(t.factsHash).toBeUndefined();
     expect(stateOf(t, null)).toBe(t.approved ? 'stale' : 'draft');
   });
@@ -189,10 +189,10 @@ describe('a drafting run', () => {
 
   it('skips texts whose facts are unverified, without calling the model', async () => {
     const c = stub(GOOD);
-    const run = await runDrafts(['river:nile', 'history:nato'], c);
+    const run = await runDrafts(['river:dnipro', 'history:nato'], c);
     expect(c.calls).toHaveLength(0);
     expect(run.drafted).toEqual([]);
-    expect(run.skipped.join('\n')).toMatch(/river:nile: fact "agreement-1959" is unverified/);
+    expect(run.skipped.join('\n')).toMatch(/river:dnipro: fact "agreement-1992" is unverified/);
   });
 });
 

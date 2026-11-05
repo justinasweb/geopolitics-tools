@@ -30,9 +30,7 @@
       ],
       "source": "Shanghai Cooperation Organisation, General information",
       "link": "https://eng.sectsco.org/",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "date": "2026-10-21"
     },
     {
       "id": "join-KAZ-1996",
@@ -43,9 +41,7 @@
       ],
       "source": "Shanghai Cooperation Organisation, General information",
       "link": "https://eng.sectsco.org/",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "date": "2026-10-21"
     },
     {
       "id": "join-KGZ-1996",
@@ -56,9 +52,7 @@
       ],
       "source": "Shanghai Cooperation Organisation, General information",
       "link": "https://eng.sectsco.org/",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "date": "2026-10-21"
     },
     {
       "id": "join-RUS-1996",
@@ -69,9 +63,7 @@
       ],
       "source": "Shanghai Cooperation Organisation, General information",
       "link": "https://eng.sectsco.org/",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "date": "2026-10-21"
     },
     {
       "id": "join-TJK-1996",
@@ -82,9 +74,7 @@
       ],
       "source": "Shanghai Cooperation Organisation, General information",
       "link": "https://eng.sectsco.org/",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "date": "2026-10-21"
     },
     {
       "id": "join-UZB-2001",
@@ -95,9 +85,7 @@
       ],
       "source": "Shanghai Cooperation Organisation, General information",
       "link": "https://eng.sectsco.org/",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "date": "2026-10-21"
     },
     {
       "id": "join-IND-2017",
@@ -108,9 +96,7 @@
       ],
       "source": "Shanghai Cooperation Organisation, General information",
       "link": "https://eng.sectsco.org/",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "date": "2026-10-21"
     },
     {
       "id": "join-PAK-2017",
@@ -121,9 +107,7 @@
       ],
       "source": "Shanghai Cooperation Organisation, General information",
       "link": "https://eng.sectsco.org/",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "date": "2026-10-21"
     },
     {
       "id": "join-IRN-2023",
@@ -134,9 +118,7 @@
       ],
       "source": "Shanghai Cooperation Organisation, General information",
       "link": "https://eng.sectsco.org/",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "date": "2026-10-21"
     },
     {
       "id": "join-BLR-2024",
@@ -147,9 +129,7 @@
       ],
       "source": "Shanghai Cooperation Organisation, General information",
       "link": "https://eng.sectsco.org/",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "date": "2026-10-21"
     },
     {
       "id": "note-1996",
@@ -164,9 +144,7 @@
       ],
       "source": "Shanghai Cooperation Organisation, General information",
       "link": "https://eng.sectsco.org/",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "date": "2026-10-21"
     },
     {
       "id": "note-2001",
@@ -177,9 +155,7 @@
       ],
       "source": "Shanghai Cooperation Organisation, General information",
       "link": "https://eng.sectsco.org/",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "date": "2026-10-21"
     },
     {
       "id": "founding-members",
@@ -195,9 +171,7 @@
       "period": "1996",
       "source": "Shanghai Cooperation Organisation, General information",
       "link": "https://eng.sectsco.org/",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "Count of the founding rows in src/data/bloc-history.csv; check against the link."
+      "date": "2026-10-21"
     },
     {
       "id": "founding-members-2001",
@@ -212,9 +186,7 @@
       "period": "2001",
       "source": "Shanghai Cooperation Organisation, General information",
       "link": "https://eng.sectsco.org/",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "The five Shanghai Five countries and Uzbekistan (src/data/bloc-history.csv); check against the link."
+      "date": "2026-10-21"
     },
     {
       "id": "members-2026",
@@ -228,9 +200,7 @@
       "period": "2026",
       "source": "Shanghai Cooperation Organisation, General information",
       "link": "https://eng.sectsco.org/",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "Count of the open rows in src/data/bloc-history.csv; check against the link."
+      "date": "2026-10-21"
     }
   ]
 }

@@ -14,7 +14,8 @@
     "Atatürk Dam",
     "Ilısu Dam",
     "Ilisu Dam",
-    "Southeastern Anatolia Project"
+    "Southeastern Anatolia Project",
+    "Framework Agreement on Cooperation in the Field of Water Policy"
   ],
   "generated": "by hand",
   "facts": [
@@ -32,11 +33,9 @@
         "TUR",
         "SYR"
       ],
-      "source": "FAO AQUASTAT, Euphrates-Tigris basin",
-      "link": "https://www.fao.org/aquastat/en/countries-and-basins/transboundary-river-basins/euphrates-tigris",
-      "date": "2009",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check it against the link."
+      "source": "Oregon State University, Program in Water Conflict Management and Transformation: Euphrates-Tigris case study",
+      "link": "https://transboundarywaters.ceoas.oregonstate.edu/sites/transboundarywaters.ceoas.oregonstate.edu/files/Database/ResearchProjects/casestudies/euphrates-tigris.pdf",
+      "date": "2009"
     },
     {
       "id": "syria-iraq-1990",
@@ -52,11 +51,9 @@
         "SYR",
         "IRQ"
       ],
-      "source": "FAO AQUASTAT, Euphrates-Tigris basin",
-      "link": "https://www.fao.org/aquastat/en/countries-and-basins/transboundary-river-basins/euphrates-tigris",
-      "date": "2009",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check it against the link."
+      "source": "UNEP LEAP: Joint Minutes concerning the provisional division of the waters of the Euphrates",
+      "link": "https://leap.unep.org/en/countries/iq/national-legislation/joint-minutes-concerning-provisional-division-waters-euphrates",
+      "date": "2009"
     },
     {
       "id": "ataturk-1990",
@@ -65,11 +62,9 @@
       "places": [
         "TUR"
       ],
-      "source": "FAO AQUASTAT, Euphrates-Tigris basin",
-      "link": "https://www.fao.org/aquastat/en/countries-and-basins/transboundary-river-basins/euphrates-tigris",
-      "date": "2009",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check it against the link."
+      "source": "Oregon State University, Program in Water Conflict Management and Transformation: Euphrates-Tigris case study",
+      "link": "https://transboundarywaters.ceoas.oregonstate.edu/sites/transboundarywaters.ceoas.oregonstate.edu/files/Database/ResearchProjects/casestudies/euphrates-tigris.pdf",
+      "date": "2009"
     },
     {
       "id": "ilisu-2019",
@@ -78,25 +73,21 @@
       "places": [
         "TUR"
       ],
-      "source": "General Directorate of State Hydraulic Works (DSİ), Türkiye",
-      "link": "https://www.dsi.gov.tr/",
-      "date": "2019-07",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check it against the link."
+      "source": "Bianet",
+      "link": "https://bianet.org/english/environment/210936-beginning-of-the-end-for-hasankeyf-tests-for-filling-dam-reservoir-start",
+      "date": "2019-07"
     },
     {
       "id": "framework-2024",
-      "statement": "Türkiye and Iraq signed a framework agreement on cooperation in the water sector on 22 April 2024.",
+      "statement": "Türkiye and Iraq signed the Framework Agreement on Cooperation in the Field of Water Policy on 22 April 2024.",
       "period": "2024-04-22",
       "places": [
         "TUR",
         "IRQ"
       ],
-      "source": "Presidency of the Republic of Türkiye",
-      "link": "https://www.tccb.gov.tr/en/",
-      "date": "2024-04-22",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check it against the link."
+      "source": "Directorate of Communications, Presidency of the Republic of Türkiye",
+      "link": "https://www.iletisim.gov.tr/english/haberler/detay/26-agreements-signed-between-turkiye-and-iraq",
+      "date": "2024-04-22"
     }
   ]
 }

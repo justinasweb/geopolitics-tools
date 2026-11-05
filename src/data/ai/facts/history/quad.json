@@ -24,7 +24,7 @@
       "link": "https://www.dfat.gov.au/international-relations/regional-architecture/quad",
       "date": "2026-10-21",
       "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "note": "DFAT's page doesn't state 2007, 2008 or 2017; find another official source"
     },
     {
       "id": "join-JPN-2007",
@@ -37,7 +37,7 @@
       "link": "https://www.dfat.gov.au/international-relations/regional-architecture/quad",
       "date": "2026-10-21",
       "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "note": "DFAT's page doesn't state 2007, 2008 or 2017; find another official source"
     },
     {
       "id": "join-USA-2007",
@@ -50,7 +50,7 @@
       "link": "https://www.dfat.gov.au/international-relations/regional-architecture/quad",
       "date": "2026-10-21",
       "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "note": "DFAT's page doesn't state 2007, 2008 or 2017; find another official source"
     },
     {
       "id": "join-AUS-2007",
@@ -63,11 +63,11 @@
       "link": "https://www.dfat.gov.au/international-relations/regional-architecture/quad",
       "date": "2026-10-21",
       "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "note": "DFAT's page doesn't state 2007, 2008 or 2017; find another official source"
     },
     {
       "id": "left-AUS-2008",
-      "statement": "Australia left the Quad in 2008.",
+      "statement": "Australia stopped taking part in the Quad in 2008.",
       "period": "2008",
       "places": [
         "AUS"
@@ -76,11 +76,11 @@
       "link": "https://www.dfat.gov.au/international-relations/regional-architecture/quad",
       "date": "2026-10-21",
       "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "note": "DFAT's page doesn't state 2007, 2008 or 2017; find another official source"
     },
     {
       "id": "join-AUS-2017",
-      "statement": "Australia joined the Quad in 2017.",
+      "statement": "Australia took part in the Quad again from 2017.",
       "period": "2017",
       "places": [
         "AUS"
@@ -89,7 +89,7 @@
       "link": "https://www.dfat.gov.au/international-relations/regional-architecture/quad",
       "date": "2026-10-21",
       "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "note": "DFAT's page doesn't state 2007, 2008 or 2017; find another official source"
     },
     {
       "id": "note-2008",
@@ -102,7 +102,7 @@
       "link": "https://www.dfat.gov.au/international-relations/regional-architecture/quad",
       "date": "2026-10-21",
       "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "note": "DFAT's page doesn't state 2007, 2008 or 2017; find another official source"
     },
     {
       "id": "note-2017",
@@ -118,7 +118,7 @@
       "link": "https://www.dfat.gov.au/international-relations/regional-architecture/quad",
       "date": "2026-10-21",
       "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "note": "DFAT's page doesn't state 2007, 2008 or 2017; find another official source"
     },
     {
       "id": "founding-members",
@@ -135,7 +135,7 @@
       "link": "https://www.dfat.gov.au/international-relations/regional-architecture/quad",
       "date": "2026-10-21",
       "unverified": true,
-      "note": "Count of the founding rows in src/data/bloc-history.csv; check against the link."
+      "note": "DFAT's page doesn't state 2007, 2008 or 2017; find another official source"
     },
     {
       "id": "members-2026",
@@ -151,7 +151,7 @@
       "link": "https://www.dfat.gov.au/international-relations/regional-architecture/quad",
       "date": "2026-10-21",
       "unverified": true,
-      "note": "Count of the open rows in src/data/bloc-history.csv; check against the link."
+      "note": "DFAT's page doesn't state 2007, 2008 or 2017; find another official source"
     }
   ]
 }

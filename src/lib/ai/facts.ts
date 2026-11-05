@@ -31,6 +31,9 @@ export interface Fact {
   unverified?: boolean;
   /** For the owner: why it is unverified, or what to check. */
   note?: string;
+  /** The owner's own words (pages only): the text keeps the statement word for word between `<!-- owner -->` and
+   *  `<!-- /owner -->`. It is not drafted, not checked as a draft and never carries the AI label. */
+  owner?: boolean;
 }
 
 export type FactsKind = 'dossier' | 'history' | 'river' | 'page' | 'hub' | 'week';

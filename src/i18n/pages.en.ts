@@ -81,7 +81,7 @@ export const COUNTRY_TEXT = {
   supplyChains: 'Its supply chains',
   compare: (other: string) => `Compare with ${other}`,
   allCountries: 'All countries',
-  boundaries: 'Boundaries: Natural Earth 1:50m, the de facto map. Boundaries shown do not imply endorsement.',
+  boundaries: 'Boundaries: Natural Earth 1:50m, which shows who controls an area in practice. Borders shown do not imply endorsement.',
   locator: (name: string) => `Locator map: ${name}`,
   keyFigures: 'Key figures',
   rank: (r: string, of: number) => `${r} of ${of}`,

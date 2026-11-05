@@ -22,11 +22,9 @@
         "AFG",
         "IRN"
       ],
-      "source": "FAO, FAOLEX",
-      "link": "https://www.fao.org/faolex/en/",
-      "date": "1973-03-13",
-      "unverified": true,
-      "note": "Search FAOLEX or the UN Treaty Collection for the 1973 Helmand River Water Treaty."
+      "source": "International Water Law Project: The Helmand River and the Afghan-Iranian Treaty of 1973",
+      "link": "https://www.internationalwaterlaw.org/blog/2015/07/23/the-helmand-river-and-the-afghan-iranian-treaty-of-1973/",
+      "date": "1973-03-13"
     },
     {
       "id": "treaty-flow",
@@ -41,11 +39,9 @@
       "places": [
         "IRN"
       ],
-      "source": "FAO, FAOLEX",
-      "link": "https://www.fao.org/faolex/en/",
-      "date": "1973-03-13",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check it against the link."
+      "source": "International Water Law Project: The Helmand River and the Afghan-Iranian Treaty of 1973",
+      "link": "https://www.internationalwaterlaw.org/blog/2015/07/23/the-helmand-river-and-the-afghan-iranian-treaty-of-1973/",
+      "date": "1973-03-13"
     },
     {
       "id": "treaty-goodwill",
@@ -61,11 +57,9 @@
         "AFG",
         "IRN"
       ],
-      "source": "FAO, FAOLEX",
-      "link": "https://www.fao.org/faolex/en/",
-      "date": "1973-03-13",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check it against the link."
+      "source": "International Water Law Project: The Helmand River and the Afghan-Iranian Treaty of 1973",
+      "link": "https://www.internationalwaterlaw.org/blog/2015/07/23/the-helmand-river-and-the-afghan-iranian-treaty-of-1973/",
+      "date": "1973-03-13"
     },
     {
       "id": "kamal-khan-2021",
@@ -74,11 +68,9 @@
       "places": [
         "AFG"
       ],
-      "source": "Office of the President of Afghanistan (archived)",
-      "link": "https://web.archive.org/web/2021/https://president.gov.af/en/",
-      "date": "2021-03-24",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check it against the link."
+      "source": "Anadolu Agency",
+      "link": "https://aa.com.tr/en/asia-pacific/decades-in-making-afghan-mega-dam-opens-on-iran-border/2186632",
+      "date": "2021-03-24"
     }
   ]
 }

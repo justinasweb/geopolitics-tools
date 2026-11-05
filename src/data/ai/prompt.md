@@ -54,7 +54,8 @@ side did or stated, in the facts' words, without saying who is right.
 
 Write the page "{subject}" in Markdown, using `##` headings for its sections. Keep to what the facts say about the site,
 its sources and its rules. Where a fact is marked as for the owner to fill in, write the placeholder text it gives,
-unchanged.
+unchanged. Where a fact has `"owner": true`, it is the owner's own words: copy its statement unchanged, Markdown
+included, on its own lines between `<!-- owner -->` and `<!-- /owner -->`, in the section it belongs to.
 
 ## Task: hub
 

@@ -68,7 +68,8 @@ export const NOT_COUNTRIES = [
   'European Union', 'European Economic Community', 'European Commission', 'European Council', 'African Union',
   'Arab League', 'Gulf of Guinea', 'Persian Gulf', 'Sea of Japan', 'South China Sea', 'East China Sea',
   'West Bank', 'New Development Bank', 'Mekong River Commission', 'Nile Basin Initiative',
-  'Shatt al-Arab', 'Grand Ethiopian Renaissance Dam', 'Turkish Straits', 'Russian Empire',
+  'Shatt al-Arab', 'Grand Ethiopian Renaissance Dam', 'Turkish Straits', 'Russian Empire', 'US Geological Survey',
+  'U.S. Geological Survey',
 ];
 
 export interface NameEntry { name: string; place: string }

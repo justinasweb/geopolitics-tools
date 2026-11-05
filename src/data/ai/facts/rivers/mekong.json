@@ -32,9 +32,7 @@
       ],
       "source": "Mekong River Commission, History",
       "link": "https://www.mrcmekong.org/about/mrc/history/",
-      "date": "2025",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check it against the link."
+      "date": "2025"
     },
     {
       "id": "dialogue-1996",
@@ -44,11 +42,9 @@
         "CHN",
         "MMR"
       ],
-      "source": "Mekong River Commission, Dialogue partners",
-      "link": "https://www.mrcmekong.org/",
-      "date": "2025",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check it against the link."
+      "source": "Mekong River Commission, History",
+      "link": "https://www.mrcmekong.org/about/mrc/history/",
+      "date": "2025"
     },
     {
       "id": "xayaburi-2019",
@@ -57,11 +53,9 @@
       "places": [
         "LAO"
       ],
-      "source": "Mekong River Commission",
-      "link": "https://www.mrcmekong.org/",
-      "date": "2019-10",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check it against the link."
+      "source": "The Japan Times",
+      "link": "https://japantimes.co.jp/news/2019/10/29/asia-pacific/new-mekong-dam-laos-opens-protests-villagers-thailand",
+      "date": "2019-10"
     },
     {
       "id": "data-2020",
@@ -70,11 +64,9 @@
       "places": [
         "CHN"
       ],
-      "source": "Mekong River Commission, press release",
-      "link": "https://www.mrcmekong.org/news-and-events/",
-      "date": "2020-10",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check it against the link."
+      "source": "The Star (Malaysia)",
+      "link": "https://www.thestar.com.my/aseanplus/aseanplus-news/2020/10/25/china-commits-to-share-year-round-water-data-with-mekong-river-commission-benefits-asean-countries",
+      "date": "2020-10"
     }
   ]
 }

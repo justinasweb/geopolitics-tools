@@ -8,4 +8,9 @@ facts:
   - "Every figure carries its source and year (site rules)"
 updated: '2026-10-29'
 approved: false
+author: "ai"
+model: "manual (Claude chat)"
+factsHash: "sha256:bd8f97ed696cb8f27824fbb0de2b71c2"
+drafted: "2026-11-05"
 ---
+

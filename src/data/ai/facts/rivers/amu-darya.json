@@ -31,11 +31,9 @@
         "UZB",
         "AFG"
       ],
-      "source": "Interstate Commission for Water Coordination of Central Asia",
-      "link": "https://www.icwc-aral.uz/",
-      "date": "1992-02-18",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check it against the link."
+      "source": "Agreement on cooperation in the joint management, use and protection of interstate water resources, 18 February 1992 (text kept by the University of Texas at Austin)",
+      "link": "https://caee.webhost.utexas.edu/prof/mckinney/papers/aral/agreements/ICWC-Feb18-1992.pdf",
+      "date": "1992-02-18"
     },
     {
       "id": "rogun-2018",
@@ -44,11 +42,9 @@
       "places": [
         "TJK"
       ],
-      "source": "Government of Tajikistan, President’s office",
-      "link": "https://www.president.tj/",
-      "date": "2018-11",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check it against the link."
+      "source": "Webuild (Salini Impregilo), press release",
+      "link": "https://www.webuildgroup.com/en/media/press-releases/tajikistan-president-starts-first-turbine-of-rogun-hydropower-plant-being-developed-with-the-participation-of-salini-impregilo/",
+      "date": "2018-11"
     },
     {
       "id": "qosh-tepa-2022",
@@ -59,9 +55,7 @@
       ],
       "source": "Office of the First Deputy Prime Minister for Economic Affairs, Afghanistan (de facto authorities): The First Deputy Prime Minister traveled to Balkh to inaugurate the Qosh Tepa Canal",
       "link": "https://dpmea.gov.af/node/571",
-      "date": "2022-03",
-      "unverified": true,
-      "note": "Found by web search; dpmea.gov.af was not reachable from the build session. Check that the page is the March 2022 launch."
+      "date": "2022-03"
     },
     {
       "id": "qosh-tepa-length",
@@ -77,9 +71,7 @@
       ],
       "source": "Office of the First Deputy Prime Minister for Economic Affairs, Afghanistan (de facto authorities): The First Deputy Prime Minister traveled to Balkh to inaugurate the Qosh Tepa Canal",
       "link": "https://dpmea.gov.af/node/571",
-      "date": "2022-03",
-      "unverified": true,
-      "note": "The page gives a total length of 285 km in three phases (as quoted in search results); check it on the page."
+      "date": "2022-03"
     }
   ]
 }

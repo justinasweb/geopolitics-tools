@@ -37,7 +37,7 @@
       "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
       "date": "2026-10-21",
       "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "note": "Not checked: opec.org refused the connection from the 5 November 2026 session too (HTTP 402). Check it against the link."
     },
     {
       "id": "join-IRQ-1960",
@@ -50,7 +50,7 @@
       "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
       "date": "2026-10-21",
       "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "note": "Not checked: opec.org refused the connection from the 5 November 2026 session too (HTTP 402). Check it against the link."
     },
     {
       "id": "join-KWT-1960",
@@ -63,7 +63,7 @@
       "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
       "date": "2026-10-21",
       "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "note": "Not checked: opec.org refused the connection from the 5 November 2026 session too (HTTP 402). Check it against the link."
     },
     {
       "id": "join-SAU-1960",
@@ -76,7 +76,7 @@
       "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
       "date": "2026-10-21",
       "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "note": "Not checked: opec.org refused the connection from the 5 November 2026 session too (HTTP 402). Check it against the link."
     },
     {
       "id": "join-VEN-1960",
@@ -89,7 +89,7 @@
       "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
       "date": "2026-10-21",
       "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "note": "Not checked: opec.org refused the connection from the 5 November 2026 session too (HTTP 402). Check it against the link."
     },
     {
       "id": "join-QAT-1961",
@@ -102,7 +102,7 @@
       "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
       "date": "2026-10-21",
       "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "note": "Not checked: opec.org refused the connection from the 5 November 2026 session too (HTTP 402). Check it against the link."
     },
     {
       "id": "left-QAT-2019",
@@ -115,7 +115,7 @@
       "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
       "date": "2026-10-21",
       "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "note": "Not checked: opec.org refused the connection from the 5 November 2026 session too (HTTP 402). Check it against the link."
     },
     {
       "id": "join-IDN-1962",
@@ -128,7 +128,7 @@
       "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
       "date": "2026-10-21",
       "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "note": "Not checked: opec.org refused the connection from the 5 November 2026 session too (HTTP 402). Check it against the link."
     },
     {
       "id": "left-IDN-2009",
@@ -141,7 +141,7 @@
       "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
       "date": "2026-10-21",
       "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "note": "Not checked: opec.org refused the connection from the 5 November 2026 session too (HTTP 402). Check it against the link."
     },
     {
       "id": "join-LBY-1962",
@@ -154,7 +154,7 @@
       "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
       "date": "2026-10-21",
       "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "note": "Not checked: opec.org refused the connection from the 5 November 2026 session too (HTTP 402). Check it against the link."
     },
     {
       "id": "join-ARE-1967",
@@ -167,7 +167,7 @@
       "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
       "date": "2026-10-21",
       "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "note": "Not checked: opec.org refused the connection from the 5 November 2026 session too (HTTP 402). Check it against the link."
     },
     {
       "id": "announce-ARE-2026",
@@ -180,7 +180,7 @@
       "link": "https://www.wam.ae/en/article/bzxzuh7-uae-announces-decision-exit-opec-opec+",
       "date": "2026-04-28",
       "unverified": true,
-      "note": "Official UAE statement found by web search; wam.ae was not reachable from the build session. Check the date and wording against the link."
+      "note": "Not checked: opec.org refused the connection from the 5 November 2026 session too (HTTP 402). Check it against the link."
     },
     {
       "id": "left-ARE-2026",
@@ -193,7 +193,7 @@
       "link": "https://www.wam.ae/en/article/bzxzuh7-uae-announces-decision-exit-opec-opec+",
       "date": "2026-04-28",
       "unverified": true,
-      "note": "Official UAE statement found by web search; wam.ae was not reachable from the build session. Check the date and wording against the link."
+      "note": "Not checked: opec.org refused the connection from the 5 November 2026 session too (HTTP 402). Check it against the link."
     },
     {
       "id": "join-DZA-1969",
@@ -206,7 +206,7 @@
       "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
       "date": "2026-10-21",
       "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "note": "Not checked: opec.org refused the connection from the 5 November 2026 session too (HTTP 402). Check it against the link."
     },
     {
       "id": "join-NGA-1971",
@@ -219,7 +219,7 @@
       "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
       "date": "2026-10-21",
       "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "note": "Not checked: opec.org refused the connection from the 5 November 2026 session too (HTTP 402). Check it against the link."
     },
     {
       "id": "join-ECU-1973",
@@ -232,7 +232,7 @@
       "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
       "date": "2026-10-21",
       "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "note": "Not checked: opec.org refused the connection from the 5 November 2026 session too (HTTP 402). Check it against the link."
     },
     {
       "id": "left-ECU-1992",
@@ -245,7 +245,7 @@
       "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
       "date": "2026-10-21",
       "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "note": "Not checked: opec.org refused the connection from the 5 November 2026 session too (HTTP 402). Check it against the link."
     },
     {
       "id": "join-ECU-2007",
@@ -258,7 +258,7 @@
       "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
       "date": "2026-10-21",
       "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "note": "Not checked: opec.org refused the connection from the 5 November 2026 session too (HTTP 402). Check it against the link."
     },
     {
       "id": "left-ECU-2020",
@@ -271,7 +271,7 @@
       "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
       "date": "2026-10-21",
       "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "note": "Not checked: opec.org refused the connection from the 5 November 2026 session too (HTTP 402). Check it against the link."
     },
     {
       "id": "join-GAB-1975",
@@ -284,7 +284,7 @@
       "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
       "date": "2026-10-21",
       "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "note": "Not checked: opec.org refused the connection from the 5 November 2026 session too (HTTP 402). Check it against the link."
     },
     {
       "id": "left-GAB-1995",
@@ -297,7 +297,7 @@
       "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
       "date": "2026-10-21",
       "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "note": "Not checked: opec.org refused the connection from the 5 November 2026 session too (HTTP 402). Check it against the link."
     },
     {
       "id": "join-GAB-2016",
@@ -310,7 +310,7 @@
       "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
       "date": "2026-10-21",
       "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "note": "Not checked: opec.org refused the connection from the 5 November 2026 session too (HTTP 402). Check it against the link."
     },
     {
       "id": "join-AGO-2007",
@@ -323,7 +323,7 @@
       "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
       "date": "2026-10-21",
       "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "note": "Not checked: opec.org refused the connection from the 5 November 2026 session too (HTTP 402). Check it against the link."
     },
     {
       "id": "left-AGO-2024",
@@ -336,7 +336,7 @@
       "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
       "date": "2026-10-21",
       "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "note": "Not checked: opec.org refused the connection from the 5 November 2026 session too (HTTP 402). Check it against the link."
     },
     {
       "id": "join-GNQ-2017",
@@ -349,7 +349,7 @@
       "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
       "date": "2026-10-21",
       "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "note": "Not checked: opec.org refused the connection from the 5 November 2026 session too (HTTP 402). Check it against the link."
     },
     {
       "id": "join-COG-2018",
@@ -362,7 +362,7 @@
       "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
       "date": "2026-10-21",
       "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "note": "Not checked: opec.org refused the connection from the 5 November 2026 session too (HTTP 402). Check it against the link."
     },
     {
       "id": "note-2016",
@@ -375,7 +375,7 @@
       "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
       "date": "2026-10-21",
       "unverified": true,
-      "note": "Covers both 2016 rows of src/data/bloc-history.csv (rejoined and suspended in the same year). Not opened from the build session (official sites were not reachable); check the date against the link."
+      "note": "Not checked: opec.org refused the connection from the 5 November 2026 session too (HTTP 402). Check it against the link."
     },
     {
       "id": "founding-members",
@@ -392,7 +392,7 @@
       "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
       "date": "2026-10-21",
       "unverified": true,
-      "note": "Count of the founding rows in src/data/bloc-history.csv; check against the link."
+      "note": "Not checked: opec.org refused the connection from the 5 November 2026 session too (HTTP 402). Check it against the link."
     },
     {
       "id": "members-2026",
@@ -408,7 +408,7 @@
       "link": "https://www.opec.org/opec_web/en/about_us/25.htm",
       "date": "2026-10-21",
       "unverified": true,
-      "note": "Count of the open rows in src/data/bloc-history.csv, recounted on 2 November 2026 after the UAE left; check against the link."
+      "note": "Not checked: opec.org refused the connection from the 5 November 2026 session too (HTTP 402). Check it against the link."
     }
   ]
 }

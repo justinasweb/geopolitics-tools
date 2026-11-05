@@ -47,6 +47,9 @@ Made while building the drafting pipeline (docs/ai-drafting.md); each is easy to
   page could be checked (ASEAN's Timor-Leste declaration, Ethiopia's Prime Minister's Office, Egypt's State
   Information Service, Xinhua, the MEA). Privacy and Methodology also wait on the Fathom, Cloudflare and SIPRI facts
   and the six territory notes.
+  *Update 5 Nov 2026 (launch review):* the river facts and most history facts are verified. Still open: OPEC and
+  G20 (their sites refused the session's connections), the Quad, four G7 facts on Russia, NATO's Greek notes for
+  1974 and 1980, and the Dnipro facts; see the next section.
 - **Stale texts are hidden.** A short text whose facts changed disappears until it is redrafted; a long page shows
   the draft banner again. For dossiers this happens whenever a figure they cite gets a new year. The alternative is
   to keep showing the old text with its approval date until the redraft.
@@ -58,6 +61,35 @@ Made while building the drafting pipeline (docs/ai-drafting.md); each is easy to
 - **Strictness.** The checker refuses "half", "doubled", rounding to one significant figure and any country the facts
   do not name, including demonyms ("Chinese company"). If good drafts are dropped too often, loosen it in
   `src/lib/ai/check.ts` with a test.
+
+## Launch review leftovers (raised 5 Nov 2026)
+
+- **G7 and Russia.** The G7 Research Group ([What is the G7?](https://g7.utoronto.ca/what_is_g8.html)) dates the G8
+  to the 1998 Birmingham summit and calls Denver 1997 "full Russian participation in all but financial and certain
+  economic discussions". For 2014 it says the G7 leaders suspended their participation in preparations for the Sochi
+  summit, and it does not mention Crimea. `join-RUS-1997`, `note-1997`, `left-RUS-2014` and `note-2014` stay
+  unverified, and `bloc-history.csv` still has Russia from 1997. To decide: 1997 or 1998, and the 2014 wording.
+- **NATO and Greece.** No NATO page stating 1974 and 1980 could be opened. JFC Naples's history page reportedly
+  gives the October 1980 return, so `note-1974` and `note-1980` stay unverified.
+- **OPEC and G20.** opec.org (HTTP 402) and g20.org (HTTP 403) refused the session, so both files stay unverified.
+- **SCO link.** eng.sectsco.org did not resolve from the session, so the facts keep the site's home page as their
+  link. Paste the "General information" page's address.
+- **Dnipro.** Cabinet of Ministers Resolution No. 1488 of 30 December 2022 ends the agreement "done on 19 October
+  1992 in Kyiv", according to search excerpts of [zakon.rada.gov.ua](https://zakon.rada.gov.ua/laws/show/1488-2022-%D0%BF).
+  The page refused the connection. The agreement's title is about *border* water bodies (прикордонних водних об'єктів),
+  and the fact now says so. Both facts are unverified, for the owner to review.
+- **World Bank notes for Ukraine and Morocco.** The WDI country metadata has no SpecialNotes for either country, so
+  neither note is confirmed. Ukraine's ("include Crimea") is probably wrong, but the metadata does not say so either
+  way. Both stay `checked: no` and are left out of Methodology's facts. China's note now follows its SpecialNotes.
+- **Kashmir.** Natural Earth's `KAS` shape is the Siachen Glacier, not Kashmir, and India holds the glacier, so
+  "each administers part" does not fit it. No note was added. Kashmir as a whole lies in India's, Pakistan's and
+  China's shapes. To decide: a note on the KAS shape in its own words, or on those three countries.
+- **Crimea's note** is on Russia's shape, which contains Crimea on this map, and not on Ukraine's.
+- **Methodology** was written before the checker and fails it on 27 points ("1:50m", "top", "first", "Sonnet 5.5",
+  "blame"…). It keeps no facts hash until it is redrafted (Actions → ai-draft) or its facts cover those words.
+- **The territories policy** (project docs, not in the repository) has the wrong map column for Western Sahara:
+  Morocco's Natural Earth shape covers the Moroccan-administered part (to 21.4°N), and only the strip east of the
+  berm is "W. Sahara".
 
 ## This week: choices to confirm (raised 2 Nov 2026)
 

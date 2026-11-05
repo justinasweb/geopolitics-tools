@@ -3,17 +3,23 @@
   "kind": "page",
   "subject": "Methodology",
   "countries": [
-    "MAR",
-    "UKR",
     "CHN",
     "ESH",
+    "MAR",
     "XKX",
-    "FLK"
+    "FLK",
+    "RUS",
+    "UKR",
+    "CYP",
+    "SOM",
+    "GEO",
+    "MDA"
   ],
   "names": [
     "claude-sonnet-5-5",
     "CC BY 4.0",
     "CC BY 4.0, with UNHCR’s supplemental terms",
+    "CC BY-NC 4.0 (since 2 April 2025)",
     "CC BY 4.0, with FAO’s additional terms",
     "UN Comtrade terms: a free, not-for-profit visualisation may show its figures; no bulk redistribution",
     "Public domain (US government work); EIA asks to be credited",
@@ -28,7 +34,7 @@
       "unit": "%",
       "source": "geopolitics.tools code (src/lib/dependence.ts)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/lib/dependence.ts",
-      "date": "2026-11-02"
+      "date": "2026-11-05"
     },
     {
       "id": "imports-some",
@@ -37,7 +43,7 @@
       "unit": "%",
       "source": "geopolitics.tools code (src/lib/dependence.ts)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/lib/dependence.ts",
-      "date": "2026-11-02"
+      "date": "2026-11-05"
     },
     {
       "id": "tool-band",
@@ -46,7 +52,7 @@
       "unit": "%",
       "source": "geopolitics.tools code (src/lib/dependencies/model.ts)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/lib/dependencies/model.ts",
-      "date": "2026-11-02"
+      "date": "2026-11-05"
     },
     {
       "id": "spof",
@@ -55,7 +61,7 @@
       "unit": "%",
       "source": "geopolitics.tools code (src/lib/dependencies/model.ts)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/lib/dependencies/model.ts",
-      "date": "2026-11-02"
+      "date": "2026-11-05"
     },
     {
       "id": "hhi-moderate",
@@ -65,7 +71,7 @@
       "period": "2023",
       "source": "geopolitics.tools code (src/lib/supply-chains/model.ts)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/lib/supply-chains/model.ts",
-      "date": "2026-11-02"
+      "date": "2026-11-05"
     },
     {
       "id": "hhi-high",
@@ -74,7 +80,7 @@
       "unit": "",
       "source": "geopolitics.tools code (src/lib/supply-chains/model.ts)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/lib/supply-chains/model.ts",
-      "date": "2026-11-02"
+      "date": "2026-11-05"
     },
     {
       "id": "hhi-max",
@@ -83,7 +89,7 @@
       "unit": "",
       "source": "geopolitics.tools code (src/lib/supply-chains/model.ts)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/lib/supply-chains/model.ts",
-      "date": "2026-11-02"
+      "date": "2026-11-05"
     },
     {
       "id": "common-year",
@@ -92,7 +98,7 @@
       "unit": "%",
       "source": "geopolitics.tools code (src/lib/stats.ts)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/lib/stats.ts",
-      "date": "2026-11-02"
+      "date": "2026-11-05"
     },
     {
       "id": "latest-available",
@@ -101,7 +107,7 @@
       "unit": "years",
       "source": "geopolitics.tools code (src/lib/indicator.ts)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/lib/indicator.ts",
-      "date": "2026-11-02"
+      "date": "2026-11-05"
     },
     {
       "id": "indicator-min",
@@ -110,7 +116,7 @@
       "unit": "places",
       "source": "geopolitics.tools code (src/lib/indicator.ts)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/lib/indicator.ts",
-      "date": "2026-11-02"
+      "date": "2026-11-05"
     },
     {
       "id": "thin-profile",
@@ -119,42 +125,47 @@
       "unit": "measures",
       "source": "geopolitics.tools code (src/lib/country.ts)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/lib/country.ts",
-      "date": "2026-11-02"
+      "date": "2026-11-05"
     },
     {
       "id": "sipri-totals",
-      "statement": "SIPRI arms transfers are shown as five-year totals of trend-indicator values (TIV).",
+      "statement": "SIPRI says its trend-indicator values (TIV) are best used to show trends in arms transfers over periods of time; the site shows them as five-year totals.",
       "value": 5,
       "unit": "years",
       "unitAliases": [
         "five-year"
       ],
-      "source": "SIPRI Arms Transfers Database",
+      "source": "SIPRI Arms Transfers Database, Sources and methods",
       "link": "https://www.sipri.org/databases/armstransfers/sources-and-methods",
-      "date": "2026-11-02",
-      "unverified": true,
-      "note": "Check SIPRI recommends multi-year totals on its methods page"
+      "date": "2026-11-05",
+      "note": "The page says TIV are “best used as the raw data for calculating trends in international arms transfers over periods of time”."
     },
     {
       "id": "sipri-reuse",
-      "statement": "SIPRI’s terms allow reuse of under 10% of its dataset, so only derived totals are published.",
+      "statement": "SIPRI’s terms allow fair use of less than 10% of a published data set; commercial use, including on sites with ads, needs a licence. The site publishes derived totals only.",
       "value": 10,
       "unit": "%",
       "unitAliases": [
+        "data set",
         "dataset"
       ],
-      "source": "SIPRI",
-      "link": "https://www.sipri.org/about/terms-and-conditions",
-      "date": "2026-11-02",
-      "unverified": true,
-      "note": "Check the 10% limit on SIPRI’s terms page"
+      "source": "SIPRI, Terms and conditions for databases",
+      "link": "https://www.sipri.org/databases/terms",
+      "date": "2026-11-05"
     },
     {
       "id": "ai-model",
       "statement": "Texts drafted with AI are written by claude-sonnet-5-5 from a facts file, checked figure by figure, and approved by the editor before they appear.",
       "source": "geopolitics.tools code (src/lib/ai/config.ts)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/lib/ai/config.ts",
-      "date": "2026-11-02"
+      "date": "2026-11-05"
+    },
+    {
+      "id": "ai-texts",
+      "statement": "The texts drafted with AI are the dossier summaries, the alliance history notes, the disputed river summaries and the summary of each closed week on This week.",
+      "source": "geopolitics.tools code (docs/ai-drafting.md)",
+      "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/docs/ai-drafting.md",
+      "date": "2026-11-05"
     },
     {
       "id": "ai-attempts",
@@ -163,43 +174,17 @@
       "unit": "drafts",
       "source": "geopolitics.tools code (src/lib/ai/config.ts)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/lib/ai/config.ts",
-      "date": "2026-11-02"
-    },
-    {
-      "id": "territory-worldbank-MAR",
-      "statement": "World Bank figures for Morocco include Western Sahara",
-      "places": [
-        "MAR"
-      ],
-      "source": "Territory and code table (src/data/places/notes.csv)",
-      "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/places/notes.csv",
-      "date": "2026-11-02",
-      "unverified": true,
-      "note": "The territory notes start as drafts; check against the source and set checked to yes in notes.csv"
-    },
-    {
-      "id": "territory-worldbank-UKR",
-      "statement": "This source's figures for Ukraine include Crimea",
-      "places": [
-        "UKR"
-      ],
-      "source": "Territory and code table (src/data/places/notes.csv)",
-      "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/places/notes.csv",
-      "date": "2026-11-02",
-      "unverified": true,
-      "note": "The territory notes start as drafts; check against the source and set checked to yes in notes.csv"
+      "date": "2026-11-05"
     },
     {
       "id": "territory-worldbank-CHN",
-      "statement": "China excludes Taiwan, Hong Kong and Macao in this source",
+      "statement": "Unless noted otherwise, this source's figures for China exclude Hong Kong, Macao and Taiwan",
       "places": [
         "CHN"
       ],
       "source": "Territory and code table (src/data/places/notes.csv)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/places/notes.csv",
-      "date": "2026-11-02",
-      "unverified": true,
-      "note": "The territory notes start as drafts; check against the source and set checked to yes in notes.csv"
+      "date": "2026-11-05"
     },
     {
       "id": "territory-all-ESH",
@@ -209,9 +194,17 @@
       ],
       "source": "Territory and code table (src/data/places/notes.csv)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/places/notes.csv",
-      "date": "2026-11-02",
-      "unverified": true,
-      "note": "The territory notes start as drafts; check against the source and set checked to yes in notes.csv"
+      "date": "2026-11-05"
+    },
+    {
+      "id": "territory-all-MAR-western-sahara",
+      "statement": "Western Sahara: Status disputed; mostly administered by Morocco; claimed by the Polisario Front",
+      "places": [
+        "MAR"
+      ],
+      "source": "Territory and code table (src/data/places/notes.csv)",
+      "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/places/notes.csv",
+      "date": "2026-11-05"
     },
     {
       "id": "territory-all-XKX",
@@ -221,9 +214,7 @@
       ],
       "source": "Territory and code table (src/data/places/notes.csv)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/places/notes.csv",
-      "date": "2026-11-02",
-      "unverified": true,
-      "note": "The territory notes start as drafts; check against the source and set checked to yes in notes.csv"
+      "date": "2026-11-05"
     },
     {
       "id": "territory-all-FLK",
@@ -233,9 +224,67 @@
       ],
       "source": "Territory and code table (src/data/places/notes.csv)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/places/notes.csv",
-      "date": "2026-11-02",
-      "unverified": true,
-      "note": "The territory notes start as drafts; check against the source and set checked to yes in notes.csv"
+      "date": "2026-11-05"
+    },
+    {
+      "id": "territory-all-RUS-crimea",
+      "statement": "Crimea: Under Russian control since 2014; within Ukraine's internationally recognised borders. Figures follow each source.",
+      "places": [
+        "RUS"
+      ],
+      "source": "Territory and code table (src/data/places/notes.csv)",
+      "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/places/notes.csv",
+      "date": "2026-11-05"
+    },
+    {
+      "id": "territory-all-UKR",
+      "statement": "Partly under Russian control since 2022. Figures follow each source.",
+      "places": [
+        "UKR"
+      ],
+      "source": "Territory and code table (src/data/places/notes.csv)",
+      "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/places/notes.csv",
+      "date": "2026-11-05"
+    },
+    {
+      "id": "territory-all-CYP-northern-cyprus",
+      "statement": "Northern Cyprus: Administered separately from Cyprus; not recognised as a state by most countries",
+      "places": [
+        "CYP"
+      ],
+      "source": "Territory and code table (src/data/places/notes.csv)",
+      "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/places/notes.csv",
+      "date": "2026-11-05"
+    },
+    {
+      "id": "territory-all-SOM-somaliland",
+      "statement": "Somaliland: Administered separately from Somalia; not recognised as a state by most countries",
+      "places": [
+        "SOM"
+      ],
+      "source": "Territory and code table (src/data/places/notes.csv)",
+      "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/places/notes.csv",
+      "date": "2026-11-05"
+    },
+    {
+      "id": "territory-all-GEO-abkhazia-and-south-ossetia",
+      "statement": "Abkhazia and South Ossetia: Administered separately from Georgia; not recognised as states by most countries",
+      "places": [
+        "GEO"
+      ],
+      "source": "Territory and code table (src/data/places/notes.csv)",
+      "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/places/notes.csv",
+      "date": "2026-11-05"
+    },
+    {
+      "id": "territory-all-MDA-transnistria",
+      "statement": "Transnistria: Administered separately from Moldova; not recognised as a state by most countries",
+      "places": [
+        "MDA"
+      ],
+      "source": "Territory and code table (src/data/places/notes.csv)",
+      "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/places/notes.csv",
+      "date": "2026-11-05"
     },
     {
       "id": "source-usgs-quakes",

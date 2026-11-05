@@ -51,6 +51,9 @@ export interface CodeRow {
 export interface CoverageNote {
   source: string;
   place: string;
+  /** The area inside the place's map shape the note is about ("Crimea" on Russia's shape), when not all of it. */
+  area: string;
+  /** The note as shown: "Crimea: Under Russian control since 2014; …" when it names an area. */
   note: string;
   /** Whether the fact in the note was checked against a cited source (the policy's notes start as drafts). */
   checked: boolean;
@@ -71,7 +74,7 @@ export const PLACES: Place[] = table('places.csv').map((r) => ({
   slug: r.slug, isoName: r.iso_name, status: r.status, start: r.start, end: r.end, splitInto: r.split_into ? r.split_into.split(';') : [],
 }));
 export const CODES: CodeRow[] = table('codes.csv').map((r) => ({ source: r.source, system: r.system as System, code: r.code, place: r.place, start: r.start, end: r.end, note: r.note }));
-export const NOTES: CoverageNote[] = table('notes.csv').map((r) => ({ source: r.source, place: r.place, note: r.note, checked: r.checked === 'yes' }));
+export const NOTES: CoverageNote[] = table('notes.csv').map((r) => ({ source: r.source, place: r.place, area: r.area, note: r.area ? `${r.area}: ${r.note}` : r.note, checked: r.checked === 'yes' }));
 
 const byId = new Map(PLACES.map((p) => [p.id, p]));
 export const place = (id: string) => byId.get(id);
