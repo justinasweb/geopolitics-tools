@@ -48,8 +48,7 @@ Made while building the drafting pipeline (docs/ai-drafting.md); each is easy to
   Information Service, Xinhua, the MEA). Privacy and Methodology also wait on the Fathom, Cloudflare and SIPRI facts
   and the six territory notes.
   *Update 5 Nov 2026 (launch review):* the river facts and most history facts are verified. Still open: OPEC and
-  G20 (their sites refused the session's connections), the Quad, four G7 facts on Russia, NATO's Greek notes for
-  1974 and 1980, and the Dnipro facts; see the next section.
+  G20 (their sites refused the session's connections), the Quad and the Dnipro facts; see the next section.
 - **Stale texts are hidden.** A short text whose facts changed disappears until it is redrafted; a long page shows
   the draft banner again. For dossiers this happens whenever a figure they cite gets a new year. The alternative is
   to keep showing the old text with its approval date until the redraft.
@@ -64,13 +63,13 @@ Made while building the drafting pipeline (docs/ai-drafting.md); each is easy to
 
 ## Launch review leftovers (raised 5 Nov 2026)
 
-- **G7 and Russia.** The G7 Research Group ([What is the G7?](https://g7.utoronto.ca/what_is_g8.html)) dates the G8
-  to the 1998 Birmingham summit and calls Denver 1997 "full Russian participation in all but financial and certain
-  economic discussions". For 2014 it says the G7 leaders suspended their participation in preparations for the Sochi
-  summit, and it does not mention Crimea. `join-RUS-1997`, `note-1997`, `left-RUS-2014` and `note-2014` stay
-  unverified, and `bloc-history.csv` still has Russia from 1997. To decide: 1997 or 1998, and the 2014 wording.
-- **NATO and Greece.** No NATO page stating 1974 and 1980 could be opened. JFC Naples's history page reportedly
-  gives the October 1980 return, so `note-1974` and `note-1980` stay unverified.
+- **G7 and Russia (decided 5 Nov 2026).** Russia joins in 1998, as the G8, per the G7 Research Group
+  ([What is the G7?](https://g7.utoronto.ca/what_is_g8.html)), in the facts and `bloc-history.csv`. For 2014 the
+  facts follow the [Hague Declaration](https://obamawhitehouse.archives.gov/the-press-office/2014/03/24/hague-declaration)
+  of 24 March 2014: the other members suspended their participation in the G8. The declaration speaks of "Russia's
+  illegal attempt to annex Crimea", not an annexation, so Crimea is no longer named.
+- **NATO and Greece (decided 5 Nov 2026).** The 1974 and 1980 notes were removed, from the facts and from the history
+  page's events: no NATO page stating them could be opened.
 - **OPEC and G20.** opec.org (HTTP 402) and g20.org (HTTP 403) refused the session, so both files stay unverified.
 - **SCO link.** eng.sectsco.org did not resolve from the session, so the facts keep the site's home page as their
   link. Paste the "General information" page's address.
@@ -78,9 +77,8 @@ Made while building the drafting pipeline (docs/ai-drafting.md); each is easy to
   1992 in Kyiv", according to search excerpts of [zakon.rada.gov.ua](https://zakon.rada.gov.ua/laws/show/1488-2022-%D0%BF).
   The page refused the connection. The agreement's title is about *border* water bodies (прикордонних водних об'єктів),
   and the fact now says so. Both facts are unverified, for the owner to review.
-- **World Bank notes for Ukraine and Morocco.** The WDI country metadata has no SpecialNotes for either country, so
-  neither note is confirmed. Ukraine's ("include Crimea") is probably wrong, but the metadata does not say so either
-  way. Both stay `checked: no` and are left out of Methodology's facts. China's note now follows its SpecialNotes.
+- **World Bank notes for Ukraine and Morocco (removed 5 Nov 2026).** The WDI country metadata has no SpecialNotes for
+  either country, so neither note could be confirmed, and both were deleted. China's note follows its SpecialNotes.
 - **Kashmir.** Natural Earth's `KAS` shape is the Siachen Glacier, not Kashmir, and India holds the glacier, so
   "each administers part" does not fit it. No note was added. Kashmir as a whole lies in India's, Pakistan's and
   China's shapes. To decide: a note on the KAS shape in its own words, or on those three countries.

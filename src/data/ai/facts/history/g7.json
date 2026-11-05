@@ -10,7 +10,6 @@
     "ITA",
     "JPN",
     "RUS",
-    "UKR",
     "USA",
     "XWG"
   ],
@@ -98,30 +97,26 @@
       "date": "2026-11-05"
     },
     {
-      "id": "join-RUS-1997",
-      "statement": "Russia joined the G7 in 1997.",
-      "period": "1997",
+      "id": "join-RUS-1998",
+      "statement": "Russia joined the G7 in 1998, and the group became the G8.",
+      "period": "1998",
       "places": [
         "RUS"
       ],
-      "source": "Ministry of Foreign Affairs of Japan, G7 summits",
-      "link": "https://www.mofa.go.jp/policy/economy/summit/index.html",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "The G7 Research Group page (g7.utoronto.ca/what_is_g8.html) gives 1998 (Birmingham) as the start of the G8, calls Denver 1997 full Russian participation in all but financial and some economic talks, and says the G7 leaders suspended their participation in preparations for the 2014 Sochi summit; it does not say Russia was suspended or mention Crimea. Decide the year and wording."
+      "source": "G7 Research Group, University of Toronto: What is the G7?",
+      "link": "https://g7.utoronto.ca/what_is_g8.html",
+      "date": "2026-11-05"
     },
     {
       "id": "left-RUS-2014",
-      "statement": "Russia was suspended from the G7 in 2014.",
-      "period": "2014",
+      "statement": "The other members suspended their participation in the G8 in March 2014.",
+      "period": "2014-03",
       "places": [
         "RUS"
       ],
-      "source": "The White House, The Hague Declaration (24 March 2014)",
+      "source": "The Hague Declaration, 24 March 2014 (White House archives)",
       "link": "https://obamawhitehouse.archives.gov/the-press-office/2014/03/24/hague-declaration",
-      "date": "2014-03-24",
-      "unverified": true,
-      "note": "The G7 Research Group page (g7.utoronto.ca/what_is_g8.html) gives 1998 (Birmingham) as the start of the G8, calls Denver 1997 full Russian participation in all but financial and some economic talks, and says the G7 leaders suspended their participation in preparations for the 2014 Sochi summit; it does not say Russia was suspended or mention Crimea. Decide the year and wording."
+      "date": "2014-03-24"
     },
     {
       "id": "note-1975",
@@ -140,31 +135,26 @@
       "date": "2026-11-05"
     },
     {
-      "id": "note-1997",
-      "statement": "With Russia, the group met as the G8 from 1997.",
-      "period": "1997",
+      "id": "note-1998",
+      "statement": "The 1998 Birmingham summit, with Russia taking full part, began the G8.",
+      "period": "1998",
       "places": [
         "RUS"
       ],
-      "source": "Ministry of Foreign Affairs of Japan, G7 summits",
-      "link": "https://www.mofa.go.jp/policy/economy/summit/index.html",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "The G7 Research Group page (g7.utoronto.ca/what_is_g8.html) gives 1998 (Birmingham) as the start of the G8, calls Denver 1997 full Russian participation in all but financial and some economic talks, and says the G7 leaders suspended their participation in preparations for the 2014 Sochi summit; it does not say Russia was suspended or mention Crimea. Decide the year and wording."
+      "source": "G7 Research Group, University of Toronto: What is the G7?",
+      "link": "https://g7.utoronto.ca/what_is_g8.html",
+      "date": "2026-11-05"
     },
     {
       "id": "note-2014",
-      "statement": "Russia was suspended in 2014 after its annexation of Crimea, and the group met as the G7 again.",
+      "statement": "The group met as the G7 again from 2014.",
       "period": "2014",
       "places": [
-        "RUS",
-        "UKR"
+        "RUS"
       ],
-      "source": "Ministry of Foreign Affairs of Japan, G7 summits",
-      "link": "https://www.mofa.go.jp/policy/economy/summit/index.html",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "The G7 Research Group page (g7.utoronto.ca/what_is_g8.html) gives 1998 (Birmingham) as the start of the G8, calls Denver 1997 full Russian participation in all but financial and some economic talks, and says the G7 leaders suspended their participation in preparations for the 2014 Sochi summit; it does not say Russia was suspended or mention Crimea. Decide the year and wording."
+      "source": "The Hague Declaration, 24 March 2014 (White House archives)",
+      "link": "https://obamawhitehouse.archives.gov/the-press-office/2014/03/24/hague-declaration",
+      "date": "2014-03-24"
     },
     {
       "id": "founding-members",

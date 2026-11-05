@@ -168,8 +168,6 @@ export const HISTORY_EVENTS: Record<string, Record<number, string>> = {
   nato: {
     1955: 'West Germany joined. Countries are drawn on today’s borders, so it appears as Germany.',
     1966: 'France left NATO’s integrated military command; it stayed a member of the alliance.',
-    1974: 'Greece left the integrated military command; it returned in 1980.',
-    1980: 'Greece returned to the integrated military command.',
     1990: 'Germany reunified, and the former East Germany became part of NATO with it.',
     2009: 'France returned to the integrated military command.',
   },
@@ -183,8 +181,8 @@ export const HISTORY_EVENTS: Record<string, Record<number, string>> = {
   },
   g7: {
     1975: 'France, West Germany, Italy, Japan, the United Kingdom and the United States held the first summit.',
-    1997: 'With Russia, the group met as the G8.',
-    2014: 'Russia was suspended after its annexation of Crimea, and the group met as the G7 again.',
+    1998: 'With Russia, the group met as the G8.',
+    2014: 'The other members suspended their participation in the G8 in March 2014, and the group met as the G7 again.',
   },
   g20: {
     1999: 'Finance ministers and central bank governors first met as the G20.',

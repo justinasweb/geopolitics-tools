@@ -80,7 +80,7 @@ describe('Matcher', () => {
   });
 
   it('gives a source’s coverage notes', () => {
-    expect(notesFor('worldbank', 'MAR').map((n) => n.note)).toEqual(['World Bank figures for Morocco include Western Sahara', 'Western Sahara: Status disputed; mostly administered by Morocco; claimed by the Polisario Front']);
+    expect(notesFor('worldbank', 'MAR').map((n) => n.note)).toEqual(['Western Sahara: Status disputed; mostly administered by Morocco; claimed by the Polisario Front']);
     // A note on an area inside a place's shape names the area.
     expect(notesFor('owid', 'RUS').map((n) => n.note)).toEqual(["Crimea: Under Russian control since 2014; within Ukraine's internationally recognised borders. Figures follow each source."]);
     expect(notesFor('owid', 'MAR')).toHaveLength(1);

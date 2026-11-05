@@ -189,7 +189,7 @@ describe('a drafting run', () => {
 
   it('skips texts whose facts are unverified, without calling the model', async () => {
     const c = stub(GOOD);
-    const run = await runDrafts(['river:dnipro', 'history:nato'], c);
+    const run = await runDrafts(['river:dnipro', 'history:quad'], c);
     expect(c.calls).toHaveLength(0);
     expect(run.drafted).toEqual([]);
     expect(run.skipped.join('\n')).toMatch(/river:dnipro: fact "agreement-1992" is unverified/);

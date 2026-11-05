@@ -420,32 +420,6 @@
       "date": "2026-10-21"
     },
     {
-      "id": "note-1974",
-      "statement": "Greece left the integrated military command in 1974.",
-      "period": "1974",
-      "places": [
-        "GRC"
-      ],
-      "source": "NATO, Member countries",
-      "link": "https://www.nato.int/cps/en/natohq/topics_52044.htm",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "No NATO page stating this could be opened. JFC Naples’s history page (jfcnaples.nato.int/page6322744/9-the-mediterranean--a-sea-of-crisis-.aspx, 403 from this session) reportedly says Greek forces left the integrated military structure after the change of regime and returned in October 1980; check it states 1974."
-    },
-    {
-      "id": "note-1980",
-      "statement": "Greece returned to the integrated military command in 1980.",
-      "period": "1980",
-      "places": [
-        "GRC"
-      ],
-      "source": "NATO, Member countries",
-      "link": "https://www.nato.int/cps/en/natohq/topics_52044.htm",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "No NATO page stating this could be opened. JFC Naples’s history page (jfcnaples.nato.int/page6322744/9-the-mediterranean--a-sea-of-crisis-.aspx, 403 from this session) reportedly says Greek forces left the integrated military structure after the change of regime and returned in October 1980; check it states 1974."
-    },
-    {
       "id": "note-1990",
       "statement": "Germany reunified in 1990, and the former East Germany became part of NATO with it.",
       "period": "1990",

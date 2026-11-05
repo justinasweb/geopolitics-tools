@@ -1,6 +1,4 @@
 source,place,area,note,checked
-worldbank,MAR,,World Bank figures for Morocco include Western Sahara,no
-worldbank,UKR,,This source's figures for Ukraine include Crimea,no
 worldbank,CHN,,"Unless noted otherwise, this source's figures for China exclude Hong Kong, Macao and Taiwan",yes
 *,ESH,,Status disputed; mostly administered by Morocco; claimed by the Polisario Front,yes
 *,MAR,Western Sahara,Status disputed; mostly administered by Morocco; claimed by the Polisario Front,yes

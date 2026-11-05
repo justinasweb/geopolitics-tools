@@ -36,8 +36,8 @@ code can map to a former state before a split.
 
 ## notes.csv
 
-The notes shown next to a figure when a source's unit differs from the map shape ("World Bank figures for Morocco
-include Western Sahara"), and the short notes for disputed places. `checked` stays `no` until the fact is checked
+The notes shown next to a figure when a source's unit differs from the map shape ("Unless noted otherwise, this
+source's figures for China exclude Hong Kong, Macao and Taiwan"), and the short notes for disputed places. `checked` stays `no` until the fact is checked
 against a cited source; only checked notes go into Methodology's facts.
 
 A note on an area inside a place's map shape names it in `area`, and is shown as "Area: note": Crimea on Russia's

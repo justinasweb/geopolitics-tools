@@ -139,6 +139,5 @@ through the same `publishedText`, and rendered in `WeekSummary.astro` with the w
 ## What the owner verifies
 
 `npm run ai:status` lists the unverified facts per file. After the launch review (5 November 2026): OPEC and G20 (their
-sites refused the session's connections), the Quad (DFAT's page does not state the years), four G7 facts on Russia (the
-G7 Research Group gives 1998 for the G8), NATO's Greek notes for 1974 and 1980, the Dnipro agreement and its 2022
-termination, and the World Bank notes for Morocco and Ukraine (`notes.csv`, `checked: no`).
+sites refused the session's connections), the Quad (DFAT's page does not state the years), and the Dnipro agreement and its 2022
+termination.
