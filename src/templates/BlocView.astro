@@ -50,6 +50,8 @@ const label = (s: BlocShare) => (s.id.startsWith('mineral:') ? cap(mineralName(s
 
 // A grouping's page.
 const pop = p?.shares.find((s) => s.id === 'population');
+// The year of the population and GDP figures behind the all-groupings table's shares.
+const shareYears = all ? [...new Set(['population', 'gdp'].map((x) => shareOn(x, [...memberships.values()][0] ?? [])?.year).filter(Boolean))].join(', ') : '';
 const counts = all ? membershipCounts() : [];
 const answer = blocLede(id);
 const summary = all ? [B.allSummary(BLOC_ORDER.length), B.scope] : [
@@ -171,6 +173,8 @@ const shareBars = (ss: BlocShare[]) => ss.map((s) => ({ label: label(s), text: s
             </table>
           </div>
           <p class="gt-caption">{B.allTableNote(Object.keys(NON_COUNTRY_MEMBERS).filter((b) => memberships.has(b)).map((b) => ({ bloc: BLOC_TEXT[b] ?? b, text: B.sub(b, memberships.get(b)!.length) })))}</p>
+          {/* The shares are World Bank figures: their source and year, as on each bloc's page. */}
+          <SourceLine source={`${B.source}; World Bank`} parts={[B.checked(checked), shareYears].filter(Boolean)} />
           <h2 class="gt-h2" id="countries">{B.countryTable}</h2>
           <div class="gt-tablewrap" style="--gt-table-h:560px" tabindex="0" role="region" aria-label={B.countryTable}>
             <table class="gt-table" data-gt-sort>
