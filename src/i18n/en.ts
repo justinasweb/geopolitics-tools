@@ -176,6 +176,10 @@ export const STATUS_TEXT = {
   sampleTitle: 'Illustrative figure, not real data',
 };
 
+/** A name or figure in running text with its tag, in the tables' word: "India (estimate)". */
+export const tagged = (text: string, status?: 'estimate' | 'projection' | 'preliminary') =>
+  (status ? `${text} (${STATUS_TEXT[status].toLowerCase()})` : text);
+
 export const SOURCE_TEXT = {
   source: 'Source:', updated: 'Updated', cite: 'Copy citation', withheld: 'Withheld', noData: 'No data',
   share: 'Share', copyLink: 'Copy link', shareOn: (p: string) => `Share on ${p}`,

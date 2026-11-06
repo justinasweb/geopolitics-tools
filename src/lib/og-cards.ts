@@ -1,12 +1,12 @@
 // What each page's share image says (src/lib/og.ts draws it): kicker, title, headline figure, caption, bars and
 // source, from the same models the pages use. Kept here rather than in the image route so tests can build every card.
 import { INDICATORS } from '../data/indicators';
-import { INDICATOR_TEXT } from '../i18n/en';
+import { INDICATOR_TEXT, STATUS_TEXT, tagged } from '../i18n/en';
 import { COMPARE_TEXT, INDICATOR_PAGE, OG_TEXT, SOURCE_NOTE, mineralName } from '../i18n/pages.en';
 import { countryModel } from './country';
 import { creditName } from './data';
 import { formatDate, formatShare, formatValue } from './format';
-import { answerFor, indicatorModel } from './indicator';
+import { answerFor, indicatorModel, tagOf } from './indicator';
 import type { Card } from './og';
 import { place } from './places';
 import type { Route } from './routes';
@@ -26,7 +26,7 @@ import { blocPage, membershipCounts } from './blocview';
 import { historyPage } from './history';
 import { riverPage } from './rivers';
 import { RIVERS_TEXT } from '../i18n/water.en';
-import { foodPage, lede as foodLede, mt, netText, shareOf as foodShare } from './food';
+import { estimated as foodEstimated, foodPage, lede as foodLede, mt, netText, shareOf as foodShare } from './food';
 import { amount as energyAmount, energyPage, lede as energyLede, shareOf as energyShare, valueText as energyValue } from './energy';
 import { ENERGY_TEXT } from '../i18n/energy.en';
 import { EXPLORER_TEXT } from '../i18n/explorer.en';
@@ -57,10 +57,11 @@ export function card(r: Route | null): Card {
   if (r.kind === 'country') {
     const m = countryModel(r.id)!;
     const f = m.figures[0];
+    const fm = f && indicatorModel(f.id);
     return {
       kicker: m.dossier ? OG_TEXT.dossierKicker : OG_TEXT.countryKicker, title: m.place.name,
       figure: f ? formatValue(f.value, INDICATORS[f.id].format) : undefined,
-      caption: f ? `${INDICATOR_TEXT[f.id].label}, ${f.year}` : m.summary[0],
+      caption: f ? tagged(`${INDICATOR_TEXT[f.id].label}, ${f.year}`, fm ? tagOf(fm, r.id, f.year) : undefined) : m.summary[0],
       source: f ? short(f.source) : undefined,
       bars: m.minerals.map((x) => ({ label: mineralName(x.id, x.label), value: x.share, text: formatShare(x.share) })),
     };
@@ -69,18 +70,19 @@ export function card(r: Route | null): Card {
     const m = indicatorModel(r.id)!;
     const fmt = m.indicator.format;
     return {
-      kicker: OG_TEXT.indicatorKicker, title: INDICATOR_PAGE.shareText(INDICATOR_TEXT[r.id].label), caption: answerFor(m),
+      kicker: OG_TEXT.indicatorKicker, title: INDICATOR_PAGE.shareText(INDICATOR_TEXT[r.id].label), caption: answerFor(m, true),
       source: SOURCE_NOTE[r.id] ?? m.sources.map(short).join('; '),
-      bars: m.common.slice(0, 5).map((x) => ({ label: nameOf(x.id), value: x.value, text: formatValue(x.value, fmt) })),
+      bars: m.common.slice(0, 5).map((x) => ({ label: nameOf(x.id), value: x.value, text: tagged(formatValue(x.value, fmt), tagOf(m, x.id, x.year)) })),
     };
   }
   if (r.kind === 'compare') {
     const [a, b] = r.id.split(',');
     const gdp = [a, b].map((p) => countryModel(p)!.figures.find((f) => f.id === 'gdp'));
+    const gm = indicatorModel('gdp');
     return {
       kicker: OG_TEXT.compareKicker, title: COMPARE_TEXT.title(nameOf(a), nameOf(b)),
       caption: gdp.every(Boolean) ? `GDP, ${gdp[0]!.year}` : undefined, source: gdp.every(Boolean) ? short(gdp[0]!.source) : undefined,
-      bars: gdp.every(Boolean) ? [a, b].map((p, i) => ({ label: nameOf(p), value: gdp[i]!.value, text: formatValue(gdp[i]!.value, INDICATORS.gdp.format) })) : [],
+      bars: gdp.every(Boolean) ? [a, b].map((p, i) => ({ label: nameOf(p), value: gdp[i]!.value, text: tagged(formatValue(gdp[i]!.value, INDICATORS.gdp.format), gm ? tagOf(gm, p, gdp[i]!.year) : undefined) })) : [],
     };
   }
   if (r.kind === 'view' && r.id.startsWith('minerals:')) {
@@ -172,7 +174,11 @@ export function card(r: Route | null): Card {
     const rows = trade ? [...y.rows.slice(0, 3), ...y.rows.slice(-2)] : y.rows.slice(0, 5);
     return {
       kicker: FOOD_TEXT.section, title: FOOD_TEXT.layer[p.layer].title(p.text.pick), caption: foodLede(p) ?? undefined, source: `${short('faostat')}, ${p.year}`,
-      bars: rows.map((x) => ({ label: nameOf(x.id), value: Math.abs(x.value), text: trade ? netText(x.value) : `${mt(x.value)} (${foodShare(x.value, y.world)})` })),
+      // An estimate says so after the share, in the same brackets: "12.3 Mt (15%, estimate)".
+      bars: rows.map((x) => {
+        const est = foodEstimated(p, x.id, p.year);
+        return { label: nameOf(x.id), value: Math.abs(x.value), text: trade ? tagged(netText(x.value), est ? 'estimate' : undefined) : `${mt(x.value)} (${foodShare(x.value, y.world)}${est ? `, ${STATUS_TEXT.estimate.toLowerCase()}` : ''})` };
+      }),
     };
   }
   if (r.kind === 'view' && r.id.startsWith('energy:')) {

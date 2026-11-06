@@ -1,11 +1,12 @@
 // What an indicator page shows, worked out once per measure: the common year, both rankings (that year for all,
 // and latest available up to two years back), coverage, the median and five highest over time, and whether the
 // page is indexed.
-import { INDICATORS, type Indicator, type Loaded } from '../data/indicators.ts';
+import { INDICATORS, statusAt, type Indicator, type Loaded, type ValueStatus } from '../data/indicators.ts';
 import { indicator, licenceOf } from './data.ts';
 import { formatValue } from './format.ts';
 import { place } from './places.ts';
 import { ANSWER, DEFAULT_VERB, INDICATOR_PAGE, inSentence } from '../i18n/pages.en.ts';
+import { tagged } from '../i18n/en.ts';
 import { counts, defaultYear, median, preliminaryYears, ranked, ranking, type Row } from './stats.ts';
 
 /** Fewer reporting places than this in the common year, and the page is built but not indexed. */
@@ -57,13 +58,20 @@ export function indicatorModel(id: string): IndicatorModel | null {
   return out;
 }
 
-/** The page's answer: the place ranked first, with the indicator's verb ("In 2024, Ukraine spent the largest…"). */
-export function answerFor(m: IndicatorModel): string {
+/** A figure's tag, as the CSV gives it: an estimate or projection (statusAt), else preliminary in the source's preliminary years. */
+export const tagOf = (m: IndicatorModel, id: string, year: number): ValueStatus | 'preliminary' | undefined =>
+  statusAt(m.indicator, id, year) ?? (m.preliminary.includes(year) ? 'preliminary' : undefined);
+
+/**
+ * The page's answer: the place ranked first, with the indicator's verb ("In 2024, Ukraine spent the largest…").
+ * With `withTag`, a tagged figure says so in words (the share image); the page shows the tag beside the sentence.
+ */
+export function answerFor(m: IndicatorModel, withTag = false): string {
   const top = m.common[0];
   if (!top) return '';
   const name = place(top.id)?.name ?? top.id;
   const verb = ANSWER[m.indicator.id]?.verb ?? DEFAULT_VERB;
-  const value = formatValue(top.value, m.indicator.format);
+  const value = tagged(formatValue(top.value, m.indicator.format), withTag ? tagOf(m, top.id, top.year) : undefined);
   return m.indicator.static ? INDICATOR_PAGE.answerStatic(inSentence(name, true), verb, value) : INDICATOR_PAGE.answer(inSentence(name), verb, value, top.year);
 }
 

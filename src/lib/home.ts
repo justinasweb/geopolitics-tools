@@ -13,7 +13,7 @@ import { dependencies } from './dependence.ts';
 import { explorerMeasures } from './explorer.ts';
 import { formatDate, formatValue } from './format.ts';
 import { topLine } from './hubs.ts';
-import { indicatorModel } from './indicator.ts';
+import { indicatorModel, tagOf } from './indicator.ts';
 import { menu } from './menu.ts';
 import { listed, mineralPage, nameOf as producerName, shareText } from './minerals.ts';
 import { place } from './places.ts';
@@ -192,7 +192,7 @@ export function places(): Places {
     const m = r ? indicatorModel(id) : null;
     if (!r || !m || m.common.length < 3) return [];
     const t = INDICATOR_TEXT[id];
-    return [{ label: H.ranking(t.label, t.rate), href: r.path, top: H.inYear(m.year, topLine(m.common, (v) => formatValue(v, INDICATORS[id].format))) }];
+    return [{ label: H.ranking(t.label, t.rate), href: r.path, top: H.inYear(m.year, topLine(m.common, (v) => formatValue(v, INDICATORS[id].format), (x) => tagOf(m, x.id, x.year))) }];
   });
   return { dossiers, profiles: gdp && links.length ? { year: gdp.year, links } : null, rankings };
 }

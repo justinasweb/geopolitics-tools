@@ -6,7 +6,7 @@
 import { NAV_HUBS } from '../data/nav.ts';
 import { HUB_FLOWS, HUB_GROUPS, HUB_TOOLS } from '../data/hubs.ts';
 import { INDICATORS } from '../data/indicators.ts';
-import { FLOW_TEXT, INDICATOR_TEXT, NAV_TEXT } from '../i18n/en.ts';
+import { FLOW_TEXT, INDICATOR_TEXT, NAV_TEXT, tagged } from '../i18n/en.ts';
 import { HUB_TEXT as H, inLine } from '../i18n/hubs.en.ts';
 import { ATLAS_TEXT } from '../i18n/atlas.en.ts';
 import { ENERGY_TEXT } from '../i18n/energy.en.ts';
@@ -15,7 +15,7 @@ import { DOSSIERS } from './country.ts';
 import { refreshed } from './data.ts';
 import { energyKey, energyPage, energyPages, lede as energyLede } from './energy.ts';
 import { foodPage, foodPages, lede as foodLede } from './food.ts';
-import { indicatorModel } from './indicator.ts';
+import { indicatorModel, tagOf } from './indicator.ts';
 import { formatValue } from './format.ts';
 import { layerFile, mapLayers } from './map/layers.ts';
 import type { LayerFile } from './map/types.ts';
@@ -238,11 +238,13 @@ function countriesOf(families: string[]): HubCountry[] {
  * How a ranking's top reads: its top three, or, when several places share the first figure as the page shows it
  * (low-carbon electricity at 100%), those places named as tied first (four at most, then how many more).
  */
-export function topLine(rows: { id: string; value: number }[], fmt: (v: number) => string): string {
+export function topLine<R extends { id: string; value: number }>(rows: R[], fmt: (v: number) => string, tag: (r: R) => Parameters<typeof tagged>[1] = () => undefined): string {
+  // Each place named carries its figure's tag, as in the ranking's table: "India (estimate)".
+  const named = (r: R) => tagged(nameOf(r.id), tag(r));
   const first = fmt(rows[0].value);
   const tied = rows.filter((r) => fmt(r.value) === first);
-  if (tied.length < 2) return H.top3(rows.slice(0, 3).map((x) => nameOf(x.id)).join(', '));
-  const names = tied.slice(0, 4).map((x) => nameOf(x.id));
+  if (tied.length < 2) return H.top3(rows.slice(0, 3).map(named).join(', '));
+  const names = tied.slice(0, 4).map(named);
   return H.tiedFirst(first, list(tied.length > 4 ? [...names, H.more(tied.length - 4)] : names));
 }
 
@@ -254,7 +256,7 @@ function rankingsOf(hub: string): HubRanking[] {
     const m = r?.indexed ? indicatorModel(i.id) : null;
     if (!r || !m || m.common.length < 3) return [];
     const t = INDICATOR_TEXT[i.id];
-    return [{ id: i.id, name: H.ranking(t?.label ?? i.id, t?.rate), href: r.path, top: H.inYear(m.year, topLine(m.common, (v) => formatValue(v, i.format))) }];
+    return [{ id: i.id, name: H.ranking(t?.label ?? i.id, t?.rate), href: r.path, top: H.inYear(m.year, topLine(m.common, (v) => formatValue(v, i.format), (x) => tagOf(m, x.id, x.year))) }];
   }).slice(0, 6);
 }
 
