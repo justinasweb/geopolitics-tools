@@ -11,8 +11,8 @@ export const DEPS_TEXT = {
   loading: 'Loading the figures…',
   failed: 'The figures did not load. Check your connection and reload the page.',
 
-  // Single points of failure
-  spofTitle: 'Single points of failure',
+  // Reliance on one supplier
+  spofTitle: 'Reliance on one supplier',
   spofRule: 'Countries that import at least half of what they use, with at least half of those imports from one supplier.',
   spofItem: (share: string, noun: string, supplier: string, top: string) => `Imports ${share} of the ${noun} it uses; ${supplier} supplies ${top} of those imports.`,
   spofCount: (n: number, shown: number) => (n > shown ? `${n} found in this table; ${shown} with the largest share from one supplier shown.` : `${n} found in this table.`),

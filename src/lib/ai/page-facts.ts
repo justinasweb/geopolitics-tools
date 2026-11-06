@@ -69,7 +69,7 @@ function methodologyFacts(on: string): Fact[] {
     { id: 'imports-most', statement: 'Import reliance of 50% or more is labelled "Imports most".', value: THRESHOLDS.most * 100, unit: '%', ...dep },
     { id: 'imports-some', statement: 'Import reliance from 15% up to the "Imports most" line is labelled "Imports some"; within 15% either way, "Roughly self-sufficient"; below minus that, "Exporter".', value: THRESHOLDS.self * 100, unit: '%', ...dep },
     { id: 'tool-band', statement: 'The Dependencies tool also marks imports of 75% or more.', value: 75, unit: '%', ...code('src/lib/dependencies/model.ts', on) },
-    { id: 'spof', statement: 'A single point of failure: imports at least 50% of use, with at least 50% of those imports from one supplier.', value: 50, unit: '%', ...code('src/lib/dependencies/model.ts', on) },
+    { id: 'spof', statement: 'Reliance on one supplier: imports at least 50% of use, with at least 50% of those imports from one supplier.', value: 50, unit: '%', ...code('src/lib/dependencies/model.ts', on) },
     { id: 'hhi-moderate', statement: 'Supplier concentration (Herfindahl–Hirschman index) from 1,000 counts as moderately concentrated, as in the 2023 US merger guidelines.', value: HHI.moderate, unit: '', period: '2023', ...sc },
     { id: 'hhi-high', statement: 'Above 1,800 counts as highly concentrated.', value: HHI.high, unit: '', ...sc },
     { id: 'hhi-max', statement: 'The index runs to 10,000 when one supplier has everything.', value: 10000, unit: '', ...sc },

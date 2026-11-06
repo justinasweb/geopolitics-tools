@@ -151,11 +151,11 @@ for (const [name, viewport] of [['desktop', { width: 1440, height: 900 }], ['pho
   check(errors.length === 0, `${name}: /explorer/scatter has no console errors${errors.length ? ` (${errors.join('; ')})` : ''}`);
   await page.screenshot({ path: `${out}/explorer-${name}.png`, fullPage: true });
 
-  // Dependencies: the single points of failure and the grid (or, on a phone, a country's card) draw, and a filter
+  // Dependencies: reliance on one supplier and the grid (or, on a phone, a country's card) draw, and a filter
   // goes into the address.
   errors.length = 0;
   await page.goto(`${base}/dependencies`, { waitUntil: 'networkidle' });
-  check(await page.locator('.gt-spof__list li').count() > 0, `${name}: Dependencies lists single points of failure`);
+  check(await page.locator('.gt-spof__list li').count() > 0, `${name}: Dependencies lists reliance on one supplier`);
   check(await page.locator('.gt-dgtbl tbody tr, .gt-dgcard').count() > 1, `${name}: Dependencies draws the grid and the card`);
   await page.locator('[data-d-set="bloc"]:visible').selectOption({ index: 1 });
   check(/[?&]bloc=/.test(page.url()), `${name}: Dependencies keeps the bloc filter in the address`);

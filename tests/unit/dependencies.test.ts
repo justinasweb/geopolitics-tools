@@ -2,7 +2,7 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import { bandOf, DEFAULTS, parseState, queryOf, rowsOf, spofs, type Grid } from '../../src/lib/dependencies/model.ts';
 import { cellText, gridCsv, spofHtml, tableHtml } from '../../src/lib/dependencies/render.ts';
 
-// The Dependencies tool: the bands, the settings in the address, the sort, the single points of failure and the
+// The Dependencies tool: the bands, the settings in the address, the sort, reliance on one supplier and the
 // download, on a small grid; then the grid the build makes from the sample files.
 process.env.GT_DATA = 'sample';
 
@@ -60,7 +60,7 @@ describe('Dependencies model', () => {
     expect(ids('bloc=eu')).toEqual(['HUN']);
   });
 
-  it('finds single points of failure: half of use imported, half of that from one supplier', () => {
+  it('finds reliance on one supplier: half of use imported, half of that from one supplier', () => {
     expect(spofs(grid.rows).map((x) => `${x.id} ${x.r}`)).toEqual(['HUN oil', 'EGY wheat']);
     const html = spofHtml(DEFAULTS, grid);
     expect(html).toContain('Imports 84% of the oil it uses; Russia supplies 86% of those imports.');
