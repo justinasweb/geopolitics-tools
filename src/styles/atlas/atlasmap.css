@@ -247,7 +247,11 @@ html:has(.gt-atlas), html:has(.gt-atlas) body { height: 100%; overflow: hidden; 
   .gt-atlas .gt-atleg [data-at-shaded] .gt-legend__title { display: none; }
 
   /* The map's own controls */
-  .gt-atlas .gt-zoom { top: auto; bottom: 156px; right: 12px; }
+  /* Above the year card, whatever its height (its bottom is at 80px), with an 8px gap. */
+  .gt-atlas .gt-zoom { top: auto; bottom: calc(88px + var(--at-yearh)); right: 12px; }
+  /* While the first-visit hint is up it covers the year card; the card and the zoom stay out of sight until "Got it",
+     so no control sits half under it. */
+  .gt-atlas:has(.gt-athint--phone:not([hidden])) :is(.gt-zoom, .gt-atyear) { visibility: hidden; }
   .gt-atlas .gt-atborders { display: none; }
   /* The ⓘ (Natural Earth and, behind it, the borders line) sits under the legend line, clear of the Layers button. */
   .gt-atlas .gt-atmap .maplibregl-ctrl-bottom-right { top: 64px; bottom: auto; }
