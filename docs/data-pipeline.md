@@ -19,9 +19,11 @@ How source data gets from the public sources in the licence table ([licences.md]
   Worker has an hourly Cron Trigger (minute 41, `worker/watch.ts`): if no data run started in the last 50 minutes it
   starts one through the GitHub API, and if the published `status.json` is more than 6 hours old it alerts on
   Telegram (decision D11).
-- **New data reaches the site only on a deploy** (a merge, or Run workflow on ci). The hourly run publishes snapshots
-  but rebuilds nothing. Open question for launch: rebuild automatically (say once a day, when a snapshot changed),
-  or keep rebuilds manual.
+- **New data reaches the site on a deploy, at least once a day.** Pages are built from the latest snapshot when the
+  site deploys (a merge, Run workflow on ci, the week's deploy). After each hourly run, `data.yml` compares the latest
+  snapshot (its id is its UTC time) with the last production deploy that passed or is still running: when the snapshot
+  is newer and no deploy started in the last 23 hours, it starts one (`gh workflow run ci.yml`). So new data, fetched
+  or imported, is live within about a day, and a failing deploy is not retried more than once a day.
 - **Alerts go to Telegram** when a source fails twice in a row or goes past its freshness deadline, then at most once a
   day while the problem lasts, and once more when it works again. The run also fails, so GitHub's failed-run email is a
   backup.
@@ -116,7 +118,7 @@ as the rest of the pipeline does. Week files are a few kilobytes and are never r
 | World Bank Pink Sheet | 7 days | 45 days | Monthly food, fertiliser, metals and gas prices from 2010, in three files; refuses a workbook more than 3 months old |
 | Submarine cables (OpenStreetMap) | 30 days | 120 days | Underwater communication cables and cable landing stations, from one Overpass query |
 | FAOSTAT | 30 days | 400 days | Wheat, maize, rice and soybean production and trade, nitrogen, phosphate and potash, since 2015, by ISO3 code; each importer's 10 main suppliers in the latest well-reported year |
-| IMF World Economic Outlook | 30 days | 200 days | **Off** until the IMF allows scheduled downloads. Growth, inflation, debt, deficit, unemployment, current account; country groups dropped |
+| IMF World Economic Outlook | 30 days | 200 days | **Off** until the IMF allows scheduled downloads; imported by hand instead (kind `imf-weo`, below). Growth, inflation, debt, deficit, unemployment, current account; country groups dropped |
 | IMF PortWatch chokepoints | 20 hours | 10 days | **Off**, as above. The chokepoints and their daily transits for 400 days |
 | EIA | 7 days | 60 days | **Off** until `EIA_API_KEY` is set. Crude oil and all liquids production, oil consumption, dry gas production and consumption, by country since 2000 (the API no longer has reserves); Brent and WTI monthly from 2010 |
 | UN Comtrade | 7 days | 60 days | **Off** until `COMTRADE_API_KEY` is set. Imports and exports by partner, one file per group and year (crude, gas, potash and phosphate, chips and chipmaking machines, total trade), 2015 to last year: the latest three years each run, older years once, at most `COMTRADE_MAX_CALLS` calls a run (default 90) |
@@ -169,7 +171,8 @@ can be pointed at a stub.
 
 ## Importing a file
 
-Nine sources have no API or refuse scripts, so their files are downloaded by hand on release and imported:
+Ten sources have no API, refuse scripts or need permission for scheduled downloads, so their files are downloaded by
+hand on release and imported:
 
 ```sh
 node pipeline/import.ts --list                                   # the kinds, and which download each expects
@@ -189,15 +192,16 @@ node pipeline/import.ts wpp-age WPP2024_PopulationByAge5GroupSex_Medium.csv.gz -
 | USGS Mineral Commodity Summaries | `usgs` (one file per edition, so older ones can be added) | Each January |
 | US Treasury holdings, history | `treasury-history` | Built once |
 | FAS Status of World Nuclear Forces, current table | `fas-forces` | About twice a year: copy FAS's table by hand (below) |
+| IMF World Economic Outlook | `imf-weo` | April and October (below) |
 
 Without a local copy of the repository, the **import** workflow does the same with the repository's secrets: Actions
 tab → import → Run workflow, with the kind and the file's download address (and `name` when the address does not end
-in the file's own name, as USGS needs `MCS2026_Commodities_Data.csv`). Then run the **ci** workflow on `main` to
-rebuild the site from the new snapshot.
+in the file's own name, as USGS needs `MCS2026_Commodities_Data.csv`). The next hourly run starts a deploy with the new
+snapshot within a day (above); run the **ci** workflow on `main` to rebuild sooner.
 
-It takes the file as downloaded: CSV, JSON or an Excel workbook (the sheet with the needed columns is found, or name
+It takes the file as downloaded: CSV, tab-delimited text (`.tsv`, `.txt`, or the IMF's text `.xls`), JSON or an Excel workbook (the sheet with the needed columns is found, or name
 it with `--sheet=`), gzipped or zipped (`--entry=` picks the file when a zip holds several); Windows text is turned
-into UTF-8. It stops with the file's own columns listed if one it needs is missing, keeps only the needed columns,
+into UTF-8, as is UTF-16 with its byte-order mark. It stops with the file's own columns listed if one it needs is missing, keeps only the needed columns,
 applies the kind's filter (countries only, for instance), and refuses fewer than 10 rows or far fewer than the last
 import (`--allow-shrink` when that is real). Columns we keep by hand, such as a GEM terminal's stop year, are added
 empty when the file lacks them. The file is then saved like a fetched one, recorded with its download name and date,
@@ -211,6 +215,17 @@ fas.org/initiative/status-world-nuclear-forces can replace it when OWID lags. Co
 like any file. The check refuses a row whose deployed and reserve warheads do not add up to the military stockpile, a
 stockpile above the total, a missing Total row or a link that is not fas.org. When its year is OWID's split's
 year or later, it replaces OWID's split (never the series). It is kept under FAS's licence row (`LICENCE_OF` in src/data/licences.ts).
+
+**The IMF World Economic Outlook (`imf-weo`).** Download the "By Countries" table from
+imf.org/en/Publications/WEO/weo-database (the tab-delimited `.xls`, which is text, or the Excel file such as
+`WEOOct2026all.xlsx`, whose Countries sheet is read) and keep the IMF's file name. The import keeps government debt
+(`GGXWDG_NGDP`), the budget balance (`GGXCNL_NGDP`) and the current account (`BCA_NGDPD`) for country rows only (ISO
+codes the site knows; the IMF's country groups are dropped), and writes them as the API fetcher would,
+`imf-weo/<indicator>.json`, plus `release.json`: the release ("October 2026", from the table's footer line or else the
+file name) and each row's "Estimates Start After" year. The site labels years after the most common of those years as
+projections; a country whose own actual figures end earlier has the years in between left out, as they are
+projections. Source lines credit "IMF World Economic Outlook, October 2026". The API fetcher stays off (the IMF's
+terms ask for permission before scheduled downloads). Growth, inflation and unemployment come from the World Bank.
 
 **Hand-kept facts files.** Two sources are kept as dated, cited rows in the repository rather than fetched:
 `src/data/nuclear-treaties.csv` (UNODA Treaties Database: NPT and TPNW status) and `src/data/nuclear-sharing.csv`

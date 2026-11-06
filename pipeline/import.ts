@@ -7,8 +7,8 @@
 //   --list                    print the kinds and what file each expects, and stop
 //
 // For sources with no API (sources/imported.ts): SIPRI, UN World Population Prospects, Global Energy
-// Monitor, WRI Aqueduct, FAO AQUASTAT, Global Dam Watch, AidData, USGS minerals and the Treasury
-// history table. The import stops with a clear message if a column is missing (the publisher changed
+// Monitor, WRI Aqueduct, FAO AQUASTAT, Global Dam Watch, AidData, USGS minerals, the Treasury
+// history table and the IMF World Economic Outlook (its API needs permission for scheduled downloads). The import stops with a clear message if a column is missing (the publisher changed
 // the format), keeps only the columns the site needs, and publishes a new snapshot with the file.
 import { existsSync } from 'node:fs';
 import { importFile } from './lib/importer.ts';

@@ -2,9 +2,9 @@
 // source, from the same models the pages use. Kept here rather than in the image route so tests can build every card.
 import { INDICATORS } from '../data/indicators';
 import { INDICATOR_TEXT } from '../i18n/en';
-import { COMPARE_TEXT, INDICATOR_PAGE, OG_TEXT, SOURCE_NOTE, SOURCE_SHORT, mineralName } from '../i18n/pages.en';
+import { COMPARE_TEXT, INDICATOR_PAGE, OG_TEXT, SOURCE_NOTE, mineralName } from '../i18n/pages.en';
 import { countryModel } from './country';
-import { sourceName } from './data';
+import { creditName } from './data';
 import { formatDate, formatShare, formatValue } from './format';
 import { answerFor, indicatorModel } from './indicator';
 import type { Card } from './og';
@@ -48,7 +48,7 @@ import { weekPage } from './week';
 import { WEEK_TEXT } from '../i18n/week.en';
 
 const nameOf = (id: string) => place(id)?.name ?? id;
-const short = (s: string) => SOURCE_SHORT[s] ?? sourceName(s);
+const short = (s: string) => creditName(s);
 const TITLES: Record<string, string> = { countries: 'Countries', indicators: 'Indicators', about: 'About', methodology: 'Methodology', privacy: 'Privacy', sources: 'Sources' };
 
 /** The card for one page, from its route; null gives the site default. */

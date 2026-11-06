@@ -25,11 +25,11 @@ import '../styles/atlas/bars.css';
 import { INDICATORS } from '../data/indicators';
 import { INDICATOR_TEXT, SOURCE_TEXT } from '../i18n/en';
 import {
-  BLOCK_TEXT, COUNTRY_TEXT, DEP_TEXT, DOSSIER_TEXT, RESOURCE_TEXT, SOURCE_SHORT, inSentence, list, mineralName, ordinal,
+  BLOCK_TEXT, COUNTRY_TEXT, DEP_TEXT, DOSSIER_TEXT, RESOURCE_TEXT, inSentence, list, mineralName, ordinal,
 } from '../i18n/pages.en';
 import { countryModel, countrySources, DOSSIERS, MINERAL_SHARE, type Figure } from '../lib/country';
 import { dossierFor, peopleSection } from '../lib/dossier';
-import { data, sourceName } from '../lib/data';
+import { creditName, data, sourceName } from '../lib/data';
 import { formatDate, formatParts, formatShare, formatValue } from '../lib/format';
 import { notesFor, place } from '../lib/places';
 import { countryHref, indicatorHref, live, paths } from '../lib/routes';
@@ -55,7 +55,7 @@ const aiSummary = m.dossier ? publishedText(`dossier:${p.id}`) : null;
 const label = (id: string) => INDICATOR_TEXT[id].short ?? INDICATOR_TEXT[id].label;
 const parts = (f: Figure) => formatParts(f.value, INDICATORS[f.id].format, INDICATOR_TEXT[f.id].unit);
 const projected = (f: Figure) => INDICATORS[f.id].projectedAfter !== undefined && f.year > INDICATORS[f.id].projectedAfter!;
-const short = (s: string) => SOURCE_SHORT[s] ?? sourceName(s);
+const short = (s: string) => creditName(s);
 const statCaption = (f: Figure, rank = true) => [String(f.year), rank && f.of > 1 ? `${ordinal(f.rank)} of ${f.of}` : '', short(f.source)].filter(Boolean).join(' · ');
 const nameOf = (id: string) => place(id)?.name ?? id;
 

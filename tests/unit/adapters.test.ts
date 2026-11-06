@@ -55,6 +55,20 @@ describe('adapters on the prototype samples', () => {
     expect(matchReports().every((r) => r.includes('every'))).toBe(true);
   });
 
+  it('the WEO measures label projections from the imported release’s last actual year, and the samples from 2025', () => {
+    expect(registry(raw).load('debt').indicator.projectedAfter).toBe(2025);
+    const dir = mkdtempSync(join(tmpdir(), 'gt-weo-'));
+    mkdirSync(join(dir, 'imf-weo'));
+    writeFileSync(join(dir, 'imf-weo', 'GGXWDG_NGDP.json'), readFileSync(join(FIXTURES, 'imf/GGXWDG_NGDP.json')));
+    writeFileSync(join(dir, 'imf-weo', 'release.json'), JSON.stringify({ release: 'April 2027', lastActual: 2026, byCountry: { GGXWDG_NGDP: { USA: 2026, AFG: 2024 } } }));
+    const l = registry(rawDir(dir)).load('debt');
+    expect(l.indicator.projectedAfter).toBe(2026);
+    expect(l.values.USA[2026]).toBeDefined();
+    // Afghanistan's own actual figures end in 2024: its 2025 and 2026 are projections, left out.
+    expect([l.values.AFG[2024], l.values.AFG[2025], l.values.AFG[2026]].map((v) => v !== undefined)).toEqual([true, false, false]);
+    expect(registry(raw).load('debt').indicator.projectedAfter).toBe(2025);
+  });
+
   it('internet use and ICT export shares as shares (0–1), ICT exports in US$', () => {
     const dir = mkdtempSync(join(tmpdir(), 'gt-wb-'));
     mkdirSync(join(dir, 'worldbank'));

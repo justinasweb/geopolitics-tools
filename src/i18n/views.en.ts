@@ -498,18 +498,27 @@ export const PARTS_TEXT = {
 /** Notes on single places in the refugees views, by layer: what the figures leave out or why they change sharply. */
 export const PLACE_NOTES: Record<string, Record<string, string>> = {
   refout: {
-    UKR: 'From 2024, UNHCR’s figures no longer include Ukrainians in Russia, whom it counted until 2023, so the total falls that year.',
+    UKR: 'UNHCR’s figures stop counting Ukrainians in Russia from 2024 (it counted them until 2023), so the total falls that year.',
     AFG: 'The fall in 2025 follows returns and deportations of Afghans from Iran and Pakistan. From 2025 UNHCR also counts about a million Afghans as others in need of international protection.',
     PSE: 'Palestinian refugees under the mandate of UNRWA, the UN agency for Palestine refugees, are not in UNHCR’s figures; UNRWA counts nearly 6 million.',
   },
   refin: {
-    RUS: 'From 2024, UNHCR’s figures no longer include Ukrainians in Russia, who made up most of the earlier total.',
+    RUS: 'UNHCR’s figures stop counting Ukrainians in Russia from 2024; they made up most of the earlier total. From 2024 Russia is shown as not reported and left out of the ranking.',
     IRN: 'The fall in 2025 follows returns and deportations of Afghans.',
     PAK: 'The fall in 2025 follows returns and deportations of Afghans.',
     LBN: 'UNHCR’s registered count; Lebanon’s government estimates a much larger number of Syrians in the country.',
   },
 };
 PLACE_NOTES.refinpc = PLACE_NOTES.refin;
+
+/** Places shown as not reported from a year on (src/data/not-reported.ts): the label, and each reason's sentence. */
+export const NOT_REPORTED_TEXT = {
+  since: (year: number) => `Not reported since ${year}`,
+  plain: 'Not reported',
+  reasons: {
+    'ukrainians-in-russia': 'UNHCR’s figures stop counting Ukrainians in Russia from 2024, so its later figure is not shown.',
+  } as Record<string, string>,
+};
 PLACE_NOTES.satellites = {
   RUS: 'Soviet satellites still in orbit count for Russia from 1992, as CelesTrak records them under one owner code.',
   USA: 'Most of the total is SpaceX’s Starlink constellation.',

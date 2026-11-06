@@ -20,9 +20,9 @@ import '../styles/atlas/filters.css';
 import '../styles/atlas/country.css';
 import { INDICATORS } from '../data/indicators';
 import { GROUP_TEXT, INDICATOR_TEXT } from '../i18n/en';
-import { ANSWER, DEFINITION, INDICATOR_PAGE as T, RELATED, SOURCE_NOTE, SOURCE_SHORT, list } from '../i18n/pages.en';
+import { ANSWER, DEFINITION, INDICATOR_PAGE as T, RELATED, SOURCE_NOTE, list } from '../i18n/pages.en';
 import { answerFor, csvAllowed, indicatorModel } from '../lib/indicator';
-import { licenceOf, refreshed, sourceName } from '../lib/data';
+import { creditLine, creditName, licenceOf, refreshed, sourceName } from '../lib/data';
 import { formatValue } from '../lib/format';
 import { place } from '../lib/places';
 import { breaks, classOf, type Row } from '../lib/stats';
@@ -39,7 +39,7 @@ const label = text.label;
 const path = paths.indicator(id);
 const url = new URL(path, Astro.site).href;
 const nameOf = (pid: string) => place(pid)?.name ?? pid;
-const credit = SOURCE_NOTE[id] ?? m.sources.map((s) => SOURCE_SHORT[s] ?? sourceName(s)).join('; ');
+const credit = SOURCE_NOTE[id] ?? m.sources.map((s) => creditName(s)).join('; ');
 const sourceFull = m.sources.map(sourceName).join('; ');
 const updated = refreshed(m.source);
 const projected = (y: number) => ind.projectedAfter !== undefined && y > ind.projectedAfter;
@@ -153,7 +153,7 @@ const years = m.loaded.years;
         {csv ? (
           <>
             <a class="gt-btn gt-btn--quiet" href={csv} download><Icon name="download" />{T.downloadCsv}</a>
-            <p class="gt-caption">{T.downloadNote(m.sources.map((s) => licenceOf(s)?.licence ?? '').filter(Boolean).join('; '), m.sources.map((s) => licenceOf(s)?.credit ?? sourceName(s)).join('; '))}</p>
+            <p class="gt-caption">{T.downloadNote(m.sources.map((s) => licenceOf(s)?.licence ?? '').filter(Boolean).join('; '), m.sources.map(creditLine).join('; '))}</p>
           </>
         ) : <p class="gt-caption">{T.shownOnly}</p>}
       </div>

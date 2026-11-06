@@ -3,7 +3,7 @@
 import type { APIRoute, GetStaticPaths } from 'astro';
 import { INDICATOR_SLUGS } from '../../i18n/slugs.en';
 import { csvAllowed, indicatorModel } from '../../lib/indicator';
-import { licenceOf, refreshed, sourceName } from '../../lib/data';
+import { creditLine, licenceOf, refreshed } from '../../lib/data';
 import { place } from '../../lib/places';
 import { ranked } from '../../lib/stats';
 import { live, routes } from '../../lib/routes';
@@ -44,7 +44,7 @@ function nuclearCsv(): string {
 export const GET: APIRoute = ({ props }) => {
   if ((props as { id: string }).id === NUCLEAR_CSV) return new Response(nuclearCsv(), { headers: { 'Content-Type': 'text/csv; charset=utf-8' } });
   const m = indicatorModel((props as { id: string }).id)!;
-  const source = m.sources.map((s) => licenceOf(s)?.credit ?? sourceName(s)).join('; ');
+  const source = m.sources.map(creditLine).join('; ');
   const retrieved = (refreshed(m.source) ?? '').slice(0, 10);
   const after = m.indicator.projectedAfter;
   const prelim = new Set(m.preliminary);

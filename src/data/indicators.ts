@@ -18,7 +18,7 @@ import { displacement } from '../adapters/unhcr.ts';
 import { arms } from '../adapters/sipri.ts';
 import { water } from '../adapters/water.ts';
 import { lending } from '../adapters/aiddata.ts';
-import { weo, worldBank } from '../adapters/worldbank.ts';
+import { weo, weoRelease, worldBank } from '../adapters/worldbank.ts';
 import { space } from '../adapters/celestrak.ts';
 import { ai, computeAt } from '../adapters/epoch.ts';
 import { LISTS, listingsAt, sanctions } from '../adapters/sanctions.ts';
@@ -48,13 +48,16 @@ export interface Indicator {
   static?: boolean;
   /** Years after this are projections, labelled as such. */
   projectedAfter?: number;
+  /** The source's own last actual year, when its files say (the WEO's "Estimates Start After"): replaces projectedAfter. */
+  lastActual?: (raw: Raw) => number | undefined;
   load?: (raw: Raw, get: (id: string) => Series) => Series;
   /** Why it has no loader yet. */
   pending?: string;
 }
 
-/** The IMF's last year of actual figures in the October 2026 WEO; later years are projections. */
+/** The IMF's last year of actual figures, for WEO files without a release file (the samples); an imported release sets its own. */
 export const WEO_LAST_ACTUAL = 2025;
+const weoLastActual = (raw: Raw) => weoRelease(raw)?.lastActual;
 
 const wb = (code: string) => (raw: Raw) => worldBank(raw, code);
 /** A World Bank percentage (62.5) as a share (0.625), so changes are in percentage points like the other share measures. */
@@ -96,17 +99,15 @@ const share: Format = { kind: 'share' };
 const pct = (digits = 1): Format => ({ kind: 'percent', digits });
 const unit = (u: string, digits = 0): Format => ({ kind: 'number', unit: u, digits });
 
-const IMF_PENDING = 'IMF World Economic Outlook, waiting for the IMF to allow scheduled downloads';
-
 const LIST: Indicator[] = [
   // Economy
   { id: 'gdp', group: 'economy', source: 'worldbank', format: money, scale: 'log', load: wb('NY.GDP.MKTP.CD') },
   { id: 'gdppc', group: 'economy', source: 'worldbank', format: money, scale: 'log', load: (_r, get) => combine(get('gdp'), get('population'), (g, p) => g / p) },
   { id: 'growth', group: 'economy', source: 'worldbank', format: pct(1), scale: 'linear', load: wb('NY.GDP.MKTP.KD.ZG') },
   { id: 'inflation', group: 'economy', source: 'worldbank', format: pct(1), scale: 'linear', load: wb('FP.CPI.TOTL.ZG') },
-  { id: 'debt', group: 'economy', source: 'imf-weo', format: pct(0), scale: 'linear', projectedAfter: WEO_LAST_ACTUAL, load: (raw) => weo(raw, 'GGXWDG_NGDP'), pending: IMF_PENDING },
-  { id: 'deficit', group: 'economy', source: 'imf-weo', format: pct(1), scale: 'linear', projectedAfter: WEO_LAST_ACTUAL, load: (raw) => weo(raw, 'GGXCNL_NGDP'), pending: IMF_PENDING },
-  { id: 'currentaccount', group: 'economy', source: 'imf-weo', format: pct(1), scale: 'linear', projectedAfter: WEO_LAST_ACTUAL, load: (raw) => weo(raw, 'BCA_NGDPD'), pending: IMF_PENDING },
+  { id: 'debt', group: 'economy', source: 'imf-weo', format: pct(0), scale: 'linear', projectedAfter: WEO_LAST_ACTUAL, lastActual: weoLastActual, load: (raw) => weo(raw, 'GGXWDG_NGDP') },
+  { id: 'deficit', group: 'economy', source: 'imf-weo', format: pct(1), scale: 'linear', projectedAfter: WEO_LAST_ACTUAL, lastActual: weoLastActual, load: (raw) => weo(raw, 'GGXCNL_NGDP') },
+  { id: 'currentaccount', group: 'economy', source: 'imf-weo', format: pct(1), scale: 'linear', projectedAfter: WEO_LAST_ACTUAL, lastActual: weoLastActual, load: (raw) => weo(raw, 'BCA_NGDPD') },
   { id: 'unemployment', group: 'economy', source: 'worldbank', format: pct(1), scale: 'linear', load: wb('SL.UEM.TOTL.ZS') },
   { id: 'reserves', group: 'economy', source: 'worldbank', format: money, scale: 'log', load: wb('FI.RES.TOTL.CD') },
   { id: 'trade', group: 'economy', source: 'worldbank', format: pct(0), scale: 'linear', load: wb('NE.TRD.GNFS.ZS') },
@@ -170,14 +171,19 @@ const LIST: Indicator[] = [
   { id: 'chinaloans', group: 'influence', source: 'aiddata', format: money, scale: 'log', load: (raw) => lending(raw).byYear },
 ];
 
-/** Entries waiting on IMF permission use the World Bank where it has the same measure (growth, inflation, unemployment above). */
+/** Growth, inflation and unemployment are the World Bank's; the WEO, imported by hand, gives debt, deficit and the current account. */
 export const INDICATORS: Record<string, Indicator> = Object.fromEntries(LIST.map((d) => [d.id, d]));
 
 export interface Loaded { indicator: Indicator; values: Series; years: number[] }
 
+/** Each entry's own projectedAfter, for files that do not set one. */
+const PROJECTED_AFTER = new Map(LIST.map((d) => [d.id, d.projectedAfter]));
+
 /** Loads indicators from one snapshot, each once, with derived ones loading what they need. */
 export function registry(raw: Raw) {
   const cache = new Map<string, Series>();
+  // The build has one snapshot: an imported WEO release moves the projection label for every page.
+  for (const d of LIST) if (d.lastActual) d.projectedAfter = d.lastActual(raw) ?? PROJECTED_AFTER.get(d.id);
   const get = (id: string): Series => {
     const d = INDICATORS[id];
     if (!d) throw new Error(`unknown indicator ${id}`);

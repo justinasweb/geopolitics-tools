@@ -111,6 +111,7 @@ function describe(src: Source, st: SourceState, kind: string, now: Date) {
 
 export function buildSnapshot(id: string, now: Date, state: State, sources: About[]): Snapshot {
   const out: Snapshot = { id, created: now.toISOString(), sources: {} };
+  // A source both fetched (switched off) and imported is described by its import, listed last.
   for (const src of sources) {
     const st = state.sources[src.id];
     if (!st?.lastSuccess || !Object.keys(st.files).length) continue;
@@ -133,7 +134,7 @@ export function publicStatus(now: Date, state: State, sources: Source[], snapsho
   return {
     generated: now.toISOString(),
     snapshot,
-    sources: Object.fromEntries([...sources.map((src) => {
+    sources: Object.fromEntries([...sources.filter((src) => !imported.some((i) => i.id === src.id)).map((src) => {
       const st = state.sources[src.id] ?? emptySource();
       return [src.id, {
         name: src.name,
@@ -284,7 +285,9 @@ export async function run(opts: RunOptions): Promise<RunReport> {
     await opts.alerter.send(describe(src, st, d.kind, now));
   }
 
-  const snapshot = await publish(stores, state, opts.sources.map((s) => s.id), { sources: opts.sources, imported: opts.imported ?? [] }, now, changed);
+  // A switched-off fetcher whose files are imported by hand (the IMF WEO) belongs to the import tool.
+  const own = opts.sources.map((s) => s.id).filter((id) => !opts.imported?.some((i) => i.id === id));
+  const snapshot = await publish(stores, state, own, { sources: opts.sources, imported: opts.imported ?? [] }, now, changed);
 
   return { run: stamp, reports, changed, snapshot, alerts };
 }

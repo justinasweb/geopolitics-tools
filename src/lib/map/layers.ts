@@ -13,7 +13,7 @@ import { countryHref, live } from '../routes.ts';
 import { amount, listed, mineralPages, shareClass, shareText, withheld, nameOf, type MineralPage } from '../minerals.ts';
 import { list, inSentence } from '../../i18n/pages.en.ts';
 import { ICT_TEXT, OUTAGE_TEXT, PARTS_TEXT as PX, VIEW_TEXT, VIEWS_TEXT } from '../../i18n/views.en.ts';
-import { classFor, creditOf, familyPages, partsOf, placeNote, shareOf, valueText, viewPages, type ViewPage } from '../views.ts';
+import { classFor, creditOf, familyPages, partsOf, placeNote, shareOf, unreportedIn, unreportedText, valueText, viewPages, type ViewPage } from '../views.ts';
 import { data, indicator, shared } from '../data.ts';
 import { loadFlows } from '../../data/flows.ts';
 import { countClass, daysText, disasterPages, type DisasterPage } from '../disasters.ts';
@@ -187,6 +187,7 @@ function withSourceNotes(notes: Record<string, string>, p: MineralPage): Record<
 /** A registry measure by country and year (emissions, refugees): its classes are fixed across years (../views.ts). */
 function indicatorLayer(p: ViewPage): LayerFile {
   const c = common();
+  const unreported = unreportedText(p);
   const W = VIEWS_TEXT;
   const memberships = blocs();
   const data: LayerYear[] = p.years.map((year) => {
@@ -197,6 +198,8 @@ function indicatorLayer(p: ViewPage): LayerFile {
       // No rank on a neutral layer (documented cyber incidents): the panel shows no "3 of 120".
       v[r.id] = [classFor(p, r.value), valueText(p, r.value), share ? (y.worldOwn ? W.ofWorld(share) : W.ofTotal(share)) : '', 0, p.layer.neutral ? 0 : i + 1];
     });
+    // Not reported (src/data/not-reported.ts): hatched like "withheld by source", with the layer's own words for it.
+    for (const n of unreportedIn(p, year)) v[n.place] ??= [0, unreported!.label, '', 0, 0];
     const bl: Record<string, string> = {};
     for (const [id, members] of memberships) {
       const name = BLOC_TEXT[id] ?? id;
@@ -227,11 +230,11 @@ function indicatorLayer(p: ViewPage): LayerFile {
   }
   return {
     id: `${p.family.id}-${p.id}`, name: p.text.title, scale: p.layer.scale, years: p.years, year: p.year, ticks: p.ticks, ends: p.text.ends,
-    missing: { none: p.text.none ?? VIEW_TEXT[p.family.id].none ?? W.noData }, source: creditOf(p), ...(p.layer.neutral ? { unranked: true, caveat: p.text.caveat } : {}),
+    missing: { none: p.text.none ?? VIEW_TEXT[p.family.id].none ?? W.noData, ...(unreported ? { withheld: unreported.label } : {}) }, source: creditOf(p), ...(p.layer.neutral ? { unranked: true, caveat: p.text.caveat } : {}),
     text: {
       ...(c.words as LayerFile['text']),
       kicker: `${p.text.title} · ${p.text.period ? p.text.period(p.year) : '{year}'}`, measure: p.text.measure, shareLabel: p.text.figureLabel, none: p.text.noneIn?.('{year}') ?? W.notListed(0).replace('0', '{year}'),
-      withheld: MAP_TEXT.withheldBy, withheldWhy: '', prev: W.prevYear(0, '{value}').replace('0', '{year}'),
+      withheld: unreported?.label ?? MAP_TEXT.withheldBy, withheldWhy: unreported?.why ?? '', prev: W.prevYear(0, '{value}').replace('0', '{year}'),
       rank: W.rank(0, 1).replace('0', '{rank}').replace('1', '{of}'),
       detailLabel: p.layer.sums ? PT.share : undefined, rankLabel: PT.rank, rankOf: PT.rankOf, statusLabel: PT.status,
       trend: PT.figureTrend(p.text.figureLabel), trendCaption: PT.trendCaption, ranking: PT.ranking,

@@ -21,7 +21,7 @@ interface Props {
   label: string;
   /** The view's name, for the phone map's top bar. */
   title: string;
-  legend: { title: string; scale: 'seq' | 'div'; ticks: string[]; ends?: [string, string]; none: string; withheld?: boolean; notyet?: string; marks?: { symbol: 'dot' | 'hollow' | 'triangle' | 'diamond' | 'square' | 'arc' | 'arc-dashed'; label: string }[];
+  legend: { title: string; scale: 'seq' | 'div'; ticks: string[]; ends?: [string, string]; none: string; withheld?: boolean | string; notyet?: string; marks?: { symbol: 'dot' | 'hollow' | 'triangle' | 'diamond' | 'square' | 'arc' | 'arc-dashed'; label: string }[];
     /** Named classes in place of a scale (a bloc's members): each a sequential class and its word. */
     categories?: { cls: number; label: string }[];
     /** Draw the categories in the categorical colours (unordered classes). */
@@ -68,7 +68,7 @@ const n = legend.scale === 'seq' ? 5 : 7;
           {legend.ends && <div class="gt-legend__ends"><span>← {legend.ends[0]}</span><span>{legend.ends[1]} →</span></div>}
           <div class="gt-legend__extra">
             <span><i class="gt-sw gt-sw--nodata"></i>{legend.none}</span>
-            {legend.withheld && <span><i class="gt-sw gt-sw--withheld"></i>{MAP_TEXT.withheldBy}</span>}
+            {legend.withheld && <span><i class="gt-sw gt-sw--withheld"></i>{typeof legend.withheld === 'string' ? legend.withheld : MAP_TEXT.withheldBy}</span>}
             {legend.notyet && <span><i class="gt-sw gt-sw--notyet"></i>{legend.notyet}</span>}
           </div>
           {legend.marks && legend.marks.length > 0 && <div class="gt-legend__extra gt-legend__marks">{legend.marks.map((m) => <span><MarkIcon symbol={m.symbol} />{m.label}</span>)}</div>}

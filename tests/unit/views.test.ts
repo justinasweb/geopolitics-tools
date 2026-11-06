@@ -87,4 +87,26 @@ describe('registry map views', () => {
     }
     expect(V.partsOf(V.viewPage('co2')!, 'USA', 2020)).toBeNull();
   });
+
+  it('shows Russia as not reported on the hosted maps from 2024: hatched, its own legend words, out of the ranking', () => {
+    for (const id of ['refin', 'refinpc']) {
+      const p = V.viewPage(id)!;
+      expect(p.byYear[2023].rows.some((r) => r.id === 'RUS')).toBe(true);
+      expect(p.byYear[2024].rows.some((r) => r.id === 'RUS')).toBe(false);
+      expect(V.unreportedIn(p, 2024).map((n) => n.place)).toEqual(['RUS']);
+      const f = L.layerFile(`refugees-${id}`);
+      expect(f.missing.withheld).toBe('Not reported since 2023');
+      expect(f.text.withheld).toBe('Not reported since 2023');
+      expect(f.text.withheldWhy).toMatch(/stop counting Ukrainians in Russia from 2024/);
+      expect(f.data.find((d) => d.year === 2024)!.v.RUS[0]).toBe(0);
+      expect(f.data.find((d) => d.year === 2023)!.v.RUS[0]).toBeGreaterThan(0);
+      expect(f.data.find((d) => d.year === 2024)!.order).not.toContain('RUS');
+      expect(f.notes.RUS).toMatch(/stop counting Ukrainians in Russia from 2024/);
+    }
+    // Ukraine's "fled from" figure stays as UNHCR publishes it, with its note.
+    const out = V.viewPage('refout')!;
+    expect(V.unreportedIn(out, 2024)).toEqual([]);
+    expect(L.layerFile('refugees-refout').missing.withheld).toBeUndefined();
+    expect(L.layerFile('refugees-refout').notes.UKR).toMatch(/stop counting Ukrainians in Russia from 2024/);
+  });
 });

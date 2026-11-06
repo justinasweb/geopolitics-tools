@@ -3,6 +3,9 @@
 #   run by hand           same, with optional --only / --force (Actions tab → data → Run workflow),
 #                         or only a Telegram test message
 #   a week archived       the run that freezes a closed week starts week.yml to draft its summary
+#   new data              when the latest snapshot is newer than the last production deploy, and no deploy
+#                         started in the last 23 hours, the run starts one (ci.yml), so new data reaches the
+#                         site within about a day
 #   pull request          (pipeline changes only) live check: every enabled source against the real
 #                         service, saved only inside the run, the adapters run on what came back,
 #                         plus an R2 write test; nothing the site uses is touched. Adapter and place
@@ -44,7 +47,7 @@ jobs:
     timeout-minutes: 60
     permissions:
       contents: read
-      # To start week.yml once a week is archived.
+      # To start week.yml once a week is archived, and the daily production deploy (ci.yml).
       actions: write
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -80,6 +83,31 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           WEEK: ${{ steps.fetch.outputs.frozen }}
         run: gh workflow run week.yml --ref main -f task=summary -f week="$WEEK"
+      # Pages are built from the snapshot at deploy time. A snapshot made after the last production deploy (by this
+      # run, an earlier one or an import) starts one, at most once a day: none if any deploy started in the last
+      # 23 hours (a merge, the week's deploy or this one). Snapshot ids are their UTC time, 2026-11-06T0723Z.
+      - name: Deploy new data, once a day
+        if: ${{ !cancelled() && steps.fetch.outputs.snapshot != '' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SNAPSHOT: ${{ steps.fetch.outputs.snapshot }}
+        run: |
+          made=$(date -u -d "${SNAPSHOT:0:13}:${SNAPSHOT:13:2}:00Z" +%s)
+          runs=$(gh run list --workflow ci.yml --branch main --limit 50 --json event,conclusion,createdAt \
+            --jq '[.[] | select(.event == "push" or .event == "workflow_dispatch")]')
+          # Live: the last deploy that passed or is still going. Tried: the last one at all, so a failing deploy is
+          # not started again every hour.
+          live=$(jq -r '[.[] | select(.conclusion == "success" or .conclusion == "")][0].createdAt // ""' <<< "$runs")
+          tried=$(jq -r '.[0].createdAt // ""' <<< "$runs")
+          at() { [ -n "$1" ] && date -u -d "$1" +%s || echo 0; }
+          if [ "$made" -le "$(at "$live")" ]; then
+            echo "Snapshot $SNAPSHOT is already live (deploy of $live)."
+          elif [ $(( $(date -u +%s) - $(at "$tried") )) -lt $((23 * 3600)) ]; then
+            echo "Snapshot $SNAPSHOT is new; a deploy started $tried, so it waits for the next day's." >> "$GITHUB_STEP_SUMMARY"
+          else
+            gh workflow run ci.yml --ref main
+            echo "Snapshot $SNAPSHOT is newer than the last deploy (${live:-none}); production deploy started." >> "$GITHUB_STEP_SUMMARY"
+          fi
 
   live-check:
     if: github.event_name == 'pull_request'

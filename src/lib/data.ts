@@ -11,6 +11,8 @@ import { join } from 'node:path';
 import { rawDir, type Raw } from '../adapters/core.ts';
 import { registry, INDICATORS, type Loaded } from '../data/indicators.ts';
 import { LICENCE_OF, LICENCES, type Licence } from '../data/licences.ts';
+import { weoRelease } from '../adapters/worldbank.ts';
+import { SOURCE_SHORT } from '../i18n/pages.en.ts';
 
 export interface SnapshotSource { name: string; attribution: string; licence: string; fetched: string; changed?: string; dataTo?: string; imported?: Record<string, { file?: string; date?: string }> }
 export interface Snapshot { id: string; created: string; sources: Record<string, SnapshotSource> }
@@ -137,5 +139,23 @@ export function isDelayed(source: string): boolean {
   return Boolean(data().status?.sources[source]?.stale);
 }
 
-/** A source's own name, for source lines: the licence table's, else the snapshot's, else its id. */
-export const sourceName = (source: string): string => licenceOf(source)?.name ?? data().snapshot.sources[source]?.name ?? source;
+/** The edition a source line names, read from the source's own files: the WEO's release ("October 2026"). */
+const EDITIONS: Record<string, (raw: Raw) => string | undefined> = { 'imf-weo': (raw) => weoRelease(raw)?.release };
+export const editionOf = (source: string): string | undefined => (EDITIONS[source] ? tryLoad(EDITIONS[source]) ?? undefined : undefined);
+
+/** A source's own name, for source lines: the licence table's, else the snapshot's, else its id; with its edition when it has one. */
+export function sourceName(source: string): string {
+  const name = licenceOf(source)?.name ?? data().snapshot.sources[source]?.name ?? source;
+  const edition = editionOf(source);
+  return edition ? `${name}, ${edition}` : name;
+}
+
+/** The licence table's credit, with the edition when the source has one ("IMF World Economic Outlook, October 2026"). */
+export function creditLine(source: string): string {
+  const credit = licenceOf(source)?.credit;
+  const edition = editionOf(source);
+  return credit ? (edition ? `${credit}, ${edition}` : credit) : sourceName(source);
+}
+
+/** The short name for credits and captions ("World Bank"); a source with an edition is named in full with it. */
+export const creditName = (source: string): string => (editionOf(source) ? sourceName(source) : SOURCE_SHORT[source] ?? sourceName(source));

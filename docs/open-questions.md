@@ -142,6 +142,13 @@ Made while building `/this-week` and its archive; each is easy to change.
 - Mark Russia on the hosted maps as "not reported since 2023" (hatched, like "withheld by source") instead of shading it by the small figure.
 - Use another source for Ukrainians in Russia, if one meets the source rules.
 
+**Decided 6 Nov 2026: mark it.** From 2024 the refugees-hosted maps (total and per 1,000 residents) hatch Russia
+like "withheld by source", with its own legend entry, "Not reported since 2023", and leave it out of the ranking, the
+table's figures and the total. The notes next to Russia and Ukraine say UNHCR's figures stop counting Ukrainians in
+Russia from 2024. Ukraine's "fled from" figure is still UNHCR's. Other cases go in `src/data/not-reported.ts` (place,
+indicators, first year, reason). Open: Russia's country page shows no refugees-hosted figure from 2024 either, as it
+has no rank; say "not reported since 2023" there too?
+
 ## Submarine cables: TeleGeography licence (raised 25 Oct 2026)
 
 **The question.** The spec puts submarine cables at `/internet`. TeleGeography's Submarine Cable Map is the standard
@@ -183,6 +190,15 @@ permission for scheduled downloads (copyright@imf.org: WEO, reserves, PortWatch)
 **Options.**
 - Send one short follow-up to IPC and the IMF, then wait.
 - Import WEO and reserves by hand when the IMF publishes (April and October for WEO).
+
+**WEO by hand (decided 5 Nov 2026).** Import kind `imf-weo` (docs/data-pipeline.md) turns on government debt, the
+budget balance and the current account, credited "IMF World Economic Outlook, October 2026". Still to check:
+- The IMF moved the WEO database to its new data portal in October 2025. The import reads the "By Countries" layout
+  (ISO, WEO Subject Code, a column per year, Estimates Start After); it was built and tested on that layout, not on a
+  downloaded October 2026 file (imf.org refused scripts). If the first real import stops on missing columns, the
+  portal's export needs its own column names added.
+- A country whose actual figures end before the release's usual year (Estimates Start After 2024 when most say 2025)
+  has the years in between left out rather than shown as actual. The alternative is a per-country projection label.
 - Import PortWatch by hand on a schedule (for example monthly), if its terms allow manual reuse; daily transits would
   then be up to a month old.
 

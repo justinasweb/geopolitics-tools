@@ -2,10 +2,10 @@
 // at a glance" (src/lib/dependence.ts): every country with at least one share of use, its ten cells, the places
 // its suppliers need for their ISO codes, the blocs, and what each source allows in the download.
 import { FLOWS } from '../data/flows.ts';
-import { RESOURCE_TEXT, SOURCE_SHORT } from '../i18n/pages.en.ts';
+import { RESOURCE_TEXT } from '../i18n/pages.en.ts';
 import { BLOC_TEXT } from '../i18n/map.en.ts';
 import { blocs } from './blocs.ts';
-import { licenceOf, refreshed, sourceName } from './data.ts';
+import { creditName, licenceOf, refreshed } from './data.ts';
 import { RESOURCES, dependencies, type DepRow } from './dependence.ts';
 import type { Cell, Grid, ResourceMeta } from './dependencies/model.ts';
 import { countryHref } from './routes.ts';
@@ -14,7 +14,7 @@ import { PLACES, place } from './places.ts';
 
 /** Where each resource's share of use comes from, as src/lib/dependence.ts reads it. */
 const BALANCE: Record<string, string> = { oil: 'eia', gas: 'eia', arms: 'sipri', chips: 'comtrade' };
-const short = (s: string) => SOURCE_SHORT[s] ?? sourceName(s);
+const short = (s: string) => creditName(s);
 const downloads = (s: string) => licenceOf(s)?.downloads === 'yes';
 const share = (v: number) => Number(v.toFixed(4));
 
