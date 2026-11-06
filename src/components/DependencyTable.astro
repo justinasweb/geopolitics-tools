@@ -63,10 +63,12 @@ const partners = (r: DepRow) => r.partners.map((id) => ({ id, name: nameOf(id), 
     </tbody>
   </table>
 </div>
+{/* On a phone the table's caption and its arms and chips note come with the cards. */}
+<p class="gt-caption gt-deplist__cap">{DEP_TEXT.caption}</p>
 <ul class="gt-deplist" aria-label={label}>
   {rows.map((r) => (
     <li>
-      <span class="gt-deplist__h">{RESOURCE_TEXT[r.resource].label}{r.tag && !r.main && <span class:list={['gt-deptag', `gt-deptag--${r.tag}`]}><svg viewBox="0 0 16 12" aria-hidden="true" set:html={GLYPH[r.tag]} />{DEP_TEXT.tags[r.tag]}</span>}</span>
+      <span class="gt-deplist__h">{RESOURCE_TEXT[r.resource].label}{r.tag && !r.main && <span class:list={['gt-deptag', `gt-deptag--${r.tag}`]}><svg viewBox="0 0 16 12" aria-hidden="true" set:html={GLYPH[r.tag]} />{DEP_TEXT.tags[r.tag]}</span>}{(r.resource === 'arms' || r.resource === 'chips') && <span class="gt-depna" title={DEP_TEXT.concentrationTitle}>{DEP_TEXT.concentrationOnly}</span>}</span>
       <p class:list={{ 'gt-muted': r.state !== 'ok' }}>{position(r)}</p>
       {partners(r).length > 0 ? <p class="gt-caption">{DEP_TEXT.partners}: {partners(r).map((p) => p.name).join(', ')}{r.buyers && ` ${DEP_TEXT.buyersTag}`}</p>
         : r.state === 'ok' && <p class="gt-caption">{DEP_TEXT.partners}: {DEP_TEXT.noPartners}</p>}

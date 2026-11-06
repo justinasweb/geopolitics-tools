@@ -265,10 +265,11 @@
 
 /* Added in the build (not in the design bundle): the phone versions of the dependencies table and Compare's key
    figures are separate markup, so each is shown at its own width. */
-.gt-deplist, .gt-cmprows, .gt-cmpswitch { display: none; }
+.gt-deplist, .gt-deplist__cap, .gt-cmprows, .gt-cmpswitch { display: none; }
 @container page (max-width: 759px) {
   .gt-deps, .gt-cmptblwrap { display: none; }
   .gt-deplist, .gt-cmprows { display: grid; }
+  .gt-deplist__cap { display: block; margin: 0 0 8px; }
   .gt-cmpswitch { display: flex; }
 }
 .gt-jumpbar details > summary { list-style: none; cursor: pointer; }
