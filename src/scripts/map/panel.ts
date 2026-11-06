@@ -112,6 +112,17 @@ export interface PanelOptions {
   table?: boolean;
 }
 
+/**
+ * Atlas: a place's figure on the layer shown before, kept under the new one. It carries that layer's own estimate
+ * tag and source line, so the new layer's credit never reads as its source.
+ */
+export function previousHtml(f: LayerFile, yearIndex: number, id: string, title: string, line: string, label: string): string {
+  const status = f.data[yearIndex]?.v[id]?.[3] || f.data[yearIndex]?.status;
+  const tag = status ? ` ${f.tags[status]}` : '';
+  return `<div class="gt-atprev"><span class="gt-label">${esc(label)}</span><p><b>${esc(title)}:</b> ${esc(line)}${tag}</p>`
+    + `<p class="gt-source"><span>${esc(f.source)}</span></p></div>`;
+}
+
 /** The panel for a selected place: its facts (figure, detail, rank, the year before), its trend, the ranking around it, more blocks, notes and links on. */
 export function countryPanelHtml(f: LayerFile, yearIndex: number, id: string, options: boolean | PanelOptions = false): string {
   const o: PanelOptions = typeof options === 'boolean' ? { sheet: options } : options;

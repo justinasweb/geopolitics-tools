@@ -4,7 +4,7 @@ import { arc, equalEarth, fromMap, mapLatOfY, toMap, WORLD_BOUNDS, X_MAX } from 
 import { parseMinerals } from '../../src/adapters/minerals.ts';
 import { concentration, shareClass, shareText } from '../../src/lib/minerals.ts';
 import { nearestYear, readState, writeState, type StateContext } from '../../src/scripts/map/state.ts';
-import { countryPanelHtml, tooltipHtml } from '../../src/scripts/map/panel.ts';
+import { countryPanelHtml, previousHtml, tooltipHtml } from '../../src/scripts/map/panel.ts';
 import type { LayerFile } from '../../src/lib/map/types.ts';
 
 // The page engine reads the sample files here (the prototype's fixtures), never a live snapshot.
@@ -226,6 +226,15 @@ describe('layer files', () => {
     expect(panel).toContain('<li data-selected="true">');
     expect(panel).toContain('href="/minerals/');
     expect(countryPanelHtml(L, 0, 'FRA')).not.toContain('data-show-row');
+  });
+
+  it('keeps a figure from the layer before (Atlas) with its own source, year and estimate tag', () => {
+    const i = L.data.length - 1;
+    const tagged = Object.keys(L.data[i].v).find((id) => L.data[i].v[id][3]) ?? 'AUS';
+    const html = previousHtml(L, i, tagged, 'Lithium', '12% of world mine production, 2025', 'On the layer you had before');
+    expect(html).toContain('<b>Lithium:</b> 12% of world mine production, 2025');
+    expect(html).toContain(`<p class="gt-source"><span>${L.source}</span></p>`);
+    if (L.data[i].v[tagged][3]) expect(html).toContain(L.tags[L.data[i].v[tagged][3] as keyof typeof L.tags]);
   });
 
   it('labels the year before with what it measures, and names whose page a link opens', () => {

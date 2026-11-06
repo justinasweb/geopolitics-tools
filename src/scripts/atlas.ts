@@ -14,7 +14,7 @@ import {
   yearNote, yearOn, type AtlasContext, type AtlasLayerRef,
 } from './map/atlas-state';
 import { legendHtml, markSvg } from './map/legend';
-import { countryPanelHtml, tooltipHtml, worldPanelHtml } from './map/panel';
+import { countryPanelHtml, previousHtml, tooltipHtml, worldPanelHtml } from './map/panel';
 import { esc, fill } from './map/text';
 import { YEAR_TEXT } from '../i18n/en';
 import { initControls } from './controls';
@@ -296,9 +296,8 @@ export function initAtlas(root: HTMLElement): void {
       return;
     }
     const p = prev && loaded.get(byKey.get(prev.key)!.file);
-    const after = p
-      ? `<div class="gt-atprev"><span class="gt-label">${esc(W.previous)}</span><p><b>${esc(byKey.get(prev!.key)!.title)}:</b> ${esc(lineOn(p, prev!.index, id))}</p></div>`
-      : '';
+    // The layer before keeps its own source, year and estimate tag.
+    const after = p ? previousHtml(p, prev!.index, id, byKey.get(prev!.key)!.title, lineOn(p, prev!.index, id), W.previous) : '';
     const empty = `<div class="gt-atempty">${EMPTY}<p class="gt-atempty__t">${esc(fill(f.text.none, { year: whenOf(f, yi()) }))}</p>`
       + `<p>${esc(fill(W.greyMeans, { none: f.missing.none.charAt(0).toLowerCase() + f.missing.none.slice(1) }))}</p></div><div class="gt-pblock" data-at-other hidden></div>`;
     panel.innerHTML = countryPanelHtml(f, yi(), id, { sheet: phone, empty, after, first, table: false });
