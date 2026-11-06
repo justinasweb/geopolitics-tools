@@ -28,7 +28,7 @@ export const GROUP_TEXT: Record<Group, string> = {
 export const CYBER_TEXT = {
   /** The credit, with the dataset version EuRepoC published. */
   credit: (v: Version | null) => `EuRepoC Global Dataset of Cyber Incidents${v ? ` ${v.version} (${formatDate(v.published)})` : ''}, CC BY-NC 4.0`,
-  caveat: 'Publicly known incidents that EuRepoC coded from public reports. Many operations are never disclosed or attributed, so countries that report more show more. Counts compare documented incidents, not how often a country is targeted.',
+  caveat: 'Publicly known incidents that EuRepoC coded from public reports. Many operations are never disclosed or attributed. Differences in public reporting and attribution affect the counts. Counts compare documented incidents, not how often a country is targeted.',
   attribution: 'Attributions are as EuRepoC records them, each with who made it: a government, IT-security firms, the media, or a claim by the actor itself. An incident can have several, and all are shown. Groups EuRepoC codes as state-affiliated have their own rows, apart from the state it links them to, and are not in the state arcs or the pairs table; other non-state groups are shown by their kind.',
   /** The method note: incidents without a start date cannot be placed in a year. */
   method: (all: string, undated: string) => `EuRepoC’s file has ${all} incidents; ${undated} have no start date, so they are left off the map.`,
