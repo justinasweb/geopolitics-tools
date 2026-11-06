@@ -30,6 +30,31 @@ describe('Ember adapter', () => {
   });
 });
 
+describe('Ember adapter: a part that goes missing', () => {
+  const at = (date: string) => (series: string, twh: number) => row(series, twh, { date });
+  const y22 = at('2022'), y23 = at('2023'), y24 = at('2024');
+
+  it('leaves out a year that lacks a part the country reported above zero before', () => {
+    // Gas is there in 2022 and 2024, not in 2023: 2023's total and shares would look complete but leave it out.
+    const p = parseEmber({ data: [y22('Coal', 40), y22('Gas', 30), y22('Hydro', 30), y23('Coal', 40), y23('Hydro', 30), y24('Coal', 40), y24('Gas', 30), y24('Hydro', 30)] });
+    expect(Object.keys(p.mix.FRA).map(Number)).toEqual([2022, 2024]);
+    expect(p.mix.FRA[2023]).toBeUndefined();
+  });
+
+  it('keeps years before a part starts, and gaps after years it was zero', () => {
+    // Wind starts in 2023; nuclear is reported as 0 in 2022 and then not at all: neither was generating.
+    const p = parseEmber({ data: [y22('Coal', 50), y22('Nuclear', 0), y23('Coal', 50), y23('Wind', 5), y24('Coal', 50), y24('Wind', 10)] });
+    expect(Object.keys(p.mix.FRA).map(Number)).toEqual([2022, 2023, 2024]);
+    expect(p.mix.FRA[2023].total).toBe(55);
+  });
+
+  it('treats the world file the same way', () => {
+    const w = (date: string, series: string, twh: number) => ({ ...row(series, twh, { date }), entity: 'World', entity_code: 'OWID_WRL' });
+    const p = parseEmber({ data: [] }, { data: [w('2022', 'Coal', 10), w('2022', 'Gas', 5), w('2023', 'Coal', 10)] });
+    expect(Object.keys(p.world)).toEqual(['2022']);
+  });
+});
+
 describe('electricity views', () => {
   it('builds five layers, low-carbon at /electricity and gas at /electricity/gas', () => {
     const pages = V.familyPages('electricity');
