@@ -87,7 +87,7 @@ Budget (Lighthouse, mobile preset): LCP under 2.5 s, CLS under 0.1, TBT under 20
 | Map: arms | 1.4 s | 0 | 0 ms | 17 KB | 41 KB | 100 | Within budget |  |
 | Map: nuclear | 1.4 s | 0 | 0 ms | 19 KB | 41 KB | 100 | Within budget |  |
 | Map: blocs | 1.4 s | 0 | 0 ms | 17 KB | 41 KB | 100 | Within budget |  |
-| Atlas | 1.4 s | 0 | 2641 ms | 441 KB | 41 KB | 70 | Over: TBT 2641 ms | First-visit hint shown while the page is parsed: LCP 6.3 s → 1.4 s. TBT left open (below) |
+| Atlas | 1.4 s | 0 | 2641 ms | 441 KB | 41 KB | 70 | Within budget, with the accepted TBT exception (below) | First-visit hint shown while the page is parsed: LCP 6.3 s → 1.4 s |
 | Hub: resources | 1.7 s | 0 | 0 ms | 8 KB | 41 KB | 99 | Within budget |  |
 | Hub: technology | 1.4 s | 0 | 0 ms | 8 KB | 41 KB | 100 | Within budget |  |
 | Hub: climate | 1.5 s | 0 | 0 ms | 8 KB | 41 KB | 99 | Within budget |  |
@@ -104,6 +104,14 @@ Budget (Lighthouse, mobile preset): LCP under 2.5 s, CLS under 0.1, TBT under 20
 | This week archive | 1.4 s | 0 | 0 ms | 10 KB | 41 KB | 100 | Within budget |  |
 | Sources | 1.4 s | 0 | 0 ms | 7 KB | 41 KB | 100 | Within budget |  |
 | Methodology | 1.4 s | 0 | 0 ms | 7 KB | 41 KB | 100 | Within budget |  |
+
+### Accepted exception
+
+**Atlas on a phone: TBT about 2.6 s (budget 200 ms).** Almost all of it is the map library's start-up: MapLibre compiling
+(280 KB) and setting up WebGL; the Atlas's own script takes about 50 ms. The map views meet the budget because on a phone
+they load the map only when the reader taps Show map. The owner chose on 6 Nov 2026 to keep the Atlas map-first on phones,
+so this is the speed budget's one accepted exception. `tests/qa/speed.mjs` allows the Atlas a TBT of up to 4 s
+(`EXCEPTIONS`), so a real slowdown still fails the check. Its JavaScript, 441 KB gzipped, is within the 450 KB map budget.
 
 ## Phone layout
 
@@ -130,5 +138,4 @@ Crawled from `/`: every internal link and asset, then every page with JavaScript
 
 ## Open items
 
-- **Atlas on a phone: TBT about 2.6 s (budget 200 ms).** Almost all of it is MapLibre compiling (280 KB) and setting up WebGL; the Atlas's own script takes about 50 ms. The map views meet the budget because on a phone they load the map only when the reader taps Show map. Doing the same on the Atlas would meet the budget but changes how the page opens; it needs a decision (also in `open-questions.md`). JS on the Atlas, 441 KB gzipped, is under its 450 KB budget.
 - **Second-language test (decision D13)** was not run this time.
