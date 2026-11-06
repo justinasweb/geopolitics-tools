@@ -46,6 +46,17 @@ export interface DepRow {
   partnersFrom?: { source: string; period: string };
 }
 
+/**
+ * The imports a country page names first: the largest by share of use, then the largest fuel (oil, gas) the place
+ * imports most of, when that is another row. Germany: rice (100%), then gas (95%).
+ */
+export function leadImports(deps: DepRow[]): DepRow[] {
+  const most = deps.filter((d) => d.state === 'ok' && d.tag === 'most' && d.reliance !== undefined).sort((a, b) => b.reliance! - a.reliance!);
+  if (!most.length) return [];
+  const fuel = most.find((d) => d.resource === 'oil' || d.resource === 'gas');
+  return fuel && fuel !== most[0] ? [most[0], fuel] : [most[0]];
+}
+
 /** A row's source and year as its line reads: "EIA, use 2024 · UN Comtrade, imports 2025"; null without figures. */
 export function rowSource(r: DepRow): string | null {
   const short = (s: string) => SOURCE_SHORT[s] ?? s;

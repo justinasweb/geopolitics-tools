@@ -11,7 +11,7 @@ import { INDICATORS, type Loaded } from '../data/indicators.ts';
 import { INDICATOR_TEXT } from '../i18n/en.ts';
 import { DEP_TEXT, RESOURCE_TEXT, SOURCE_SHORT, SUMMARY, inSentence, mineralName } from '../i18n/pages.en.ts';
 import { data, indicator, refreshed, shared, changed } from './data.ts';
-import { dependencies, depSources, type DepRow } from './dependence.ts';
+import { dependencies, depSources, leadImports, type DepRow } from './dependence.ts';
 import { formatShare, formatValue } from './format.ts';
 import { PLACES, place, type Place } from './places.ts';
 import { defaultYear, figureFor, ranked } from './stats.ts';
@@ -169,11 +169,15 @@ function summaryFor(c: Place, figs: Figure[], minerals: MineralShare[], deps: De
     const gdpText = gdp ? formatValue(gdp.value, INDICATORS.gdp.format) : null;
     out.push(SUMMARY.people(out.length ? 'It' : subject, popText, `${SOURCE_SHORT[pop.source]}, ${pop.year}`, gdpText, gdp ? `${SOURCE_SHORT[gdp.source]}, ${gdp.year}` : ''));
   }
-  const most = deps.filter((d) => d.state === 'ok' && d.tag === 'most').sort((a, b) => (b.reliance ?? 0) - (a.reliance ?? 0))[0];
-  if (most && most.reliance !== undefined) {
+  // The largest import by share of use, and the largest fuel imported mostly (leadImports).
+  const lead = leadImports(deps);
+  if (lead.length === 1) {
+    const [most] = lead;
     const src = `${SOURCE_SHORT[most.source]}, ${most.year}`;
     const noun = RESOURCE_TEXT[most.resource].noun;
-    out.push(most.reliance >= 0.995 ? SUMMARY.importsAll(noun, src) : SUMMARY.imports(formatShare(most.reliance), noun, src));
+    out.push(most.reliance! >= 0.995 ? SUMMARY.importsAll(noun, src) : SUMMARY.imports(formatShare(most.reliance!), noun, src));
+  } else if (lead.length) {
+    out.push(SUMMARY.importsMany(lead.map((d) => SUMMARY.importPart(d.reliance! >= 0.995 ? null : formatShare(d.reliance!), RESOURCE_TEXT[d.resource].noun, `${SOURCE_SHORT[d.source]}, ${d.year}`))));
   } else if (blocks.refugees?.hosted && blocks.refugees.hosted.value >= 100_000) {
     const h = blocks.refugees.hosted;
     out.push(SUMMARY.hosts(formatValue(h.value, INDICATORS.refin.format), `${SOURCE_SHORT.unhcr}, ${h.year}`));

@@ -70,9 +70,10 @@ export const DEP_TEXT = {
   buyersTag: '(buyers)',
   link: 'Dependencies tool',
   /** The section's finding, from its two most telling rows. */
-  find: (c: string, parts: string[]) => `${c} ${list(parts)}.`,
-  findImport: (share: string, noun: string) => `imports ${share} of the ${noun} it uses`,
-  findImportAll: (noun: string) => `imports all of the ${noun} it uses`,
+  find: (c: string, parts: string[]) => `${c} ${parts.join('; it ')}.`,
+  /** The imports it names, under one verb: "imports all of the rice it uses and 95% of the gas it uses". */
+  findImports: (parts: string[]) => `imports ${list(parts)}`,
+  findImportPart: (share: string | null, noun: string) => `${share === null ? 'all' : share} of the ${noun} it uses`,
   findExport: (noun: string) => `exports ${noun}`,
   findSelf: (c: string, nouns: string) => `${c} produces about as much ${nouns} as it uses.`,
   findNone: 'None of this page’s sources reports these resources for this country yet.',
@@ -136,6 +137,10 @@ export const SUMMARY = {
     gdp ? `${c} has ${pop} people (${popSrc}) and an economy of ${gdp} a year (${gdpSrc}).` : `${c} has ${pop} people (${popSrc}).`,
   imports: (share: string, noun: string, src: string) => `It imports ${share} of the ${noun} it uses (${src}).`,
   importsAll: (noun: string, src: string) => `It imports all of the ${noun} it uses (${src}).`,
+  /** Several imports in one sentence, each with its own source: "It imports all of the rice it uses (FAOSTAT, 2024) and
+   *  95% of the gas it uses (EIA, 2024)." */
+  importsMany: (parts: string[]) => `It imports ${list(parts)}.`,
+  importPart: (share: string | null, noun: string, src: string) => `${share === null ? 'all' : share} of the ${noun} it uses (${src})`,
   hosts: (n: string, src: string) => `It hosts ${n} refugees and others in need of protection (${src}).`,
   fled: (n: string, src: string) => `${n} people from it are refugees or others in need of protection abroad (${src}).`,
   none: (c: string) => `Few of this site’s sources report figures for ${c}.`,

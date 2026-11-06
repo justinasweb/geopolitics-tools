@@ -29,6 +29,7 @@ import {
   BLOCK_TEXT, COUNTRY_TEXT, DEP_TEXT, DOSSIER_TEXT, RESOURCE_TEXT, inSentence, list, mineralName, ordinal,
 } from '../i18n/pages.en';
 import { countryModel, countrySources, DOSSIERS, MINERAL_SHARE, type Figure } from '../lib/country';
+import { leadImports } from '../lib/dependence';
 import { dossierFor, peopleSection } from '../lib/dossier';
 import { creditName, data, sourceName } from '../lib/data';
 import { formatDate, formatParts, formatShare, formatValue } from '../lib/format';
@@ -65,8 +66,9 @@ const nameOf = (id: string) => place(id)?.name ?? id;
 const okDeps = m.deps.filter((d) => d.state === 'ok');
 const findDeps = (() => {
   const bits: string[] = [];
-  const most = okDeps.filter((d) => d.tag === 'most').sort((a, b) => (b.reliance ?? 0) - (a.reliance ?? 0))[0];
-  if (most && most.reliance !== undefined) bits.push(most.reliance >= 0.995 ? DEP_TEXT.findImportAll(RESOURCE_TEXT[most.resource].noun) : DEP_TEXT.findImport(formatShare(most.reliance), RESOURCE_TEXT[most.resource].noun));
+  // The same imports as the summary: the largest by share of use, and the largest fuel imported mostly.
+  const lead = leadImports(okDeps);
+  if (lead.length) bits.push(DEP_TEXT.findImports(lead.map((d) => DEP_TEXT.findImportPart(d.reliance! >= 0.995 ? null : formatShare(d.reliance!), RESOURCE_TEXT[d.resource].noun))));
   const exp = okDeps.find((d) => d.tag === 'exp');
   if (exp) bits.push(DEP_TEXT.findExport(RESOURCE_TEXT[exp.resource].noun));
   if (bits.length) return DEP_TEXT.find(subject, bits);

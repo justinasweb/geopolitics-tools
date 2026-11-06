@@ -134,3 +134,26 @@ describe('years and sources by row', () => {
     expect(row).toMatch(/title="[^"]*use 2024 · [^"]*imports 2025"/);
   });
 });
+
+describe('which imports a country page names first', () => {
+  it('leads with the largest by share of use and adds the largest fuel it imports most of', async () => {
+    const { leadImports } = await import('../../src/lib/dependence.ts');
+    const row = (resource: string, reliance: number, tag = 'most') => ({ resource, state: 'ok', source: 'x', partners: [], reliance, tag }) as never;
+    // Germany: rice 100%, soybeans 97%, phosphate 96%, gas 95%, oil 91%.
+    const de = [row('oil', 0.91), row('gas', 0.95), row('rice', 1), row('soy', 0.97), row('phosphate', 0.96), row('wheat', -0.05, 'self')];
+    expect(leadImports(de).map((r: { resource: string }) => r.resource)).toEqual(['rice', 'gas']);
+    // A fuel that leads is named once.
+    expect(leadImports([row('oil', 1), row('rice', 0.6)]).map((r: { resource: string }) => r.resource)).toEqual(['oil']);
+    // No fuel imported mostly: the largest alone.
+    expect(leadImports([row('oil', 0.2, 'some'), row('rice', 0.8)]).map((r: { resource: string }) => r.resource)).toEqual(['rice']);
+    expect(leadImports([row('wheat', -0.5, 'exp')])).toEqual([]);
+  });
+});
+
+describe('the dependencies section’s finding', () => {
+  it('names the lead imports under one verb, and an export after a semicolon', async () => {
+    const { DEP_TEXT } = await import('../../src/i18n/pages.en.ts');
+    const imports = DEP_TEXT.findImports([DEP_TEXT.findImportPart(null, 'rice'), DEP_TEXT.findImportPart('95%', 'gas')]);
+    expect(DEP_TEXT.find('Germany', [imports, DEP_TEXT.findExport('potash')])).toBe('Germany imports all of the rice it uses and 95% of the gas it uses; it exports potash.');
+  });
+});
