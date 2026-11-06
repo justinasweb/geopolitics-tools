@@ -11,6 +11,7 @@ import Base from '../layouts/Base.astro';
 import LogoSprite from '../components/LogoSprite.astro';
 import Lockup from '../components/Lockup.astro';
 import Icon from '../components/Icon.astro';
+import SearchDialog from '../components/SearchDialog.astro';
 import '../styles/atlas/mapview.css';
 import '../styles/atlas/panel.css';
 import '../styles/atlas/country.css';
@@ -298,6 +299,7 @@ const groups = menuGroups();
     </div>
   </div>
   <script type="application/json" id="at-data" set:html={json} />
+  <SearchDialog />
 </Base>
 
 <script>

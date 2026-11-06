@@ -10,16 +10,8 @@
 .gt-hero__qs { display: grid; gap: 14px; }
 .gt-hero__qs > .gt-label { margin: 0; color: var(--ink); }
 
-/* big search: the country search's combobox, drawn large */
+/* big search: site search's box (search.css), with the Try links under it */
 .gt-bigsearch { display: grid; gap: 10px; width: 100%; max-width: 760px; margin: 0; }
-.gt-bigsearch .gt-combo { min-width: 0; }
-.gt-bigsearch__box { display: flex; align-items: center; gap: 12px; min-height: 60px; padding: 0 6px 0 18px; border: 2px solid var(--ink); background: var(--paper-raised); }
-.gt-bigsearch__box:focus-within { outline: 2px solid var(--focus); outline-offset: 2px; }
-.gt-bigsearch__box .gt-ico { width: 22px; height: 22px; color: var(--ink-muted); }
-.gt-bigsearch__box input { flex: 1; min-width: 0; height: 52px; text-overflow: ellipsis; border: 0; background: transparent; color: var(--ink); font: 400 20px/1 var(--sans); padding: 0; }
-.gt-bigsearch__box input::placeholder { color: var(--ink-muted); }
-.gt-bigsearch__box input:focus-visible { outline: none; }
-.gt-bigsearch__box .gt-btn { min-height: 46px; }
 .gt-bigsearch__try { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 2px 14px; font: 400 15px/22px var(--sans); color: var(--ink-muted); }
 .gt-bigsearch__try a { display: inline-flex; min-height: 44px; align-items: center; }
 
@@ -114,9 +106,6 @@
 @container page (max-width: 759px) {
   .gt-hero { gap: 24px; }
   .gt-hero__lead .gt-lede { font-size: 18px; line-height: 27px; }
-  .gt-bigsearch__box { min-height: 52px; padding: 0 4px 0 14px; gap: 8px; }
-  .gt-bigsearch__box input { height: 48px; font-size: 17px; }
-  .gt-bigsearch__box .gt-btn { display: none; }
   .gt-trail__list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
   .gt-trail__item a { padding: 12px 12px 14px; }
   .gt-trail__item svg { width: 42px; height: 28px; margin: 0 0 4px; }

@@ -152,10 +152,8 @@ country focused and in the browser (`src/scripts/supply-chains.ts`) when the rea
 `src/i18n/en.ts`, `TRAIL_TEXT`). Hero option C (spec D19): everything is in the HTML, there is no map, and every
 part links only to live pages; a part with nothing to show is left out.
 
-- **Search.** A combobox (`src/scripts/controls.ts`, `data-rank="prefix"`: names starting with what was typed come
-  first) over every live hub, tool, map view, mineral, bloc, river, supply chain, ranking and country; picking one or
-  pressing Search opens it. Site search does not exist yet (phase 8), so on the homepage the header's search button
-  and the `/` key (`gt-search`) bring the reader to this box. "Try" links are live pages only.
+- **Search.** Site search's large box (see Site search below), with "Try" links to live pages under it. On the
+  homepage the header's search button and the `/` key (`gt-search`) bring the reader to this box instead of the dialog.
 - **Tool row.** Atlas, Explorer, Dependencies, Supply chains, Bloc overlap, This week, in that order (`TRAIL`); a tool
   that is not live is left out. Bloc overlap is drawn as two circles here (`ToolIcon circles`); hubs keep the matrix.
   Supply chains counts its live flows of goods (refugees are not a good).
@@ -173,6 +171,38 @@ part links only to live pages; a part with nothing to show is left out.
   a rule the page states (there is no traffic data, so nothing is "popular"); rankings for military spending, CO2 per
   person and refugees hosted, worded as on the hubs.
 - **Trust strip.** The Sources page's count and the snapshot's time.
+
+## Site search
+
+One box, on the homepage (large, results under it) and in a dialog that the header's search button, the Atlas bar's
+and the `/` key open (centred near the top; the whole screen under 760px). Component `src/components/SiteSearch.astro`
+and `SearchDialog.astro` (in `Page.astro` and the Atlas), behaviour `src/scripts/search.ts`, words
+`src/i18n/search.en.ts`.
+
+- **Index.** `src/lib/search.ts` builds it from the route registry, so only live pages are in it, and the build serves
+  it at `/search-index.json` (`?v=` the snapshot's time, so a new build is never answered from an old copy; robots.txt
+  disallows it). No server and no third-party service: the browser fetches it on first use (or when a pointer reaches
+  a search button) and searches it there. About 465 pages: **44 kB, 10.6 kB gzipped, 8.8 kB brotli** (6 Nov 2026);
+  a test fails above 25 kB gzipped.
+- **Groups.** Countries (country pages, Compare), Maps (each view family by its menu name, each page by its layer's
+  name, with hub and family under it), Measures (indicator rankings), Places (disputed rivers; chokepoints and ports
+  join by themselves when their routes go live), Blocs (each grouping with its full name, its history page), Tools
+  (the tools, Explorer's views, Supply chains' flows, This week), Topics and pages. The group with the best match comes
+  first; each shows its best five ("5 of 26" in its heading), more when only one group matches.
+- **Matching** (`src/lib/search-match.ts`, shared with the tests). Accents, apostrophes and case are ignored
+  ("turkiye", "cote divoire"). Typed words match the starts of words in a page's name or other names; one or two
+  letters only the start of a name. ISO codes ("DE", "DEU") and short bloc ids ("eu", "g7") match only typed whole.
+  Countries' other names come from the territory table's name codes (`codes.csv`: Burma, Turkey, Ivory Coast, Zaire),
+  leaving out any that names another place it is not part of ("Taiwan Province of China" is never a way to China);
+  other words for maps and measures ("corn", "defence", "LNG") are in `SEARCH_ALIASES`. A country typed in full is
+  followed by the blocs it is a member of ("India is a member").
+- **Typos and nothing found.** With no match, the nearest page name within one or two edits (a swap of two letters
+  counts as one) is searched instead, saying "Showing results for India." Otherwise the box says nothing matches,
+  how to search, and offers the Try pages as options. An empty dialog offers the same Try pages.
+- **Keyboard.** An ARIA combobox over a listbox of groups: arrows move across every result, Enter opens the marked one
+  (the best when none is marked, never a suggestion after no match), Ctrl/Cmd+Enter or click opens a new tab, Esc
+  closes the list (in the dialog: clears the box, then closes). A polite status line says the count.
+- **Not built:** the design's full results page (/search?q=, SiteStates); the box opens the best result instead.
 
 ## Who counts as a member
 
