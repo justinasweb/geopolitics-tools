@@ -249,7 +249,7 @@ set `TREATIES_CHECKED` or `SHARING_CHECKED` in src/lib/nuclear.ts; the Sources p
 | `GH_DISPATCH_TOKEN` | The Worker's outside watch, to start a run GitHub skipped (fine-grained, this repository, "Actions: read and write"); also the Telegram review buttons and the weekly digest ([telegram.md](telegram.md)) |
 | `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` | Alerts. Without them alerts are only printed in the run log, and the run fails so GitHub emails. To check them: Run workflow with "test alert" ticked |
 
-Errors are written without query strings, so an API key in an address never reaches a log or `status.json`.
+Errors are written without query strings or the bot token in a Telegram address (`/bot…/`), and the values of the secret env vars (Telegram, Cloudflare, GitHub, and any `*_KEY`, `*_TOKEN` or `*_SECRET`) are taken out of every HTTP error message, a server's own answer included, so a key never reaches a log or `status.json`.
 
 ## Adding a source
 

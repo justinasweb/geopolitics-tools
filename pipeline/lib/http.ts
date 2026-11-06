@@ -1,5 +1,6 @@
 // HTTP for fetchers: a polite user agent, timeouts, a few retries on network errors and 5xx, and
-// error messages without query strings, so a key in a URL never reaches a log or status.json.
+// error messages without query strings, bot tokens in paths or the values of secret env vars, so a key
+// never reaches a log or status.json.
 import { createWriteStream } from 'node:fs';
 import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
@@ -20,11 +21,23 @@ export interface Http {
   get(url: string, opts?: GetOptions): Promise<Response>;
 }
 
-/** The URL as it may appear in logs: host and path only. */
+/** Env vars whose values never appear in a message: Telegram, Cloudflare, GitHub, and any key, token or secret. */
+const SECRET_NAME = /^(TELEGRAM_|CLOUDFLARE_|CF_|GH_|GITHUB_TOKEN$)|(_KEY|_TOKEN|_SECRET)$/;
+
+/** The text with every secret env var's value (8 characters or more, longest first) replaced by "…". */
+export function scrub(text: string, env: NodeJS.ProcessEnv = process.env): string {
+  const values = Object.entries(env)
+    .filter(([k, v]) => SECRET_NAME.test(k) && v && v.length >= 8)
+    .map(([, v]) => v as string)
+    .sort((a, b) => b.length - a.length);
+  return values.reduce((t, v) => t.split(v).join('…'), text);
+}
+
+/** The URL as it may appear in logs: host and path only, with a Telegram bot token (/bot<token>/) taken out. */
 export const redact = (url: string) => {
   try {
     const u = new URL(url);
-    return `${u.host}${u.pathname}${u.search ? '?…' : ''}`;
+    return scrub(`${u.host}${u.pathname.replace(/\/bot[^/]+/g, '/bot…')}${u.search ? '?…' : ''}`);
   } catch {
     return '(bad URL)';
   }
@@ -33,13 +46,17 @@ export const redact = (url: string) => {
 export class HttpError extends Error {
   status: number;
   constructor(status: number, url: string, detail = '') {
-    super(`HTTP ${status} from ${redact(url)}${detail ? `: ${detail}` : ''}`);
+    super(scrub(`HTTP ${status} from ${redact(url)}${detail ? `: ${detail}` : ''}`));
     this.status = status;
   }
 }
 
 /** A failure that says nothing about our code or the data: the network, a timeout, a server error. */
-export class NetworkError extends Error {}
+export class NetworkError extends Error {
+  constructor(message: string) {
+    super(scrub(message));
+  }
+}
 
 /** True for errors that may pass on their own (network, timeouts, 5xx, 429), as opposed to a wrong address or changed data. */
 export const isTransient = (e: unknown) => e instanceof NetworkError || (e instanceof HttpError && (e.status >= 500 || e.status === 429));
@@ -83,7 +100,7 @@ export async function getJson<T = unknown>(http: Http, url: string, opts?: GetOp
   try {
     return JSON.parse(text) as T;
   } catch {
-    throw new Error(`not JSON from ${redact(url)}: ${text.replace(/\s+/g, ' ').slice(0, 120)}`);
+    throw new Error(scrub(`not JSON from ${redact(url)}: ${text.replace(/\s+/g, ' ').slice(0, 120)}`));
   }
 }
 
