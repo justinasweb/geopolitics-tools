@@ -113,10 +113,6 @@ honours the wildcard on a put: if it did not, every Post would be refused.
 **Options.** Leave it as it is (the gap is milliseconds wide), or confirm `If-None-Match: *` on a Preview's bucket
 and add it to the claim.
 
-### Estimate tags in the Explorer's lines view (raised 6 Nov 2026)
-
-**The question.** The Explorer's lines view dashes WEO estimates but not FAOSTAT's flagged figures.
-
 ## Launch review leftovers (raised 5 Nov 2026)
 
 - **G7 and Russia (decided 5 Nov 2026).** Russia joins in 1998, as the G8, per the G7 Research Group

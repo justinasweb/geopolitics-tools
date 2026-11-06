@@ -101,6 +101,20 @@ describe('Explorer views', () => {
     expect((lines.match(/gt-lc__line--proj gt-ser-1/g) ?? []).length).toBeGreaterThan(0);
   });
 
+  it('dashes a line where the source flags a figure as an estimate (FAOSTAT), as it dashes the WEO’s estimates', () => {
+    // Aland's 2020 figure is flagged: the stretch into it and out of it is dashed, the years around it solid.
+    const fao: Data = { ...data, b: { ...data.b!, e: { AAA: [2020] } } };
+    const html = linesHtml(parseState('lines', new URLSearchParams('m=b&c=AAA,BBB'), meta), meta, fao);
+    const paths = (cls: string) => [...html.matchAll(new RegExp(`<path class="gt-lc__line ${cls}" d="([^"]+)"`, 'g'))].map((x) => x[1]);
+    const dashed = [...html.matchAll(/<path class="gt-lc__line gt-lc__line--proj gt-ser-1" d="([^"]+)"/g)].map((x) => x[1]);
+    // 2018–2019 solid, 2019–2021 dashed (through 2020), 2021–2022 solid.
+    expect(paths('gt-ser-1').map((d) => d.split(/[ML]/).filter(Boolean).length)).toEqual([2, 2]);
+    expect(dashed.map((d) => d.split(/[ML]/).filter(Boolean).length)).toEqual([3]);
+    // Barnland has no flagged year: one solid line.
+    expect(html).not.toContain('gt-lc__line--proj gt-ser-2');
+    expect(paths('gt-ser-2')).toHaveLength(1);
+  });
+
   it('leaves measures out of the CSV whose licence does not allow it', () => {
     const { csv, left } = tableCsv(parseState('table', new URLSearchParams('m=a,b'), meta), meta, data);
     expect(left.map((x) => x.id)).toEqual(['b']);
