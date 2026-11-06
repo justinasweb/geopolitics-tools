@@ -48,8 +48,15 @@ lists the `countries` and `names` (treaties, dams, groupings) a text may name. O
   "rejoined", and a territory note names its place ("Falkland Islands: …"), never only its id.
 - **`sample: true`** marks a file generated from the sample data; it is refused the same way. Run `npm run data:pull`
   before `ai:facts` so the dossier files come from the real snapshot.
-- **The hash** stored with each text (`factsHash`) covers the subject, places, names and facts, but not the facts'
-  dates or notes, so a weekly refresh that changes no figure does not make a text stale.
+- **The hash** stored with each text (`factsHash`) covers the subject, places and names, and the facts the text
+  uses, but not the facts' dates or notes, so a weekly refresh that changes no figure does not make a text stale.
+- **Used facts.** A short text (dossier, history, river, This week) is saved with `usedFacts`: the ids of the facts
+  the checker matched (`checkDraft(...).used`). Those are each figure's fact; for a date, place, grouping name or
+  comparison a sentence says without one of its figures' facts giving it, every fact that gives it; and the owner's
+  own words. Only those facts are hashed, so a change to a fact the text does not use (a rank on another list, a new
+  fact) leaves it approved, and a used fact that changes or disappears makes it stale. Long pages and hub intros are
+  mostly prose that the checker cannot tie to single facts, so they keep the whole file's hash; so do texts saved
+  before `usedFacts` (6 Nov 2026), until they are saved again.
 
 Dossier facts are generated again at build time from the data being built, so a dossier summary disappears as soon as
 a figure it was drafted from changes (a new year, a revision) until it is redrafted and approved. History and river
@@ -104,7 +111,7 @@ A draft that fails is sent back once with the list of problems; a second failure
 
 ## 4. Approve
 
-`src/lib/ai/store.ts`. Each text records `author` (`ai` or `owner`), `model`, `factsHash`, `drafted`, `approved`,
+`src/lib/ai/store.ts`. Each text records `author` (`ai` or `owner`), `model`, `factsHash` (and `usedFacts` for short texts), `drafted`, `approved`,
 `approvedOn` and `approvedVia`. A text is:
 
 | State | Meaning | On the page |
@@ -113,7 +120,7 @@ A draft that fails is sent back once with the list of problems; a second failure
 | `draft` | Drafted, not approved (or drafted before this pipeline, with no hash) | Nothing; long pages show the draft banner |
 | `approved` | Approved, and its facts are unchanged | The text, with the label |
 | `skipped` | The owner tapped Skip on Telegram | Nothing; not sent for review again |
-| `stale` | Approved, but its facts changed since | Nothing (short texts); the draft banner again (long pages). The build log and `ai:status` say so |
+| `stale` | Approved, but facts it uses changed since (any fact, for a long page or a text without `usedFacts`) | Nothing (short texts); the draft banner again (long pages). The build log and `ai:status` say so |
 | `owner` | Written by the owner | The text, without the label |
 
 **Short texts** are approved with `npm run ai:approve -- <id>` or on Telegram ([telegram.md](telegram.md)). The step

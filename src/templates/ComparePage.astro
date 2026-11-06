@@ -11,12 +11,12 @@ import '../styles/atlas/country.css';
 import '../styles/atlas/table.css';
 import { INDICATORS } from '../data/indicators';
 import { INDICATOR_TEXT } from '../i18n/en';
-import { COMPARE_TEXT as T, COUNTRY_TEXT, SOURCE_SHORT, mineralName, inSentence } from '../i18n/pages.en';
+import { COMPARE_TEXT as T, COUNTRY_TEXT, mineralName, inSentence } from '../i18n/pages.en';
 import { countryModel, figure, mineralShares } from '../lib/country';
 import { seriesOf } from '../lib/dossier';
 import { formatParts, formatShare } from '../lib/format';
 import { countryHref, indicatorHref, paths, routes } from '../lib/routes';
-import { sourceName } from '../lib/data';
+import { creditName, sourceName } from '../lib/data';
 import { breadcrumbs } from '../lib/structured';
 
 interface Props { a: string; b: string }
@@ -46,7 +46,7 @@ const higher = (r: typeof rows[number]) => (r.f[0] && r.f[1] && r.f[0].value !==
 const srcYear = (r: typeof rows[number]) => {
   const f = r.f.filter((x) => x !== null);
   const years = [...new Set(f.map((x) => x!.year))];
-  return `${SOURCE_SHORT[f[0]!.source] ?? sourceName(f[0]!.source)}, ${years.join(' and ')}`;
+  return `${creditName(f[0]!.source)}, ${years.join(' and ')}`;
 };
 
 const charts = ['gdp', 'milpct'].map((id) => {

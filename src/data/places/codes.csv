@@ -82,7 +82,9 @@ eia,iso3,NLDA,,,,"Netherlands Antilles, dissolved in 2010; EIA keeps it as a ser
 eia,iso3,USIQ,,,,EIA's US Pacific islands total
 eia,iso3,WAK,,,,Wake Island (no population)
 owid,iso3,OWID_WRL,,,,World total
-imf-weo,iso3,UVK,XKX,,,IMF code for Kosovo
+imf-weo,iso3,UVK,XKX,,,IMF code for Kosovo (By Countries table)
+imf-weo,iso3,KOS,XKX,,,IMF data portal code for Kosovo
+imf-weo,iso3,WBG,PSE,,,IMF code for West Bank and Gaza
 aqueduct,iso3,XKO,XKX,,,"GADM code for Kosovo, used by Aqueduct"
 comtrade,m49,490,TWN,,,"UN Comtrade reports Taiwan as ""Other Asia, not elsewhere specified"""
 comtrade,m49,842,USA,,,Comtrade code for the United States (with Puerto Rico and the US Virgin Islands)

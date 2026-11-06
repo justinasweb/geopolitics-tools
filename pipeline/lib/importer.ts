@@ -20,8 +20,10 @@ export type Input = { text: string } | { rows: string[][]; sheet: string };
 // Windows-1252 bytes 0x80–0x9f (Node's decoder treats them as Latin-1 control codes); the rest is Latin-1.
 const CP1252 = '€\u0081‚ƒ„…†‡ˆ‰Š‹Œ\u008dŽ\u008f\u0090‘’“”•–—˜™š›œ\u009džŸ';
 
-/** UTF-8 when it is valid UTF-8, otherwise Windows-1252 (what Excel saves); a byte-order mark is dropped. */
+/** UTF-16 with its byte-order mark, else UTF-8 when it is valid UTF-8, otherwise Windows-1252 (what Excel saves); a byte-order mark is dropped. */
 export function decodeText(b: Uint8Array): string {
+  if (b[0] === 0xff && b[1] === 0xfe) return new TextDecoder('utf-16le').decode(b);
+  if (b[0] === 0xfe && b[1] === 0xff) return new TextDecoder('utf-16be').decode(b);
   try {
     return new TextDecoder('utf-8', { fatal: true }).decode(b);
   } catch {
@@ -37,7 +39,7 @@ export interface ReadOptions {
   columns?: string[];
 }
 
-const usable = /\.(csv|json|geojson|xlsx)$/i;
+const usable = /\.(csv|json|geojson|xlsx|xls|tsv|txt)$/i;
 
 /** .csv, .json, .geojson or .xlsx, as is or in a .gz, or one of them inside a .zip. */
 export async function readInput(name: string, data: Uint8Array, opts: ReadOptions = {}): Promise<Input> {
@@ -62,7 +64,9 @@ export async function readInput(name: string, data: Uint8Array, opts: ReadOption
     }
     throw new CheckError(`no sheet with the columns ${(opts.columns ?? []).join(', ')}; the workbook has ${book.sheets.join(', ')} (name one with --sheet= to see what it holds)`);
   }
-  if (!/\.(csv|json|geojson|txt)$/i.test(name)) throw new CheckError(`can't read "${name}": give a .csv, .json, .geojson or .xlsx file, as is, gzipped or zipped`);
+  // The IMF's ".xls" downloads are tab-delimited text; a real (binary) Excel 97 file is refused.
+  if (/\.xls$/i.test(name) && data[0] === 0xd0 && data[1] === 0xcf) throw new CheckError(`"${name}" is an old binary Excel file; open it and save it as .xlsx or CSV`);
+  if (!/\.(csv|json|geojson|txt|tsv|xls)$/i.test(name)) throw new CheckError(`can't read "${name}": give a .csv, .tsv, .json, .geojson or .xlsx file, as is, gzipped or zipped`);
   return { text: decodeText(data) };
 }
 
@@ -76,6 +80,7 @@ export interface Prepared {
 
 /** Check the input against its kind and keep what the site needs. `previous` is the last imported copy, for the shrink check. */
 export function prepare(kind: Kind, input: Input, now: Date, previous: string | null = null, allowShrink = false): Prepared {
+  check(kind.how !== 'files', 'this kind writes several files: use importFile');
   if (kind.how === 'raw' || kind.how === 'geojson') {
     if (!('text' in input)) throw new CheckError(`this kind takes the ${kind.how === 'raw' ? 'CSV' : 'GeoJSON'} file, not a workbook`);
     if (kind.how === 'raw') {
@@ -149,33 +154,54 @@ export async function importFile(o: ImportOptions): Promise<ImportResult> {
   const now = o.now ?? new Date();
   const log = o.log ?? console.log;
   const from = basename(o.path);
-  const file = typeof o.kind.save === 'function' ? o.kind.save(from) : o.kind.save;
   const input = await readInput(from, new Uint8Array(readFileSync(o.path)), { ...o, columns: o.kind.columns });
   if ('sheet' in input) log(`read sheet "${input.sheet}"`);
 
   const state = await loadState(o.stores);
   const st = (state.sources[o.kind.source] ??= emptySource());
-  const prevRec = st.files[file];
-  const prevBytes = prevRec && (await readRaw(o.stores, prevRec));
-  const prepared = prepare(o.kind, input, now, prevBytes ? new TextDecoder().decode(prevBytes) : null, o.allowShrink);
-  if (prepared.added.length) log(`columns added by us, left empty for you to fill: ${prepared.added.join(', ')}`);
-
-  const body = new TextEncoder().encode(prepared.body);
-  const sha256 = createHash('sha256').update(body).digest('hex');
-  const changed = prevRec?.sha256 !== sha256;
-  if (changed) {
-    const key = `${o.kind.source}/${runStamp(now)}/${file}.gz`;
-    await o.stores.raw.put(key, gzipSync(body, { level: 9 }), 'application/gzip');
-    st.files[file] = { key, sha256, bytes: body.length, contentType: prepared.contentType };
-    st.lastChange = now.toISOString();
+  const previous = async (name: string) => {
+    const b = st.files[name] && (await readRaw(o.stores, st.files[name]));
+    return b ? new TextDecoder().decode(b) : null;
+  };
+  // Most kinds save one file; the WEO table is saved as one file per indicator and its release.
+  let out: { name: string; body: string | Uint8Array; contentType: string; rows: number }[];
+  let rows: number;
+  if (o.kind.how === 'files') {
+    const names = o.kind.files ?? [];
+    const prev = Object.fromEntries(await Promise.all(names.map(async (n) => [n, await previous(n)] as const)));
+    const r = o.kind.split!(input, from, prev, o.allowShrink ?? false);
+    out = r.files.map((f) => ({ name: f.name, body: f.body, contentType: f.contentType ?? 'application/json', rows: 0 }));
+    rows = r.rows;
+    out[0].rows = rows;
+  } else {
+    const file = typeof o.kind.save === 'function' ? o.kind.save(from) : o.kind.save;
+    const prepared = prepare(o.kind, input, now, await previous(file), o.allowShrink);
+    if (prepared.added.length) log(`columns added by us, left empty for you to fill: ${prepared.added.join(', ')}`);
+    out = [{ name: file, body: prepared.body, contentType: prepared.contentType, rows: prepared.rows }];
+    rows = prepared.rows;
   }
-  (st.imported ??= {})[file] = { from, at: now.toISOString(), rows: prepared.rows };
+
+  let changed = false;
+  let bytes = 0;
+  for (const f of out) {
+    const body = typeof f.body === 'string' ? new TextEncoder().encode(f.body) : f.body;
+    const sha256 = createHash('sha256').update(body).digest('hex');
+    bytes += body.length;
+    if (st.files[f.name]?.sha256 !== sha256) {
+      const key = `${o.kind.source}/${runStamp(now)}/${f.name}.gz`;
+      await o.stores.raw.put(key, gzipSync(body, { level: 9 }), 'application/gzip');
+      st.files[f.name] = { key, sha256, bytes: body.length, contentType: f.contentType };
+      st.lastChange = now.toISOString();
+      changed = true;
+    }
+    (st.imported ??= {})[f.name] = { from, at: now.toISOString(), rows: f.rows };
+  }
   st.firstAttempt ??= now.toISOString();
   st.lastAttempt = st.lastSuccess = now.toISOString();
   st.failures = 0;
-  st.rows = Object.values(st.imported).reduce((s, f) => s + f.rows, 0);
+  st.rows = Object.values(st.imported ?? {}).reduce((s, f) => s + f.rows, 0);
 
   // This writer owns only the imported source; everything else is taken fresh from the bucket.
   const snapshot = await publish(o.stores, state, [o.kind.source], { sources: o.sources, imported: o.imported }, now, changed);
-  return { source: o.kind.source, file, rows: prepared.rows, bytes: body.length, changed, snapshot };
+  return { source: o.kind.source, file: out.map((f) => f.name).join(', '), rows, bytes, changed, snapshot };
 }

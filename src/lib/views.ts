@@ -6,10 +6,11 @@ import { DIV_EDGES, VIEW_FAMILIES, type ViewFamily, type ViewLayer } from '../da
 import type { Format, Loaded } from '../data/indicators.ts';
 import { emissions } from '../adapters/owid.ts';
 import { displacement } from '../adapters/unhcr.ts';
-import { PARTS_TEXT, PLACE_NOTES, VIEW_TEXT, VIEWS_TEXT as W, type LayerText } from '../i18n/views.en.ts';
+import { NOT_REPORTED_TEXT, PARTS_TEXT, PLACE_NOTES, VIEW_TEXT, VIEWS_TEXT as W, type LayerText } from '../i18n/views.en.ts';
+import { NOT_REPORTED, type NotReported } from '../data/not-reported.ts';
 import { INDICATOR_TEXT } from '../i18n/en.ts';
-import { ANSWER, SOURCE_NOTE, SOURCE_SHORT, inSentence } from '../i18n/pages.en.ts';
-import { indicator, refreshed, shared, sourceName, tryLoad } from './data.ts';
+import { ANSWER, SOURCE_NOTE, inSentence } from '../i18n/pages.en.ts';
+import { creditName, indicator, refreshed, shared, tryLoad } from './data.ts';
 import { VIEW_MEASURES } from '../data/view-measures.ts';
 import { yearsOf } from '../adapters/core.ts';
 import { worldShare } from './electricity.ts';
@@ -253,8 +254,23 @@ function cyberMethod(p: ViewPage): string[] {
 /** The page's label for the indicator page link. */
 export const indicatorLabel = (p: ViewPage) => INDICATOR_TEXT[p.id]?.label ?? p.text.title;
 
+/** Places the view shows as not reported in a year (../data/not-reported.ts), hatched and left out of the ranking. */
+export const unreportedIn = (p: ViewPage, year: number): NotReported[] => NOT_REPORTED.filter((n) => n.indicators.includes(p.id) && year >= n.from);
+
+/** The map's word for them, the legend's and the tooltip's: "Not reported since 2023", or the plain words when cases differ. */
+export function unreportedText(p: ViewPage): { label: string; why: string } | null {
+  const all = p.years.flatMap((y) => unreportedIn(p, y));
+  if (!all.length) return null;
+  const since = new Set(all.map((n) => n.from));
+  const reasons = new Set(all.map((n) => n.reason));
+  return {
+    label: since.size === 1 ? NOT_REPORTED_TEXT.since(all[0].from - 1) : NOT_REPORTED_TEXT.plain,
+    why: reasons.size === 1 ? NOT_REPORTED_TEXT.reasons[all[0].reason] ?? '' : '',
+  };
+}
+
 /** The source credit, as the indicator page writes it ("Global Carbon Budget", "UNHCR; World Bank population"). */
-export const creditOf = (p: ViewPage) => p.id === 'cyber' ? CYBER_TEXT.credit(cyberData()?.version ?? null) : SOURCE_NOTE[p.id] ?? [p.loaded.indicator.source].flat().map((s) => SOURCE_SHORT[s] ?? sourceName(s)).join('; ');
+export const creditOf = (p: ViewPage) => p.id === 'cyber' ? CYBER_TEXT.credit(cyberData()?.version ?? null) : SOURCE_NOTE[p.id] ?? [p.loaded.indicator.source].flat().map((s) => creditName(s)).join('; ');
 
 export interface Parts { refugees: number; asylum: number; oip: number }
 

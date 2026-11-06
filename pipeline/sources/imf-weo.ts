@@ -2,7 +2,8 @@
 // own {"values": {indicator: {country: {year: value}}}} format, with country groups dropped
 // (only codes in the API's own country list are kept). Includes the IMF's projections, which the
 // site labels as such. Switched off: the IMF's terms ask for permission before scheduled
-// downloads; until it answers, growth, inflation and unemployment come from the World Bank.
+// downloads; until it answers, the WEO is imported by hand (import kind imf-weo, imf-weo-file.ts,
+// which writes the same files) and growth, inflation and unemployment come from the World Bank.
 import { getJson } from '../lib/http.ts';
 import { type Source, DAY, check, guardShrink, json } from '../lib/source.ts';
 

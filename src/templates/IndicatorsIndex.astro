@@ -7,16 +7,16 @@ import '../styles/atlas/longread.css';
 import '../styles/atlas/site.css';
 import { INDICATORS, type Group } from '../data/indicators';
 import { GROUP_TEXT, INDICATOR_TEXT } from '../i18n/en';
-import { INDICATOR_PAGE as T, SOURCE_SHORT } from '../i18n/pages.en';
+import { INDICATOR_PAGE as T } from '../i18n/pages.en';
 import { indicatorModel } from '../lib/indicator';
-import { sourceName } from '../lib/data';
+import { creditName } from '../lib/data';
 import { indicatorHref, paths } from '../lib/routes';
 import { breadcrumbs } from '../lib/structured';
 
 const all = Object.values(INDICATORS);
 const live = all.filter((i) => indicatorHref(i.id));
 const groups = [...new Set(all.map((i) => i.group))] as Group[];
-const srcOf = (s: string | string[]) => (Array.isArray(s) ? s : [s]).map((x) => SOURCE_SHORT[x] ?? sourceName(x)).join('; ');
+const srcOf = (s: string | string[]) => (Array.isArray(s) ? s : [s]).map((x) => creditName(x)).join('; ');
 ---
 <Page title={T.indexTitle} description={T.indexDescription} image={paths.image('page', 'indicators')} jsonld={[breadcrumbs([{ label: T.indexTitle }])]}>
   <header class="gt-lrhead">

@@ -21,7 +21,8 @@ import { countryNames, NOT_COUNTRIES, stripAccents } from './names.ts';
 
 export type ProblemKind = 'number' | 'date' | 'country' | 'comparison' | 'style' | 'owner';
 export interface Problem { kind: ProblemKind; text: string; sentence: string; message: string }
-export interface CheckResult { ok: boolean; problems: Problem[] }
+/** `used`: the ids of the facts the text draws on (./facts.ts factsHash hashes only these for a stored text). */
+export interface CheckResult { ok: boolean; problems: Problem[]; used: string[] }
 
 // ---------------------------------------------------------------------------------------------------------------
 // Reading numbers
@@ -245,7 +246,16 @@ interface AllowedSet {
   places: Set<string>;
   names: string[];
   comparisons: Set<string>;
+  /** Which facts give each year, month, day, place, name and comparison word, for `used`. Places the file lists in
+   *  `countries`, and its names, are the file's own (hashed with it) and need no fact. */
+  from: Record<'years' | 'months' | 'days' | 'places' | 'names' | 'comparisons', Map<string, Set<string>>>;
 }
+
+const give = (m: Map<string, Set<string>>, key: string | number, id: string) => {
+  const k = String(key);
+  if (!m.has(k)) m.set(k, new Set());
+  m.get(k)!.add(id);
+};
 
 const STOP = new Set(['a', 'an', 'the', 'of', 'per', 'in', 'on', 'at', 'to', 'by', 'for', 'and', 'or', 'its', 'their', 'us', 'from', 'with']);
 const SCALE_WORDS = new Set([...Object.keys(SCALES), ...Object.keys(ABBR)]);
@@ -258,19 +268,24 @@ const isPercentUnit = (u = '') => /^\s*(%|per ?cent|percent|percentage point)/i.
 const isMoneyUnit = (u = '') => /us\$|\$|dollar/i.test(u);
 
 function allowedFrom(f: FactsFile): AllowedSet {
-  const set: AllowedSet = { numbers: [], years: new Set(), months: new Set(), days: new Set(), places: new Set(f.countries ?? []), names: f.names ?? [], comparisons: new Set() };
+  const from = { years: new Map(), months: new Map(), days: new Map(), places: new Map(), names: new Map(), comparisons: new Map() };
+  const set: AllowedSet = { numbers: [], years: new Set(), months: new Set(), days: new Set(), places: new Set(f.countries ?? []), names: f.names ?? [], comparisons: new Set(), from };
+  let id = '';
   const addDate = (s?: string) => {
     if (!s) return;
     for (const y of s.matchAll(/\d{4}(-\d{2}(-\d{2})?)?/g)) {
       const d = y[0];
       set.years.add(Number(d.slice(0, 4)));
-      if (d.length >= 7) set.months.add(d.slice(0, 7));
-      if (d.length === 10) set.days.add(d);
+      give(from.years, Number(d.slice(0, 4)), id);
+      if (d.length >= 7) { set.months.add(d.slice(0, 7)); give(from.months, d.slice(0, 7), id); }
+      if (d.length === 10) { set.days.add(d); give(from.days, d, id); }
     }
     // Every year inside a range counts as said ("1999–2001" says 2000 too only if the draft writes the range).
   };
   for (const x of f.facts) {
-    for (const p of x.places ?? []) set.places.add(p);
+    id = x.id;
+    for (const p of x.places ?? []) { set.places.add(p); give(from.places, p, x.id); }
+    for (const n of f.names ?? []) if (x.statement.includes(n)) give(from.names, stripAccents(n), x.id);
     addDate(x.period);
     addDate(x.date);
     for (const d of readDates(x.statement)) {
@@ -290,13 +305,13 @@ function allowedFrom(f: FactsFile): AllowedSet {
     const inName = (q: Quantity) => (f.names ?? []).some((n) => { const i = x.statement.indexOf(n); return i >= 0 && q.start >= i && q.end <= i + n.length; });
     for (const q of readQuantities(x.statement)) {
       if (inName(q) || dates.some((d) => q.start >= d.start && q.end <= d.end)) continue;
-      if (q.yearLike) { set.years.add(q.value); continue; }
+      if (q.yearLike) { set.years.add(q.value); give(from.years, q.value, x.id); continue; }
       if (x.value !== undefined && x.value !== null && Math.abs(q.value - x.value) < 1e-9) continue;
       const next = x.statement.slice(q.end).match(/^\s+([A-Za-z]+)/)?.[1]?.toLowerCase();
       set.numbers.push({ value: q.value, percent: q.percent, money: q.money, ordinal: q.ordinal, unit: next && !STOP.has(next) && !q.ordinal ? [[next]] : [], period, fact: x });
     }
     const lower = x.statement.toLowerCase();
-    for (const c of COMPARISONS) if (new RegExp(`\\b${c}\\b`).test(lower)) set.comparisons.add(c);
+    for (const c of COMPARISONS) if (new RegExp(`\\b${c}\\b`).test(lower)) { set.comparisons.add(c); give(from.comparisons, c, x.id); }
   }
   return set;
 }
@@ -351,7 +366,8 @@ export function plainText(md: string): string {
 /** Sentences, cut at full stops that end one (not "U.S." or "1.2") and at line breaks. */
 export function sentences(text: string): { text: string; start: number }[] {
   const out: { text: string; start: number }[] = [];
-  const re = /[^\n]+?(?:[.!?](?=\s+[A-Z“"‘(]|\s*$)|$)/gm;
+  // A full stop after a lone capital letter ("U.S.", "J. Smith") ends no sentence.
+  const re = /[^\n]+?(?:(?<!(?:^|[\s.(])[A-Z])[.!?](?=\s+[A-Z“"‘(]|\s*$)|$)/gm;
   for (const m of text.matchAll(re)) if (m[0].trim()) out.push({ text: m[0], start: m.index! });
   return out;
 }
@@ -375,6 +391,9 @@ export function ownerProblems(draft: string, facts: FactsFile): Problem[] {
 export function checkDraft(draft: string, facts: FactsFile): CheckResult {
   const allowed = allowedFrom(facts);
   const problems: Problem[] = ownerProblems(draft, facts);
+  // The facts the text draws on: each figure's fact, and for a date, place, name or comparison the sentence says
+  // without one of its figures' facts giving it, every fact that gives it. The owner's own words count too.
+  const used = new Set<string>(facts.facts.filter((x) => x.owner).map((x) => x.id));
   const text = stripAccents(plainText(draft.replace(OWNER_BLOCK, '\n'))).replace(/[’‘]/g, "'");
   for (const s of sentences(text)) {
     const st = s.text;
@@ -385,8 +404,16 @@ export function checkDraft(draft: string, facts: FactsFile): CheckResult {
     const quantities = readQuantities(st).filter((q) => !nameSpans.some(([a, b]) => q.start >= a && q.end <= b));
     for (const q of quantities) if (q.yearLike) sentenceYears.add(q.value);
     const push = (kind: ProblemKind, t: string, message: string) => problems.push({ kind, text: t, sentence: st.trim(), message });
+    // Figures first (their facts), then what else the sentence says: resolved at the end of the sentence.
+    const figures = new Set<string>();
+    const said: Set<string>[] = [];
+    const say = (m: Map<string, Set<string>>, key: string | number) => { const g = m.get(String(key)); if (g) said.push(g); };
 
     for (const d of dates) {
+      if (d.day) say(allowed.from.days, d.day);
+      else if (d.month) say(allowed.from.months, d.month);
+      else if (d.decade !== undefined) said.push(new Set([...allowed.from.years].filter(([y]) => Number(y) >= d.decade! && Number(y) < d.decade! + 10).flatMap(([, g]) => [...g])));
+      else if (d.year !== undefined) say(allowed.from.years, d.year);
       if (d.day && !allowed.days.has(d.day)) push('date', d.text, `The date ${d.text} is not in the facts.`);
       else if (d.month && !allowed.months.has(d.month)) push('date', d.text, `${d.text} is not a month in the facts.`);
       else if (d.decade !== undefined && ![...allowed.years].some((y) => y >= d.decade! && y < d.decade! + 10)) push('date', d.text, `No fact is dated in the ${d.text}.`);
@@ -394,7 +421,7 @@ export function checkDraft(draft: string, facts: FactsFile): CheckResult {
     }
     for (const q of quantities) {
       if (dates.some((d) => q.start >= d.start && q.end <= d.end)) continue;
-      if (q.yearLike && allowed.years.has(q.value)) continue;
+      if (q.yearLike && allowed.years.has(q.value)) { say(allowed.from.years, q.value); continue; }
       const kind = (a: Allowed) => a.percent === q.percent && a.money === q.money && a.ordinal === q.ordinal;
       const same = allowed.numbers.filter((a) => kind(a) && (sameFigure(q, a.value) || (q.scale > 1 && unitStartsWithScale(a.fact.unit, q.scaleWord) && sameFigure({ value: q.bare, step: q.step / q.scale, sig: q.sig }, a.value))));
       if (!same.length) {
@@ -406,6 +433,7 @@ export function checkDraft(draft: string, facts: FactsFile): CheckResult {
         continue;
       }
       const good = same.find((a) => unitIn(st, a) && a.period.every((y) => sentenceYears.has(y) || q.value === y));
+      if (good) figures.add(good.fact.id);
       if (!good) {
         const a = same[0];
         const missing = [!unitIn(st, a) ? `its unit (${a.fact.unit || a.unit.map((g) => g.join(' ')).join(' or ')})` : '', a.period.some((y) => !sentenceYears.has(y)) ? `its period (${a.fact.period})` : ''].filter(Boolean).join(' and ');
@@ -416,7 +444,10 @@ export function checkDraft(draft: string, facts: FactsFile): CheckResult {
     const spans: [number, number][] = [];
     const freeSpan = (a: number, b: number) => !spans.some(([x, y]) => a < y && b > x);
     for (const n of [...NOT_COUNTRIES, ...allowed.names].map(stripAccents).sort((a, b) => b.length - a.length)) {
-      for (const m of st.matchAll(new RegExp(`(?<![A-Za-z])${escape(n)}(?![A-Za-z])`, 'g'))) if (freeSpan(m.index!, m.index! + m[0].length)) spans.push([m.index!, m.index! + m[0].length]);
+      for (const m of st.matchAll(new RegExp(`(?<![A-Za-z])${escape(n)}(?![A-Za-z])`, 'g'))) {
+        if (freeSpan(m.index!, m.index! + m[0].length)) spans.push([m.index!, m.index! + m[0].length]);
+        say(allowed.from.names, n);
+      }
     }
     for (const { name, place } of countryNames()) {
       for (const m of st.matchAll(new RegExp(`(?<![A-Za-z.])${escape(name)}(?![A-Za-z])`, 'g'))) {
@@ -426,15 +457,22 @@ export function checkDraft(draft: string, facts: FactsFile): CheckResult {
         spans.push([a, b]);
         if (place.startsWith('?')) push('country', m[0], `"${m[0]}" could be more than one country; name it in full.`);
         else if (!allowed.places.has(place)) push('country', m[0], `${m[0]} is not a place in the facts.`);
+        else if (!(facts.countries ?? []).includes(place)) say(allowed.from.places, place);
       }
     }
     // A name the facts allow may hold a word the site otherwise leaves out ("critical minerals").
     const lower = [...allowed.names].reduce((s, n) => s.replace(new RegExp(`(?<![a-z])${escape(stripAccents(n).toLowerCase())}(?![a-z])`, 'g'), ' '), st.toLowerCase());
-    for (const c of COMPARISONS) if (new RegExp(`\\b${c}\\b`).test(lower) && !allowed.comparisons.has(c)) push('comparison', c, `"${c}" states a comparison no fact makes.`);
+    for (const c of COMPARISONS) {
+      if (!new RegExp(`\\b${c}\\b`).test(lower)) continue;
+      if (!allowed.comparisons.has(c)) push('comparison', c, `"${c}" states a comparison no fact makes.`);
+      else say(allowed.from.comparisons, c);
+    }
     for (const w of STYLE) if (new RegExp(`(^|[^a-z])${escape(w)}([^a-z]|$)`).test(lower)) push('style', w, `"${w}" is not used on the site (forecasts, blame and judging words are left out).`);
     for (const w of SELF_REFERENCE) if (new RegExp(`(^|[^a-z])${escape(w)}([^a-z]|$)`).test(lower)) push('style', w, `"${w}" talks about the drafting material, not the subject; leave it out.`);
+    for (const id of figures) used.add(id);
+    for (const g of said) if (![...g].some((id) => figures.has(id))) for (const id of g) used.add(id);
   }
-  return { ok: problems.length === 0, problems };
+  return { ok: problems.length === 0, problems, used: [...used].sort() };
 }
 
 function unitStartsWithScale(unit = '', scaleWord: string): boolean {

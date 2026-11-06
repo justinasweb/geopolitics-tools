@@ -142,6 +142,15 @@ Made while building `/this-week` and its archive; each is easy to change.
 - Mark Russia on the hosted maps as "not reported since 2023" (hatched, like "withheld by source") instead of shading it by the small figure.
 - Use another source for Ukrainians in Russia, if one meets the source rules.
 
+**Decided 6 Nov 2026: mark it.** From 2024 the refugees-hosted maps (total and per 1,000 residents) hatch Russia
+like "withheld by source", with its own legend entry, "Not reported since 2023", and leave it out of the ranking, the
+table's figures and the total. The notes next to Russia and Ukraine say UNHCR's figures stop counting Ukrainians in
+Russia from 2024. Ukraine's "fled from" figure is still UNHCR's. Other cases go in `src/data/not-reported.ts` (place,
+indicators, first year, reason).
+
+**Country page (decided 6 Nov 2026).** From 2024 Russia's page shows refugees hosted as "Not reported since 2023",
+with "Last reported: 1.2 m (2023)" and the reason beneath it, from the same `src/data/not-reported.ts` entry.
+
 ## Submarine cables: TeleGeography licence (raised 25 Oct 2026)
 
 **The question.** The spec puts submarine cables at `/internet`. TeleGeography's Submarine Cable Map is the standard
@@ -185,6 +194,16 @@ permission for scheduled downloads (copyright@imf.org: WEO, reserves, PortWatch)
 - Import WEO and reserves by hand when the IMF publishes (April and October for WEO).
 - Import PortWatch by hand on a schedule (for example monthly), if its terms allow manual reuse; daily transits would
   then be up to a month old.
+
+**WEO by hand (decided 5 Nov 2026).** Import kind `imf-weo` (docs/data-pipeline.md) turns on government debt, the
+budget balance and the current account, credited "IMF World Economic Outlook, October 2026". Notes:
+- The data portal CSV (October 2026, `IMF.RES_WEO_9.0.0`) is now read; it was imported locally on 6 Nov: 193
+  countries and territories for debt, 197 for the budget balance, 196 for the current account; USA debt 122.3 (2024),
+  124.4 (2025), 126.8 (2026). The portal's Excel export is not read; use its CSV.
+- **Countries whose actual figures end earlier (decided 6 Nov 2026).** 43 of 193 debt rows in October 2026 end
+  before 2025 (Syria's in 2009). Their years are kept: each value after the country's own last actual year is tagged
+  Estimate up to 2025 and Projection after it, per country, in tables, charts, tooltips and the CSV. Rankings use the
+  common year as usual (191 countries for debt in 2025, 41 of them tagged Estimate).
 
 ## Multi-year supply chain flows (raised 28 Oct 2026)
 

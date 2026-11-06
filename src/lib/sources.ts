@@ -51,6 +51,8 @@ export function sourceRows(): SourceRow[] {
     return dates.at(-1) ?? snap[id]?.fetched;
   };
   for (const s of SOURCES) {
+    // A switched-off fetcher whose files are imported by hand (the IMF WEO) is listed as the import.
+    if (s.enabled !== true && IMPORTED.some((x) => x.id === s.id)) continue;
     const off = s.enabled !== true;
     const parts = IMPORTED.filter((x) => LICENCE_OF[x.id] === s.id).map((x) => importDate(x.id)).filter((x): x is string => !!x);
     const last = [snap[s.id]?.fetched ?? status[s.id]?.lastSuccess ?? undefined, ...parts].filter((x): x is string => !!x).sort().at(-1);

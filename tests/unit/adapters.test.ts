@@ -11,7 +11,7 @@ import { water } from '../../src/adapters/water.ts';
 import { lending } from '../../src/adapters/aiddata.ts';
 import { emissions } from '../../src/adapters/owid.ts';
 import { worldBank, weo } from '../../src/adapters/worldbank.ts';
-import { INDICATORS, latestYear, registry, valueAt } from '../../src/data/indicators.ts';
+import { INDICATORS, latestYear, registry, statusAt, valueAt } from '../../src/data/indicators.ts';
 import { FLOWS, loadFlows, topSupplier } from '../../src/data/flows.ts';
 import { INDICATOR_TEXT, FLOW_TEXT } from '../../src/i18n/en.ts';
 import { formatValue } from '../../src/lib/format.ts';
@@ -53,6 +53,27 @@ describe('adapters on the prototype samples', () => {
     const growth = weo(raw, 'NGDP_RPCH');
     expect(growth.USA[2020]).toBe(-2.2);
     expect(matchReports().every((r) => r.includes('every'))).toBe(true);
+  });
+
+  it('the WEO measures tag each value: estimates after a country’s own last actual year, projections after the release’s', () => {
+    expect(registry(raw).load('debt').indicator.projectedAfter).toBe(2025);
+    const dir = mkdtempSync(join(tmpdir(), 'gt-weo-'));
+    mkdirSync(join(dir, 'imf-weo'));
+    writeFileSync(join(dir, 'imf-weo', 'GGXWDG_NGDP.json'), readFileSync(join(FIXTURES, 'imf/GGXWDG_NGDP.json')));
+    writeFileSync(join(dir, 'imf-weo', 'release.json'), JSON.stringify({ release: 'April 2027', lastActual: 2026, byCountry: { GGXWDG_NGDP: { USA: 2026, AFG: 2024 } } }));
+    const l = registry(rawDir(dir)).load('debt');
+    const d = l.indicator;
+    expect(d.projectedAfter).toBe(2026);
+    // Afghanistan's own actual figures end in 2024: its 2025 and 2026 are kept, as estimates; 2027 on is projected.
+    expect([2024, 2025, 2026, 2027].map((y) => l.values.AFG[y] !== undefined)).toEqual([true, true, true, true]);
+    expect([2024, 2025, 2026, 2027].map((y) => statusAt(d, 'AFG', y))).toEqual([undefined, 'estimate', 'estimate', 'projection']);
+    expect([2026, 2027].map((y) => statusAt(d, 'USA', y))).toEqual([undefined, 'projection']);
+    // Estimates are actual-year values for rankings: Afghanistan is ranked in 2026, the common year.
+    expect(latestYear(l)).toBe(2026);
+    // Files without a release (the samples): projections after 2025 and no estimates.
+    const s = registry(raw).load('debt').indicator;
+    expect(s.projectedAfter).toBe(2025);
+    expect(statusAt(s, 'AFG', 2025)).toBeUndefined();
   });
 
   it('internet use and ICT export shares as shares (0–1), ICT exports in US$', () => {

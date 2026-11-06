@@ -6,7 +6,7 @@ import { SOURCE_TEXT, STATUS_TEXT, YEAR_TEXT } from '../../i18n/en.ts';
 import { formatDate, formatValue } from '../format.ts';
 import { tagHtml } from '../tags.ts';
 import {
-  MAX_COUNTRIES, MAX_MEASURES, PRESETS, canLog, presetMeasures, correlation, inSentence, isPreset, lastActual, queryOf, seriesOf, sharedYears,
+  MAX_COUNTRIES, MAX_MEASURES, PRESETS, canLog, presetMeasures, correlation, inSentence, isPreset, lastActual, queryOf, seriesOf, sharedYears, statusOf,
   ticks, valueAt, wantsLog, type MeasureData, type MeasureMeta, type Meta, type State,
 } from './model.ts';
 
@@ -161,7 +161,8 @@ export function tableHtml(s: State, meta: Meta, data: Data): string {
       if (!c) return '<td class="n gt-na">–</td>';
       const m = ms[i];
       const old = !m.static && c.year !== years[i] ? `<span class="gt-oldyr" title="${esc(T.year)} ${c.year}">${c.year}</span> ` : '';
-      return `<td class="n" data-v="${c.value}">${old}${esc(fmt(m, c.value))}${projected(m, c.year) ? ` ${tagHtml('projection')}` : ''}</td>`;
+      const tag = statusOf(m, r.id, c.year);
+      return `<td class="n" data-v="${c.value}">${old}${esc(fmt(m, c.value))}${tag ? ` ${tagHtml(tag)}` : ''}</td>`;
     }).join('');
     return `<tr data-id="${r.id}"${r.id === found ? ' class="is-found"' : ''}><th scope="row">${name}</th>${cells}</tr>`;
   }).join('');
@@ -266,8 +267,11 @@ export function linesHtml(s: State, meta: Meta, data: Data, width = 900): string
   const xt = yearTicks.map(([yr, i]) => `<text x="${x(i).toFixed(1)}" y="${H - 8}" text-anchor="middle">${yr}</text>`).join('');
   const splitMark = split > 0 ? `<g><line class="gt-lc__split" x1="${x(split - 1).toFixed(1)}" x2="${x(split - 1).toFixed(1)}" y1="${Tp}" y2="${H - B}"/><text class="gt-lc__note" x="${(x(split - 1) + 6).toFixed(1)}" y="${Tp + 10}">${esc(STATUS_TEXT.projection)}</text></g>` : '';
   const paths = ch.lines.map((l) => {
-    const solid = seg(l.values, 0, split > 0 ? split - 1 : last).map((dd) => `<path class="gt-lc__line ${cls(l.id)}" d="${dd}"/>`).join('');
-    const dash = split > 0 ? seg(l.values, split - 1, last).map((dd) => `<path class="gt-lc__line gt-lc__line--proj ${cls(l.id)}" d="${dd}"/>`).join('') : '';
+    // Solid up to the split, or up to the country's own last actual year when earlier (its estimates); dashed after.
+    const own = m.own?.[l.id] === undefined ? -1 : ch.years.findIndex((yr) => yr > m.own![l.id]);
+    const to = Math.min(split > 0 ? split - 1 : last, own > 0 ? own - 1 : last);
+    const solid = seg(l.values, 0, to).map((dd) => `<path class="gt-lc__line ${cls(l.id)}" d="${dd}"/>`).join('');
+    const dash = to < last ? seg(l.values, to, last).map((dd) => `<path class="gt-lc__line gt-lc__line--proj ${cls(l.id)}" d="${dd}"/>`).join('') : '';
     return `<g>${solid}${dash}</g>`;
   }).join('');
   const labels = ends.map((e) => `<text class="gt-lc__lab ${cls(e.l.id)}" x="${(x(e.i) + 8).toFixed(1)}" y="${(e.yy + 4).toFixed(1)}">${esc(short(nameOf(meta, e.l.id), phone ? 12 : 20))}</text>`).join('');
@@ -356,7 +360,12 @@ export function scatterHtml(s: State, meta: Meta, data: Data, width = 900): stri
   const rad = (p: Point) => (ms ? (p.size && maxSize > 0 ? Math.max(2.5, Math.sqrt(p.size / maxSize) * rMax) : 2.5) : phone ? 4 : 5);
   const members = new Set(s.bloc ? meta.blocs.find((b) => b.id === s.bloc)?.members ?? [] : []);
   const order = [...points].sort((a, b) => Number(members.has(a.id)) - Number(members.has(b.id)) || rad(b) - rad(a));
-  const tip = (p: Point) => [nameOf(meta, p.id), `${mx.label}: ${fmt(mx, p.x)}`, `${my.label}: ${fmt(my, p.y)}`, ms && p.size !== null ? `${ms.label}: ${fmt(ms, p.size)}` : ''].filter(Boolean).join('\n');
+  // A tagged value says so in words (the tooltip is plain text): "Government debt: 82% (estimate)".
+  const tagged = (mm: MeasureMeta, id: string, v: number) => {
+    const t = statusOf(mm, id, sc.year);
+    return `${fmt(mm, v)}${t ? ` (${STATUS_TEXT[t].toLowerCase()})` : ''}`;
+  };
+  const tip = (p: Point) => [nameOf(meta, p.id), `${mx.label}: ${tagged(mx, p.id, p.x)}`, `${my.label}: ${tagged(my, p.id, p.y)}`, ms && p.size !== null ? `${ms.label}: ${tagged(ms, p.id, p.size)}` : ''].filter(Boolean).join('\n');
   const dots = order.map((p) => {
     const cls = ['gt-sc__pt', members.has(p.id) ? 'is-hi' : '', s.pin.includes(p.id) ? 'is-pinned' : ''].filter(Boolean).join(' ');
     return `<circle class="${cls}" cx="${X(p.x).toFixed(1)}" cy="${Y(p.y).toFixed(1)}" r="${rad(p).toFixed(1)}" data-x-pin="${p.id}"><title>${esc(tip(p))}</title></circle>`;

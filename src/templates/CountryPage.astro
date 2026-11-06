@@ -22,14 +22,15 @@ import Icon from '../components/Icon.astro';
 import AiText from '../components/AiText.astro';
 import '../styles/atlas/country.css';
 import '../styles/atlas/bars.css';
-import { INDICATORS } from '../data/indicators';
+import { INDICATORS, statusAt } from '../data/indicators';
 import { INDICATOR_TEXT, SOURCE_TEXT } from '../i18n/en';
+import { NOT_REPORTED_TEXT } from '../i18n/views.en';
 import {
-  BLOCK_TEXT, COUNTRY_TEXT, DEP_TEXT, DOSSIER_TEXT, RESOURCE_TEXT, SOURCE_SHORT, inSentence, list, mineralName, ordinal,
+  BLOCK_TEXT, COUNTRY_TEXT, DEP_TEXT, DOSSIER_TEXT, RESOURCE_TEXT, inSentence, list, mineralName, ordinal,
 } from '../i18n/pages.en';
 import { countryModel, countrySources, DOSSIERS, MINERAL_SHARE, type Figure } from '../lib/country';
 import { dossierFor, peopleSection } from '../lib/dossier';
-import { data, sourceName } from '../lib/data';
+import { creditName, data, sourceName } from '../lib/data';
 import { formatDate, formatParts, formatShare, formatValue } from '../lib/format';
 import { notesFor, place } from '../lib/places';
 import { countryHref, indicatorHref, live, paths } from '../lib/routes';
@@ -54,8 +55,9 @@ const aiSummary = m.dossier ? publishedText(`dossier:${p.id}`) : null;
 
 const label = (id: string) => INDICATOR_TEXT[id].short ?? INDICATOR_TEXT[id].label;
 const parts = (f: Figure) => formatParts(f.value, INDICATORS[f.id].format, INDICATOR_TEXT[f.id].unit);
-const projected = (f: Figure) => INDICATORS[f.id].projectedAfter !== undefined && f.year > INDICATORS[f.id].projectedAfter!;
-const short = (s: string) => SOURCE_SHORT[s] ?? sourceName(s);
+// A figure's tag: a projection, or an estimate after the country's own last actual year (WEO).
+const tagOf = (f: Figure) => statusAt(INDICATORS[f.id], p.id, f.year);
+const short = (s: string) => creditName(s);
 const statCaption = (f: Figure, rank = true) => [String(f.year), rank && f.of > 1 ? `${ordinal(f.rank)} of ${f.of}` : '', short(f.source)].filter(Boolean).join(' · ');
 const nameOf = (id: string) => place(id)?.name ?? id;
 
@@ -77,6 +79,8 @@ const depSourceNames = [...new Set(okDeps.map((d) => short(d.source)))].sort();
 const mineralYear = m.minerals[0]?.year;
 const blocks = m.blocks;
 const disasterParts = blocks.disasters ? Object.entries(blocks.disasters.byKind).sort((a, b) => b[1] - a[1]).map(([k, n]) => `${n} ${(BLOCK_TEXT.kinds[k] ?? [k, k])[n === 1 ? 0 : 1]}`) : [];
+// Refugees hosted shown as not reported from a year on (src/data/not-reported.ts), as on the hosted maps.
+const nrHosted = blocks.refugees?.hostedUnreported;
 const hasBlocks = Boolean(blocks.refugees || blocks.disasters || blocks.emissions || blocks.sanctions || blocks.lending || blocks.nuclear || blocks.cyber);
 
 const buildYear = Number(data().snapshot.created.slice(0, 4));
@@ -151,7 +155,7 @@ const citation = COUNTRY_TEXT.citation(name, kind, url, Number(m.updated.slice(0
             <span class="gt-cpkf__label">{indicatorHref(f.id) ? <a href={indicatorHref(f.id)}>{label(f.id)}</a> : label(f.id)}</span>
             <span class="gt-cpkf__num">{parts(f).num}<small>{parts(f).unit}</small></span>
             {f.of > 1 && <span class="gt-rank"><b>{ordinal(f.rank)}</b> of {f.of}</span>}
-            <span class="gt-cpkf__src">{short(f.source)} · {f.year}{projected(f) && <StatusTag status="projection" small />}</span>
+            <span class="gt-cpkf__src">{short(f.source)} · {f.year}{tagOf(f) && <StatusTag status={tagOf(f)!} small />}</span>
           </li>
         ))}
       </ul>
@@ -302,8 +306,16 @@ const citation = COUNTRY_TEXT.citation(name, kind, url, Number(m.updated.slice(0
                 <article class="gt-cpblock">
                   <h3 class="gt-h3">{BLOCK_TEXT.refugees}</h3>
                   {blocks.refugees.hosted && <CpStat num={formatValue(blocks.refugees.hosted.value, INDICATORS.refin.format)} caption={BLOCK_TEXT.hosted(blocks.refugees.hosted.year)} />}
+                  {nrHosted && (
+                    <div class="gt-cpstat">
+                      <span class="gt-cpstat__l">{INDICATOR_TEXT.refin.label}</span>
+                      <span class="gt-cpstat__n gt-cpstat__n--word">{NOT_REPORTED_TEXT.since(nrHosted.since)}</span>
+                      {nrHosted.last && <span class="gt-caption">{BLOCK_TEXT.lastReported(formatValue(nrHosted.last.value, INDICATORS.refin.format), nrHosted.last.year)}</span>}
+                      {NOT_REPORTED_TEXT.reasons[nrHosted.reason] && <span class="gt-caption">{NOT_REPORTED_TEXT.reasons[nrHosted.reason]}</span>}
+                    </div>
+                  )}
                   {blocks.refugees.from && <CpStat num={formatValue(blocks.refugees.from.value, INDICATORS.refout.format)} caption={BLOCK_TEXT.fledFrom(blocks.refugees.from.year)} />}
-                  <SourceLine source={sourceName('unhcr')} parts={[String((blocks.refugees.hosted ?? blocks.refugees.from)!.year)]} />
+                  <SourceLine source={sourceName('unhcr')} parts={[String(blocks.refugees.hosted?.year ?? blocks.refugees.from?.year ?? nrHosted?.last?.year ?? nrHosted!.since)]} />
                 </article>
               )}
               {blocks.disasters && (
@@ -373,7 +385,7 @@ const citation = COUNTRY_TEXT.citation(name, kind, url, Number(m.updated.slice(0
               ]}
               rows={m.allFigures.map((f) => [
                 { v: INDICATOR_TEXT[f.id].label, href: indicatorHref(f.id) },
-                { v: f.value, text: formatValue(f.value, INDICATORS[f.id].format), status: projected(f) ? 'projection' : undefined },
+                { v: f.value, text: formatValue(f.value, INDICATORS[f.id].format), status: tagOf(f) },
                 { v: f.year, text: String(f.year) },
                 f.of > 1 ? { v: f.rank, text: `${ordinal(f.rank)} of ${f.of}` } : null,
                 short(f.source),

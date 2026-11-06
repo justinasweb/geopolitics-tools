@@ -6,6 +6,9 @@ import { CheckError, check } from '../lib/source.ts';
 import { csvRecords, parseCsv } from '../lib/csv.ts';
 import { matcher } from '../../src/adapters/core.ts';
 import { PLACES } from '../../src/lib/places.ts';
+import type { Input } from '../lib/importer.ts';
+import type { SourceFile } from '../lib/source.ts';
+import { WEO_COLUMNS, WEO_FILE_INDICATORS, weoFiles } from './imf-weo-file.ts';
 
 /** The two AQUASTAT variables the water view reads. */
 const AQUASTAT_VARIABLES = ['Dependency ratio', 'Total renewable water resources per capita'];
@@ -32,8 +35,8 @@ export interface Kind {
   /** File name inside the source's folder, or how to make it from the downloaded file's name. */
   save: string | ((from: string) => string);
   about: string;
-  /** csv: keep the columns below; geojson: keep the features, check their properties; raw: keep the file as it is, after `check`. */
-  how: 'csv' | 'geojson' | 'raw';
+  /** csv: keep the columns below; geojson: keep the features, check their properties; raw: keep the file as it is, after `check`; files: save it as several files, made by `split`. */
+  how: 'csv' | 'geojson' | 'raw' | 'files';
   /** Kept columns (csv) or required properties (geojson), in this order. */
   columns?: string[];
   /** Hand-kept fields not in the publisher's file, appended (and left empty when the file lacks them). */
@@ -49,6 +52,10 @@ export interface Kind {
   check?: (text: string) => number;
   /** For raw files: turns another form the publisher offers into the saved one, before `check`. */
   convert?: (text: string) => string;
+  /** For files: the names `split` writes, so their last imported copies can be read for the shrink check. */
+  files?: string[];
+  /** For files: the files to save and the rows kept, from the input and the last imported copy of each file. */
+  split?: (input: Input, from: string, previous: Record<string, string | null>, allowShrink: boolean) => { files: SourceFile[]; rows: number };
 }
 
 export const IMPORTED: ImportedSource[] = [
@@ -61,6 +68,7 @@ export const IMPORTED: ImportedSource[] = [
   { id: 'aiddata', name: 'AidData Chinese development finance', attribution: 'AidData, William & Mary', licence: 'To confirm (see docs/licences.md)', release: 'every few years' },
   { id: 'usgs-minerals', name: 'USGS Mineral Commodity Summaries', attribution: 'U.S. Geological Survey, Mineral Commodity Summaries', licence: 'Public domain (US government work)', release: 'each January' },
   { id: 'fas-forces', name: 'FAS Status of World Nuclear Forces, current table', attribution: 'Federation of American Scientists, Status of World Nuclear Forces', licence: 'CC BY 4.0', release: 'about twice a year (copied by hand from the FAS page)' },
+  { id: 'imf-weo', name: 'IMF World Economic Outlook', attribution: 'International Monetary Fund, World Economic Outlook', licence: 'IMF terms: reuse with credit (downloaded by hand; scheduled downloads need permission)', release: 'each April and October' },
   { id: 'treasury-history', name: 'US Treasury holdings by country, history', attribution: 'U.S. Department of the Treasury, Treasury International Capital (TIC) system', licence: 'Public domain (US government work)', release: 'built once from the historical tables' },
 ];
 
@@ -235,6 +243,11 @@ export const KINDS: Record<string, Kind> = {
   'fas-forces': {
     source: 'fas-forces', save: 'status-world-nuclear-forces.csv', how: 'raw', check: fasForcesCheck,
     about: 'FAS Status of World Nuclear Forces table with its Total row, copied by hand: Country, Deployed strategic, Deployed nonstrategic, Reserve/Nondeployed, Military stockpile, Total inventory, As of, Source',
+  },
+  'imf-weo': {
+    source: 'imf-weo', save: 'release.json', how: 'files', columns: WEO_COLUMNS,
+    files: [...WEO_FILE_INDICATORS.map((c) => `${c}.json`), 'release.json'], split: weoFiles,
+    about: 'IMF World Economic Outlook: the IMF data portal CSV (SERIES_CODE, LATEST_ACTUAL_ANNUAL_DATA, PUBLICATION_DATE, a column per year), or the older "By Countries" table (tab-delimited .xls, or WEOOct2026all.xlsx with the IMF\'s file name)',
   },
   'treasury-history': {
     source: 'treasury-history', save: 'mfh_history.csv', how: 'raw', check: treasuryHistoryCheck,

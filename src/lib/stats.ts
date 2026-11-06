@@ -2,6 +2,7 @@
 // compare one common period by default; "latest available" may reach back two years, always labelled with its
 // year; rank by the number shown; say how many places reported.
 import type { Loaded } from '../data/indicators.ts';
+import { notReported } from '../data/not-reported.ts';
 import { place } from './places.ts';
 
 /** Places that are ranked and counted: countries and territories, not former states or Antarctica. */
@@ -59,11 +60,14 @@ function rankRows(rows: Omit<Row, 'rank'>[]): Row[] {
   });
 }
 
-/** Every ranked place with a value in `year`; with `fallback`, a missing year falls back up to that many years. */
+/**
+ * Every ranked place with a value in `year`; with `fallback`, a missing year falls back up to that many years. A place
+ * not reported in the year (../data/not-reported.ts) is left out, without falling back to an older figure.
+ */
 export function ranking(l: Loaded, year: number, fallback = 0): Row[] {
   const rows: Omit<Row, 'rank'>[] = [];
   for (const [id, s] of Object.entries(l.values)) {
-    if (!ranked(id)) continue;
+    if (!ranked(id) || notReported(l.indicator.id, id, year)) continue;
     if (l.indicator.static) {
       const [y, v] = Object.entries(s)[0] ?? [];
       if (v !== undefined) rows.push({ id, value: v, year: Number(y) });

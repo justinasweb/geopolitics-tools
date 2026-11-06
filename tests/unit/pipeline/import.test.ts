@@ -8,6 +8,8 @@ import { decodeText, importFile, prepare, readInput } from '../../../pipeline/li
 import { loadState, readRaw, run, type Snapshot } from '../../../pipeline/lib/runner.ts';
 import { HOUR, DAY, type Source } from '../../../pipeline/lib/source.ts';
 import { IMPORTED, KINDS } from '../../../pipeline/sources/imported.ts';
+import { weoFiles, type WeoRelease } from '../../../pipeline/sources/imf-weo-file.ts';
+import { parseDataMapper } from '../../../src/adapters/worldbank.ts';
 import { createHttp } from '../../../pipeline/lib/http.ts';
 import { makeXlsx, makeZip, tempStores } from './helpers.ts';
 
@@ -35,6 +37,8 @@ const SAMPLES: Record<string, string> = {
   'usgs': 'usgs/MCS2026_Commodities_Data.csv',
   'treasury-history': 'treasury/mfh_history.csv',
   'fas-forces': 'fas-forces/status-world-nuclear-forces.csv',
+  // Made from the prototype's WEO sample in the layout of the IMF's "By Countries" table.
+  'imf-weo': '../imports/WEOOct2026all.xls',
 };
 
 const csvKind = (columns: string[], extra: Partial<(typeof KINDS)[string]> = {}) => ({ source: 't', save: 't.csv', about: '', how: 'csv' as const, columns, ...extra });
@@ -46,7 +50,7 @@ describe('import kinds', () => {
     for (const k of Object.values(KINDS)) expect(IMPORTED.some((s) => s.id === k.source)).toBe(true);
   });
 
-  it.each(Object.keys(SAMPLES))('accepts the prototype sample for %s and keeps it as it is', async (id) => {
+  it.each(Object.keys(SAMPLES).filter((id) => KINDS[id].how !== 'files'))('accepts the prototype sample for %s and keeps it as it is', async (id) => {
     const kind = KINDS[id];
     const text = fixture(SAMPLES[id]);
     const out = prepare(kind, await readInput(SAMPLES[id], enc(text)), now);
@@ -65,6 +69,55 @@ describe('import kinds', () => {
       expect(out.added).toEqual([]);
     }
     expect(out.rows).toBeGreaterThanOrEqual(10);
+  });
+
+  it('writes the WEO table as the API fetcher’s files, with the release and each row’s last actual year', async () => {
+    const text = fixture(SAMPLES['imf-weo']);
+    const { files, rows } = weoFiles(await readInput('WEOOct2026all.xls', enc(text)), 'WEOOct2026all.xls', {});
+    expect(files.map((f) => f.name)).toEqual(['GGXWDG_NGDP.json', 'GGXCNL_NGDP.json', 'BCA_NGDPD.json', 'release.json']);
+    const debt = JSON.parse(files[0].body as string);
+    const sample = JSON.parse(fixture('imf/GGXWDG_NGDP.json'));
+    // The same values as the API's file, the World row and growth (not shown from the WEO) left out.
+    expect(debt.values).toEqual(sample.values);
+    expect(rows).toBeGreaterThan(1000);
+    const release = JSON.parse(files[3].body as string) as WeoRelease;
+    expect(release).toMatchObject({ release: 'October 2026', lastActual: 2025 });
+    expect(release.byCountry.GGXWDG_NGDP).toMatchObject({ USA: 2025, LBN: 2024 });
+    // Every year is kept, also after a country's own last actual year (the site tags those as estimates).
+    const s = parseDataMapper(debt);
+    expect([2024, 2025, 2026].map((y) => s.LBN[y] !== undefined)).toEqual([true, true, true]);
+  });
+
+  it('reads the IMF data portal CSV: series codes, each row’s last actual year, the release, no groups', async () => {
+    // Rows from the October 2026 portal download (dataset …IMF.RES_WEO_9.0.0.csv), long notes shortened.
+    const text = readFileSync(join(FIXTURES, '../imports/weo-portal-2026-10.csv'), 'utf8');
+    const { files } = weoFiles(await readInput('weo.csv', enc(text)), 'weo.csv', {}, false, 1);
+    const get = (name: string) => JSON.parse(files.find((f) => f.name === name)!.body as string);
+    const debt = get('GGXWDG_NGDP.json').values.GGXWDG_NGDP;
+    expect([debt.USA['2024'], debt.USA['2025'], debt.USA['2026']]).toEqual([122.334, 124.377, 126.79]);
+    // Kosovo and Palestine under the IMF's codes (matched through codes.csv), Taiwan as its own place; no groups, no growth.
+    expect(Object.keys(debt).sort()).toEqual(['GAB', 'KOS', 'SWZ', 'SYR', 'TWN', 'USA', 'WBG']);
+    expect(Object.keys(get('BCA_NGDPD.json').values.BCA_NGDPD).sort()).toEqual(['HKG', 'MAC', 'USA']);
+    const release = get('release.json') as WeoRelease;
+    expect(release).toMatchObject({ release: 'October 2026', lastActual: 2025 });
+    // A fiscal year (FY2025/26) counts as its first year; Syria's actual figures end in 2009.
+    expect(release.byCountry.GGXWDG_NGDP).toMatchObject({ USA: 2025, SWZ: 2025, SYR: 2009 });
+    const s = parseDataMapper(get('GGXWDG_NGDP.json'));
+    expect(Object.keys(s).sort()).toEqual(['GAB', 'PSE', 'SWZ', 'SYR', 'TWN', 'USA', 'XKX']);
+    // Syria's years after 2009 are kept; the site tags them.
+    expect(Object.keys(s.SYR).map(Number).some((y) => y > 2009 && y <= 2025)).toBe(true);
+  });
+
+  it('reads the WEO release from the file name when the table has no footer, and refuses the wrong table', async () => {
+    const text = fixture(SAMPLES['imf-weo']).replace(/International Monetary Fund.*\n/, '');
+    const input = await readInput('x.xls', enc(text));
+    expect(JSON.parse(weoFiles(input, 'WEOApr2027all.xls', {}).files[3].body as string).release).toBe('April 2027');
+    expect(() => weoFiles(input, 'download.xls', {})).toThrow(/which WEO release/);
+    const wrong = await readInput('x.csv', enc('ISO,Country\nUSA,United States'));
+    expect(() => weoFiles(wrong, 'WEOOct2026all.csv', {})).toThrow(/missing columns: WEO Subject Code/);
+    const half = fixture(SAMPLES['imf-weo']).split('\n').filter((l, i) => i === 0 || !/\t[A-M][A-Z]{2}\t/.test(l)).join('\n');
+    const prev = { 'GGXWDG_NGDP.json': fixture('imf/GGXWDG_NGDP.json') };
+    expect(() => weoFiles({ text: half }, 'WEOOct2026all.xls', prev)).toThrow(/only|values now against/);
   });
 
   it('keeps the needed columns in order, drops the rest, and appends hand-kept columns', () => {
@@ -116,8 +169,9 @@ describe('import kinds', () => {
 });
 
 describe('reading downloads', () => {
-  it('reads UTF-8 (dropping a byte-order mark) and falls back to Windows-1252', () => {
+  it('reads UTF-8 (dropping a byte-order mark), UTF-16 with its mark, and falls back to Windows-1252', () => {
     expect(decodeText(new Uint8Array([0xef, 0xbb, 0xbf, ...enc('Côte')]))).toBe('Côte');
+    expect(decodeText(new Uint8Array([0xff, 0xfe, 0x43, 0, 0xf4, 0, 0x74, 0, 0x65, 0]))).toBe('Côte');
     expect(decodeText(new Uint8Array([0x43, 0xf4, 0x74, 0x65, 0x20, 0x96]))).toBe('Côte –');
   });
 
@@ -185,6 +239,21 @@ describe('importing into the stores', () => {
     const snap = JSON.parse(new TextDecoder().decode((await stores.snapshots.get(`snapshots/${r.snapshot}.json`))!)) as Snapshot;
     expect(Object.keys(snap.sources).sort()).toEqual(['a', 'wpp']);
     expect(Object.keys(snap.sources.wpp.files).sort()).toEqual(['population_by_age.csv', 'total_population.csv']);
+  });
+
+  it('saves the WEO table as four files, and the hourly run with the switched-off WEO fetcher leaves them alone', async () => {
+    const stores = tempStores();
+    const r = await importFile(base(stores, 'imf-weo', join(FIXTURES, SAMPLES['imf-weo'])));
+    expect(r).toMatchObject({ source: 'imf-weo', file: 'GGXWDG_NGDP.json, GGXCNL_NGDP.json, BCA_NGDPD.json, release.json', changed: true });
+    const off: Source = { ...fetched, id: 'imf-weo', name: 'IMF World Economic Outlook', enabled: 'waits for the IMF', fetch: async () => { throw new Error('not run'); } };
+    const later = new Date('2026-10-24T13:00:00Z');
+    await run({ sources: [fetched, off], imported: IMPORTED, stores, http, alerter, now: later, log: () => {} });
+    const snap = JSON.parse(new TextDecoder().decode((await stores.snapshots.get('latest.json'))!)) as Snapshot;
+    expect(Object.keys(snap.sources['imf-weo'].files).sort()).toEqual(['BCA_NGDPD.json', 'GGXCNL_NGDP.json', 'GGXWDG_NGDP.json', 'release.json']);
+    const status = JSON.parse(new TextDecoder().decode((await stores.snapshots.get('status.json'))!));
+    expect(status.sources['imf-weo']).toMatchObject({ imported: true, release: 'each April and October', lastImport: now.toISOString() });
+    // The same file again changes nothing.
+    expect(await importFile(base(stores, 'imf-weo', join(FIXTURES, SAMPLES['imf-weo']), later))).toMatchObject({ changed: false });
   });
 
   it('does not lose an import made while an hourly run is going', async () => {

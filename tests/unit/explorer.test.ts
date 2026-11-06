@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, it } from 'vitest';
-import { FALLBACK_YEARS, PRESETS, correlation, isPreset, parseState, presetState, queryOf, ticks, valueAt, wantsLog, type MeasureMeta, type Meta } from '../../src/lib/explorer/model.ts';
-import { linesChart, scatterModel, tableCsv, tableHtml, tableRows, type Data } from '../../src/lib/explorer/render.ts';
+import { FALLBACK_YEARS, PRESETS, correlation, isPreset, parseState, presetState, queryOf, statusOf, ticks, valueAt, wantsLog, type MeasureMeta, type Meta } from '../../src/lib/explorer/model.ts';
+import { linesChart, linesHtml, scatterModel, tableCsv, tableHtml, tableRows, type Data } from '../../src/lib/explorer/render.ts';
 
 process.env.GT_DATA = 'sample';
 
@@ -81,6 +81,20 @@ describe('Explorer views', () => {
     expect(tableRows(s, meta, data).rows.map((r) => r.id)).toEqual(['CCC', 'BBB', 'AAA']);
     expect(tableRows({ ...s, bloc: 'g7' }, meta, data).rows.map((r) => r.id)).toEqual(['BBB', 'AAA']);
     expect(tableHtml(s, meta, data)).toContain('<span class="gt-oldyr"');
+  });
+
+  it('tags a country’s values after its own last actual year as estimates, and after the measure’s as projections', () => {
+    const tagged: Meta = { ...meta, measures: [m('a', { projectedAfter: 2022, own: { AAA: 2020 } }), m('b')] };
+    const a = tagged.measures[0];
+    expect([2020, 2021, 2022, 2023].map((y) => statusOf(a, 'AAA', y))).toEqual([undefined, 'estimate', 'estimate', 'projection']);
+    expect(statusOf(a, 'CCC', 2022)).toBeUndefined();
+    const html = tableHtml(parseState('table', new URLSearchParams('m=a&year=2022'), tagged), tagged, data);
+    const row = (id: string) => html.slice(html.indexOf(`data-id="${id}"`), html.indexOf('</tr>', html.indexOf(`data-id="${id}"`)));
+    expect(row('AAA')).toContain('gt-tag--estimate');
+    expect(row('CCC')).not.toContain('gt-tag--');
+    // Over time: Aland's line is dashed after 2020, Carpania's after 2022.
+    const lines = linesHtml(parseState('lines', new URLSearchParams('m=a&c=AAA,CCC'), tagged), tagged, data);
+    expect((lines.match(/gt-lc__line--proj gt-ser-1/g) ?? []).length).toBeGreaterThan(0);
   });
 
   it('leaves measures out of the CSV whose licence does not allow it', () => {
