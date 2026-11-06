@@ -81,7 +81,7 @@ const related = [
 const mapTop = top.map((r) => `${nameOf(r.id)} ${trade ? netText(r.value) : shareOf(r.value, y.world)}`).join(', ');
 const bars = (rs: FoodRow[], max: number) => rs.map((r) => ({ id: r.id, text: mtShort(Math.abs(r.value)), w: max ? (100 * Math.abs(r.value)) / max : 0 }));
 ---
-<Page title={title} description={F.description(p.layer, T.name, p.year)} hub="resources" container="mv" image={route(key(p.id))!.image}
+<Page title={title} description={F.description(p.layer, T.name, p.year, p.crop)} hub="resources" container="mv" image={route(key(p.id))!.image}
   jsonld={[breadcrumbs(crumbs.map((c) => ({ label: c.label, href: c.href })))]}>
   <div class="gt-mvhead">
     <Breadcrumbs items={crumbs} />

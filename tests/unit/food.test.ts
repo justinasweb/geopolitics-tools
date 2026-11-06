@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { rawDir } from '../../src/adapters/core.ts';
 import { food } from '../../src/adapters/faostat.ts';
+import { FOOD_TEXT } from '../../src/i18n/food.en.ts';
 import { INDICATORS, registry, statusAt } from '../../src/data/indicators.ts';
 import { formatValue } from '../../src/lib/format.ts';
 import { FOOD_LAYER_SLUGS, FOOD_SLUGS } from '../../src/i18n/slugs.en.ts';
@@ -137,5 +138,14 @@ describe('food views', () => {
       }
       for (const d of f.data) for (const e of Object.values(d.v)) expect([-1, 1, 2, 3, 4, 5, 6, 7]).toContain(e[0]);
     }
+  });
+});
+
+describe('food view descriptions', () => {
+  it('say fertiliser use is FAOSTAT’s reported agricultural use and fertiliser flows come from UN Comtrade', () => {
+    expect(FOOD_TEXT.description('use', 'potash fertiliser', 2023, false)).toBe('Agricultural use of potash fertiliser by country in 2023, as reported by FAOSTAT, on a map and in a table.');
+    expect(FOOD_TEXT.description('trade', 'potash fertiliser', 2023, false)).toMatch(/Sources: FAOSTAT for national totals; UN Comtrade for flows between countries\.$/);
+    expect(FOOD_TEXT.description('use', 'wheat', 2023)).toMatch(/worked out from production and trade.*Source: FAOSTAT\.$/);
+    expect(FOOD_TEXT.description('trade', 'wheat', 2023)).toMatch(/Source: FAOSTAT\.$/);
   });
 });
