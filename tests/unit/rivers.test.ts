@@ -33,3 +33,18 @@ describe('disputed rivers', () => {
     expect(damsOn(river('tigris-euphrates')!, [dam('Tangab', 'Firuzabad', 'IRN'), dam('Dokan', 'Lesser Zab', 'IRQ')]).map((d) => d.name)).toEqual(['Dokan']);
   });
 });
+
+describe('river figures name their own dataset’s period', () => {
+  it('labels water stress with Aqueduct’s baseline period, the projection with its year and water from abroad with AQUASTAT’s year', async () => {
+    const { RIVERS_TEXT } = await import('../../src/i18n/water.en.ts');
+    const { AQUEDUCT_BASELINE } = await import('../../src/adapters/water.ts');
+    expect(RIVERS_TEXT.stress(AQUEDUCT_BASELINE)).toBe('Water stress, 1979–2019');
+    expect(RIVERS_TEXT.stress2050(2050)).toBe('Projected water stress, 2050');
+    expect(RIVERS_TEXT.fromAbroad(2023)).toBe('Renewable water from abroad, 2023');
+    const { layerFile } = await import('../../src/lib/map/layers.ts');
+    const id = R.routes().find((r) => r.key.startsWith('view:rivers:'))!.id.split(':')[1];
+    const panel = JSON.stringify(layerFile(`rivers-${id}`));
+    expect(panel).not.toMatch(/"In 2050"|"From abroad"/);
+    expect(panel).toMatch(/Projected water stress, 2050|Renewable water from abroad, \d{4}/);
+  });
+});
