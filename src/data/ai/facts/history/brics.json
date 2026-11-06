@@ -184,7 +184,7 @@
     },
     {
       "id": "members-2026",
-      "statement": "Members of BRICS in 2026, counting Saudi Arabia, as the membership table was checked on 21 October 2026.",
+      "statement": "Members of BRICS in 2026.",
       "value": 11,
       "unit": "members",
       "unitAliases": [
@@ -194,7 +194,8 @@
       "period": "2026",
       "source": "BRICS Brasil, About BRICS",
       "link": "https://brics.br/en/about-the-brics",
-      "date": "2026-10-21"
+      "date": "2026-10-21",
+      "note": "Counting Saudi Arabia, as the membership table was checked on 21 October 2026."
     }
   ]
 }

@@ -173,7 +173,7 @@
     },
     {
       "id": "members-2026",
-      "statement": "Members of the G7 in 2026, as the membership table was checked on 21 October 2026.",
+      "statement": "Members of the G7 in 2026.",
       "value": 7,
       "unit": "members",
       "unitAliases": [
@@ -183,7 +183,8 @@
       "period": "2026",
       "source": "Ministry of Foreign Affairs of Japan, G7 summits",
       "link": "https://www.mofa.go.jp/policy/economy/summit/index.html",
-      "date": "2026-10-21"
+      "date": "2026-10-21",
+      "note": "As the membership table was checked on 21 October 2026."
     }
   ]
 }

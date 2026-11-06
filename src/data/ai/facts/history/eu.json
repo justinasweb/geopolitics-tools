@@ -418,7 +418,7 @@
     },
     {
       "id": "members-2026",
-      "statement": "Members of the European Union in 2026, as the membership table was checked on 21 October 2026.",
+      "statement": "Members of the European Union in 2026.",
       "value": 27,
       "unit": "members",
       "unitAliases": [
@@ -428,7 +428,8 @@
       "period": "2026",
       "source": "European Union, EU countries",
       "link": "https://european-union.europa.eu/principles-countries-history/eu-countries_en",
-      "date": "2026-10-21"
+      "date": "2026-10-21",
+      "note": "As the membership table was checked on 21 October 2026."
     }
   ]
 }

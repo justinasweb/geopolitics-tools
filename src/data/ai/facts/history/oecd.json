@@ -492,7 +492,7 @@
     },
     {
       "id": "members-2026",
-      "statement": "Members of the OECD in 2026, as the membership table was checked on 21 October 2026.",
+      "statement": "Members of the OECD in 2026.",
       "value": 38,
       "unit": "members",
       "unitAliases": [
@@ -502,7 +502,8 @@
       "period": "2026",
       "source": "OECD, List of OECD member countries: ratification of the Convention on the OECD",
       "link": "https://search.oecd.org/about/document/ratification-oecd-convention.htm",
-      "date": "2026-10-21"
+      "date": "2026-10-21",
+      "note": "As the membership table was checked on 21 October 2026."
     }
   ]
 }
