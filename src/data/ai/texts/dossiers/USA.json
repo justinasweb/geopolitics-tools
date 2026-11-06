@@ -1,0 +1,11 @@
+{
+  "id": "dossier:USA",
+  "author": "ai",
+  "text": "In 2025, the United States' net exports of oil were 12.6% of its production (U.S. Energy Information Administration, 2025), and in 2024 its net exports of wheat were 36% of production (FAOSTAT, 2024). Its net imports of potash were 133% of its use, with Canada supplying 88% of them (FAOSTAT, 2024). The United Kingdom supplied 17% of its major arms imports (SIPRI, 2021–2025). It has 341.8 million people and a GDP of US$30.8 trillion, ranked first of 186 places (World Bank, 2025).",
+  "model": "claude-sonnet-5-5",
+  "factsHash": "sha256:4c969a7d7b8801ec0ab2ff2e81ca531f",
+  "drafted": "2026-11-06",
+  "approved": false,
+  "approvedOn": null,
+  "approvedVia": null
+}

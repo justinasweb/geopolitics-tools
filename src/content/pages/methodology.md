@@ -2,8 +2,12 @@
 title: "Methodology"
 lede: "How each measure is worked out, what the labels mean, and what the figures cannot tell you."
 description: "How geopolitics.tools works out import reliance, supplier shares, five-year arms totals, common years and coverage, and the limits of the figures."
-updated: '2026-10-25'
-approved: false
+updated: "2026-11-06"
+approved: true
+author: "owner"
+drafted: "2026-11-06"
+approvedOn: "2026-11-06"
+approvedVia: "cli"
 ---
 
 ## How to read our figures

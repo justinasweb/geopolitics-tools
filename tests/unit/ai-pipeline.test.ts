@@ -171,9 +171,11 @@ describe('the store and the approval step', () => {
   });
 
   it('reads a draft written before the pipeline as a draft that cannot be approved as it is', () => {
-    const t = readText('page:methodology')!;
+    const root = tempRepo();
+    const t = readText('page:about', root)!;
     expect(t.factsHash).toBeUndefined();
-    expect(stateOf(t, null)).toBe(t.approved ? 'stale' : 'draft');
+    expect(stateOf(t, null)).toBe('draft');
+    expect(stateOf({ ...t, approved: true }, null)).toBe('stale');
   });
 });
 

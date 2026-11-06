@@ -6,7 +6,7 @@
     "RUS",
     "IRN"
   ],
-  "generated": "src/lib/ai/dossier-facts.ts from snapshot 2026-11-02T1326Z",
+  "generated": "src/lib/ai/dossier-facts.ts from snapshot 2026-11-06T0327Z",
   "facts": [
     {
       "id": "gdp",
@@ -577,7 +577,7 @@
     {
       "id": "satellites",
       "statement": "Satellites in orbit of Russia.",
-      "value": 1706,
+      "value": 1713,
       "unit": "satellites",
       "period": "2026",
       "places": [
@@ -585,7 +585,7 @@
       ],
       "source": "CelesTrak SATCAT",
       "link": "https://celestrak.org/satcat/search.php",
-      "date": "2026-11-01"
+      "date": "2026-11-05"
     },
     {
       "id": "satellites-rank",
@@ -598,7 +598,7 @@
       ],
       "source": "CelesTrak SATCAT",
       "link": "https://celestrak.org/satcat/search.php",
-      "date": "2026-11-01"
+      "date": "2026-11-05"
     },
     {
       "id": "satellites-of",
@@ -614,7 +614,7 @@
       ],
       "source": "CelesTrak SATCAT",
       "link": "https://celestrak.org/satcat/search.php",
-      "date": "2026-11-01"
+      "date": "2026-11-05"
     },
     {
       "id": "launches",
@@ -627,7 +627,7 @@
       ],
       "source": "CelesTrak SATCAT",
       "link": "https://celestrak.org/satcat/search.php",
-      "date": "2026-11-01"
+      "date": "2026-11-05"
     },
     {
       "id": "launches-rank",
@@ -640,7 +640,7 @@
       ],
       "source": "CelesTrak SATCAT",
       "link": "https://celestrak.org/satcat/search.php",
-      "date": "2026-11-01"
+      "date": "2026-11-05"
     },
     {
       "id": "launches-of",
@@ -656,7 +656,7 @@
       ],
       "source": "CelesTrak SATCAT",
       "link": "https://celestrak.org/satcat/search.php",
-      "date": "2026-11-01"
+      "date": "2026-11-05"
     },
     {
       "id": "aicompute",
@@ -843,7 +843,7 @@
       ],
       "source": "U.S. Energy Information Administration",
       "link": "https://www.eia.gov/international/data/world",
-      "date": "2026-10-26"
+      "date": "2026-11-02"
     },
     {
       "id": "exports-gas",
@@ -862,7 +862,7 @@
       ],
       "source": "U.S. Energy Information Administration",
       "link": "https://www.eia.gov/international/data/world",
-      "date": "2026-10-26"
+      "date": "2026-11-02"
     },
     {
       "id": "exports-wheat",
@@ -1116,6 +1116,19 @@
       "source": "UNHCR Refugee Data Finder",
       "link": "https://www.unhcr.org/refugee-statistics/download",
       "date": "2026-10-24"
+    },
+    {
+      "id": "nuclear-warheads",
+      "statement": "Russia’s estimated total inventory of nuclear warheads.",
+      "value": 4400,
+      "unit": "warheads",
+      "period": "2026",
+      "places": [
+        "RUS"
+      ],
+      "source": "FAS Status of World Nuclear Forces",
+      "link": "https://fas.org/initiative/status-world-nuclear-forces/",
+      "date": "2026-11-02"
     },
     {
       "id": "chinese-lending",
