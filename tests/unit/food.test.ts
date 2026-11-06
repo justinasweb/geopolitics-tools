@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { rawDir } from '../../src/adapters/core.ts';
 import { food } from '../../src/adapters/faostat.ts';
+import { INDICATORS, registry, statusAt } from '../../src/data/indicators.ts';
 import { formatValue } from '../../src/lib/format.ts';
 import { FOOD_LAYER_SLUGS, FOOD_SLUGS } from '../../src/i18n/slugs.en.ts';
 
@@ -75,6 +76,15 @@ describe('FAOSTAT in the CSV format', () => {
     expect(f.crops.wheat.estimated.use.EGY[2023]).toBe(1);
     expect(f.crops.wheat.estimated.use.CHN).toBeUndefined();
     expect(f.fertilisers.potash.estimated.production.CAN[2023]).toBe(1);
+  });
+
+  it('carries the estimate flags into the indicator registry, so every page and download labels them', () => {
+    const r = registry(rawDir(csvSnapshot()));
+    r.get('wheatprod');
+    expect(r.get('wheatprod').EGY[2023]).toBeGreaterThan(0);
+    expect(statusAt(INDICATORS.wheatprod, 'EGY', 2023)).toBe('estimate');
+    expect(statusAt(INDICATORS.wheatprod, 'CHN', 2023)).toBeUndefined();
+    expect(INDICATORS.wheatprod.estimatedBy?.EGY?.[2023]).toBe(1);
   });
 });
 

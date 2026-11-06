@@ -54,7 +54,8 @@ export interface Meta {
 }
 
 /** One measure's values, place by place, from year `from` (null where the source has none). */
-export interface MeasureData { from: number; v: Record<string, (number | null)[]> }
+/** `e`: the years each place's figure is flagged by the source as an estimate (FAOSTAT), when there are any. */
+export interface MeasureData { from: number; v: Record<string, (number | null)[]>; e?: Record<string, number[]> }
 
 export interface State {
   view: View;
@@ -249,8 +250,8 @@ export function sharedYears(a: MeasureData | undefined, ma: MeasureMeta, b: Meas
 
 /** The last year that is not a projection. */
 /** A value's tag, as on the indicator page (src/data/indicators.ts statusAt). */
-export const statusOf = (m: MeasureMeta, id: string, y: number): 'estimate' | 'projection' | undefined =>
-  m.projectedAfter !== undefined && y > m.projectedAfter ? 'projection' : m.own?.[id] !== undefined && y > m.own[id] ? 'estimate' : undefined;
+export const statusOf = (m: MeasureMeta, id: string, y: number, d?: MeasureData): 'estimate' | 'projection' | undefined =>
+  m.projectedAfter !== undefined && y > m.projectedAfter ? 'projection' : (m.own?.[id] !== undefined && y > m.own[id]) || d?.e?.[id]?.includes(y) ? 'estimate' : undefined;
 
 export const lastActual = (m: MeasureMeta) => (m.projectedAfter !== undefined ? Math.min(m.to, m.projectedAfter) : m.to);
 

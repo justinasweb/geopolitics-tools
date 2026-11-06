@@ -39,7 +39,12 @@ export function explorerData(id: string): MeasureData {
     while (arr.length && arr.at(-1) === null) arr.pop();
     if (arr.some((x) => x !== null)) v[p] = arr;
   }
-  const out = { from, v };
+  const e: NonNullable<MeasureData['e']> = {};
+  for (const [p, ys] of Object.entries(m.indicator.estimatedBy ?? {})) {
+    const flagged = Object.keys(ys).map(Number).filter((y) => v[p]?.[y - from] != null).sort((a, b) => a - b);
+    if (flagged.length) e[p] = flagged;
+  }
+  const out: MeasureData = Object.keys(e).length ? { from, v, e } : { from, v };
   dataCache.set(id, out);
   return out;
 }

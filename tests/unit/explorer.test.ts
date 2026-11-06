@@ -88,6 +88,10 @@ describe('Explorer views', () => {
     const a = tagged.measures[0];
     expect([2020, 2021, 2022, 2023].map((y) => statusOf(a, 'AAA', y))).toEqual([undefined, 'estimate', 'estimate', 'projection']);
     expect(statusOf(a, 'CCC', 2022)).toBeUndefined();
+    // A figure the source flags itself (FAOSTAT's E and I) comes in the measure's own data file.
+    const fao = { ...a, projectedAfter: undefined, own: undefined };
+    expect(statusOf(fao, 'EGY', 2023, { from: 2022, v: { EGY: [1, 2] }, e: { EGY: [2023] } })).toBe('estimate');
+    expect(statusOf(fao, 'EGY', 2022, { from: 2022, v: { EGY: [1, 2] }, e: { EGY: [2023] } })).toBeUndefined();
     const html = tableHtml(parseState('table', new URLSearchParams('m=a&year=2022'), tagged), tagged, data);
     const row = (id: string) => html.slice(html.indexOf(`data-id="${id}"`), html.indexOf('</tr>', html.indexOf(`data-id="${id}"`)));
     expect(row('AAA')).toContain('gt-tag--estimate');

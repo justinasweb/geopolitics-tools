@@ -161,7 +161,7 @@ export function tableHtml(s: State, meta: Meta, data: Data): string {
       if (!c) return '<td class="n gt-na">–</td>';
       const m = ms[i];
       const old = !m.static && c.year !== years[i] ? `<span class="gt-oldyr" title="${esc(T.year)} ${c.year}">${c.year}</span> ` : '';
-      const tag = statusOf(m, r.id, c.year);
+      const tag = statusOf(m, r.id, c.year, data[m.id]);
       return `<td class="n" data-v="${c.value}">${old}${esc(fmt(m, c.value))}${tag ? ` ${tagHtml(tag)}` : ''}</td>`;
     }).join('');
     return `<tr data-id="${r.id}"${r.id === found ? ' class="is-found"' : ''}><th scope="row">${name}</th>${cells}</tr>`;
@@ -362,7 +362,7 @@ export function scatterHtml(s: State, meta: Meta, data: Data, width = 900): stri
   const order = [...points].sort((a, b) => Number(members.has(a.id)) - Number(members.has(b.id)) || rad(b) - rad(a));
   // A tagged value says so in words (the tooltip is plain text): "Government debt: 82% (estimate)".
   const tagged = (mm: MeasureMeta, id: string, v: number) => {
-    const t = statusOf(mm, id, sc.year);
+    const t = statusOf(mm, id, sc.year, data[mm.id]);
     return `${fmt(mm, v)}${t ? ` (${STATUS_TEXT[t].toLowerCase()})` : ''}`;
   };
   const tip = (p: Point) => [nameOf(meta, p.id), `${mx.label}: ${tagged(mx, p.id, p.x)}`, `${my.label}: ${tagged(my, p.id, p.y)}`, ms && p.size !== null ? `${ms.label}: ${tagged(ms, p.id, p.size)}` : ''].filter(Boolean).join('\n');

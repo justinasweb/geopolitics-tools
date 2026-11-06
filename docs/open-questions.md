@@ -113,6 +113,16 @@ honours the wildcard on a put: if it did not, every Post would be refused.
 **Options.** Leave it as it is (the gap is milliseconds wide), or confirm `If-None-Match: *` on a Preview's bucket
 and add it to the claim.
 
+### Estimate tags in one-line summaries (raised 6 Nov 2026)
+
+**The question.** Estimates are tagged wherever a figure is shown with its place and year through `statusAt`
+(indicator pages, country pages, the Explorer, CSVs), now FAOSTAT's flagged figures too. The short ranking lines on the
+topic hubs and the home page ("In 2023: China, 140 Mt…") and the indicator share image name the first-ranked figure
+without a tag, for WEO estimates as for FAOSTAT's. The Explorer's lines view dashes WEO estimates but not FAOSTAT's.
+
+**Options.** Add ", estimated" to those lines when the named figure is one, or leave them, since each links to the
+indicator page where the figure is tagged.
+
 ## Launch review leftovers (raised 5 Nov 2026)
 
 - **G7 and Russia (decided 5 Nov 2026).** Russia joins in 1998, as the G8, per the G7 Research Group

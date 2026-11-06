@@ -55,6 +55,10 @@ export interface Indicator {
   /** Set from ownLastActual for the build's snapshot: a place's years after its own and up to projectedAfter are estimates. */
   lastActualBy?: Record<string, number>;
   load?: (raw: Raw, get: (id: string) => Series) => Series;
+  /** The figures the source flags as its own estimate or imputation (FAOSTAT's E and I), 1 by place and year. */
+  estimates?: (raw: Raw) => Series;
+  /** Set from `estimates` when the indicator loads: statusAt tags these values Estimate wherever they are shown. */
+  estimatedBy?: Series;
   /** Why it has no loader yet. */
   pending?: string;
 }
@@ -138,11 +142,11 @@ const LIST: Indicator[] = [
   { id: 'windsolar', group: 'energy', source: 'ember', format: share, scale: 'linear', load: (raw) => powerSeries(powerOf(raw), 'windsolar') },
   // Food
   ...CROPS.flatMap((c): Indicator[] => [
-    { id: `${c}prod`, group: 'food', source: 'faostat', format: unit('Mt', 1), scale: 'log', load: (raw) => foodOf(raw).crops[c].production },
-    { id: `${c}imp`, group: 'food', source: 'faostat', format: unit('Mt', 1), scale: 'log', load: (raw) => foodOf(raw).crops[c].imports },
+    { id: `${c}prod`, group: 'food', source: 'faostat', format: unit('Mt', 1), scale: 'log', load: (raw) => foodOf(raw).crops[c].production, estimates: (raw) => foodOf(raw).crops[c].estimated.production },
+    { id: `${c}imp`, group: 'food', source: 'faostat', format: unit('Mt', 1), scale: 'log', load: (raw) => foodOf(raw).crops[c].imports, estimates: (raw) => foodOf(raw).crops[c].estimated.imports },
   ]),
-  { id: 'fertpotash', group: 'food', source: 'faostat', format: unit('Mt', 2), scale: 'log', load: (raw) => foodOf(raw).fertilisers.potash.use },
-  { id: 'fertphosphate', group: 'food', source: 'faostat', format: unit('Mt', 2), scale: 'log', load: (raw) => foodOf(raw).fertilisers.phosphate.use },
+  { id: 'fertpotash', group: 'food', source: 'faostat', format: unit('Mt', 2), scale: 'log', load: (raw) => foodOf(raw).fertilisers.potash.use, estimates: (raw) => foodOf(raw).fertilisers.potash.estimated.use },
+  { id: 'fertphosphate', group: 'food', source: 'faostat', format: unit('Mt', 2), scale: 'log', load: (raw) => foodOf(raw).fertilisers.phosphate.use, estimates: (raw) => foodOf(raw).fertilisers.phosphate.estimated.use },
   // Climate and water
   { id: 'co2', group: 'climate', source: 'owid', format: unit('Mt'), scale: 'log', load: (raw) => emisOf(raw).byField.co2 },
   { id: 'co2pc', group: 'climate', source: 'owid', format: unit('t', 1), scale: 'linear', load: (raw) => emisOf(raw).byField.pc },
@@ -190,12 +194,16 @@ export function registry(raw: Raw) {
   for (const d of LIST) {
     if (d.lastActual) d.projectedAfter = d.lastActual(raw) ?? PROJECTED_AFTER.get(d.id);
     if (d.ownLastActual) d.lastActualBy = d.ownLastActual(raw);
+    if (d.estimates) d.estimatedBy = undefined;
   }
   const get = (id: string): Series => {
     const d = INDICATORS[id];
     if (!d) throw new Error(`unknown indicator ${id}`);
     if (!d.load) throw new Error(`indicator ${id} has no data yet: ${d.pending}`);
-    if (!cache.has(id)) cache.set(id, d.load(raw, get));
+    if (!cache.has(id)) {
+      cache.set(id, d.load(raw, get));
+      if (d.estimates) d.estimatedBy = d.estimates(raw);
+    }
     return cache.get(id)!;
   };
   return {
@@ -225,12 +233,14 @@ export type ValueStatus = 'estimate' | 'projection';
 
 /**
  * A value's tag: a projection after the indicator's last actual year; an estimate after the place's own last actual
- * year and up to the indicator's (a country whose WEO figures end in 2023 has estimates for 2024 and 2025).
+ * year and up to the indicator's (a country whose WEO figures end in 2023 has estimates for 2024 and 2025), or where
+ * the source flags the figure itself as an estimate (FAOSTAT).
  */
 export function statusAt(ind: Indicator, place: string, year: number): ValueStatus | undefined {
   if (ind.projectedAfter !== undefined && year > ind.projectedAfter) return 'projection';
   const own = ind.lastActualBy?.[place];
-  return own !== undefined && year > own ? 'estimate' : undefined;
+  if (own !== undefined && year > own) return 'estimate';
+  return ind.estimatedBy?.[place]?.[year] ? 'estimate' : undefined;
 }
 
 /** Latest actual year (projections excluded) with values for at least `min` places, or the best-covered recent year. */
