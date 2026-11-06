@@ -6,8 +6,30 @@ import { type Raw, type Series, matcher, num, put } from './core.ts';
 
 const squash = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
 
+/**
+ * The names each needed column goes by, per file. The fetcher (pipeline/sources/epoch.ts) refuses a file that has
+ * none of them for a field, so a renamed column keeps the last good file instead of reading as zero.
+ */
+export const COLUMNS = {
+  'gpu_clusters.csv': {
+    country: ['Country', 'Country code'],
+    'operational date': ['First Operational Date', 'First operational', 'Operational date'],
+    'computing capacity': ['H100 equivalents', 'H100e', 'H100 equivalent'],
+  },
+  'notable_ai_models.csv': {
+    country: ['Country (of organization)', 'Country'],
+    'publication date': ['Publication date', 'Date'],
+  },
+} as const;
+const C = COLUMNS['gpu_clusters.csv'];
+const M = COLUMNS['notable_ai_models.csv'];
+
+/** The fields in `columns` that no header matches by any of their names. */
+export const missingColumns = (header: string[], columns: Record<string, readonly string[]>) =>
+  Object.entries(columns).filter(([, names]) => !names.some((n) => header.some((h) => squash(h) === squash(n)))).map(([field]) => field);
+
 /** The first non-empty value among columns named like any of `names`. */
-export function pick(row: Record<string, string>, ...names: string[]): string | null {
+export function pick(row: Record<string, string>, ...names: readonly string[]): string | null {
   for (const n of names) {
     const k = Object.keys(row).find((key) => squash(key) === squash(n));
     if (k && row[k].trim() !== '') return row[k].trim();
@@ -34,14 +56,14 @@ export interface Cluster { name: string; owner: string; place: string; location:
 export function parseGpuClusters(text: string): Cluster[] {
   const out: Cluster[] = [];
   for (const r of csvRecords(text)) {
-    const start = (pick(r, 'First Operational Date', 'First operational', 'Operational date') ?? '').slice(0, 7);
+    const start = (pick(r, ...C['operational date']) ?? '').slice(0, 7);
     const year = Number(start.slice(0, 4));
-    const [place] = countriesIn(pick(r, 'Country', 'Country code'));
+    const [place] = countriesIn(pick(r, ...C.country));
     if (!place || !year) continue;
     out.push({
       name: pick(r, 'Name', 'Cluster name') ?? '', owner: pick(r, 'Owner', 'Owners') ?? '', place, location: pick(r, 'Location', 'City') ?? '',
       lat: num(pick(r, 'Latitude')), lon: num(pick(r, 'Longitude')), start, year,
-      h100e: num(pick(r, 'H100 equivalents', 'H100e', 'H100 equivalent')) ?? 0, mw: num(pick(r, 'Power Capacity (MW)', 'Power (MW)', 'Power capacity')),
+      h100e: num(pick(r, ...C['computing capacity'])) ?? 0, mw: num(pick(r, 'Power Capacity (MW)', 'Power (MW)', 'Power capacity')),
       sector: pick(r, 'Sector') ?? '', planned: /planned|decommission/i.test(pick(r, 'Status') ?? ''),
     });
   }
@@ -52,9 +74,9 @@ export function parseGpuClusters(text: string): Cluster[] {
 export function parseNotableModels(text: string): Series {
   const out: Series = {};
   for (const r of csvRecords(text)) {
-    const y = Number((pick(r, 'Publication date', 'Date') ?? '').slice(0, 4));
+    const y = Number((pick(r, ...M['publication date']) ?? '').slice(0, 4));
     if (!y) continue;
-    for (const id of countriesIn(pick(r, 'Country (of organization)', 'Country'))) put(out, id, y, 1, true);
+    for (const id of countriesIn(pick(r, ...M.country))) put(out, id, y, 1, true);
   }
   return out;
 }

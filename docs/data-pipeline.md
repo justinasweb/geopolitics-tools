@@ -144,7 +144,12 @@ and the live check runs Comtrade with `COMTRADE_MAX_CALLS=8`. Until then their v
 files in `tests/fixtures/prototype/` (`npm run build:sample`) and are not in a live build. EIA's key goes in the query
 string and Ember's as `api_key`; errors are logged without query strings. Comtrade's key goes in the
 `Ocp-Apim-Subscription-Key` header and UCDP's in `x-ucdp-access-token`. Each fetcher refuses an answer that is cut off
-or much smaller than the last good copy. FAOSTAT has no fertiliser trade matrix, so potash and phosphate flows come
+or much smaller than the last good copy, and one that lacks, by name, a field its adapter reads, so a renamed column
+keeps the last good copy instead of reading as no data or zero. Epoch AI's fetcher uses the adapter's own list of
+accepted names (`COLUMNS` in `src/adapters/epoch.ts`: operational date, country and computing capacity for the
+clusters; publication date and country for the models); UCDP checks each event's id, date, coordinates, type,
+country and deaths; the Consolidated Screening List that most records give a country; the cables that cables have a
+line and landing stations a point; PortWatch each chokepoint's id, name and coordinates. FAOSTAT has no fertiliser trade matrix, so potash and phosphate flows come
 from UN Comtrade (HS 3104; phosphate is HS 3103 plus DAP 310530 and MAP 310540, not all of 3105, which includes
 NPK blends).
 

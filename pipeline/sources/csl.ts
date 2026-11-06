@@ -30,6 +30,11 @@ const source: Source = {
     check(results.length >= 5_000, `only ${results.length} records`);
     check([...lists.keys()].some((k) => /Entity List/i.test(k)), 'no Entity List records');
     check([...lists.keys()].some((k) => /Specially Designated Nationals/i.test(k)), 'no SDN records');
+    // The adapter places each SDN and Entity List record by its address, nationality or citizenship; about 9 in 10
+    // give one. Far fewer means those fields were renamed, and every count would drop.
+    const counted = results.filter((r) => /Entity List|Specially Designated Nationals/i.test(String(r.source)));
+    const placed = counted.filter((r) => r.addresses?.some((a) => a.country) || (r.nationalities as unknown[] | undefined)?.length || (r.citizenships as unknown[] | undefined)?.length).length;
+    check(placed >= counted.length * 0.5, `only ${placed} of ${counted.length} SDN and Entity List records give a country (addresses, nationalities, citizenships); the format changed`);
     const prev = await ctx.previous('consolidated.json');
     guardShrink(ctx, 'consolidated.json', results.length, prev, (p) => (JSON.parse(p) as { results: unknown[] }).results.length, 0.8);
     const newest = results.map((r) => String(r.start_date ?? '')).filter((d) => /^\d{4}-\d\d-\d\d/.test(d)).sort().at(-1);

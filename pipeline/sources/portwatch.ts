@@ -46,6 +46,7 @@ const source: Source = {
 
     const points = await query('PortWatch_chokepoints_database', { where: '1=1', outFields: POINT_FIELDS, orderByFields: 'portid' });
     check(points.length >= 10, `only ${points.length} chokepoints`);
+    for (const f of ['portid', 'portname', 'lat', 'lon']) check(points.every((p) => p[f] !== undefined && p[f] !== null), `chokepoints lack "${f}"; the source format changed`);
     // The server filters on the numeric year (whatever type "date" has); the exact cut-off is applied here.
     const since = new Date(ctx.now.getTime() - DAYS * 86_400_000).toISOString().slice(0, 10);
     const daily = (await query('Daily_Chokepoints_Data', { where: `year >= ${since.slice(0, 4)}`, outFields: DAILY_FIELDS, orderByFields: 'date' }))
