@@ -60,6 +60,7 @@
 .gt-cpstat__l { font: 600 14px/20px var(--sans); color: var(--ink); }
 .gt-cpstat__l:empty { display: none; }
 .gt-cpstat__n { font: 600 30px/36px var(--serif); color: var(--ink); font-variant-numeric: lining-nums tabular-nums; }
+.gt-cpstat__n--word { font-size: 22px; line-height: 28px; }
 .gt-cpstat__n small { font: 400 14px/20px var(--sans); color: var(--ink-muted); margin-left: 4px; }
 .gt-cpstat .gt-caption { display: flex; flex-wrap: wrap; gap: 4px 6px; align-items: center; }
 .gt-cptrade { margin: 0; font: 400 16px/26px var(--sans); color: var(--ink); }

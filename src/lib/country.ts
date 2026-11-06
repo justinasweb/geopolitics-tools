@@ -14,7 +14,8 @@ import { data, indicator, refreshed, shared, changed } from './data.ts';
 import { dependencies, depSources, type DepRow } from './dependence.ts';
 import { formatShare, formatValue } from './format.ts';
 import { PLACES, place, type Place } from './places.ts';
-import { figureFor, ranked } from './stats.ts';
+import { defaultYear, figureFor, ranked } from './stats.ts';
+import { notReported } from '../data/not-reported.ts';
 
 /** The full dossiers (spec: United States, Russia, China); every other place with data gets a profile. */
 export const DOSSIERS = ['USA', 'CHN', 'RUS'];
@@ -67,7 +68,9 @@ export function mineralShares(placeId: string, min = MINERAL_SHARE): MineralShar
 }
 
 export interface Blocks {
-  refugees?: { hosted?: Figure; from?: Figure };
+  refugees?: { hosted?: Figure; from?: Figure;
+    /** Hosted not shown in the default year (../data/not-reported.ts): the last year reported, its figure before then, and why. */
+    hostedUnreported?: { since: number; last: { value: number; year: number } | null; reason: string } };
   disasters?: { count: number; byKind: Record<string, number>; from: string; to: string };
   emissions?: Figure;
   sanctions?: { listings: PlaceListings | null };
@@ -92,11 +95,23 @@ function disastersFor(id: string): Blocks['disasters'] | undefined {
   return { count: hits.length, byKind, from, to };
 }
 
+/** Refugees hosted, when the default year is one the place is shown as not reported in, as the hosted maps show it. */
+function hostedUnreported(id: string): NonNullable<Blocks['refugees']>['hostedUnreported'] | undefined {
+  const l = indicator('refin');
+  const year = l ? defaultYear(l) : undefined;
+  const n = year === undefined ? undefined : notReported('refin', id, year);
+  if (!l || !n) return undefined;
+  const s = l.values[id] ?? {};
+  const y = Object.keys(s).map(Number).filter((x) => x < n.from && s[x] != null).sort((a, b) => b - a)[0];
+  return { since: n.from - 1, last: y === undefined ? null : { value: s[y]!, year: y }, reason: n.reason };
+}
+
 function blocksFor(id: string): Blocks {
   const out: Blocks = {};
   const hosted = figure('refin', id);
   const from = figure('refout', id);
-  if (hosted || from) out.refugees = { hosted: hosted ?? undefined, from: from ?? undefined };
+  const unreported = hostedUnreported(id);
+  if (hosted || from || unreported) out.refugees = { hosted: hosted ?? undefined, from: from ?? undefined, ...(unreported ? { hostedUnreported: unreported } : {}) };
   out.disasters = disastersFor(id);
   out.emissions = figure('co2pc', id) ?? undefined;
   const s = sanctionsData();

@@ -110,3 +110,16 @@ describe('registry map views', () => {
     expect(L.layerFile('refugees-refout').notes.UKR).toMatch(/stop counting Ukrainians in Russia from 2024/);
   });
 });
+
+describe('not reported on country pages', () => {
+  it('gives Russia’s page "not reported since 2023" for refugees hosted, with its 2023 figure, and no hosted figure', async () => {
+    const { countryModel } = await import('../../src/lib/country.ts');
+    const r = countryModel('RUS')!.blocks.refugees!;
+    expect(r.hosted).toBeUndefined();
+    expect(r.hostedUnreported).toMatchObject({ since: 2023, reason: 'ukrainians-in-russia', last: { year: 2023 } });
+    expect(r.hostedUnreported!.last!.value).toBeGreaterThan(1_000_000);
+    // Other countries' hosted figures are as UNHCR publishes them.
+    expect(countryModel('DEU')!.blocks.refugees!.hosted).toBeDefined();
+    expect(countryModel('DEU')!.blocks.refugees!.hostedUnreported).toBeUndefined();
+  });
+});

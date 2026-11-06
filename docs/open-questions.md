@@ -146,8 +146,10 @@ Made while building `/this-week` and its archive; each is easy to change.
 like "withheld by source", with its own legend entry, "Not reported since 2023", and leave it out of the ranking, the
 table's figures and the total. The notes next to Russia and Ukraine say UNHCR's figures stop counting Ukrainians in
 Russia from 2024. Ukraine's "fled from" figure is still UNHCR's. Other cases go in `src/data/not-reported.ts` (place,
-indicators, first year, reason). Open: Russia's country page shows no refugees-hosted figure from 2024 either, as it
-has no rank; say "not reported since 2023" there too?
+indicators, first year, reason).
+
+**Country page (decided 6 Nov 2026).** From 2024 Russia's page shows refugees hosted as "Not reported since 2023",
+with "Last reported: 1.2 m (2023)" and the reason beneath it, from the same `src/data/not-reported.ts` entry.
 
 ## Submarine cables: TeleGeography licence (raised 25 Oct 2026)
 

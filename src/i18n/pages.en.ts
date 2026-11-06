@@ -135,6 +135,7 @@ export const BLOCK_TEXT = {
   refugees: 'Refugees',
   hosted: (year: number) => `refugees and others in need of protection hosted, ${year}`,
   fledFrom: (year: number) => `from it, abroad, ${year}`,
+  lastReported: (value: string, year: number) => `Last reported: ${value} (${year})`,
   refugeesLink: 'Refugees map',
   disasters: 'Disasters',
   alerts: (parts: string[]) => (parts.length ? `orange and red GDACS alerts in the past year: ${list(parts)}` : 'orange and red GDACS alerts in the past year'),
