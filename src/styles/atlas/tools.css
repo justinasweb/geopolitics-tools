@@ -13,7 +13,7 @@ main.gt-tl > *, .gt-tl > * { width: 100%; max-width: var(--content-max); margin-
 .gt-indgrid--bl { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); }
 .gt-indgrid__b { display: grid; gap: 16px; }
 .gt-indctl { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
-.gt-indctl__find { flex: 1; min-width: 160px; }
+.gt-indctl .gt-indctl__find { flex: 1; min-width: 160px; }
 .gt-indmap { margin: 0; display: grid; gap: 10px; }
 .gt-indmap__box { position: relative; aspect-ratio: 1000 / 440; background: var(--paper-sunk); border: 1px solid var(--rule); }
 .gt-indmap__box .gt-mapbox { position: absolute; inset: 0; padding: 0; height: 100%; }
