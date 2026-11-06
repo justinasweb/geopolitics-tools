@@ -35,9 +35,8 @@ on:
 permissions:
   contents: write
   actions: write
-concurrency:
-  group: ai-review
-  cancel-in-progress: false
+# No concurrency group: a group keeps only one pending run and cancels the rest, which dropped rapid taps. Runs go
+# side by side; each records one text's file, and the commit step rebases onto main and retries its push.
 
 jobs:
   review:
@@ -91,8 +90,16 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add src/data/ai
           git commit -m "AI review on Telegram: $ACTION $ID"
-          git pull --rebase origin main
-          git push origin HEAD:main
+          for attempt in 1 2 3 4 5; do
+            if git pull --rebase origin main; then
+              git push origin HEAD:main && exit 0
+            else
+              git rebase --abort || true
+            fi
+            echo "Push attempt $attempt failed; retrying."
+            sleep $((attempt * 3))
+          done
+          exit 1
       - name: Deploy
         if: steps.review.outputs.deploy == 'true'
         env:
