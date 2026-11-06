@@ -61,3 +61,11 @@ describe('counts of one', () => {
     expect(QUAKES_TEXT.quakeCaption(10, 40)).toBe('The 10 largest of 40 earthquakes of magnitude 5.5 and over, by magnitude.');
   });
 });
+
+describe('year-on-year changes', () => {
+  it('read "than in {year}"', async () => {
+    const texts = [(await import('../../src/i18n/food.en.ts')).FOOD_TEXT.change2, (await import('../../src/i18n/energy.en.ts')).ENERGY_TEXT.change2,
+      (await import('../../src/i18n/views.en.ts')).VIEWS_TEXT.change2, (await import('../../src/i18n/map.en.ts')).MINERALS_VIEW.change];
+    for (const f of texts) expect(f('4%', true, 2023, '12 Mt')).toBe('4% more than in 2023 (12 Mt)');
+  });
+});

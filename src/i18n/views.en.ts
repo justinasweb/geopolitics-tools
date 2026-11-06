@@ -553,7 +553,7 @@ export const VIEWS_TEXT = {
   exporters: 'Emit more than they consume',
   coverage: (n: number, y: number | string) => `${n} countries and territories have a figure for ${typeof y === 'number' || /^\d/.test(y) ? y : `the ${y}`}.`,
   changeIn: (pct: string, more: boolean, prev: number | string) => `${pct} ${more ? 'more' : 'less'} than in ${prev}`,
-  change2: (pct: string, more: boolean, prev: number | string, value: string) => `${pct} ${more ? 'more' : 'less'} than ${prev} (${value})`,
+  change2: (pct: string, more: boolean, prev: number | string, value: string) => `${pct} ${more ? 'more' : 'less'} than in ${prev} (${value})`,
   points: (n: string) => `${n} pts`,
   pointsLong: (n: string) => `${n} percentage points`,
   periodLabel: (years: number) => `${years}-year period`,

@@ -74,7 +74,7 @@ export const FOOD_TEXT = {
     trade: (v: string, name: string, y: number, ch: string | null) => `Countries reported exporting ${v} of ${name} in ${y}${ch ? `, ${ch}` : ''}.`,
   },
   changeIn: (pct: string, more: boolean, prev: number) => `${pct} ${more ? 'more' : 'less'} than in ${prev}`,
-  change2: (pct: string, more: boolean, prev: number, value: string) => `${pct} ${more ? 'more' : 'less'} than ${prev} (${value})`,
+  change2: (pct: string, more: boolean, prev: number, value: string) => `${pct} ${more ? 'more' : 'less'} than in ${prev} (${value})`,
   sameAs: (prev: number) => `Same as ${prev}`,
   top: (parts: string[], together: string | null) => `${list(parts)}${together ? `; together, ${together} of the world total` : ''}.`,
   topPart: (name: string, value: string, share: string | null) => `${name} ${value}${share ? ` (${share})` : ''}`,
