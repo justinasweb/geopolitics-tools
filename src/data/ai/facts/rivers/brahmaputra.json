@@ -25,9 +25,7 @@
       ],
       "source": "Ministry of External Affairs of India",
       "link": "https://www.mea.gov.in/",
-      "date": "2002",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check it against the link."
+      "date": "2002"
     },
     {
       "id": "zangmu-2015",
@@ -36,11 +34,9 @@
       "places": [
         "CHN"
       ],
-      "source": "Xinhua",
-      "link": "https://english.news.cn/",
-      "date": "2015-10",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check it against the link."
+      "source": "China Daily",
+      "link": "https://covid-19.chinadaily.com.cn/china/2015-10/13/content_22173796.htm",
+      "date": "2015-10"
     },
     {
       "id": "approval-2024",
@@ -49,11 +45,9 @@
       "places": [
         "CHN"
       ],
-      "source": "Xinhua",
-      "link": "https://english.news.cn/",
-      "date": "2024-12",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check it against the link."
+      "source": "China Daily",
+      "link": "https://www.chinadaily.com.cn/a/202412/25/WS676b53f1a310f1265a1d4b68.html",
+      "date": "2024-12"
     },
     {
       "id": "construction-2025",
@@ -62,11 +56,9 @@
       "places": [
         "CHN"
       ],
-      "source": "Xinhua",
-      "link": "https://english.news.cn/",
-      "date": "2025-07-19",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check it against the link."
+      "source": "China Daily",
+      "link": "https://www.chinadaily.com.cn/a/202507/19/WS687b6e94a310ad07b5d90d42.html",
+      "date": "2025-07-19"
     },
     {
       "id": "india-2025",
@@ -76,11 +68,9 @@
         "IND",
         "CHN"
       ],
-      "source": "Ministry of External Affairs of India",
-      "link": "https://www.mea.gov.in/",
-      "date": "2025-01",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check it against the link."
+      "source": "Tuoi Tre News",
+      "link": "https://tuoitrenews.vn/news/international/20250104/india-says-conveyed-concerns-to-china-over-hydropower-dam-in-tibet/83724.html",
+      "date": "2025-01"
     }
   ]
 }

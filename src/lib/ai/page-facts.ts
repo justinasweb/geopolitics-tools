@@ -16,6 +16,12 @@ import { fathomSiteId } from '../site.ts';
 import { AI_ATTEMPTS, AI_MODEL } from './config.ts';
 import type { Fact, FactsFile } from './facts.ts';
 
+/** The owner's own words on a page: kept word for word between `<!-- owner -->` and `<!-- /owner -->` in its file,
+ *  never drafted and never labelled as AI (./check.ts, ownerProblems). */
+export const OWNER_TEXT: Record<string, { id: string; text: string }[]> = {
+  about: [{ id: 'owner-who', text: 'geopolitics.tools is made and run by [Justinas Dimsta](https://x.com/JustinasDimsta), a web developer who likes working with data and follows geopolitics. He built it so that the official figures on who depends on whom, for what, are easy to find, read and check.' }],
+};
+
 const REPO = 'https://github.com/justinasweb/geopolitics-tools/blob/main';
 const code = (path: string, on: string) => ({ source: `geopolitics.tools code (${path})`, link: `${REPO}/${path}`, date: on });
 
@@ -34,20 +40,23 @@ function siteFacts(on: string): Fact[] {
     { id: 'site-free', statement: 'The site is free to use and has no accounts, no comments, no ads and no cookies.', ...code('docs/deploy.md', on) },
     { id: 'site-no-ranking', statement: 'A rank is a position on one measure, largest first; it is not a judgement.', ...code('docs/page-engine.md', on) },
     { id: 'contact', statement: 'Corrections go to data@geopolitics.tools and are listed on the Sources page.', ...code('src/i18n/pages.en.ts', on) },
-    { id: 'owner-who', statement: 'For the owner to fill in: "[Owner to fill in: who runs the site, and why.]"', ...code('src/content/pages/about.md', on) },
-    { id: 'owner-contact', statement: 'For the owner to fill in: "[Owner to fill in: other contact details and the social accounts.]"', ...code('src/content/pages/about.md', on) },
+    // The owner's own words: kept word for word between <!-- owner --> markers, never drafted and never labelled.
+    ...OWNER_TEXT.about.map((o): Fact => ({ id: o.id, statement: o.text, owner: true, ...code('src/content/pages/about.md', on) })),
   ];
 }
 
 function privacyFacts(on: string): Fact[] {
   return [
-    { id: 'fathom', statement: `Visits are counted with Fathom Analytics (site ${fathomSiteId}), which sets no cookies and stores no personal data; it counts pages read, referring sites, and country, browser and device type as totals.`, source: 'Fathom Analytics', link: 'https://usefathom.com/legal/compliance', date: on, unverified: true, note: 'Check Fathom’s compliance page says this for the plan used' },
+    { id: 'fathom', statement: `Visits are counted with Fathom Analytics (site ${fathomSiteId}), which sets no cookies and counts visitors with a code made from each visit that changes every day.`, source: 'Fathom Analytics, Compliance', link: 'https://usefathom.com/legal/compliance', date: '2026-11-04' },
+    { id: 'fathom-data', statement: 'Fathom does not store visitors’ IP addresses; it records pages read, referring sites, and country, browser and device type, and the site sees only totals.', source: 'Fathom Analytics, How Fathom handles data', link: 'https://usefathom.com/data', date: '2026-11-04', note: 'The ordinary visit record has no raw IP or user-agent field; records of traffic Fathom flags as bots do keep an IP address.' },
     { id: 'fathom-domain', statement: 'Fathom counts visits on geopolitics.tools only, never on previews.', ...code('src/lib/site.ts', on) },
-    { id: 'cloudflare', statement: 'The site is served by Cloudflare, whose servers see each visitor’s IP address and browser details to deliver pages and may keep them briefly in logs.', source: 'Cloudflare', link: 'https://www.cloudflare.com/privacypolicy/', date: on, unverified: true, note: 'Check how long Cloudflare keeps logs for this plan' },
+    { id: 'cloudflare', statement: 'The site is served by Cloudflare, whose servers see each visitor’s IP address and browser details to deliver pages; Cloudflare handles this data for the site as a processor and may keep it in logs for a limited time to run the service and protect it from abuse.', source: 'Cloudflare, Privacy Policy', link: 'https://www.cloudflare.com/privacypolicy/', date: '2026-11-04', note: 'Sections 2, 6 and 11; the policy gives no fixed retention period.' },
+    { id: 'corrections-kept', statement: 'Correction reports are kept in the editor’s Telegram and deleted within 90 days.', value: 90, unit: 'days', ...code('src/i18n/correction.en.ts', on) },
     { id: 'share-links', statement: 'The share buttons are plain links to X and Telegram; nothing loads from those sites until a reader clicks.', ...code('src/components/ShareRow.astro', on) },
     { id: 'no-third-party', statement: 'The site sets no cookies and loads no third-party scripts besides Fathom.', ...code('docs/deploy.md', on) },
-    { id: 'owner-logs', statement: 'For the owner to fill in: "[Owner to fill in: how long logs are kept, and Cloudflare’s role as processor.]"', ...code('src/content/pages/privacy.md', on) },
-    { id: 'owner-entity', statement: 'For the owner to fill in: "[Owner to fill in: who to contact about privacy, and the legal entity responsible for the site.]"', ...code('src/content/pages/privacy.md', on) },
+    { id: 'controller', statement: 'geopolitics.tools is run by Justinas Dimsta, a private individual working under an individual activity certificate in Lithuania, who decides how the data on the Privacy page is used (the controller).', places: ['LTU'], ...code('src/content/pages/privacy.md', on) },
+    { id: 'privacy-contact', statement: 'Privacy questions go to data@geopolitics.tools.', ...code('src/content/pages/privacy.md', on) },
+    { id: 'vdai', statement: 'Complaints about data handling can also go to Lithuania’s State Data Protection Inspectorate (vdai.lrv.lt).', places: ['LTU'], source: 'State Data Protection Inspectorate', link: 'https://vdai.lrv.lt/en/', date: '2026-11-05' },
   ];
 }
 
@@ -68,14 +77,15 @@ function methodologyFacts(on: string): Fact[] {
     { id: 'latest-available', statement: '"Latest available" reaches back up to two years and marks the older rows.', value: FALLBACK_YEARS, unit: 'years', ...ind },
     { id: 'indicator-min', statement: 'An indicator page with fewer than 20 places reporting in its common year is not indexed.', value: INDEX_MIN_PLACES, unit: 'places', ...ind },
     { id: 'thin-profile', statement: 'A country page with fewer than 4 measures is not indexed and lists which sources cover the place.', value: THIN_BELOW, unit: 'measures', ...code('src/lib/country.ts', on) },
-    { id: 'sipri-totals', statement: 'SIPRI arms transfers are shown as five-year totals of trend-indicator values (TIV).', value: 5, unit: 'years', unitAliases: ['five-year'], source: 'SIPRI Arms Transfers Database', link: 'https://www.sipri.org/databases/armstransfers/sources-and-methods', date: on, unverified: true, note: 'Check SIPRI recommends multi-year totals on its methods page' },
-    { id: 'sipri-reuse', statement: 'SIPRI’s terms allow reuse of under 10% of its dataset, so only derived totals are published.', value: 10, unit: '%', unitAliases: ['dataset'], source: 'SIPRI', link: 'https://www.sipri.org/about/terms-and-conditions', date: on, unverified: true, note: 'Check the 10% limit on SIPRI’s terms page' },
+    { id: 'sipri-totals', statement: 'SIPRI says its trend-indicator values (TIV) are best used to show trends in arms transfers over periods of time; the site shows them as five-year totals.', value: 5, unit: 'years', unitAliases: ['five-year'], source: 'SIPRI Arms Transfers Database, Sources and methods', link: 'https://www.sipri.org/databases/armstransfers/sources-and-methods', date: '2026-11-05', note: 'The page says TIV are “best used as the raw data for calculating trends in international arms transfers over periods of time”.' },
+    { id: 'sipri-reuse', statement: 'SIPRI’s terms allow fair use of less than 10% of a published data set; commercial use, including on sites with ads, needs a licence. The site publishes derived totals only.', value: 10, unit: '%', unitAliases: ['data set', 'dataset'], source: 'SIPRI, Terms and conditions for databases', link: 'https://www.sipri.org/databases/terms', date: '2026-11-05' },
     { id: 'ai-model', statement: `Texts drafted with AI are written by ${AI_MODEL} from a facts file, checked figure by figure, and approved by the editor before they appear.`, ...ai },
+    { id: 'ai-texts', statement: 'The texts drafted with AI are the dossier summaries, the alliance history notes, the disputed river summaries and the summary of each closed week on This week.', ...code('docs/ai-drafting.md', on) },
     { id: 'ai-attempts', statement: 'A draft that fails the check is redrafted once with the checker’s findings, then dropped.', value: AI_ATTEMPTS, unit: 'drafts', ...ai },
-    ...NOTES.map((n) => ({
-      id: `territory-${n.source}-${n.place}`.replace(/\*/g, 'all'), statement: n.note, places: [n.place].filter((p) => place(p)?.kind !== 'other'),
+    // Only notes checked against their source are facts, as with licences above; the others are still drafts.
+    ...NOTES.filter((n) => n.checked).map((n) => ({
+      id: `territory-${n.source}-${n.place}${n.area ? `-${n.area.toLowerCase().replace(/\W+/g, '-')}` : ''}`.replace(/\*/g, 'all'), statement: n.note, places: [n.place].filter((p) => place(p)?.kind !== 'other'),
       source: 'Territory and code table (src/data/places/notes.csv)', link: `${REPO}/src/data/places/notes.csv`, date: on,
-      ...(n.checked ? {} : { unverified: true, note: 'The territory notes start as drafts; check against the source and set checked to yes in notes.csv' }),
     })),
   ];
 }
@@ -125,6 +135,8 @@ const PAGE_FACTS: Record<string, { subject: string; facts: (on: string) => Fact[
   privacy: { subject: 'Privacy', facts: privacyFacts },
   methodology: { subject: 'Methodology', facts: (on) => [...methodologyFacts(on), ...sourcesFacts(on).filter((f) => /sipri|unhcr|faostat|comtrade|usgs/.test(f.id))] },
 };
+/** Terms a hub intro may use whose words the checker would otherwise read as judging ("critical"). */
+const HUB_NAMES: Record<string, string[]> = { resources: ['critical minerals'] };
 const HUB_SUBJECT: Record<string, string> = { resources: 'Resources', technology: 'Technology', climate: 'Climate', security: 'Security', power: 'Power' };
 
 export const PAGE_IDS = Object.keys(PAGE_FACTS);
@@ -143,5 +155,5 @@ export function hubFacts(name: string, on: string): FactsFile | null {
   const h = HUB_FACTS[name];
   if (!h) return null;
   const facts = h(on);
-  return { id: `hub:${name}`, kind: 'hub', subject: HUB_SUBJECT[name], countries: [...new Set(facts.flatMap((f) => f.places ?? []))], generated: 'src/lib/ai/page-facts.ts', facts };
+  return { id: `hub:${name}`, kind: 'hub', subject: HUB_SUBJECT[name], countries: [...new Set(facts.flatMap((f) => f.places ?? []))], ...(HUB_NAMES[name] ? { names: HUB_NAMES[name] } : {}), generated: 'src/lib/ai/page-facts.ts', facts };
 }

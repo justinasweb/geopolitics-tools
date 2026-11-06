@@ -30,9 +30,7 @@
       ],
       "source": "World Bank, Fact Sheet: The Indus Waters Treaty 1960 and the Role of the World Bank",
       "link": "https://www.worldbank.org/en/region/sar/brief/fact-sheet-the-indus-waters-treaty-1960-and-the-world-bank",
-      "date": "2018-06-11",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check it against the link."
+      "date": "2018-06-11"
     },
     {
       "id": "treaty-rivers",
@@ -44,9 +42,7 @@
       ],
       "source": "World Bank, Fact Sheet: The Indus Waters Treaty 1960 and the Role of the World Bank",
       "link": "https://www.worldbank.org/en/region/sar/brief/fact-sheet-the-indus-waters-treaty-1960-and-the-world-bank",
-      "date": "2018-06-11",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check it against the link."
+      "date": "2018-06-11"
     },
     {
       "id": "abeyance-2025",
@@ -55,11 +51,9 @@
       "places": [
         "IND"
       ],
-      "source": "Ministry of External Affairs of India, press releases",
-      "link": "https://www.mea.gov.in/press-releases.htm",
-      "date": "2025-04-23",
-      "unverified": true,
-      "note": "Find the MEA briefing of 23 April 2025 and check its wording."
+      "source": "Business Today: Indus Waters Treaty: India informs Pakistan of abeyance with immediate effect",
+      "link": "https://www.businesstoday.in/india/story/indus-waters-treaty-india-informs-pakistan-of-abeyance-with-immediate-effect-over-cross-border-terror-473531-2025-04-24",
+      "date": "2025-04-24"
     },
     {
       "id": "pakistan-2025",
@@ -68,11 +62,9 @@
       "places": [
         "PAK"
       ],
-      "source": "Prime Minister’s Office of Pakistan",
-      "link": "https://www.pmo.gov.pk/",
-      "date": "2025-04-24",
-      "unverified": true,
-      "note": "Find the National Security Committee statement of 24 April 2025 and check its wording."
+      "source": "Press Information Department, Government of Pakistan",
+      "link": "https://pid.gov.pk/site/press_detail/28775",
+      "date": "2025-04-24"
     }
   ]
 }

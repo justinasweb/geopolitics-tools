@@ -213,3 +213,25 @@ describe('checkDraft', () => {
     expect(strayNumbers(fact({ id: 'x', statement: 'Signed on 8 November 1959 by the two countries.' }))).toEqual([]);
   });
 });
+
+describe('the owner’s own words', () => {
+  const words = 'The site is run by [A. Person](https://example.org), who lives in Lithuania and wrote this in 2026.';
+  const about = file([
+    fact({ id: 'site', statement: 'The site shows figures from official sources.' }),
+    fact({ id: 'owner-who', statement: words, owner: true }),
+  ], { id: 'page:about', kind: 'page', subject: 'About', countries: [] });
+
+  it('pass word for word between the markers, and are not read as a draft', () => {
+    ok(`## Who runs it\n\n<!-- owner -->\n${words}\n<!-- /owner -->\n\nThe site shows figures from official sources.`, about);
+  });
+
+  it('fail when missing, changed or unmarked', () => {
+    bad('The site shows figures from official sources.', 'owner', about);
+    bad(`<!-- owner -->\n${words.replace('wrote', 'made')}\n<!-- /owner -->`, 'owner', about);
+    bad(words, 'owner', about);
+  });
+
+  it('fail when the draft marks its own words as the owner’s', () => {
+    bad(`<!-- owner -->\n${words}\n<!-- /owner -->\n<!-- owner -->\nThe site shows figures.\n<!-- /owner -->`, 'owner', about);
+  });
+});

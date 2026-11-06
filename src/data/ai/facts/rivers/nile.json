@@ -26,10 +26,8 @@
         "SDN"
       ],
       "source": "United Nations Treaty Series, vol. 453, No. 6519",
-      "link": "https://treaties.un.org/Pages/UNTSOnline.aspx?id=1",
-      "date": "1963",
-      "unverified": true,
-      "note": "Search the UN Treaty Collection for UNTS volume 453, No. 6519 (Egypt, then the United Arab Republic, and Sudan)."
+      "link": "https://treaties.un.org/doc/Publication/UNTS/Volume%20453/volume-453-I-6519-English.pdf",
+      "date": "1963"
     },
     {
       "id": "egypt-1959",
@@ -45,10 +43,8 @@
         "EGY"
       ],
       "source": "United Nations Treaty Series, vol. 453, No. 6519",
-      "link": "https://treaties.un.org/Pages/UNTSOnline.aspx?id=1",
-      "date": "1963",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check it against the link."
+      "link": "https://treaties.un.org/doc/Publication/UNTS/Volume%20453/volume-453-I-6519-English.pdf",
+      "date": "1963"
     },
     {
       "id": "sudan-1959",
@@ -64,10 +60,8 @@
         "SDN"
       ],
       "source": "United Nations Treaty Series, vol. 453, No. 6519",
-      "link": "https://treaties.un.org/Pages/UNTSOnline.aspx?id=1",
-      "date": "1963",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check it against the link."
+      "link": "https://treaties.un.org/doc/Publication/UNTS/Volume%20453/volume-453-I-6519-English.pdf",
+      "date": "1963"
     },
     {
       "id": "dop-2015",
@@ -80,9 +74,7 @@
       ],
       "source": "State Information Service of Egypt",
       "link": "https://www.sis.gov.eg/",
-      "date": "2015-03-23",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check it against the link."
+      "date": "2015-03-23"
     },
     {
       "id": "gerd-filling",
@@ -93,9 +85,7 @@
       ],
       "source": "Office of the Prime Minister of Ethiopia",
       "link": "https://www.pmo.gov.et/",
-      "date": "2020-07",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check it against the link."
+      "date": "2020-07"
     },
     {
       "id": "gerd-inauguration",
@@ -104,11 +94,9 @@
       "places": [
         "ETH"
       ],
-      "source": "Office of the Prime Minister of Ethiopia",
-      "link": "https://www.pmo.gov.et/",
-      "date": "2025-09-09",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check it against the link."
+      "source": "AllAfrica",
+      "link": "https://allafrica.com/stories/202509090450.html",
+      "date": "2025-09-09"
     },
     {
       "id": "gerd-capacity",
@@ -122,11 +110,9 @@
       "places": [
         "ETH"
       ],
-      "source": "Office of the Prime Minister of Ethiopia",
-      "link": "https://www.pmo.gov.et/",
-      "date": "2025-09-09",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check it against the link."
+      "source": "Tractebel (ENGIE): Africa’s largest hydropower scheme inaugurated in Ethiopia",
+      "link": "https://tractebel-engie.com/en/news/africas-largest-hydropower-scheme-inaugurated-in-ethiopia-doubling-national-power-capacity/",
+      "date": "2025-09-09"
     }
   ]
 }

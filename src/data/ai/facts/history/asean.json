@@ -29,9 +29,7 @@
       ],
       "source": "ASEAN, Member states",
       "link": "https://asean.org/member-states/",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "date": "2026-10-21"
     },
     {
       "id": "join-MYS-1967",
@@ -42,9 +40,7 @@
       ],
       "source": "ASEAN, Member states",
       "link": "https://asean.org/member-states/",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "date": "2026-10-21"
     },
     {
       "id": "join-PHL-1967",
@@ -55,9 +51,7 @@
       ],
       "source": "ASEAN, Member states",
       "link": "https://asean.org/member-states/",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "date": "2026-10-21"
     },
     {
       "id": "join-SGP-1967",
@@ -68,9 +62,7 @@
       ],
       "source": "ASEAN, Member states",
       "link": "https://asean.org/member-states/",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "date": "2026-10-21"
     },
     {
       "id": "join-THA-1967",
@@ -81,9 +73,7 @@
       ],
       "source": "ASEAN, Member states",
       "link": "https://asean.org/member-states/",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "date": "2026-10-21"
     },
     {
       "id": "join-BRN-1984",
@@ -94,9 +84,7 @@
       ],
       "source": "ASEAN, Member states",
       "link": "https://asean.org/member-states/",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "date": "2026-10-21"
     },
     {
       "id": "join-VNM-1995",
@@ -107,9 +95,7 @@
       ],
       "source": "ASEAN, Member states",
       "link": "https://asean.org/member-states/",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "date": "2026-10-21"
     },
     {
       "id": "join-LAO-1997",
@@ -120,9 +106,7 @@
       ],
       "source": "ASEAN, Member states",
       "link": "https://asean.org/member-states/",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "date": "2026-10-21"
     },
     {
       "id": "join-MMR-1997",
@@ -133,9 +117,7 @@
       ],
       "source": "ASEAN, Member states",
       "link": "https://asean.org/member-states/",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "date": "2026-10-21"
     },
     {
       "id": "join-KHM-1999",
@@ -146,9 +128,7 @@
       ],
       "source": "ASEAN, Member states",
       "link": "https://asean.org/member-states/",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "date": "2026-10-21"
     },
     {
       "id": "join-TLS-2025",
@@ -157,11 +137,9 @@
       "places": [
         "TLS"
       ],
-      "source": "ASEAN, Declaration on the admission of Timor-Leste into ASEAN (26 October 2025)",
-      "link": "https://asean.org/",
-      "date": "2025-10-26",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "source": "ASEAN, Member states",
+      "link": "https://asean.org/member-states/",
+      "date": "2025-10-26"
     },
     {
       "id": "founding-members",
@@ -176,9 +154,7 @@
       "period": "1967",
       "source": "ASEAN, Member states",
       "link": "https://asean.org/member-states/",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "Count of the founding rows in src/data/bloc-history.csv; check against the link."
+      "date": "2026-10-21"
     },
     {
       "id": "members-2026",
@@ -192,9 +168,7 @@
       "period": "2026",
       "source": "ASEAN, Member states",
       "link": "https://asean.org/member-states/",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "Count of the open rows in src/data/bloc-history.csv; check against the link."
+      "date": "2026-10-21"
     }
   ]
 }

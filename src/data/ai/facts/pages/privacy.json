@@ -2,11 +2,14 @@
   "id": "page:privacy",
   "kind": "page",
   "subject": "Privacy",
-  "countries": [],
+  "countries": [
+    "LTU"
+  ],
   "names": [
     "claude-sonnet-5-5",
     "CC BY 4.0",
     "CC BY 4.0, with UNHCR’s supplemental terms",
+    "CC BY-NC 4.0 (since 2 April 2025)",
     "CC BY 4.0, with FAO’s additional terms",
     "UN Comtrade terms: a free, not-for-profit visualisation may show its figures; no bulk redistribution",
     "Public domain (US government work); EIA asks to be credited",
@@ -16,56 +19,83 @@
   "facts": [
     {
       "id": "fathom",
-      "statement": "Visits are counted with Fathom Analytics (site DNBPMMDA), which sets no cookies and stores no personal data; it counts pages read, referring sites, and country, browser and device type as totals.",
-      "source": "Fathom Analytics",
+      "statement": "Visits are counted with Fathom Analytics (site DNBPMMDA), which sets no cookies and counts visitors with a code made from each visit that changes every day.",
+      "source": "Fathom Analytics, Compliance",
       "link": "https://usefathom.com/legal/compliance",
-      "date": "2026-11-02",
-      "unverified": true,
-      "note": "Check Fathom’s compliance page says this for the plan used"
+      "date": "2026-11-04"
+    },
+    {
+      "id": "fathom-data",
+      "statement": "Fathom does not store visitors’ IP addresses; it records pages read, referring sites, and country, browser and device type, and the site sees only totals.",
+      "source": "Fathom Analytics, How Fathom handles data",
+      "link": "https://usefathom.com/data",
+      "date": "2026-11-04",
+      "note": "The ordinary visit record has no raw IP or user-agent field; records of traffic Fathom flags as bots do keep an IP address."
     },
     {
       "id": "fathom-domain",
       "statement": "Fathom counts visits on geopolitics.tools only, never on previews.",
       "source": "geopolitics.tools code (src/lib/site.ts)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/lib/site.ts",
-      "date": "2026-11-02"
+      "date": "2026-11-05"
     },
     {
       "id": "cloudflare",
-      "statement": "The site is served by Cloudflare, whose servers see each visitor’s IP address and browser details to deliver pages and may keep them briefly in logs.",
-      "source": "Cloudflare",
+      "statement": "The site is served by Cloudflare, whose servers see each visitor’s IP address and browser details to deliver pages; Cloudflare handles this data for the site as a processor and may keep it in logs for a limited time to run the service and protect it from abuse.",
+      "source": "Cloudflare, Privacy Policy",
       "link": "https://www.cloudflare.com/privacypolicy/",
-      "date": "2026-11-02",
-      "unverified": true,
-      "note": "Check how long Cloudflare keeps logs for this plan"
+      "date": "2026-11-04",
+      "note": "Sections 2, 6 and 11; the policy gives no fixed retention period."
+    },
+    {
+      "id": "corrections-kept",
+      "statement": "Correction reports are kept in the editor’s Telegram and deleted within 90 days.",
+      "value": 90,
+      "unit": "days",
+      "source": "geopolitics.tools code (src/i18n/correction.en.ts)",
+      "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/i18n/correction.en.ts",
+      "date": "2026-11-05"
     },
     {
       "id": "share-links",
       "statement": "The share buttons are plain links to X and Telegram; nothing loads from those sites until a reader clicks.",
       "source": "geopolitics.tools code (src/components/ShareRow.astro)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/components/ShareRow.astro",
-      "date": "2026-11-02"
+      "date": "2026-11-05"
     },
     {
       "id": "no-third-party",
       "statement": "The site sets no cookies and loads no third-party scripts besides Fathom.",
       "source": "geopolitics.tools code (docs/deploy.md)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/docs/deploy.md",
-      "date": "2026-11-02"
+      "date": "2026-11-05"
     },
     {
-      "id": "owner-logs",
-      "statement": "For the owner to fill in: \"[Owner to fill in: how long logs are kept, and Cloudflare’s role as processor.]\"",
+      "id": "controller",
+      "statement": "geopolitics.tools is run by Justinas Dimsta, a private individual working under an individual activity certificate in Lithuania, who decides how the data on the Privacy page is used (the controller).",
+      "places": [
+        "LTU"
+      ],
       "source": "geopolitics.tools code (src/content/pages/privacy.md)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/content/pages/privacy.md",
-      "date": "2026-11-02"
+      "date": "2026-11-05"
     },
     {
-      "id": "owner-entity",
-      "statement": "For the owner to fill in: \"[Owner to fill in: who to contact about privacy, and the legal entity responsible for the site.]\"",
+      "id": "privacy-contact",
+      "statement": "Privacy questions go to data@geopolitics.tools.",
       "source": "geopolitics.tools code (src/content/pages/privacy.md)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/content/pages/privacy.md",
-      "date": "2026-11-02"
+      "date": "2026-11-05"
+    },
+    {
+      "id": "vdai",
+      "statement": "Complaints about data handling can also go to Lithuania’s State Data Protection Inspectorate (vdai.lrv.lt).",
+      "places": [
+        "LTU"
+      ],
+      "source": "State Data Protection Inspectorate",
+      "link": "https://vdai.lrv.lt/en/",
+      "date": "2026-11-05"
     }
   ]
 }

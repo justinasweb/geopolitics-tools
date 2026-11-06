@@ -52,6 +52,12 @@ a figure it was drafted from changes (a new year, a revision) until it is redraf
 facts are only changed by hand. Page and hub facts are written by `ai:facts`; `ai:status` says when the code has moved
 on from the committed file.
 
+**The owner's own words on a page.** A page can hold passages the owner wrote inside an AI-drafted page (About's
+"Who runs it"). They are listed in `OWNER_TEXT` (`src/lib/ai/page-facts.ts`) and become facts with `owner: true`, and
+the page keeps them word for word between `<!-- owner -->` and `<!-- /owner -->`. The checker (`ownerProblems`)
+fails a text that drops, changes or adds to them, and reads only the rest as a draft; the prompt tells the model to
+copy them unchanged. Long pages carry no AI label, and these passages are never counted as drafted.
+
 ## 2. Draft
 
 `src/lib/ai/draft.ts` sends the **System** section of `src/data/ai/prompt.md` and the text's **Task** section with the
@@ -132,6 +138,5 @@ through the same `publishedText`, and rendered in `WeekSummary.astro` with the w
 
 ## What the owner verifies
 
-`npm run ai:status` lists the unverified facts per file. At the start: every history and river fact (the official
-sites were not reachable from the session that wrote them; each has its link and a note), the Fathom, Cloudflare and
-SIPRI facts behind Privacy and Methodology, and the territory notes (`src/data/places/notes.csv`, `checked: no`).
+`npm run ai:status` lists the unverified facts per file. After the launch review (5 November 2026): the SCO (its site did
+not load), the Quad (DFAT's page does not state the years), and the Dnipro agreement and its 2022 termination.

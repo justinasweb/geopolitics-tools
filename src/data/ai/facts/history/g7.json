@@ -10,7 +10,6 @@
     "ITA",
     "JPN",
     "RUS",
-    "UKR",
     "USA",
     "XWG"
   ],
@@ -27,11 +26,9 @@
       "places": [
         "FRA"
       ],
-      "source": "Ministry of Foreign Affairs of Japan, G7 summits",
-      "link": "https://www.mofa.go.jp/policy/economy/summit/index.html",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "source": "G7 Research Group, University of Toronto: What is the G7?",
+      "link": "https://g7.utoronto.ca/what_is_g8.html",
+      "date": "2026-11-05"
     },
     {
       "id": "join-DEU-1975",
@@ -40,11 +37,9 @@
       "places": [
         "DEU"
       ],
-      "source": "Ministry of Foreign Affairs of Japan, G7 summits",
-      "link": "https://www.mofa.go.jp/policy/economy/summit/index.html",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "source": "G7 Research Group, University of Toronto: What is the G7?",
+      "link": "https://g7.utoronto.ca/what_is_g8.html",
+      "date": "2026-11-05"
     },
     {
       "id": "join-ITA-1975",
@@ -53,11 +48,9 @@
       "places": [
         "ITA"
       ],
-      "source": "Ministry of Foreign Affairs of Japan, G7 summits",
-      "link": "https://www.mofa.go.jp/policy/economy/summit/index.html",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "source": "G7 Research Group, University of Toronto: What is the G7?",
+      "link": "https://g7.utoronto.ca/what_is_g8.html",
+      "date": "2026-11-05"
     },
     {
       "id": "join-JPN-1975",
@@ -66,11 +59,9 @@
       "places": [
         "JPN"
       ],
-      "source": "Ministry of Foreign Affairs of Japan, G7 summits",
-      "link": "https://www.mofa.go.jp/policy/economy/summit/index.html",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "source": "G7 Research Group, University of Toronto: What is the G7?",
+      "link": "https://g7.utoronto.ca/what_is_g8.html",
+      "date": "2026-11-05"
     },
     {
       "id": "join-GBR-1975",
@@ -79,11 +70,9 @@
       "places": [
         "GBR"
       ],
-      "source": "Ministry of Foreign Affairs of Japan, G7 summits",
-      "link": "https://www.mofa.go.jp/policy/economy/summit/index.html",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "source": "G7 Research Group, University of Toronto: What is the G7?",
+      "link": "https://g7.utoronto.ca/what_is_g8.html",
+      "date": "2026-11-05"
     },
     {
       "id": "join-USA-1975",
@@ -92,11 +81,9 @@
       "places": [
         "USA"
       ],
-      "source": "Ministry of Foreign Affairs of Japan, G7 summits",
-      "link": "https://www.mofa.go.jp/policy/economy/summit/index.html",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "source": "G7 Research Group, University of Toronto: What is the G7?",
+      "link": "https://g7.utoronto.ca/what_is_g8.html",
+      "date": "2026-11-05"
     },
     {
       "id": "join-CAN-1976",
@@ -105,37 +92,31 @@
       "places": [
         "CAN"
       ],
-      "source": "Ministry of Foreign Affairs of Japan, G7 summits",
-      "link": "https://www.mofa.go.jp/policy/economy/summit/index.html",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "source": "G7 Research Group, University of Toronto: What is the G7?",
+      "link": "https://g7.utoronto.ca/what_is_g8.html",
+      "date": "2026-11-05"
     },
     {
-      "id": "join-RUS-1997",
-      "statement": "Russia joined the G7 in 1997.",
-      "period": "1997",
+      "id": "join-RUS-1998",
+      "statement": "Russia joined the G7 in 1998, and the group became the G8.",
+      "period": "1998",
       "places": [
         "RUS"
       ],
-      "source": "Ministry of Foreign Affairs of Japan, G7 summits",
-      "link": "https://www.mofa.go.jp/policy/economy/summit/index.html",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "source": "G7 Research Group, University of Toronto: What is the G7?",
+      "link": "https://g7.utoronto.ca/what_is_g8.html",
+      "date": "2026-11-05"
     },
     {
       "id": "left-RUS-2014",
-      "statement": "Russia was suspended from the G7 in 2014.",
-      "period": "2014",
+      "statement": "The other members suspended their participation in the G8 in March 2014.",
+      "period": "2014-03",
       "places": [
         "RUS"
       ],
-      "source": "The White House, The Hague Declaration (24 March 2014)",
+      "source": "The Hague Declaration, 24 March 2014 (White House archives)",
       "link": "https://obamawhitehouse.archives.gov/the-press-office/2014/03/24/hague-declaration",
-      "date": "2014-03-24",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "date": "2014-03-24"
     },
     {
       "id": "note-1975",
@@ -149,38 +130,31 @@
         "GBR",
         "USA"
       ],
-      "source": "Ministry of Foreign Affairs of Japan, G7 summits",
-      "link": "https://www.mofa.go.jp/policy/economy/summit/index.html",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "source": "G7 Research Group, University of Toronto: What is the G7?",
+      "link": "https://g7.utoronto.ca/what_is_g8.html",
+      "date": "2026-11-05"
     },
     {
-      "id": "note-1997",
-      "statement": "With Russia, the group met as the G8 from 1997.",
-      "period": "1997",
+      "id": "note-1998",
+      "statement": "The 1998 Birmingham summit, with Russia taking full part, began the G8.",
+      "period": "1998",
       "places": [
         "RUS"
       ],
-      "source": "Ministry of Foreign Affairs of Japan, G7 summits",
-      "link": "https://www.mofa.go.jp/policy/economy/summit/index.html",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "source": "G7 Research Group, University of Toronto: What is the G7?",
+      "link": "https://g7.utoronto.ca/what_is_g8.html",
+      "date": "2026-11-05"
     },
     {
       "id": "note-2014",
-      "statement": "Russia was suspended in 2014 after its annexation of Crimea, and the group met as the G7 again.",
+      "statement": "The group met as the G7 again from 2014.",
       "period": "2014",
       "places": [
-        "RUS",
-        "UKR"
+        "RUS"
       ],
-      "source": "Ministry of Foreign Affairs of Japan, G7 summits",
-      "link": "https://www.mofa.go.jp/policy/economy/summit/index.html",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "source": "The Hague Declaration, 24 March 2014 (White House archives)",
+      "link": "https://obamawhitehouse.archives.gov/the-press-office/2014/03/24/hague-declaration",
+      "date": "2014-03-24"
     },
     {
       "id": "founding-members",
@@ -193,11 +167,9 @@
         "founders"
       ],
       "period": "1975",
-      "source": "Ministry of Foreign Affairs of Japan, G7 summits",
-      "link": "https://www.mofa.go.jp/policy/economy/summit/index.html",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "Count of the founding rows in src/data/bloc-history.csv; check against the link."
+      "source": "G7 Research Group, University of Toronto: What is the G7?",
+      "link": "https://g7.utoronto.ca/what_is_g8.html",
+      "date": "2026-11-05"
     },
     {
       "id": "members-2026",
@@ -211,9 +183,7 @@
       "period": "2026",
       "source": "Ministry of Foreign Affairs of Japan, G7 summits",
       "link": "https://www.mofa.go.jp/policy/economy/summit/index.html",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "Count of the open rows in src/data/bloc-history.csv; check against the link."
+      "date": "2026-10-21"
     }
   ]
 }

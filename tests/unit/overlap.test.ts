@@ -100,7 +100,7 @@ describe('Bloc overlap from blocs.csv', () => {
     expect(d.blocs).toHaveLength(19);
     const size = Object.fromEntries(d.blocs.map((b) => [b.id, b.members.length]));
     // OPEC and OPEC+ lost the United Arab Emirates on 1 May 2026 (src/data/corrections.csv).
-    expect(size).toMatchObject({ nato: 32, eu: 27, g7: 7, g20: 19, brics: 10, sco: 10, asean: 11, opec: 11, 'opec-plus': 21, quad: 4 });
+    expect(size).toMatchObject({ nato: 32, eu: 27, g7: 7, g20: 19, brics: 11, sco: 10, asean: 11, opec: 11, 'opec-plus': 21, quad: 4 });
     expect(sharedMembers(d, 'nato', 'eu')).toHaveLength(23);
     expect(sharedMembers(d, 'brics', 'sco')).toHaveLength(4);
   });
@@ -111,7 +111,6 @@ describe('Bloc overlap from blocs.csv', () => {
     expect(b.list).toEqual([{ id: 'IND', a: ['quad'], b: ['brics', 'sco'] }]);
     expect(b.partners).toEqual([
       { id: 'TUR', text: 'NATO; SCO dialogue partner; offered BRICS partner status in 2024' },
-      { id: 'SAU', text: 'invited to BRICS; has not confirmed membership' },
       { id: 'MYS', text: 'BRICS partner country' },
     ]);
     expect(b.neither).toEqual(['g20', 'asean', 'opec']);

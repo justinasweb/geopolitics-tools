@@ -7,6 +7,7 @@
     "claude-sonnet-5-5",
     "CC BY 4.0",
     "CC BY 4.0, with UNHCR’s supplemental terms",
+    "CC BY-NC 4.0 (since 2 April 2025)",
     "CC BY 4.0, with FAO’s additional terms",
     "UN Comtrade terms: a free, not-for-profit visualisation may show its figures; no bulk redistribution",
     "Public domain (US government work); EIA asks to be credited",
@@ -19,49 +20,43 @@
       "statement": "geopolitics.tools shows maps and figures from free official and research data on who depends on whom, for what.",
       "source": "geopolitics.tools code (README.md)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/README.md",
-      "date": "2026-11-02"
+      "date": "2026-11-05"
     },
     {
       "id": "site-rules",
       "statement": "Every figure on the site shows its source and the date the site last refreshed it.",
       "source": "geopolitics.tools code (docs/page-engine.md)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/docs/page-engine.md",
-      "date": "2026-11-02"
+      "date": "2026-11-05"
     },
     {
       "id": "site-free",
       "statement": "The site is free to use and has no accounts, no comments, no ads and no cookies.",
       "source": "geopolitics.tools code (docs/deploy.md)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/docs/deploy.md",
-      "date": "2026-11-02"
+      "date": "2026-11-05"
     },
     {
       "id": "site-no-ranking",
       "statement": "A rank is a position on one measure, largest first; it is not a judgement.",
       "source": "geopolitics.tools code (docs/page-engine.md)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/docs/page-engine.md",
-      "date": "2026-11-02"
+      "date": "2026-11-05"
     },
     {
       "id": "contact",
       "statement": "Corrections go to data@geopolitics.tools and are listed on the Sources page.",
       "source": "geopolitics.tools code (src/i18n/pages.en.ts)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/i18n/pages.en.ts",
-      "date": "2026-11-02"
+      "date": "2026-11-05"
     },
     {
       "id": "owner-who",
-      "statement": "For the owner to fill in: \"[Owner to fill in: who runs the site, and why.]\"",
+      "statement": "geopolitics.tools is made and run by [Justinas Dimsta](https://x.com/JustinasDimsta), a web developer who likes working with data and follows geopolitics. He built it so that the official figures on who depends on whom, for what, are easy to find, read and check.",
+      "owner": true,
       "source": "geopolitics.tools code (src/content/pages/about.md)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/content/pages/about.md",
-      "date": "2026-11-02"
-    },
-    {
-      "id": "owner-contact",
-      "statement": "For the owner to fill in: \"[Owner to fill in: other contact details and the social accounts.]\"",
-      "source": "geopolitics.tools code (src/content/pages/about.md)",
-      "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/content/pages/about.md",
-      "date": "2026-11-02"
+      "date": "2026-11-05"
     },
     {
       "id": "source-gdacs",
@@ -167,6 +162,13 @@
       "source": "FAS Status of World Nuclear Forces",
       "link": "https://fas.org/initiative/status-world-nuclear-forces/",
       "date": "2026-10-29"
+    },
+    {
+      "id": "source-eurepoc",
+      "statement": "EuRepoC cyber incidents is one of the site's sources, under CC BY-NC 4.0 (since 2 April 2025).",
+      "source": "EuRepoC cyber incidents",
+      "link": "https://eurepoc.eu/database/",
+      "date": "2026-11-03"
     },
     {
       "id": "source-faostat",
@@ -285,7 +287,7 @@
       "statement": "The Sources page lists every source with its licence, how often it is checked and when it last changed.",
       "source": "geopolitics.tools code (src/templates/SourcesPage.astro)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/templates/SourcesPage.astro",
-      "date": "2026-11-02"
+      "date": "2026-11-05"
     }
   ]
 }

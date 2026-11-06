@@ -46,7 +46,7 @@ A **single point of failure** is a country that imports at least half of what it
 
 ## Five-year arms totals
 
-SIPRI measures arms deliveries in trend-indicator values (TIV): a common unit based on the military capability of what is delivered, not its price. Yearly figures jump with single large orders, so we show totals over five years, as SIPRI recommends.
+SIPRI measures arms deliveries in trend-indicator values (TIV): a common unit based on the military capability of what is delivered, not its price. Yearly figures jump with single large orders, and SIPRI advises using them to show trends over periods of time, so we show totals over five years.
 
 SIPRI's terms allow reuse of under 10% of its dataset, so we publish these derived totals only and offer no download of the underlying records.
 
@@ -76,7 +76,7 @@ Some texts are drafted with AI and approved by the editor. The next section says
 
 ## AI drafting
 
-These texts are drafted with AI: the summaries on the United States, China and Russia dossier pages, the notes on the alliance history pages and the summaries on the disputed river pages. The first drafts of About, Privacy, Methodology and the introductions to the five topic sections were made the same way. Dossier, history and river texts carry the label "Drafted with AI from cited sources and reviewed by the editor", which links here.
+These texts are drafted with AI: the summaries on the United States, China and Russia dossier pages, the notes on the alliance history pages and the summaries on the disputed river pages, and the summary of each closed week on This week. The first drafts of About, Privacy, Methodology and the introductions to the five topic sections were made the same way. Dossier, history and river texts carry the label "Drafted with AI from cited sources and reviewed by the editor", which links here.
 
 **Facts first.** Each text has a facts file kept with the site's code. Every fact in it has its value, unit and period, the name of its source, a link to it and a date. A dossier's facts are the figures its page already shows; a history's are the dated joins and departures of the grouping, each with a citation such as a treaty or an official announcement; a river's are its treaties, dam milestones and official statements, each dated and cited. A fact that has not yet been checked against its source is marked as unverified, and nothing is drafted from a file that has one.
 

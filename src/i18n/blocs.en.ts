@@ -8,7 +8,7 @@ const BLOC_COUNT = 19;
 
 /** What each grouping is, in one plain line: its full name, its kind and when it began. */
 export const BLOC_ABOUT: Record<string, string> = {
-  brics: 'A grouping of large emerging economies. Brazil, Russia, India and China held the first summit in 2009; South Africa joined in 2010, and five more countries in 2024 and 2025.',
+  brics: 'A grouping of large emerging economies. Brazil, Russia, India and China held the first summit in 2009; South Africa joined in 2011, and six more countries in 2024 and 2025.',
   g7: 'The Group of Seven: a forum of seven large advanced economies, meeting since 1975. The European Union also takes part.',
   g20: 'The Group of Twenty: a forum of major economies, founded in 1999, with leaders’ summits since 2008. The European Union and the African Union are members too; the map shows the 19 countries.',
   eu: 'The European Union: a political and economic union of 27 countries, founded in 1993 on the communities set up in the 1950s.',
@@ -35,7 +35,7 @@ export const BEGAN_AS: Record<string, { as: string; became: string; year: number
   eu: { as: 'the European Economic Community', became: 'the European Union', year: 1993, names: { DEU: 'West Germany' } },
   sco: { as: 'the Shanghai Five', became: 'the Shanghai Cooperation Organisation', year: 2001 },
   csto: { as: 'the Collective Security Treaty', became: 'the Collective Security Treaty Organization', year: 2002 },
-  brics: { as: 'BRIC', became: 'BRICS', year: 2010 },
+  brics: { as: 'BRIC', became: 'BRICS', year: 2011 },
   g7: { as: 'a summit of six countries', became: 'the G7', year: 1976, names: { DEU: 'West Germany' } },
 };
 
@@ -49,6 +49,7 @@ export const BLOC_SHORT: Record<string, string> = { 'unsc-p5': 'UN Security Coun
 /** Notes on single memberships, by bloc: where the table's yes or no needs a line. */
 export const MEMBER_NOTES: Record<string, Record<string, string>> = {
   csto: { ARM: 'Armenia froze its participation in 2024 but has not left.' },
+  brics: { SAU: 'Listed by BRICS as a member; Saudi Arabia has not confirmed it.' },
 };
 
 /** The measures a bloc's share of the world is given on. */
@@ -167,8 +168,6 @@ export const HISTORY_EVENTS: Record<string, Record<number, string>> = {
   nato: {
     1955: 'West Germany joined. Countries are drawn on today’s borders, so it appears as Germany.',
     1966: 'France left NATO’s integrated military command; it stayed a member of the alliance.',
-    1974: 'Greece left the integrated military command; it returned in 1980.',
-    1980: 'Greece returned to the integrated military command.',
     1990: 'Germany reunified, and the former East Germany became part of NATO with it.',
     2009: 'France returned to the integrated military command.',
   },
@@ -182,8 +181,8 @@ export const HISTORY_EVENTS: Record<string, Record<number, string>> = {
   },
   g7: {
     1975: 'France, West Germany, Italy, Japan, the United Kingdom and the United States held the first summit.',
-    1997: 'With Russia, the group met as the G8.',
-    2014: 'Russia was suspended after its annexation of Crimea, and the group met as the G7 again.',
+    1998: 'With Russia, the group met as the G8.',
+    2014: 'The other members suspended their participation in the G8 in March 2014, and the group met as the G7 again.',
   },
   g20: {
     1999: 'Finance ministers and central bank governors first met as the G20.',
@@ -192,7 +191,8 @@ export const HISTORY_EVENTS: Record<string, Record<number, string>> = {
   },
   brics: {
     2009: 'Brazil, Russia, India and China held the first summit.',
-    2024: 'Egypt, Ethiopia, Iran and the United Arab Emirates joined. Saudi Arabia was invited in 2023 but has not confirmed that it joined, so it is not shown.',
+    2011: 'South Africa joined, invited in December 2010.',
+    2024: 'Egypt, Ethiopia, Iran, Saudi Arabia and the United Arab Emirates joined. Saudi Arabia is listed by BRICS as a member; it has not confirmed it.',
     2025: 'Indonesia joined.',
   },
   sco: {

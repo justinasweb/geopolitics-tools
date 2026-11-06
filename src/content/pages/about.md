@@ -2,8 +2,13 @@
 title: "About"
 lede: "Maps and figures on resources, technology, climate, security and power, from official and research sources, each with its source and date."
 description: "What geopolitics.tools is, where its figures come from, and how to get in touch."
-updated: '2026-10-25'
-approved: false
+updated: "2026-11-05"
+approved: true
+approvedOn: "2026-11-05"
+author: "ai"
+model: "manual (Claude chat)"
+factsHash: "sha256:edb4a6cb4654c30d589558697356b517"
+drafted: "2026-11-05"
 ---
 
 ## What the site is
@@ -20,10 +25,10 @@ The site does not rank countries by merit. A rank is a position on one measure, 
 
 ## Who runs it
 
-[Owner to fill in: who runs the site, and why.]
+<!-- owner -->
+geopolitics.tools is made and run by [Justinas Dimsta](https://x.com/JustinasDimsta), a web developer who likes working with data and follows geopolitics. He built it so that the official figures on who depends on whom, for what, are easy to find, read and check.
+<!-- /owner -->
 
 ## Get in touch
 
 To report a wrong figure, write to data@geopolitics.tools. Corrections are listed on the [Sources](/sources) page.
-
-[Owner to fill in: other contact details and the social accounts.]

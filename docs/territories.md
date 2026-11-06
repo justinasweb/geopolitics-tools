@@ -36,9 +36,15 @@ code can map to a former state before a split.
 
 ## notes.csv
 
-The notes shown next to a figure when a source's unit differs from the map shape ("World Bank figures for Morocco
-include Western Sahara"), and the short notes for disputed places. `checked` stays `no` until the fact is checked
-against a cited source; the policy's section 4 notes are still drafts for Justinas to review.
+The notes shown next to a figure when a source's unit differs from the map shape ("Unless noted otherwise, this
+source's figures for China exclude Hong Kong, Macao and Taiwan"), and the short notes for disputed places. `checked` stays `no` until the fact is checked
+against a cited source; only checked notes go into Methodology's facts.
+
+A note on an area inside a place's map shape names it in `area`, and is shown as "Area: note": Crimea on Russia's
+shape, the Moroccan-administered part of Western Sahara on Morocco's, Northern Cyprus and Somaliland on the shapes
+that carry Cyprus's and Somalia's figures, Abkhazia and South Ossetia on Georgia's, Transnistria on Moldova's. The
+map's tooltip and panel show a place's `*` notes; a country page shows the notes for the sources it uses. The Siachen
+Glacier shape (`KAS`) maps to no place and has no note yet (open-questions.md).
 
 ## Matching in adapters
 

@@ -24,7 +24,7 @@ export function factsForModel(f: FactsFile) {
     subject: f.subject,
     countries: f.countries ?? [],
     names: f.names ?? [],
-    facts: f.facts.map((x) => ({ id: x.id, statement: x.statement, value: x.value ?? undefined, unit: x.unit || undefined, period: x.period, places: x.places, source: x.source, date: x.date })),
+    facts: f.facts.map((x) => ({ id: x.id, statement: x.statement, value: x.value ?? undefined, unit: x.unit || undefined, period: x.period, places: x.places, source: x.source, date: x.date, owner: x.owner || undefined })),
   };
 }
 

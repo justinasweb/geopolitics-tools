@@ -47,6 +47,8 @@ Made while building the drafting pipeline (docs/ai-drafting.md); each is easy to
   page could be checked (ASEAN's Timor-Leste declaration, Ethiopia's Prime Minister's Office, Egypt's State
   Information Service, Xinhua, the MEA). Privacy and Methodology also wait on the Fathom, Cloudflare and SIPRI facts
   and the six territory notes.
+  *Update 5 Nov 2026 (launch review):* the river facts and most history facts are verified. Still open: the SCO,
+  the Quad and the Dnipro facts; see the next section.
 - **Stale texts are hidden.** A short text whose facts changed disappears until it is redrafted; a long page shows
   the draft banner again. For dossiers this happens whenever a figure they cite gets a new year. The alternative is
   to keep showing the old text with its approval date until the redraft.
@@ -58,6 +60,39 @@ Made while building the drafting pipeline (docs/ai-drafting.md); each is easy to
 - **Strictness.** The checker refuses "half", "doubled", rounding to one significant figure and any country the facts
   do not name, including demonyms ("Chinese company"). If good drafts are dropped too often, loosen it in
   `src/lib/ai/check.ts` with a test.
+
+## Launch review leftovers (raised 5 Nov 2026)
+
+- **G7 and Russia (decided 5 Nov 2026).** Russia joins in 1998, as the G8, per the G7 Research Group
+  ([What is the G7?](https://g7.utoronto.ca/what_is_g8.html)), in the facts and `bloc-history.csv`. For 2014 the
+  facts follow the [Hague Declaration](https://obamawhitehouse.archives.gov/the-press-office/2014/03/24/hague-declaration)
+  of 24 March 2014: the other members suspended their participation in the G8. The declaration speaks of "Russia's
+  illegal attempt to annex Crimea", not an annexation, so Crimea is no longer named.
+- **NATO and Greece (decided 5 Nov 2026).** The 1974 and 1980 notes were removed, from the facts and from the history
+  page's events: no NATO page stating them could be opened.
+- **OPEC and G20 (verified 5 Nov 2026).** OPEC's facts cite [Member countries](https://www.opec.org/member-countries.html),
+  checked on 5 November 2026. That page still lists the United Arab Emirates, so the UAE's exit stays on the WAM link,
+  and `members-2026` (11) relies on it. The G20 founding countries and 1999 note cite the
+  [1999 communiqué](https://www.g20.utoronto.ca/1999/1999communique.htm). The EU and the 2008 and 2023 notes cite
+  [What is the G20?](https://www.g20.utoronto.ca/g20whatisit.html), both from the G20 Research Group. So do the 2026
+  member counts (g20.org's About page is a 404). The founding member count keeps its g20.org link.
+- **SCO.** eng.sectsco.org did not load for anyone on 5 November 2026, so every SCO fact is unverified again, to be
+  checked after launch against the "General information" page.
+- **Dnipro.** Cabinet of Ministers Resolution No. 1488 of 30 December 2022 ends the agreement "done on 19 October
+  1992 in Kyiv", according to search excerpts of [zakon.rada.gov.ua](https://zakon.rada.gov.ua/laws/show/1488-2022-%D0%BF).
+  The page refused the connection. The agreement's title is about *border* water bodies (прикордонних водних об'єктів),
+  and the fact now says so. Both facts are unverified, for the owner to review.
+- **World Bank notes for Ukraine and Morocco (removed 5 Nov 2026).** The WDI country metadata has no SpecialNotes for
+  either country, so neither note could be confirmed, and both were deleted. China's note follows its SpecialNotes.
+- **Kashmir.** Natural Earth's `KAS` shape is the Siachen Glacier, not Kashmir, and India holds the glacier, so
+  "each administers part" does not fit it. No note was added. Kashmir as a whole lies in India's, Pakistan's and
+  China's shapes. To decide: a note on the KAS shape in its own words, or on those three countries.
+- **Crimea's note** is on Russia's shape, which contains Crimea on this map, and not on Ukraine's.
+- **Methodology** was written before the checker and fails it on 27 points ("1:50m", "top", "first", "Sonnet 5.5",
+  "blame"…). It keeps no facts hash until it is redrafted (Actions → ai-draft) or its facts cover those words.
+- **The territories policy** (project docs, not in the repository) has the wrong map column for Western Sahara:
+  Morocco's Natural Earth shape covers the Moroccan-administered part (to 21.4°N), and only the strip east of the
+  berm is "W. Sahara".
 
 ## This week: choices to confirm (raised 2 Nov 2026)
 

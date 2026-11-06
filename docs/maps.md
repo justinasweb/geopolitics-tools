@@ -152,8 +152,8 @@ Natural Earth's default, de facto map, as the territories policy names. Checked 
 | Kuril Islands | Inside Russia's shape; no dashed line, as the boundary is at sea |
 | Kashmir, Aksai Chin, Arunachal Pradesh, Abkhazia, South Ossetia, Transnistria | Dashed land boundaries (26 areas in all) |
 
-Under every map: "Borders show de facto control, as drawn by Natural Earth; disputed lines are dashed. Boundaries do
-not imply endorsement." with a link to the methodology, until the policy's own wording is approved.
+Under every map: "Borders show who controls an area in practice, as drawn by Natural Earth. Disputed borders are
+dashed. Borders shown do not imply endorsement." with a link to the methodology, until the policy's own wording is approved.
 
 ## Blocs
 

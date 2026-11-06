@@ -18,7 +18,7 @@
 import type { Fact, FactsFile } from './facts.ts';
 import { countryNames, NOT_COUNTRIES, stripAccents } from './names.ts';
 
-export type ProblemKind = 'number' | 'date' | 'country' | 'comparison' | 'style';
+export type ProblemKind = 'number' | 'date' | 'country' | 'comparison' | 'style' | 'owner';
 export interface Problem { kind: ProblemKind; text: string; sentence: string; message: string }
 export interface CheckResult { ok: boolean; problems: Problem[] }
 
@@ -155,8 +155,8 @@ export function readQuantities(text: string): Quantity[] {
     const v = wordsToNumber(m[0]);
     if (v === null) continue;
     // Phrases where "one" is not a figure.
-    const around = text.slice(Math.max(0, start - 3), end + 8).toLowerCase();
-    if (/^one$/i.test(m[0]) && /(no one|one another|each one|one or more|one of the)/.test(around)) continue;
+    const around = text.slice(Math.max(0, start - 6), end + 8).toLowerCase();
+    if (/^one$/i.test(m[0]) && /(no one|one another|each one|every one|give one|one or more|one of the)/.test(around)) continue;
     let pct = false;
     const after = text.slice(end).match(/^\s?(%|per ?cent\b|percent\b)/i);
     if (after) { pct = true; end += after[0].length; }
@@ -353,11 +353,26 @@ export function sentences(text: string): { text: string; start: number }[] {
   return out;
 }
 
-/** Checks a draft against its facts file. `ok` only when there is no problem at all. */
+/** The owner's own words in a page, between `<!-- owner -->` and `<!-- /owner -->`. */
+export const OWNER_BLOCK = /<!-- owner -->\s*([\s\S]*?)\s*<!-- \/owner -->/g;
+
+/** The owner's words (facts with `owner: true`) must be in the text word for word, each between its markers, and
+ *  nothing else may be marked as theirs. */
+export function ownerProblems(draft: string, facts: FactsFile): Problem[] {
+  const want = facts.facts.filter((f) => f.owner).map((f) => f.statement.trim());
+  const have = [...draft.matchAll(OWNER_BLOCK)].map((m) => m[1].trim());
+  const out: Problem[] = [];
+  for (const w of want) if (!have.includes(w)) out.push({ kind: 'owner', text: w, sentence: w, message: 'The owner’s own words are missing or changed; copy them unchanged between <!-- owner --> and <!-- /owner -->.' });
+  for (const h of have) if (!want.includes(h)) out.push({ kind: 'owner', text: h, sentence: h, message: 'Only the owner’s own words, as the facts give them, go between <!-- owner --> and <!-- /owner -->.' });
+  return out;
+}
+
+/** Checks a draft against its facts file. `ok` only when there is no problem at all. The owner's own words are
+ *  compared as they are, not read as a draft. */
 export function checkDraft(draft: string, facts: FactsFile): CheckResult {
   const allowed = allowedFrom(facts);
-  const problems: Problem[] = [];
-  const text = stripAccents(plainText(draft)).replace(/[’‘]/g, "'");
+  const problems: Problem[] = ownerProblems(draft, facts);
+  const text = stripAccents(plainText(draft.replace(OWNER_BLOCK, '\n'))).replace(/[’‘]/g, "'");
   for (const s of sentences(text)) {
     const st = s.text;
     const dates = readDates(st);
@@ -410,7 +425,8 @@ export function checkDraft(draft: string, facts: FactsFile): CheckResult {
         else if (!allowed.places.has(place)) push('country', m[0], `${m[0]} is not a place in the facts.`);
       }
     }
-    const lower = st.toLowerCase();
+    // A name the facts allow may hold a word the site otherwise leaves out ("critical minerals").
+    const lower = [...allowed.names].reduce((s, n) => s.replace(new RegExp(`(?<![a-z])${escape(stripAccents(n).toLowerCase())}(?![a-z])`, 'g'), ' '), st.toLowerCase());
     for (const c of COMPARISONS) if (new RegExp(`\\b${c}\\b`).test(lower) && !allowed.comparisons.has(c)) push('comparison', c, `"${c}" states a comparison no fact makes.`);
     for (const w of STYLE) if (new RegExp(`(^|[^a-z])${escape(w)}([^a-z]|$)`).test(lower)) push('style', w, `"${w}" is not used on the site (forecasts, blame and judging words are left out).`);
   }

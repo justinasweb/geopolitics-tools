@@ -29,9 +29,7 @@
       ],
       "source": "BRICS Brasil, About BRICS",
       "link": "https://brics.br/en/about-the-brics",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "date": "2026-10-21"
     },
     {
       "id": "join-RUS-2009",
@@ -42,9 +40,7 @@
       ],
       "source": "BRICS Brasil, About BRICS",
       "link": "https://brics.br/en/about-the-brics",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "date": "2026-10-21"
     },
     {
       "id": "join-IND-2009",
@@ -55,9 +51,7 @@
       ],
       "source": "BRICS Brasil, About BRICS",
       "link": "https://brics.br/en/about-the-brics",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "date": "2026-10-21"
     },
     {
       "id": "join-CHN-2009",
@@ -68,22 +62,19 @@
       ],
       "source": "BRICS Brasil, About BRICS",
       "link": "https://brics.br/en/about-the-brics",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "date": "2026-10-21"
     },
     {
-      "id": "join-ZAF-2010",
-      "statement": "South Africa joined BRICS in 2010.",
-      "period": "2010",
+      "id": "join-ZAF-2011",
+      "statement": "South Africa joined BRICS in 2011.",
+      "period": "2011",
       "places": [
         "ZAF"
       ],
       "source": "BRICS Brasil, About BRICS",
       "link": "https://brics.br/en/about-the-brics",
       "date": "2026-10-21",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "note": "Invited in December 2010"
     },
     {
       "id": "join-EGY-2024",
@@ -94,9 +85,7 @@
       ],
       "source": "BRICS Brasil, About BRICS",
       "link": "https://brics.br/en/about-the-brics",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "date": "2026-10-21"
     },
     {
       "id": "join-ETH-2024",
@@ -107,9 +96,7 @@
       ],
       "source": "BRICS Brasil, About BRICS",
       "link": "https://brics.br/en/about-the-brics",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "date": "2026-10-21"
     },
     {
       "id": "join-IRN-2024",
@@ -120,9 +107,7 @@
       ],
       "source": "BRICS Brasil, About BRICS",
       "link": "https://brics.br/en/about-the-brics",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "date": "2026-10-21"
     },
     {
       "id": "join-ARE-2024",
@@ -133,9 +118,19 @@
       ],
       "source": "BRICS Brasil, About BRICS",
       "link": "https://brics.br/en/about-the-brics",
+      "date": "2026-10-21"
+    },
+    {
+      "id": "join-SAU-2024",
+      "statement": "Saudi Arabia joined BRICS in 2024.",
+      "period": "2024",
+      "places": [
+        "SAU"
+      ],
+      "source": "BRICS Brasil, About BRICS",
+      "link": "https://brics.br/en/about-the-brics",
       "date": "2026-10-21",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "note": "Listed by BRICS as a member; Saudi Arabia has not confirmed it."
     },
     {
       "id": "join-IDN-2025",
@@ -146,9 +141,7 @@
       ],
       "source": "Government of Brazil, Brazil announces Indonesia as full member of BRICS (6 January 2025)",
       "link": "https://www.gov.br/planalto/en/latest-news/2025/01/brazil-announces-indonesia-as-full-member-of-brics",
-      "date": "2025-01-06",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "date": "2025-01-06"
     },
     {
       "id": "note-2009",
@@ -162,22 +155,17 @@
       ],
       "source": "BRICS Brasil, About BRICS",
       "link": "https://brics.br/en/about-the-brics",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "date": "2026-10-21"
     },
     {
-      "id": "note-2023",
-      "statement": "Saudi Arabia was invited to join in 2023 but has not confirmed that it joined.",
-      "period": "2023",
+      "id": "note-saudi",
+      "statement": "Listed by BRICS as a member; Saudi Arabia has not confirmed it.",
       "places": [
         "SAU"
       ],
       "source": "BRICS Brasil, About BRICS",
       "link": "https://brics.br/en/about-the-brics",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "Not opened from the build session (official sites were not reachable); check the date against the link."
+      "date": "2026-10-21"
     },
     {
       "id": "founding-members",
@@ -192,14 +180,12 @@
       "period": "2009",
       "source": "BRICS Brasil, About BRICS",
       "link": "https://brics.br/en/about-the-brics",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "Count of the founding rows in src/data/bloc-history.csv; check against the link."
+      "date": "2026-10-21"
     },
     {
       "id": "members-2026",
-      "statement": "Members of BRICS in 2026, as the membership table was checked on 21 October 2026.",
-      "value": 10,
+      "statement": "Members of BRICS in 2026, counting Saudi Arabia, as the membership table was checked on 21 October 2026.",
+      "value": 11,
       "unit": "members",
       "unitAliases": [
         "countries",
@@ -208,9 +194,7 @@
       "period": "2026",
       "source": "BRICS Brasil, About BRICS",
       "link": "https://brics.br/en/about-the-brics",
-      "date": "2026-10-21",
-      "unverified": true,
-      "note": "Count of the open rows in src/data/bloc-history.csv; check against the link."
+      "date": "2026-10-21"
     }
   ]
 }

@@ -49,7 +49,7 @@ export const MAP_TEXT = {
   withheldBy: 'Withheld by source',
   howBorders: 'How we treat borders',
   panel: 'Map details',
-  borders: 'Borders show de facto control, as drawn by Natural Earth; disputed lines are dashed. Boundaries do not imply endorsement.',
+  borders: 'Borders show who controls an area in practice, as drawn by Natural Earth. Disputed borders are dashed. Borders shown do not imply endorsement.',
   disputed: 'Disputed boundary',
   note: 'Note',
   rank: (rank: number, of: number) => `${rank} of ${of} listed`,
