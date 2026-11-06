@@ -6,7 +6,7 @@ export type ChainKind = 'trade' | 'arms' | 'refugees';
 /** Each flow's short unit (labels, headers; its name is FLOW_TEXT's, in en.ts), the noun its sentences use, what its amount is called and its unit in full. */
 export const CHAIN_TEXT: Record<string, { short: string; noun: string; kind: ChainKind; amount: string; unit: string }> = {
   oil: { short: 'kb/d', noun: 'crude oil', kind: 'trade', amount: 'Volume', unit: 'thousand barrels a day' },
-  gas: { short: 'bn m³', noun: 'gas', kind: 'trade', amount: 'Volume', unit: 'billion cubic metres' },
+  gas: { short: 'bcm', noun: 'gas', kind: 'trade', amount: 'Volume', unit: 'billion cubic metres (bcm)' },
   wheat: { short: 'Mt', noun: 'wheat', kind: 'trade', amount: 'Volume', unit: 'million tonnes' },
   maize: { short: 'Mt', noun: 'maize', kind: 'trade', amount: 'Volume', unit: 'million tonnes' },
   rice: { short: 'Mt', noun: 'rice', kind: 'trade', amount: 'Volume', unit: 'million tonnes' },
@@ -98,6 +98,6 @@ export const CHAINS_TEXT = {
   tableCaption: (unit: string, period: string, n: number) => `${n.toLocaleString('en')} ${n === 1 ? 'flow' : 'flows'}, ${unit}, ${period}.`,
   download: 'Download CSV',
   noDownload: (credit: string) => `${credit}’s terms do not allow its figures to be passed on, so they are shown here without a download.`,
-  csvAmount: (amount: string, unit: string) => `${amount} (${unit})`,
+  csvAmount: (amount: string, unit: string) => `${amount}, ${unit}`,
   csvPeriod: 'period',
 };
