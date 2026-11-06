@@ -33,15 +33,10 @@ const url = new URL(path, Astro.site).href;
 
 const MEASURES = ['gdp', 'population', 'gdppc', 'growth', 'inflation', 'reserves', 'milpct', 'milusd', 'armsexp', 'armsimp', 'co2', 'co2pc', 'satellites', 'launches', 'aicompute', 'lex', 'median'];
 const rows = MEASURES.map((id) => ({ id, f: ids.map((p) => figure(id, p)) })).filter((r) => r.f.some((x) => x !== null));
-const unitOf = (id: string) => {
-  const f = rows.find((r) => r.id === id)!.f.find((x) => x !== null)!;
-  return formatParts(f.value, INDICATORS[id].format, INDICATOR_TEXT[id].unit).unit;
-};
-// Both values in the row's unit, so "US$30.5 trillion" and "US$1.2 trillion" read on one scale.
-const shown = (id: string, v: number) => {
-  const p = formatParts(v, INDICATORS[id].format, INDICATOR_TEXT[id].unit);
-  return p.unit === unitOf(id) ? p.num : `${p.num} ${p.unit}`;
-};
+// One scale per row, picked from its larger value: "Population, billion: 0.34 and 1.41", never millions beside billions.
+const scaleOf = (id: string) => Math.max(...rows.find((r) => r.id === id)!.f.filter((x) => x !== null).map((x) => Math.abs(x!.value)));
+const unitOf = (id: string) => formatParts(scaleOf(id), INDICATORS[id].format, INDICATOR_TEXT[id].unit).unit;
+const shown = (id: string, v: number) => formatParts(v, INDICATORS[id].format, INDICATOR_TEXT[id].unit, undefined, scaleOf(id)).num;
 const higher = (r: typeof rows[number]) => (r.f[0] && r.f[1] && r.f[0].value !== r.f[1].value ? (r.f[0].value > r.f[1].value ? 0 : 1) : -1);
 const srcYear = (r: typeof rows[number]) => {
   const f = r.f.flatMap((x, i) => (x ? [{ name: nameOf(ids[i]), year: x.year, source: x.source }] : []));
