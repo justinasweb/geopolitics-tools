@@ -5,7 +5,7 @@
   "model": "claude-sonnet-5-5",
   "factsHash": "sha256:5d0f147d447c853cdfec325c7b3339c3",
   "drafted": "2026-11-06",
-  "approved": false,
-  "approvedOn": null,
-  "approvedVia": null
+  "approved": true,
+  "approvedOn": "2026-11-06",
+  "approvedVia": "telegram"
 }
