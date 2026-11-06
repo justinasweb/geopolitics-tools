@@ -31,6 +31,10 @@ for (const width of [390, 360]) {
         if (cs.textOverflow === 'ellipsis' || cs.overflowX === 'auto' || cs.overflowX === 'scroll') return false;
         return (cs.overflowX === 'hidden' || cs.overflow === 'hidden') && el.scrollWidth > el.clientWidth + 2;
       }).slice(0, 5).map(label);
+      // Squeezed inputs: a text or search box under 120 px wide cannot show what is typed (or its placeholder).
+      for (const el of document.querySelectorAll('input[type="search"], input[type="text"], input:not([type])')) {
+        if (visible(el) && el.getBoundingClientRect().width < 120) clipped.push(`${label(el)} only ${Math.round(el.getBoundingClientRect().width)} px wide (${el.placeholder})`);
+      }
       // Overlapping controls: two visible controls whose boxes cross by more than a few pixels.
       const ctl = [...document.querySelectorAll('a[href], button, input, select, textarea, [role="button"]')].filter((el) => visible(el) && !el.closest('.gt-tablewrap, svg, .maplibregl-map'));
       const boxes = ctl.map((el) => ({ el, r: el.getBoundingClientRect() }));
