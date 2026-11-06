@@ -259,6 +259,7 @@ export const INDICATOR_PAGE = {
   shareText: (label: string) => `Countries by ${lc(label)}`,
   description: (label: string, year: number | undefined, source: string) => `Countries ranked by ${lc(label)}${year ? ` in ${year}` : ''}, with a map, the trend and how it is measured. Source: ${source}.`,
   projections: (after: number) => `Years after ${after} are projections.`,
+  estimates: (n: number, after: number) => `For ${n} ${n === 1 ? 'country' : 'countries'}, actual figures end earlier; their years up to ${after} are estimates, tagged in the table and dashed in the chart.`,
 };
 
 /** Each indicator's answer verb ("had the largest economy") and caveats. Indicators without one use the default. */

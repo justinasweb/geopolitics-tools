@@ -18,7 +18,7 @@ import '../styles/atlas/tools.css';
 import '../styles/atlas/table.css';
 import '../styles/atlas/filters.css';
 import '../styles/atlas/country.css';
-import { INDICATORS } from '../data/indicators';
+import { INDICATORS, statusAt } from '../data/indicators';
 import { GROUP_TEXT, INDICATOR_TEXT } from '../i18n/en';
 import { ANSWER, DEFINITION, INDICATOR_PAGE as T, RELATED, SOURCE_NOTE, list } from '../i18n/pages.en';
 import { answerFor, csvAllowed, indicatorModel } from '../lib/indicator';
@@ -43,6 +43,8 @@ const credit = SOURCE_NOTE[id] ?? m.sources.map((s) => creditName(s)).join('; ')
 const sourceFull = m.sources.map(sourceName).join('; ');
 const updated = refreshed(m.source);
 const projected = (y: number) => ind.projectedAfter !== undefined && y > ind.projectedAfter;
+// Places whose own actual figures end before the indicator's (WEO estimates), for the notice.
+const estimated = ind.lastActualBy && ind.projectedAfter !== undefined ? Object.values(ind.lastActualBy).filter((y) => y < ind.projectedAfter!).length : 0;
 
 const answer = answerFor(m);
 
@@ -57,7 +59,7 @@ const ticks = b.length === 4 ? [`under ${formatValue(b[0], fmt)}`, ...b.slice(0,
 
 const trend = m.trend;
 const trendLines = trend.years.length > 2 ? [
-  ...trend.top.map((t, i) => ({ label: nameOf(t.id), values: t.values, cls: `gt-ser-${i + 1}` })),
+  ...trend.top.map((t, i) => ({ label: nameOf(t.id), values: t.values, cls: `gt-ser-${i + 1}`, actualTo: ind.lastActualBy?.[t.id] })),
   { label: T.median, values: trend.median, cls: 'gt-ser-med', dashed: true },
 ] : [];
 const medVals = trend.median.filter((v): v is number => v !== null);
@@ -107,7 +109,7 @@ const years = m.loaded.years;
                     <td class="n gt-rk" data-v={r.rank}>{r.rank}</td>
                     <th scope="row">{countryHref(r.id) ? <a href={countryHref(r.id)}>{nameOf(r.id)}</a> : nameOf(r.id)}</th>
                     <td class="n" data-v={r.value}><span class="gt-inbar" style={`--w:${Math.max(0, (r.value / max) * 100).toFixed(1)}%`}></span><b>{formatValue(r.value, fmt)}</b></td>
-                    {!ind.static && <td class="n" data-v={r.year}><span class:list={['gt-yr', { 'gt-oldyr': r.year < m.year }]}>{r.year}</span>{projected(r.year) && <StatusTag status="projection" small />}</td>}
+                    {!ind.static && <td class="n" data-v={r.year}><span class:list={['gt-yr', { 'gt-oldyr': r.year < m.year }]}>{r.year}</span>{statusAt(ind, r.id, r.year) && <StatusTag status={statusAt(ind, r.id, r.year)!} small />}</td>}
                   </tr>
                 ))}
               </tbody>
@@ -126,7 +128,7 @@ const years = m.loaded.years;
       <Notice>
         <p>{ind.static ? T.coverageStatic(m.reporting) : <><b>{T.coverage(m.reporting, m.possible, m.year)}</b> {m.reporting < m.possible && T.coverageRest}</>}</p>
         {m.preliminary.length > 0 && <p>{T.preliminary(list(m.preliminary.map(String)))}</p>}
-        {ind.projectedAfter !== undefined && <p>{T.projections(ind.projectedAfter)}</p>}
+        {ind.projectedAfter !== undefined && <p>{T.projections(ind.projectedAfter)}{estimated > 0 && ` ${T.estimates(estimated, ind.projectedAfter)}`}</p>}
       </Notice>
     </div>
   </div>

@@ -26,6 +26,8 @@ export interface MeasureMeta {
   format: Format;
   static?: boolean;
   projectedAfter?: number;
+  /** Each place's own last actual year, when earlier ones are estimates (WEO). */
+  own?: Record<string, number>;
   /** The common year: the latest most places have reported. */
   year: number;
   from: number;
@@ -246,6 +248,10 @@ export function sharedYears(a: MeasureData | undefined, ma: MeasureMeta, b: Meas
 }
 
 /** The last year that is not a projection. */
+/** A value's tag, as on the indicator page (src/data/indicators.ts statusAt). */
+export const statusOf = (m: MeasureMeta, id: string, y: number): 'estimate' | 'projection' | undefined =>
+  m.projectedAfter !== undefined && y > m.projectedAfter ? 'projection' : m.own?.[id] !== undefined && y > m.own[id] ? 'estimate' : undefined;
+
 export const lastActual = (m: MeasureMeta) => (m.projectedAfter !== undefined ? Math.min(m.to, m.projectedAfter) : m.to);
 
 /** "GDP per person" stays as it is inside a sentence; "Population" becomes "population". */

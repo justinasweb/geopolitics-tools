@@ -200,8 +200,10 @@ budget balance and the current account, credited "IMF World Economic Outlook, Oc
 - The data portal CSV (October 2026, `IMF.RES_WEO_9.0.0`) is now read; it was imported locally on 6 Nov: 193
   countries and territories for debt, 197 for the budget balance, 196 for the current account; USA debt 122.3 (2024),
   124.4 (2025), 126.8 (2026). The portal's Excel export is not read; use its CSV.
-- A country whose actual figures end before the release's usual year (43 of 193 debt rows in October 2026; Syria's
-  end in 2009) has the years in between left out rather than shown as actual. Still to decide: keep that, or label projections per country.
+- **Countries whose actual figures end earlier (decided 6 Nov 2026).** 43 of 193 debt rows in October 2026 end
+  before 2025 (Syria's in 2009). Their years are kept: each value after the country's own last actual year is tagged
+  Estimate up to 2025 and Projection after it, per country, in tables, charts, tooltips and the CSV. Rankings use the
+  common year as usual (191 countries for debt in 2025, 41 of them tagged Estimate).
 
 ## Multi-year supply chain flows (raised 28 Oct 2026)
 

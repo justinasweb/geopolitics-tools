@@ -18,7 +18,7 @@ import { displacement } from '../adapters/unhcr.ts';
 import { arms } from '../adapters/sipri.ts';
 import { water } from '../adapters/water.ts';
 import { lending } from '../adapters/aiddata.ts';
-import { weo, weoRelease, worldBank } from '../adapters/worldbank.ts';
+import { weo, weoOwnLastActual, weoRelease, worldBank } from '../adapters/worldbank.ts';
 import { space } from '../adapters/celestrak.ts';
 import { ai, computeAt } from '../adapters/epoch.ts';
 import { LISTS, listingsAt, sanctions } from '../adapters/sanctions.ts';
@@ -48,8 +48,12 @@ export interface Indicator {
   static?: boolean;
   /** Years after this are projections, labelled as such. */
   projectedAfter?: number;
-  /** The source's own last actual year, when its files say (the WEO's "Estimates Start After"): replaces projectedAfter. */
+  /** The source's own last actual year, when its files say (the WEO's release): replaces projectedAfter. */
   lastActual?: (raw: Raw) => number | undefined;
+  /** Each place's own last actual year, when the files give one (the WEO's LATEST_ACTUAL_ANNUAL_DATA). */
+  ownLastActual?: (raw: Raw) => Record<string, number> | undefined;
+  /** Set from ownLastActual for the build's snapshot: a place's years after its own and up to projectedAfter are estimates. */
+  lastActualBy?: Record<string, number>;
   load?: (raw: Raw, get: (id: string) => Series) => Series;
   /** Why it has no loader yet. */
   pending?: string;
@@ -105,9 +109,9 @@ const LIST: Indicator[] = [
   { id: 'gdppc', group: 'economy', source: 'worldbank', format: money, scale: 'log', load: (_r, get) => combine(get('gdp'), get('population'), (g, p) => g / p) },
   { id: 'growth', group: 'economy', source: 'worldbank', format: pct(1), scale: 'linear', load: wb('NY.GDP.MKTP.KD.ZG') },
   { id: 'inflation', group: 'economy', source: 'worldbank', format: pct(1), scale: 'linear', load: wb('FP.CPI.TOTL.ZG') },
-  { id: 'debt', group: 'economy', source: 'imf-weo', format: pct(0), scale: 'linear', projectedAfter: WEO_LAST_ACTUAL, lastActual: weoLastActual, load: (raw) => weo(raw, 'GGXWDG_NGDP') },
-  { id: 'deficit', group: 'economy', source: 'imf-weo', format: pct(1), scale: 'linear', projectedAfter: WEO_LAST_ACTUAL, lastActual: weoLastActual, load: (raw) => weo(raw, 'GGXCNL_NGDP') },
-  { id: 'currentaccount', group: 'economy', source: 'imf-weo', format: pct(1), scale: 'linear', projectedAfter: WEO_LAST_ACTUAL, lastActual: weoLastActual, load: (raw) => weo(raw, 'BCA_NGDPD') },
+  { id: 'debt', group: 'economy', source: 'imf-weo', format: pct(0), scale: 'linear', projectedAfter: WEO_LAST_ACTUAL, lastActual: weoLastActual, ownLastActual: (raw) => weoOwnLastActual(raw, 'GGXWDG_NGDP'), load: (raw) => weo(raw, 'GGXWDG_NGDP') },
+  { id: 'deficit', group: 'economy', source: 'imf-weo', format: pct(1), scale: 'linear', projectedAfter: WEO_LAST_ACTUAL, lastActual: weoLastActual, ownLastActual: (raw) => weoOwnLastActual(raw, 'GGXCNL_NGDP'), load: (raw) => weo(raw, 'GGXCNL_NGDP') },
+  { id: 'currentaccount', group: 'economy', source: 'imf-weo', format: pct(1), scale: 'linear', projectedAfter: WEO_LAST_ACTUAL, lastActual: weoLastActual, ownLastActual: (raw) => weoOwnLastActual(raw, 'BCA_NGDPD'), load: (raw) => weo(raw, 'BCA_NGDPD') },
   { id: 'unemployment', group: 'economy', source: 'worldbank', format: pct(1), scale: 'linear', load: wb('SL.UEM.TOTL.ZS') },
   { id: 'reserves', group: 'economy', source: 'worldbank', format: money, scale: 'log', load: wb('FI.RES.TOTL.CD') },
   { id: 'trade', group: 'economy', source: 'worldbank', format: pct(0), scale: 'linear', load: wb('NE.TRD.GNFS.ZS') },
@@ -183,7 +187,10 @@ const PROJECTED_AFTER = new Map(LIST.map((d) => [d.id, d.projectedAfter]));
 export function registry(raw: Raw) {
   const cache = new Map<string, Series>();
   // The build has one snapshot: an imported WEO release moves the projection label for every page.
-  for (const d of LIST) if (d.lastActual) d.projectedAfter = d.lastActual(raw) ?? PROJECTED_AFTER.get(d.id);
+  for (const d of LIST) {
+    if (d.lastActual) d.projectedAfter = d.lastActual(raw) ?? PROJECTED_AFTER.get(d.id);
+    if (d.ownLastActual) d.lastActualBy = d.ownLastActual(raw);
+  }
   const get = (id: string): Series => {
     const d = INDICATORS[id];
     if (!d) throw new Error(`unknown indicator ${id}`);
@@ -212,6 +219,18 @@ export function valueAt(l: Loaded, id: string, year: number, fallback = 0): { va
   }
   for (let y = year; y >= year - fallback; y--) if (s[y] !== undefined) return { value: s[y], year: y };
   return null;
+}
+
+export type ValueStatus = 'estimate' | 'projection';
+
+/**
+ * A value's tag: a projection after the indicator's last actual year; an estimate after the place's own last actual
+ * year and up to the indicator's (a country whose WEO figures end in 2023 has estimates for 2024 and 2025).
+ */
+export function statusAt(ind: Indicator, place: string, year: number): ValueStatus | undefined {
+  if (ind.projectedAfter !== undefined && year > ind.projectedAfter) return 'projection';
+  const own = ind.lastActualBy?.[place];
+  return own !== undefined && year > own ? 'estimate' : undefined;
 }
 
 /** Latest actual year (projections excluded) with values for at least `min` places, or the best-covered recent year. */

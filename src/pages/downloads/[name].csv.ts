@@ -9,6 +9,7 @@ import { ranked } from '../../lib/stats';
 import { live, routes } from '../../lib/routes';
 import { FORMER, NUCLEAR_CSV, codeIn, nameIn, warheadsModel } from '../../lib/nuclear';
 import { NUCLEAR_TEXT } from '../../i18n/nuclear.en';
+import { statusAt } from '../../data/indicators';
 
 export const getStaticPaths = (() => [
   ...routes().filter((r) => r.kind === 'indicator' && r.live && csvAllowed(indicatorModel(r.id)!))
@@ -46,14 +47,13 @@ export const GET: APIRoute = ({ props }) => {
   const m = indicatorModel((props as { id: string }).id)!;
   const source = m.sources.map(creditLine).join('; ');
   const retrieved = (refreshed(m.source) ?? '').slice(0, 10);
-  const after = m.indicator.projectedAfter;
   const prelim = new Set(m.preliminary);
   const lines = [['country', 'iso3', 'year', 'value', 'status', 'source', 'retrieved'].join(',')];
   const ids = Object.keys(m.loaded.values).filter(ranked).sort((a, b) => (place(a)?.name ?? a).localeCompare(place(b)?.name ?? b, 'en'));
   for (const id of ids) {
     const p = place(id)!;
     for (const [y, v] of Object.entries(m.loaded.values[id]).sort((a, b) => Number(a[0]) - Number(b[0]))) {
-      const status = after !== undefined && Number(y) > after ? 'projection' : prelim.has(Number(y)) ? 'preliminary' : '';
+      const status = statusAt(m.indicator, id, Number(y)) ?? (prelim.has(Number(y)) ? 'preliminary' : '');
       lines.push([p.name, p.iso3, y, v, status, source, retrieved].map(cell).join(','));
     }
   }

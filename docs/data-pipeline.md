@@ -229,9 +229,11 @@ The import keeps government debt (`GGXWDG_NGDP`), the budget balance (`GGXCNL_NG
 (`BCA_NGDPD`) for countries and territories only: country groups (`G001`, `GX123`…) are dropped, and the IMF's own
 codes are matched through `src/data/places/codes.csv` (`KOS` and `UVK` Kosovo, `WBG` Palestine; Taiwan, Hong Kong and
 Macao are their own places). It writes them as the API fetcher would, `imf-weo/<indicator>.json`, plus `release.json`:
-the release and each row's last actual year. The site labels years after the most common of those years as
-projections; a country whose own actual figures end earlier has the years in between left out, as they are
-projections. Source lines credit "IMF World Economic Outlook, October 2026". The API fetcher stays off (the IMF's
+the release and each row's last actual year. Every year is kept. Years after the most common last actual year (2025
+in October 2026) are tagged Projection; a country whose own actual figures end earlier has its years in between
+tagged Estimate (`statusAt` in src/data/indicators.ts), in the indicator page's table and chart, the country page, the
+Explorer's table, lines and scatter tooltip, and the CSV's status column. Rankings use the common year as usual, so an
+estimate is ranked with the actual figures and carries its tag. Source lines credit "IMF World Economic Outlook, October 2026". The API fetcher stays off (the IMF's
 terms ask for permission before scheduled downloads). Growth, inflation and unemployment come from the World Bank.
 
 **Hand-kept facts files.** Two sources are kept as dated, cited rows in the repository rather than fetched:

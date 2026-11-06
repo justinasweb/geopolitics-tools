@@ -83,12 +83,9 @@ describe('import kinds', () => {
     const release = JSON.parse(files[3].body as string) as WeoRelease;
     expect(release).toMatchObject({ release: 'October 2026', lastActual: 2025 });
     expect(release.byCountry.GGXWDG_NGDP).toMatchObject({ USA: 2025, LBN: 2024 });
-    // A country whose own actual figures end earlier has its projected years up to the release's left out.
-    const s = parseDataMapper(debt, release);
-    expect(s.LBN[2024]).toBeDefined();
-    expect(s.LBN[2025]).toBeUndefined();
-    expect(s.LBN[2026]).toBeDefined();
-    expect(s.USA[2025]).toBeDefined();
+    // Every year is kept, also after a country's own last actual year (the site tags those as estimates).
+    const s = parseDataMapper(debt);
+    expect([2024, 2025, 2026].map((y) => s.LBN[y] !== undefined)).toEqual([true, true, true]);
   });
 
   it('reads the IMF data portal CSV: series codes, each row’s last actual year, the release, no groups', async () => {
@@ -105,9 +102,10 @@ describe('import kinds', () => {
     expect(release).toMatchObject({ release: 'October 2026', lastActual: 2025 });
     // A fiscal year (FY2025/26) counts as its first year; Syria's actual figures end in 2009.
     expect(release.byCountry.GGXWDG_NGDP).toMatchObject({ USA: 2025, SWZ: 2025, SYR: 2009 });
-    const s = parseDataMapper(get('GGXWDG_NGDP.json'), release);
+    const s = parseDataMapper(get('GGXWDG_NGDP.json'));
     expect(Object.keys(s).sort()).toEqual(['GAB', 'PSE', 'SWZ', 'SYR', 'TWN', 'USA', 'XKX']);
-    expect(Object.keys(s.SYR).map(Number).filter((y) => y > 2009 && y <= 2025)).toEqual([]);
+    // Syria's years after 2009 are kept; the site tags them.
+    expect(Object.keys(s.SYR).map(Number).some((y) => y > 2009 && y <= 2025)).toBe(true);
   });
 
   it('reads the WEO release from the file name when the table has no footer, and refuses the wrong table', async () => {

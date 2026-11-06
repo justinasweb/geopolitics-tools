@@ -22,7 +22,7 @@ import Icon from '../components/Icon.astro';
 import AiText from '../components/AiText.astro';
 import '../styles/atlas/country.css';
 import '../styles/atlas/bars.css';
-import { INDICATORS } from '../data/indicators';
+import { INDICATORS, statusAt } from '../data/indicators';
 import { INDICATOR_TEXT, SOURCE_TEXT } from '../i18n/en';
 import { NOT_REPORTED_TEXT } from '../i18n/views.en';
 import {
@@ -55,7 +55,8 @@ const aiSummary = m.dossier ? publishedText(`dossier:${p.id}`) : null;
 
 const label = (id: string) => INDICATOR_TEXT[id].short ?? INDICATOR_TEXT[id].label;
 const parts = (f: Figure) => formatParts(f.value, INDICATORS[f.id].format, INDICATOR_TEXT[f.id].unit);
-const projected = (f: Figure) => INDICATORS[f.id].projectedAfter !== undefined && f.year > INDICATORS[f.id].projectedAfter!;
+// A figure's tag: a projection, or an estimate after the country's own last actual year (WEO).
+const tagOf = (f: Figure) => statusAt(INDICATORS[f.id], p.id, f.year);
 const short = (s: string) => creditName(s);
 const statCaption = (f: Figure, rank = true) => [String(f.year), rank && f.of > 1 ? `${ordinal(f.rank)} of ${f.of}` : '', short(f.source)].filter(Boolean).join(' · ');
 const nameOf = (id: string) => place(id)?.name ?? id;
@@ -154,7 +155,7 @@ const citation = COUNTRY_TEXT.citation(name, kind, url, Number(m.updated.slice(0
             <span class="gt-cpkf__label">{indicatorHref(f.id) ? <a href={indicatorHref(f.id)}>{label(f.id)}</a> : label(f.id)}</span>
             <span class="gt-cpkf__num">{parts(f).num}<small>{parts(f).unit}</small></span>
             {f.of > 1 && <span class="gt-rank"><b>{ordinal(f.rank)}</b> of {f.of}</span>}
-            <span class="gt-cpkf__src">{short(f.source)} · {f.year}{projected(f) && <StatusTag status="projection" small />}</span>
+            <span class="gt-cpkf__src">{short(f.source)} · {f.year}{tagOf(f) && <StatusTag status={tagOf(f)!} small />}</span>
           </li>
         ))}
       </ul>
@@ -384,7 +385,7 @@ const citation = COUNTRY_TEXT.citation(name, kind, url, Number(m.updated.slice(0
               ]}
               rows={m.allFigures.map((f) => [
                 { v: INDICATOR_TEXT[f.id].label, href: indicatorHref(f.id) },
-                { v: f.value, text: formatValue(f.value, INDICATORS[f.id].format), status: projected(f) ? 'projection' : undefined },
+                { v: f.value, text: formatValue(f.value, INDICATORS[f.id].format), status: tagOf(f) },
                 { v: f.year, text: String(f.year) },
                 f.of > 1 ? { v: f.rank, text: `${ordinal(f.rank)} of ${f.of}` } : null,
                 short(f.source),

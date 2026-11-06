@@ -58,7 +58,7 @@ export function explorerMeta(): Meta {
     const len = Math.max(...Object.values(d.v).map((a) => a.length));
     measures.push({
       id, label: t.label, short: t.short, unit: t.unit, group: m.indicator.group, format: m.indicator.format,
-      static: m.indicator.static, projectedAfter: m.indicator.projectedAfter, year: m.year, from: d.from, to: d.from + len - 1,
+      static: m.indicator.static, projectedAfter: m.indicator.projectedAfter, ...(m.indicator.lastActualBy ? { own: m.indicator.lastActualBy } : {}), year: m.year, from: d.from, to: d.from + len - 1,
       credit: SOURCE_NOTE[id] ?? m.sources.map((s) => creditName(s)).join('; '),
       updated: refreshed(m.source), csv: csvAllowed(m), href: indicatorHref(id),
     });

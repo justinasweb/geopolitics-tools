@@ -1,6 +1,6 @@
 ---
 // A line chart drawn at build time as SVG (svg.gt-lc, CountryCharts design): actual values solid, projections
-// dashed after a dotted split line labelled "Projection", an optional range band, and lines labelled at their
+// dashed after a dotted split line labelled "Projection" (and a line's own estimates dashed after its last actual year), an optional range band, and lines labelled at their
 // ends so colour is never the only cue. The numbers are in the table or figures next to it.
 // The SVG has no viewBox: it is as wide as its column and `height` pixels tall, so its text stays at the design
 // sizes (12px ticks, 13px labels) at any width. Text is placed in percent of the plot's width; the lines and
@@ -22,6 +22,8 @@ export interface Line {
   dashed?: boolean;
   /** Hide the end label (the key says it). */
   noLabel?: boolean;
+  /** The line's own last actual year, when earlier than the chart's (a country's WEO estimates): dashed after it. */
+  actualTo?: number;
 }
 interface Props {
   label: string;
@@ -56,6 +58,12 @@ const pct = (i: number) => `${(share(i) * 100).toFixed(2)}%`;
 const x = (i: number) => share(i) * PW;
 const y = (v: number) => T + (1 - (v - lo) / (hi - lo)) * (H - T - B);
 const splitIndex = projectedAfter === undefined ? -1 : years.findIndex((yr) => yr > projectedAfter);
+// A line is solid up to the split, or up to its own last actual year when that is earlier, and dashed after.
+const solidTo = (l: Line) => {
+  const own = l.actualTo === undefined ? -1 : years.findIndex((yr) => yr > l.actualTo!);
+  const ends = [splitIndex > 0 ? splitIndex - 1 : last, own > 0 ? own - 1 : last];
+  return Math.min(...ends);
+};
 const segs = (vals: (number | null)[], from: number, to: number) => {
   const out: string[] = [];
   let d = '';
@@ -105,8 +113,8 @@ const noteLeft = splitIndex > 0 && share(splitIndex - 1) > 0.7;
       {bandPath && <path class="gt-lc__band" d={bandPath} />}
       {lines.map((l) => (
         <g>
-          {segs(l.values, 0, splitIndex > 0 ? splitIndex - 1 : last).map((d) => <path class:list={['gt-lc__line', l.cls, { 'gt-lc__line--dash': l.dashed }]} d={d} />)}
-          {splitIndex > 0 && segs(l.values, splitIndex - 1, last).map((d) => <path class:list={['gt-lc__line', 'gt-lc__line--proj', l.cls]} d={d} />)}
+          {segs(l.values, 0, solidTo(l)).map((d) => <path class:list={['gt-lc__line', l.cls, { 'gt-lc__line--dash': l.dashed }]} d={d} />)}
+          {solidTo(l) < last && segs(l.values, solidTo(l), last).map((d) => <path class:list={['gt-lc__line', 'gt-lc__line--proj', l.cls]} d={d} />)}
         </g>
       ))}
     </svg>

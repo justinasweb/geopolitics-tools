@@ -30,19 +30,13 @@ export interface WeoRelease {
   byCountry: Record<string, Record<string, number>>;
 }
 
-/**
- * With the release file, a country's years after its own last actual year and up to the release's are left out:
- * they are the IMF's projections, and the site labels projections only by the release's year.
- */
-export function parseDataMapper(json: { values?: Record<string, Record<string, Record<string, number | null>>> }, release: WeoRelease | null = null): Series {
+export function parseDataMapper(json: { values?: Record<string, Record<string, Record<string, number | null>>> }): Series {
   const m = matcher('imf-weo', 'iso3');
   const out: Series = {};
-  for (const [indicator, byCountry] of Object.entries(json.values ?? {})) {
+  for (const byCountry of Object.values(json.values ?? {})) {
     for (const [code, years] of Object.entries(byCountry)) {
       const id = m.match(code);
-      const own = release?.byCountry[indicator]?.[code];
-      const projected = (y: number) => own !== undefined && y > own && y <= release!.lastActual;
-      if (id) for (const [y, v] of Object.entries(years)) if (!projected(Number(y))) put(out, id, Number(y), num(v));
+      if (id) for (const [y, v] of Object.entries(years)) put(out, id, Number(y), num(v));
     }
   }
   return out;
@@ -51,4 +45,17 @@ export function parseDataMapper(json: { values?: Record<string, Record<string, R
 /** The WEO release the files come from, or null for files without one (the API's, the samples). */
 export const weoRelease = (raw: Raw): WeoRelease | null => (raw.has('imf-weo', 'release.json') ? raw.json<WeoRelease>('imf-weo', 'release.json') : null);
 
-export const weo = (raw: Raw, indicator: string) => parseDataMapper(raw.json('imf-weo', `${indicator}.json`), weoRelease(raw));
+export const weo = (raw: Raw, indicator: string) => parseDataMapper(raw.json('imf-weo', `${indicator}.json`));
+
+/** Each place's own last actual year for one WEO indicator, by internal place id; later years are estimates or projections. */
+export function weoOwnLastActual(raw: Raw, indicator: string): Record<string, number> | undefined {
+  const by = weoRelease(raw)?.byCountry[indicator];
+  if (!by) return undefined;
+  const m = matcher('imf-weo', 'iso3');
+  const out: Record<string, number> = {};
+  for (const [code, y] of Object.entries(by)) {
+    const id = m.match(code);
+    if (id) out[id] = y;
+  }
+  return out;
+}
