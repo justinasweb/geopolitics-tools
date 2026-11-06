@@ -10,4 +10,6 @@ regexes = [
   '''csvFullSanctionsList_1_1/content\?token=dG9rZW4tMjAxNw''',
   # Our World in Data column names (pipeline/sources/owid.ts)
   '''^\s*'co2', 'co2_per_capita', 'cumulative_co2', 'share_global_co2', 'share_global_cumulative_co2',$''',
+  # A made-up key in the pipeline test that checks secrets are kept out of error messages (tests/unit/pipeline/lib.test.ts)
+  '''eia-key-abcdef123''',
 ]
