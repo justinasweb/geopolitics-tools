@@ -71,7 +71,7 @@ const items = [{ id: 'licences', label: T.licencesHeading }, { id: 'late', label
         <h2 class="gt-h2">{T.corrections}</h2>
         <p>{T.correctionsLede}</p>
         {fixes.length ? (
-          <div class="gt-tablewrap gt-corrtbl" style="--gt-table-h:none">
+          <div class="gt-tablewrap gt-corrtbl" style="--gt-table-h:none" tabindex="0" role="region" aria-label={T.corrections}>
             <table class="gt-table gt-table--compact">
               <thead><tr>{T.correctionsCols.map((c) => <th scope="col"><span class="gt-th">{c}</span></th>)}</tr></thead>
               <tbody>{fixes.map((f) => <tr><td class="tnum">{formatDate(f.date)}</td><th scope="row">{f.page}</th><td>{f.what}</td></tr>)}</tbody>
