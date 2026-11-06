@@ -18,7 +18,9 @@ How source data gets from the public sources in the licence table ([licences.md]
 - **An outside watch backs up the schedule.** GitHub's scheduled runs are best-effort and can be skipped, so the site's
   Worker has an hourly Cron Trigger (minute 41, `worker/watch.ts`): if no data run started in the last 50 minutes it
   starts one through the GitHub API, and if the published `status.json` is more than 6 hours old it alerts on
-  Telegram (decision D11).
+  Telegram (decision D11). A missing, invalid or unreadable `status.json` alerts too, at most once in 24 hours; the
+  time of the last such alert is kept in `gt-snapshots` as `watch/status-alert.json` (if that cannot be read or
+  written, it alerts in the 08 UTC hour only).
 - **New data reaches the site on a deploy, at least once a day.** Pages are built from the latest snapshot when the
   site deploys (a merge, Run workflow on ci, the week's deploy). After each hourly run, `data.yml` compares the latest
   snapshot (its id is its UTC time) with the last production deploy that passed or is still running: when the snapshot

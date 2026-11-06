@@ -6,6 +6,9 @@
 //      late scheduled run and this one never overlap.
 //   2. If the published status.json is older than 6 hours, alert on Telegram: once when it crosses
 //      6 hours, then once a day while it lasts. Needs the SNAPSHOTS binding and the Telegram secrets.
+//   3. If status.json is missing, not valid, or cannot be read, alert too, at most once in 24 hours: the time of the
+//      last such alert is kept in the same bucket (ALERT_KEY). Without that record (the bucket cannot be read or
+//      written) it alerts only in the FALLBACK_HOUR, which is also once a day.
 
 import { gh, type GitHubEnv } from './github';
 
@@ -17,11 +20,15 @@ export interface WatchEnv extends GitHubEnv {
 
 const WORKFLOW = 'data.yml';
 const H = 3_600_000;
+const ALERT_KEY = 'watch/status-alert.json';
+const FALLBACK_HOUR = 8;
 
 export interface WatchResult {
   dispatched: boolean | null;
   lastRun?: string;
   statusAgeHours?: number;
+  /** Why the status could not be aged. */
+  statusProblem?: 'missing' | 'invalid' | 'unreadable';
   alerted: boolean;
   errors: string[];
 }
@@ -50,19 +57,32 @@ export async function watch(env: WatchEnv, now: Date): Promise<WatchResult> {
     }
   }
 
+  let problem: string | null = null;
   if (env.SNAPSHOTS) {
+    let obj: R2ObjectBody | null = null;
     try {
-      const obj = await env.SNAPSHOTS.get('status.json');
-      const generated = obj ? ((await obj.json()) as { generated?: string }).generated : undefined;
-      out.statusAgeHours = generated ? Math.round(((now.getTime() - Date.parse(generated)) / H) * 10) / 10 : Infinity;
+      obj = await env.SNAPSHOTS.get('status.json');
+      if (!obj) out.statusProblem = 'missing';
     } catch (e) {
+      out.statusProblem = 'unreadable';
       out.errors.push(`status.json: ${(e as Error).message}`);
+    }
+    if (obj) {
+      try {
+        const generated = Date.parse(String(((await obj.json()) as { generated?: unknown }).generated ?? ''));
+        if (Number.isNaN(generated)) out.statusProblem = 'invalid';
+        else out.statusAgeHours = Math.round(((now.getTime() - generated) / H) * 10) / 10;
+      } catch {
+        out.statusProblem = 'invalid';
+      }
+    }
+    if (out.statusAgeHours !== undefined && shouldAlert(out.statusAgeHours)) {
+      problem = `⏰ geopolitics.tools data: no pipeline run has finished for ${Math.floor(out.statusAgeHours)} hours. Check Actions → data.`;
+    } else if (out.statusProblem && (await dailyTurn(env.SNAPSHOTS, now, out.errors))) {
+      problem = `⏰ geopolitics.tools data: status.json is ${out.statusProblem === 'missing' ? 'missing' : out.statusProblem === 'invalid' ? 'not valid' : 'unreadable'}, so the data's age is unknown. Check Actions → data.`;
     }
   }
 
-  const problem = out.statusAgeHours !== undefined && shouldAlert(out.statusAgeHours)
-    ? `⏰ geopolitics.tools data: no pipeline run has finished for ${Number.isFinite(out.statusAgeHours) ? `${Math.floor(out.statusAgeHours)} hours` : 'a while (no status.json)'}. Check Actions → data.`
-    : null;
   if (problem && env.TELEGRAM_BOT_TOKEN && env.TELEGRAM_CHAT_ID) {
     const res = await fetch(`https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
       method: 'POST',
@@ -73,4 +93,23 @@ export async function watch(env: WatchEnv, now: Date): Promise<WatchResult> {
     if (!res.ok) out.errors.push(`Telegram: HTTP ${res.status}`);
   }
   return out;
+}
+
+/**
+ * Whether a status problem may alert now: when the last such alert (ALERT_KEY) is 24 hours old or more, or there is
+ * none. The new time is written before the alert goes out; if the record cannot be read or written, only the
+ * FALLBACK_HOUR alerts.
+ */
+async function dailyTurn(bucket: R2Bucket, now: Date, errors: string[]): Promise<boolean> {
+  try {
+    const last = await bucket.get(ALERT_KEY);
+    // A record that is not JSON counts as none, and is written over.
+    const at = last ? Date.parse(String(((await last.json().catch(() => ({}))) as { at?: unknown }).at ?? '')) : NaN;
+    if (now.getTime() - at < 24 * H) return false;
+    await bucket.put(ALERT_KEY, JSON.stringify({ at: now.toISOString() }));
+    return true;
+  } catch (e) {
+    errors.push(`${ALERT_KEY}: ${(e as Error).message}`);
+    return now.getUTCHours() === FALLBACK_HOUR;
+  }
 }
