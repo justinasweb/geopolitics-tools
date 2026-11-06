@@ -199,30 +199,43 @@ export function publicStatus(now: Date, state: State, sources: Source[], snapsho
   };
 }
 
+/** Each source's files in a snapshot, by name and checksum: what the site would build from. */
+const filesOf = (snap: Snapshot) => JSON.stringify(Object.keys(snap.sources).sort().map((id) =>
+  [id, Object.entries(snap.sources[id].files).map(([n, f]) => [n, f.sha256]).sort()]));
+
 /**
- * Write the state, a new snapshot when something changed (or the latest one's id when not) and the
- * public status. Shared by the runner and the import tool. The state is read again just before it is
- * written, and sources this writer does not own are taken from that fresh copy, so an import during
- * an hourly run is not lost (and the other way round).
+ * Write a new snapshot when something changed (or the latest one's id when not), then the state and the public
+ * status. Shared by the runner and the import tool. The state is read again just before it is written, and sources
+ * this writer does not own are taken from that fresh copy, so an import during an hourly run is not lost (and the
+ * other way round).
+ *
+ * latest.json is written before the state, and a run that changed nothing still compares it with the state's files:
+ * when a run saved new files but could not publish them, the next run publishes them.
  */
-export async function publish(stores: Stores, state: State, own: string[], about: { sources: Source[]; imported: ImportedSource[] }, now: Date, changed: boolean) {
+export async function publish(stores: Stores, state: State, own: string[], about: { sources: Source[]; imported: ImportedSource[] }, now: Date, changed: boolean): Promise<{ snapshot: string | undefined; published: boolean }> {
   const fresh = await loadState(stores);
   for (const [id, st] of Object.entries(fresh.sources)) if (!own.includes(id)) state.sources[id] = st;
   state.updated = now.toISOString();
-  await stores.raw.put(STATE_KEY, enc(state), 'application/json');
 
+  const id = runStamp(now);
+  const next = buildSnapshot(id, now, state, [...about.sources, ...about.imported]);
   let snapshot: string | undefined;
-  if (changed) {
-    snapshot = runStamp(now);
-    const snap = enc(buildSnapshot(snapshot, now, state, [...about.sources, ...about.imported]));
+  let published = changed;
+  if (!changed) {
+    const b = await stores.snapshots.get('latest.json');
+    const latest = b ? (JSON.parse(new TextDecoder().decode(b)) as Snapshot) : null;
+    snapshot = latest?.id;
+    published = Object.keys(next.sources).length > 0 && (!latest || filesOf(latest) !== filesOf(next));
+  }
+  if (published) {
+    snapshot = id;
+    const snap = enc(next);
     await stores.snapshots.put(`snapshots/${snapshot}.json`, snap, 'application/json');
     await stores.snapshots.put('latest.json', snap, 'application/json');
-  } else {
-    const latest = await stores.snapshots.get('latest.json');
-    snapshot = latest ? (JSON.parse(new TextDecoder().decode(latest)) as Snapshot).id : undefined;
   }
+  await stores.raw.put(STATE_KEY, enc(state), 'application/json');
   await stores.snapshots.put('status.json', enc(publicStatus(now, state, about.sources, snapshot, about.imported)), 'application/json');
-  return snapshot;
+  return { snapshot, published };
 }
 
 export async function run(opts: RunOptions): Promise<RunReport> {
@@ -321,7 +334,7 @@ export async function run(opts: RunOptions): Promise<RunReport> {
 
   // A switched-off fetcher whose files are imported by hand (the IMF WEO) belongs to the import tool.
   const own = opts.sources.map((s) => s.id).filter((id) => !opts.imported?.some((i) => i.id === id));
-  const snapshot = await publish(stores, state, own, { sources: opts.sources, imported: opts.imported ?? [] }, now, changed);
+  const { snapshot, published } = await publish(stores, state, own, { sources: opts.sources, imported: opts.imported ?? [] }, now, changed);
 
-  return { run: stamp, reports, changed, snapshot, alerts };
+  return { run: stamp, reports, changed: published, snapshot, alerts };
 }

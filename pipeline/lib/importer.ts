@@ -202,6 +202,6 @@ export async function importFile(o: ImportOptions): Promise<ImportResult> {
   st.rows = Object.values(st.imported ?? {}).reduce((s, f) => s + f.rows, 0);
 
   // This writer owns only the imported source; everything else is taken fresh from the bucket.
-  const snapshot = await publish(o.stores, state, [o.kind.source], { sources: o.sources, imported: o.imported }, now, changed);
-  return { source: o.kind.source, file: out.map((f) => f.name).join(', '), rows, bytes, changed, snapshot };
+  const { snapshot, published } = await publish(o.stores, state, [o.kind.source], { sources: o.sources, imported: o.imported }, now, changed);
+  return { source: o.kind.source, file: out.map((f) => f.name).join(', '), rows, bytes, changed: published, snapshot };
 }

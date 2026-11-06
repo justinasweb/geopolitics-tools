@@ -138,3 +138,40 @@ it('saves an unchanged file again before its retention rule would delete the las
   expect(r2.reports[0].outcome).toBe('changed');
   expect(await stores.raw.get('a/2026-10-09T0000Z/f.gz')).not.toBeNull();
 });
+
+it('publishes latest.json on the next run when a run saved its state but could not publish', async () => {
+  const stores = tempStores();
+  const put = stores.snapshots.put.bind(stores.snapshots);
+  let failLatest = true;
+  stores.snapshots.put = async (key, body, type) => {
+    if (key === 'latest.json' && failLatest) throw new Error('R2 500');
+    return put(key, body, type);
+  };
+  const a = fakeSource('a', () => ({ files: [{ name: 'x.json', body: '{"v":2}' }], rows: 1 }));
+  await expect(run({ sources: [a], stores, http, alerter: recorder(), now: hour(10), log: () => {} })).rejects.toThrow('R2 500');
+  failLatest = false;
+  // The state is written after latest.json, so the failed run saved none, and the next run publishes the data.
+  expect(await stores.raw.get('state/status.json')).toBeNull();
+  const r = await run({ sources: [a], stores, http, alerter: recorder(), now: hour(11), log: () => {} });
+  const snap = JSON.parse((await read(stores, 'snapshots', 'latest.json'))!) as Snapshot;
+  expect(Object.keys(snap.sources.a.files)).toEqual(['x.json']);
+  expect(r.snapshot).toBe(snap.id);
+  const status = JSON.parse((await read(stores, 'snapshots', 'status.json'))!);
+  expect(status.snapshot).toBe(snap.id);
+});
+
+it('publishes again when latest.json points at an older snapshot than the state', async () => {
+  const stores = tempStores();
+  let body = 'one';
+  const a = fakeSource('a', () => ({ files: [{ name: 'f', body }], rows: 1 }));
+  await run({ sources: [a], stores, http, alerter: recorder(), now: hour(1), log: () => {} });
+  const old = await stores.snapshots.get('latest.json');
+  body = 'two';
+  await run({ sources: [a], stores, http, alerter: recorder(), now: hour(2), log: () => {} });
+  // latest.json still points at the first snapshot, as after a write that failed.
+  await stores.snapshots.put('latest.json', old!, 'application/json');
+  const r = await run({ sources: [a], stores, http, alerter: recorder(), now: hour(3), log: () => {} });
+  expect(r.changed).toBe(true);
+  const snap = JSON.parse((await read(stores, 'snapshots', 'latest.json'))!) as Snapshot;
+  expect(snap.sources.a.files.f.key).toBe('a/2026-10-24T0200Z/f.gz');
+});

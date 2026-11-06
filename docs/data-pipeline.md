@@ -65,7 +65,9 @@ draft that week's summary ([telegram.md](telegram.md)). The summary itself is ke
 texts, not in R2.
 
 A run is named by its start time, such as `2026-10-24T1623Z`. A run in which nothing changed saves no copies and no
-snapshot, only the state and status. The retention rules are created by the production deploy job from
+snapshot, only the state and status. The snapshot and `latest.json` are written before the state, and every run
+compares `latest.json`'s files with the state's: when a run saved new files but could not publish them, the next run
+publishes a snapshot with them. The retention rules are created by the production deploy job from
 `node pipeline/run.ts --retention`; a source under a rule re-saves its unchanged copy after half the period, so the
 last good copy never expires.
 
