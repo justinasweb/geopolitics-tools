@@ -15,7 +15,7 @@ export const LENDING_TEXT = {
   bySectorCaption: 'Commitments, 2000–2021, in 2021 dollars.',
   sector: { energy: 'Energy', transport: 'Transport', industry: 'Industry and mining', banking: 'Banking', other: 'Other sectors' } as Record<string, string>,
   byClass: 'Aid or lending',
-  byClassCaption: 'Aid-like flows are grants and cheap loans; lending-like flows are loans near market rates (AidData’s terms ODA-like and OOF-like).',
+  byClassCaption: 'Aid-like flows are grants and loans on easier terms than market lending; lending-like flows are loans near market rates (AidData’s terms ODA-like and OOF-like).',
   flow: { 'ODA-like': 'Aid-like', 'OOF-like': 'Lending-like', 'Vague (Official Finance)': 'Unclear' } as Record<string, string>,
   projects: 'Largest projects',
   projectsCaption: 'Single commitments, in 2021 dollars, with the year agreed.',
