@@ -24,7 +24,7 @@ export const list = (items: string[]) => (items.length < 3 ? items.join(' and ')
 export const possessive = (name: string) => (name.endsWith('s') ? `${name}’` : `${name}’s`);
 
 /** Names that read with "the" inside a sentence. */
-const WITH_THE = /^(United States|United Kingdom|United Arab Emirates|Netherlands|Philippines|Bahamas|Gambia|Maldives|Marshall Islands|Solomon Islands|Comoros|Seychelles|Central African Republic|Dominican Republic|Czech Republic|Democratic Republic|Republic of|Vatican|Cayman Islands|Falkland Islands|Faroe Islands|Cook Islands|British Virgin Islands|Northern Mariana Islands|Turks and Caicos Islands|Virgin Islands)/;
+const WITH_THE = /^(United States|United Kingdom|United Arab Emirates|Netherlands|Philippines|Bahamas|Gambia|Maldives|Marshall Islands|Solomon Islands|Comoros|Seychelles|Central African Republic|Dominican Republic|Czech Republic|Democratic Republic|Republic of|Vatican(?! City)|Cayman Islands|Falkland Islands|Faroe Islands|Cook Islands|British Virgin Islands|Northern Mariana Islands|Turks and Caicos Islands|Virgin Islands)/;
 /** A place name inside a sentence; `start` capitalises "The" at the start of a sentence. */
 export const inSentence = (name: string, start = false) => (WITH_THE.test(name) ? `${start ? 'The' : 'the'} ${name}` : name);
 
@@ -101,7 +101,7 @@ export const COUNTRY_TEXT = {
   depsMenu: 'Dependencies',
   allHeading: 'All figures',
   allMenu: 'All figures',
-  allFind: (c: string, n: number) => `${n} measures on this site have a recent figure for ${c}.`,
+  allFind: (c: string, n: number) => (n === 1 ? `1 measure on this site has a recent figure for ${c}.` : `${n} measures on this site have a recent figure for ${c}.`),
   allColumns: { measure: 'Measure', value: 'Value', year: 'Year', rank: 'Rank', source: 'Source' },
   allLabel: (c: string) => `All figures for ${c}`,
   coverage: 'Coverage notes',
@@ -111,7 +111,7 @@ export const COUNTRY_TEXT = {
   citation: (name: string, kind: string, url: string, year: number, date: string) => `geopolitics.tools (${year}). ${name}: ${kind.toLowerCase()}. ${url}, updated ${date}.`,
   // Few sources
   fewHeading: 'Few sources cover this place',
-  fewBody: (c: string, n: number, total: number) => `${n} of the ${total} sources this site uses have figures for ${c}. The page shows what they report; the others either do not cover it or have no figure for it.`,
+  fewBody: (c: string, n: number, total: number) => `${n} of the ${total} sources this site uses ${n === 1 ? 'has' : 'have'} figures for ${c}. The page shows what they report; the others either do not cover it or have no figure for it.`,
   fewCovered: 'With figures',
   fewNot: 'Checked, no figure',
   fewSuggest: 'Know a source that covers it? Write to data@geopolitics.tools.',
@@ -122,6 +122,8 @@ export const SUMMARY = {
   mines: (c: string, parts: string[], src: string) => `${c} mines ${list(parts)} (${src}).`,
   produces: (c: string, parts: string[], src: string) => `${c} produces ${list(parts)} (${src}).`,
   minePart: (share: string, mineral: string, first: boolean) => (first ? `${share} of the world’s ${mineral}` : `${share} of its ${mineral}`),
+  /** After the source and year when a figure is the source's estimate. */
+  estimated: 'estimated',
   people: (c: string, pop: string, popSrc: string, gdp: string | null, gdpSrc: string) =>
     gdp ? `${c} has ${pop} people (${popSrc}) and an economy of ${gdp} a year (${gdpSrc}).` : `${c} has ${pop} people (${popSrc}).`,
   imports: (share: string, noun: string, src: string) => `It imports ${share} of the ${noun} it uses (${src}).`,
@@ -176,13 +178,15 @@ export const DOSSIER_TEXT = {
   peopleLink: 'Population map',
   popChart: (c: string) => `${possessive(c)} population`,
   popProjection: 'UN projection, medium variant',
-  popRange: '95% range of the UN projection',
+  popRange: 'Range between the UN low- and high-fertility scenarios',
   pyramid: (c: string) => `${possessive(c)} population by age`,
   men: 'Men', women: 'Women',
   pyramidBar: (group: string, sex: string, millions: string) => `${group}, ${sex.toLowerCase()}: ${millions} million`,
   pyramidLabel: (c: string, year: number) => `${possessive(c)} population by age in ${year}, men on the left and women on the right, in millions`,
   pyramidCaption: (lastEstimate: number) => `Millions of people in each five-year age group, men left and women right. Years after ${lastEstimate} are UN projections (medium variant).`,
   aged65: 'Aged 65 and over',
+  /** The 65-and-over share's caption: a year after the UN's last estimate year is its medium-variant projection. */
+  aged65Caption: (year: number, lastEstimate: number, source: string) => `${year}${year > lastEstimate ? ', Projection, medium variant' : ''} · ${source}`,
   tech: 'Technology and space', techMenu: 'Technology',
   techFind: (c: string, n: string, year: number) => `Satellites owned in ${c} numbered ${n} at the end of ${year}.`,
   satellites: 'Satellites in orbit', launches: 'Orbital launches', compute: 'Share of AI computing power', models: 'Notable AI models',
@@ -199,6 +203,10 @@ export const COMPARE_TEXT = {
   kicker: 'Compare',
   lede: (a: string, b: string) => `${a} and ${b} side by side on the same measures, each figure with its source and year.`,
   description: (a: string, b: string) => `${a} and ${b} side by side: economy, people, military spending, emissions, minerals and more, with sources.`,
+  /** A row's source and year: one year when both figures share it, else each country's own ("United States: 2024; China: 2023 · World Bank"). */
+  sourceYear: (credit: string, years: { name: string; year: number }[]) => (new Set(years.map((y) => y.year)).size === 1
+    ? `${credit}, ${years[0].year}`
+    : `${years.map((y) => `${y.name}: ${y.year}`).join('; ')} · ${credit}`),
   keyHeading: 'Key figures',
   measure: 'Measure',
   higher: 'Higher',
@@ -253,7 +261,7 @@ export const INDICATOR_PAGE = {
   download: 'Download',
   downloadCsv: 'Download CSV, all years',
   downloadNote: (licence: string, credit: string) => `Licence: ${licence}. Credit: ${credit}. Columns: country, ISO3, year, value, status, source, retrieved.`,
-  shownOnly: 'Shown on the site, not available for download: the source’s terms do not allow it, or are still to confirm.',
+  shownOnly: 'Shown on the site, not available for download: the source’s terms do not allow it, or have not yet been confirmed.',
   answer: (top: string, verb: string, value: string, year: number) => `In ${year}, ${top} ${verb}: ${value}.`,
   answerStatic: (top: string, verb: string, value: string) => `${top} ${verb}: ${value}.`,
   shareText: (label: string) => `Countries by ${lc(label)}`,
@@ -290,7 +298,7 @@ export const ANSWER: Record<string, { verb: string; caveats?: string[] }> = {
   co2: { verb: 'emitted the most CO2', caveats: ['Fossil fuels and cement only; land use and other greenhouse gases are not included.'] },
   co2pc: { verb: 'emitted the most CO2 per person' },
   co2cum: { verb: 'has emitted the most CO2 since 1750' },
-  co2trade: { verb: 'had the largest emissions in its imports relative to its own', caveats: ['Consumption-based figures end earlier than the others and cover fewer countries.'] },
+  co2trade: { verb: 'had the largest net CO2 imports through trade, relative to emissions inside its borders', caveats: ['Consumption-based figures end earlier than the others and cover fewer countries.'] },
   waterstress: { verb: 'had the highest water stress', caveats: ['A country score averages basins that can differ a great deal.'] },
   waterdep: { verb: 'got the largest share of its water from abroad' },
   milpct: { verb: 'spent the largest share of its GDP on its military', caveats: ['Figures for countries at war, or with large off-budget spending, are SIPRI estimates and carry the most uncertainty.', 'A rising share can mean more spending or a smaller economy.'] },
@@ -336,11 +344,11 @@ export const SOURCES_PAGE = {
   noCorrections: 'No corrections yet.',
   report: 'Report a correction: data@geopolitics.tools',
   measures: 'All sources',
-  caption: 'Generated from the source registry on each build. Download: “Yes” means pages that use the source offer a CSV; “Shown only” means the figures are on the site but the licence does not allow a download, or is still to confirm.',
+  caption: 'Generated from the source registry on each build. Download: “Yes” means pages that use the source offer a CSV; “Shown only” means the figures are on the site but the licence does not allow a download, or has not yet been confirmed.',
   licencesHeading: 'Licences and credit',
   licencesBody: [
     'Free to access does not always mean free to republish. Each source has a record of what we may show, offer for download and derive, and the credit it needs; that credit travels with every chart and CSV.',
-    'Where a source does not allow redistribution, or its terms are still to confirm, its pages show the figures without a download and say so.',
+    'Where a source does not allow redistribution, or its terms have not yet been confirmed, its pages show the figures without a download and say so.',
   ],
   lateHeading: 'When a source is late or fails',
   lateBody: [
@@ -454,7 +462,7 @@ export const DEFINITION: Record<string, string> = {
   co2: 'Carbon dioxide from fossil fuels and cement production inside the country, in million tonnes.',
   co2pc: 'CO2 from fossil fuels and cement divided by population, in tonnes per person.',
   co2cum: 'All CO2 from fossil fuels and cement emitted inside the country since 1750, in million tonnes.',
-  co2trade: 'How much larger (or smaller) the emissions caused by what a country consumes are than the emissions inside its borders.',
+  co2trade: 'Emissions embodied in imports minus those embodied in exports, as a share of emissions inside the country. Negative means more is exported than imported.',
   waterstress: 'How much of the available surface and ground water is withdrawn each year, as a score from 0 (low) to 5 (extremely high).',
   waterdep: 'The share of a country’s renewable water that flows in from other countries.',
   milpct: 'Military expenditure as a share of GDP, using SIPRI’s definition: spending on armed forces, defence ministries, paramilitary forces and military space activities.',

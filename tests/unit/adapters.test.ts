@@ -2,7 +2,7 @@ import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { matchReports, rawDir, resetMatchers, type Raw } from '../../src/adapters/core.ts';
+import { matchReports, num, rawDir, resetMatchers, type Raw } from '../../src/adapters/core.ts';
 import { food, parseFaoCrops, RICE_MILLED } from '../../src/adapters/faostat.ts';
 import { arms } from '../../src/adapters/sipri.ts';
 import { displacement } from '../../src/adapters/unhcr.ts';
@@ -42,6 +42,16 @@ function sampleSnapshot(): Raw {
 }
 
 beforeEach(() => resetMatchers());
+
+describe('num', () => {
+  it('reads a blank cell as no value, never as zero', () => {
+    for (const blank of ['', ' ', '  \t', '\n', null, undefined]) expect(num(blank)).toBeNull();
+    expect(num(' 1,234.5 ')).toBe(1234.5);
+    expect(num('0')).toBe(0);
+    expect(num(0)).toBe(0);
+    expect(num('n/a')).toBeNull();
+  });
+});
 
 describe('adapters on the prototype samples', () => {
   const raw = sampleSnapshot();

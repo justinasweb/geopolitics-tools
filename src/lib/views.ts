@@ -231,7 +231,7 @@ export function summary(p: ViewPage, year = p.year): string[] {
     // No top three: what the year's incidents were attributed to instead.
     const c = cyberData();
     const s = c ? yearSplit(c, year) : null;
-    if (s) first.push(CYBER_TEXT.split({ state: valueText(p, s.state), affiliated: valueText(p, s.affiliated), group: valueText(p, s.group), none: valueText(p, s.none) }));
+    if (s) first.push(CYBER_TEXT.split(s, (v) => valueText(p, v)));
   } else if (p.layer.sums) {
     const top = y.rows.slice(0, 3);
     const together = top.length === 3 ? shareOf(top.reduce((s, r) => s + r.value, 0), y.world) : null;

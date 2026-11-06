@@ -46,6 +46,10 @@ export function validate(body: Record<string, unknown>): Report | { error: Corre
 /** Escapes text for Telegram's HTML parse mode, which needs only these three. */
 export const escapeHtml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
+// A reader's line that starts like an Edit prompt's ref line ("ref <id> <hash>", src/lib/review.ts) gets a mark in
+// front, so a report never reads as one.
+const neutralise = (s: string) => s.replace(/^(\s*)(ref )/gim, '$1› $2');
+
 /** The Telegram message: page, source and reply address as labelled lines, then the report. */
 export function telegramText(r: Report, host = 'geopolitics.tools') {
   return [
@@ -54,7 +58,7 @@ export function telegramText(r: Report, host = 'geopolitics.tools') {
     ...(r.source ? [`<b>Source line:</b> ${escapeHtml(r.source)}`] : []),
     `<b>Reply to:</b> ${r.email ? escapeHtml(r.email) : 'no email left'}`,
     '',
-    escapeHtml(r.message),
+    escapeHtml(neutralise(r.message)),
   ].join('\n');
 }
 
@@ -71,6 +75,31 @@ function memoryLimit(key: string, now: number) {
 /** For tests: forget the in-memory counts. */
 export const resetMemoryLimit = () => seen.clear();
 
+/** The body as text, read piece by piece; null as soon as it passes `limit` bytes (a missing Content-Length says nothing). */
+async function readLimited(request: Request, limit: number): Promise<string | null> {
+  if (!request.body) return '';
+  const reader = request.body.getReader();
+  const parts: Uint8Array[] = [];
+  let size = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    size += value.byteLength;
+    if (size > limit) {
+      await reader.cancel().catch(() => {});
+      return null;
+    }
+    parts.push(value);
+  }
+  const all = new Uint8Array(size);
+  let at = 0;
+  for (const p of parts) {
+    all.set(p, at);
+    at += p.byteLength;
+  }
+  return new TextDecoder().decode(all);
+}
+
 export async function correction(request: Request, env: CorrectionEnv, now = Date.now()): Promise<Response> {
   if (request.method !== 'POST') return fail('method', 405, undefined, { Allow: 'POST' });
 
@@ -84,8 +113,8 @@ export async function correction(request: Request, env: CorrectionEnv, now = Dat
   if (!allowed) return fail('rate_limited', 429, undefined, { 'Retry-After': '60' });
 
   if (Number(request.headers.get('Content-Length') ?? 0) > CORRECTION_LIMITS.body) return fail('too_large', 413);
-  const raw = await request.text();
-  if (new TextEncoder().encode(raw).length > CORRECTION_LIMITS.body) return fail('too_large', 413);
+  const raw = await readLimited(request, CORRECTION_LIMITS.body);
+  if (raw === null) return fail('too_large', 413);
   let body: Record<string, unknown>;
   try {
     const parsed: unknown = JSON.parse(raw);

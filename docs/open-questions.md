@@ -102,6 +102,17 @@ on this plan, remove the `ratelimits` entries: the Worker then falls back to a w
 - **Source line links.** Every source line now ends with "Report a correction". On pages with many charts that is a
   lot of repeated links; the alternative is the footer link alone plus one per section.
 
+### Digest Post: two taps at the same instant (raised 6 Nov 2026)
+
+**The question.** The Post button records each week in the SNAPSHOTS bucket before posting
+(`worker/telegram.ts`), so a repeat tap or a Telegram retry answers "already posted". Two taps that reach the Worker
+within the same few milliseconds could both find no record and both post. R2 has conditional writes
+(`onlyIf` with `If-None-Match: *`) that would close this. They were left out because it was not confirmed that R2
+honours the wildcard on a put: if it did not, every Post would be refused.
+
+**Options.** Leave it as it is (the gap is milliseconds wide), or confirm `If-None-Match: *` on a Preview's bucket
+and add it to the claim.
+
 ## Launch review leftovers (raised 5 Nov 2026)
 
 - **G7 and Russia (decided 5 Nov 2026).** Russia joins in 1998, as the G8, per the G7 Research Group

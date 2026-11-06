@@ -42,10 +42,13 @@ export const FOOD_TEXT = {
     potash: { pick: 'Potash', name: 'potash fertiliser', basis: 'tonnes of K2O' },
     phosphate: { pick: 'Phosphate', name: 'phosphate fertiliser', basis: 'tonnes of P2O5' },
   } as Record<string, CommodityText>,
-  description: (layer: Layer, name: string, year: number) => ({
+  /** Crops' use is worked out from production and trade; fertilisers' is FAOSTAT's reported agricultural use, and their flows come from UN Comtrade. */
+  description: (layer: Layer, name: string, year: number, crop = true) => ({
     production: `Who produces ${name}: production by country, ${year}, with each country’s share of the world, on a map and in a table. Source: FAOSTAT.`,
-    use: `Who uses ${name}: use by country, ${year}, worked out from production and trade, on a map and in a table. Source: FAOSTAT.`,
-    trade: `Who exports and imports ${name}: net trade by country, ${year}, and the largest flows, on a map and in tables. Source: FAOSTAT.`,
+    use: crop
+      ? `Who uses ${name}: use by country, ${year}, worked out from production and trade, on a map and in a table. Source: FAOSTAT.`
+      : `Agricultural use of ${name} by country in ${year}, as reported by FAOSTAT, on a map and in a table.`,
+    trade: `Who exports and imports ${name}: net trade by country, ${year}, and the largest flows, on a map and in tables. ${crop ? 'Source: FAOSTAT.' : 'Sources: FAOSTAT for national totals; UN Comtrade for flows between countries.'}`,
   })[layer],
   /** The answer under the title. */
   lede: {
@@ -71,7 +74,7 @@ export const FOOD_TEXT = {
     trade: (v: string, name: string, y: number, ch: string | null) => `Countries reported exporting ${v} of ${name} in ${y}${ch ? `, ${ch}` : ''}.`,
   },
   changeIn: (pct: string, more: boolean, prev: number) => `${pct} ${more ? 'more' : 'less'} than in ${prev}`,
-  change2: (pct: string, more: boolean, prev: number, value: string) => `${pct} ${more ? 'more' : 'less'} than ${prev} (${value})`,
+  change2: (pct: string, more: boolean, prev: number, value: string) => `${pct} ${more ? 'more' : 'less'} than in ${prev} (${value})`,
   sameAs: (prev: number) => `Same as ${prev}`,
   top: (parts: string[], together: string | null) => `${list(parts)}${together ? `; together, ${together} of the world total` : ''}.`,
   topPart: (name: string, value: string, share: string | null) => `${name} ${value}${share ? ` (${share})` : ''}`,

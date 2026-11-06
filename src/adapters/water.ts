@@ -7,6 +7,9 @@ import { type Raw, matcher, num } from './core.ts';
 
 export interface Stress { score: number | null; cat: number | null; label: string; future: Record<number, { score: number | null; cat: number | null; label: string }> }
 
+/** The years Aqueduct 4.0's baseline describes, as its rankings workbook's Read Me gives them ("current baseline (1979-2019)"). */
+export const AQUEDUCT_BASELINE = '1979–2019';
+
 /** Aqueduct writes -9999 (and other negatives) for "no data". */
 const score = (v: string) => { const n = num(v); return n !== null && n >= 0 ? n : null; };
 

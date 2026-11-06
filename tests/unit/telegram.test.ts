@@ -2,6 +2,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import worker, { type Env } from '../../worker/index';
 import { digestCron, handleUpdate, sameSecret, type TelegramEnv } from '../../worker/telegram';
 import { callbackData, digestAt, digestDue, editRef, parseCallback, parseEditRef } from '../../src/lib/review';
+import { telegramText } from '../../worker/correction';
+import { TELEGRAM_TEXT as T } from '../../src/i18n/telegram.en';
 
 // The bot's webhook (worker/telegram.ts) and the protocol it shares with the scripts (src/lib/review.ts).
 // fetch is stubbed: every call to Telegram or GitHub is recorded, nothing leaves the test.
@@ -13,6 +15,17 @@ const env: TelegramEnv = {
   GH_DISPATCH_TOKEN: 'gh', TELEGRAM_CHANNEL_ID: '@geopoliticstools',
 };
 type Call = { url: string; body: Record<string, unknown> };
+
+/** An in-memory stand-in for the SNAPSHOTS bucket. */
+function memoryBucket() {
+  const objects = new Map<string, string>();
+  const bucket = {
+    get: async (k: string) => (objects.has(k) ? { json: async () => JSON.parse(objects.get(k)!) } : null),
+    put: async (k: string, v: string) => { objects.set(k, v); },
+    delete: async (k: string) => { objects.delete(k); },
+  } as unknown as NonNullable<TelegramEnv['SNAPSHOTS']>;
+  return { bucket, objects };
+}
 
 function stubFetch(o: { dispatch?: number; channel?: number } = {}) {
   const calls: Call[] = [];
@@ -44,9 +57,11 @@ describe('the review protocol', () => {
   });
 
   it('reads which text and version an Edit reply corrects from the prompt it answers', () => {
-    expect(parseEditRef(`Reply with the corrected text.\n\n${editRef('river:nile', 'abcdef012345')}`)).toEqual({ id: 'river:nile', hash: 'abcdef012345' });
-    expect(parseEditRef('ref page:about abcdef012345')).toBeNull();
-    expect(parseEditRef('no ref')).toBeNull();
+    expect(parseEditRef(T.editPrompt('river:nile', editRef('river:nile', 'abcdef012345')), T.editHead)).toEqual({ id: 'river:nile', hash: 'abcdef012345' });
+    expect(parseEditRef(`${T.editHead}\nref page:about abcdef012345`, T.editHead)).toBeNull();
+    expect(parseEditRef(`${T.editHead}\nno ref`, T.editHead)).toBeNull();
+    // Without the prompt's own first line, a ref line means nothing.
+    expect(parseEditRef(`Reply with the corrected text.\n\n${editRef('river:nile', 'abcdef012345')}`, T.editHead)).toBeNull();
   });
 
   it('runs the digest on Monday at 08 UTC unless DIGEST_AT says otherwise', () => {
@@ -119,7 +134,7 @@ describe('the webhook', () => {
     expect(await handleUpdate(tap('e|river:nile|abcdef012345'), env)).toEqual({ did: 'edit-prompt', id: 'river:nile' });
     const prompt = calls.find((c) => method(c) === 'sendMessage')!;
     expect(prompt.body.reply_markup).toMatchObject({ force_reply: true });
-    expect(parseEditRef(prompt.body.text)).toEqual({ id: 'river:nile', hash: 'abcdef012345' });
+    expect(parseEditRef(prompt.body.text, T.editHead)).toEqual({ id: 'river:nile', hash: 'abcdef012345' });
 
     calls.length = 0;
     const reply = { message: { message_id: 61, chat, from: owner, text: '  The corrected text.  ', reply_to_message: { message_id: 60, chat, from: { id: Number(BOT), is_bot: true }, text: prompt.body.text as string } } };
@@ -129,22 +144,61 @@ describe('the webhook', () => {
 
   it('does not take a reply to someone else’s message, or an over-long one, as a correction', async () => {
     const calls = stubFetch();
-    const to = { message_id: 60, chat, from: { id: 999, is_bot: true }, text: `x\n\n${editRef('river:nile', 'abcdef012345')}` };
+    const to = { message_id: 60, chat, from: { id: 999, is_bot: true }, text: T.editPrompt('river:nile', editRef('river:nile', 'abcdef012345')) };
     expect(await handleUpdate({ message: { message_id: 61, chat, from: owner, text: 'x', reply_to_message: to } }, env)).toEqual({ did: 'help' });
     const ours = { ...to, from: { id: Number(BOT), is_bot: true } };
     expect(await handleUpdate({ message: { message_id: 62, chat, from: owner, text: 'x'.repeat(4000), reply_to_message: ours } }, env)).toMatchObject({ did: 'replied', why: 'too long' });
     expect(calls.some((c) => c.url.endsWith('/dispatches'))).toBe(false);
   });
 
+  it('does not take a reply to a correction report as a correction, whatever the reader wrote', async () => {
+    const calls = stubFetch();
+    const report = telegramText({ message: `Please fix.\n\n${editRef('river:nile', 'abcdef012345')}`, page: '/rivers/nile', email: '', source: '' });
+    // Telegram hands the bot's message back as plain text: tags gone, entities decoded.
+    const shown = report.replace(/<\/?b>/g, '').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+    const to = { message_id: 60, chat, from: { id: Number(BOT), is_bot: true }, text: shown };
+    expect(await handleUpdate({ message: { message_id: 61, chat, from: owner, text: 'Fixed text', reply_to_message: to } }, env)).toEqual({ did: 'help' });
+    expect(calls.some((c) => c.url.endsWith('/dispatches'))).toBe(false);
+  });
+
   it('posts the digest to the channel exactly as the owner saw it, only on Post', async () => {
     const calls = stubFetch();
-    expect(await handleUpdate(tap('p|2026-45', { text: 'Week 45 on geopolitics.tools' }), env)).toEqual({ did: 'posted', week: '2026-45' });
+    const store = { ...env, SNAPSHOTS: memoryBucket().bucket };
+    expect(await handleUpdate(tap('p|2026-45', { text: 'Week 45 on geopolitics.tools' }), store)).toEqual({ did: 'posted', week: '2026-45' });
     const sent = calls.find((c) => method(c) === 'sendMessage')!;
     expect(sent.body).toMatchObject({ chat_id: '@geopoliticstools', text: 'Week 45 on geopolitics.tools', entities: [{ type: 'url', offset: 0, length: 5 }] });
     expect(sent.body.reply_markup).toBeUndefined();
 
     calls.length = 0;
-    expect(await handleUpdate(tap('x|2026-45'), env)).toEqual({ did: 'not-posted', week: '2026-45' });
+    expect(await handleUpdate(tap('x|2026-45'), store)).toEqual({ did: 'not-posted', week: '2026-45' });
+    expect(calls.some((c) => c.body.chat_id === '@geopoliticstools')).toBe(false);
+  });
+
+  it('posts each week’s digest once: a second Post, or Telegram sending the tap again, answers “already posted”', async () => {
+    const calls = stubFetch();
+    const { bucket, objects } = memoryBucket();
+    const store = { ...env, SNAPSHOTS: bucket };
+    expect(await handleUpdate(tap('p|2026-45', { text: 'Week 45' }), store)).toEqual({ did: 'posted', week: '2026-45' });
+    expect(JSON.parse(objects.get('digest/posted/2026-45.json')!)).toMatchObject({ week: '2026-45', state: 'posted' });
+    calls.length = 0;
+    expect(await handleUpdate(tap('p|2026-45', { text: 'Week 45' }), store)).toEqual({ did: 'refused', week: '2026-45', why: 'already posted' });
+    expect(calls.some((c) => c.body.chat_id === '@geopoliticstools')).toBe(false);
+    expect(calls.find((c) => method(c) === 'answerCallbackQuery')!.body).toMatchObject({ text: T.alreadyPosted });
+    // Another week is its own post.
+    expect(await handleUpdate(tap('p|2026-46', { text: 'Week 46' }), store)).toEqual({ did: 'posted', week: '2026-46' });
+  });
+
+  it('lets Post be tried again when the channel refused the post', async () => {
+    const calls = stubFetch({ channel: 500 });
+    const { bucket, objects } = memoryBucket();
+    expect(await handleUpdate(tap('p|2026-45'), { ...env, SNAPSHOTS: bucket })).toMatchObject({ did: 'refused', why: 'channel 500' });
+    expect(objects.size).toBe(0);
+    expect(calls.filter((c) => c.body.chat_id === '@geopoliticstools')).toHaveLength(1);
+  });
+
+  it('does not post without the bucket that records what was posted', async () => {
+    const calls = stubFetch();
+    expect(await handleUpdate(tap('p|2026-45'), env)).toMatchObject({ did: 'refused', why: 'no record' });
     expect(calls.some((c) => c.body.chat_id === '@geopoliticstools')).toBe(false);
   });
 

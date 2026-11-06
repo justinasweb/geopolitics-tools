@@ -15,7 +15,7 @@ export const LENDING_TEXT = {
   bySectorCaption: 'Commitments, 2000–2021, in 2021 dollars.',
   sector: { energy: 'Energy', transport: 'Transport', industry: 'Industry and mining', banking: 'Banking', other: 'Other sectors' } as Record<string, string>,
   byClass: 'Aid or lending',
-  byClassCaption: 'Aid-like flows are grants and cheap loans; lending-like flows are loans near market rates (AidData’s terms ODA-like and OOF-like).',
+  byClassCaption: 'Aid-like flows are grants and loans on easier terms than market lending; lending-like flows are loans near market rates (AidData’s terms ODA-like and OOF-like).',
   flow: { 'ODA-like': 'Aid-like', 'OOF-like': 'Lending-like', 'Vague (Official Finance)': 'Unclear' } as Record<string, string>,
   projects: 'Largest projects',
   projectsCaption: 'Single commitments, in 2021 dollars, with the year agreed.',
@@ -40,7 +40,11 @@ export const RIVERS_TEXT = {
   notInDispute: 'Not in this dispute',
   countries: 'Countries in the dispute',
   countriesCaption: (river: string) => `Each country’s water stress now and projected for 2050 (WRI Aqueduct), the share of its renewable water that flows in from other countries (FAO AQUASTAT), and its large dams on the ${river} and main tributaries (Global Dam Watch). Listed roughly upstream first.`,
-  country: 'Country', stress: 'Water stress now', stress2050: 'In 2050', fromAbroad: 'From abroad', damsCol: 'Dams on the river',
+  /** Each column names its own dataset's period or year: the three come from different datasets. */
+  country: 'Country', stress: (period: string) => `Water stress, ${period}`, stress2050: (year: number) => `Projected water stress, ${year}`,
+  fromAbroad: (year: number) => `Renewable water from abroad, ${year}`, damsCol: 'Dams on the river',
+  /** Aqueduct's source line: the baseline period and the projection's year. */
+  stressPeriods: (period: string, year: number) => `baseline ${period}; projection ${year}`,
   damsTitle: 'Large dams on the river',
   damsCaption: (river: string, n: number) => `The ${n} dams in Global Dam Watch on the ${river} and its main tributaries in these countries, largest reservoir first.`,
   noDams: 'Global Dam Watch lists no large dams on the river in these countries.',

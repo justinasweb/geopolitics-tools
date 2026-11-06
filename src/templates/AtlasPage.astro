@@ -286,6 +286,10 @@ const groups = menuGroups();
             <p>{A.hint.phone(rows, topics.length)}</p>
             <button class="gt-btn gt-btn--quiet gt-btn--sm" type="button" data-at-hintok>{A.hint.ok}</button>
           </div>
+          {/* The first-visit hint is shown here, while the page is parsed, so it paints with the page instead of after the
+              map script (it is a phone's largest text, so it set the page's LCP); src/scripts/atlas.ts keeps the same
+              rule (gt-atlas-hint in localStorage) and hides it once dismissed. */}
+          <script is:inline>try { if (localStorage.getItem('gt-atlas-hint') !== '1') for (const h of document.querySelectorAll('[data-at-hint]')) h.hidden = false; } catch { for (const h of document.querySelectorAll('[data-at-hint]')) h.hidden = false; }</script>
           <div class="gt-atdock">
             <button class="gt-btn gt-atdock__l" type="button" aria-expanded="false" aria-controls="at-layers" data-at-layersopen>
               <svg class="gt-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4 3 9l9 5 9-5z" /><path d="m3 14 9 5 9-5" /></svg>{A.phone.layers}<span data-at-dock>{first.name}</span>

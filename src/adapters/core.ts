@@ -42,9 +42,13 @@ export function matcher(source: string, system: System): Matcher {
 export const matchReports = () => [...matchers.values()].map((m) => m.report());
 export const resetMatchers = () => matchers.clear();
 
+/** A cell as a number: null when it is empty, blank (Number(" ") would be 0) or not a number. */
 export const num = (v: unknown): number | null => {
-  if (v === null || v === undefined || v === '') return null;
-  const n = typeof v === 'number' ? v : Number(String(v).replace(/,/g, ''));
+  if (v === null || v === undefined) return null;
+  if (typeof v === 'number') return Number.isFinite(v) ? v : null;
+  const t = String(v).trim();
+  if (t === '') return null;
+  const n = Number(t.replace(/,/g, ''));
   return Number.isFinite(n) ? n : null;
 };
 

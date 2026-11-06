@@ -17,6 +17,9 @@ export interface SourceState {
   lastSuccess?: string;
   /** Last run whose files differed from the copy before. */
   lastChange?: string;
+  /** When the current files were last written: a change, or the same copy saved again before a retention rule
+   * (Source.keepDays) could delete it. Older states have only lastChange. */
+  saved?: string;
   failures: number;
   lastError?: string;
   files: Record<string, FileRecord>;

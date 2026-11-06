@@ -51,6 +51,8 @@ const json = JSON.stringify({ chain }).replace(/</g, '\\u003c');
   <section class="gt-tlsec">
     <h2 class="gt-h2">{T.tableTitle}</h2>
     <div class="gt-sktable" data-sk-table set:html={tableHtml(chain, state)} />
+    {/* The table is far below the header's source line on a long diagram: it carries its own. */}
+    <SourceLine source={chain.source} parts={[periodLabel(chain)]} updated={chain.updated} />
   </section>
   <script type="application/json" id="sk-chain" set:html={json} />
 </Page>

@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { parseCsv, pickColumns, toCsv } from '../../../pipeline/lib/csv.ts';
 import { createHttp, getJson, isTransient, redact } from '../../../pipeline/lib/http.ts';
 import { R2Bucket } from '../../../pipeline/lib/store.ts';
@@ -29,6 +29,33 @@ describe('http', () => {
     const http = createHttp(fakeFetch([[/eia/, () => new Response('nope', { status: 403 })]]), 0);
     await expect(http.get('https://api.eia.gov/v2/x?api_key=SECRET')).rejects.toThrow(/^HTTP 403 from api\.eia\.gov\/v2\/x\?…: nope$/);
     await expect(http.get('https://api.eia.gov/v2/x?api_key=SECRET')).rejects.not.toThrow(/SECRET/);
+  });
+
+  it('keeps the bot token in a Telegram path out of messages', async () => {
+    const url = 'https://api.telegram.org/bot123456:AAH-secret_part/sendMessage';
+    expect(redact(url)).toBe('api.telegram.org/bot…/sendMessage');
+    const http = createHttp(fakeFetch([[/telegram/, () => new Response('Unauthorized', { status: 401 })]]), 0);
+    const err = await http.get(url).catch((e) => e);
+    expect(err.message).toBe('HTTP 401 from api.telegram.org/bot…/sendMessage: Unauthorized');
+  });
+
+  it('strips known secret values from every error message, response excerpts included', async () => {
+    vi.stubEnv('TELEGRAM_BOT_TOKEN', '123456:AAH-secret_part');
+    vi.stubEnv('CLOUDFLARE_API_TOKEN', 'cf-token-abcdef123');
+    vi.stubEnv('GH_DISPATCH_TOKEN', 'github_pat_abcdef123');
+    vi.stubEnv('EIA_API_KEY', 'eia-key-abcdef123');
+    try {
+      const echo = createHttp(fakeFetch([[/./, (u: string) => new Response(`bad request for ${u} with cf-token-abcdef123 and github_pat_abcdef123`, { status: 400 })]]), 0);
+      const err = await echo.get('https://api.eia.gov/v2/x/eia-key-abcdef123?api_key=eia-key-abcdef123').catch((e) => e);
+      expect(err.message).not.toMatch(/eia-key-abcdef123|cf-token-abcdef123|github_pat_abcdef123/);
+      expect(err.message).toContain('HTTP 400 from api.eia.gov/v2/x/');
+      const down = (async () => { throw new TypeError('connect to 123456:AAH-secret_part failed'); }) as unknown as typeof fetch;
+      expect((await createHttp(down, 0).get('https://x.test/a').catch((e) => e)).message).not.toContain('AAH-secret_part');
+      const notJson = createHttp(fakeFetch([[/./, () => '<html>token cf-token-abcdef123</html>']]), 0);
+      await expect(getJson(notJson, 'https://x.test/a')).rejects.not.toThrow(/cf-token-abcdef123/);
+    } finally {
+      vi.unstubAllEnvs();
+    }
   });
 
   it('retries server errors but not client errors', async () => {

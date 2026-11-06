@@ -79,7 +79,7 @@ export const MINERALS_VIEW = {
     return w.length > 2 ? `${w[0]}–${w.at(-1)}` : w.join(' and ');
   },
   worldLabel: 'World mine production',
-  change: (pct: string, more: boolean, prev: number, prevValue: string) => `${pct} ${more ? 'more' : 'less'} than ${prev} (${prevValue})`,
+  change: (pct: string, more: boolean, prev: number, prevValue: string) => `${pct} ${more ? 'more' : 'less'} than in ${prev} (${prevValue})`,
   sameAs: (prev: number) => `Same as ${prev}`,
   concentration: 'Concentration',
   conc: { low: 'Unconcentrated', moderate: 'Moderately concentrated', high: 'Highly concentrated' } as Record<string, string>,

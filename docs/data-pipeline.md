@@ -18,7 +18,9 @@ How source data gets from the public sources in the licence table ([licences.md]
 - **An outside watch backs up the schedule.** GitHub's scheduled runs are best-effort and can be skipped, so the site's
   Worker has an hourly Cron Trigger (minute 41, `worker/watch.ts`): if no data run started in the last 50 minutes it
   starts one through the GitHub API, and if the published `status.json` is more than 6 hours old it alerts on
-  Telegram (decision D11).
+  Telegram (decision D11). A missing, invalid or unreadable `status.json` alerts too, at most once in 24 hours; the
+  time of the last such alert is kept in `gt-snapshots` as `watch/status-alert.json` (if that cannot be read or
+  written, it alerts in the 08 UTC hour only).
 - **New data reaches the site on a deploy, at least once a day.** Pages are built from the latest snapshot when the
   site deploys (a merge, Run workflow on ci, the week's deploy). After each hourly run, `data.yml` compares the latest
   snapshot (its id is its UTC time) with the last production deploy that passed or is still running: when the snapshot
@@ -40,7 +42,7 @@ How source data gets from the public sources in the licence table ([licences.md]
 | `pipeline/lib/state.ts` | Scheduling and alert rules (pure functions, unit tested) |
 | `pipeline/lib/store.ts` | R2 through the Cloudflare API, or a local folder |
 | `pipeline/lib/zip.ts`, `pipeline/lib/xlsx.ts` | Zip files (in memory, or streamed from disk for FAOSTAT's bulk files) and Excel sheets |
-| `pipeline/pull.ts` | Downloads a snapshot's files to `data/raw/` for a build or local work |
+| `pipeline/pull.ts` | Downloads a snapshot's files to `data/raw/` for a build or local work. Each source folder is replaced whole (written to `.<source>.new`, then swapped in once every file passed its checksum), so it holds only what that snapshot lists |
 | `pipeline/r2-check.ts` | Write-and-read test of both buckets, run on pull requests |
 | `tests/unit/pipeline/` | The runner and every fetcher against stubs (no network) |
 
@@ -63,9 +65,13 @@ draft that week's summary ([telegram.md](telegram.md)). The summary itself is ke
 texts, not in R2.
 
 A run is named by its start time, such as `2026-10-24T1623Z`. A run in which nothing changed saves no copies and no
-snapshot, only the state and status. The retention rules are created by the production deploy job from
-`node pipeline/run.ts --retention`; a source under a rule re-saves its unchanged copy after half the period, so the
-last good copy never expires.
+snapshot, only the state and status. The snapshot and `latest.json` are written before the state, and every run
+compares `latest.json`'s files with the state's: when a run saved new files but could not publish them, the next run
+publishes a snapshot with them. The retention rules are created by the production deploy job from
+`node pipeline/run.ts --retention`. Every run, whether a source is due, works or fails, saves a source's last good
+copy again under that run's prefix once it is half its retention period old (`keepLastGood` in
+`pipeline/lib/runner.ts`), and the snapshot then points to the new copy, so the last good copy never expires, even
+for a source that fails for weeks. The state's `saved` records when; `lastChange` stays the last change of data.
 
 **Rolling data back:** build with an earlier snapshot (`node pipeline/pull.ts --snapshot=<run>`). Pages and code roll
 back separately, from Cloudflare's deployments.
@@ -117,13 +123,13 @@ as the rest of the pipeline does. Week files are a few kilobytes and are never r
 | UK Sanctions List | 1 day | 10 days | Designations: type, regime, dates, countries |
 | World Bank Pink Sheet | 7 days | 45 days | Monthly food, fertiliser, metals and gas prices from 2010, in three files; refuses a workbook more than 3 months old |
 | Submarine cables (OpenStreetMap) | 30 days | 120 days | Underwater communication cables and cable landing stations, from one Overpass query |
-| FAOSTAT | 30 days | 400 days | Wheat, maize, rice and soybean production and trade, nitrogen, phosphate and potash, since 2015, by ISO3 code; each importer's 10 main suppliers in the latest well-reported year |
+| FAOSTAT | 30 days | 400 days | Wheat, maize, rice and soybean production and trade, nitrogen, phosphate and potash, since 2015, by ISO3 code; each importer's 10 main suppliers in the latest well-reported year. Figures FAOSTAT flags as its own estimate or imputation (E, I) are tagged Estimate on the food views and, through `statusAt` (src/data/indicators.ts, `estimates`), on the indicator pages (table and lead), the country page, the Explorer's table, scatter tooltip and lines (dashed through a flagged year, as WEO estimates are; each measure's data file lists them as `e`) and the CSV's status column. The ranking lines on the topic hubs and the home page and the share images name a tagged figure with its word, "Egypt (estimate)" (`tagOf` in `src/lib/indicator.ts`, `tagged` in `src/i18n/en.ts`), for WEO estimates and projections and preliminary years too |
 | IMF World Economic Outlook | 30 days | 200 days | **Off** until the IMF allows scheduled downloads; imported by hand instead (kind `imf-weo`, below). Growth, inflation, debt, deficit, unemployment, current account; country groups dropped |
 | IMF PortWatch chokepoints | 20 hours | 10 days | **Off**, as above. The chokepoints and their daily transits for 400 days |
 | EIA | 7 days | 60 days | **Off** until `EIA_API_KEY` is set. Crude oil and all liquids production, oil consumption, dry gas production and consumption, by country since 2000 (the API no longer has reserves); Brent and WTI monthly from 2010 |
 | UN Comtrade | 7 days | 60 days | **Off** until `COMTRADE_API_KEY` is set. Imports and exports by partner, one file per group and year (crude, gas, potash and phosphate, chips and chipmaking machines, total trade), 2015 to last year: the latest three years each run, older years once, at most `COMTRADE_MAX_CALLS` calls a run (default 90) |
-| Ember | 7 days | 60 days | **Off** until `EMBER_API_KEY` is set. Yearly generation by source, every country and the world, since 2000 |
-| UCDP | 7 days | 45 days | **Off** until `UCDP_TOKEN` is set. Events since 2023 from the latest yearly release (GED) and the monthly Candidate releases after it, one file per release; a release already saved is carried over |
+| Ember | 7 days | 60 days | **Off** until `EMBER_API_KEY` is set. Yearly generation by source, every country and the world, since 2000. A year that lacks a part the place reported above zero before is left out, total and shares (`src/adapters/ember.ts`; in the 6 Nov 2026 snapshot, Bosnia and Herzegovina 2008 and Colombia 2023) |
+| UCDP | 7 days | 45 days | **Off** until `UCDP_TOKEN` is set. Events since 2023 from the latest yearly release (GED) and the monthly Candidate releases after it, one file per release; a release already saved is carried over. The adapter reads only the newest yearly release in `ucdp/` and the Candidate months after it, so an older yearly file never adds its events again |
 | IPC | 1 day | 14 days | **Off** until `IPC_API_KEY` is set. Every country-level acute food insecurity analysis (IPC and Cadre Harmonisé), current period |
 
 A failed source is retried after 1, 2, 4… hours, never later than its normal interval.
@@ -138,7 +144,12 @@ and the live check runs Comtrade with `COMTRADE_MAX_CALLS=8`. Until then their v
 files in `tests/fixtures/prototype/` (`npm run build:sample`) and are not in a live build. EIA's key goes in the query
 string and Ember's as `api_key`; errors are logged without query strings. Comtrade's key goes in the
 `Ocp-Apim-Subscription-Key` header and UCDP's in `x-ucdp-access-token`. Each fetcher refuses an answer that is cut off
-or much smaller than the last good copy. FAOSTAT has no fertiliser trade matrix, so potash and phosphate flows come
+or much smaller than the last good copy, and one that lacks, by name, a field its adapter reads, so a renamed column
+keeps the last good copy instead of reading as no data or zero. Epoch AI's fetcher uses the adapter's own list of
+accepted names (`COLUMNS` in `src/adapters/epoch.ts`: operational date, country and computing capacity for the
+clusters; publication date and country for the models); UCDP checks each event's id, date, coordinates, type,
+country and deaths; the Consolidated Screening List that most records give a country; the cables that cables have a
+line and landing stations a point; PortWatch each chokepoint's id, name and coordinates. FAOSTAT has no fertiliser trade matrix, so potash and phosphate flows come
 from UN Comtrade (HS 3104; phosphate is HS 3103 plus DAP 310530 and MAP 310540, not all of 3105, which includes
 NPK blends).
 
@@ -249,7 +260,7 @@ set `TREATIES_CHECKED` or `SHARING_CHECKED` in src/lib/nuclear.ts; the Sources p
 | `GH_DISPATCH_TOKEN` | The Worker's outside watch, to start a run GitHub skipped (fine-grained, this repository, "Actions: read and write"); also the Telegram review buttons and the weekly digest ([telegram.md](telegram.md)) |
 | `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` | Alerts. Without them alerts are only printed in the run log, and the run fails so GitHub emails. To check them: Run workflow with "test alert" ticked |
 
-Errors are written without query strings, so an API key in an address never reaches a log or `status.json`.
+Errors are written without query strings or the bot token in a Telegram address (`/bot…/`), and the values of the secret env vars (Telegram, Cloudflare, GitHub, and any `*_KEY`, `*_TOKEN` or `*_SECRET`) are taken out of every HTTP error message, a server's own answer included, so a key never reaches a log or `status.json`.
 
 ## Adding a source
 

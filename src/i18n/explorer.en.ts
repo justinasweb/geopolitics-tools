@@ -53,7 +53,7 @@ export const EXPLORER_TEXT = {
   noIndex: 'No index',
   log: 'Log scale',
   logs: 'Log scales',
-  logAuto: 'The log scale starts on when the values shown span more than 30 times.',
+  logAuto: 'A log scale gives equal space to equal ratios, such as 1 to 10 and 10 to 100. It switches on by itself when the largest value is more than 30 times the smallest.',
   indexed: (y: number) => `Indexed: each country's ${y} value is 100.`,
   noCountries: 'Add a country to draw its line.',
   linesLabel: (label: string, a: number, b: number) => `${label}, ${a}–${b}`,
@@ -79,7 +79,7 @@ export const EXPLORER_TEXT = {
   little: (x: string, y: string) => `There is little sign of a link between ${x} and ${y}.`,
   notCause: 'A link between two measures is not proof that one causes the other.',
   points: (n: number, year: number) => `${n} countries have both figures for ${year}.`,
-  dropped: (n: number) => ` ${n} with zero or negative values are left off the log scale.`,
+  dropped: (n: number) => (n === 1 ? ' 1 with a zero or negative value is left off the log scale.' : ` ${n} with zero or negative values are left off the log scale.`),
   noPoints: (year: number) => `No country has both figures for ${year}. Pick another year or measure.`,
   pin: (name: string) => `Keep ${name}'s label`,
   unpin: (name: string) => `Remove ${name}'s label`,
@@ -87,7 +87,7 @@ export const EXPLORER_TEXT = {
 
 /** Starting points: a view and its settings. Shown on every view; a pressed one has a tick. */
 export const PRESET_TEXT: Record<string, string> = {
-  richer: 'Richer countries emit more',
+  richer: 'Do richer countries emit more per person?',
   refugees: 'Who hosts refugees',
   military: 'Military spending vs GDP',
   emitters: 'The biggest emitters over time',

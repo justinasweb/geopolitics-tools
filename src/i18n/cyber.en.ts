@@ -28,7 +28,7 @@ export const GROUP_TEXT: Record<Group, string> = {
 export const CYBER_TEXT = {
   /** The credit, with the dataset version EuRepoC published. */
   credit: (v: Version | null) => `EuRepoC Global Dataset of Cyber Incidents${v ? ` ${v.version} (${formatDate(v.published)})` : ''}, CC BY-NC 4.0`,
-  caveat: 'Publicly known incidents that EuRepoC coded from public reports. Many operations are never disclosed or attributed, so countries that report more show more. Counts compare documented incidents, not how often a country is targeted.',
+  caveat: 'Publicly known incidents that EuRepoC coded from public reports. Many operations are never disclosed or attributed. Differences in public reporting and attribution affect the counts. Counts compare documented incidents, not how often a country is targeted.',
   attribution: 'Attributions are as EuRepoC records them, each with who made it: a government, IT-security firms, the media, or a claim by the actor itself. An incident can have several, and all are shown. Groups EuRepoC codes as state-affiliated have their own rows, apart from the state it links them to, and are not in the state arcs or the pairs table; other non-state groups are shown by their kind.',
   /** The method note: incidents without a start date cannot be placed in a year. */
   method: (all: string, undated: string) => `EuRepoC’s file has ${all} incidents; ${undated} have no start date, so they are left off the map.`,
@@ -59,10 +59,11 @@ export const CYBER_TEXT = {
   arcs: 'Incidents attributed to a state, to the country affected',
   arcTip: (state: string, to: string, n: string, year: number, by: string) => `${to}: ${n} ${n === '1' ? 'incident' : 'incidents'} attributed to ${state}, ${year} (${by})`,
   pairs: 'Attributions to states',
-  pairsCaption: (n: number, year: number) => `The ${n} state and country pairs with the most incidents that started in ${year}: incidents affecting the country that EuRepoC records as attributed to the state, and who attributed them. Groups EuRepoC codes as state-affiliated, and a state’s incidents in its own country, are left out.`,
+  pairsCaption: (n: number, year: number) => `${n === 1 ? 'The state and country pair' : `The ${n} state and country pairs`} with the most incidents that started in ${year}: incidents affecting the country that EuRepoC records as attributed to the state, and who attributed them. Groups EuRepoC codes as state-affiliated, and a state’s incidents in its own country, are left out.`,
   state: 'Attributed to', country: 'Country affected', incidents: 'Incidents',
   /** The summary: the year's incidents by attribution. */
-  split: (s: { state: string; affiliated: string; group: string; none: string }) => `Of these, ${s.state} were attributed to a state, ${s.affiliated} only to groups EuRepoC links to a state, ${s.group} only to other non-state groups, and ${s.none} were not attributed.`,
+  split: (s: { state: number; affiliated: number; group: number; none: number }, f: (n: number) => string) =>
+    `Of these, ${f(s.state)} ${s.state === 1 ? 'was' : 'were'} attributed to a state, ${f(s.affiliated)} only to groups EuRepoC links to a state, ${f(s.group)} only to other non-state groups, and ${f(s.none)} ${s.none === 1 ? 'was' : 'were'} not attributed.`,
   // The country page's block under More figures.
   block: 'Cyber incidents',
   blockCaption: (name: string, from: number, to: number) => `publicly known incidents affecting ${name}, ${from}–${to}`,

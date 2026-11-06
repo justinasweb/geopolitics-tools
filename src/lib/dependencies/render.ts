@@ -45,7 +45,7 @@ const nameHtml = (grid: Grid, id: string) => {
   return p?.h ? `<a href="${esc(p.h)}">${esc(p.n)}</a>` : esc(p?.n ?? id);
 };
 
-// ---------- single points of failure ----------
+// ---------- reliance on one supplier ----------
 
 export function spofHtml(s: State, grid: Grid): string {
   const all = spofs(rowsOf({ ...s, sort: 'country', dir: 'asc' }, grid));
@@ -58,7 +58,7 @@ export function spofHtml(s: State, grid: Grid): string {
   }).join('');
   const more = all.length > SPOF_PHONE
     ? `<button class="gt-btn gt-btn--quiet" type="button" data-d-all aria-expanded="${s.all}">${esc(s.all ? T.showFewer : T.showAll(all.length))}</button>` : '';
-  return `<div class="gt-spof__head"><h2 class="gt-h2" id="spof-h">${esc(T.spofTitle)}</h2><p class="gt-caption">${esc(T.spofRule)}</p></div>`
+  return `<div class="gt-spof__head"><h2 class="gt-h2" id="one-supplier-h">${esc(T.spofTitle)}</h2><p class="gt-caption">${esc(T.spofRule)}</p></div>`
     + (all.length ? `<ul class="gt-spof__list">${items}</ul>` : '')
     + `<p class="gt-spof__more">${all.length ? `<span class="gt-spof__n">${esc(T.spofCount(all.length, shown.length))}</span>`
       + (s.all ? '' : `<span class="gt-spof__n gt-spof__n--phone">${esc(T.spofCount(all.length, Math.min(all.length, SPOF_PHONE)))}</span>`) : `<span>${esc(T.spofNone)}</span>`}`

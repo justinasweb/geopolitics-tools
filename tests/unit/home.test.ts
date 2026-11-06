@@ -66,7 +66,7 @@ describe('homepage tool row', () => {
     expect(weekStrip(() => null, live)).toBeNull();
   });
 
-  it('gives each dossier card the first sentence of its page summary, tagged when the USGS year is an estimate', async () => {
+  it('gives each dossier card the first sentence of its page summary, tagged when the USGS year is an estimate the sentence does not name', async () => {
     const { dossierFact } = await import('../../src/lib/home.ts');
     const { countryModel } = await import('../../src/lib/country.ts');
     for (const id of ['USA', 'CHN', 'RUS']) {
@@ -74,8 +74,25 @@ describe('homepage tool row', () => {
       const f = dossierFact(id);
       expect(f.fact).toBe(m?.summary[0] ?? null);
       const lead = m?.minerals.slice(0, 3).find((x) => x.measure === 'mine') ?? m?.minerals[0];
-      expect(f.estimated).toBe(Boolean(f.fact && lead?.estimated));
+      // No tag when the sentence already ends "…, estimated)." in words.
+      const says = Boolean(f.fact?.endsWith(', estimated).'));
+      expect(f.estimated).toBe(Boolean(f.fact && lead?.estimated && !says));
+      if (says) expect(f.estimated).toBe(false);
     }
     expect(dossierFact('XXX')).toEqual({ fact: null, estimated: false });
+  });
+
+  it('says in the summary’s source when USGS’s mineral figures are estimates, as the minerals section does', async () => {
+    const { countryModel } = await import('../../src/lib/country.ts');
+    let seen = 0;
+    for (const id of ['USA', 'CHN', 'RUS', 'AUS', 'COD', 'CHL', 'ZAF']) {
+      const m = countryModel(id);
+      const mined = m?.minerals.slice(0, 3).filter((x) => x.measure === 'mine') ?? [];
+      if (!mined.length) continue;
+      const line = m!.summary.find((x) => x.includes(' mines '))!;
+      expect(line.endsWith(mined.some((x) => x.estimated) ? ', estimated).' : `, ${mined[0].year}).`), id).toBe(true);
+      if (mined.some((x) => x.estimated)) seen++;
+    }
+    expect(seen).toBeGreaterThan(0);
   });
 });

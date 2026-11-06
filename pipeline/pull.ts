@@ -2,16 +2,15 @@
 //   node pipeline/pull.ts [--store=r2 | dir:<path>] [--snapshot=<id>] [--out=data/raw]
 // Without --snapshot it takes latest.json. Writes <out>/<source>/<file>, <out>/snapshot.json and the
 // public <out>/status.json,
-// and checks every file against its recorded SHA-256. Rolling the site's data back is a build
-// with an earlier --snapshot.
+// and checks every file against its recorded SHA-256. Each source folder is replaced whole (unpackSources), so it
+// holds only the files this snapshot lists. Rolling the site's data back is a build with an earlier --snapshot.
 //
 // It also brings This week's archive (lib/weeks.ts) to <out>/weeks/: every frozen week, and the
 // copies kept on the first of the live page's 7 days (<out>/weeks/baseline/, with baseline.json giving the day): the
 // sanctions lists, to count entries added and removed, and GDACS's alerts, to tell which earlier alerts rose.
-import { createHash } from 'node:crypto';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { readRaw, type Snapshot } from './lib/runner.ts';
+import { unpackSources, type Snapshot } from './lib/runner.ts';
 import { openStores } from './lib/store.ts';
 import { baselineFor, loadLedger, unpack, weekKey } from './lib/weeks.ts';
 import { rollingWeek } from '../src/lib/week/period.ts';
@@ -28,17 +27,8 @@ if (!b) {
   process.exit(1);
 }
 const snap = JSON.parse(new TextDecoder().decode(b)) as Snapshot;
-let files = 0;
-for (const [source, s] of Object.entries(snap.sources)) {
-  for (const [name, rec] of Object.entries(s.files)) {
-    const body = await readRaw(stores, rec);
-    if (!body) throw new Error(`${rec.key} is missing from ${stores.raw.name}`);
-    if (createHash('sha256').update(body).digest('hex') !== rec.sha256) throw new Error(`${rec.key} does not match its checksum`);
-    mkdirSync(join(out, source), { recursive: true });
-    writeFileSync(join(out, source, name), body);
-    files++;
-  }
-}
+mkdirSync(out, { recursive: true });
+const files = await unpackSources(stores, Object.fromEntries(Object.entries(snap.sources).map(([source, s]) => [source, s.files])), out);
 writeFileSync(join(out, 'snapshot.json'), JSON.stringify(snap, null, 2));
 // The runner's public status (Live / Delayed per source), for the Sources page; older stores may not have one.
 const status = await stores.snapshots.get('status.json');

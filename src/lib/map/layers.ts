@@ -1036,8 +1036,8 @@ function riverLayer(id: string): LayerFile {
       {
         label: R.onRiver(name),
         rows: [
-          ...(later && x.stress2050 !== null ? [{ name: R.stress2050, value: valueText(later, x.stress2050) }] : []),
-          ...(dep && x.fromAbroad !== null ? [{ name: R.fromAbroad, value: valueText(dep, x.fromAbroad) }] : []),
+          ...(later && x.stress2050 !== null ? [{ name: R.stress2050(later.year), value: valueText(later, x.stress2050) }] : []),
+          ...(dep && x.fromAbroad !== null ? [{ name: R.fromAbroad(dep.year), value: valueText(dep, x.fromAbroad) }] : []),
           { name: R.damsCol, value: String(dams.length) },
         ],
       },

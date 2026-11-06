@@ -1,7 +1,8 @@
 // UCDP Georeferenced Event Dataset (ucdp/gedevents_<version>.json, from pipeline/sources/ucdp.ts; the prototype's
 // samples have the same names and format). A version like 26.1 is the yearly release; one like 26.0.8 a monthly
-// Candidate release, newer but open to revision, whose months are marked preliminary. Where both cover a month,
-// the yearly release wins; where two Candidate releases list the same event, the newer one wins.
+// Candidate release, newer but open to revision, whose months are marked preliminary. Only the newest yearly release
+// is used (each one covers every year before its own, so two side by side would count events twice), with the
+// Candidate months after it; where two Candidate releases list the same event, the newer one wins.
 //
 // type_of_violence: 1 state-based (at least one side is a government), 2 non-state (neither is), 3 one-sided (an
 // armed group or a government against civilians). UCDP numbers countries by Gleditsch–Ward code (codes.csv, source
@@ -46,8 +47,11 @@ export function parseGed(files: { name: string; json: File }[]): ConflictEvent[]
   const m = matcher('ucdp', 'code');
   const yearly: ConflictEvent[] = [];
   const candidate = new Map<number, ConflictEvent>();
+  const isCandidateFile = (name: string) => versionOf(name)?.[3] !== undefined;
+  const newestYearly = files.filter((f) => !isCandidateFile(f.name)).sort((a, b) => order(a.name) - order(b.name)).at(-1);
   for (const f of [...files].sort((a, b) => order(a.name) - order(b.name))) {
-    const isCandidate = versionOf(f.name)?.[3] !== undefined;
+    const isCandidate = isCandidateFile(f.name);
+    if (!isCandidate && f !== newestYearly) continue;
     for (const r of f.json.Result ?? []) {
       const date = String(r.date_start ?? '').slice(0, 10);
       const lat = num(r.latitude);

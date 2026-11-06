@@ -1,3 +1,4 @@
+import { CHAIN_TEXT } from '../../src/i18n/supply-chains.en.ts';
 import { describe, expect, it } from 'vitest';
 import { amount, concentration, foundPlace, hhi, parseState, queryOf, sankey, totals, OTHERS, type Chain } from '../../src/lib/supply-chains/model.ts';
 import { SIDES, chainTitle } from '../../src/i18n/supply-chains.en.ts';
@@ -126,7 +127,9 @@ describe('Supply chains markup', () => {
     expect(tableHtml(chain, { country: '' })).toContain('data-sk-csv');
     expect(tableHtml({ ...chain, csv: false, credit: 'UN Comtrade' }, { country: '' })).toContain('UN Comtrade’s terms do not allow');
     const csv = chainCsv(chain, { country: 'EGY' }).trim().split('\n');
-    expect(csv[0]).toBe('Supplier,Supplier iso3,Buyer,Buyer iso3,"Volume (million tonnes) [FAOSTAT, retrieved 2026-10-24]",period');
+    expect(csv[0]).toBe('Supplier,Supplier iso3,Buyer,Buyer iso3,"Volume, million tonnes [FAOSTAT, retrieved 2026-10-24]",period');
+    // Gas is in bcm, written out once as "billion cubic metres (bcm)", as on the energy and indicator pages.
+    expect(CHAIN_TEXT.gas).toMatchObject({ short: 'bcm', unit: 'billion cubic metres (bcm)' });
     expect(csv).toHaveLength(6);
     expect(csv[1]).toBe('Russia,RUS,Egypt,EGY,5.5,2023');
   });

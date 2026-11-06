@@ -7,6 +7,8 @@
 //                    latest.json                the newest snapshot; the site build reads this
 //                    status.json                public summary per source, for the staleness check
 import { createHash } from 'node:crypto';
+import { mkdirSync, renameSync, rmSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { gzipSync, gunzipSync } from 'node:zlib';
 import type { Alerter } from './alert.ts';
 import { type Http, isTransient } from './http.ts';
@@ -96,6 +98,38 @@ export async function readRaw(stores: Stores, rec: Pick<FileRecord, 'key'>): Pro
   return b && gunzipSync(b);
 }
 
+/**
+ * Writes a snapshot's files to <dir>/<source>/<file>, each checked against its SHA-256, and returns how many. Each
+ * source folder it writes ends up holding exactly the files listed: they are written to a fresh folder first, and
+ * only once every file is there do the new folders replace the old ones, so a file an earlier snapshot left (an old
+ * yearly release) never stays beside the new ones. Folders of sources not listed are left as they are.
+ */
+export async function unpackSources(stores: Stores, files: Record<string, Record<string, Pick<FileRecord, 'key' | 'sha256'>>>, dir: string): Promise<number> {
+  const fresh = (source: string) => join(dir, `.${source}.new`);
+  let count = 0;
+  try {
+    for (const [source, byName] of Object.entries(files)) {
+      rmSync(fresh(source), { recursive: true, force: true });
+      mkdirSync(fresh(source), { recursive: true });
+      for (const [name, rec] of Object.entries(byName)) {
+        const body = await readRaw(stores, rec);
+        if (!body) throw new Error(`${rec.key} is missing from ${stores.raw.name}`);
+        if (createHash('sha256').update(body).digest('hex') !== rec.sha256) throw new Error(`${rec.key} does not match its checksum`);
+        writeFileSync(join(fresh(source), name), body);
+        count++;
+      }
+    }
+  } catch (e) {
+    for (const source of Object.keys(files)) rmSync(fresh(source), { recursive: true, force: true });
+    throw e;
+  }
+  for (const source of Object.keys(files)) {
+    rmSync(join(dir, source), { recursive: true, force: true });
+    renameSync(fresh(source), join(dir, source));
+  }
+  return count;
+}
+
 function sameFiles(a: Record<string, FileRecord>, b: Record<string, { sha256: string }>) {
   const ka = Object.keys(a).sort();
   const kb = Object.keys(b).sort();
@@ -165,30 +199,66 @@ export function publicStatus(now: Date, state: State, sources: Source[], snapsho
   };
 }
 
+/** Each source's files in a snapshot, by name and checksum: what the site would build from. */
+const filesOf = (snap: Snapshot) => JSON.stringify(Object.keys(snap.sources).sort().map((id) =>
+  [id, Object.entries(snap.sources[id].files).map(([n, f]) => [n, f.sha256]).sort()]));
+
 /**
- * Write the state, a new snapshot when something changed (or the latest one's id when not) and the
- * public status. Shared by the runner and the import tool. The state is read again just before it is
- * written, and sources this writer does not own are taken from that fresh copy, so an import during
- * an hourly run is not lost (and the other way round).
+ * Write a new snapshot when something changed (or the latest one's id when not), then the state and the public
+ * status. Shared by the runner and the import tool. The state is read again just before it is written, and sources
+ * this writer does not own are taken from that fresh copy, so an import during an hourly run is not lost (and the
+ * other way round).
+ *
+ * latest.json is written before the state, and a run that changed nothing still compares it with the state's files:
+ * when a run saved new files but could not publish them, the next run publishes them.
  */
-export async function publish(stores: Stores, state: State, own: string[], about: { sources: Source[]; imported: ImportedSource[] }, now: Date, changed: boolean) {
+export async function publish(stores: Stores, state: State, own: string[], about: { sources: Source[]; imported: ImportedSource[] }, now: Date, changed: boolean): Promise<{ snapshot: string | undefined; published: boolean }> {
   const fresh = await loadState(stores);
   for (const [id, st] of Object.entries(fresh.sources)) if (!own.includes(id)) state.sources[id] = st;
   state.updated = now.toISOString();
-  await stores.raw.put(STATE_KEY, enc(state), 'application/json');
 
+  const id = runStamp(now);
+  const next = buildSnapshot(id, now, state, [...about.sources, ...about.imported]);
   let snapshot: string | undefined;
-  if (changed) {
-    snapshot = runStamp(now);
-    const snap = enc(buildSnapshot(snapshot, now, state, [...about.sources, ...about.imported]));
+  let published = changed;
+  if (!changed) {
+    const b = await stores.snapshots.get('latest.json');
+    const latest = b ? (JSON.parse(new TextDecoder().decode(b)) as Snapshot) : null;
+    snapshot = latest?.id;
+    published = Object.keys(next.sources).length > 0 && (!latest || filesOf(latest) !== filesOf(next));
+  }
+  if (published) {
+    snapshot = id;
+    const snap = enc(next);
     await stores.snapshots.put(`snapshots/${snapshot}.json`, snap, 'application/json');
     await stores.snapshots.put('latest.json', snap, 'application/json');
-  } else {
-    const latest = await stores.snapshots.get('latest.json');
-    snapshot = latest ? (JSON.parse(new TextDecoder().decode(latest)) as Snapshot).id : undefined;
   }
+  await stores.raw.put(STATE_KEY, enc(state), 'application/json');
   await stores.snapshots.put('status.json', enc(publicStatus(now, state, about.sources, snapshot, about.imported)), 'application/json');
-  return snapshot;
+  return { snapshot, published };
+}
+
+/**
+ * Saves a source's last good copy again, under this run's prefix, once it is half its retention period old, so the
+ * bucket's lifecycle rule never deletes the files the latest snapshot points to. It runs for every source on every
+ * run, whether the source is due, works or fails: a source that fails for weeks keeps its last good data.
+ * Returns whether the files moved (the snapshot must then point to the new copies).
+ */
+async function keepLastGood(stores: Stores, src: Source, st: SourceState, stamp: string, now: Date): Promise<boolean> {
+  const since = st.saved ?? st.lastChange;
+  if (src.keepDays === undefined || !since || !Object.keys(st.files).length) return false;
+  if (now.getTime() - Date.parse(since) <= (src.keepDays / 2) * 86_400_000) return false;
+  const moved: Record<string, FileRecord> = {};
+  for (const [name, rec] of Object.entries(st.files)) {
+    const body = await stores.raw.get(rec.key);
+    if (!body) throw new Error(`${rec.key} is gone from ${stores.raw.name}`);
+    const key = `${src.id}/${stamp}/${name}.gz`;
+    await stores.raw.put(key, body, 'application/gzip');
+    moved[name] = { ...rec, key };
+  }
+  st.files = moved;
+  st.saved = now.toISOString();
+  return true;
 }
 
 export async function run(opts: RunOptions): Promise<RunReport> {
@@ -203,6 +273,14 @@ export async function run(opts: RunOptions): Promise<RunReport> {
 
   for (const src of opts.sources) {
     const st = (state.sources[src.id] ??= emptySource());
+    try {
+      if (await keepLastGood(stores, src, st, stamp, now)) {
+        changed = true;
+        log(src.id.padEnd(12), 'saved the last good copy again before its retention rule could delete it');
+      }
+    } catch (e) {
+      log(src.id.padEnd(12), `could not save the last good copy again: ${(e as Error).message}`);
+    }
     const named = opts.only?.includes(src.id) ?? false;
     if (opts.only && !named) continue;
     if (src.enabled !== true && !named) {
@@ -239,13 +317,12 @@ export async function run(opts: RunOptions): Promise<RunReport> {
         const body = bytesOf(f.body);
         fresh[f.name] = { key: `${src.id}/${stamp}/${f.name}.gz`, sha256: sha256(body), bytes: body.length, contentType: f.contentType ?? 'application/octet-stream', body };
       }
-      // Copies under a retention rule are saved again before the rule could delete the last good one.
-      const expiring = src.keepDays !== undefined && st.lastChange !== undefined && now.getTime() - Date.parse(st.lastChange) > (src.keepDays / 2) * 86_400_000;
-      const isNew = !sameFiles(st.files, fresh) || expiring;
+      // Copies under a retention rule were saved again above (keepLastGood) when they needed it.
+      const isNew = !sameFiles(st.files, fresh);
       if (isNew) {
         for (const f of Object.values(fresh)) await stores.raw.put(f.key, gzipSync(f.body, { level: 9 }), 'application/gzip');
         st.files = Object.fromEntries(Object.entries(fresh).map(([n, { key, sha256, bytes, contentType }]) => [n, { key, sha256, bytes, contentType }]));
-        st.lastChange = now.toISOString();
+        st.lastChange = st.saved = now.toISOString();
         changed = true;
       }
       st.lastSuccess = now.toISOString();
@@ -287,7 +364,7 @@ export async function run(opts: RunOptions): Promise<RunReport> {
 
   // A switched-off fetcher whose files are imported by hand (the IMF WEO) belongs to the import tool.
   const own = opts.sources.map((s) => s.id).filter((id) => !opts.imported?.some((i) => i.id === id));
-  const snapshot = await publish(stores, state, own, { sources: opts.sources, imported: opts.imported ?? [] }, now, changed);
+  const { snapshot, published } = await publish(stores, state, own, { sources: opts.sources, imported: opts.imported ?? [] }, now, changed);
 
-  return { run: stamp, reports, changed, snapshot, alerts };
+  return { run: stamp, reports, changed: published, snapshot, alerts };
 }

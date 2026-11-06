@@ -46,8 +46,12 @@ export const digestKeyboard = (week: string, t: { post: string; dontPost: string
 
 /** The line at the end of the Edit prompt that says which text and version a reply corrects. */
 export const editRef = (id: string, hash: string) => `ref ${id} ${hash}`;
-export function parseEditRef(text: unknown): { id: string; hash: string } | null {
-  if (typeof text !== 'string') return null;
+/**
+ * Reads the ref line of an Edit prompt. `head` is the prompt's fixed first line: the bot sends other messages that
+ * carry outside text (a correction report holds a reader's words), and only a message that opens with it counts.
+ */
+export function parseEditRef(text: unknown, head: string): { id: string; hash: string } | null {
+  if (typeof text !== 'string' || !head || text.split('\n', 1)[0] !== head) return null;
   const m = text.match(/(?:^|\n)ref (\S+) ([0-9a-f]{12})\s*$/);
   return m && REVIEW_ID.test(m[1]) ? { id: m[1], hash: m[2] } : null;
 }

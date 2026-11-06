@@ -30,6 +30,10 @@ describe('route registry', () => {
     expect(routes.filter((r) => r.kind === 'country' && r.live).length).toBeGreaterThan(50);
     expect(R.live('compare:USA,CHN')?.path).toBe('/compare/united-states-vs-china');
     expect(R.route('compare:USA,CHN')?.aliases).toContain('/compare/china-vs-united-states');
+    // Renamed pages keep their old address as a redirect.
+    expect(R.route('indicator:co2trade')?.aliases).toContain('/indicators/co2-imported-in-goods');
+    expect(R.route('view:emissions:co2trade')?.aliases).toContain('/emissions/imported');
+    expect(R.redirects()).toContain('/emissions/imported /emissions/net-imports 301');
   });
 
   it('fails on two pages with one path, an alias that is a page, or a path that breaks the rules', () => {
@@ -59,7 +63,7 @@ describe('route registry', () => {
 
   it('builds the emissions and refugees views, each family’s first layer at the section’s own address', () => {
     const paths = R.routes().filter((r) => /^view:(emissions|refugees):/.test(r.key)).map((r) => r.path).sort();
-    expect(paths).toEqual(['/emissions', '/emissions/imported', '/emissions/per-person', '/emissions/since-1750',
+    expect(paths).toEqual(['/emissions', '/emissions/net-imports', '/emissions/per-person', '/emissions/since-1750',
       '/refugees', '/refugees/displaced', '/refugees/hosted', '/refugees/per-person']);
     expect(R.viewHref('emissions')).toBe('/emissions');
     expect(R.viewHref('refugees')).toBe('/refugees');

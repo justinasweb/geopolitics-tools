@@ -5,6 +5,11 @@
 //
 // The nine series are folded into seven groups for the mix (spec: "power mix in seven groups"): gas and the
 // small "other fossil" (mostly oil) together, bioenergy with other renewables. The gas layer maps gas alone.
+//
+// Ember leaves a series' row out rather than leaving its value blank. Before a series first appears, or after years
+// it was 0, that means nothing was generated. A year without a series the place reported above zero in an earlier
+// year is incomplete: its total would be the parts that are there and the missing part would read as 0%, so the
+// whole year is left out (dropIncomplete).
 import { type Raw, type Series, matcher, num, put } from './core.ts';
 
 type Row = Record<string, string | number | boolean | null>;
@@ -41,6 +46,17 @@ function add(into: Record<number, Mix>, r: Row) {
   m.series[s] = (m.series[s] ?? 0) + v;
 }
 
+/** Removes the years that lack a series reported above zero in an earlier year. */
+function dropIncomplete(years: Record<number, Mix>) {
+  const seen = new Set<string>();
+  for (const y of Object.keys(years).map(Number).sort((a, b) => a - b)) {
+    const m = years[y];
+    const complete = [...seen].every((s) => s in m.series);
+    for (const [s, v] of Object.entries(m.series)) if (v > 0) seen.add(s);
+    if (!complete) delete years[y];
+  }
+}
+
 export function parseEmber(countries: File, world?: File): Power {
   const m = matcher('ember', 'iso3');
   const mix: Power['mix'] = {};
@@ -51,6 +67,8 @@ export function parseEmber(countries: File, world?: File): Power {
   }
   const w: Power['world'] = {};
   for (const r of world?.data ?? []) if (r.is_aggregate_series !== true) add(w, r);
+  for (const years of Object.values(mix)) dropIncomplete(years);
+  dropIncomplete(w);
   return { mix, world: w };
 }
 

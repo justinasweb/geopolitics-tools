@@ -161,7 +161,7 @@ export function tableHtml(s: State, meta: Meta, data: Data): string {
       if (!c) return '<td class="n gt-na">–</td>';
       const m = ms[i];
       const old = !m.static && c.year !== years[i] ? `<span class="gt-oldyr" title="${esc(T.year)} ${c.year}">${c.year}</span> ` : '';
-      const tag = statusOf(m, r.id, c.year);
+      const tag = statusOf(m, r.id, c.year, data[m.id]);
       return `<td class="n" data-v="${c.value}">${old}${esc(fmt(m, c.value))}${tag ? ` ${tagHtml(tag)}` : ''}</td>`;
     }).join('');
     return `<tr data-id="${r.id}"${r.id === found ? ' class="is-found"' : ''}><th scope="row">${name}</th>${cells}</tr>`;
@@ -226,6 +226,7 @@ export function linesChart(s: State, meta: Meta, data: Data): LineSet {
 
 export function linesHtml(s: State, meta: Meta, data: Data, width = 900): string {
   const m = byId(meta).get(s.m[0])!;
+  const d = data[m.id];
   const ch = linesChart(s, meta, data);
   if (!s.c.length) return `<p class="gt-notice">${esc(T.noCountries)}</p>`;
   if (!ch.lines.length || ch.years.length < 2) return `<p class="gt-notice">${esc(T.noLine(s.c.map((id) => nameOf(meta, id)).join(', ')))}</p>`;
@@ -267,11 +268,19 @@ export function linesHtml(s: State, meta: Meta, data: Data, width = 900): string
   const xt = yearTicks.map(([yr, i]) => `<text x="${x(i).toFixed(1)}" y="${H - 8}" text-anchor="middle">${yr}</text>`).join('');
   const splitMark = split > 0 ? `<g><line class="gt-lc__split" x1="${x(split - 1).toFixed(1)}" x2="${x(split - 1).toFixed(1)}" y1="${Tp}" y2="${H - B}"/><text class="gt-lc__note" x="${(x(split - 1) + 6).toFixed(1)}" y="${Tp + 10}">${esc(STATUS_TEXT.projection)}</text></g>` : '';
   const paths = ch.lines.map((l) => {
-    // Solid up to the split, or up to the country's own last actual year when earlier (its estimates); dashed after.
-    const own = m.own?.[l.id] === undefined ? -1 : ch.years.findIndex((yr) => yr > m.own![l.id]);
-    const to = Math.min(split > 0 ? split - 1 : last, own > 0 ? own - 1 : last);
-    const solid = seg(l.values, 0, to).map((dd) => `<path class="gt-lc__line ${cls(l.id)}" d="${dd}"/>`).join('');
-    const dash = to < last ? seg(l.values, to, last).map((dd) => `<path class="gt-lc__line gt-lc__line--proj ${cls(l.id)}" d="${dd}"/>`).join('') : '';
+    // A stretch is dashed where either end is a tagged figure: a projection, a country's estimate after its own last
+    // actual year (WEO), or a figure the source flags itself (FAOSTAT). Solid elsewhere.
+    const tag = ch.years.map((yr) => Boolean(statusOf(m, l.id, yr, d)));
+    const runs: { dashed: boolean; from: number; to: number }[] = [];
+    for (let i = 0; i < last; i++) {
+      if (l.values[i] === null || l.values[i + 1] === null) continue;
+      const dashed = tag[i] || tag[i + 1];
+      const run = runs.at(-1);
+      if (run && run.to === i && run.dashed === dashed) run.to = i + 1;
+      else runs.push({ dashed, from: i, to: i + 1 });
+    }
+    const solid = runs.filter((r) => !r.dashed).flatMap((r) => seg(l.values, r.from, r.to)).map((dd) => `<path class="gt-lc__line ${cls(l.id)}" d="${dd}"/>`).join('');
+    const dash = runs.filter((r) => r.dashed).flatMap((r) => seg(l.values, r.from, r.to)).map((dd) => `<path class="gt-lc__line gt-lc__line--proj ${cls(l.id)}" d="${dd}"/>`).join('');
     return `<g>${solid}${dash}</g>`;
   }).join('');
   const labels = ends.map((e) => `<text class="gt-lc__lab ${cls(e.l.id)}" x="${(x(e.i) + 8).toFixed(1)}" y="${(e.yy + 4).toFixed(1)}">${esc(short(nameOf(meta, e.l.id), phone ? 12 : 20))}</text>`).join('');
@@ -362,7 +371,7 @@ export function scatterHtml(s: State, meta: Meta, data: Data, width = 900): stri
   const order = [...points].sort((a, b) => Number(members.has(a.id)) - Number(members.has(b.id)) || rad(b) - rad(a));
   // A tagged value says so in words (the tooltip is plain text): "Government debt: 82% (estimate)".
   const tagged = (mm: MeasureMeta, id: string, v: number) => {
-    const t = statusOf(mm, id, sc.year);
+    const t = statusOf(mm, id, sc.year, data[mm.id]);
     return `${fmt(mm, v)}${t ? ` (${STATUS_TEXT[t].toLowerCase()})` : ''}`;
   };
   const tip = (p: Point) => [nameOf(meta, p.id), `${mx.label}: ${tagged(mx, p.id, p.x)}`, `${my.label}: ${tagged(my, p.id, p.y)}`, ms && p.size !== null ? `${ms.label}: ${tagged(ms, p.id, p.size)}` : ''].filter(Boolean).join('\n');

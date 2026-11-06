@@ -113,6 +113,13 @@ describe('cables', () => {
     expect(r.rows).toBe(341);
   });
 
+  it('refuses cables without a line or landing stations without a point', async () => {
+    const ways = (geometry: unknown) => Array.from({ length: 320 }, (_, i) => ({ type: 'way', id: i, tags: { communication: 'line', name: `Cable ${i}` }, ...(geometry ? { geometry } : {}) }));
+    const stations = (withPoint: boolean) => Array.from({ length: 25 }, (_, i) => ({ type: 'node', id: 1000 + i, ...(withPoint ? { lat: 10, lon: 20 } : {}), tags: { telecom: 'cable_landing_station' } }));
+    await expect(cables.fetch(ctxFor(fakeHttp([[/overpass/, () => ({ elements: [...ways(null), ...stations(true)] })]])))).rejects.toThrow(/without a line/);
+    await expect(cables.fetch(ctxFor(fakeHttp([[/overpass/, () => ({ elements: [...ways([{ lat: 1, lon: 2 }, { lat: 1, lon: 3 }]), ...stations(false)] })]])))).rejects.toThrow(/without a point/);
+  });
+
   it('refuses an answer Overpass cut short', async () => {
     await expect(cables.fetch(ctxFor(fakeHttp([[/overpass-api/, () => ({ remark: 'runtime error: Query timed out', elements: [] })]])))).rejects.toThrow(/Query timed out/);
   });
@@ -221,5 +228,10 @@ describe('IMF sources (switched off)', () => {
     expect(saved.features[0].attributes).toEqual({ date: '2025-09-19', portid: 'chokepoint0', portname: 'Suez Canal', n_total: 50 });
     expect(JSON.parse(body(r, 'chokepoints.json')).features).toHaveLength(28);
     expect(r.dataTo).toBe('2026-10-09');
+  });
+
+  it('portwatch refuses chokepoints without an id, a name or coordinates', async () => {
+    const points = Array.from({ length: 28 }, (_, i) => ({ attributes: { portid: `chokepoint${i}`, portname: 'Suez Canal', latitude: 30, longitude: 32 } }));
+    await expect(portwatch.fetch(ctxFor(fakeHttp([[/chokepoints_database/, () => ({ features: points })]])))).rejects.toThrow(/chokepoints lack "lat"/);
   });
 });
