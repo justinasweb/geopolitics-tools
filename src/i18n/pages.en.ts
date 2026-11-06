@@ -176,7 +176,7 @@ export const DOSSIER_TEXT = {
   peopleLink: 'Population map',
   popChart: (c: string) => `${possessive(c)} population`,
   popProjection: 'UN projection, medium variant',
-  popRange: '95% range of the UN projection',
+  popRange: 'Range between the UN low- and high-fertility scenarios',
   pyramid: (c: string) => `${possessive(c)} population by age`,
   men: 'Men', women: 'Women',
   pyramidBar: (group: string, sex: string, millions: string) => `${group}, ${sex.toLowerCase()}: ${millions} million`,
