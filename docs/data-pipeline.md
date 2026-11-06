@@ -42,7 +42,7 @@ How source data gets from the public sources in the licence table ([licences.md]
 | `pipeline/lib/state.ts` | Scheduling and alert rules (pure functions, unit tested) |
 | `pipeline/lib/store.ts` | R2 through the Cloudflare API, or a local folder |
 | `pipeline/lib/zip.ts`, `pipeline/lib/xlsx.ts` | Zip files (in memory, or streamed from disk for FAOSTAT's bulk files) and Excel sheets |
-| `pipeline/pull.ts` | Downloads a snapshot's files to `data/raw/` for a build or local work |
+| `pipeline/pull.ts` | Downloads a snapshot's files to `data/raw/` for a build or local work. Each source folder is replaced whole (written to `.<source>.new`, then swapped in once every file passed its checksum), so it holds only what that snapshot lists |
 | `pipeline/r2-check.ts` | Write-and-read test of both buckets, run on pull requests |
 | `tests/unit/pipeline/` | The runner and every fetcher against stubs (no network) |
 
@@ -125,7 +125,7 @@ as the rest of the pipeline does. Week files are a few kilobytes and are never r
 | EIA | 7 days | 60 days | **Off** until `EIA_API_KEY` is set. Crude oil and all liquids production, oil consumption, dry gas production and consumption, by country since 2000 (the API no longer has reserves); Brent and WTI monthly from 2010 |
 | UN Comtrade | 7 days | 60 days | **Off** until `COMTRADE_API_KEY` is set. Imports and exports by partner, one file per group and year (crude, gas, potash and phosphate, chips and chipmaking machines, total trade), 2015 to last year: the latest three years each run, older years once, at most `COMTRADE_MAX_CALLS` calls a run (default 90) |
 | Ember | 7 days | 60 days | **Off** until `EMBER_API_KEY` is set. Yearly generation by source, every country and the world, since 2000. A year that lacks a part the place reported above zero before is left out, total and shares (`src/adapters/ember.ts`; in the 6 Nov 2026 snapshot, Bosnia and Herzegovina 2008 and Colombia 2023) |
-| UCDP | 7 days | 45 days | **Off** until `UCDP_TOKEN` is set. Events since 2023 from the latest yearly release (GED) and the monthly Candidate releases after it, one file per release; a release already saved is carried over |
+| UCDP | 7 days | 45 days | **Off** until `UCDP_TOKEN` is set. Events since 2023 from the latest yearly release (GED) and the monthly Candidate releases after it, one file per release; a release already saved is carried over. The adapter reads only the newest yearly release in `ucdp/` and the Candidate months after it, so an older yearly file never adds its events again |
 | IPC | 1 day | 14 days | **Off** until `IPC_API_KEY` is set. Every country-level acute food insecurity analysis (IPC and Cadre Harmonisé), current period |
 
 A failed source is retried after 1, 2, 4… hours, never later than its normal interval.

@@ -7,6 +7,8 @@
 //                    latest.json                the newest snapshot; the site build reads this
 //                    status.json                public summary per source, for the staleness check
 import { createHash } from 'node:crypto';
+import { mkdirSync, renameSync, rmSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { gzipSync, gunzipSync } from 'node:zlib';
 import type { Alerter } from './alert.ts';
 import { type Http, isTransient } from './http.ts';
@@ -94,6 +96,38 @@ export async function loadState(stores: Stores): Promise<State> {
 export async function readRaw(stores: Stores, rec: Pick<FileRecord, 'key'>): Promise<Uint8Array | null> {
   const b = await stores.raw.get(rec.key);
   return b && gunzipSync(b);
+}
+
+/**
+ * Writes a snapshot's files to <dir>/<source>/<file>, each checked against its SHA-256, and returns how many. Each
+ * source folder it writes ends up holding exactly the files listed: they are written to a fresh folder first, and
+ * only once every file is there do the new folders replace the old ones, so a file an earlier snapshot left (an old
+ * yearly release) never stays beside the new ones. Folders of sources not listed are left as they are.
+ */
+export async function unpackSources(stores: Stores, files: Record<string, Record<string, Pick<FileRecord, 'key' | 'sha256'>>>, dir: string): Promise<number> {
+  const fresh = (source: string) => join(dir, `.${source}.new`);
+  let count = 0;
+  try {
+    for (const [source, byName] of Object.entries(files)) {
+      rmSync(fresh(source), { recursive: true, force: true });
+      mkdirSync(fresh(source), { recursive: true });
+      for (const [name, rec] of Object.entries(byName)) {
+        const body = await readRaw(stores, rec);
+        if (!body) throw new Error(`${rec.key} is missing from ${stores.raw.name}`);
+        if (createHash('sha256').update(body).digest('hex') !== rec.sha256) throw new Error(`${rec.key} does not match its checksum`);
+        writeFileSync(join(fresh(source), name), body);
+        count++;
+      }
+    }
+  } catch (e) {
+    for (const source of Object.keys(files)) rmSync(fresh(source), { recursive: true, force: true });
+    throw e;
+  }
+  for (const source of Object.keys(files)) {
+    rmSync(join(dir, source), { recursive: true, force: true });
+    renameSync(fresh(source), join(dir, source));
+  }
+  return count;
 }
 
 function sameFiles(a: Record<string, FileRecord>, b: Record<string, { sha256: string }>) {

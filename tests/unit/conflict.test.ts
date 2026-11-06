@@ -31,6 +31,18 @@ describe('UCDP adapter', () => {
     expect(deathsByYear(e)).toEqual({ PSE: { 2025: 10 }, UKR: { 2025: 10 } });
   });
 
+  it('uses only the newest yearly release, and Candidate months after it', () => {
+    // Two yearly releases side by side (an old file left next to the new one) list the same events.
+    const e = parseGed([
+      { name: 'gedevents_25.1.json', json: { Result: [ev(1, '2024-06-01', { best: 10 })] } },
+      { name: 'gedevents_25.0.12.json', json: { Result: [ev(5, '2025-12-02', { best: 9 })] } },
+      { name: 'gedevents_26.1.json', json: { Result: [ev(1, '2024-06-01', { best: 10 }), ev(2, '2025-12-01', { best: 4 })] } },
+      { name: 'gedevents_26.0.1.json', json: { Result: [ev(3, '2026-01-05', { best: 2 })] } },
+    ]);
+    expect(e.map((x) => [x.id, x.candidate])).toEqual([[1, false], [2, false], [3, true]]);
+    expect(Object.values(deathsByYear(e)).reduce((a, ys) => a + (ys[2024] ?? 0), 0)).toBe(10);
+  });
+
   it('numbers months so they run on, and writes them as YYYY-MM in the URL', () => {
     expect(monthNumber('2026-03') - monthNumber('2025-12')).toBe(3);
     expect(monthCode(monthNumber('2026-03'))).toBe('2026-03');
