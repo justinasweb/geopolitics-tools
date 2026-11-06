@@ -16,6 +16,7 @@ import {
 import { legendHtml, markSvg } from './map/legend';
 import { countryPanelHtml, tooltipHtml, worldPanelHtml } from './map/panel';
 import { esc, fill } from './map/text';
+import { YEAR_TEXT } from '../i18n/en';
 import { initControls } from './controls';
 import { initCopy } from './copy';
 import { bindSearchKey } from './header';
@@ -241,7 +242,7 @@ export function initAtlas(root: HTMLElement): void {
     const word = f.axis === 'months' ? W.year.months : f.axis === 'days' ? W.year.days : W.year.years;
     const play = f.axis !== 'days';
     yearCard.innerHTML = `<div class="gt-years${play ? '' : ' gt-years--noplay'}${n === 2 ? ' gt-years--two' : ''}" data-gt-years data-est="${est.join(' ')}" data-labels="${esc(JSON.stringify(labels))}">`
-      + (play ? '<button class="gt-play" type="button"></button>' : '')
+      + (play ? `<button class="gt-play" type="button" aria-label="${esc(YEAR_TEXT.play)}"></button>` : '')
       + `<div class="gt-years__head"><label class="gt-label" for="at-year">${esc(word)}</label><span class="gt-years__now" aria-hidden="true">${esc(labels[yi()])}</span></div>`
       + `<input id="at-year" type="range" min="0" max="${n - 1}" step="1" value="${yi()}" aria-valuetext="${esc(labels[yi()])}">`
       + `<div class="gt-years__ticks">${ticks.map((i) => `<span>${esc(labels[i])}</span>`).join('')}</div></div>`
