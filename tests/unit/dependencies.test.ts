@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import { bandOf, DEFAULTS, parseState, queryOf, rowsOf, spofs, type Grid } from '../../src/lib/dependencies/model.ts';
-import { cellText, gridCsv, spofHtml, tableHtml } from '../../src/lib/dependencies/render.ts';
+import { cellText, gridCsv, phoneHtml, spofHtml, tableHtml } from '../../src/lib/dependencies/render.ts';
 
 // The Dependencies tool: the bands, the settings in the address, the sort, reliance on one supplier and the
 // download, on a small grid; then the grid the build makes from the sample files.
@@ -102,5 +102,16 @@ describe('Dependencies grid from the sample files', () => {
     expect(g.credits).toContain('FAOSTAT');
     const R = await import('../../src/lib/routes.ts');
     expect(R.live('tool:dependencies')?.path).toBe('/dependencies');
+  });
+});
+
+describe('the phone card', () => {
+  it('opens on the country named by find= (the home page links ?sort=gas&find=Hungary), at every width', () => {
+    // Sorted by wheat, Egypt is the first row; Hungary is further down.
+    const s = parseState(new URLSearchParams('sort=wheat&find=Hungary'), grid);
+    expect(phoneHtml(s, grid)).toMatch(/<article class="gt-dgcard"><h3 class="gt-h3">Hungary<\/h3>/);
+    // c= still wins when both are given, and without either the card opens on the first row.
+    expect(phoneHtml(parseState(new URLSearchParams('find=Hungary&c=NOR'), grid), grid)).toMatch(/<h3 class="gt-h3">Norway<\/h3>/);
+    expect(phoneHtml(parseState(new URLSearchParams('find=Atlantis'), grid), grid)).toMatch(/<article class="gt-dgcard">/);
   });
 });

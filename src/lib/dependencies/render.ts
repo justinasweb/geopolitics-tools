@@ -118,7 +118,8 @@ export function phoneHtml(s: State, grid: Grid): string {
   if (!rows.length) return `${seg}${bloc}<p class="gt-notice">${esc(T.noRows)}</p>`;
   if (s.show === 'country') {
     const byName = [...rows].sort((a, b) => (grid.places[a.id]?.n ?? '').localeCompare(grid.places[b.id]?.n ?? '', 'en'));
-    const id = rows.some((r) => r.id === s.c) ? s.c : rows[0].id;
+    // The country asked for (c=), else the one find= names (the home page links ?find=Hungary), else the first row.
+    const id = rows.some((r) => r.id === s.c) ? s.c : foundRow(grid, rows.map((r) => r.id), s.find) ?? rows[0].id;
     const row = rows.find((r) => r.id === id)!;
     const p = grid.places[id];
     const pick = select('dp-c', T.country, 'c', byName.map((r): [string, string] => [r.id, grid.places[r.id]?.n ?? r.id]), id, true);
