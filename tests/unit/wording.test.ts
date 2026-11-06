@@ -19,3 +19,12 @@ describe('interface words', () => {
     expect(found).toEqual([]);
   });
 });
+
+describe('Compare source lines', () => {
+  it('give one year when both figures share it, else each country its own year', async () => {
+    const { COMPARE_TEXT } = await import('../../src/i18n/pages.en.ts');
+    expect(COMPARE_TEXT.sourceYear('World Bank', [{ name: 'United States', year: 2024 }, { name: 'China', year: 2024 }])).toBe('World Bank, 2024');
+    expect(COMPARE_TEXT.sourceYear('World Bank', [{ name: 'United States', year: 2024 }, { name: 'China', year: 2023 }])).toBe('United States: 2024; China: 2023 · World Bank');
+    expect(COMPARE_TEXT.sourceYear('SIPRI', [{ name: 'China', year: 2023 }])).toBe('SIPRI, 2023');
+  });
+});

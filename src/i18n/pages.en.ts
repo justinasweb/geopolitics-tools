@@ -199,6 +199,10 @@ export const COMPARE_TEXT = {
   kicker: 'Compare',
   lede: (a: string, b: string) => `${a} and ${b} side by side on the same measures, each figure with its source and year.`,
   description: (a: string, b: string) => `${a} and ${b} side by side: economy, people, military spending, emissions, minerals and more, with sources.`,
+  /** A row's source and year: one year when both figures share it, else each country's own ("United States: 2024; China: 2023 · World Bank"). */
+  sourceYear: (credit: string, years: { name: string; year: number }[]) => (new Set(years.map((y) => y.year)).size === 1
+    ? `${credit}, ${years[0].year}`
+    : `${years.map((y) => `${y.name}: ${y.year}`).join('; ')} · ${credit}`),
   keyHeading: 'Key figures',
   measure: 'Measure',
   higher: 'Higher',

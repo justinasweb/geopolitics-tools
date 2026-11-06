@@ -44,9 +44,8 @@ const shown = (id: string, v: number) => {
 };
 const higher = (r: typeof rows[number]) => (r.f[0] && r.f[1] && r.f[0].value !== r.f[1].value ? (r.f[0].value > r.f[1].value ? 0 : 1) : -1);
 const srcYear = (r: typeof rows[number]) => {
-  const f = r.f.filter((x) => x !== null);
-  const years = [...new Set(f.map((x) => x!.year))];
-  return `${creditName(f[0]!.source)}, ${years.join(' and ')}`;
+  const f = r.f.flatMap((x, i) => (x ? [{ name: nameOf(ids[i]), year: x.year, source: x.source }] : []));
+  return T.sourceYear(creditName(f[0].source), f);
 };
 
 const charts = ['gdp', 'milpct'].map((id) => {
