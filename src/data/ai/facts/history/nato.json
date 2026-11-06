@@ -459,7 +459,7 @@
     },
     {
       "id": "members-2026",
-      "statement": "Members of NATO in 2026, as the membership table was checked on 21 October 2026.",
+      "statement": "Members of NATO in 2026.",
       "value": 32,
       "unit": "members",
       "unitAliases": [
@@ -469,7 +469,8 @@
       "period": "2026",
       "source": "NATO, Member countries",
       "link": "https://www.nato.int/cps/en/natohq/topics_52044.htm",
-      "date": "2026-10-21"
+      "date": "2026-10-21",
+      "note": "As the membership table was checked on 21 October 2026."
     }
   ]
 }

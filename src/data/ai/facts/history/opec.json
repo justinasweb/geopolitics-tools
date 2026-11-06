@@ -215,7 +215,7 @@
     },
     {
       "id": "join-ECU-2007",
-      "statement": "Ecuador joined OPEC in 2007.",
+      "statement": "Ecuador rejoined OPEC in 2007.",
       "period": "2007",
       "places": [
         "ECU"
@@ -259,7 +259,7 @@
     },
     {
       "id": "join-GAB-2016",
-      "statement": "Gabon joined OPEC in 2016.",
+      "statement": "Gabon rejoined OPEC in 2016.",
       "period": "2016",
       "places": [
         "GAB"
@@ -340,7 +340,7 @@
     },
     {
       "id": "members-2026",
-      "statement": "Members of OPEC in 2026, after the United Arab Emirates left on 1 May 2026; counted on 2 November 2026.",
+      "statement": "Members of OPEC in 2026.",
       "value": 11,
       "unit": "members",
       "unitAliases": [
@@ -350,7 +350,8 @@
       "period": "2026",
       "source": "OPEC, Member countries",
       "link": "https://www.opec.org/member-countries.html",
-      "date": "2026-11-05"
+      "date": "2026-11-05",
+      "note": "After the United Arab Emirates left on 1 May 2026; counted on 2 November 2026."
     }
   ]
 }

@@ -158,7 +158,7 @@
     },
     {
       "id": "members-2026",
-      "statement": "Members of ASEAN in 2026, as the membership table was checked on 21 October 2026.",
+      "statement": "Members of ASEAN in 2026.",
       "value": 11,
       "unit": "members",
       "unitAliases": [
@@ -168,7 +168,8 @@
       "period": "2026",
       "source": "ASEAN, Member states",
       "link": "https://asean.org/member-states/",
-      "date": "2026-10-21"
+      "date": "2026-10-21",
+      "note": "As the membership table was checked on 21 October 2026."
     }
   ]
 }

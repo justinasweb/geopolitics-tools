@@ -99,7 +99,7 @@
     },
     {
       "id": "join-UZB-2006",
-      "statement": "Uzbekistan joined the CSTO in 2006.",
+      "statement": "Uzbekistan rejoined the CSTO in 2006.",
       "period": "2006",
       "places": [
         "UZB"
@@ -233,7 +233,7 @@
     },
     {
       "id": "members-2026",
-      "statement": "Members of the CSTO in 2026, as the membership table was checked on 21 October 2026.",
+      "statement": "Members of the CSTO in 2026.",
       "value": 6,
       "unit": "members",
       "unitAliases": [
@@ -243,7 +243,8 @@
       "period": "2026",
       "source": "Collective Security Treaty Organization, From the treaty to the organization",
       "link": "https://en.odkb-csto.org/",
-      "date": "2026-10-21"
+      "date": "2026-10-21",
+      "note": "As the membership table was checked on 21 October 2026."
     }
   ]
 }

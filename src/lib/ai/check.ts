@@ -14,7 +14,8 @@
 //   a day in the facts, a month a month in them, a year a year in them.
 // - Country names, aliases and demonyms (./names.ts): only the places the facts file names.
 // - Words that state a comparison ("doubled", "twice") must be in a fact; words the site never uses (forecasts,
-//   blame, judging adjectives) fail the draft (STYLE).
+//   blame, judging adjectives) fail the draft (STYLE), and so do words about the drafting material ("the facts",
+//   "this summary": SELF_REFERENCE).
 import type { Fact, FactsFile } from './facts.ts';
 import { countryNames, NOT_COUNTRIES, stripAccents } from './names.ts';
 
@@ -55,6 +56,8 @@ export const STYLE = [
   'superpower', 'strongman', 'regime', 'threat', 'threatens', 'threatening', 'weaponise', 'weaponize', 'weaponised',
   'weaponized', 'clearly', 'obviously', 'of course', 'merely', 'only just', 'mere', 'leading', 'top',
 ];
+/** Words that talk about the drafting material instead of the subject (prompt.md): a reader never sees the facts. */
+export const SELF_REFERENCE = ['the facts', 'this summary'];
 
 /** A figure as the draft writes it. */
 export interface Quantity {
@@ -429,6 +432,7 @@ export function checkDraft(draft: string, facts: FactsFile): CheckResult {
     const lower = [...allowed.names].reduce((s, n) => s.replace(new RegExp(`(?<![a-z])${escape(stripAccents(n).toLowerCase())}(?![a-z])`, 'g'), ' '), st.toLowerCase());
     for (const c of COMPARISONS) if (new RegExp(`\\b${c}\\b`).test(lower) && !allowed.comparisons.has(c)) push('comparison', c, `"${c}" states a comparison no fact makes.`);
     for (const w of STYLE) if (new RegExp(`(^|[^a-z])${escape(w)}([^a-z]|$)`).test(lower)) push('style', w, `"${w}" is not used on the site (forecasts, blame and judging words are left out).`);
+    for (const w of SELF_REFERENCE) if (new RegExp(`(^|[^a-z])${escape(w)}([^a-z]|$)`).test(lower)) push('style', w, `"${w}" talks about the drafting material, not the subject; leave it out.`);
   }
   return { ok: problems.length === 0, problems };
 }

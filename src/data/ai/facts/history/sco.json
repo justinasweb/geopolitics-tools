@@ -218,7 +218,7 @@
     },
     {
       "id": "members-2026",
-      "statement": "Members of the SCO in 2026, as the membership table was checked on 21 October 2026.",
+      "statement": "Members of the SCO in 2026.",
       "value": 10,
       "unit": "members",
       "unitAliases": [
@@ -230,7 +230,7 @@
       "link": "https://eng.sectsco.org/",
       "date": "2026-10-21",
       "unverified": true,
-      "note": "eng.sectsco.org did not load for anyone on 5 Nov 2026; check after launch"
+      "note": "As the membership table was checked on 21 October 2026. eng.sectsco.org did not load for anyone on 5 Nov 2026; check after launch"
     }
   ]
 }

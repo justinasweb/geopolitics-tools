@@ -80,14 +80,22 @@ function methodologyFacts(on: string): Fact[] {
     { id: 'sipri-totals', statement: 'SIPRI says its trend-indicator values (TIV) are best used to show trends in arms transfers over periods of time; the site shows them as five-year totals.', value: 5, unit: 'years', unitAliases: ['five-year'], source: 'SIPRI Arms Transfers Database, Sources and methods', link: 'https://www.sipri.org/databases/armstransfers/sources-and-methods', date: '2026-11-05', note: 'The page says TIV are “best used as the raw data for calculating trends in international arms transfers over periods of time”.' },
     { id: 'sipri-reuse', statement: 'SIPRI’s terms allow fair use of less than 10% of a published data set; commercial use, including on sites with ads, needs a licence. The site publishes derived totals only.', value: 10, unit: '%', unitAliases: ['data set', 'dataset'], source: 'SIPRI, Terms and conditions for databases', link: 'https://www.sipri.org/databases/terms', date: '2026-11-05' },
     { id: 'ai-model', statement: `Texts drafted with AI are written by ${AI_MODEL} from a facts file, checked figure by figure, and approved by the editor before they appear.`, ...ai },
+    { id: 'ai-prompt', statement: 'The drafting prompt asks for plain, neutral text from a text’s own facts only: no forecasts, blame or judging adjectives; every figure with its unit and period and with thousands separators; the site’s own country names; "rejoined" for a second join; and nothing about its facts file, tables or itself, or about what its facts leave out.', ...code('src/data/ai/prompt.md', on) },
     { id: 'ai-texts', statement: 'The texts drafted with AI are the dossier summaries, the alliance history notes, the disputed river summaries and the summary of each closed week on This week.', ...code('docs/ai-drafting.md', on) },
     { id: 'ai-attempts', statement: 'A draft that fails the check is redrafted once with the checker’s findings, then dropped.', value: AI_ATTEMPTS, unit: 'drafts', ...ai },
     // Only notes checked against their source are facts, as with licences above; the others are still drafts.
     ...NOTES.filter((n) => n.checked).map((n) => ({
-      id: `territory-${n.source}-${n.place}${n.area ? `-${n.area.toLowerCase().replace(/\W+/g, '-')}` : ''}`.replace(/\*/g, 'all'), statement: n.note, places: [n.place].filter((p) => place(p)?.kind !== 'other'),
+      id: `territory-${n.source}-${n.place}${n.area ? `-${n.area.toLowerCase().replace(/\W+/g, '-')}` : ''}`.replace(/\*/g, 'all'), statement: territoryStatement(n), places: [n.place].filter((p) => place(p)?.kind !== 'other'),
       source: 'Territory and code table (src/data/places/notes.csv)', link: `${REPO}/src/data/places/notes.csv`, date: on,
     })),
   ];
+}
+
+/** A territory note as a fact names its place, never only its id: "Falkland Islands: Administered by …". A note that
+ *  names an area or already names its place is kept as it is. */
+export function territoryStatement(n: { place: string; area: string; note: string }): string {
+  const name = place(n.place)?.name ?? n.place;
+  return n.area || n.note.includes(name) ? n.note : `${name}: ${n.note}`;
 }
 
 const HUB_FACTS: Record<string, (on: string) => Fact[]> = {

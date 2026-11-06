@@ -7,6 +7,7 @@ import { AI_MODEL } from '../../src/lib/ai/config.ts';
 import { anthropicClient, cleanReply, draftText, NoKeyError, type DraftClient, type Turn } from '../../src/lib/ai/draft.ts';
 import { duplicateFacts, factsHash, refusals, validateFacts, type FactsFile } from '../../src/lib/ai/facts.ts';
 import { buildPrompt, promptSections } from '../../src/lib/ai/prompt.ts';
+import { territoryStatement } from '../../src/lib/ai/page-facts.ts';
 import { approveText, readText, saveDraft, stateOf, textHash, writeText } from '../../src/lib/ai/store.ts';
 import { HISTORY_BLOCS, historySpans } from '../../src/lib/history.ts';
 import { RIVERS } from '../../src/data/rivers.ts';
@@ -266,6 +267,23 @@ describe('the facts files in the repository', () => {
         const r = checkDraft(x.statement, f);
         expect(r.problems.map((p) => p.message), `${f.id} ${x.id}: ${x.statement}`).toEqual([]);
       }
+    }
+  });
+});
+
+describe('facts files say what a text may say', () => {
+  it('names a territory note’s place, never only its id', () => {
+    expect(territoryStatement({ place: 'FLK', area: '', note: 'Administered by the United Kingdom; claimed by Argentina' })).toBe('Falkland Islands: Administered by the United Kingdom; claimed by Argentina');
+    expect(territoryStatement({ place: 'RUS', area: 'Crimea', note: 'Crimea: Under Russian control since 2014' })).toBe('Crimea: Under Russian control since 2014');
+    expect(territoryStatement({ place: 'CHN', area: '', note: 'This source’s figures for China exclude Hong Kong' })).toBe('This source’s figures for China exclude Hong Kong');
+  });
+
+  it('keeps how a history count was checked in the note, not the statement', () => {
+    for (const f of readdirSync('src/data/ai/facts/history')) {
+      const file = JSON.parse(readFileSync(join('src/data/ai/facts/history', f), 'utf8')) as FactsFile;
+      const members = file.facts.find((x) => x.id === 'members-2026');
+      if (members) expect(members.statement, f).toMatch(/^Members of .+ in 2026\.$/);
+      for (const x of file.facts) expect(x.statement, `${f} ${x.id}`).not.toMatch(/membership table|checked on|counted on/);
     }
   });
 });

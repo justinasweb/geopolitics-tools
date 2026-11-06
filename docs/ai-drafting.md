@@ -42,8 +42,12 @@ lists the `countries` and `names` (treaties, dams, groupings) a text may name. O
 
 - **`unverified: true`** marks a fact not yet checked against its source, with a `note` saying what to check. Nothing
   is drafted, pasted or approved from a file that has one. Remove the flag once checked.
-- **`sample: true`** marks a file generated from the sample data; it is refused the same way. The dossier files in
-  the repository are sample files until the drafting workflow regenerates them from the real snapshot.
+- **The statement is what a text may say; the `note` is for the owner.** How or when something was checked ("as the
+  membership table was checked on 21 October 2026") goes in the note, so it never ends up in a draft: a history's
+  current count reads "Members of NATO in 2026." Names are the site's display names (`Türkiye`), a second join is
+  "rejoined", and a territory note names its place ("Falkland Islands: …"), never only its id.
+- **`sample: true`** marks a file generated from the sample data; it is refused the same way. Run `npm run data:pull`
+  before `ai:facts` so the dossier files come from the real snapshot.
 - **The hash** stored with each text (`factsHash`) covers the subject, places, names and facts, but not the facts'
   dates or notes, so a weekly refresh that changes no figure does not make a text stale.
 
@@ -93,7 +97,8 @@ and compares it with the facts file. It is strict on purpose; its tests are in `
   (`South Sudan` before `Sudan`), with case (`Turkey` is a country, `turkey` is not). `Congo` and `Korea` alone fail:
   write the full name. Region and organisation names (`South America`, `European Union`) are skipped.
 - **Words**: comparisons (`doubled`, `twice`) need a fact that says them; forecasts, blame and judging words
-  (`STYLE` in check.ts) fail the draft.
+  (`STYLE` in check.ts) fail the draft, and so do words about the drafting material instead of the subject
+  (`the facts`, `this summary`: `SELF_REFERENCE`).
 
 A draft that fails is sent back once with the list of problems; a second failure drops it and nothing is saved.
 

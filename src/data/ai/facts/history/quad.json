@@ -139,7 +139,7 @@
     },
     {
       "id": "members-2026",
-      "statement": "Members of the Quad in 2026, as the membership table was checked on 21 October 2026.",
+      "statement": "Members of the Quad in 2026.",
       "value": 4,
       "unit": "members",
       "unitAliases": [
@@ -151,7 +151,7 @@
       "link": "https://www.dfat.gov.au/international-relations/regional-architecture/quad",
       "date": "2026-10-21",
       "unverified": true,
-      "note": "DFAT's page doesn't state 2007, 2008 or 2017; find another official source"
+      "note": "As the membership table was checked on 21 October 2026. DFAT's page doesn't state 2007, 2008 or 2017; find another official source"
     }
   ]
 }

@@ -21,10 +21,16 @@ Rules:
 - Every figure keeps its unit and its period, in the same sentence: "55.5 billion cubic metres a year (1959)",
   "83% of its oil use (2023)". Write figures in digits as the facts give them, or rounded to no fewer than two
   significant figures ("1.2 million" for 1,234,567). Do not write figures as fractions ("half", "a third") or turn
-  them into comparisons ("doubled", "twice as much") unless a fact says so.
+  them into comparisons ("doubled", "twice as much") unless a fact says so. Write numbers of 1,000 and over with
+  thousands separators: "5,150", "1,234,567".
 - Describe changes as directions with figures ("up 3% on 2022"), not as good or bad news.
-- Name countries as the facts name them. Do not mention a country, organisation, person or place that is not in the
-  facts.
+- Name countries by the site's display names, as the facts write them: "Türkiye", not "Turkey"; "Czechia", not
+  "Czech Republic". Do not mention a country, organisation, person or place that is not in the facts.
+- A country that joins a second time "rejoined"; do not write "joined" twice for the same country.
+- Write about the subject, not about your material: never mention "the facts", "this summary", "this text", data
+  files, tables or lists.
+- Never say what is missing or not recorded ("no departures", "no country has left", "no figure is given"). Leave it
+  out.
 - Plain English, short sentences, British spelling. No headings, lists, links, quotation marks or Markdown unless the
   task asks for them.
 - If the facts are not enough for the text asked for, write less. Never fill a gap.
@@ -42,7 +48,8 @@ year, as "(World Bank, 2023)".
 
 Write a note on how the membership of {subject} changed over time, for its alliance history page: three to five
 sentences, at most 100 words. Give the founding, then the main waves of joining and every departure or suspension in
-the facts, with their years. Do not explain why countries joined or left unless a fact says so.
+the facts, with their years; if the facts give none, say nothing about departures. Do not explain why countries
+joined or left unless a fact says so.
 
 ## Task: river
 
@@ -55,7 +62,9 @@ side did or stated, in the facts' words, without saying who is right.
 Write the page "{subject}" in Markdown, using `##` headings for its sections. Keep to what the facts say about the site,
 its sources and its rules. Where a fact is marked as for the owner to fill in, write the placeholder text it gives,
 unchanged. Where a fact has `"owner": true`, it is the owner's own words: copy its statement unchanged, Markdown
-included, on its own lines between `<!-- owner -->` and `<!-- /owner -->`, in the section it belongs to.
+included, on its own lines between `<!-- owner -->` and `<!-- /owner -->`, in the section it belongs to. A page may
+describe the site's tables and how its texts are drafted: write "a facts file", "its facts file" or "its facts",
+never "the facts" or "the facts file".
 
 ## Task: hub
 

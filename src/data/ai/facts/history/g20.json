@@ -316,7 +316,7 @@
     },
     {
       "id": "members-2026",
-      "statement": "Members of the G20 in 2026, counting the European Union and the African Union with the countries.",
+      "statement": "Members of the G20 in 2026.",
       "value": 21,
       "unit": "members",
       "unitAliases": [
@@ -325,7 +325,8 @@
       "period": "2026",
       "source": "G20 Research Group, University of Toronto: What is the G20?",
       "link": "https://www.g20.utoronto.ca/g20whatisit.html",
-      "date": "2026-11-05"
+      "date": "2026-11-05",
+      "note": "Counting the European Union and the African Union with the countries."
     }
   ]
 }

@@ -203,6 +203,14 @@ describe('checkDraft', () => {
     bad('Egypt is vulnerable to changes upstream.', 'style');
   });
 
+  it('refuses drafts that talk about the facts or the summary itself', () => {
+    bad('According to the facts, Egypt and Sudan signed an agreement on 8 November 1959.', 'style');
+    bad('The facts record no departures.', 'style');
+    bad('This summary covers the agreement Egypt and Sudan signed on 8 November 1959.', 'style');
+    bad('As This Summary shows, Egypt and Sudan signed an agreement on 8 November 1959.', 'style');
+    ok('Egypt and Sudan signed an agreement on 8 November 1959.');
+  });
+
   it('reads Markdown and HTML as plain text', () => {
     ok('## The 1959 agreement\n\nEgypt and Sudan signed [an agreement](https://example.org/2024/77) on **8 November 1959**.');
     bad('| Year | Note |\n| --- | --- |\n| 1960 | Something |', 'date');
