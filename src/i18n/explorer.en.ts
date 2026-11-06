@@ -53,7 +53,7 @@ export const EXPLORER_TEXT = {
   noIndex: 'No index',
   log: 'Log scale',
   logs: 'Log scales',
-  logAuto: 'The log scale starts on when the values shown span more than 30 times.',
+  logAuto: 'A log scale gives equal space to equal ratios, such as 1 to 10 and 10 to 100. It switches on by itself when the largest value is more than 30 times the smallest.',
   indexed: (y: number) => `Indexed: each country's ${y} value is 100.`,
   noCountries: 'Add a country to draw its line.',
   linesLabel: (label: string, a: number, b: number) => `${label}, ${a}–${b}`,
