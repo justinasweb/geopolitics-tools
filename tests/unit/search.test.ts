@@ -97,7 +97,8 @@ describe('site search: matching', () => {
   });
 });
 
-describe('site search: the index', () => {
+// The first test builds the index from every data file, which takes a few seconds while the other test files run.
+describe('site search: the index', { timeout: 30_000 }, () => {
   it('lists only live pages, each name and address once, in known groups', async () => {
     const { searchIndex } = await import('../../src/lib/search.ts');
     const { routes } = await import('../../src/lib/routes.ts');
