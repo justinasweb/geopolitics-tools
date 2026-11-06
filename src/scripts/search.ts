@@ -1,8 +1,10 @@
 // Site search in the browser (SiteSearch, SearchDialog): fetches the index once, on first use, and searches it as you
 // type (src/lib/search-match.ts). The input is an ARIA combobox over a listbox of grouped options: the arrow keys move
-// through every result across the groups, Enter opens the one marked (the best when none is), Esc closes the list or,
-// in the dialog, clears the box and then closes it. An empty dialog suggests a few pages; a query that matches nothing
-// says so and suggests the same pages; a typo shows the nearest name's results ("Showing results for India").
+// through every result across the groups, Enter opens the one marked (the best when none is), Esc closes the dialog
+// (focus goes back where it was) or, on the homepage, clears the box and closes its list. An empty dialog suggests a
+// few pages; several words that match nothing together show the results of those that match ("No match for “ukraine
+// war”. Showing results for Ukraine."); a typo shows the nearest name's results ("Showing results for India"); a query
+// with no word that matches says so and suggests the same pages.
 //
 // `gt-search` (the header and Atlas search buttons, the "/" key) focuses the page's large box when it has one, and
 // opens the dialog otherwise.
@@ -111,14 +113,15 @@ function initBox(form: HTMLFormElement): { show: () => void } {
       say(fill(T.none, { q: typed.trim() }));
       return;
     }
-    setNote(r.corrected ? fill(T.didYouMean, { name: r.corrected }) : undefined);
-    const shown = r.corrected ?? typed;
+    const line = r.partial ? fill(T.partial, { q: typed.trim(), name: r.partial }) : r.corrected ? fill(T.didYouMean, { name: r.corrected }) : '';
+    setNote(line || undefined);
+    const shown = r.partial ?? r.corrected ?? typed;
     draw(r.groups.map((g) => [
       T.groups[g.id] ?? g.id,
       g.entries.length < g.total ? fill(T.some, { n: g.entries.length, all: g.total }) : String(g.total),
       g.entries.map((e) => ({ name: e.name, detail: e.detail, path: e.path, typed: shown })),
     ]));
-    say(`${r.corrected ? `${fill(T.didYouMean, { name: r.corrected })} ` : ''}${r.total === 1 ? T.one : fill(T.many, { n: r.total })}`);
+    say(`${line ? `${line} ` : ''}${r.total === 1 ? T.one : fill(T.many, { n: r.total })}`);
   }
 
   async function update() {
@@ -173,8 +176,10 @@ function initBox(form: HTMLFormElement): { show: () => void } {
       if (active > -1) go(active, e.metaKey || e.ctrlKey);
       else if (matched && n) go(0, e.metaKey || e.ctrlKey);
     } else if (e.key === 'Escape') {
-      if (inDialog && input.value) { e.preventDefault(); input.value = ''; void update(); }
-      else if (!inDialog && !panel.hidden) { e.preventDefault(); close(); }
+      // The dialog closes in one press, text or not; the homepage box clears its text and closes its list.
+      e.preventDefault();
+      if (inDialog) form.closest('dialog')?.close();
+      else { input.value = ''; close(); }
     } else if (e.key === 'Tab' && !inDialog) close();
   });
   // Keep the focus in the box while a result is clicked; a click with Ctrl or Cmd, or the middle button, opens a tab.
@@ -218,6 +223,8 @@ export function initSearch(): void {
   const dlgForm = dialog?.querySelector<HTMLFormElement>('[data-gt-ss=dialog]');
   const dlgBox = dlgForm ? initBox(dlgForm) : null;
   const url = (big ?? dlgForm)?.dataset.index;
+  let trigger: HTMLElement | null = null;
+  let back: HTMLElement | null = null;
 
   if (dialog && dlgBox && !bigBox) {
     for (const b of document.querySelectorAll('[data-gt-search]')) {
@@ -226,6 +233,13 @@ export function initSearch(): void {
       b.addEventListener('pointerenter', () => { if (url) void load(url).catch(() => undefined); }, { once: true });
     }
     dialog.querySelector('[data-gt-ss-close]')?.addEventListener('click', () => dialog.close());
+    // Focus goes back to what had it before the dialog opened: the button that opened it, or the element focused before
+    // "/". Some browsers do not focus a button on click, so the button clicked is kept too.
+    document.addEventListener('click', (e) => { trigger = (e.target as Element).closest<HTMLElement>('[data-gt-search]'); }, true);
+    dialog.addEventListener('close', () => {
+      if (back?.isConnected) back.focus({ preventScroll: true });
+      back = null;
+    });
     // A click on the backdrop (the dialog element itself, outside its content) closes it.
     dialog.addEventListener('click', (e) => { if (e.target === dialog) dialog.close(); });
   }
@@ -235,7 +249,12 @@ export function initSearch(): void {
       big.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
       bigBox.show();
     } else if (dialog && dlgBox) {
-      if (!dialog.open) dialog.showModal();
+      if (!dialog.open) {
+        const at = document.activeElement;
+        back = trigger ?? (at instanceof HTMLElement && at !== document.body ? at : null);
+        trigger = null;
+        dialog.showModal();
+      }
       dlgBox.show();
     }
   });

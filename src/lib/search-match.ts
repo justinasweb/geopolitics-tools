@@ -99,15 +99,30 @@ export interface Result {
   total: number;
   /** The name searched for instead, when what was typed matched nothing. */
   corrected?: string;
+  /** When several words matched nothing together: the words that match on their own, searched instead (the page's own
+   *  name when they are its name: "ukraine war" → Ukraine). */
+  partial?: string;
 }
 
 /** Results for a query, grouped: the group with the best match first, then the fixed order. Each group shows its best
  *  `perGroup` (more when only one group matches). When the top result is a country typed in full, the blocs it is a
- *  member of follow. */
+ *  member of follow. With no match, the words that match on their own are searched (several words), then the nearest
+ *  name (a typo). */
 export function search(index: Index, typed: string, perGroup = 5, memberLine?: (country: string) => string): Result {
   const q = fold(typed);
   if (!q) return { groups: [], total: 0 };
   let res = run(index, q, perGroup, memberLine);
+  // Several words that match nothing together: search again with the words that match on their own, or, when those
+  // match nothing together either ("germany lithium"), with the first of them.
+  const tokens = words(q);
+  if (!res.total && tokens.length > 1) {
+    const kept = tokens.filter((t) => run(index, t, perGroup).total > 0);
+    for (const k of kept.length ? [kept.join(' '), kept[0]] : []) {
+      const again = run(index, k, perGroup, memberLine);
+      const top = again.groups[0]?.entries[0];
+      if (again.total) return { ...again, partial: top && top.fields.includes(k) ? top.name : k };
+    }
+  }
   if (!res.total && q.length >= 3) {
     const near = nearest(index, q);
     if (near) res = { ...run(index, fold(near), perGroup, memberLine), corrected: near };

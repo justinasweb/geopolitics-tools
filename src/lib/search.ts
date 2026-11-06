@@ -168,7 +168,7 @@ export const searchIndexPath = (made: string) => `/search-index.json?v=${made.re
 /** The words the browser needs, with "{q}", "{name}", "{country}", "{n}" and "{all}" where the figures go. */
 export const searchClientText = () => ({
   groups: T.groups, try: T.try, loading: T.loading, failed: T.failed, noneHelp: T.noneHelp,
-  none: T.none('{q}'), didYouMean: T.didYouMean('{name}'), member: T.member('{country}'), some: T.some('{n}', '{all}'),
+  none: T.none('{q}'), didYouMean: T.didYouMean('{name}'), partial: T.partial('{q}', '{name}'), member: T.member('{country}'), some: T.some('{n}', '{all}'),
   one: T.count(1), many: T.count('{n}'),
 });
 export type SearchClientText = ReturnType<typeof searchClientText>;

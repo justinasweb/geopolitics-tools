@@ -82,6 +82,22 @@ describe('site search: matching', () => {
     expect(nearest(index, 'zzzz')).toBeUndefined();
   });
 
+  it('searches the words that match when several match nothing together, and says nothing matches only when no word does', () => {
+    const withUkraine = decode({ ...wire, e: [...wire.e, ['Ukraine', 0, 'Country profile', '/countries/ukraine', '', 'UA UKR', 'UKR']] });
+    const r = search(withUkraine, 'ukraine war');
+    expect(r.partial).toBe('Ukraine');
+    expect(r.groups[0].entries[0].path).toBe('/countries/ukraine');
+    // The line names the words kept when they are not one page's name.
+    expect(search(index, 'military zzz').partial).toBe('military');
+    expect(search(index, 'nile qqq').groups[0].entries[0].name).toBe('Nile');
+    // Words that match on their own but not together: the first of them.
+    const two = search(index, 'germany lithium zzz');
+    expect(two.partial).toBe('Germany');
+    expect(two.groups[0].entries[0].name).toBe('Germany');
+    // No word matches: nothing, and no partial line.
+    expect(search(index, 'zzzz qqqq')).toEqual({ groups: [], total: 0 });
+  });
+
   it('counts a swap of two letters as one edit', () => {
     expect(distance('indai', 'india')).toBe(1);
     expect(distance('germny', 'germany')).toBe(1);

@@ -196,12 +196,15 @@ and `SearchDialog.astro` (in `Page.astro` and the Atlas), behaviour `src/scripts
   leaving out any that names another place it is not part of ("Taiwan Province of China" is never a way to China);
   other words for maps and measures ("corn", "defence", "LNG") are in `SEARCH_ALIASES`. A country typed in full is
   followed by the blocs it is a member of ("India is a member").
-- **Typos and nothing found.** With no match, the nearest page name within one or two edits (a swap of two letters
-  counts as one) is searched instead, saying "Showing results for India." Otherwise the box says nothing matches,
-  how to search, and offers the Try pages as options. An empty dialog offers the same Try pages.
+- **Several words, typos and nothing found.** Several words that match nothing together are searched again with the
+  words that match on their own (or the first of them, when those match nothing together), saying "No match for
+  “ukraine war”. Showing results for Ukraine." Then the nearest page name within one or two edits (a swap of two
+  letters counts as one) is searched instead, saying "Showing results for India." Only when no word matches does the
+  box say nothing matches, how to search, and offer the Try pages as options. An empty dialog offers the same pages.
 - **Keyboard.** An ARIA combobox over a listbox of groups: arrows move across every result, Enter opens the marked one
-  (the best when none is marked, never a suggestion after no match), Ctrl/Cmd+Enter or click opens a new tab, Esc
-  closes the list (in the dialog: clears the box, then closes). A polite status line says the count.
+  (the best when none is marked, never a suggestion after no match), Ctrl/Cmd+Enter or click opens a new tab. Esc
+  closes the dialog in one press and focus goes back where it was (the button that opened it, or the element focused
+  before "/"); on the homepage Esc clears the box and closes its list. A polite status line says the count.
 - **Not built:** the design's full results page (/search?q=, SiteStates); the box opens the best result instead.
 
 ## Who counts as a member
