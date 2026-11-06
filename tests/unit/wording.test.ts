@@ -69,3 +69,13 @@ describe('year-on-year changes', () => {
     for (const f of texts) expect(f('4%', true, 2023, '12 Mt')).toBe('4% more than in 2023 (12 Mt)');
   });
 });
+
+describe('place names in sentences', () => {
+  it('take "the" where the name needs it, and not for Vatican City', async () => {
+    const { inSentence, DOSSIER_TEXT } = await import('../../src/i18n/pages.en.ts');
+    expect(inSentence('Vatican City')).toBe('Vatican City');
+    expect(inSentence('Vatican')).toBe('the Vatican');
+    expect(DOSSIER_TEXT.moneyFind(inSentence('United States', true), '$30 trillion', 2024)).toBe('The United States’ economy produced $30 trillion in 2024.');
+    expect(DOSSIER_TEXT.peopleFind(inSentence('Netherlands', true), '18 million', 2024)).toBe('The Netherlands had 18 million people in 2024.');
+  });
+});

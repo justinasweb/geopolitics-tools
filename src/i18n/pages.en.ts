@@ -24,7 +24,7 @@ export const list = (items: string[]) => (items.length < 3 ? items.join(' and ')
 export const possessive = (name: string) => (name.endsWith('s') ? `${name}’` : `${name}’s`);
 
 /** Names that read with "the" inside a sentence. */
-const WITH_THE = /^(United States|United Kingdom|United Arab Emirates|Netherlands|Philippines|Bahamas|Gambia|Maldives|Marshall Islands|Solomon Islands|Comoros|Seychelles|Central African Republic|Dominican Republic|Czech Republic|Democratic Republic|Republic of|Vatican|Cayman Islands|Falkland Islands|Faroe Islands|Cook Islands|British Virgin Islands|Northern Mariana Islands|Turks and Caicos Islands|Virgin Islands)/;
+const WITH_THE = /^(United States|United Kingdom|United Arab Emirates|Netherlands|Philippines|Bahamas|Gambia|Maldives|Marshall Islands|Solomon Islands|Comoros|Seychelles|Central African Republic|Dominican Republic|Czech Republic|Democratic Republic|Republic of|Vatican(?! City)|Cayman Islands|Falkland Islands|Faroe Islands|Cook Islands|British Virgin Islands|Northern Mariana Islands|Turks and Caicos Islands|Virgin Islands)/;
 /** A place name inside a sentence; `start` capitalises "The" at the start of a sentence. */
 export const inSentence = (name: string, start = false) => (WITH_THE.test(name) ? `${start ? 'The' : 'the'} ${name}` : name);
 
