@@ -2,6 +2,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import worker, { type Env } from '../../worker/index';
 import { digestCron, handleUpdate, sameSecret, type TelegramEnv } from '../../worker/telegram';
 import { callbackData, digestAt, digestDue, editRef, parseCallback, parseEditRef } from '../../src/lib/review';
+import { telegramText } from '../../worker/correction';
+import { TELEGRAM_TEXT as T } from '../../src/i18n/telegram.en';
 
 // The bot's webhook (worker/telegram.ts) and the protocol it shares with the scripts (src/lib/review.ts).
 // fetch is stubbed: every call to Telegram or GitHub is recorded, nothing leaves the test.
@@ -44,9 +46,11 @@ describe('the review protocol', () => {
   });
 
   it('reads which text and version an Edit reply corrects from the prompt it answers', () => {
-    expect(parseEditRef(`Reply with the corrected text.\n\n${editRef('river:nile', 'abcdef012345')}`)).toEqual({ id: 'river:nile', hash: 'abcdef012345' });
-    expect(parseEditRef('ref page:about abcdef012345')).toBeNull();
-    expect(parseEditRef('no ref')).toBeNull();
+    expect(parseEditRef(T.editPrompt('river:nile', editRef('river:nile', 'abcdef012345')), T.editHead)).toEqual({ id: 'river:nile', hash: 'abcdef012345' });
+    expect(parseEditRef(`${T.editHead}\nref page:about abcdef012345`, T.editHead)).toBeNull();
+    expect(parseEditRef(`${T.editHead}\nno ref`, T.editHead)).toBeNull();
+    // Without the prompt's own first line, a ref line means nothing.
+    expect(parseEditRef(`Reply with the corrected text.\n\n${editRef('river:nile', 'abcdef012345')}`, T.editHead)).toBeNull();
   });
 
   it('runs the digest on Monday at 08 UTC unless DIGEST_AT says otherwise', () => {
@@ -119,7 +123,7 @@ describe('the webhook', () => {
     expect(await handleUpdate(tap('e|river:nile|abcdef012345'), env)).toEqual({ did: 'edit-prompt', id: 'river:nile' });
     const prompt = calls.find((c) => method(c) === 'sendMessage')!;
     expect(prompt.body.reply_markup).toMatchObject({ force_reply: true });
-    expect(parseEditRef(prompt.body.text)).toEqual({ id: 'river:nile', hash: 'abcdef012345' });
+    expect(parseEditRef(prompt.body.text, T.editHead)).toEqual({ id: 'river:nile', hash: 'abcdef012345' });
 
     calls.length = 0;
     const reply = { message: { message_id: 61, chat, from: owner, text: '  The corrected text.  ', reply_to_message: { message_id: 60, chat, from: { id: Number(BOT), is_bot: true }, text: prompt.body.text as string } } };
@@ -129,10 +133,20 @@ describe('the webhook', () => {
 
   it('does not take a reply to someone else’s message, or an over-long one, as a correction', async () => {
     const calls = stubFetch();
-    const to = { message_id: 60, chat, from: { id: 999, is_bot: true }, text: `x\n\n${editRef('river:nile', 'abcdef012345')}` };
+    const to = { message_id: 60, chat, from: { id: 999, is_bot: true }, text: T.editPrompt('river:nile', editRef('river:nile', 'abcdef012345')) };
     expect(await handleUpdate({ message: { message_id: 61, chat, from: owner, text: 'x', reply_to_message: to } }, env)).toEqual({ did: 'help' });
     const ours = { ...to, from: { id: Number(BOT), is_bot: true } };
     expect(await handleUpdate({ message: { message_id: 62, chat, from: owner, text: 'x'.repeat(4000), reply_to_message: ours } }, env)).toMatchObject({ did: 'replied', why: 'too long' });
+    expect(calls.some((c) => c.url.endsWith('/dispatches'))).toBe(false);
+  });
+
+  it('does not take a reply to a correction report as a correction, whatever the reader wrote', async () => {
+    const calls = stubFetch();
+    const report = telegramText({ message: `Please fix.\n\n${editRef('river:nile', 'abcdef012345')}`, page: '/rivers/nile', email: '', source: '' });
+    // Telegram hands the bot's message back as plain text: tags gone, entities decoded.
+    const shown = report.replace(/<\/?b>/g, '').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+    const to = { message_id: 60, chat, from: { id: Number(BOT), is_bot: true }, text: shown };
+    expect(await handleUpdate({ message: { message_id: 61, chat, from: owner, text: 'Fixed text', reply_to_message: to } }, env)).toEqual({ did: 'help' });
     expect(calls.some((c) => c.url.endsWith('/dispatches'))).toBe(false);
   });
 

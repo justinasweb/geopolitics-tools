@@ -46,6 +46,10 @@ export function validate(body: Record<string, unknown>): Report | { error: Corre
 /** Escapes text for Telegram's HTML parse mode, which needs only these three. */
 export const escapeHtml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
+// A reader's line that starts like an Edit prompt's ref line ("ref <id> <hash>", src/lib/review.ts) gets a mark in
+// front, so a report never reads as one.
+const neutralise = (s: string) => s.replace(/^(\s*)(ref )/gim, '$1› $2');
+
 /** The Telegram message: page, source and reply address as labelled lines, then the report. */
 export function telegramText(r: Report, host = 'geopolitics.tools') {
   return [
@@ -54,7 +58,7 @@ export function telegramText(r: Report, host = 'geopolitics.tools') {
     ...(r.source ? [`<b>Source line:</b> ${escapeHtml(r.source)}`] : []),
     `<b>Reply to:</b> ${r.email ? escapeHtml(r.email) : 'no email left'}`,
     '',
-    escapeHtml(r.message),
+    escapeHtml(neutralise(r.message)),
   ].join('\n');
 }
 

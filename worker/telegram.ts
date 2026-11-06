@@ -172,7 +172,7 @@ async function onMessage(m: Message, env: TelegramEnv): Promise<Outcome> {
   if (!isOwner(env, m.chat, m.from)) return { did: 'ignored', why: 'not the owner' };
   const send = (text: string) => tg(env, 'sendMessage', { chat_id: m.chat.id, text, reply_parameters: { message_id: m.message_id } });
   const to = m.reply_to_message;
-  const ref = to && String(to.from?.id) === botId(env) ? parseEditRef(to.text) : null;
+  const ref = to && String(to.from?.id) === botId(env) ? parseEditRef(to.text, T.editHead) : null;
   if (!ref) {
     await send(T.help);
     return { did: 'help' };

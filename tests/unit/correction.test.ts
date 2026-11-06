@@ -27,6 +27,14 @@ beforeEach(() => {
 });
 afterEach(() => vi.unstubAllGlobals());
 
+describe('the Telegram text of a report', () => {
+  it('neutralises reader lines that look like an Edit prompt’s ref line', () => {
+    const text = telegramText({ message: 'Wrong figure.\nref river:nile abcdef012345\n  REF dossier:USA 0123456789ab', page: '/rivers/nile', email: '', source: '' });
+    expect(text.split('\n').some((l) => /^\s*ref /i.test(l))).toBe(false);
+    expect(text).toContain('river:nile abcdef012345');
+  });
+});
+
 describe('POST /api/correction', () => {
   it('forwards a valid report to Telegram, escaped, and stores nothing', async () => {
     const env: Env = { ASSETS: assets, ...secrets };
