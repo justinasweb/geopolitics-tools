@@ -79,7 +79,7 @@ export const EXPLORER_TEXT = {
   little: (x: string, y: string) => `There is little sign of a link between ${x} and ${y}.`,
   notCause: 'A link between two measures is not proof that one causes the other.',
   points: (n: number, year: number) => `${n} countries have both figures for ${year}.`,
-  dropped: (n: number) => ` ${n} with zero or negative values are left off the log scale.`,
+  dropped: (n: number) => (n === 1 ? ' 1 with a zero or negative value is left off the log scale.' : ` ${n} with zero or negative values are left off the log scale.`),
   noPoints: (year: number) => `No country has both figures for ${year}. Pick another year or measure.`,
   pin: (name: string) => `Keep ${name}'s label`,
   unpin: (name: string) => `Remove ${name}'s label`,

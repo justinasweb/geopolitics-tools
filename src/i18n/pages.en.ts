@@ -101,7 +101,7 @@ export const COUNTRY_TEXT = {
   depsMenu: 'Dependencies',
   allHeading: 'All figures',
   allMenu: 'All figures',
-  allFind: (c: string, n: number) => `${n} measures on this site have a recent figure for ${c}.`,
+  allFind: (c: string, n: number) => (n === 1 ? `1 measure on this site has a recent figure for ${c}.` : `${n} measures on this site have a recent figure for ${c}.`),
   allColumns: { measure: 'Measure', value: 'Value', year: 'Year', rank: 'Rank', source: 'Source' },
   allLabel: (c: string) => `All figures for ${c}`,
   coverage: 'Coverage notes',
@@ -111,7 +111,7 @@ export const COUNTRY_TEXT = {
   citation: (name: string, kind: string, url: string, year: number, date: string) => `geopolitics.tools (${year}). ${name}: ${kind.toLowerCase()}. ${url}, updated ${date}.`,
   // Few sources
   fewHeading: 'Few sources cover this place',
-  fewBody: (c: string, n: number, total: number) => `${n} of the ${total} sources this site uses have figures for ${c}. The page shows what they report; the others either do not cover it or have no figure for it.`,
+  fewBody: (c: string, n: number, total: number) => `${n} of the ${total} sources this site uses ${n === 1 ? 'has' : 'have'} figures for ${c}. The page shows what they report; the others either do not cover it or have no figure for it.`,
   fewCovered: 'With figures',
   fewNot: 'Checked, no figure',
   fewSuggest: 'Know a source that covers it? Write to data@geopolitics.tools.',
