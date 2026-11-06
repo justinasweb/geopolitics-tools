@@ -280,3 +280,4 @@
 .gt-jumpbar summary.gt-jumpbar__b { display: flex; align-items: center; min-height: 44px; }
 .gt-jumpbar__b > svg { width: 12px; height: 12px; margin-left: auto; flex: none; fill: none; stroke: currentColor; stroke-width: 1.6; }
 .gt-jumpbar details[open] .gt-jumpbar__b > svg { transform: rotate(180deg); }
+.gt-deps__src { display: block; margin-top: 2px; }

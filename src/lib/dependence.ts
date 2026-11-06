@@ -5,6 +5,7 @@ import { food, type Balance, type Crop } from '../adapters/faostat.ts';
 import { gas, oil, type Fuel, type Oil } from '../adapters/eia.ts';
 import { FLOWS, loadFlows, topSupplier, type Flows } from '../data/flows.ts';
 import { shared } from './data.ts';
+import { DEP_TEXT, SOURCE_SHORT } from '../i18n/pages.en.ts';
 
 export const RESOURCES = ['oil', 'gas', 'wheat', 'maize', 'rice', 'soy', 'potash', 'phosphate', 'arms', 'chips'] as const;
 export type Resource = (typeof RESOURCES)[number];
@@ -41,6 +42,16 @@ export interface DepRow {
   buyers?: boolean;
   /** Use is zero, so no share. */
   noUse?: boolean;
+  /** Where the partners and the main supplier come from, when it is a trade source with its own period. */
+  partnersFrom?: { source: string; period: string };
+}
+
+/** A row's source and year as its line reads: "EIA, use 2024 · UN Comtrade, imports 2025"; null without figures. */
+export function rowSource(r: DepRow): string | null {
+  const short = (s: string) => SOURCE_SHORT[s] ?? s;
+  if (r.year === undefined) return r.period ? DEP_TEXT.dated(short(r.source), r.period) : null;
+  const f = r.partnersFrom;
+  return DEP_TEXT.dated(short(r.source), String(r.year), f && short(f.source), f?.period, r.buyers);
 }
 
 const foodData = shared(food);
@@ -80,6 +91,7 @@ function fromBalance(resource: Resource, b: Balance | undefined, id: string, flo
   if (f) {
     const buyers = row.tag === 'exp';
     row.buyers = buyers;
+    row.partnersFrom = { source: f.source, period: f.period };
     row.partners = f.pairs.filter((p) => (buyers ? p.from === id : p.to === id)).slice(0, 3).map((p) => (buyers ? p.to : p.from));
     const t = !buyers && (row.reliance ?? 0) > 0 ? topSupplier(f, id) : null;
     if (t) row.top = { id: t.from, share: t.share };

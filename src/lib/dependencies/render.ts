@@ -2,6 +2,7 @@
 // the page reads without scripts, and the browser script, which redraws as the reader changes them. Every cell
 // writes its value, so the tint and bar are never the only cue.
 import { DEPS_TEXT as T } from '../../i18n/dependencies.en.ts';
+import { DEP_TEXT } from '../../i18n/pages.en.ts';
 import { formatShare } from '../format.ts';
 import { esc } from '../explorer/render.ts';
 import {
@@ -35,7 +36,10 @@ function cellHtml(grid: Grid, r: ResourceId, c: Cell, tag: 'td' | 'span' = 'td')
   const [v, s] = cellText(grid, r, c);
   // "Not reported" is most of the empty cells: a dash, with the words for screen readers and on hover.
   const quiet = v === '–' && (c.why ?? 'n') === 'n';
-  const title = c.y ? ` title="${esc(T.year(c.y))}"` : quiet ? ` title="${esc(s)}"` : '';
+  // The year in the tooltip, with the source; the supplier's year apart when the trade source has another.
+  const meta = grid.resources.find((m) => m.id === r);
+  const when = c.y && (meta ? DEP_TEXT.dated(meta.credit, c.y, c.ty && meta.flowCredit, c.ty) : T.year(c.y));
+  const title = when ? ` title="${esc(when)}"` : quiet ? ` title="${esc(s)}"` : '';
   const sub = !s ? '' : quiet ? `<span class="gt-vh">${esc(s)}</span>` : `<span class="gt-dg__s">${esc(s)}</span>`;
   return `<${tag} class="gt-dg gt-dg--${bandOf(r, c)}"${title}><span class="gt-dg__v"${quiet ? ' aria-hidden="true"' : ''}>${esc(v)}</span>${sub}</${tag}>`;
 }

@@ -58,6 +58,14 @@ export const DEP_TEXT = {
   noImports: (period: string) => `No major arms imports recorded, ${period}`,
   noData: 'No data yet',
   noRow: 'Not reported by this source',
+  /** A row's source and year: use and trade dated apart when the partners come from another source or year
+   *  (imports, or exports when the partners are buyers). */
+  dated: (source: string, year: string, flowSource?: string, flowYear?: string, buyers = false) =>
+    (!flowSource || !flowYear || (flowSource === source && flowYear === year) ? `${source}, ${year}` : `${source}, use ${year} · ${flowSource}, ${buyers ? 'exports' : 'imports'} ${flowYear}`),
+  /** A row with figures but no partners: the trade source names none for it. */
+  noPartners: 'No partner data from the source',
+  /** The section's shared source line: each row carries its own year. */
+  yearsByRow: 'year in each row',
   partners: 'Main partners',
   buyersTag: '(buyers)',
   link: 'Dependencies tool',

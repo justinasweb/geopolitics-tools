@@ -26,6 +26,8 @@ export interface Cell {
   t?: [string, number];
   /** Year, or period for arms ("2020–2024"). */
   y?: string;
+  /** The main supplier's year, when it comes from a trade source with another year ("2025"). */
+  ty?: string;
   /** Why there is no figure: p no data yet, n not reported, u not used, i no imports. */
   why?: 'p' | 'n' | 'u' | 'i';
 }

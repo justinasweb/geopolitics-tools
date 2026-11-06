@@ -115,3 +115,22 @@ describe('the phone card', () => {
     expect(phoneHtml(parseState(new URLSearchParams('find=Atlantis'), grid), grid)).toMatch(/<article class="gt-dgcard">/);
   });
 });
+
+describe('years and sources by row', () => {
+  it('dates use and imports apart when they differ, and says when a source gives no partners', async () => {
+    const { DEP_TEXT } = await import('../../src/i18n/pages.en.ts');
+    expect(DEP_TEXT.dated('EIA', '2024', 'UN Comtrade', '2025')).toBe('EIA, use 2024 · UN Comtrade, imports 2025');
+    expect(DEP_TEXT.dated('FAOSTAT', '2023', 'FAOSTAT', '2023')).toBe('FAOSTAT, 2023');
+    // An exporter's partners are its buyers.
+    expect(DEP_TEXT.dated('FAOSTAT', '2024', 'UN Comtrade', '2025', true)).toBe('FAOSTAT, use 2024 · UN Comtrade, exports 2025');
+    expect(DEP_TEXT.dated('SIPRI', '2021–2025')).toBe('SIPRI, 2021–2025');
+    expect(DEP_TEXT.noPartners).toBe('No partner data from the source');
+  });
+
+  it('puts both years in the grid cell’s tooltip', () => {
+    const g: Grid = { ...grid, rows: grid.rows.map((r) => (r.id === 'HUN' ? { ...r, cells: r.cells.map((c, i) => (i === 1 ? { ...c, y: '2024', ty: '2025' } : c)) } : r)) };
+    const html = tableHtml({ ...DEFAULTS, sort: 'gas' }, g);
+    const row = html.slice(html.indexOf('Hungary'), html.indexOf('</tr>', html.indexOf('Hungary')));
+    expect(row).toMatch(/title="[^"]*use 2024 · [^"]*imports 2025"/);
+  });
+});

@@ -73,7 +73,6 @@ const findDeps = (() => {
   const self = okDeps.filter((d) => d.tag === 'self').map((d) => RESOURCE_TEXT[d.resource].noun);
   return self.length ? DEP_TEXT.findSelf(subject, list(self)) : undefined;
 })();
-const depYears = [...new Set(okDeps.map((d) => d.period ?? String(d.year)).filter(Boolean))].sort();
 const depSourceNames = [...new Set(okDeps.map((d) => short(d.source)))].sort();
 
 const mineralYear = m.minerals[0]?.year;
@@ -181,7 +180,7 @@ const citation = COUNTRY_TEXT.citation(name, kind, url, Number(m.updated.slice(0
 
         {okDeps.length > 0 && (
           <CpSection n={nDeps} id="deps" heading={DEP_TEXT.heading} find={findDeps}
-            source={{ source: depSourceNames.join('; '), parts: depYears.length ? [depYears.length > 1 ? `${depYears[0]}–${depYears.at(-1)}` : depYears[0]] : [], updated: m.updated }}
+            source={{ source: depSourceNames.join('; '), parts: [DEP_TEXT.yearsByRow], updated: m.updated }}
             link={live('tool:dependencies') ? { href: live('tool:dependencies')!.path, label: DEP_TEXT.link } : undefined}>
             <DependencyTable rows={m.deps} label={`${name}: ${DEP_TEXT.heading.toLowerCase()}`} />
           </CpSection>

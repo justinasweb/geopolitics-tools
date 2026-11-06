@@ -29,6 +29,7 @@ function cellOf(r: DepRow): Cell {
   if (t) c.t = [t.id, share(t.share)];
   const y = r.period ?? (r.year !== undefined ? String(r.year) : undefined);
   if (y) c.y = y;
+  if (r.top && r.partnersFrom && r.partnersFrom.period !== y) c.ty = r.partnersFrom.period;
   return c;
 }
 
