@@ -238,6 +238,29 @@ export async function publish(stores: Stores, state: State, own: string[], about
   return { snapshot, published };
 }
 
+/**
+ * Saves a source's last good copy again, under this run's prefix, once it is half its retention period old, so the
+ * bucket's lifecycle rule never deletes the files the latest snapshot points to. It runs for every source on every
+ * run, whether the source is due, works or fails: a source that fails for weeks keeps its last good data.
+ * Returns whether the files moved (the snapshot must then point to the new copies).
+ */
+async function keepLastGood(stores: Stores, src: Source, st: SourceState, stamp: string, now: Date): Promise<boolean> {
+  const since = st.saved ?? st.lastChange;
+  if (src.keepDays === undefined || !since || !Object.keys(st.files).length) return false;
+  if (now.getTime() - Date.parse(since) <= (src.keepDays / 2) * 86_400_000) return false;
+  const moved: Record<string, FileRecord> = {};
+  for (const [name, rec] of Object.entries(st.files)) {
+    const body = await stores.raw.get(rec.key);
+    if (!body) throw new Error(`${rec.key} is gone from ${stores.raw.name}`);
+    const key = `${src.id}/${stamp}/${name}.gz`;
+    await stores.raw.put(key, body, 'application/gzip');
+    moved[name] = { ...rec, key };
+  }
+  st.files = moved;
+  st.saved = now.toISOString();
+  return true;
+}
+
 export async function run(opts: RunOptions): Promise<RunReport> {
   const now = opts.now ?? new Date();
   const log = opts.log ?? ((...a: unknown[]) => console.log(new Date().toISOString().slice(11, 19), ...a));
@@ -250,6 +273,14 @@ export async function run(opts: RunOptions): Promise<RunReport> {
 
   for (const src of opts.sources) {
     const st = (state.sources[src.id] ??= emptySource());
+    try {
+      if (await keepLastGood(stores, src, st, stamp, now)) {
+        changed = true;
+        log(src.id.padEnd(12), 'saved the last good copy again before its retention rule could delete it');
+      }
+    } catch (e) {
+      log(src.id.padEnd(12), `could not save the last good copy again: ${(e as Error).message}`);
+    }
     const named = opts.only?.includes(src.id) ?? false;
     if (opts.only && !named) continue;
     if (src.enabled !== true && !named) {
@@ -286,13 +317,12 @@ export async function run(opts: RunOptions): Promise<RunReport> {
         const body = bytesOf(f.body);
         fresh[f.name] = { key: `${src.id}/${stamp}/${f.name}.gz`, sha256: sha256(body), bytes: body.length, contentType: f.contentType ?? 'application/octet-stream', body };
       }
-      // Copies under a retention rule are saved again before the rule could delete the last good one.
-      const expiring = src.keepDays !== undefined && st.lastChange !== undefined && now.getTime() - Date.parse(st.lastChange) > (src.keepDays / 2) * 86_400_000;
-      const isNew = !sameFiles(st.files, fresh) || expiring;
+      // Copies under a retention rule were saved again above (keepLastGood) when they needed it.
+      const isNew = !sameFiles(st.files, fresh);
       if (isNew) {
         for (const f of Object.values(fresh)) await stores.raw.put(f.key, gzipSync(f.body, { level: 9 }), 'application/gzip');
         st.files = Object.fromEntries(Object.entries(fresh).map(([n, { key, sha256, bytes, contentType }]) => [n, { key, sha256, bytes, contentType }]));
-        st.lastChange = now.toISOString();
+        st.lastChange = st.saved = now.toISOString();
         changed = true;
       }
       st.lastSuccess = now.toISOString();

@@ -135,7 +135,9 @@ it('saves an unchanged file again before its retention rule would delete the las
   const r1 = await run({ sources: [a], stores, http, alerter: recorder(), now: new Date('2026-10-05T00:00Z'), log: () => {} });
   expect(r1.reports[0].outcome).toBe('unchanged');
   const r2 = await run({ sources: [a], stores, http, alerter: recorder(), now: new Date('2026-10-09T00:00Z'), log: () => {} });
-  expect(r2.reports[0].outcome).toBe('changed');
+  // The data is the same; the copy moves, so the run publishes a snapshot that points to it.
+  expect(r2.reports[0].outcome).toBe('unchanged');
+  expect(r2.changed).toBe(true);
   expect(await stores.raw.get('a/2026-10-09T0000Z/f.gz')).not.toBeNull();
 });
 
@@ -174,4 +176,32 @@ it('publishes again when latest.json points at an older snapshot than the state'
   expect(r.changed).toBe(true);
   const snap = JSON.parse((await read(stores, 'snapshots', 'latest.json'))!) as Snapshot;
   expect(snap.sources.a.files.f.key).toBe('a/2026-10-24T0200Z/f.gz');
+});
+
+it('keeps a failing source’s last good copy out of its retention rule, so a build can still read it', async () => {
+  const stores = tempStores();
+  // The lifecycle rule: a copy under the source's prefix is gone 14 days after its run.
+  let today = new Date('2026-10-01T00:00Z');
+  const get = stores.raw.get.bind(stores.raw);
+  stores.raw.get = async (key) => {
+    const m = /^a\/(\d{4}-\d{2}-\d{2})T(\d{2})(\d{2})Z\//.exec(key);
+    if (m && today.getTime() - Date.parse(`${m[1]}T${m[2]}:${m[3]}Z`) > 14 * DAY * 3_600_000) return null;
+    return get(key);
+  };
+  let works = true;
+  const a = fakeSource('a', () => { if (!works) throw new Error('down'); return { files: [{ name: 'f', body: 'good' }], rows: 1 }; }, { keepDays: 14 });
+  await run({ sources: [a], stores, http, alerter: recorder(), now: today, log: () => {} });
+  works = false;
+  for (let d = 1; d <= 30; d++) {
+    today = new Date(Date.UTC(2026, 9, 1 + d));
+    await run({ sources: [a], stores, http, alerter: recorder(), now: today, log: () => {} });
+  }
+  const snap = JSON.parse((await read(stores, 'snapshots', 'latest.json'))!) as Snapshot;
+  const rec = snap.sources.a.files.f;
+  expect(new TextDecoder().decode(gunzipSync((await stores.raw.get(rec.key))!))).toBe('good');
+  const st = (await loadState(stores)).sources.a;
+  expect(st.files.f.key).toBe(rec.key);
+  // Saving the copy again is not a change of data.
+  expect(st.lastChange).toBe('2026-10-01T00:00:00.000Z');
+  expect(st.failures).toBe(30);
 });

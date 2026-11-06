@@ -68,8 +68,10 @@ A run is named by its start time, such as `2026-10-24T1623Z`. A run in which not
 snapshot, only the state and status. The snapshot and `latest.json` are written before the state, and every run
 compares `latest.json`'s files with the state's: when a run saved new files but could not publish them, the next run
 publishes a snapshot with them. The retention rules are created by the production deploy job from
-`node pipeline/run.ts --retention`; a source under a rule re-saves its unchanged copy after half the period, so the
-last good copy never expires.
+`node pipeline/run.ts --retention`. Every run, whether a source is due, works or fails, saves a source's last good
+copy again under that run's prefix once it is half its retention period old (`keepLastGood` in
+`pipeline/lib/runner.ts`), and the snapshot then points to the new copy, so the last good copy never expires, even
+for a source that fails for weeks. The state's `saved` records when; `lastChange` stays the last change of data.
 
 **Rolling data back:** build with an earlier snapshot (`node pipeline/pull.ts --snapshot=<run>`). Pages and code roll
 back separately, from Cloudflare's deployments.
