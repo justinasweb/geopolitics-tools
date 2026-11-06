@@ -5,6 +5,7 @@
 import { HOME_TEXT as T, QUESTION_TEXT } from '../i18n/home.en.ts';
 import { INDICATOR_TEXT, NAV_TEXT, TRAIL_TEXT } from '../i18n/en.ts';
 import { HUB_TEXT as H } from '../i18n/hubs.en.ts';
+import { SUMMARY } from '../i18n/pages.en.ts';
 import { treasuryHolders } from '../adapters/treasury.ts';
 import { INDICATORS } from '../data/indicators.ts';
 import { DOSSIERS, countryModel } from './country.ts';
@@ -174,13 +175,15 @@ const RANKINGS = ['milusd', 'co2pc', 'refin'];
 
 /** A dossier card's fact: the first sentence of the country page's template summary (src/lib/country.ts), with its
  *  source and year in it. With mineral shares that sentence is always the USGS one, for the lead mineral's year, so
- *  its Estimate tag follows that mineral, as on the minerals pages. */
+ *  its Estimate tag follows that mineral, as on the minerals pages; none when the sentence already says so in words
+ *  ("(USGS, 2025, estimated)"). */
 export function dossierFact(id: string): { fact: string | null; estimated: boolean } {
   const m = countryModel(id);
   const fact = m?.summary[0] ?? null;
   const top = m?.minerals.slice(0, 3) ?? [];
   const lead = top.find((x) => x.measure === 'mine') ?? top[0];
-  return { fact, estimated: Boolean(fact && lead?.estimated) };
+  const says = Boolean(fact?.endsWith(`, ${SUMMARY.estimated}).`));
+  return { fact, estimated: Boolean(fact && lead?.estimated && !says) };
 }
 
 export function places(): Places {

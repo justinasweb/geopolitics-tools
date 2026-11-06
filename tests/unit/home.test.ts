@@ -66,7 +66,7 @@ describe('homepage tool row', () => {
     expect(weekStrip(() => null, live)).toBeNull();
   });
 
-  it('gives each dossier card the first sentence of its page summary, tagged when the USGS year is an estimate', async () => {
+  it('gives each dossier card the first sentence of its page summary, tagged when the USGS year is an estimate the sentence does not name', async () => {
     const { dossierFact } = await import('../../src/lib/home.ts');
     const { countryModel } = await import('../../src/lib/country.ts');
     for (const id of ['USA', 'CHN', 'RUS']) {
@@ -74,7 +74,10 @@ describe('homepage tool row', () => {
       const f = dossierFact(id);
       expect(f.fact).toBe(m?.summary[0] ?? null);
       const lead = m?.minerals.slice(0, 3).find((x) => x.measure === 'mine') ?? m?.minerals[0];
-      expect(f.estimated).toBe(Boolean(f.fact && lead?.estimated));
+      // No tag when the sentence already ends "…, estimated)." in words.
+      const says = Boolean(f.fact?.endsWith(', estimated).'));
+      expect(f.estimated).toBe(Boolean(f.fact && lead?.estimated && !says));
+      if (says) expect(f.estimated).toBe(false);
     }
     expect(dossierFact('XXX')).toEqual({ fact: null, estimated: false });
   });
