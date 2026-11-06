@@ -1,0 +1,11 @@
+{
+  "id": "river:mekong",
+  "author": "ai",
+  "text": "The countries in the facts are China, Myanmar, Laos, Thailand, Cambodia and Vietnam. Cambodia, Laos, Thailand and Vietnam signed the Agreement on the Cooperation for the Sustainable Development of the Mekong River Basin on 5 April 1995, setting up the Mekong River Commission. China and Myanmar became dialogue partners of the Commission in 1996. The Xayaburi dam on the Mekong main stem in Laos began commercial operation in October 2019. In October 2020, China agreed to share year-round hydrological data from the Lancang with the Commission.",
+  "model": "claude-sonnet-5-5",
+  "factsHash": "sha256:06418a3e5a4dcf8d7952f2a16ffd7030",
+  "drafted": "2026-11-06",
+  "approved": false,
+  "approvedOn": null,
+  "approvedVia": null
+}

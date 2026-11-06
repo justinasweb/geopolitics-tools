@@ -1,0 +1,11 @@
+{
+  "id": "history:csto",
+  "author": "ai",
+  "text": "The Collective Security Treaty was signed in 1992, with six founding members: Armenia, Kazakhstan, Kyrgyzstan, Russia, Tajikistan and Uzbekistan. Azerbaijan, Belarus and Georgia joined in 1993. In 1999 Azerbaijan, Georgia and Uzbekistan left, having not renewed the treaty. The treaty's members founded the Collective Security Treaty Organization in 2002, and Uzbekistan joined in 2006. Uzbekistan suspended its membership in 2012, and Armenia froze its participation in 2024 but has not left.",
+  "model": "claude-sonnet-5-5",
+  "factsHash": "sha256:ff2d5469900f876e90d679568eb5dd55",
+  "drafted": "2026-11-06",
+  "approved": false,
+  "approvedOn": null,
+  "approvedVia": null
+}

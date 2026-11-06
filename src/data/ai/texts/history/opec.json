@@ -1,0 +1,11 @@
+{
+  "id": "history:opec",
+  "author": "ai",
+  "text": "OPEC was founded in 1960 by Iran, Iraq, Kuwait, Saudi Arabia and Venezuela. Qatar, Indonesia, Libya, the United Arab Emirates, Algeria, Nigeria, Ecuador and Gabon joined between 1961 and 1975. Angola and Ecuador joined in 2007, Gabon in 2016, Equatorial Guinea in 2017 and Republic of the Congo in 2018. Ecuador left in 1992 and 2020, Gabon in 1995, Qatar in 2019 and Angola in 2024; Indonesia suspended membership in 2009 and, after rejoining in January 2016, again in November 2016. The United Arab Emirates left on 1 May 2026, leaving 11 members.",
+  "model": "claude-sonnet-5-5",
+  "factsHash": "sha256:8820c10fe4f29eb4ac653e6145f90069",
+  "drafted": "2026-11-06",
+  "approved": false,
+  "approvedOn": null,
+  "approvedVia": null
+}

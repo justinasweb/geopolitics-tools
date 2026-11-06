@@ -1,0 +1,11 @@
+{
+  "id": "river:amu-darya",
+  "author": "ai",
+  "text": "The countries in this summary are Afghanistan, Tajikistan, Uzbekistan and Turkmenistan. On 18 February 1992, Kazakhstan, Kyrgyzstan, Tajikistan, Turkmenistan and Uzbekistan agreed in Almaty to keep the water allocations already in force and set up the Interstate Commission for Water Coordination. Afghanistan is not a party to that agreement. In November 2018, Tajikistan started the first unit of the Rogun hydropower plant on the Vakhsh. In March 2022, Afghanistan's authorities began building the Qosh Tepa canal from the Amu Darya, with a planned length of 285 kilometres (2022).",
+  "model": "claude-sonnet-5-5",
+  "factsHash": "sha256:3cad3b304fda6018b43691f5115e89c4",
+  "drafted": "2026-11-06",
+  "approved": false,
+  "approvedOn": null,
+  "approvedVia": null
+}

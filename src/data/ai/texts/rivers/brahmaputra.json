@@ -1,0 +1,11 @@
+{
+  "id": "river:brahmaputra",
+  "author": "ai",
+  "text": "The Brahmaputra, known as the Yarlung Tsangpo in China, is a subject between China, India and Bangladesh. In 2002, China and India signed a memorandum of understanding under which China provides hydrological data on the Brahmaputra in the flood season. The Zangmu hydropower station on the Yarlung Tsangpo began full operation in October 2015. China approved a hydropower project on the lower reaches of the Yarlung Tsangpo in December 2024. In January 2025, India said it had conveyed its concerns about the project to China. Construction began on 19 July 2025.",
+  "model": "claude-sonnet-5-5",
+  "factsHash": "sha256:829d21956744dbbb248746e02303c076",
+  "drafted": "2026-11-06",
+  "approved": false,
+  "approvedOn": null,
+  "approvedVia": null
+}

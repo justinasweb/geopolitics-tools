@@ -4,196 +4,194 @@
   "subject": "Russia",
   "countries": [
     "RUS",
-    "BRA",
-    "CHN"
+    "IRN"
   ],
-  "generated": "src/lib/ai/dossier-facts.ts from snapshot sample",
-  "sample": true,
+  "generated": "src/lib/ai/dossier-facts.ts from snapshot 2026-11-06T0327Z",
   "facts": [
     {
       "id": "gdp",
       "statement": "GDP of Russia.",
-      "value": 2170000000000,
+      "value": 2561310000000,
       "unit": "US$",
       "unitAliases": [
         "$",
         "dollars"
       ],
-      "period": "2024",
+      "period": "2025",
       "places": [
         "RUS"
       ],
       "source": "World Bank Indicators",
       "link": "https://data.worldbank.org/country/ru",
-      "date": "2026-10-22"
+      "date": "2026-10-31"
     },
     {
       "id": "gdp-rank",
       "statement": "Russia’s place on GDP, largest first.",
-      "value": 10,
+      "value": 8,
       "unit": "rank",
-      "period": "2024",
+      "period": "2025",
       "places": [
         "RUS"
       ],
       "source": "World Bank Indicators",
       "link": "https://data.worldbank.org/country/ru",
-      "date": "2026-10-22"
+      "date": "2026-10-31"
     },
     {
       "id": "gdp-of",
       "statement": "Places ranked on GDP.",
-      "value": 107,
+      "value": 186,
       "unit": "places",
       "unitAliases": [
         "countries"
       ],
-      "period": "2024",
+      "period": "2025",
       "places": [
         "RUS"
       ],
       "source": "World Bank Indicators",
       "link": "https://data.worldbank.org/country/ru",
-      "date": "2026-10-22"
+      "date": "2026-10-31"
     },
     {
       "id": "population",
       "statement": "Population of Russia.",
-      "value": 143500000,
+      "value": 143513000,
       "unit": "people",
       "unitAliases": [
         "residents",
         "inhabitants"
       ],
-      "period": "2024",
+      "period": "2025",
       "places": [
         "RUS"
       ],
       "source": "World Bank Indicators",
       "link": "https://data.worldbank.org/country/ru",
-      "date": "2026-10-22"
+      "date": "2026-10-31"
     },
     {
       "id": "population-rank",
       "statement": "Russia’s place on population, largest first.",
       "value": 9,
       "unit": "rank",
-      "period": "2024",
+      "period": "2025",
       "places": [
         "RUS"
       ],
       "source": "World Bank Indicators",
       "link": "https://data.worldbank.org/country/ru",
-      "date": "2026-10-22"
+      "date": "2026-10-31"
     },
     {
       "id": "population-of",
       "statement": "Places ranked on population.",
-      "value": 107,
+      "value": 216,
       "unit": "places",
       "unitAliases": [
         "countries"
       ],
-      "period": "2024",
+      "period": "2025",
       "places": [
         "RUS"
       ],
       "source": "World Bank Indicators",
       "link": "https://data.worldbank.org/country/ru",
-      "date": "2026-10-22"
+      "date": "2026-10-31"
     },
     {
       "id": "gdppc",
       "statement": "GDP per person of Russia.",
-      "value": 15122,
+      "value": 17847.2,
       "unit": "US$",
       "unitAliases": [
         "$",
         "dollars"
       ],
-      "period": "2024",
+      "period": "2025",
       "places": [
         "RUS"
       ],
       "source": "World Bank Indicators",
       "link": "https://data.worldbank.org/country/ru",
-      "date": "2026-10-22"
+      "date": "2026-10-31"
     },
     {
       "id": "gdppc-rank",
       "statement": "Russia’s place on GDP per person, largest first.",
-      "value": 37,
+      "value": 63,
       "unit": "rank",
-      "period": "2024",
+      "period": "2025",
       "places": [
         "RUS"
       ],
       "source": "World Bank Indicators",
       "link": "https://data.worldbank.org/country/ru",
-      "date": "2026-10-22"
+      "date": "2026-10-31"
     },
     {
       "id": "gdppc-of",
       "statement": "Places ranked on GDP per person.",
-      "value": 107,
+      "value": 186,
       "unit": "places",
       "unitAliases": [
         "countries"
       ],
-      "period": "2024",
+      "period": "2025",
       "places": [
         "RUS"
       ],
       "source": "World Bank Indicators",
       "link": "https://data.worldbank.org/country/ru",
-      "date": "2026-10-22"
+      "date": "2026-10-31"
     },
     {
       "id": "milpct",
       "statement": "Military spending, share of GDP of Russia.",
-      "value": 7.1,
+      "value": 7.50148,
       "unit": "% of GDP",
-      "period": "2024",
+      "period": "2025",
       "places": [
         "RUS"
       ],
       "source": "World Bank Indicators",
       "link": "https://data.worldbank.org/country/ru",
-      "date": "2026-10-22"
+      "date": "2026-10-31"
     },
     {
       "id": "milpct-rank",
       "statement": "Russia’s place on military spending, share of GDP, largest first.",
       "value": 4,
       "unit": "rank",
-      "period": "2024",
+      "period": "2025",
       "places": [
         "RUS"
       ],
       "source": "World Bank Indicators",
       "link": "https://data.worldbank.org/country/ru",
-      "date": "2026-10-22"
+      "date": "2026-10-31"
     },
     {
       "id": "milpct-of",
       "statement": "Places ranked on military spending, share of GDP.",
-      "value": 98,
+      "value": 150,
       "unit": "places",
       "unitAliases": [
         "countries"
       ],
-      "period": "2024",
+      "period": "2025",
       "places": [
         "RUS"
       ],
       "source": "World Bank Indicators",
       "link": "https://data.worldbank.org/country/ru",
-      "date": "2026-10-22"
+      "date": "2026-10-31"
     },
     {
       "id": "co2pc",
       "statement": "CO2 per person of Russia.",
-      "value": 12.479,
+      "value": 12.295,
       "unit": "t",
       "period": "2024",
       "places": [
@@ -201,12 +199,12 @@
       ],
       "source": "Our World in Data CO2",
       "link": "https://ourworldindata.org/co2/country/rus",
-      "date": "2026-10-22"
+      "date": "2026-10-24"
     },
     {
       "id": "co2pc-rank",
       "statement": "Russia’s place on CO2 per person, largest first.",
-      "value": 8,
+      "value": 19,
       "unit": "rank",
       "period": "2024",
       "places": [
@@ -214,12 +212,12 @@
       ],
       "source": "Our World in Data CO2",
       "link": "https://ourworldindata.org/co2/country/rus",
-      "date": "2026-10-22"
+      "date": "2026-10-24"
     },
     {
       "id": "co2pc-of",
       "statement": "Places ranked on CO2 per person.",
-      "value": 41,
+      "value": 213,
       "unit": "places",
       "unitAliases": [
         "countries"
@@ -230,12 +228,138 @@
       ],
       "source": "Our World in Data CO2",
       "link": "https://ourworldindata.org/co2/country/rus",
-      "date": "2026-10-22"
+      "date": "2026-10-24"
+    },
+    {
+      "id": "growth",
+      "statement": "Economic growth of Russia (Real GDP, change on the year before).",
+      "value": 1.00118,
+      "unit": "%",
+      "period": "2025",
+      "places": [
+        "RUS"
+      ],
+      "source": "World Bank Indicators",
+      "link": "https://data.worldbank.org/country/ru",
+      "date": "2026-10-31"
+    },
+    {
+      "id": "growth-rank",
+      "statement": "Russia’s place on economic growth, largest first.",
+      "value": 160,
+      "unit": "rank",
+      "period": "2025",
+      "places": [
+        "RUS"
+      ],
+      "source": "World Bank Indicators",
+      "link": "https://data.worldbank.org/country/ru",
+      "date": "2026-10-31"
+    },
+    {
+      "id": "growth-of",
+      "statement": "Places ranked on economic growth.",
+      "value": 186,
+      "unit": "places",
+      "unitAliases": [
+        "countries"
+      ],
+      "period": "2025",
+      "places": [
+        "RUS"
+      ],
+      "source": "World Bank Indicators",
+      "link": "https://data.worldbank.org/country/ru",
+      "date": "2026-10-31"
+    },
+    {
+      "id": "inflation",
+      "statement": "Inflation of Russia (Consumer prices, average for the year).",
+      "value": 8.71987,
+      "unit": "%",
+      "period": "2025",
+      "places": [
+        "RUS"
+      ],
+      "source": "World Bank Indicators",
+      "link": "https://data.worldbank.org/country/ru",
+      "date": "2026-10-31"
+    },
+    {
+      "id": "inflation-rank",
+      "statement": "Russia’s place on inflation, largest first.",
+      "value": 21,
+      "unit": "rank",
+      "period": "2025",
+      "places": [
+        "RUS"
+      ],
+      "source": "World Bank Indicators",
+      "link": "https://data.worldbank.org/country/ru",
+      "date": "2026-10-31"
+    },
+    {
+      "id": "inflation-of",
+      "statement": "Places ranked on inflation.",
+      "value": 169,
+      "unit": "places",
+      "unitAliases": [
+        "countries"
+      ],
+      "period": "2025",
+      "places": [
+        "RUS"
+      ],
+      "source": "World Bank Indicators",
+      "link": "https://data.worldbank.org/country/ru",
+      "date": "2026-10-31"
+    },
+    {
+      "id": "unemployment",
+      "statement": "Unemployment of Russia (Share of the labour force, ILO modelled estimate).",
+      "value": 2.133,
+      "unit": "%",
+      "period": "2025",
+      "places": [
+        "RUS"
+      ],
+      "source": "World Bank Indicators",
+      "link": "https://data.worldbank.org/country/ru",
+      "date": "2026-10-31"
+    },
+    {
+      "id": "unemployment-rank",
+      "statement": "Russia’s place on unemployment, largest first.",
+      "value": 164,
+      "unit": "rank",
+      "period": "2025",
+      "places": [
+        "RUS"
+      ],
+      "source": "World Bank Indicators",
+      "link": "https://data.worldbank.org/country/ru",
+      "date": "2026-10-31"
+    },
+    {
+      "id": "unemployment-of",
+      "statement": "Places ranked on unemployment.",
+      "value": 181,
+      "unit": "places",
+      "unitAliases": [
+        "countries"
+      ],
+      "period": "2025",
+      "places": [
+        "RUS"
+      ],
+      "source": "World Bank Indicators",
+      "link": "https://data.worldbank.org/country/ru",
+      "date": "2026-10-31"
     },
     {
       "id": "reserves",
       "statement": "Reserves, including gold of Russia.",
-      "value": 620818000000,
+      "value": 608361000000,
       "unit": "US$",
       "unitAliases": [
         "$",
@@ -247,12 +371,12 @@
       ],
       "source": "World Bank Indicators",
       "link": "https://data.worldbank.org/country/ru",
-      "date": "2026-10-22"
+      "date": "2026-10-31"
     },
     {
       "id": "reserves-rank",
       "statement": "Russia’s place on reserves, including gold, largest first.",
-      "value": 3,
+      "value": 6,
       "unit": "rank",
       "period": "2024",
       "places": [
@@ -260,12 +384,12 @@
       ],
       "source": "World Bank Indicators",
       "link": "https://data.worldbank.org/country/ru",
-      "date": "2026-10-22"
+      "date": "2026-10-31"
     },
     {
       "id": "reserves-of",
       "statement": "Places ranked on reserves, including gold.",
-      "value": 3,
+      "value": 164,
       "unit": "places",
       "unitAliases": [
         "countries"
@@ -276,12 +400,12 @@
       ],
       "source": "World Bank Indicators",
       "link": "https://data.worldbank.org/country/ru",
-      "date": "2026-10-22"
+      "date": "2026-10-31"
     },
     {
       "id": "trade",
       "statement": "Trade of Russia (Exports plus imports of goods and services).",
-      "value": 43,
+      "value": 39.4184,
       "unit": "% of GDP",
       "period": "2024",
       "places": [
@@ -289,12 +413,12 @@
       ],
       "source": "World Bank Indicators",
       "link": "https://data.worldbank.org/country/ru",
-      "date": "2026-10-22"
+      "date": "2026-10-31"
     },
     {
       "id": "trade-rank",
       "statement": "Russia’s place on trade, largest first.",
-      "value": 1,
+      "value": 158,
       "unit": "rank",
       "period": "2024",
       "places": [
@@ -302,12 +426,12 @@
       ],
       "source": "World Bank Indicators",
       "link": "https://data.worldbank.org/country/ru",
-      "date": "2026-10-22"
+      "date": "2026-10-31"
     },
     {
       "id": "trade-of",
       "statement": "Places ranked on trade.",
-      "value": 3,
+      "value": 172,
       "unit": "places",
       "unitAliases": [
         "countries"
@@ -318,58 +442,58 @@
       ],
       "source": "World Bank Indicators",
       "link": "https://data.worldbank.org/country/ru",
-      "date": "2026-10-22"
+      "date": "2026-10-31"
     },
     {
       "id": "fdi",
       "statement": "Foreign investment in of Russia (Foreign direct investment, net inflows).",
-      "value": -5000000000,
+      "value": 11136500000,
       "unit": "US$",
       "unitAliases": [
         "$",
         "dollars"
       ],
-      "period": "2024",
+      "period": "2025",
       "places": [
         "RUS"
       ],
       "source": "World Bank Indicators",
       "link": "https://data.worldbank.org/country/ru",
-      "date": "2026-10-22"
+      "date": "2026-10-31"
     },
     {
       "id": "fdi-rank",
       "statement": "Russia’s place on foreign investment in, largest first.",
-      "value": 3,
+      "value": 37,
       "unit": "rank",
-      "period": "2024",
+      "period": "2025",
       "places": [
         "RUS"
       ],
       "source": "World Bank Indicators",
       "link": "https://data.worldbank.org/country/ru",
-      "date": "2026-10-22"
+      "date": "2026-10-31"
     },
     {
       "id": "fdi-of",
       "statement": "Places ranked on foreign investment in.",
-      "value": 3,
+      "value": 200,
       "unit": "places",
       "unitAliases": [
         "countries"
       ],
-      "period": "2024",
+      "period": "2025",
       "places": [
         "RUS"
       ],
       "source": "World Bank Indicators",
       "link": "https://data.worldbank.org/country/ru",
-      "date": "2026-10-22"
+      "date": "2026-10-31"
     },
     {
       "id": "tfr",
       "statement": "Births per woman of Russia.",
-      "value": 1.41,
+      "value": 1.449,
       "unit": "children",
       "period": "2023",
       "places": [
@@ -377,12 +501,12 @@
       ],
       "source": "UN World Population Prospects",
       "link": "https://population.un.org/wpp/",
-      "date": "2026-10-22"
+      "date": "2026-10-28"
     },
     {
       "id": "tfr-rank",
       "statement": "Russia’s place on births per woman, largest first.",
-      "value": 2,
+      "value": 182,
       "unit": "rank",
       "period": "2023",
       "places": [
@@ -390,12 +514,12 @@
       ],
       "source": "UN World Population Prospects",
       "link": "https://population.un.org/wpp/",
-      "date": "2026-10-22"
+      "date": "2026-10-28"
     },
     {
       "id": "tfr-of",
       "statement": "Places ranked on births per woman.",
-      "value": 3,
+      "value": 237,
       "unit": "places",
       "unitAliases": [
         "countries"
@@ -406,12 +530,12 @@
       ],
       "source": "UN World Population Prospects",
       "link": "https://population.un.org/wpp/",
-      "date": "2026-10-22"
+      "date": "2026-10-28"
     },
     {
       "id": "median",
       "statement": "Median age of Russia.",
-      "value": 41.6,
+      "value": 39.4535,
       "unit": "years",
       "period": "2023",
       "places": [
@@ -419,12 +543,12 @@
       ],
       "source": "UN World Population Prospects",
       "link": "https://population.un.org/wpp/",
-      "date": "2026-10-22"
+      "date": "2026-10-28"
     },
     {
       "id": "median-rank",
       "statement": "Russia’s place on median age, largest first.",
-      "value": 1,
+      "value": 60,
       "unit": "rank",
       "period": "2023",
       "places": [
@@ -432,12 +556,12 @@
       ],
       "source": "UN World Population Prospects",
       "link": "https://population.un.org/wpp/",
-      "date": "2026-10-22"
+      "date": "2026-10-28"
     },
     {
       "id": "median-of",
       "statement": "Places ranked on median age.",
-      "value": 3,
+      "value": 237,
       "unit": "places",
       "unitAliases": [
         "countries"
@@ -448,12 +572,12 @@
       ],
       "source": "UN World Population Prospects",
       "link": "https://population.un.org/wpp/",
-      "date": "2026-10-22"
+      "date": "2026-10-28"
     },
     {
       "id": "satellites",
       "statement": "Satellites in orbit of Russia.",
-      "value": 473,
+      "value": 1713,
       "unit": "satellites",
       "period": "2026",
       "places": [
@@ -461,12 +585,12 @@
       ],
       "source": "CelesTrak SATCAT",
       "link": "https://celestrak.org/satcat/search.php",
-      "date": "2026-10-22"
+      "date": "2026-11-05"
     },
     {
       "id": "satellites-rank",
       "statement": "Russia’s place on satellites in orbit, largest first.",
-      "value": 4,
+      "value": 2,
       "unit": "rank",
       "period": "2026",
       "places": [
@@ -474,12 +598,12 @@
       ],
       "source": "CelesTrak SATCAT",
       "link": "https://celestrak.org/satcat/search.php",
-      "date": "2026-10-22"
+      "date": "2026-11-05"
     },
     {
       "id": "satellites-of",
       "statement": "Places ranked on satellites in orbit.",
-      "value": 27,
+      "value": 81,
       "unit": "places",
       "unitAliases": [
         "countries"
@@ -490,33 +614,33 @@
       ],
       "source": "CelesTrak SATCAT",
       "link": "https://celestrak.org/satcat/search.php",
-      "date": "2026-10-22"
+      "date": "2026-11-05"
     },
     {
       "id": "launches",
       "statement": "Orbital launches of Russia.",
-      "value": 17,
+      "value": 13,
       "unit": "launches",
-      "period": "2025",
+      "period": "2026",
       "places": [
         "RUS"
       ],
       "source": "CelesTrak SATCAT",
       "link": "https://celestrak.org/satcat/search.php",
-      "date": "2026-10-22"
+      "date": "2026-11-05"
     },
     {
       "id": "launches-rank",
       "statement": "Russia’s place on orbital launches, largest first.",
       "value": 4,
       "unit": "rank",
-      "period": "2025",
+      "period": "2026",
       "places": [
         "RUS"
       ],
       "source": "CelesTrak SATCAT",
       "link": "https://celestrak.org/satcat/search.php",
-      "date": "2026-10-22"
+      "date": "2026-11-05"
     },
     {
       "id": "launches-of",
@@ -526,18 +650,60 @@
       "unitAliases": [
         "countries"
       ],
-      "period": "2025",
+      "period": "2026",
       "places": [
         "RUS"
       ],
       "source": "CelesTrak SATCAT",
       "link": "https://celestrak.org/satcat/search.php",
-      "date": "2026-10-22"
+      "date": "2026-11-05"
+    },
+    {
+      "id": "aicompute",
+      "statement": "Share of AI computing power of Russia.",
+      "value": 0.115781,
+      "unit": "%",
+      "period": "2025",
+      "places": [
+        "RUS"
+      ],
+      "source": "Epoch AI",
+      "link": "https://epoch.ai/data",
+      "date": "2026-10-31"
+    },
+    {
+      "id": "aicompute-rank",
+      "statement": "Russia’s place on share of AI computing power, largest first.",
+      "value": 21,
+      "unit": "rank",
+      "period": "2025",
+      "places": [
+        "RUS"
+      ],
+      "source": "Epoch AI",
+      "link": "https://epoch.ai/data",
+      "date": "2026-10-31"
+    },
+    {
+      "id": "aicompute-of",
+      "statement": "Places ranked on share of AI computing power.",
+      "value": 36,
+      "unit": "places",
+      "unitAliases": [
+        "countries"
+      ],
+      "period": "2025",
+      "places": [
+        "RUS"
+      ],
+      "source": "Epoch AI",
+      "link": "https://epoch.ai/data",
+      "date": "2026-10-31"
     },
     {
       "id": "co2",
       "statement": "CO2 emissions of Russia.",
-      "value": 1796.98,
+      "value": 1780.52,
       "unit": "Mt",
       "period": "2024",
       "places": [
@@ -545,7 +711,7 @@
       ],
       "source": "Our World in Data CO2",
       "link": "https://ourworldindata.org/co2/country/rus",
-      "date": "2026-10-22"
+      "date": "2026-10-24"
     },
     {
       "id": "co2-rank",
@@ -558,12 +724,12 @@
       ],
       "source": "Our World in Data CO2",
       "link": "https://ourworldindata.org/co2/country/rus",
-      "date": "2026-10-22"
+      "date": "2026-10-24"
     },
     {
       "id": "co2-of",
       "statement": "Places ranked on CO2 emissions.",
-      "value": 41,
+      "value": 214,
       "unit": "places",
       "unitAliases": [
         "countries"
@@ -574,12 +740,12 @@
       ],
       "source": "Our World in Data CO2",
       "link": "https://ourworldindata.org/co2/country/rus",
-      "date": "2026-10-22"
+      "date": "2026-10-24"
     },
     {
       "id": "co2cum",
       "statement": "CO2 emitted since 1750 of Russia.",
-      "value": 122000,
+      "value": 122808,
       "unit": "Mt",
       "period": "2024",
       "places": [
@@ -587,7 +753,7 @@
       ],
       "source": "Our World in Data CO2",
       "link": "https://ourworldindata.org/co2/country/rus",
-      "date": "2026-10-22"
+      "date": "2026-10-24"
     },
     {
       "id": "co2cum-rank",
@@ -600,12 +766,12 @@
       ],
       "source": "Our World in Data CO2",
       "link": "https://ourworldindata.org/co2/country/rus",
-      "date": "2026-10-22"
+      "date": "2026-10-24"
     },
     {
       "id": "co2cum-of",
       "statement": "Places ranked on CO2 emitted since 1750.",
-      "value": 41,
+      "value": 214,
       "unit": "places",
       "unitAliases": [
         "countries"
@@ -616,12 +782,12 @@
       ],
       "source": "Our World in Data CO2",
       "link": "https://ourworldindata.org/co2/country/rus",
-      "date": "2026-10-22"
+      "date": "2026-10-24"
     },
     {
       "id": "waterstress",
       "statement": "Water stress of Russia.",
-      "value": 1.2,
+      "value": 1.16759,
       "unit": "score 0–5",
       "period": "2023",
       "places": [
@@ -629,12 +795,12 @@
       ],
       "source": "WRI Aqueduct",
       "link": "https://www.wri.org/aqueduct",
-      "date": "2026-10-22"
+      "date": "2026-10-25"
     },
     {
       "id": "waterstress-rank",
       "statement": "Russia’s place on water stress, largest first.",
-      "value": 61,
+      "value": 101,
       "unit": "rank",
       "period": "2023",
       "places": [
@@ -642,12 +808,12 @@
       ],
       "source": "WRI Aqueduct",
       "link": "https://www.wri.org/aqueduct",
-      "date": "2026-10-22"
+      "date": "2026-10-25"
     },
     {
       "id": "waterstress-of",
       "statement": "Places ranked on water stress.",
-      "value": 75,
+      "value": 164,
       "unit": "places",
       "unitAliases": [
         "countries"
@@ -658,12 +824,12 @@
       ],
       "source": "WRI Aqueduct",
       "link": "https://www.wri.org/aqueduct",
-      "date": "2026-10-22"
+      "date": "2026-10-25"
     },
     {
       "id": "exports-oil",
       "statement": "Russia’s net exports of oil as a share of its production.",
-      "value": 66.0124,
+      "value": 63.9061,
       "unit": "%",
       "unitAliases": [
         "oil production",
@@ -671,18 +837,18 @@
         "of its oil",
         "oil exports"
       ],
-      "period": "2025",
+      "period": "2024",
       "places": [
         "RUS"
       ],
       "source": "U.S. Energy Information Administration",
       "link": "https://www.eia.gov/international/data/world",
-      "date": "2026-10-22"
+      "date": "2026-11-02"
     },
     {
       "id": "exports-gas",
       "statement": "Russia’s net exports of gas as a share of its production.",
-      "value": 27.5436,
+      "value": 22.1518,
       "unit": "%",
       "unitAliases": [
         "gas production",
@@ -690,18 +856,18 @@
         "of its gas",
         "gas exports"
       ],
-      "period": "2025",
+      "period": "2024",
       "places": [
         "RUS"
       ],
       "source": "U.S. Energy Information Administration",
       "link": "https://www.eia.gov/international/data/world",
-      "date": "2026-10-22"
+      "date": "2026-11-02"
     },
     {
       "id": "exports-wheat",
       "statement": "Russia’s net exports of wheat as a share of its production.",
-      "value": 47.7777,
+      "value": 39.5555,
       "unit": "%",
       "unitAliases": [
         "wheat production",
@@ -715,12 +881,12 @@
       ],
       "source": "FAOSTAT",
       "link": "https://www.fao.org/faostat/en/#data",
-      "date": "2026-10-22"
+      "date": "2026-10-24"
     },
     {
       "id": "exports-maize",
       "statement": "Russia’s net exports of maize as a share of its production.",
-      "value": 26.5728,
+      "value": 16.5291,
       "unit": "%",
       "unitAliases": [
         "maize production",
@@ -734,12 +900,31 @@
       ],
       "source": "FAOSTAT",
       "link": "https://www.fao.org/faostat/en/#data",
-      "date": "2026-10-22"
+      "date": "2026-10-24"
+    },
+    {
+      "id": "imports-rice",
+      "statement": "Russia’s net imports of rice as a share of its use.",
+      "value": 16.6982,
+      "unit": "%",
+      "unitAliases": [
+        "rice use",
+        "rice it uses",
+        "of its rice",
+        "rice imports"
+      ],
+      "period": "2024",
+      "places": [
+        "RUS"
+      ],
+      "source": "FAOSTAT",
+      "link": "https://www.fao.org/faostat/en/#data",
+      "date": "2026-10-24"
     },
     {
       "id": "imports-soy",
       "statement": "Russia’s net imports of soybeans as a share of its use.",
-      "value": 6.31836,
+      "value": 8.40498,
       "unit": "%",
       "unitAliases": [
         "soybeans use",
@@ -753,30 +938,12 @@
       ],
       "source": "FAOSTAT",
       "link": "https://www.fao.org/faostat/en/#data",
-      "date": "2026-10-22"
-    },
-    {
-      "id": "main-supplier-soy",
-      "statement": "Brazil is the main supplier of Russia’s soybeans imports.",
-      "value": 50.5748,
-      "unit": "%",
-      "unitAliases": [
-        "soybeans imports",
-        "imports of soybeans"
-      ],
-      "period": "2024",
-      "places": [
-        "RUS",
-        "BRA"
-      ],
-      "source": "FAOSTAT",
-      "link": "https://www.fao.org/faostat/en/#data",
-      "date": "2026-10-22"
+      "date": "2026-10-24"
     },
     {
       "id": "exports-potash",
       "statement": "Russia’s net exports of potash as a share of its production.",
-      "value": 92.6621,
+      "value": 92.8195,
       "unit": "%",
       "unitAliases": [
         "potash production",
@@ -784,36 +951,55 @@
         "of its potash",
         "potash exports"
       ],
-      "period": "2023",
+      "period": "2024",
       "places": [
         "RUS"
       ],
       "source": "FAOSTAT",
       "link": "https://www.fao.org/faostat/en/#data",
-      "date": "2026-10-22"
+      "date": "2026-10-24"
     },
     {
-      "id": "main-supplier-chips",
-      "statement": "China is the main supplier of Russia’s chips imports.",
-      "value": 65.5308,
+      "id": "exports-phosphate",
+      "statement": "Russia’s net exports of phosphate as a share of its production.",
+      "value": 73.8369,
       "unit": "%",
       "unitAliases": [
-        "chips imports",
-        "imports of chips"
+        "phosphate production",
+        "phosphate it produces",
+        "of its phosphate",
+        "phosphate exports"
       ],
       "period": "2024",
       "places": [
-        "RUS",
-        "CHN"
+        "RUS"
       ],
-      "source": "UN Comtrade",
-      "link": "https://comtradeplus.un.org/",
-      "date": "2026-10-22"
+      "source": "FAOSTAT",
+      "link": "https://www.fao.org/faostat/en/#data",
+      "date": "2026-10-24"
+    },
+    {
+      "id": "main-supplier-arms",
+      "statement": "Iran is the main supplier of Russia’s major arms imports.",
+      "value": 50.8997,
+      "unit": "%",
+      "unitAliases": [
+        "major arms imports",
+        "imports of major arms"
+      ],
+      "period": "2021–2025",
+      "places": [
+        "RUS",
+        "IRN"
+      ],
+      "source": "SIPRI Arms Transfers Database",
+      "link": "https://www.sipri.org/databases/armstransfers",
+      "date": "2026-10-25"
     },
     {
       "id": "mineral-palladium",
       "statement": "Russia’s share of world mine production of palladium (estimated).",
-      "value": 41.0571,
+      "value": 43.2767,
       "unit": "%",
       "unitAliases": [
         "palladium"
@@ -824,7 +1010,7 @@
       ],
       "source": "USGS Mineral Commodity Summaries",
       "link": "https://www.usgs.gov/centers/national-minerals-information-center/mineral-commodity-summaries",
-      "date": "2026-10-22"
+      "date": "2026-10-25"
     },
     {
       "id": "mineral-palladium-rank",
@@ -837,12 +1023,12 @@
       ],
       "source": "USGS Mineral Commodity Summaries",
       "link": "https://www.usgs.gov/centers/national-minerals-information-center/mineral-commodity-summaries",
-      "date": "2026-10-22"
+      "date": "2026-10-25"
     },
     {
       "id": "refin",
       "statement": "Refugees hosted of Russia.",
-      "value": 1228750,
+      "value": 12787,
       "unit": "people",
       "unitAliases": [
         "residents",
@@ -854,12 +1040,12 @@
       ],
       "source": "UNHCR Refugee Data Finder",
       "link": "https://www.unhcr.org/refugee-statistics/download",
-      "date": "2026-10-22"
+      "date": "2026-10-24"
     },
     {
       "id": "refin-rank",
       "statement": "Russia’s place on refugees hosted, largest first.",
-      "value": 8,
+      "value": 108,
       "unit": "rank",
       "period": "2025",
       "places": [
@@ -867,12 +1053,12 @@
       ],
       "source": "UNHCR Refugee Data Finder",
       "link": "https://www.unhcr.org/refugee-statistics/download",
-      "date": "2026-10-22"
+      "date": "2026-10-24"
     },
     {
       "id": "refin-of",
       "statement": "Places ranked on refugees hosted.",
-      "value": 57,
+      "value": 177,
       "unit": "places",
       "unitAliases": [
         "countries"
@@ -883,12 +1069,58 @@
       ],
       "source": "UNHCR Refugee Data Finder",
       "link": "https://www.unhcr.org/refugee-statistics/download",
-      "date": "2026-10-22"
+      "date": "2026-10-24"
+    },
+    {
+      "id": "refout",
+      "statement": "Refugees from the country of Russia (Refugees, asylum seekers and others in need of protection abroad).",
+      "value": 187670,
+      "unit": "people",
+      "unitAliases": [
+        "residents",
+        "inhabitants"
+      ],
+      "period": "2025",
+      "places": [
+        "RUS"
+      ],
+      "source": "UNHCR Refugee Data Finder",
+      "link": "https://www.unhcr.org/refugee-statistics/download",
+      "date": "2026-10-24"
+    },
+    {
+      "id": "refout-rank",
+      "statement": "Russia’s place on refugees from the country, largest first.",
+      "value": 29,
+      "unit": "rank",
+      "period": "2025",
+      "places": [
+        "RUS"
+      ],
+      "source": "UNHCR Refugee Data Finder",
+      "link": "https://www.unhcr.org/refugee-statistics/download",
+      "date": "2026-10-24"
+    },
+    {
+      "id": "refout-of",
+      "statement": "Places ranked on refugees from the country.",
+      "value": 206,
+      "unit": "places",
+      "unitAliases": [
+        "countries"
+      ],
+      "period": "2025",
+      "places": [
+        "RUS"
+      ],
+      "source": "UNHCR Refugee Data Finder",
+      "link": "https://www.unhcr.org/refugee-statistics/download",
+      "date": "2026-10-24"
     },
     {
       "id": "nuclear-warheads",
       "statement": "Russia’s estimated total inventory of nuclear warheads.",
-      "value": 5459,
+      "value": 4400,
       "unit": "warheads",
       "period": "2026",
       "places": [
@@ -896,12 +1128,12 @@
       ],
       "source": "FAS Status of World Nuclear Forces",
       "link": "https://fas.org/initiative/status-world-nuclear-forces/",
-      "date": "2026-10-22"
+      "date": "2026-11-02"
     },
     {
       "id": "chinese-lending",
       "statement": "Loans and grants committed by China to Russia.",
-      "value": 172914000000,
+      "value": 169568000000,
       "unit": "US$",
       "unitAliases": [
         "$",
@@ -914,20 +1146,20 @@
       ],
       "source": "AidData Chinese development finance",
       "link": "https://www.aiddata.org/data/aiddatas-global-chinese-development-finance-dataset-version-3-0",
-      "date": "2026-10-22"
+      "date": "2026-10-25"
     },
     {
       "id": "ai-models",
       "statement": "Notable AI models from organisations in Russia.",
-      "value": 2,
+      "value": 1,
       "unit": "models",
-      "period": "2025",
+      "period": "2018",
       "places": [
         "RUS"
       ],
       "source": "Epoch AI",
       "link": "https://epoch.ai/data",
-      "date": "2026-10-22"
+      "date": "2026-10-31"
     }
   ]
 }

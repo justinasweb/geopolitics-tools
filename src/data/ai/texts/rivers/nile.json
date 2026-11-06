@@ -1,0 +1,11 @@
+{
+  "id": "river:nile",
+  "author": "ai",
+  "text": "The countries are Egypt, Ethiopia and Sudan. Egypt and Sudan signed the Agreement for the Full Utilization of the Nile Waters on 8 November 1959. It allocates Egypt 55.5 billion cubic metres a year and Sudan 18.5 billion cubic metres a year, measured at Aswan (1959). Egypt, Ethiopia and Sudan signed the Declaration of Principles on the Grand Ethiopian Renaissance Dam in Khartoum on 23 March 2015. Ethiopia began filling the dam's reservoir in July 2020 and inaugurated the dam on 9 September 2025, with an installed capacity of 5150 megawatts (2025).",
+  "model": "claude-sonnet-5-5",
+  "factsHash": "sha256:3646368f9fd416a9164b9a637e103bc3",
+  "drafted": "2026-11-06",
+  "approved": false,
+  "approvedOn": null,
+  "approvedVia": null
+}

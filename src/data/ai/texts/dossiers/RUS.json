@@ -1,0 +1,11 @@
+{
+  "id": "dossier:RUS",
+  "author": "ai",
+  "text": "Russia's net exports in 2024 were 63.9% of its oil production and 22.2% of its gas production (Energy Information Administration, 2024), and 39.6% of its wheat production and 92.8% of its potash production (FAOSTAT, 2024). Russia's mines produced an estimated 43.3% of world palladium in 2025 (USGS, 2025), and Iran was the main supplier of its major arms imports, at 50.9% in 2021–2025 (SIPRI, 2021–2025). Its population was 143.5 million people in 2025 and its GDP was $2.56 trillion in 2025 (World Bank, 2025).",
+  "model": "claude-sonnet-5-5",
+  "factsHash": "sha256:1c31f275466be8bd7b3671031496a3d2",
+  "drafted": "2026-11-06",
+  "approved": false,
+  "approvedOn": null,
+  "approvedVia": null
+}

@@ -1,0 +1,11 @@
+{
+  "id": "history:nato",
+  "author": "ai",
+  "text": "NATO had 12 members at its founding in 1949. Greece and Türkiye joined in 1952, Germany in 1955 and Spain in 1982; the former East Germany became part of NATO in 1990 with German reunification. Czechia, Hungary and Poland joined in 1999, and Bulgaria, Estonia, Latvia, Lithuania, Romania, Slovakia and Slovenia in 2004. Albania and Croatia joined in 2009, Montenegro in 2017, North Macedonia in 2020, Finland in 2023 and Sweden in 2024. France left the integrated military command in 1966, stayed a member and returned to it in 2009; NATO had 32 members in 2026.",
+  "model": "claude-sonnet-5-5",
+  "factsHash": "sha256:7cbeeea8c6c9725552e55c75e791b4d2",
+  "drafted": "2026-11-06",
+  "approved": false,
+  "approvedOn": null,
+  "approvedVia": null
+}

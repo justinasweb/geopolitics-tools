@@ -1,0 +1,11 @@
+{
+  "id": "dossier:USA",
+  "author": "ai",
+  "text": "In 2025, the United States' net oil exports were 12.6% of its production (U.S. Energy Information Administration, 2025). Its net wheat exports were 36% of production (FAOSTAT, 2024), and Canada was the main supplier of its potash imports, at 88% (FAOSTAT, 2024). The United Kingdom was the main supplier of its major arms imports, at 17% (SIPRI Arms Transfers Database, 2021–2025). It has 342 million people and a GDP of US$30.8 trillion (World Bank, 2025).",
+  "model": "claude-sonnet-5-5",
+  "factsHash": "sha256:4c969a7d7b8801ec0ab2ff2e81ca531f",
+  "drafted": "2026-11-06",
+  "approved": false,
+  "approvedOn": null,
+  "approvedVia": null
+}
