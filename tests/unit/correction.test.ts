@@ -83,6 +83,26 @@ describe('POST /api/correction', () => {
     expect((await post(good, env, { origin: 'https://geopolitics.tools', ip: '5' })).status).toBe(200);
   });
 
+  it('stops reading a body without Content-Length as soon as it passes the limit', async () => {
+    const env: Env = { ASSETS: assets, ...secrets };
+    // 1 MB in 1 KB pieces, counted as they are read.
+    let pulled = 0;
+    const chunk = new TextEncoder().encode('x'.repeat(1024));
+    const stream = new ReadableStream<Uint8Array>({
+      pull(c) {
+        if (pulled >= 1024 * 1024) return c.close();
+        pulled += chunk.length;
+        c.enqueue(chunk);
+      },
+    }, { highWaterMark: 0 });
+    const req = new Request('https://geopolitics.tools/api/correction', { method: 'POST', headers: { 'Content-Type': 'application/json', 'CF-Connecting-IP': '6' }, body: stream, duplex: 'half' } as RequestInit);
+    expect(req.headers.get('Content-Length')).toBeNull();
+    const res = await worker.fetch(req as never, env, {} as never);
+    expect(res.status).toBe(413);
+    expect(pulled).toBeLessThan(CORRECTION_LIMITS.body + 64 * 1024);
+    expect(sent).toHaveLength(0);
+  });
+
   it('answers a filled honeypot as if it worked, and sends nothing', async () => {
     const res = await post({ ...good, website: 'https://spam.example' }, { ASSETS: assets, ...secrets });
     expect(res.status).toBe(200);
