@@ -44,8 +44,11 @@ const json = JSON.stringify({ data }).replace(/</g, '\\u003c');
     <section class="gt-two gt-ovphone" aria-label={T.title} data-o-two set:html={twoHtml(state, data)} />
     <section class="gt-tlsec gt-bridge" set:html={bridgeHtml(bridges(), data)} />
   </div>
+  {/* Each block of figures carries the source line, not only the header. */}
+  <SourceLine source={T.source} parts={[T.checked(data.checkedText)]} />
   <section class="gt-tlsec gt-ovdesk" data-o-table set:html={tableHtml(state, data)} />
   <section class="gt-tlsec gt-ovphone" data-o-ptable set:html={phoneTableHtml(state, data)} />
+  <SourceLine source={T.source} parts={[T.checked(data.checkedText)]} />
   <script type="application/json" id="o-data" set:html={json} />
 </Page>
 
