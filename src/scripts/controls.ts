@@ -43,17 +43,10 @@ function toggleChip(chip: HTMLButtonElement) {
 
 interface Option { name: string; value?: string; note?: string; href?: string }
 
-/** The options whose name contains what was typed, eight at most. With `rank` "prefix" (the homepage's search over
- *  many kinds of page): names starting with it first, then names with a word starting with it, then the rest, each in
- *  the list's own order. */
-export function matchOptions<T extends Option>(opts: T[], typed: string, rank?: string): T[] {
+/** The options whose name contains what was typed, eight at most. */
+export function matchOptions<T extends Option>(opts: T[], typed: string): T[] {
   const q = typed.trim().toLowerCase();
-  let shown = opts.filter((o) => !q || o.name.toLowerCase().includes(q));
-  if (q && rank === 'prefix') {
-    const score = (n: string) => (n.startsWith(q) ? 0 : n.includes(` ${q}`) ? 1 : 2);
-    shown = shown.map((o, i) => ({ o, i, s: score(o.name.toLowerCase()) })).sort((a, b) => a.s - b.s || a.i - b.i).map((x) => x.o);
-  }
-  return shown.slice(0, 8);
+  return opts.filter((o) => !q || o.name.toLowerCase().includes(q)).slice(0, 8);
 }
 
 function combo(el: HTMLElement) {
@@ -70,7 +63,7 @@ function combo(el: HTMLElement) {
   };
   const render = () => {
     const q = input.value.trim().toLowerCase();
-    shown = matchOptions(opts, q, el.dataset.rank);
+    shown = matchOptions(opts, q);
     list.replaceChildren(...(shown.length ? shown.map((o, i) => {
       const li = document.createElement('li');
       li.setAttribute('role', 'option');

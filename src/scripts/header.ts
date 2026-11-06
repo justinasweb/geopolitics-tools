@@ -1,6 +1,6 @@
 // Header behaviour: one mega-menu panel open at a time, hubs and Tools alike (Esc or a click elsewhere closes it and
 // returns focus to its button), and the phone menu. The search buttons and the "/" key dispatch `gt-search` on document;
-// site search (phase 8) listens for it.
+// site search (src/scripts/search.ts) listens for it.
 
 export function initHeader(header: HTMLElement): void {
   const buttons = [...header.querySelectorAll<HTMLButtonElement>('.gt-nav__btn[aria-controls]')];

@@ -1,0 +1,18 @@
+---
+// Site search in a dialog, for the header's search button, the Atlas bar's and the "/" key: centred near the top on
+// wide screens, the whole screen on phones. Pages with the large box (the homepage) focus that instead.
+import Icon from './Icon.astro';
+import SiteSearch from './SiteSearch.astro';
+import { SEARCH_TEXT as T } from '../i18n/search.en';
+---
+<dialog class="gt-ssdlg" aria-label={T.label} data-gt-ss-dialog>
+  <div class="gt-ssdlg__bar">
+    <SiteSearch id="ss-dlg" variant="dialog" />
+    <button class="gt-iconbtn" type="button" aria-label={T.close} data-gt-ss-close><Icon name="close" /></button>
+  </div>
+</dialog>
+
+<script>
+  import { initSearch } from '../scripts/search';
+  initSearch();
+</script>

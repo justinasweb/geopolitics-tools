@@ -1,11 +1,11 @@
 ---
 // The homepage (HomepageOptionC design, spec D19): hero option C (headline and lede, the big search with Try links,
 // the tool row, three worked questions), the This week strip, Explore by topic, Questions to start from, Countries
-// and rankings, and the trust strip. Everything is in the HTML; the only script is the search. No map. Model:
-// src/lib/home.ts.
+// and rankings, and the trust strip. Everything is in the HTML; the only scripts are site search and the country
+// finder. No map. Model: src/lib/home.ts.
 import Page from '../layouts/Page.astro';
 import CountrySearch from '../components/CountrySearch.astro';
-import Icon from '../components/Icon.astro';
+import SiteSearch from '../components/SiteSearch.astro';
 import StatusTag from '../components/StatusTag.astro';
 import ToolIcon from '../components/ToolIcon.astro';
 import '../styles/atlas/source.css';
@@ -16,7 +16,8 @@ import '../styles/atlas/hub.css';
 import '../styles/atlas/home.css';
 import { HOME_TEXT as T } from '../i18n/home.en';
 import { SOURCE_TEXT, TRAIL_TEXT } from '../i18n/en';
-import { places, questionCards, questions, searchOptions, toolRow, topics, trust, tryLinks, weekStrip } from '../lib/home';
+import { countryOptions, places, questionCards, questions, toolRow, topics, trust, weekStrip } from '../lib/home';
+import { tryLinks } from '../lib/search';
 import { hashRedirectScript, live, paths } from '../lib/routes';
 import { website } from '../lib/structured';
 
@@ -29,7 +30,6 @@ const pl = places();
 const tr = trust();
 const tries = tryLinks();
 const method = live('page:methodology')?.path;
-const countryOptions = searchOptions().filter((o) => o.note === T.kind.country || o.note === T.kind.dossier || o.note === T.kind.territory);
 ---
 <Page title={T.title} description={T.description} mainClass="gt-home" jsonld={[website()]}>
   <script is:inline set:html={hashRedirectScript()} />
@@ -38,18 +38,10 @@ const countryOptions = searchOptions().filter((o) => o.note === T.kind.country |
       <h1 class="gt-display">{T.headline}</h1>
       <p class="gt-lede">{T.lede}</p>
     </div>
-    <form class="gt-bigsearch" role="search" data-home-search>
-      <label class="gt-vh" for="home-q-i">{T.search}</label>
-      <div class="gt-combo" id="home-q" data-gt-combo data-rank="prefix" data-options={JSON.stringify(searchOptions())} data-empty={T.searchEmpty}>
-        <div class="gt-bigsearch__box">
-          <Icon name="search" />
-          <input id="home-q-i" type="search" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="home-q-l" placeholder={T.search} autocomplete="off" />
-          <button class="gt-btn" type="submit">{T.searchButton}</button>
-        </div>
-        <ul class="gt-combo__list" role="listbox" id="home-q-l" hidden></ul>
-      </div>
+    <div class="gt-bigsearch">
+      <SiteSearch id="home-q" variant="big" placeholder={T.search} />
       {tries.length > 0 && <p class="gt-bigsearch__try"><span>{T.try}</span>{tries.map((t) => <a href={t.href}>{t.label}</a>)}</p>}
-    </form>
+    </div>
 
     {tools.length > 0 && (
       <nav class="gt-trail" aria-labelledby="home-tools">
@@ -137,7 +129,7 @@ const countryOptions = searchOptions().filter((o) => o.note === T.kind.country |
     <div class="gt-sechead"><div><h2 class="gt-h2" id="home-places">{T.countries}</h2></div></div>
     <div class="gt-cr">
       <div class="gt-cr__c">
-        <CountrySearch id="home-cs" label={T.findCountry} placeholder={T.findPlaceholder} options={countryOptions.map((o) => ({ name: o.name, note: o.note === T.kind.country ? undefined : o.note, href: o.href }))} />
+        <CountrySearch id="home-cs" label={T.findCountry} placeholder={T.findPlaceholder} options={countryOptions()} />
         {pl.dossiers.length > 0 && (
           <ul class="gt-dossiers">
             {pl.dossiers.map((d) => <li><a class="gt-doss" href={d.href}><span class="gt-label">{T.dossier}</span><span class="gt-doss__name">{d.label}</span><span class="gt-doss__what">{d.fact ?? T.dossierWhat}{d.fact && d.estimated && <> <StatusTag status="estimate" small /></>}</span></a></li>)}
@@ -170,7 +162,5 @@ const countryOptions = searchOptions().filter((o) => o.note === T.kind.country |
 
 <script>
   import { initControls } from '../scripts/controls';
-  import { initHomeSearch } from '../scripts/home';
   initControls();
-  initHomeSearch();
 </script>

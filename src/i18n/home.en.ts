@@ -9,14 +9,9 @@ export const HOME_TEXT = {
   lede: 'Maps and data on resources, trade, security and alliances.',
 
   search: 'Search a country, commodity or measure',
-  searchButton: 'Search',
-  searchEmpty: 'Nothing called “{q}”. Try a country, a mineral or a measure.',
   try: 'Try',
-  /** What each search result is, after its name. */
-  kind: {
-    country: 'Country', dossier: 'Full dossier', territory: 'Territory', indicator: 'Ranking', view: 'Map', hub: 'Topic', tool: 'Tool',
-    bloc: 'Bloc', river: 'River', flow: 'Supply chain', week: 'This week',
-  } as Record<string, string>,
+  /** What a country in the finder is, after its name. */
+  kind: { dossier: 'Full dossier', territory: 'Territory' } as Record<string, string>,
 
   questions: 'Or start with a question',
   rareEarths: {

@@ -1,0 +1,32 @@
+---
+// Site search's box (SiteStates design, "Search"): one combobox over every live page, grouped as Countries, Maps,
+// Measures, Places, Blocs, Tools, and Topics and pages. The homepage shows it large, with a Search button and its
+// results under it; the header and the Atlas bar open it in a dialog (SearchDialog). The index is fetched on first use
+// (/search-index.json, src/lib/search.ts). Behaviour: src/scripts/search.ts.
+import '../styles/atlas/search.css';
+import Icon from './Icon.astro';
+import { SEARCH_TEXT as T } from '../i18n/search.en';
+import { searchClientText, searchIndexPath } from '../lib/search';
+import { data } from '../lib/data';
+
+interface Props {
+  id: string;
+  variant: 'big' | 'dialog';
+  placeholder?: string;
+}
+const { id, variant, placeholder = T.placeholder } = Astro.props;
+---
+<form class={`gt-ss gt-ss--${variant}`} role="search" data-gt-ss={variant} data-index={searchIndexPath(data().snapshot.created)} data-text={JSON.stringify(searchClientText())}>
+  <label class="gt-vh" for={`${id}-i`}>{T.label}</label>
+  <div class="gt-ss__box">
+    <Icon name="search" />
+    <input id={`${id}-i`} type="search" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls={`${id}-l`}
+      placeholder={placeholder} autocomplete="off" spellcheck="false" enterkeyhint="go" />
+    {variant === 'big' && <button class="gt-btn" type="submit">{T.button}</button>}
+  </div>
+  <div class="gt-ss__panel" hidden>
+    <p class="gt-ss__note" hidden></p>
+    <div class="gt-ss__list" role="listbox" id={`${id}-l`} aria-label={T.results}></div>
+  </div>
+  <p class="gt-vh" role="status" aria-live="polite"></p>
+</form>

@@ -3,10 +3,8 @@
 // the three worked questions, the This week strip (the current week's counts), the topics, the prepared questions, the
 // countries and rankings (by stated rules), and the trust strip. A part with nothing to show is left out.
 import { HOME_TEXT as T, QUESTION_TEXT } from '../i18n/home.en.ts';
-import { FLOW_TEXT, INDICATOR_TEXT, NAV_TEXT, TRAIL_TEXT } from '../i18n/en.ts';
+import { INDICATOR_TEXT, NAV_TEXT, TRAIL_TEXT } from '../i18n/en.ts';
 import { HUB_TEXT as H } from '../i18n/hubs.en.ts';
-import { BLOC_TEXT } from '../i18n/map.en.ts';
-import { RIVERS_TEXT } from '../i18n/water.en.ts';
 import { treasuryHolders } from '../adapters/treasury.ts';
 import { INDICATORS } from '../data/indicators.ts';
 import { DOSSIERS, countryModel } from './country.ts';
@@ -199,49 +197,17 @@ export function places(): Places {
   return { dossiers, profiles: gdp && links.length ? { year: gdp.year, links } : null, rankings };
 }
 
-// ---- Search ------------------------------------------------------------------------------------------------------
+// ---- Countries -------------------------------------------------------------------------------------------------
 
-export interface SearchOption { name: string; note: string; href: string }
-
-/** Every live page a reader might look for by name, for the big search (a jump-to list until site search exists):
- *  topics, tools, map views, minerals, blocs, rivers, supply chains, rankings, then countries and territories. */
-export function searchOptions(): SearchOption[] {
-  const K = T.kind;
-  const out: SearchOption[] = [];
-  // One entry per name and page: a view family's own entry (Critical minerals) and its first page's (Lithium) share an
-  // address but are both offered.
-  const add = (name: string | undefined, note: string, href: string | undefined) => { if (name && href && !out.some((o) => o.href === href && o.name === name)) out.push({ name, note, href }); };
-  const m = menu();
-  for (const h of m.hubs) add(NAV_TEXT.hubs[h.id], K.hub, h.href);
-  for (const t of m.tools) add(NAV_TEXT.tools[t.id][0], K.tool, t.path);
-  add(NAV_TEXT.top['this-week'], K.week, live('week')?.path);
-  for (const h of m.hubs) for (const v of h.views) add(NAV_TEXT.views[v.id][0], K.view, v.path);
-  for (const r of routes()) {
-    if (!r.live) continue;
-    const [kind, family, id] = r.key.split(':');
-    if (kind === 'view' && family === 'minerals') add(mineralPage(id)?.title, K.view, r.path);
-    else if (kind === 'view' && family === 'blocs' && id !== 'all') add(BLOC_TEXT[id], K.bloc, r.path);
-    else if (kind === 'view' && family === 'rivers') add(RIVERS_TEXT.name[id], K.river, r.path);
-    else if (kind === 'tool' && family === 'supply-chains' && id) add(FLOW_TEXT[id]?.label, K.flow, r.path);
-  }
-  for (const id of Object.keys(INDICATORS)) add(INDICATOR_TEXT[id]?.label, K.indicator, live(`indicator:${id}`)?.path);
-  for (const r of routes()) {
-    if (!r.live || r.kind !== 'country') continue;
-    const p = place(r.id);
-    add(p?.name, DOSSIERS.includes(r.id) ? K.dossier : p?.kind === 'territory' ? K.territory : K.country, r.path);
-  }
-  return out;
+/** The Countries section's finder: every country and territory page, the dossiers and territories marked. Site search
+ *  (the hero's box) finds everything else. */
+export function countryOptions(): { name: string; note?: string; href: string }[] {
+  return routes().filter((r) => r.live && r.kind === 'country').map((r) => {
+    const p = place(r.id)!;
+    const note = DOSSIERS.includes(r.id) ? T.kind.dossier : p.kind === 'territory' ? T.kind.territory : undefined;
+    return { name: p.name, ...(note ? { note } : {}), href: r.path };
+  });
 }
-
-/** The "Try" links under the search: one of each kind of thing it finds, live pages only. */
-const TRY: [string, () => string | undefined][] = [
-  ['Germany', () => countryHref('DEU')],
-  ['lithium', () => live('view:minerals:lithium')?.path],
-  ['military spending', () => live('indicator:milusd')?.path],
-  ['wheat', () => live('view:food:wheat-production')?.path],
-  ['BRICS', () => live('view:blocs:brics')?.path],
-];
-export const tryLinks = (): Link[] => TRY.flatMap(([label, href]) => { const h = href(); return h ? [{ label, href: h }] : []; });
 
 // ---- Trust strip -------------------------------------------------------------------------------------------------
 

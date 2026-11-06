@@ -1,12 +1,13 @@
 ---
-// A site page: header, the page container, footer, and the correction form's dialog (opened from source lines and
-// the footer). The container is .gt-page (the 1200px measure), .gt-cp
+// A site page: header, the page container, footer, the correction form's dialog (opened from source lines and
+// the footer) and site search's dialog (opened from the header). The container is .gt-page (the 1200px measure), .gt-cp
 // (country pages and Compare), .gt-tl (data tools and indicator pages) or .gt-mv (map views); each is the "page"
 // container that phone layouts respond to.
 import Base from './Base.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import CorrectionForm from '../components/CorrectionForm.astro';
+import SearchDialog from '../components/SearchDialog.astro';
 import LogoSprite from '../components/LogoSprite.astro';
 import { data } from '../lib/data';
 
@@ -37,4 +38,5 @@ const cls = [...(container === 'page' ? ['gt-page', { 'gt-page--wide': wide }] :
   </main>
   <Footer />
   <CorrectionForm />
+  <SearchDialog />
 </Base>
