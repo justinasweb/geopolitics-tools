@@ -91,6 +91,25 @@ describe('import kinds', () => {
     expect(s.USA[2025]).toBeDefined();
   });
 
+  it('reads the IMF data portal CSV: series codes, each row’s last actual year, the release, no groups', async () => {
+    // Rows from the October 2026 portal download (dataset …IMF.RES_WEO_9.0.0.csv), long notes shortened.
+    const text = readFileSync(join(FIXTURES, '../imports/weo-portal-2026-10.csv'), 'utf8');
+    const { files } = weoFiles(await readInput('weo.csv', enc(text)), 'weo.csv', {}, false, 1);
+    const get = (name: string) => JSON.parse(files.find((f) => f.name === name)!.body as string);
+    const debt = get('GGXWDG_NGDP.json').values.GGXWDG_NGDP;
+    expect([debt.USA['2024'], debt.USA['2025'], debt.USA['2026']]).toEqual([122.334, 124.377, 126.79]);
+    // Kosovo and Palestine under the IMF's codes (matched through codes.csv), Taiwan as its own place; no groups, no growth.
+    expect(Object.keys(debt).sort()).toEqual(['GAB', 'KOS', 'SWZ', 'SYR', 'TWN', 'USA', 'WBG']);
+    expect(Object.keys(get('BCA_NGDPD.json').values.BCA_NGDPD).sort()).toEqual(['HKG', 'MAC', 'USA']);
+    const release = get('release.json') as WeoRelease;
+    expect(release).toMatchObject({ release: 'October 2026', lastActual: 2025 });
+    // A fiscal year (FY2025/26) counts as its first year; Syria's actual figures end in 2009.
+    expect(release.byCountry.GGXWDG_NGDP).toMatchObject({ USA: 2025, SWZ: 2025, SYR: 2009 });
+    const s = parseDataMapper(get('GGXWDG_NGDP.json'), release);
+    expect(Object.keys(s).sort()).toEqual(['GAB', 'PSE', 'SWZ', 'SYR', 'TWN', 'USA', 'XKX']);
+    expect(Object.keys(s.SYR).map(Number).filter((y) => y > 2009 && y <= 2025)).toEqual([]);
+  });
+
   it('reads the WEO release from the file name when the table has no footer, and refuses the wrong table', async () => {
     const text = fixture(SAMPLES['imf-weo']).replace(/International Monetary Fund.*\n/, '');
     const input = await readInput('x.xls', enc(text));

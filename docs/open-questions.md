@@ -192,17 +192,16 @@ permission for scheduled downloads (copyright@imf.org: WEO, reserves, PortWatch)
 **Options.**
 - Send one short follow-up to IPC and the IMF, then wait.
 - Import WEO and reserves by hand when the IMF publishes (April and October for WEO).
-
-**WEO by hand (decided 5 Nov 2026).** Import kind `imf-weo` (docs/data-pipeline.md) turns on government debt, the
-budget balance and the current account, credited "IMF World Economic Outlook, October 2026". Still to check:
-- The IMF moved the WEO database to its new data portal in October 2025. The import reads the "By Countries" layout
-  (ISO, WEO Subject Code, a column per year, Estimates Start After); it was built and tested on that layout, not on a
-  downloaded October 2026 file (imf.org refused scripts). If the first real import stops on missing columns, the
-  portal's export needs its own column names added.
-- A country whose actual figures end before the release's usual year (Estimates Start After 2024 when most say 2025)
-  has the years in between left out rather than shown as actual. The alternative is a per-country projection label.
 - Import PortWatch by hand on a schedule (for example monthly), if its terms allow manual reuse; daily transits would
   then be up to a month old.
+
+**WEO by hand (decided 5 Nov 2026).** Import kind `imf-weo` (docs/data-pipeline.md) turns on government debt, the
+budget balance and the current account, credited "IMF World Economic Outlook, October 2026". Notes:
+- The data portal CSV (October 2026, `IMF.RES_WEO_9.0.0`) is now read; it was imported locally on 6 Nov: 193
+  countries and territories for debt, 197 for the budget balance, 196 for the current account; USA debt 122.3 (2024),
+  124.4 (2025), 126.8 (2026). The portal's Excel export is not read; use its CSV.
+- A country whose actual figures end before the release's usual year (43 of 193 debt rows in October 2026; Syria's
+  end in 2009) has the years in between left out rather than shown as actual. Still to decide: keep that, or label projections per country.
 
 ## Multi-year supply chain flows (raised 28 Oct 2026)
 

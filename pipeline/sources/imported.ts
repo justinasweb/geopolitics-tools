@@ -247,7 +247,7 @@ export const KINDS: Record<string, Kind> = {
   'imf-weo': {
     source: 'imf-weo', save: 'release.json', how: 'files', columns: WEO_COLUMNS,
     files: [...WEO_FILE_INDICATORS.map((c) => `${c}.json`), 'release.json'], split: weoFiles,
-    about: 'IMF World Economic Outlook database, the "By Countries" table: tab-delimited (.xls) or the Excel file (WEOOct2026all.xlsx, Countries sheet); keep the IMF\'s file name, which names the release',
+    about: 'IMF World Economic Outlook: the IMF data portal CSV (SERIES_CODE, LATEST_ACTUAL_ANNUAL_DATA, PUBLICATION_DATE, a column per year), or the older "By Countries" table (tab-delimited .xls, or WEOOct2026all.xlsx with the IMF\'s file name)',
   },
   'treasury-history': {
     source: 'treasury-history', save: 'mfh_history.csv', how: 'raw', check: treasuryHistoryCheck,

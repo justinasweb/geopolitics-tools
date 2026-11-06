@@ -216,13 +216,20 @@ like any file. The check refuses a row whose deployed and reserve warheads do no
 stockpile above the total, a missing Total row or a link that is not fas.org. When its year is OWID's split's
 year or later, it replaces OWID's split (never the series). It is kept under FAS's licence row (`LICENCE_OF` in src/data/licences.ts).
 
-**The IMF World Economic Outlook (`imf-weo`).** Download the "By Countries" table from
-imf.org/en/Publications/WEO/weo-database (the tab-delimited `.xls`, which is text, or the Excel file such as
-`WEOOct2026all.xlsx`, whose Countries sheet is read) and keep the IMF's file name. The import keeps government debt
-(`GGXWDG_NGDP`), the budget balance (`GGXCNL_NGDP`) and the current account (`BCA_NGDPD`) for country rows only (ISO
-codes the site knows; the IMF's country groups are dropped), and writes them as the API fetcher would,
-`imf-weo/<indicator>.json`, plus `release.json`: the release ("October 2026", from the table's footer line or else the
-file name) and each row's "Estimates Start After" year. The site labels years after the most common of those years as
+**The IMF World Economic Outlook (`imf-weo`).** Since October 2025 the WEO is downloaded from the IMF data portal
+(data.imf.org, WEO dataset → Download, CSV), a file such as `dataset_…IMF.RES_WEO_9.0.0.csv`. Each row is one series:
+`SERIES_CODE` is `<area>.<indicator>.A` (`USA.GGXWDG_NGDP.A`), with a column per year (`1980`…`2031`, empty when
+missing), `LATEST_ACTUAL_ANNUAL_DATA` (the row's last actual year; a fiscal year such as `FY2025/26` counts as its first
+year, the column the IMF puts it in) and `PUBLICATION_DATE` (`2026-10-13` → "October 2026"). The older "By Countries"
+table is still read as a fallback: the tab-delimited `.xls` (which is text) or the Excel file such as
+`WEOOct2026all.xlsx` (Countries sheet), with its "Estimates Start After" column and the release from its footer line or
+the IMF's file name.
+
+The import keeps government debt (`GGXWDG_NGDP`), the budget balance (`GGXCNL_NGDP`) and the current account
+(`BCA_NGDPD`) for countries and territories only: country groups (`G001`, `GX123`…) are dropped, and the IMF's own
+codes are matched through `src/data/places/codes.csv` (`KOS` and `UVK` Kosovo, `WBG` Palestine; Taiwan, Hong Kong and
+Macao are their own places). It writes them as the API fetcher would, `imf-weo/<indicator>.json`, plus `release.json`:
+the release and each row's last actual year. The site labels years after the most common of those years as
 projections; a country whose own actual figures end earlier has the years in between left out, as they are
 projections. Source lines credit "IMF World Economic Outlook, October 2026". The API fetcher stays off (the IMF's
 terms ask for permission before scheduled downloads). Growth, inflation and unemployment come from the World Bank.
