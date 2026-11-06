@@ -113,6 +113,15 @@ honours the wildcard on a put: if it did not, every Post would be refused.
 **Options.** Leave it as it is (the gap is milliseconds wide), or confirm `If-None-Match: *` on a Preview's bucket
 and add it to the claim.
 
+### Atlas on a phone: blocking time over budget (raised 6 Nov 2026)
+
+**The question.** Lighthouse (mobile) puts the Atlas's total blocking time at about 2.6 s against a 200 ms budget
+(docs/launch-qa.md). Almost all of it is MapLibre compiling and setting up WebGL; the Atlas's own script takes about
+50 ms. The map views meet the budget because on a phone they load the map only when the reader taps Show map.
+
+**Options.** Load the Atlas map on a tap on phones too (meets the budget; the page opens on a still preview), or
+accept it for the one page that is a full-screen map tool.
+
 ## Launch review leftovers (raised 5 Nov 2026)
 
 - **G7 and Russia (decided 5 Nov 2026).** Russia joins in 1998, as the G8, per the G7 Research Group
