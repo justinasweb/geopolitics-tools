@@ -87,7 +87,7 @@ export const EXPLORER_TEXT = {
 
 /** Starting points: a view and its settings. Shown on every view; a pressed one has a tick. */
 export const PRESET_TEXT: Record<string, string> = {
-  richer: 'Richer countries emit more',
+  richer: 'Do richer countries emit more per person?',
   refugees: 'Who hosts refugees',
   military: 'Military spending vs GDP',
   emitters: 'The biggest emitters over time',
