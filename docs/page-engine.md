@@ -294,4 +294,4 @@ says is in `src/lib/og-cards.ts`.
 
 ## Not done in this phase
 
-- Redeploying when new data arrives: today pages refresh on the next deploy (This week included; see open-questions.md).
+- Redeploying on every data run: production rebuilds at most once a day when the snapshot changed (This week included; see data-pipeline.md).
