@@ -118,6 +118,8 @@ const years = m.loaded.years;
             </table>
           </div>
         ))}
+        {/* The ranking runs to some 200 rows: its own source line under it, as in the header. */}
+        <SourceLine source={credit} parts={ind.static ? [] : [yearText]} updated={updated} status={projected(m.year) ? 'projection' : undefined} />
       </section>
     </div>
     <div class="gt-indgrid__b">
