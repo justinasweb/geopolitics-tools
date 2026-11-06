@@ -41,6 +41,24 @@ describe('UN Comtrade adapter', () => {
     expect(chipFlows(rows, 'chips')[0]).toMatchObject({ from: 'TWN', to: 'USA', amount: 9 });
   });
 
+  it('drops a quantity that cannot be in kilograms: its price per kg far below the product’s that year', () => {
+    // Pipeline gas at about $0.6 a kg, and one reporter whose "kg" are litres: 68 billion tonnes for $7.5 bn.
+    const gas = (reporterISO: string, partnerISO: string, netWgt: number, primaryValue: number) => ({ period: 2025, reporterISO, flowCode: 'M', partnerISO, cmdCode: '271121', netWgt, primaryValue });
+    const rows = parseComtrade([{ data: [
+      gas('DEU', 'NOR', 30e9, 18e9), gas('ITA', 'DZA', 15e9, 9e9), gas('CHN', 'RUS', 23e9, 12e9), gas('GBR', 'NOR', 25e9, 16e9),
+      gas('MEX', 'USA', 68_336_127_773_249, 7_479_659_362),
+      // Too little for its value is fine: small shipments of bottled gas cost more per kg.
+      gas('GUY', 'USA', 1000, 114_000),
+    ] }]);
+    const mex = rows.find((r) => r.reporter === 'MEX')!;
+    expect(mex.kg).toBeNull();
+    expect(mex.usd).toBe(7_479_659_362);
+    expect(rows.find((r) => r.reporter === 'GUY')!.kg).toBe(1000);
+    const flows = gasFlows(rows);
+    expect(flows.some((f) => f.from === 'USA' && f.to === 'MEX')).toBe(false);
+    expect(flows[0]).toMatchObject({ from: 'NOR', to: 'DEU' });
+  });
+
   it('turns crude into barrels a day and gas into cubic metres, pipeline and LNG apart', () => {
     const rows = comtrade(raw);
     const crude = crudeFlows(rows);

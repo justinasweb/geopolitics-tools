@@ -46,7 +46,30 @@ export function parseComtrade(files: { data?: Row[] }[]): TradeRow[] {
       out.push({ year: Number(r.period), reporter, partner, flow, cmd: String(r.cmdCode), kg: num(r.netWgt), usd: num(r.primaryValue) });
     }
   }
+  dropNonMass(out);
   return out;
+}
+
+/**
+ * Some reporters' net weight is not in kilograms (Mexico's pipeline gas from the United States: 68 billion "kg",
+ * litres by its size, for $7.5 bn). A row whose price per kg is under a tenth of the median for its product and year
+ * keeps its value but loses its quantity, so it drops out of every flow measured by weight. Rows that are dear per kg
+ * (small shipments) are kept.
+ */
+function dropNonMass(rows: TradeRow[]) {
+  const groups = new Map<string, TradeRow[]>();
+  for (const r of rows) {
+    if (!(r.kg && r.usd && r.kg > 0 && r.usd > 0)) continue;
+    const k = `${r.cmd}|${r.year}`;
+    if (!groups.has(k)) groups.set(k, []);
+    groups.get(k)!.push(r);
+  }
+  for (const g of groups.values()) {
+    if (g.length < 3) continue;
+    const prices = g.map((r) => r.usd! / r.kg!).sort((a, b) => a - b);
+    const median = prices[Math.floor(prices.length / 2)];
+    for (const r of g) if (r.usd! / r.kg! < median / 10) r.kg = null;
+  }
 }
 
 const filesOf = (raw: Raw) => raw.list('comtrade').filter((f) => f.endsWith('.json')).map((f) => raw.json<{ data?: Row[] }>('comtrade', f));

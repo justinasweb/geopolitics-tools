@@ -12,7 +12,7 @@ import { lending } from '../../src/adapters/aiddata.ts';
 import { emissions } from '../../src/adapters/owid.ts';
 import { worldBank, weo } from '../../src/adapters/worldbank.ts';
 import { INDICATORS, latestYear, registry, statusAt, valueAt } from '../../src/data/indicators.ts';
-import { FLOWS, loadFlows, topSupplier } from '../../src/data/flows.ts';
+import { FLOWS, checkFlows, loadFlows, topSupplier } from '../../src/data/flows.ts';
 import { INDICATOR_TEXT, FLOW_TEXT } from '../../src/i18n/en.ts';
 import { formatValue } from '../../src/lib/format.ts';
 
@@ -189,6 +189,19 @@ describe('indicator registry and flows', () => {
     expect(r.get('hunger').SDN[2025]).toBeGreaterThan(1e6);
     expect(r.get('hungershare').SDN[2025]).toBeLessThan(1);
     for (const id of ['co2pc', 'wheatprod', 'armsimp', 'chinaloans', 'popun', 'refin', 'refinpc']) expect(Object.keys(r.get(id)).length, id).toBeGreaterThan(0);
+  });
+
+  it('stops the build on a flow or a year’s total larger than world production, and warns on one larger than its exporter’s supply', () => {
+    const production = { USA: { 2025: 1100 }, NOR: { 2025: 120 }, RUS: { 2025: 600 }, BEL: { 2025: 0 } };
+    const pairs = (extra: { from: string; to: string; amount: number }[]) => [{ from: 'NOR', to: 'DEU', amount: 50 }, { from: 'RUS', to: 'CHN', amount: 32 }, ...extra];
+    // A unit error: one flow larger than the world's production (US → Mexico, 91,115 bcm against 1,820).
+    expect(() => checkFlows('gas', 2025, pairs([{ from: 'USA', to: 'MEX', amount: 91_115 }]), production)).toThrow(/gas.*USA → MEX.*91,115.*world's production.*1,820/);
+    // Many flows adding up past it.
+    expect(() => checkFlows('gas', 2025, pairs(Array.from({ length: 40 }, (_, i) => ({ from: 'USA', to: `X${i}`, amount: 50 }))), production)).toThrow(/total/);
+    // Re-exports are real (Belgium sends LNG on to France): more than production plus imports is a warning, not a stop.
+    const warnings = checkFlows('gas', 2025, pairs([{ from: 'BEL', to: 'FRA', amount: 38 }]), production);
+    expect(warnings).toEqual(['gas 2025: BEL → FRA 38 is more than BEL produces and imports (0)']);
+    expect(checkFlows('gas', 2025, pairs([]), production)).toEqual([]);
   });
 
   it('loads flows and finds a buyer’s main supplier', () => {
