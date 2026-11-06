@@ -16,6 +16,7 @@
     "test": "vitest run",
     "test:e2e": "node tests/e2e/smoke.mjs",
     "qa:a11y": "node tests/qa/a11y.mjs",
+    "qa:keyboard": "node tests/qa/keyboard.mjs",
     "check": "npm run lint && npm run typecheck && npm test",
     "build:sample": "GT_DATA=sample astro build && ALLOW_SAMPLE=1 node scripts/check-dist.mjs",
     "data:pull": "node --env-file-if-exists=.env pipeline/pull.ts",
