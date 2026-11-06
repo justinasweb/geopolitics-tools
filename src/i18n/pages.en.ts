@@ -261,7 +261,7 @@ export const INDICATOR_PAGE = {
   download: 'Download',
   downloadCsv: 'Download CSV, all years',
   downloadNote: (licence: string, credit: string) => `Licence: ${licence}. Credit: ${credit}. Columns: country, ISO3, year, value, status, source, retrieved.`,
-  shownOnly: 'Shown on the site, not available for download: the source’s terms do not allow it, or are still to confirm.',
+  shownOnly: 'Shown on the site, not available for download: the source’s terms do not allow it, or have not yet been confirmed.',
   answer: (top: string, verb: string, value: string, year: number) => `In ${year}, ${top} ${verb}: ${value}.`,
   answerStatic: (top: string, verb: string, value: string) => `${top} ${verb}: ${value}.`,
   shareText: (label: string) => `Countries by ${lc(label)}`,
@@ -344,11 +344,11 @@ export const SOURCES_PAGE = {
   noCorrections: 'No corrections yet.',
   report: 'Report a correction: data@geopolitics.tools',
   measures: 'All sources',
-  caption: 'Generated from the source registry on each build. Download: “Yes” means pages that use the source offer a CSV; “Shown only” means the figures are on the site but the licence does not allow a download, or is still to confirm.',
+  caption: 'Generated from the source registry on each build. Download: “Yes” means pages that use the source offer a CSV; “Shown only” means the figures are on the site but the licence does not allow a download, or has not yet been confirmed.',
   licencesHeading: 'Licences and credit',
   licencesBody: [
     'Free to access does not always mean free to republish. Each source has a record of what we may show, offer for download and derive, and the credit it needs; that credit travels with every chart and CSV.',
-    'Where a source does not allow redistribution, or its terms are still to confirm, its pages show the figures without a download and say so.',
+    'Where a source does not allow redistribution, or its terms have not yet been confirmed, its pages show the figures without a download and say so.',
   ],
   lateHeading: 'When a source is late or fails',
   lateBody: [
