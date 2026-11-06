@@ -263,7 +263,7 @@ it in the page, and `src/lib/overlap/render.ts` draws it, at build time for the 
   registry; not a share of a country's own total, a per-person figure, a score or a membership; default year; a
   first place shared with the next country does not count), up to ten, each with the maps it is first on.
 - **Indicator rankings.** The indexed indicator pages of the topic's groups (`HUB_GROUPS`), named with what a share or
-  rate is of (`rate` in `src/i18n/en.ts`: "CO2 imported in goods, % of own emissions"), each line starting with the
+  rate is of (`rate` in `src/i18n/en.ts`: "Net CO2 imports through trade, % of emissions inside the country"), each line starting with the
   year it ranks (so a one-year ranking reads apart from a card's total over years: Chinese lending, arms), then the top
   three; when
   several places share the first figure as the page shows it, they are named as tied first instead (`topLine`), on

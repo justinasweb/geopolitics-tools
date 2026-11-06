@@ -6,7 +6,7 @@
 //
 // Map views, hubs and tools are registered but not live until their phase builds them; the menu and every link
 // skip routes that are not live, so nothing links to a page that does not exist.
-import { SECTION_SLUGS, INDICATOR_SLUGS, COMPARE_JOIN, VIEW_SLUGS, DISASTER_SLUGS, FOOD_SLUGS, FOOD_LAYER_SLUGS, ENERGY_LAYER_SLUGS, BLOC_SLUGS, NUCLEAR_SLUGS, BLOCS_OVERLAP_SLUG, EXPLORER_SLUGS, CHAIN_SLUGS } from '../i18n/slugs.en.ts';
+import { MOVED, SECTION_SLUGS, INDICATOR_SLUGS, COMPARE_JOIN, VIEW_SLUGS, DISASTER_SLUGS, FOOD_SLUGS, FOOD_LAYER_SLUGS, ENERGY_LAYER_SLUGS, BLOC_SLUGS, NUCLEAR_SLUGS, BLOCS_OVERLAP_SLUG, EXPLORER_SLUGS, CHAIN_SLUGS } from '../i18n/slugs.en.ts';
 import { NAV_HUBS, NAV_TOOLS, NAV_TOP } from '../data/nav.ts';
 import { NAV_TEXT } from '../i18n/en.ts';
 import { INDICATORS } from '../data/indicators.ts';
@@ -308,6 +308,8 @@ function build(): Route[] {
     const key = navKey(u.id);
     if (key === `tool:${u.id}` && !tools.has(u.id)) out.push({ key, kind: 'tool', lang, path: u.path, live: false, indexed: false, aliases: [], id: u.id });
   }
+  // A renamed page keeps its old address as a redirect.
+  for (const r of out) r.aliases.push(...(MOVED[r.key] ?? []));
   return out;
 }
 

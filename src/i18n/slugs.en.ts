@@ -27,7 +27,7 @@ export const EXPLORER_SLUGS: Record<string, string> = { table: '', lines: 'over-
 export const VIEW_SLUGS: Record<string, string> = {
   hunger: '', hungershare: 'share',
   lowcarbon: '', windsolar: 'wind-solar', coalpower: 'coal', gaspower: 'gas', nuclearpower: 'nuclear',
-  co2: '', co2pc: 'per-person', co2cum: 'since-1750', co2trade: 'imported',
+  co2: '', co2pc: 'per-person', co2cum: 'since-1750', co2trade: 'net-imports',
   refout: '', refin: 'hosted', refinpc: 'per-person', idps: 'displaced',
   satellites: '', launches: 'launches',
   aicompute: '', aimodels: 'models', entitylist: 'export-controls', chipimports: 'chips', chipmachines: 'chip-machines',
@@ -81,7 +81,7 @@ export const INDICATOR_SLUGS: Record<string, string> = {
   wheatprod: 'wheat-production', wheatimp: 'wheat-imports', maizeprod: 'maize-production', maizeimp: 'maize-imports',
   riceprod: 'rice-production', riceimp: 'rice-imports', soyprod: 'soybean-production', soyimp: 'soybean-imports',
   fertpotash: 'potash-fertiliser-use', fertphosphate: 'phosphate-fertiliser-use',
-  co2: 'co2-emissions', co2pc: 'co2-emissions-per-person', co2cum: 'co2-emissions-since-1750', co2trade: 'co2-imported-in-goods',
+  co2: 'co2-emissions', co2pc: 'co2-emissions-per-person', co2cum: 'co2-emissions-since-1750', co2trade: 'net-co2-imports-through-trade',
   waterstress: 'water-stress', waterdep: 'water-from-abroad',
   milpct: 'military-spending-share-of-gdp', milusd: 'military-spending-usd', conflictdeaths: 'conflict-deaths',
   armsimp: 'arms-imports', armsexp: 'arms-exports', hunger: 'people-in-food-crisis', hungershare: 'share-in-food-crisis',
@@ -90,3 +90,8 @@ export const INDICATOR_SLUGS: Record<string, string> = {
   sanctions: 'sanctions-listings', chinaloans: 'chinese-loans-and-grants',
 };
 
+/** Addresses a page had before it was renamed, by route key: each one redirects (301) to the page's address now. */
+export const MOVED: Record<string, string[]> = {
+  'indicator:co2trade': ['/indicators/co2-imported-in-goods'],
+  'view:emissions:co2trade': ['/emissions/imported'],
+};
