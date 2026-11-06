@@ -6,10 +6,12 @@
 //   the X-Telegram-Bot-Api-Secret-Token header, compared in constant time.
 // - Only the owner can act: taps and messages count only from the owner's private chat with the bot
 //   (TELEGRAM_CHAT_ID). Anything else gets a plain 200, so Telegram does not retry it, and nothing happens.
-// - It stores nothing. A decision on a draft starts a GitHub Actions run (ai-review.yml, with GH_DISPATCH_TOKEN) that
+// - It stores almost nothing. A decision on a draft starts a GitHub Actions run (ai-review.yml, with GH_DISPATCH_TOKEN) that
 //   records it in the repository with the text's id and the hash of the version the owner saw, both carried in the
 //   button itself; the normal deploy follows. The digest's Post button sends the message the owner saw, as it is,
-//   to the channel (TELEGRAM_CHANNEL_ID), and never while the site is on the holding page (HOLDING).
+//   to the channel (TELEGRAM_CHANNEL_ID), and never while the site is on the holding page (HOLDING). Each week's post
+//   is recorded in the SNAPSHOTS bucket (digest/posted/<week>.json) before it is sent, so a second tap, or Telegram
+//   sending the same tap again, answers "already posted" instead of posting twice.
 //
 // It also holds the weekly digest's clock: the hourly Cron Trigger calls digestCron, which starts the week workflow's
 // digest at the hour DIGEST_AT names (default Monday 08:00 UTC).
@@ -29,7 +31,11 @@ export interface TelegramEnv extends GitHubEnv {
   HOLDING?: string;
   /** The digest's day and hour, "mon 08" (UTC). */
   DIGEST_AT?: string;
+  /** Where each posted digest is recorded (digestKey), so a week is never posted twice. */
+  SNAPSHOTS?: R2Bucket;
 }
+
+const digestKey = (week: string) => `digest/posted/${week}.json`;
 
 /** What one update led to, for the log and the tests. */
 export type Outcome =
@@ -155,14 +161,32 @@ async function onDigest(c: { action: 'p' | 'x'; week: string }, q: CallbackQuery
     await answer(T.stale);
     return { did: 'refused', week: c.week, why: 'no text' };
   }
+  // The week is claimed before the post goes out and the claim is removed if the channel refuses it, so a repeat
+  // never posts again and a failed post can be tried again.
+  const bucket = env.SNAPSHOTS;
+  const key = digestKey(c.week);
+  try {
+    if (!bucket) throw new Error('no SNAPSHOTS binding');
+    if (await bucket.get(key)) {
+      await answer(T.alreadyPosted);
+      await clearButtons();
+      return { did: 'refused', week: c.week, why: 'already posted' };
+    }
+    await bucket.put(key, JSON.stringify({ week: c.week, state: 'posting', at: new Date().toISOString() }));
+  } catch {
+    await answer(T.postNoRecord, true);
+    return { did: 'refused', week: c.week, why: 'no record' };
+  }
   const res = await tg(env, 'sendMessage', {
     chat_id: env.TELEGRAM_CHANNEL_ID, text: msg.text, ...(msg.entities ? { entities: msg.entities } : {}),
     link_preview_options: { is_disabled: false },
   });
   if (!res.ok) {
+    await bucket.delete(key).catch(() => {});
     await answer(T.postFailed(res.status), true);
     return { did: 'refused', week: c.week, why: `channel ${res.status}` };
   }
+  await bucket.put(key, JSON.stringify({ week: c.week, state: 'posted', at: new Date().toISOString() })).catch(() => {});
   await answer(T.posted);
   await clearButtons();
   return { did: 'posted', week: c.week };

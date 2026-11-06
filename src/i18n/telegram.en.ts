@@ -28,6 +28,8 @@ export const TELEGRAM_TEXT = {
   editReceived: 'Correction received. It is being checked; you get the result here.',
   help: 'This bot sends the site’s AI drafts for review (Approve, Edit, Skip) and the weekly digest (Post). It takes no other commands.',
   posted: 'Posted to the channel.',
+  alreadyPosted: 'This week’s digest is already posted to the channel.',
+  postNoRecord: 'The Worker cannot record the post (SNAPSHOTS bucket), so nothing was posted, to avoid posting it twice.',
   notPosted: 'Not posted.',
   postHolding: 'The site is still on the holding page, so nothing is posted to the channel.',
   postNoChannel: 'TELEGRAM_CHANNEL_ID is not set on the Worker, so nothing was posted.',

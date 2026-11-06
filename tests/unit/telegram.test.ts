@@ -16,6 +16,17 @@ const env: TelegramEnv = {
 };
 type Call = { url: string; body: Record<string, unknown> };
 
+/** An in-memory stand-in for the SNAPSHOTS bucket. */
+function memoryBucket() {
+  const objects = new Map<string, string>();
+  const bucket = {
+    get: async (k: string) => (objects.has(k) ? { json: async () => JSON.parse(objects.get(k)!) } : null),
+    put: async (k: string, v: string) => { objects.set(k, v); },
+    delete: async (k: string) => { objects.delete(k); },
+  } as unknown as NonNullable<TelegramEnv['SNAPSHOTS']>;
+  return { bucket, objects };
+}
+
 function stubFetch(o: { dispatch?: number; channel?: number } = {}) {
   const calls: Call[] = [];
   vi.stubGlobal('fetch', vi.fn(async (url: string, init?: RequestInit) => {
@@ -152,13 +163,42 @@ describe('the webhook', () => {
 
   it('posts the digest to the channel exactly as the owner saw it, only on Post', async () => {
     const calls = stubFetch();
-    expect(await handleUpdate(tap('p|2026-45', { text: 'Week 45 on geopolitics.tools' }), env)).toEqual({ did: 'posted', week: '2026-45' });
+    const store = { ...env, SNAPSHOTS: memoryBucket().bucket };
+    expect(await handleUpdate(tap('p|2026-45', { text: 'Week 45 on geopolitics.tools' }), store)).toEqual({ did: 'posted', week: '2026-45' });
     const sent = calls.find((c) => method(c) === 'sendMessage')!;
     expect(sent.body).toMatchObject({ chat_id: '@geopoliticstools', text: 'Week 45 on geopolitics.tools', entities: [{ type: 'url', offset: 0, length: 5 }] });
     expect(sent.body.reply_markup).toBeUndefined();
 
     calls.length = 0;
-    expect(await handleUpdate(tap('x|2026-45'), env)).toEqual({ did: 'not-posted', week: '2026-45' });
+    expect(await handleUpdate(tap('x|2026-45'), store)).toEqual({ did: 'not-posted', week: '2026-45' });
+    expect(calls.some((c) => c.body.chat_id === '@geopoliticstools')).toBe(false);
+  });
+
+  it('posts each week’s digest once: a second Post, or Telegram sending the tap again, answers “already posted”', async () => {
+    const calls = stubFetch();
+    const { bucket, objects } = memoryBucket();
+    const store = { ...env, SNAPSHOTS: bucket };
+    expect(await handleUpdate(tap('p|2026-45', { text: 'Week 45' }), store)).toEqual({ did: 'posted', week: '2026-45' });
+    expect(JSON.parse(objects.get('digest/posted/2026-45.json')!)).toMatchObject({ week: '2026-45', state: 'posted' });
+    calls.length = 0;
+    expect(await handleUpdate(tap('p|2026-45', { text: 'Week 45' }), store)).toEqual({ did: 'refused', week: '2026-45', why: 'already posted' });
+    expect(calls.some((c) => c.body.chat_id === '@geopoliticstools')).toBe(false);
+    expect(calls.find((c) => method(c) === 'answerCallbackQuery')!.body).toMatchObject({ text: T.alreadyPosted });
+    // Another week is its own post.
+    expect(await handleUpdate(tap('p|2026-46', { text: 'Week 46' }), store)).toEqual({ did: 'posted', week: '2026-46' });
+  });
+
+  it('lets Post be tried again when the channel refused the post', async () => {
+    const calls = stubFetch({ channel: 500 });
+    const { bucket, objects } = memoryBucket();
+    expect(await handleUpdate(tap('p|2026-45'), { ...env, SNAPSHOTS: bucket })).toMatchObject({ did: 'refused', why: 'channel 500' });
+    expect(objects.size).toBe(0);
+    expect(calls.filter((c) => c.body.chat_id === '@geopoliticstools')).toHaveLength(1);
+  });
+
+  it('does not post without the bucket that records what was posted', async () => {
+    const calls = stubFetch();
+    expect(await handleUpdate(tap('p|2026-45'), env)).toMatchObject({ did: 'refused', why: 'no record' });
     expect(calls.some((c) => c.body.chat_id === '@geopoliticstools')).toBe(false);
   });
 
