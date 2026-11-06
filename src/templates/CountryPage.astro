@@ -267,7 +267,7 @@ const citation = COUNTRY_TEXT.citation(name, kind, url, Number(m.updated.slice(0
             {(people.stats.length > 0 || people.old !== null) && (
               <div class="gt-cpstats">
                 {people.stats.map((f) => <CpStat label={label(f.id)} num={parts(f).num} unit={parts(f).unit} caption={statCaption(f)} />)}
-                {people.old !== null && <CpStat label={DOSSIER_TEXT.aged65} num={formatShare(people.old).replace('%', '')} unit="%" caption={`${people.oldYear} · ${short('wpp')}`} />}
+                {people.old !== null && <CpStat label={DOSSIER_TEXT.aged65} num={formatShare(people.old).replace('%', '')} unit="%" caption={DOSSIER_TEXT.aged65Caption(people.oldYear!, people.lastEstimate, short('wpp'))} />}
               </div>
             )}
           </CpSection>

@@ -28,3 +28,11 @@ describe('Compare source lines', () => {
     expect(COMPARE_TEXT.sourceYear('SIPRI', [{ name: 'China', year: 2023 }])).toBe('SIPRI, 2023');
   });
 });
+
+describe('the 65-and-over caption', () => {
+  it('says Projection, medium variant for a year after the UN’s last estimate year, as the population chart does', async () => {
+    const { DOSSIER_TEXT } = await import('../../src/i18n/pages.en.ts');
+    expect(DOSSIER_TEXT.aged65Caption(2023, 2023, 'UN WPP')).toBe('2023 · UN WPP');
+    expect(DOSSIER_TEXT.aged65Caption(2025, 2023, 'UN WPP')).toBe('2025, Projection, medium variant · UN WPP');
+  });
+});

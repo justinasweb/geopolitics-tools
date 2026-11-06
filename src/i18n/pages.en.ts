@@ -185,6 +185,8 @@ export const DOSSIER_TEXT = {
   pyramidLabel: (c: string, year: number) => `${possessive(c)} population by age in ${year}, men on the left and women on the right, in millions`,
   pyramidCaption: (lastEstimate: number) => `Millions of people in each five-year age group, men left and women right. Years after ${lastEstimate} are UN projections (medium variant).`,
   aged65: 'Aged 65 and over',
+  /** The 65-and-over share's caption: a year after the UN's last estimate year is its medium-variant projection. */
+  aged65Caption: (year: number, lastEstimate: number, source: string) => `${year}${year > lastEstimate ? ', Projection, medium variant' : ''} · ${source}`,
   tech: 'Technology and space', techMenu: 'Technology',
   techFind: (c: string, n: string, year: number) => `Satellites owned in ${c} numbered ${n} at the end of ${year}.`,
   satellites: 'Satellites in orbit', launches: 'Orbital launches', compute: 'Share of AI computing power', models: 'Notable AI models',
