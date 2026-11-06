@@ -10,7 +10,7 @@
     "VNM",
     "TWN"
   ],
-  "generated": "src/lib/ai/dossier-facts.ts from snapshot 2026-11-02T1326Z",
+  "generated": "src/lib/ai/dossier-facts.ts from snapshot 2026-11-06T0327Z",
   "facts": [
     {
       "id": "gdp",
@@ -581,7 +581,7 @@
     {
       "id": "satellites",
       "statement": "Satellites in orbit of China.",
-      "value": 1663,
+      "value": 1682,
       "unit": "satellites",
       "period": "2026",
       "places": [
@@ -589,7 +589,7 @@
       ],
       "source": "CelesTrak SATCAT",
       "link": "https://celestrak.org/satcat/search.php",
-      "date": "2026-11-01"
+      "date": "2026-11-05"
     },
     {
       "id": "satellites-rank",
@@ -602,7 +602,7 @@
       ],
       "source": "CelesTrak SATCAT",
       "link": "https://celestrak.org/satcat/search.php",
-      "date": "2026-11-01"
+      "date": "2026-11-05"
     },
     {
       "id": "satellites-of",
@@ -618,12 +618,12 @@
       ],
       "source": "CelesTrak SATCAT",
       "link": "https://celestrak.org/satcat/search.php",
-      "date": "2026-11-01"
+      "date": "2026-11-05"
     },
     {
       "id": "launches",
       "statement": "Orbital launches of China.",
-      "value": 70,
+      "value": 71,
       "unit": "launches",
       "period": "2026",
       "places": [
@@ -631,7 +631,7 @@
       ],
       "source": "CelesTrak SATCAT",
       "link": "https://celestrak.org/satcat/search.php",
-      "date": "2026-11-01"
+      "date": "2026-11-05"
     },
     {
       "id": "launches-rank",
@@ -644,7 +644,7 @@
       ],
       "source": "CelesTrak SATCAT",
       "link": "https://celestrak.org/satcat/search.php",
-      "date": "2026-11-01"
+      "date": "2026-11-05"
     },
     {
       "id": "launches-of",
@@ -660,7 +660,7 @@
       ],
       "source": "CelesTrak SATCAT",
       "link": "https://celestrak.org/satcat/search.php",
-      "date": "2026-11-01"
+      "date": "2026-11-05"
     },
     {
       "id": "aicompute",
@@ -847,7 +847,7 @@
       ],
       "source": "U.S. Energy Information Administration",
       "link": "https://www.eia.gov/international/data/world",
-      "date": "2026-10-26"
+      "date": "2026-11-02"
     },
     {
       "id": "main-supplier-oil",
@@ -865,7 +865,7 @@
       ],
       "source": "U.S. Energy Information Administration",
       "link": "https://www.eia.gov/international/data/world",
-      "date": "2026-10-26"
+      "date": "2026-11-02"
     },
     {
       "id": "imports-gas",
@@ -884,7 +884,7 @@
       ],
       "source": "U.S. Energy Information Administration",
       "link": "https://www.eia.gov/international/data/world",
-      "date": "2026-10-26"
+      "date": "2026-11-02"
     },
     {
       "id": "main-supplier-gas",
@@ -902,7 +902,7 @@
       ],
       "source": "U.S. Energy Information Administration",
       "link": "https://www.eia.gov/international/data/world",
-      "date": "2026-10-26"
+      "date": "2026-11-02"
     },
     {
       "id": "imports-wheat",
@@ -1380,6 +1380,19 @@
       "source": "UNHCR Refugee Data Finder",
       "link": "https://www.unhcr.org/refugee-statistics/download",
       "date": "2026-10-24"
+    },
+    {
+      "id": "nuclear-warheads",
+      "statement": "China’s estimated total inventory of nuclear warheads.",
+      "value": 620,
+      "unit": "warheads",
+      "period": "2026",
+      "places": [
+        "CHN"
+      ],
+      "source": "FAS Status of World Nuclear Forces",
+      "link": "https://fas.org/initiative/status-world-nuclear-forces/",
+      "date": "2026-11-02"
     },
     {
       "id": "us-treasuries",

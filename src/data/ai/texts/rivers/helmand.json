@@ -1,0 +1,11 @@
+{
+  "id": "river:helmand",
+  "author": "ai",
+  "text": "The Helmand dispute involves Afghanistan and Iran. Afghanistan and Iran signed the Helmand River Water Treaty on 13 March 1973. The treaty gives Iran an average flow of Helmand water of 22 cubic metres per second (1973). In the treaty, Afghanistan also agreed to deliver a further 4 cubic metres per second to Iran as goodwill (1973). On 24 March 2021, Afghanistan inaugurated the Kamal Khan Dam on the Helmand.",
+  "model": "claude-sonnet-5-5",
+  "factsHash": "sha256:833e0c4040c2ca122994986307ce1a6b",
+  "drafted": "2026-11-06",
+  "approved": false,
+  "approvedOn": null,
+  "approvedVia": null
+}

@@ -2,97 +2,74 @@
 title: "Methodology"
 lede: "How each measure is worked out, what the labels mean, and what the figures cannot tell you."
 description: "How geopolitics.tools works out import reliance, supplier shares, five-year arms totals, common years and coverage, and the limits of the figures."
-updated: '2026-10-25'
+updated: "2026-11-06"
 approved: false
+author: "ai"
+model: "claude-sonnet-5-5"
+factsHash: "sha256:defcc36aae9f94c7211feecab61fe313"
+drafted: "2026-11-06"
 ---
 
-## How to read our figures
+## Import dependence
 
-Every figure names its source, the year it covers and the date we last refreshed it. Figures that are not final, reported actuals carry a tag with its own symbol and word: **Estimate**, **Projection**, **Preliminary** or **Not yet reported**. Colour is never the only sign.
+Import reliance of 50% or more is labelled "Imports most". Import reliance from 15% up to that line is labelled "Imports some". Within 15% either way, a country is labelled "Roughly self-sufficient". Below minus 15%, it is labelled "Exporter".
 
-Rankings compare countries on one common year by default, so a country is never ranked against another's older figure. "Latest available" uses each country's most recent year instead, up to two years earlier; the table then marks the older years and says how many there are.
-
-A rank says where a country falls on one measure, largest first. It is not a judgement, and "Higher" on Compare pages only marks the larger number.
-
-## Import reliance
-
-Import reliance is the share of what a country uses that it buys from abroad, after taking off what it sells.
-
-| Term | How it is worked out |
-| --- | --- |
-| Import reliance | (imports − exports) ÷ use |
-| Use | production + imports − exports (FAOSTAT publishes use directly for crops and fertilisers, and we use its figure) |
-
-A negative value means the country sells more than it buys. We then show exports as a share of production instead ("Exports 60% of what it produces").
-
-| Import reliance | Label |
-| --- | --- |
-| 50% or more | Imports most |
-| 15% to 50% | Imports some |
-| Between −15% and 15% | Roughly self-sufficient |
-| Below −15% | Exporter |
-
-A country that uses none of a resource, by its source, gets no share and the table says so.
-
-The Dependencies tool splits these further, to show where a country sits: imports 75% or more, 50% to 75%, 15% to 50%, roughly self-sufficient (±15%), and, for exporters, exports of 15% to 50% or over 50% of what it produces.
+The Dependencies tool also marks imports of 75% or more. It treats a single point of failure as imports of at least 50% of use, with at least 50% of those imports from one supplier.
 
 ## Supplier concentration
 
-For arms and chips the sources give trade but not use, so we cannot say how much of what a country uses comes from abroad. These rows show the main supplier and its share of the country's imports instead, and the dependence column says "Supplier concentration only".
+Supplier concentration is measured with the Herfindahl–Hirschman index. A value from 1,000 counts as moderately concentrated, as in the 2023 merger guidelines. A value above 1,800 counts as highly concentrated. The index runs to 10,000 when one supplier has everything.
 
-For food, fuel and fertiliser, the Dependencies tool also shows the main supplier's share of a country's imports, from the trade flows (FAOSTAT for crops, UN Comtrade for oil, gas and fertilisers). Their year can differ from the year of the import share.
+## Indicator pages
 
-A **single point of failure** is a country that imports at least half of what it uses of a resource, with at least half of those imports from one supplier.
+Indicator pages compare all places on a common year. This is the latest year in which at least 80% as many places have reported as in the best of the five years before it.
 
-## Five-year arms totals
+"Latest available" reaches back up to two years and marks the older rows.
 
-SIPRI measures arms deliveries in trend-indicator values (TIV): a common unit based on the military capability of what is delivered, not its price. Yearly figures jump with single large orders, and SIPRI advises using them to show trends over periods of time, so we show totals over five years.
+An indicator page with fewer than 20 places reporting in its common year is not indexed.
 
-SIPRI's terms allow reuse of under 10% of its dataset, so we publish these derived totals only and offer no download of the underlying records.
+## Country pages
 
-## Supply chains
+A country page with fewer than 4 measures is not indexed. It lists which sources cover the place.
 
-Each supply chain page shows one flow for one period: the latest year its source reports (for arms, the latest five-year total). We never mix years in one diagram, and flows from different sources can have different latest years, so each page says which year it shows.
+## Sources and reuse
 
-The flows are the main bilateral flows each source publishes, not all trade. FAOSTAT's detailed trade matrix is cut to each importer's main suppliers; UN Comtrade's flows are as importers report them; UNHCR lists smaller origin and host pairs together. Totals on these pages are totals of the flows shown.
+The site draws on these sources:
 
-**Concentration** is the Herfindahl–Hirschman index on suppliers' shares of the flows shown: the sum of the squared percentage shares, from near 0 (many small suppliers) to 10,000 (one supplier). As in the 2023 US merger guidelines, 1,000 to 1,800 counts as moderately concentrated and above 1,800 as highly concentrated. For a country, it is worked out on its own suppliers. Refugee flows have no concentration: countries of origin are not suppliers.
+- USGS earthquakes
+- UNHCR Refugee Data Finder, under CC BY 4.0, with UNHCR's supplemental terms
+- FAOSTAT, under CC BY 4.0, with FAO's additional terms
+- SIPRI Arms Transfers Database
+- USGS Mineral Commodity Summaries
+- UN Comtrade, under its terms: a free, not-for-profit visualisation may show its figures, with no bulk redistribution
 
-## Common years, preliminary years and coverage
+SIPRI says its trend-indicator values (TIV) are best used to show trends in arms transfers over periods of time. The site shows them as five-year totals. SIPRI's terms allow fair use of less than 10% of a published data set. Commercial use, including on sites with ads, needs a licence. The site publishes derived totals only.
 
-Sources publish in stages: a few countries report a year early, most report later. The common year on each indicator page is the latest year that at least 80% as many countries have reported as in the best of the five years before it. Later years that some countries have already reported are **preliminary**; the page lists them and never uses them as the default until coverage catches up.
+## Territories and names
 
-Every ranking says how many countries and territories it covers, for example "142 of 217 countries and territories reported for 2025". Pages for measures that fewer than 20 places report are published but not offered to search engines.
+Where a place's status is disputed, the site notes it:
 
-## Countries, territories and borders
+- Western Sahara: status disputed; mostly administered by Morocco; claimed by the Polisario Front.
+- Kosovo: declared independence in 2008; recognised by some states.
+- Crimea: under Russian control since 2014; within Ukraine's internationally recognised borders. Figures follow each source.
+- Ukraine: partly under Russian control since 2022. Figures follow each source.
+- Northern Cyprus: administered separately from Cyprus; not recognised as a state by most countries.
+- Somaliland: administered separately from Somalia; not recognised as a state by most countries.
+- Abkhazia and South Ossetia: administered separately from Georgia; not recognised as states by most countries.
+- Transnistria: administered separately from Moldova; not recognised as a state by most countries.
 
-We show data for the unit the source reports and never move figures from one place to another. Where a source includes a territory in its parent's figures, or reports a disputed area separately, the country page says so in its coverage notes. Maps use Natural Earth's 1:50m boundaries, which follow the de facto line of control; boundaries shown do not imply endorsement.
+## Texts drafted with AI
 
-## Summaries and sentences
+Some texts are drafted with AI. These are the dossier summaries, the alliance history notes, the disputed river summaries and the summary of each closed week on This week.
 
-The sentences at the top of country, Compare and indicator pages are written by templates from the figures on the page, not by AI. Each sentence names its source and year, and a sentence whose figure is missing is left out rather than guessed.
+Each text is written by claude-sonnet-5-5 from its own facts file. It is checked figure by figure and approved by the editor before it appears.
 
-Some texts are drafted with AI and approved by the editor. The next section says how.
+The drafting prompt asks for plain, neutral text drawn only from the text's own facts. It asks for:
 
-## AI drafting
+- no forecasts or judging adjectives;
+- every figure given with its unit and period, and with thousands separators;
+- the site's own country names;
+- "rejoined" for a second join;
+- nothing about its facts file, tables or itself, or about what its facts leave out.
 
-These texts are drafted with AI: the summaries on the United States, China and Russia dossier pages, the notes on the alliance history pages and the summaries on the disputed river pages, and the summary of each closed week on This week. The first drafts of About, Privacy, Methodology and the introductions to the five topic sections were made the same way. Dossier, history and river texts carry the label "Drafted with AI from cited sources and reviewed by the editor", which links here.
-
-**Facts first.** Each text has a facts file kept with the site's code. Every fact in it has its value, unit and period, the name of its source, a link to it and a date. A dossier's facts are the figures its page already shows; a history's are the dated joins and departures of the grouping, each with a citation such as a treaty or an official announcement; a river's are its treaties, dam milestones and official statements, each dated and cited. A fact that has not yet been checked against its source is marked as unverified, and nothing is drafted from a file that has one.
-
-**Drafting.** A script sends a text's facts file to Anthropic's Claude Sonnet 5.5 model (`claude-sonnet-5-5`) with a fixed prompt, kept with the code in `src/data/ai/prompt.md`. The prompt asks for plain, neutral text written only from its facts: no forecasts, no blame, no claims its facts do not support, no judging adjectives, and every figure with its unit and period, written with thousands separators (5,150). Countries keep the site's own names (Türkiye, not Turkey), and a country that joins a second time "rejoined". The text is about its subject: it never mentions its facts file, tables or itself, and never says what its facts leave out.
-
-**Checking.** A second script, which is not AI, reads every number, date and country name in the draft and looks for it in its facts file. A figure passes only if it is a fact's value, written exactly or rounded the way it is written to at least two significant figures, with the fact's unit and period in the same sentence. Dates must be dates in its facts, and countries must be countries its facts name, under any of their usual names. A draft that talks about its facts file or itself, rather than its subject, fails too. A draft that fails is sent back once with the list of what failed; if the second draft fails too, it is dropped and nothing is published.
-
-**Approval.** Nothing drafted is published until the editor has read and approved it. Each approved text is stored with the date of approval and a fingerprint of its facts. When its facts change, for example when a source publishes a new year, the text is no longer shown until it has been redrafted and approved again. Texts that are not approved show nothing at all.
-
-**The editor's own words.** The editor can replace any draft with text written by hand. Such a text is marked as hand-written, is never overwritten by the drafting script and carries no AI label.
-
-The summaries at the top of other country pages, and every sentence on Compare and indicator pages, are written by templates, not by AI.
-
-## Known limits
-
-- **Sources revise their history.** We keep each release, so a figure you cited can be traced, but it may differ from today's.
-- **Trade is recorded by country of origin or of consignment, depending on the source.** A supplier can be a trading hub rather than the producer.
-- **Some countries publish little or nothing.** Their pages say which sources cover them and which do not, rather than filling the gaps.
-- **Estimates carry uncertainty.** Figures for countries at war, or with large off-budget spending, are the source's estimates and carry the most.
+A draft that fails the check is redrafted once with the checker's findings, then dropped.

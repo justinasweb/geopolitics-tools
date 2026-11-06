@@ -1,0 +1,11 @@
+{
+  "id": "history:eu",
+  "author": "ai",
+  "text": "The European Economic Community began in 1958 with six members: Belgium, France, Germany, Italy, Luxembourg and the Netherlands. Denmark, Ireland and the United Kingdom joined in 1973, Greece in 1981 and Portugal and Spain in 1986. The Maastricht Treaty came into force in 1993, founding the European Union. Austria, Finland and Sweden joined in 1995; Cyprus, Czechia, Estonia, Hungary, Latvia, Lithuania, Malta, Poland, Slovakia and Slovenia in 2004; Bulgaria and Romania in 2007; and Croatia in 2013. The United Kingdom left on 31 January 2020, and the Union had 27 members in 2026.",
+  "model": "claude-sonnet-5-5",
+  "factsHash": "sha256:4e97a2ad4a6c6286fbf9a89273fe62d2",
+  "drafted": "2026-11-06",
+  "approved": false,
+  "approvedOn": null,
+  "approvedVia": null
+}

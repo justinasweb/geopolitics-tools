@@ -1,0 +1,11 @@
+{
+  "id": "history:g20",
+  "author": "ai",
+  "text": "The G20 was founded in 1999, when finance ministers and central bank governors first met under that name. It had 20 members in 1999: 19 countries and the European Union. Leaders held the first G20 summit in 2008. The African Union became a member in 2023. The G20 had 21 members in 2026: 19 countries, the European Union and the African Union.",
+  "model": "claude-sonnet-5-5",
+  "factsHash": "sha256:30fd9571cbd47fd08867f2e1a6d3e09f",
+  "drafted": "2026-11-06",
+  "approved": false,
+  "approvedOn": null,
+  "approvedVia": null
+}
