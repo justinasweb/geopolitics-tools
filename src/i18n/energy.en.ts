@@ -98,7 +98,7 @@ export const ENERGY_TEXT = {
     if (layer === 'trade' && flowYear) {
       out.push(fuel === 'oil'
         ? `Flows on the map are the largest crude oil flows in ${flowYear}, as importers report them to UN Comtrade (HS 2709), turned from tonnes into barrels a day at about 7.33 barrels a tonne.`
-        : `Flows on the map are the largest gas flows in ${flowYear}, as importers report them to UN Comtrade: pipeline gas (HS 271121, solid lines) at about 0.75 million tonnes per billion cubic metres, and LNG (HS 271111, dashed lines) at about 1,360 cubic metres of gas per tonne.`);
+        : `Flows on the map are the largest gas flows in ${flowYear}, as importers report them to UN Comtrade: pipeline gas (HS 271121, solid lines) at about 0.75 million tonnes per billion cubic metres, and liquefied natural gas (LNG), gas cooled into a liquid for shipping, shown as dashed lines (HS 271111), at about 1,360 cubic metres of gas per tonne.`);
     }
     out.push('The latest year is preliminary: EIA revises it as countries report.');
     return out;
