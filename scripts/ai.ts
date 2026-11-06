@@ -19,7 +19,7 @@ import { anthropicClient, draftText, NoKeyError, type DraftClient } from '../src
 import { canonical, duplicateFacts, factsHash, factsPath, kindOf, loadFacts, refusals, validateFacts, type FactsFile } from '../src/lib/ai/facts.ts';
 import { tryLoadDossierFacts } from '../src/lib/ai/current.ts';
 import { hubFacts, pageFacts } from '../src/lib/ai/page-facts.ts';
-import { approveText, isLong, readText, saveDraft, stateOf, textHash, writeText, type Via } from '../src/lib/ai/store.ts';
+import { approveText, currentHash, isLong, readText, saveDraft, stateOf, textHash, writeText, type Via } from '../src/lib/ai/store.ts';
 import { currentFacts, isTextId, TEXT_IDS } from '../src/lib/ai/texts.ts';
 import { place } from '../src/lib/places.ts';
 
@@ -117,7 +117,7 @@ function checkStored(id: string): { lines: string[]; checked: boolean } {
   const f = currentFacts(id);
   if (!f) return { lines: kindOf(id) === 'dossier' ? [] : [`${id}: no facts file`], checked: false };
   const out: string[] = [];
-  if (t.factsHash !== factsHash(f)) out.push(`${id}: its facts changed since it was drafted (stored ${t.factsHash ?? 'none'}, now ${factsHash(f)}): redraft it, or for a pasted text run npm run ai:paste again.`);
+  if (t.factsHash !== currentHash(t, f)) out.push(`${id}: ${t.usedFacts ? `facts it uses (${t.usedFacts.length})` : 'its facts'} changed since it was drafted (stored ${t.factsHash ?? 'none'}, now ${currentHash(t, f)}): redraft it, or for a pasted text run npm run ai:paste again.`);
   const r = checkDraft(t.text, f);
   if (!r.ok) out.push(`${id}: the text does not pass the check:`, ...problemLines(r));
   if (t.approved && !t.approvedOn) out.push(`${id}: approved, but approvedOn (the approval date, YYYY-MM-DD) is missing.`);
@@ -181,7 +181,7 @@ export async function runDrafts(list: string[], client: DraftClient): Promise<Dr
     if (!f) { run.skipped.push(`${id}: no facts${kindOf(id) === 'dossier' ? ' (needs a data snapshot)' : ''}`); continue; }
     const errors = validateFacts(f, (p) => Boolean(place(p)));
     if (errors.length) { run.skipped.push(`${id}: the facts file has errors: ${errors.join('; ')}`); continue; }
-    if (t?.factsHash === factsHash(f) && t.text.trim()) { run.skipped.push(`${id}: already drafted from these facts (${t.approved ? 'approved' : 'waiting for approval'})`); continue; }
+    if (t?.factsHash && t.factsHash === currentHash(t, f) && t.text.trim()) { run.skipped.push(`${id}: already drafted from these facts (${t.approved ? 'approved' : 'waiting for approval'})`); continue; }
     const r = await draftText(f, client);
     if (r.ok) { saveDraft(id, { text: r.text, model: r.model, facts: f, on: today() }); run.drafted.push({ id, text: r.text, model: r.model, attempts: r.attempts }); } else if (r.reason === 'refused') run.skipped.push(...r.problems.map((p) => `${p}`));
     else run.dropped.push({ id, problems: r.problems });

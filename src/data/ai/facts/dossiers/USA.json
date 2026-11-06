@@ -9,7 +9,7 @@
     "GBR",
     "TWN"
   ],
-  "generated": "src/lib/ai/dossier-facts.ts from snapshot 2026-11-06T0327Z",
+  "generated": "src/lib/ai/dossier-facts.ts from snapshot 2026-11-06T0427Z",
   "facts": [
     {
       "id": "gdp",
@@ -1115,7 +1115,7 @@
     {
       "id": "refin-of",
       "statement": "Places ranked on refugees hosted.",
-      "value": 177,
+      "value": 176,
       "unit": "places",
       "unitAliases": [
         "countries"

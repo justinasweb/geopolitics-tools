@@ -93,6 +93,18 @@ describe('drafting with a stubbed client', () => {
     expect(refusals(facts({ sample: true }))).toHaveLength(1);
   });
 
+  it('names the facts a draft uses: its figures, and the facts behind a date or place no figure of the sentence gives', () => {
+    const f = facts({ countries: ['IRN'] });
+    // The date and Afghanistan come from "treaty" only; the figure is "flow", which also gives Iran and 1973.
+    expect(checkDraft(GOOD, f).used).toEqual(['flow', 'treaty']);
+    expect(checkDraft('It gives Iran an average flow of 22 cubic metres per second (1973).', f).used).toEqual(['flow']);
+    // A place in the file's own countries needs no fact; one only facts give brings them in.
+    expect(checkDraft('Iran is on the river.', f).used).toEqual([]);
+    expect(checkDraft('Afghanistan is on the river.', f).used).toEqual(['treaty']);
+    // A name the file allows brings in the facts that state it.
+    expect(checkDraft('The Helmand River Water Treaty is in force.', f).used).toEqual(['treaty']);
+  });
+
   it('cleans a reply wrapped in a code fence', () => {
     expect(cleanReply('```markdown\n## Hi\n\nText.\n```')).toBe('## Hi\n\nText.');
   });
@@ -111,7 +123,7 @@ describe('the store and the approval step', () => {
     expect(stateOf(t, f)).toBe('draft');
     expect(() => approveText('river:helmand', f, { on: '2026-11-03', via: 'telegram', textHash: 'not-it' }, root)).toThrow(/changed since it was sent/);
     const a = approveText('river:helmand', f, { on: '2026-11-03', via: 'telegram', textHash: textHash(GOOD) }, root);
-    expect(a).toMatchObject({ approved: true, approvedOn: '2026-11-03', approvedVia: 'telegram', factsHash: factsHash(f) });
+    expect(a).toMatchObject({ approved: true, approvedOn: '2026-11-03', approvedVia: 'telegram', usedFacts: ['flow', 'treaty'], factsHash: factsHash(f, ['flow', 'treaty']) });
     expect(stateOf(readText('river:helmand', root), f)).toBe('approved');
   });
 
@@ -126,6 +138,23 @@ describe('the store and the approval step', () => {
     // A new date on a fact (a weekly refresh) is not a change.
     const redated = facts({ facts: f.facts.map((x) => ({ ...x, date: '2026-11-09' })) });
     expect(stateOf(readText('river:helmand', root), redated)).toBe('approved');
+  });
+
+  it('hashes only the facts a text uses: a change to another fact, or a new fact, leaves it approved', () => {
+    const root = tempRepo();
+    const f = facts({ facts: [...facts().facts, { id: 'rank', statement: 'Iran’s place on dams.', value: 7, unit: 'rank', period: '2025', places: ['IRN'], source: 'GDW', link: 'https://www.globaldamwatch.org/', date: '2026-10-25' }] });
+    const t = saveDraft('river:helmand', { text: GOOD, model: AI_MODEL, facts: f, on: '2026-11-02' }, root);
+    expect(t.usedFacts).toEqual(['flow', 'treaty']);
+    approveText('river:helmand', f, { on: '2026-11-03', via: 'cli' }, root);
+    const moved = facts({ facts: [...facts().facts, { ...f.facts[2], value: 8 }] });
+    expect(stateOf(readText('river:helmand', root), moved)).toBe('approved');
+    expect(stateOf(readText('river:helmand', root), facts())).toBe('approved');
+    // A used fact that changes, or is gone, makes it stale.
+    expect(stateOf(readText('river:helmand', root), facts({ facts: [facts().facts[0]] }))).toBe('stale');
+    // A text saved before usedFacts keeps the whole-file hash, as before.
+    const old = { ...readText('river:helmand', root)!, usedFacts: undefined, factsHash: factsHash(f) };
+    expect(stateOf(old, f)).toBe('approved');
+    expect(stateOf(old, moved)).toBe('stale');
   });
 
   it('refuses to approve a text edited so that it no longer passes the check', () => {
@@ -151,7 +180,9 @@ describe('the store and the approval step', () => {
     const md = readFileSync(join(root, 'src/content/pages/about.md'), 'utf8');
     expect(md).toContain('title: "About"');
     expect(md).toContain('approved: false');
+    // A long page keeps the whole file's hash: its prose is more than the figures the checker can match.
     expect(md).toContain(`factsHash: "${factsHash(f)}"`);
+    expect(md).not.toContain('usedFacts');
     expect(md).toContain('updated: "2026-11-02"');
     expect(md).toMatch(/---\n\n## The treaty/);
     expect(readText('page:about', root)).toMatchObject({ approved: false, author: 'ai', model: AI_MODEL });

@@ -1,6 +1,8 @@
 // Where drafted texts are kept, and the approval step (spec, D15, "Approve"). Nothing is published without the
-// owner's approval, and an approval is tied to the facts it was given on: each text stores the hash of its facts
-// file, so a text whose facts changed reads as stale (flagged for redrafting) instead of staying on the page.
+// owner's approval, and an approval is tied to the facts it was given on: a short text stores the ids of the facts
+// it uses (`usedFacts`, matched by the checker) and their hash, a long page or hub intro the hash of its whole facts
+// file, so a text whose facts changed reads as stale (flagged for redrafting) instead of staying on the page. A
+// change to a fact a short text does not use leaves it as it is.
 //
 // - Short texts (dossier, history, river, and This week's summary) are JSON files in
 //   src/data/ai/texts/<kind>/<id>.json. They are approved with `npm run ai:approve` or the Telegram review buttons
@@ -26,8 +28,11 @@ export interface StoredText {
   author: Author;
   /** The model that drafted it, or "manual (Claude chat)" for a pasted draft. */
   model?: string;
-  /** Hash of the facts file the text was drafted from (./facts.ts, factsHash). */
+  /** Hash of the facts the text uses (./facts.ts, factsHash): of `usedFacts`, or of the whole file for a text without. */
   factsHash?: string;
+  /** Short texts: ids of the facts the text uses, as the checker matched them. Missing on long pages and hub intros,
+   *  and on texts saved before: the whole file counts. */
+  usedFacts?: string[];
   /** When it was drafted (YYYY-MM-DD). */
   drafted?: string;
   approved: boolean;
@@ -115,8 +120,8 @@ export function writeText(t: StoredText, root = process.cwd()): void {
   const p = textPath(t.id, root);
   if (!isLong(t.id)) {
     mkdirSync(dirname(p), { recursive: true });
-    const { id, text, author, model, factsHash: fh, drafted, approved, approvedOn, approvedVia, skipped, edited } = t;
-    writeFileSync(p, `${JSON.stringify({ id, author, text, model, factsHash: fh, drafted, edited, approved, approvedOn: approvedOn ?? null, approvedVia: approvedVia ?? null, skipped }, null, 2)}\n`);
+    const { id, text, author, model, factsHash: fh, usedFacts, drafted, approved, approvedOn, approvedVia, skipped, edited } = t;
+    writeFileSync(p, `${JSON.stringify({ id, author, text, model, factsHash: fh, usedFacts, drafted, edited, approved, approvedOn: approvedOn ?? null, approvedVia: approvedVia ?? null, skipped }, null, 2)}\n`);
     return;
   }
   const md = splitMd(readFileSync(p, 'utf8'));
@@ -127,13 +132,24 @@ export function writeText(t: StoredText, root = process.cwd()): void {
   writeFileSync(p, joinMd({ lines, body: kindOf(t.id) === 'page' ? `\n${t.text.trim()}\n` : md.body }));
 }
 
+/** The hash a stored text's facts have now: of the facts it uses, or of the whole file for a text saved before. */
+export const currentHash = (t: Pick<StoredText, 'usedFacts'>, facts: FactsFile) => factsHash(facts, t.usedFacts);
+
+/** The facts a text uses and their hash, for saving it: from the checker's matches. Long pages and hub intros are
+ *  mostly prose the checker cannot tie to facts, so they keep the whole file's hash. */
+export function usage(id: string, text: string, facts: FactsFile): Pick<StoredText, 'usedFacts' | 'factsHash'> {
+  if (isLong(id)) return { usedFacts: undefined, factsHash: factsHash(facts) };
+  const usedFacts = checkDraft(text, facts).used;
+  return { usedFacts, factsHash: factsHash(facts, usedFacts) };
+}
+
 /** Where a text stands against its current facts. A hand-written text is the owner's and is never stale. */
 export function stateOf(t: StoredText | null, facts: FactsFile | null): TextState {
   if (!t || !t.text.trim()) return 'none';
   if (t.author === 'owner') return 'owner';
   // A draft written before the pipeline has no facts hash: still a draft, but an approval needs one.
   if (!t.factsHash) return t.approved ? 'stale' : 'draft';
-  if (facts && t.factsHash !== factsHash(facts)) return 'stale';
+  if (facts && t.factsHash !== currentHash(t, facts)) return 'stale';
   if (t.skipped && !t.approved) return 'skipped';
   return t.approved ? 'approved' : 'draft';
 }
@@ -142,7 +158,7 @@ export function stateOf(t: StoredText | null, facts: FactsFile | null): TextStat
 export function saveDraft(id: string, d: { text: string; model: string; facts: FactsFile; on: string }, root = process.cwd()): StoredText {
   const old = readText(id, root);
   if (old?.author === 'owner') throw new Error(`${id} was written by the owner (author: owner) and is never overwritten.`);
-  const t: StoredText = { id, text: d.text.trim(), author: 'ai', model: d.model, factsHash: factsHash(d.facts), drafted: d.on, approved: false };
+  const t: StoredText = { id, text: d.text.trim(), author: 'ai', model: d.model, ...usage(id, d.text.trim(), d.facts), drafted: d.on, approved: false };
   writeText(t, root);
   return t;
 }
@@ -162,7 +178,7 @@ export function approveText(id: string, facts: FactsFile, o: ApproveOptions, roo
   if (t.author === 'owner') throw new Error(`${id}: the owner wrote this text; it needs no approval.`);
   const refused = refusals(facts);
   if (refused.length) throw new Error(`${id}: its facts are not ready:\n${refused.join('\n')}`);
-  if (t.factsHash !== factsHash(facts)) throw new Error(`${id}: its facts changed since it was drafted (${t.factsHash ?? 'no hash'} → ${factsHash(facts)}); redraft it.`);
+  if (t.factsHash !== currentHash(t, facts)) throw new Error(`${id}: its facts changed since it was drafted (${t.factsHash ?? 'no hash'} → ${currentHash(t, facts)}); redraft it.`);
   if (o.textHash && o.textHash !== textHash(t.text)) throw new Error(`${id}: the text changed since it was sent for review; review it again.`);
   const r = checkDraft(t.text, facts);
   if (!r.ok) throw new Error(`${id}: the text no longer passes the check:\n${problemLines(r).join('\n')}`);
@@ -205,7 +221,7 @@ export function editText(id: string, text: string, facts: FactsFile, o: ReviewOp
   if (!clean) throw new Error(`${id}: the corrected text is empty.`);
   const r = checkDraft(clean, facts);
   if (!r.ok) throw new Error(`${id}: the corrected text does not pass the check:\n${problemLines(r).join('\n')}`);
-  const out: StoredText = { ...t, text: clean, factsHash: factsHash(facts), edited: o.on, approved: false, approvedOn: undefined, approvedVia: undefined, skipped: undefined };
+  const out: StoredText = { ...t, text: clean, ...usage(id, clean, facts), edited: o.on, approved: false, approvedOn: undefined, approvedVia: undefined, skipped: undefined };
   writeText(out, root);
   return out;
 }

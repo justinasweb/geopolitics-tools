@@ -1,7 +1,7 @@
 // Facts files (spec, D15, "Facts first"): every AI-drafted text on the site is written from one file in
 // src/data/ai/facts/, and from nothing else. A fact has its value, unit and period, and the source it comes from
-// with a link and a date. The hash of a file's facts is stored with each text drafted from it, so a text whose facts
-// changed is flagged for redrafting instead of being kept (./store.ts). See docs/ai-drafting.md.
+// with a link and a date. The hash of the facts a text uses is stored with it, so a text whose facts changed is
+// flagged for redrafting instead of being kept (./store.ts). See docs/ai-drafting.md.
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -75,12 +75,18 @@ export function canonical(v: unknown): string {
   return JSON.stringify(v);
 }
 
-/** The hash stored with a text: over what the text may say (subject, places, names and facts), not over how or
- *  when the file was generated. A fact's date (when the source was published or last refreshed) and the owner's
- *  notes are left out, so a weekly refresh that changes no figure, or a note, never forces a redraft. */
-export function factsHash(f: FactsFile): string {
-  const facts = f.facts.map((x) => ({ ...x, date: undefined, note: undefined }));
-  const body = canonical({ id: f.id, subject: f.subject, countries: f.countries ?? [], names: f.names ?? [], facts });
+/** The hash stored with a text: over what the text may say (subject, places, names) and the facts it uses, not over
+ *  how or when the file was generated. With `used` (the fact ids the checker matched, ./check.ts) only those facts
+ *  count, so a change to a fact the text does not use leaves it approved; a used fact that is gone counts as changed.
+ *  Without it, every fact counts (texts saved before `usedFacts`). A fact's date (when the source was published or
+ *  last refreshed) and the owner's notes are left out, so a weekly refresh that changes no figure, or a note, never
+ *  forces a redraft. */
+export function factsHash(f: FactsFile, used?: string[]): string {
+  const strip = (x: Fact) => ({ ...x, date: undefined, note: undefined });
+  const base = { id: f.id, subject: f.subject, countries: f.countries ?? [], names: f.names ?? [] };
+  const body = used
+    ? canonical({ ...base, used: [...new Set(used)].sort().map((id) => { const x = f.facts.find((y) => y.id === id); return x ? strip(x) : { id, missing: true }; }) })
+    : canonical({ ...base, facts: f.facts.map(strip) });
   return `sha256:${createHash('sha256').update(body).digest('hex').slice(0, 32)}`;
 }
 

@@ -6,7 +6,7 @@
     "RUS",
     "IRN"
   ],
-  "generated": "src/lib/ai/dossier-facts.ts from snapshot 2026-11-06T0327Z",
+  "generated": "src/lib/ai/dossier-facts.ts from snapshot 2026-11-06T0427Z",
   "facts": [
     {
       "id": "gdp",
@@ -1024,52 +1024,6 @@
       "source": "USGS Mineral Commodity Summaries",
       "link": "https://www.usgs.gov/centers/national-minerals-information-center/mineral-commodity-summaries",
       "date": "2026-10-25"
-    },
-    {
-      "id": "refin",
-      "statement": "Refugees hosted of Russia.",
-      "value": 12787,
-      "unit": "people",
-      "unitAliases": [
-        "residents",
-        "inhabitants"
-      ],
-      "period": "2025",
-      "places": [
-        "RUS"
-      ],
-      "source": "UNHCR Refugee Data Finder",
-      "link": "https://www.unhcr.org/refugee-statistics/download",
-      "date": "2026-10-24"
-    },
-    {
-      "id": "refin-rank",
-      "statement": "Russia’s place on refugees hosted, largest first.",
-      "value": 108,
-      "unit": "rank",
-      "period": "2025",
-      "places": [
-        "RUS"
-      ],
-      "source": "UNHCR Refugee Data Finder",
-      "link": "https://www.unhcr.org/refugee-statistics/download",
-      "date": "2026-10-24"
-    },
-    {
-      "id": "refin-of",
-      "statement": "Places ranked on refugees hosted.",
-      "value": 177,
-      "unit": "places",
-      "unitAliases": [
-        "countries"
-      ],
-      "period": "2025",
-      "places": [
-        "RUS"
-      ],
-      "source": "UNHCR Refugee Data Finder",
-      "link": "https://www.unhcr.org/refugee-statistics/download",
-      "date": "2026-10-24"
     },
     {
       "id": "refout",

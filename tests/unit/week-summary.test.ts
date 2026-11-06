@@ -115,7 +115,8 @@ describe('the review steps', () => {
     expect(readText('week:2026-45', r)!.text).toBe(SUMMARY);
     const fixed = SUMMARY.replace(' preliminary figures,', ' preliminary figures from the Candidate release,');
     const e = editText('week:2026-45', `${fixed}\r\n`, f, { on: '2026-11-09', textHash: h }, r);
-    expect(e).toMatchObject({ text: fixed, edited: '2026-11-09', approved: false, factsHash: factsHash(f) });
+    expect(e).toMatchObject({ text: fixed, edited: '2026-11-09', approved: false, factsHash: factsHash(f, e.usedFacts) });
+    expect(e.usedFacts!.length).toBeGreaterThan(0);
     expect(() => approveText('week:2026-45', f, { on: '2026-11-09', via: 'telegram', textHash: h }, r)).toThrow(/changed since/);
     expect(approveText('week:2026-45', f, { on: '2026-11-09', via: 'telegram', textHash: textHash(fixed) }, r).approved).toBe(true);
   });

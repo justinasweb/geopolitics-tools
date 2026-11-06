@@ -10,7 +10,7 @@
     "VNM",
     "TWN"
   ],
-  "generated": "src/lib/ai/dossier-facts.ts from snapshot 2026-11-06T0327Z",
+  "generated": "src/lib/ai/dossier-facts.ts from snapshot 2026-11-06T0427Z",
   "facts": [
     {
       "id": "gdp",
@@ -1309,7 +1309,7 @@
     {
       "id": "refin-rank",
       "statement": "China’s place on refugees hosted, largest first.",
-      "value": 141,
+      "value": 140,
       "unit": "rank",
       "period": "2025",
       "places": [
@@ -1322,7 +1322,7 @@
     {
       "id": "refin-of",
       "statement": "Places ranked on refugees hosted.",
-      "value": 177,
+      "value": 176,
       "unit": "places",
       "unitAliases": [
         "countries"

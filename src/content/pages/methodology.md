@@ -88,7 +88,7 @@ These texts are drafted with AI: the summaries on the United States, China and R
 
 **Checking.** A second script, which is not AI, reads every number, date and country name in the draft and looks for it in its facts file. A figure passes only if it is a fact's value, written exactly or rounded the way it is written to at least two significant figures, with the fact's unit and period in the same sentence. Dates must be dates in its facts, and countries must be countries its facts name, under any of their usual names. A draft that talks about its facts file or itself, rather than its subject, fails too. A draft that fails is sent back once with the list of what failed; if the second draft fails too, it is dropped and nothing is published.
 
-**Approval.** Nothing drafted is published until the editor has read and approved it. Each approved text is stored with the date of approval and a fingerprint of its facts. When its facts change, for example when a source publishes a new year, the text is no longer shown until it has been redrafted and approved again. Texts that are not approved show nothing at all.
+**Approval.** Nothing drafted is published until the editor has read and approved it. Each approved text is stored with the date of approval and a fingerprint of the facts it uses. When one of those facts changes, for example when a source publishes a new year, the text is no longer shown until it has been redrafted and approved again. Texts that are not approved show nothing at all.
 
 **The editor's own words.** The editor can replace any draft with text written by hand. Such a text is marked as hand-written, is never overwritten by the drafting script and carries no AI label.
 
