@@ -122,6 +122,8 @@ export const SUMMARY = {
   mines: (c: string, parts: string[], src: string) => `${c} mines ${list(parts)} (${src}).`,
   produces: (c: string, parts: string[], src: string) => `${c} produces ${list(parts)} (${src}).`,
   minePart: (share: string, mineral: string, first: boolean) => (first ? `${share} of the world’s ${mineral}` : `${share} of its ${mineral}`),
+  /** After the source and year when a figure is the source's estimate. */
+  estimated: 'estimated',
   people: (c: string, pop: string, popSrc: string, gdp: string | null, gdpSrc: string) =>
     gdp ? `${c} has ${pop} people (${popSrc}) and an economy of ${gdp} a year (${gdpSrc}).` : `${c} has ${pop} people (${popSrc}).`,
   imports: (share: string, noun: string, src: string) => `It imports ${share} of the ${noun} it uses (${src}).`,

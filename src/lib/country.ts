@@ -157,8 +157,10 @@ function summaryFor(c: Place, figs: Figure[], minerals: MineralShare[], deps: De
     const top = minerals.slice(0, 3);
     const mined = top.filter((m) => m.measure === 'mine');
     const made = top.filter((m) => m.measure === 'primary');
-    if (mined.length) out.push(SUMMARY.mines(subject, mined.map((m, i) => SUMMARY.minePart(formatShare(m.share), mineralName(m.id, m.label), i === 0)), `${SOURCE_SHORT['usgs-minerals']}, ${mined[0].year}`));
-    if (made.length) out.push(SUMMARY.produces(out.length ? 'It' : subject, made.map((m, i) => SUMMARY.minePart(formatShare(m.share), `primary ${mineralName(m.id, m.label)}`, i === 0)), `${SOURCE_SHORT['usgs-minerals']}, ${made[0].year}`));
+    // USGS's estimated figures say so in the source, as in the minerals section: "(USGS, 2025, estimated)".
+    const usgs = (ms: MineralShare[]) => `${SOURCE_SHORT['usgs-minerals']}, ${ms[0].year}${ms.some((m) => m.estimated) ? `, ${SUMMARY.estimated}` : ''}`;
+    if (mined.length) out.push(SUMMARY.mines(subject, mined.map((m, i) => SUMMARY.minePart(formatShare(m.share), mineralName(m.id, m.label), i === 0)), usgs(mined)));
+    if (made.length) out.push(SUMMARY.produces(out.length ? 'It' : subject, made.map((m, i) => SUMMARY.minePart(formatShare(m.share), `primary ${mineralName(m.id, m.label)}`, i === 0)), usgs(made)));
   }
   const pop = figs.find((f) => f.id === 'population');
   const gdp = figs.find((f) => f.id === 'gdp');

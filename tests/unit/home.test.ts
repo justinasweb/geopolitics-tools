@@ -78,4 +78,18 @@ describe('homepage tool row', () => {
     }
     expect(dossierFact('XXX')).toEqual({ fact: null, estimated: false });
   });
+
+  it('says in the summary’s source when USGS’s mineral figures are estimates, as the minerals section does', async () => {
+    const { countryModel } = await import('../../src/lib/country.ts');
+    let seen = 0;
+    for (const id of ['USA', 'CHN', 'RUS', 'AUS', 'COD', 'CHL', 'ZAF']) {
+      const m = countryModel(id);
+      const mined = m?.minerals.slice(0, 3).filter((x) => x.measure === 'mine') ?? [];
+      if (!mined.length) continue;
+      const line = m!.summary.find((x) => x.includes(' mines '))!;
+      expect(line.endsWith(mined.some((x) => x.estimated) ? ', estimated).' : `, ${mined[0].year}).`), id).toBe(true);
+      if (mined.some((x) => x.estimated)) seen++;
+    }
+    expect(seen).toBeGreaterThan(0);
+  });
 });
