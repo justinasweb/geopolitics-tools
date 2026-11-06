@@ -19,6 +19,7 @@
     "qa:keyboard": "node tests/qa/keyboard.mjs",
     "qa:speed": "node tests/qa/speed.mjs",
     "qa:phone": "node tests/qa/phone.mjs",
+    "qa:crawl": "node tests/qa/crawl.mjs",
     "check": "npm run lint && npm run typecheck && npm test",
     "build:sample": "GT_DATA=sample astro build && ALLOW_SAMPLE=1 node scripts/check-dist.mjs",
     "data:pull": "node --env-file-if-exists=.env pipeline/pull.ts",
