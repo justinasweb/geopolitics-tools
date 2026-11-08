@@ -4,6 +4,7 @@
 import { food, type Balance, type Crop } from '../adapters/faostat.ts';
 import { gas, oil, type Fuel, type Oil } from '../adapters/eia.ts';
 import { FLOWS, loadFlows, topSupplier, type Flows } from '../data/flows.ts';
+import { OTHER_SUPPLIER } from '../adapters/sipri.ts';
 import { shared } from './data.ts';
 import { place } from './places.ts';
 import { DEP_TEXT, SOURCE_SHORT } from '../i18n/pages.en.ts';
@@ -143,7 +144,10 @@ function concentration(resource: Resource, id: string): DepRow {
   const ins = f.pairs.filter((p) => p.to === id);
   const total = ins.reduce((s, p) => s + p.amount, 0);
   if (!total) return { ...base, state: 'none', period: f.period };
-  return { ...base, state: 'ok', period: f.period, main: { id: ins[0].from, share: ins[0].amount / total }, partners: ins.slice(0, 3).map((p) => p.from) };
+  // Deliveries from suppliers that are not a country count in the total, never as a supplier shown.
+  const named = ins.filter((p) => p.from !== OTHER_SUPPLIER);
+  if (!named.length) return { ...base, state: 'none', period: f.period };
+  return { ...base, state: 'ok', period: f.period, main: { id: named[0].from, share: named[0].amount / total }, partners: named.slice(0, 3).map((p) => p.from) };
 }
 
 /** The tool and the country tables have something to show: the food or the fuel balances are in the snapshot. */

@@ -9,6 +9,7 @@ import { licenceOf, refreshed, shared, sourceName } from './data.ts';
 import { place } from './places.ts';
 import { countryHref, paths } from './routes.ts';
 import type { Chain } from './supply-chains/model.ts';
+import { OTHER_SUPPLIER } from '../adapters/sipri.ts';
 
 /** The flows in the site map's order. */
 export const CHAIN_KEYS = ['oil', 'gas', 'wheat', 'maize', 'rice', 'soy', 'potash', 'phosphate', 'arms', 'chips', 'refugees'] as const;
@@ -43,6 +44,7 @@ export function chainOf(key: string): Chain {
   for (const p of f.pairs) {
     for (const id of [p.from, p.to]) {
       if (places[id]) continue;
+      if (id === OTHER_SUPPLIER) { places[id] = { n: DEP_TEXT.otherSuppliers, c: '' }; continue; }
       const pl = place(id);
       const h = countryHref(id);
       places[id] = { n: pl?.name ?? id, c: pl?.iso3 || id, ...(pl?.short && pl.short !== pl.name ? { s: pl.short } : {}), ...(h ? { h } : {}) };

@@ -15,7 +15,7 @@ import { emissions } from '../adapters/owid.ts';
 import { food, CROPS } from '../adapters/faostat.ts';
 import { demography, WPP_LAST_ESTIMATE } from '../adapters/wpp.ts';
 import { displacement } from '../adapters/unhcr.ts';
-import { arms } from '../adapters/sipri.ts';
+import { OTHER_SUPPLIER, arms } from '../adapters/sipri.ts';
 import { water } from '../adapters/water.ts';
 import { lending } from '../adapters/aiddata.ts';
 import { weo, weoOwnLastActual, weoRelease, worldBank } from '../adapters/worldbank.ts';
@@ -97,7 +97,7 @@ const staticYear = (values: Record<string, number | null>, year: number): Series
 };
 const armsBy = (side: 'from' | 'to') => (raw: Raw) => {
   const out: Series = {};
-  for (const p of arms(raw).pairs) put(out, p[side], p.year, p.tiv, true);
+  for (const p of arms(raw).pairs) if (p[side] !== OTHER_SUPPLIER) put(out, p[side], p.year, p.tiv, true);
   return out;
 };
 

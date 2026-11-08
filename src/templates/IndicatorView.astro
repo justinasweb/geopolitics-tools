@@ -44,6 +44,8 @@ import { HUNGER_TEXT as HG } from '../i18n/hunger.en';
 import { POWER_TEXT as PW } from '../i18n/electricity.en';
 import { basesOf, cyberData, ownState, pairs as cyberPairs } from '../lib/cyber';
 import { CYBER_TEXT as CX } from '../i18n/cyber.en';
+import { OTHER_SUPPLIER } from '../adapters/sipri';
+import { DEP_TEXT } from '../i18n/pages.en';
 
 interface Props { id: string }
 const p = viewPage(Astro.props.id)!;
@@ -58,7 +60,7 @@ const y = p.byYear[p.year];
 const prevYear = p.years.includes(prevOf(p, p.year)) ? prevOf(p, p.year) : null;
 const prev = prevYear ? p.byYear[prevYear] : null;
 const answer = lede(p);
-const nameOf = (id: string) => place(id)?.name ?? id;
+const nameOf = (id: string) => place(id)?.name ?? (id === OTHER_SUPPLIER ? DEP_TEXT.otherSuppliers : id);
 const when = T.period ? T.period(p.year) : String(p.year);
 const yearsText = p.layer.span ? `${p.years[0] - p.layer.span + 1}–${p.year}` : p.years.length > 1 ? `${p.years[0]}–${p.years.at(-1)}` : String(p.year);
 const crumbs: { label: string; href?: string }[] = [hubCrumb(p.family.hub), { label: fam.section, href: route(key(familyPages(p.family.id)[0].id))!.path }, { label: T.title }];

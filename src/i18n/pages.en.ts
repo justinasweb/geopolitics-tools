@@ -62,6 +62,8 @@ export const DEP_TEXT = {
    *  (imports, or exports when the partners are buyers). */
   dated: (source: string, year: string, flowSource?: string, flowYear?: string, buyers = false) =>
     (!flowSource || !flowYear || (flowSource === source && flowYear === year) ? `${source}, ${year}` : `${source}, use ${year} · ${flowSource}, ${buyers ? 'exports' : 'imports'} ${flowYear}`),
+  /** Deliveries from suppliers that are not a country (SIPRI: non-state actors, NATO, the UN, unknown), in a list. */
+  otherSuppliers: 'Other or unknown suppliers',
   /** Flows whose amount is the exporter's report, the importer's quantity being unusable (mirror data). */
   asReported: (flows: string[]) => `${list(flows)} as reported by the exporter`,
   flow: (from: string, to: string) => `${from} → ${to}`,

@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import { registerToTable } from '../../pipeline/sources/imported.ts';
-import { parseSipriTiv } from '../../src/adapters/sipri.ts';
+import { OTHER_SUPPLIER, parseSipriTiv } from '../../src/adapters/sipri.ts';
 import { groupOf, periodEnds, supplierMix, totalsBy, windowPairs } from '../../src/lib/arms.ts';
 
 // The arms views: five-year totals from SIPRI, built from the trade register or the TIV table.
@@ -32,6 +32,25 @@ describe('arms transfers', () => {
     expect(fra.reduce((s, p) => s + p.tiv, 0)).toBeCloseTo(310);
     expect(fra.find((p) => p.year === 2020)!.tiv).toBeCloseTo(100);
     expect(pairs.filter((p) => p.from === 'RUS').map((p) => p.year)).toEqual([2021, 2022]);
+  });
+
+  it('keeps deliveries from suppliers that are not a country in the recipient’s total, never as a country', () => {
+    // Germany gets 55.6 from Israel and 40 from the US, plus 4.4 from an unknown supplier and a non-state actor: Israel's
+    // share is 55.6 of 100, not of 95.6. Unknown recipients and non-state recipients still count for no one.
+    const table = 'Supplier,Recipient,2024,2025,Total\nIsrael,Germany,55.6,,55.6\nUnited States,Germany,40,,40\nunknown supplier(s),Germany,2.4,,2.4\n'
+      + 'Hezbollah (Lebanon)*,Germany,2,,2\nBosnia-Herzegovina,Ukraine,,5.5,5.5\nUnited States,unknown recipient(s),9,,9\nRussia,RSF (Sudan)*,3,,3\n';
+    const { pairs } = parseSipriTiv(table);
+    const de = pairs.filter((p) => p.to === 'DEU');
+    expect(de.reduce((t, p) => t + p.tiv, 0)).toBeCloseTo(100);
+    expect(de.filter((p) => p.from === OTHER_SUPPLIER).reduce((t, p) => t + p.tiv, 0)).toBeCloseTo(4.4);
+    expect(pairs.some((p) => p.from === 'BIH' && p.to === 'UKR')).toBe(true);
+    expect(pairs.every((p) => p.to !== OTHER_SUPPLIER)).toBe(true);
+    expect(pairs).toHaveLength(5);
+    // The country views never show it as a supplier: exports by place leave it out, the supplier mix groups it as other.
+    const w = windowPairs(pairs, 2025);
+    expect(totalsBy(w, 'from')[OTHER_SUPPLIER]).toBeUndefined();
+    // The "other" group holds Israel (55.6) and the suppliers that are not a country (4.4).
+    expect(supplierMix(w, 'DEU').find((g) => g.group === 'other')!.share).toBeCloseTo(0.6);
   });
 
   it('leaves a TIV table as it is', () => {

@@ -4,7 +4,7 @@
 import type { Raw } from '../adapters/core.ts';
 import { chipFlows, comtrade, crudeFlows, fertiliserFlows, gasFlows, type Flow } from '../adapters/comtrade.ts';
 import { food } from '../adapters/faostat.ts';
-import { arms } from '../adapters/sipri.ts';
+import { OTHER_SUPPLIER, arms } from '../adapters/sipri.ts';
 import { displacement } from '../adapters/unhcr.ts';
 import { registry, type Format } from './indicators.ts';
 
@@ -111,6 +111,8 @@ export function loadFlows(raw: Raw, key: string): Flows {
 export function topSupplier(flows: Flows, id: string) {
   const ins = flows.pairs.filter((p) => p.to === id);
   const total = ins.reduce((t, p) => t + p.amount, 0);
-  if (!total) return null;
-  return { from: ins[0].from, share: ins[0].amount / total, total, count: ins.length };
+  // Suppliers that are not a country count in the total, never as the main supplier.
+  const top = ins.find((p) => p.from !== OTHER_SUPPLIER);
+  if (!total || !top) return null;
+  return { from: top.from, share: top.amount / total, total, count: ins.length };
 }

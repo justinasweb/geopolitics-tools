@@ -193,7 +193,7 @@ node pipeline/import.ts wpp-age WPP2024_PopulationByAge5GroupSex_Medium.csv.gz -
 
 | Source | Kinds | Released |
 |---|---|---|
-| SIPRI Arms Transfers | `sipri` | Each March |
+| SIPRI Arms Transfers | `sipri` (the trade register; each deal's TIV is split evenly over its delivery years, so five-year shares can differ from SIPRI's own tables by about a point. Deliveries from suppliers that are not a country, such as non-state actors, NATO, the UN or unknown suppliers, stay in the recipient's totals as "Other or unknown suppliers") | Each March |
 | UN World Population Prospects | `wpp-total`, `wpp-indicators`, `wpp-age` | Every two years |
 | Global Energy Monitor | `gem-coal`, `gem-nuclear`, `gem-lng`, `gem-pipelines` | About twice a year |
 | WRI Aqueduct | `aqueduct-baseline`, `aqueduct-future` | Rarely |
