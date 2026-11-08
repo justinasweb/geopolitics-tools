@@ -24,6 +24,10 @@ export const SEARCH_TEXT = {
   partial: (q: string, name: string) => `No match for “${q}”. Showing results for ${name}.`,
   none: (q: string) => `Nothing matches “${q}”.`,
   noneHelp: 'Check the spelling, or try a country, a commodity such as wheat, a measure or a bloc.',
+  /** A map that is not on the site yet: "Chokepoints aren’t on the site yet." */
+  notYet: (what: string) => `${what} aren’t on the site yet.`,
+  /** Other names for the maps not on the site yet. */
+  notYetNames: { chokepoints: ['chokepoint', 'strait', 'shipping lanes', 'Hormuz', 'Suez', 'Malacca', 'Bosporus', 'Bab el-Mandeb', 'Gibraltar', 'Dover', 'Panama Canal', 'Cape of Good Hope'], ports: ['port', 'harbour', 'harbor', 'shipping'] } as Record<string, string[]>,
 
   /** The line under each result. */
   dossier: 'Full dossier',

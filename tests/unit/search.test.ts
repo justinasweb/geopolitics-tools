@@ -149,3 +149,18 @@ describe('site search: the index', { timeout: 30_000 }, () => {
     expect(gzipSync(JSON.stringify(searchIndex())).length).toBeLessThan(25_000);
   });
 });
+
+describe('pages not on the site yet', () => {
+  const soon = decode({ ...wire, s: [['Chokepoints aren’t on the site yet.', 'Chokepoints|Strait of Hormuz|Hormuz|Suez Canal|Suez|Panama Canal'], ['Ports aren’t on the site yet.', 'Ports|port|harbour']] });
+  it('answer that they are not here yet, instead of a spelling hint', () => {
+    expect(search(soon, 'Hormuz')).toMatchObject({ total: 0, soon: 'Chokepoints aren’t on the site yet.' });
+    expect(search(soon, 'strait of hormuz').soon).toBe('Chokepoints aren’t on the site yet.');
+    expect(search(soon, 'ports').soon).toBe('Ports aren’t on the site yet.');
+    expect(search(soon, 'Hormuz').corrected).toBeUndefined();
+  });
+  it('never hide a live page', () => {
+    // "Germany" is live; nothing about chokepoints is said.
+    expect(search(soon, 'Germany').soon).toBeUndefined();
+    expect(search(soon, 'Germany').total).toBeGreaterThan(0);
+  });
+});

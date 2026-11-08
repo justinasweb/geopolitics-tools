@@ -21,6 +21,7 @@ import { DOSSIERS } from './country.ts';
 import { menu } from './menu.ts';
 import { CODES, PLACES, place } from './places.ts';
 import { countryHref, hubOf, live, routes } from './routes.ts';
+import { CHOKEPOINTS } from '../adapters/portwatch.ts';
 import { fold, type WireIndex } from './search-match.ts';
 
 export const GROUPS = ['countries', 'maps', 'measures', 'places', 'blocs', 'tools', 'pages'] as const;
@@ -158,7 +159,12 @@ export function searchIndex(): WireIndex {
     const aliases = [...new Set((i.aliases ?? []).filter((a) => a && fold(a) !== own))];
     return [i.name, GROUPS.indexOf(i.group), i.detail, i.path, aliases.join('|'), (i.codes ?? []).join(' '), i.extra ?? ''];
   });
-  return { g: [...GROUPS], e, t: tryLinks().map((l) => [l.label, l.href]) };
+  // Chokepoints and ports while their maps are off: search answers that they are not here yet.
+  const s = (['chokepoints', 'ports'] as const).filter((id) => !live(`view:${id}`)).map((id): [string, string] => {
+    const names = [NAV_TEXT.views[id][0], ...(id === 'chokepoints' ? CHOKEPOINTS : []), ...(T.notYetNames[id] ?? [])];
+    return [T.notYet(NAV_TEXT.views[id][0]), [...new Set(names)].join('|')];
+  });
+  return { g: [...GROUPS], e, t: tryLinks().map((l) => [l.label, l.href]), ...(s.length ? { s } : {}) };
 }
 
 /** The index's address, with the snapshot's date so a new build is never answered from an old copy. */

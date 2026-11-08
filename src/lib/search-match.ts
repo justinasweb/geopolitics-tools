@@ -13,6 +13,9 @@ export interface WireIndex {
   e: [string, number, string, string, string, string, string][];
   /** Suggestions for the empty state: [label, path]. */
   t: [string, string][];
+  /** Pages not on the site yet (chokepoints, ports): [what to answer, names ("|"-separated)]. A query that matches no
+   *  live page but one of these gets that answer instead of a spelling hint. */
+  s?: [string, string][];
 }
 
 export interface Entry {
@@ -31,7 +34,7 @@ export interface Entry {
   fields: string[];
 }
 
-export interface Index { groups: string[]; entries: Entry[]; suggestions: { label: string; path: string }[] }
+export interface Index { groups: string[]; entries: Entry[]; suggestions: { label: string; path: string }[]; soon: { answer: string; entry: Entry }[] }
 
 export function decode(w: WireIndex): Index {
   const entries = w.e.map(([name, g, detail, path, aliases, codes, extra]): Entry => {
@@ -44,7 +47,11 @@ export function decode(w: WireIndex): Index {
       fields: [name, ...al].map(fold),
     };
   });
-  return { groups: w.g, entries, suggestions: w.t.map(([label, path]) => ({ label, path })) };
+  const soon = (w.s ?? []).map(([answer, names]) => {
+    const all = names.split('|');
+    return { answer, entry: { name: all[0], group: '', rank: 0, detail: '', path: '', aliases: all.slice(1), codes: [], fields: all.map(fold) } };
+  });
+  return { groups: w.g, entries, suggestions: w.t.map(([label, path]) => ({ label, path })), soon };
 }
 
 /** Lower case, accents and apostrophes dropped, everything else that is not a letter or digit a single space:
@@ -102,6 +109,8 @@ export interface Result {
   /** When several words matched nothing together: the words that match on their own, searched instead (the page's own
    *  name when they are its name: "ukraine war" → Ukraine). */
   partial?: string;
+  /** What matched is not on the site yet: the answer to show ("Chokepoints aren't on the site yet."). */
+  soon?: string;
 }
 
 /** Results for a query, grouped: the group with the best match first, then the fixed order. Each group shows its best
@@ -122,6 +131,11 @@ export function search(index: Index, typed: string, perGroup = 5, memberLine?: (
       const top = again.groups[0]?.entries[0];
       if (again.total) return { ...again, partial: top && top.fields.includes(k) ? top.name : k };
     }
+  }
+  // Nothing live matches, but a page that is not on the site yet does: say so, rather than offer a spelling.
+  if (!res.total) {
+    const s = index.soon.find((x) => score(x.entry, q, tokens) > 0);
+    if (s) return { groups: [], total: 0, soon: s.answer };
   }
   if (!res.total && q.length >= 3) {
     const near = nearest(index, q);
