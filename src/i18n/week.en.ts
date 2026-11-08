@@ -186,7 +186,9 @@ export const WEEK_TEXT = {
 
   // Latest feed
   feedTitle: 'Latest',
+  /** The live page's feed reaches back further than its 7 days (FEED_DAYS), as the design's "Show older items" does. */
   feedSub: 'Newest first, from all sources on this page.',
+  feedLiveSub: (days: number) => `Newest first, from all sources on this page. It reaches back ${days} days, so it includes updates from before the last 7.`,
   feedArchiveSub: 'Newest first, from the sources on this page, in this week.',
   feedFilter: 'Show',
   feedAll: 'All',
