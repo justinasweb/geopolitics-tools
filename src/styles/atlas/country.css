@@ -109,11 +109,11 @@
 /* LineChart: an SVG without a viewBox inside padding that holds the value ticks (left) and end labels (right),
    so its text keeps these sizes at any width. Narrow columns get fewer year labels and shorter end labels. */
 .gt-lcw { container-type: inline-size; min-width: 0; }
-.gt-lcw > .gt-lc { box-sizing: content-box; width: calc(100% - var(--l) - var(--r)); height: var(--h); padding: 0 var(--r) 0 var(--l); }
+.gt-lcw > .gt-lc { box-sizing: border-box; width: 100%; height: var(--h); padding: 0 var(--r) 0 var(--l); }
 .gt-lcw .gt-lc__line { vector-effect: non-scaling-stroke; }
 .gt-lc__narrow { display: none; }
 @container (max-width: 439px) {
-  .gt-lcw > .gt-lc { width: calc(100% - var(--l) - var(--rn)); padding-right: var(--rn); }
+  .gt-lcw > .gt-lc { padding-right: var(--rn); }
   .gt-lc__wide { display: none; }
   .gt-lc__narrow { display: inline; }
 }
