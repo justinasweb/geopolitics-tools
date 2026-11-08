@@ -225,9 +225,8 @@ empty; Recipient every country (the box takes one name at a time and has no "sel
 world totals per supplier with no pairs, and the import refuses it); Report with: Imported weapons; Summarize data by:
 Country. DOWNLOAD AS CSV saves `import-export-values_2015-2025.csv`: one block per recipient, its suppliers by actual
 year of delivery, ending in "Total exports to <recipient>"; `valuesToTable` turns it into the supplier → recipient
-table the adapter reads. The trade register CSV still imports as a fallback: each deal's TIV is split evenly over its
-delivery years, which can move five-year shares by about a point, and the arms pages then add that single years are
-estimates.
+table the adapter reads. The trade register is refused: it gives each deal's delivery years but not the value delivered
+in each, and splitting it evenly moved five-year shares by about a point.
 
 **The FAS table (`fas-forces`, optional).** OWID's status chart gives the split; FAS's own table at
 fas.org/initiative/status-world-nuclear-forces can replace it when OWID lags. Copy the table, Total row included, into a CSV with the columns

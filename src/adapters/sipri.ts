@@ -1,6 +1,5 @@
 // SIPRI Arms Transfers Database (sipri/tiv_2015-2025.csv, imported): TIV by supplier and recipient,
-// one column per year. From SIPRI's Import/Export values download the years are SIPRI's own; from the trade register
-// (the fallback) a deal's value is split evenly over its delivery years, and `split` says so. SIPRI names countries in
+// one column per year of actual delivery, from SIPRI's Import/Export values download. SIPRI names countries in
 // its own style. A supplier that is not a country (a non-state actor, marked *; a multinational body such as NATO or
 // the UN; "unknown supplier(s)") stays in its recipient's totals as OTHER_SUPPLIER, so shares are of everything a
 // country received, but is never shown as a country. Recipients that are not countries count for no one.
@@ -14,9 +13,9 @@ export interface ArmsPair { year: number; from: string; to: string; tiv: number 
 export const OTHER_SUPPLIER = 'other-or-unknown';
 const notCountry = (name: string) => /\*$/.test(name.trim()) || /^unknown (supplier|recipient)\(s\)$/i.test(name.trim());
 
-export function parseSipriTiv(text: string): { years: number[]; pairs: ArmsPair[]; split: boolean } {
+export function parseSipriTiv(text: string): { years: number[]; pairs: ArmsPair[] } {
   const start = text.search(/^"?Supplier"?,/m);
-  if (start < 0) return { years: [], pairs: [], split: false };
+  if (start < 0) return { years: [], pairs: [] };
   const rows = csvRecords(text.slice(start));
   const years = Object.keys(rows[0] ?? {}).filter((c) => /^\d{4}$/.test(c));
   const m = matcher('sipri', 'name');
@@ -31,7 +30,7 @@ export function parseSipriTiv(text: string): { years: number[]; pairs: ArmsPair[
       if (v && v > 0) pairs.push({ year: Number(y), from, to, tiv: v });
     }
   }
-  return { years: years.map(Number).sort((a, b) => a - b), pairs, split: /years split evenly/.test(text.slice(0, start)) };
+  return { years: years.map(Number).sort((a, b) => a - b), pairs };
 }
 
 export const arms = (raw: Raw) => parseSipriTiv(raw.text('sipri', 'tiv_2015-2025.csv'));

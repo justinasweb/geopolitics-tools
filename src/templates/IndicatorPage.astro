@@ -20,12 +20,11 @@ import '../styles/atlas/filters.css';
 import '../styles/atlas/country.css';
 import { INDICATORS, statusAt } from '../data/indicators';
 import { GROUP_TEXT, INDICATOR_TEXT } from '../i18n/en';
-import { DEFINITION, INDICATOR_PAGE as T, RELATED, SOURCE_NOTE, list } from '../i18n/pages.en';
+import { ANSWER, DEFINITION, INDICATOR_PAGE as T, RELATED, SOURCE_NOTE, list } from '../i18n/pages.en';
 import { answerFor, csvAllowed, indicatorModel } from '../lib/indicator';
 import { creditLine, creditName, licenceOf, refreshed, sourceName } from '../lib/data';
 import { formatValue } from '../lib/format';
 import { place } from '../lib/places';
-import { caveatsOf } from '../lib/arms';
 import { breaks, classOf, type Row } from '../lib/stats';
 import { countryHref, indicatorHref, paths } from '../lib/routes';
 import { breadcrumbs, dataset } from '../lib/structured';
@@ -48,7 +47,7 @@ const projected = (y: number) => ind.projectedAfter !== undefined && y > ind.pro
 const estimated = ind.lastActualBy && ind.projectedAfter !== undefined ? Object.values(ind.lastActualBy).filter((y) => y < ind.projectedAfter!).length : 0;
 
 const answer = answerFor(m);
-const caveats = caveatsOf(id);
+const caveats = ANSWER[id]?.caveats ?? [];
 // The lead names the first-ranked figure: it carries that figure's tag, as its row in the table does.
 const leadTag = m.common[0] ? statusAt(ind, m.common[0].id, m.common[0].year) : undefined;
 

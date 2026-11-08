@@ -3,7 +3,6 @@
 // shown, never the yearly rows, as SIPRI's terms ask.
 import { OTHER_SUPPLIER, arms, type ArmsPair } from '../adapters/sipri.ts';
 import { sumPairs, type Pair } from '../data/flows.ts';
-import { ANSWER, ARMS_SPLIT_CAVEAT } from '../i18n/pages.en.ts';
 import { shared } from './data.ts';
 
 export const SPAN = 5;
@@ -56,12 +55,6 @@ export function supplierMix(pairs: Pair[], id: string): { group: SupplierGroup; 
 }
 
 const armsData = shared(arms);
-
-/** An indicator's caveats; the arms ones add that single years are estimates while the data is split from the trade register. */
-export function caveatsOf(id: string): string[] {
-  const c = ANSWER[id]?.caveats ?? [];
-  return (id === 'armsimp' || id === 'armsexp') && armsData()?.split ? [...c, ARMS_SPLIT_CAVEAT] : c;
-}
 
 /** The five-year periods the data covers, each with its supplier → recipient totals. */
 export function armsPeriods(): { end: number; pairs: Pair[] }[] {

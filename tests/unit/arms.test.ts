@@ -1,10 +1,9 @@
 import { beforeAll, describe, expect, it } from 'vitest';
-import { KINDS, registerToTable } from '../../pipeline/sources/imported.ts';
+import { KINDS } from '../../pipeline/sources/imported.ts';
 import { OTHER_SUPPLIER, parseSipriTiv } from '../../src/adapters/sipri.ts';
-import { caveatsOf, groupOf, periodEnds, supplierMix, totalsBy, windowPairs } from '../../src/lib/arms.ts';
-import { ARMS_SPLIT_CAVEAT } from '../../src/i18n/pages.en.ts';
+import { groupOf, periodEnds, supplierMix, totalsBy, windowPairs } from '../../src/lib/arms.ts';
 
-// The arms views: five-year totals from SIPRI, built from the trade register or the TIV table.
+// The arms views: five-year totals from SIPRI's Import/Export values download.
 process.env.GT_DATA = 'sample';
 type Views = typeof import('../../src/lib/views.ts');
 type Routes = typeof import('../../src/lib/routes.ts');
@@ -65,29 +64,21 @@ describe('arms transfers', () => {
     const kind = KINDS.sipri;
     const t = kind.convert!(VALUES);
     expect(kind.check!(t)).toBeGreaterThan(0);
-    const { years, pairs, split } = parseSipriTiv(t);
+    const { years, pairs } = parseSipriTiv(t);
     expect(years).toEqual([2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]);
-    expect(split).toBe(false);
     // Actual delivery years, as SIPRI reports them: Israel delivered 1300 to Germany in 2025.
     expect(pairs.find((p) => p.from === 'ISR' && p.to === 'DEU' && p.year === 2025)!.tiv).toBe(1300);
     const w = windowPairs(pairs, 2025);
     const share = (from: string, to: string) => w.find((p) => p.from === from && p.to === to)!.amount / totalsBy(w, 'to')[to];
     expect(Math.round(share('ISR', 'DEU') * 100)).toBe(55); // SIPRI: 55% of Germany's imports, 2021–2025
     expect(Math.round(share('RUS', 'CHN') * 100)).toBe(66); // SIPRI: 66% of China's
-    expect(parseSipriTiv(registerToTable(REGISTER)).split).toBe(true);
-    // The sample table is not split, so the arms pages drop the "single years are estimates" caveat.
-    expect(caveatsOf('armsimp')).not.toContain(ARMS_SPLIT_CAVEAT);
-    expect(caveatsOf('armsimp').length).toBeGreaterThan(0);
   });
 
-  it('turns the trade register into supplier and recipient totals, splitting each deal over its delivery years', () => {
-    const t = registerToTable(REGISTER);
-    expect(t).toMatch(/^Supplier,Recipient,2020,2021,2022,2023,2024,2025,Total$/m);
-    const { pairs } = parseSipriTiv(t);
-    const fra = pairs.filter((p) => p.from === 'FRA' && p.to === 'IND');
-    expect(fra.reduce((s, p) => s + p.tiv, 0)).toBeCloseTo(310);
-    expect(fra.find((p) => p.year === 2020)!.tiv).toBeCloseTo(100);
-    expect(pairs.filter((p) => p.from === 'RUS').map((p) => p.year)).toEqual([2021, 2022]);
+  it('refuses the trade register and the world totals the page gives with no recipient chosen', () => {
+    const kind = KINDS.sipri;
+    expect(() => kind.check!(kind.convert!(REGISTER))).toThrow(/every recipient/);
+    const world = VALUES.split('\n').slice(0, 6).join('\n').replace(/^Supplier,/m, 'Exports by,') + '\nUnited States,1,2,3,4,5,6,7,8,9,10,11,66,39%,66,39%\n';
+    expect(() => kind.check!(kind.convert!(world))).toThrow(/every recipient/);
   });
 
   it('keeps deliveries from suppliers that are not a country in the recipient’s total, never as a country', () => {
@@ -109,18 +100,13 @@ describe('arms transfers', () => {
     expect(supplierMix(w, 'DEU').find((g) => g.group === 'other')!.share).toBeCloseTo(0.6);
   });
 
-  it('leaves a TIV table as it is', () => {
-    const table = '"SIPRI"\n\nSupplier,Recipient,2024,2025,Total\nFrance,India,1,2,3\n';
-    expect(registerToTable(table)).toBe(table);
-  });
-
   it('adds up five-year periods that fit inside the data', () => {
     expect(periodEnds([2020, 2021, 2022, 2023, 2024, 2025])).toEqual([2024, 2025]);
     expect(periodEnds([2024, 2025])).toEqual([]);
-    const { pairs } = parseSipriTiv(registerToTable(REGISTER));
+    const { pairs } = parseSipriTiv(KINDS.sipri.convert!(VALUES));
     const w = windowPairs(pairs, 2025);
-    expect(totalsBy(w, 'to').IND).toBeCloseTo(810); // 2021–2025: France 100 + 100 + 10, Russia 600
-    expect(totalsBy(w, 'from').FRA).toBeCloseTo(210);
+    expect(totalsBy(w, 'to').CHN).toBe(2037); // 2021–2025, as SIPRI's "Total exports to China" row
+    expect(totalsBy(w, 'from').FRA).toBe(311); // 40 to Germany, 271 to China
   });
 
   it('splits an importer’s suppliers into the United States, China, Russia, Europe and others', () => {

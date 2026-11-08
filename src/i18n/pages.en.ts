@@ -291,9 +291,6 @@ export const INDICATOR_PAGE = {
 };
 
 /** Each indicator's answer verb ("had the largest economy") and caveats. Indicators without one use the default. */
-/** Added to the arms caveats while the SIPRI data comes from the trade register (lib/arms.ts, caveatsOf). */
-export const ARMS_SPLIT_CAVEAT = 'Single years are estimates: where a deal’s deliveries span several years, its value is split evenly across them. Totals over the deal’s years are exact.';
-
 export const ANSWER: Record<string, { verb: string; caveats?: string[] }> = {
   gdp: { verb: 'had the largest economy', caveats: ['GDP in current US$ moves with exchange rates as well as output.', 'Compare economies over time with economic growth, which removes price changes.'] },
   gdppc: { verb: 'had the highest GDP per person', caveats: ['GDP per person is an average; it says nothing about how income is shared.'] },
