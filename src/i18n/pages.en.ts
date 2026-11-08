@@ -291,6 +291,9 @@ export const INDICATOR_PAGE = {
 };
 
 /** Each indicator's answer verb ("had the largest economy") and caveats. Indicators without one use the default. */
+/** Added to the arms caveats while the SIPRI data comes from the trade register (lib/arms.ts, caveatsOf). */
+export const ARMS_SPLIT_CAVEAT = 'Single years are estimates: where a deal’s deliveries span several years, its value is split evenly across them. Totals over the deal’s years are exact.';
+
 export const ANSWER: Record<string, { verb: string; caveats?: string[] }> = {
   gdp: { verb: 'had the largest economy', caveats: ['GDP in current US$ moves with exchange rates as well as output.', 'Compare economies over time with economic growth, which removes price changes.'] },
   gdppc: { verb: 'had the highest GDP per person', caveats: ['GDP per person is an average; it says nothing about how income is shared.'] },
@@ -323,8 +326,8 @@ export const ANSWER: Record<string, { verb: string; caveats?: string[] }> = {
   waterdep: { verb: 'got the largest share of its water from abroad' },
   milpct: { verb: 'spent the largest share of its GDP on its military', caveats: ['Figures for countries at war, or with large off-budget spending, are SIPRI estimates and carry the most uncertainty.', 'A rising share can mean more spending or a smaller economy.'] },
   milusd: { verb: 'spent the most on its military' },
-  armsimp: { verb: 'imported the most major arms', caveats: ['SIPRI’s trend-indicator value measures the military capability delivered, not the price paid.', 'Deliveries are lumpy; compare five-year totals, as SIPRI does.', 'Single years are estimates: where a deal’s deliveries span several years, its value is split evenly across them. Totals over the deal’s years are exact.'] },
-  armsexp: { verb: 'exported the most major arms', caveats: ['SIPRI’s trend-indicator value measures the military capability delivered, not the price paid.', 'Single years are estimates: where a deal’s deliveries span several years, its value is split evenly across them. Totals over the deal’s years are exact.'] },
+  armsimp: { verb: 'imported the most major arms', caveats: ['SIPRI’s trend-indicator value measures the military capability delivered, not the price paid.', 'Deliveries are lumpy; compare five-year totals, as SIPRI does.'] },
+  armsexp: { verb: 'exported the most major arms', caveats: ['SIPRI’s trend-indicator value measures the military capability delivered, not the price paid.'] },
   satellites: { verb: 'owned the most satellites in orbit', caveats: ['Counts payloads in orbit by owner, working or not.'] },
   launches: { verb: 'made the most orbital launches', caveats: ['Launches count for the state of the launch site.'] },
   power: { verb: 'generated the most electricity', caveats: ['Generation inside the country, before trade in electricity and losses in the grid.'] },

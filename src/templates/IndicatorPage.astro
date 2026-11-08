@@ -20,11 +20,12 @@ import '../styles/atlas/filters.css';
 import '../styles/atlas/country.css';
 import { INDICATORS, statusAt } from '../data/indicators';
 import { GROUP_TEXT, INDICATOR_TEXT } from '../i18n/en';
-import { ANSWER, DEFINITION, INDICATOR_PAGE as T, RELATED, SOURCE_NOTE, list } from '../i18n/pages.en';
+import { DEFINITION, INDICATOR_PAGE as T, RELATED, SOURCE_NOTE, list } from '../i18n/pages.en';
 import { answerFor, csvAllowed, indicatorModel } from '../lib/indicator';
 import { creditLine, creditName, licenceOf, refreshed, sourceName } from '../lib/data';
 import { formatValue } from '../lib/format';
 import { place } from '../lib/places';
+import { caveatsOf } from '../lib/arms';
 import { breaks, classOf, type Row } from '../lib/stats';
 import { countryHref, indicatorHref, paths } from '../lib/routes';
 import { breadcrumbs, dataset } from '../lib/structured';
@@ -47,6 +48,7 @@ const projected = (y: number) => ind.projectedAfter !== undefined && y > ind.pro
 const estimated = ind.lastActualBy && ind.projectedAfter !== undefined ? Object.values(ind.lastActualBy).filter((y) => y < ind.projectedAfter!).length : 0;
 
 const answer = answerFor(m);
+const caveats = caveatsOf(id);
 // The lead names the first-ranked figure: it carries that figure's tag, as its row in the table does.
 const leadTag = m.common[0] ? statusAt(ind, m.common[0].id, m.common[0].year) : undefined;
 
@@ -148,8 +150,8 @@ const years = m.loaded.years;
       </section>
     ) : <div />}
     <aside class="gt-indside">
-      {ANSWER[id]?.caveats && (
-        <section><h2 class="gt-label">{T.caveats}</h2><ul class="gt-caveats">{ANSWER[id].caveats!.map((c) => <li>{c}</li>)}</ul></section>
+      {caveats.length > 0 && (
+        <section><h2 class="gt-label">{T.caveats}</h2><ul class="gt-caveats">{caveats.map((c) => <li>{c}</li>)}</ul></section>
       )}
       {related.length > 0 && (
         <section><h2 class="gt-label">{T.related}</h2><ul class="gt-related">{related.map((r) => <li><a href={indicatorHref(r)}><span>{INDICATOR_TEXT[r].label}</span><small>{T.relatedIndicator}</small></a></li>)}</ul></section>

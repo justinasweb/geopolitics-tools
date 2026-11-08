@@ -187,13 +187,13 @@ hand on release and imported:
 
 ```sh
 node pipeline/import.ts --list                                   # the kinds, and which download each expects
-node pipeline/import.ts sipri ~/Downloads/trade-register.csv     # into .data/, to try it
+node pipeline/import.ts sipri ~/Downloads/import-export-values_2015-2025.csv   # into .data/, to try it
 node pipeline/import.ts wpp-age WPP2024_PopulationByAge5GroupSex_Medium.csv.gz --store=r2
 ```
 
 | Source | Kinds | Released |
 |---|---|---|
-| SIPRI Arms Transfers | `sipri` (the trade register; each deal's TIV is split evenly over its delivery years, so five-year shares can differ from SIPRI's own tables by about a point. Deliveries from suppliers that are not a country, such as non-state actors, NATO, the UN or unknown suppliers, stay in the recipient's totals as "Other or unknown suppliers") | Each March |
+| SIPRI Arms Transfers | `sipri` (Import/Export values, below: SIPRI's own TIV by actual delivery year, so shares match its tables. Deliveries from suppliers that are not a country, such as non-state actors, NATO, the UN or unknown suppliers, stay in the recipient's totals as "Other or unknown suppliers") | Each March |
 | UN World Population Prospects | `wpp-total`, `wpp-indicators`, `wpp-age` | Every two years |
 | Global Energy Monitor | `gem-coal`, `gem-nuclear`, `gem-lng`, `gem-pipelines` | About twice a year |
 | WRI Aqueduct | `aqueduct-baseline`, `aqueduct-future` | Rarely |
@@ -218,6 +218,16 @@ import (`--allow-shrink` when that is real). Columns we keep by hand, such as a 
 empty when the file lacks them. The file is then saved like a fetched one, recorded with its download name and date,
 and published in a new snapshot; the hourly run keeps it in every snapshot after that. `--store=r2` needs
 `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` in the environment, as for the runner.
+
+**SIPRI arms transfers (`sipri`).** On armstransfers.sipri.org, Data → Import/Export values ("Create TIV tables for
+selected recipients/suppliers"): Year range 1 from 2015 to the last full year, ranges 2 and 3, Region and Supplier
+empty; Recipient every country (the box takes one name at a time and has no "select all"; left empty, the page gives
+world totals per supplier with no pairs, and the import refuses it); Report with: Imported weapons; Summarize data by:
+Country. DOWNLOAD AS CSV saves `import-export-values_2015-2025.csv`: one block per recipient, its suppliers by actual
+year of delivery, ending in "Total exports to <recipient>"; `valuesToTable` turns it into the supplier → recipient
+table the adapter reads. The trade register CSV still imports as a fallback: each deal's TIV is split evenly over its
+delivery years, which can move five-year shares by about a point, and the arms pages then add that single years are
+estimates.
 
 **The FAS table (`fas-forces`, optional).** OWID's status chart gives the split; FAS's own table at
 fas.org/initiative/status-world-nuclear-forces can replace it when OWID lags. Copy the table, Total row included, into a CSV with the columns

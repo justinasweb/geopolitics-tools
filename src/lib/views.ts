@@ -9,10 +9,11 @@ import { displacement } from '../adapters/unhcr.ts';
 import { NOT_REPORTED_TEXT, PARTS_TEXT, PLACE_NOTES, VIEW_TEXT, VIEWS_TEXT as W, type LayerText } from '../i18n/views.en.ts';
 import { NOT_REPORTED, type NotReported } from '../data/not-reported.ts';
 import { INDICATOR_TEXT } from '../i18n/en.ts';
-import { ANSWER, SOURCE_NOTE, inSentence } from '../i18n/pages.en.ts';
+import { SOURCE_NOTE, inSentence } from '../i18n/pages.en.ts';
 import { creditName, indicator, refreshed, shared, tryLoad } from './data.ts';
 import { VIEW_MEASURES } from '../data/view-measures.ts';
 import { yearsOf } from '../adapters/core.ts';
+import { caveatsOf } from './arms.ts';
 import { worldShare } from './electricity.ts';
 import { cyberData, undated, yearSplit, yearTotal } from './cyber.ts';
 import { CYBER_TEXT } from '../i18n/cyber.en.ts';
@@ -239,7 +240,7 @@ export function summary(p: ViewPage, year = p.year): string[] {
   } else {
     first.push(W.topNoShare(y.rows.slice(0, 3).map((r) => W.topPart(inSentence(nameOf(r.id)), valueText(p, r.value), null))));
   }
-  const second = [W.coverage(y.rows.length, p.text.period ? p.text.period(year) : year), ...(ANSWER[p.id]?.caveats ?? []), ...(p.layer.neutral ? [CYBER_TEXT.attribution, ...cyberMethod(p)] : [])];
+  const second = [W.coverage(y.rows.length, p.text.period ? p.text.period(year) : year), ...caveatsOf(p.id), ...(p.layer.neutral ? [CYBER_TEXT.attribution, ...cyberMethod(p)] : [])];
   return [first.join(' '), second.join(' ')];
 }
 
