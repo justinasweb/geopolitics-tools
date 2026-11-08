@@ -325,6 +325,20 @@ describe('comtrade', () => {
     expect(r.dataTo).toBe('2024');
   });
 
+  it('also fetches the exporters’ own reports of crude, gas and fertiliser, for flows whose importer figure is unusable', async () => {
+    const p = plan(new Date('2026-10-24T00:00:00Z'));
+    expect(['crude-x', 'gas-x', 'fertiliser-x'].every((g) => p.some((x) => x.group === g && x.year === 2025))).toBe(true);
+    const urls: string[] = [];
+    const http = createHttp((async (url: string) => {
+      urls.push(String(url));
+      const period = Number(/period=(\d{4})/.exec(String(url))![1]);
+      return new Response(JSON.stringify({ count: 100, data: rows(100, '271121', period) }), { status: 200 });
+    }) as typeof fetch, 0);
+    await comtrade.fetch({ ...ctxFor(http), env: { ...env, COMTRADE_MAX_CALLS: '9' } });
+    expect(urls.some((u) => /cmdCode=271111,271121&flowCode=X/.test(u))).toBe(true);
+    expect(urls.some((u) => /cmdCode=271111,271121&flowCode=M/.test(u))).toBe(true);
+  });
+
   it('refuses an answer at the row limit and a sharp drop in reporters', async () => {
     const big = fakeHttp([[/comtrade|get\/C/, () => ({ count: 100_000, data: rows(100_000, '2709', 2024) })]]);
     await expect(comtrade.fetch({ ...ctxFor(big), env: { ...env, COMTRADE_MAX_CALLS: '1' } })).rejects.toThrow(/limit/);

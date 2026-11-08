@@ -28,6 +28,8 @@ export interface Cell {
   y?: string;
   /** The main supplier's year, when it comes from a trade source with another year ("2025"). */
   ty?: string;
+  /** 1 when the main supplier's figure is the exporter's report (mirror data). */
+  tm?: 1;
   /** Why there is no figure: p no data yet, n not reported, u not used, i no imports. */
   why?: 'p' | 'n' | 'u' | 'i';
 }

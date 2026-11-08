@@ -157,3 +157,18 @@ describe('the dependencies section’s finding', () => {
     expect(DEP_TEXT.find('Germany', [imports, DEP_TEXT.findExport('potash')])).toBe('Germany imports all of the rice it uses and 95% of the gas it uses; it exports potash.');
   });
 });
+
+describe('flows from the exporter’s report (mirror data)', () => {
+  it('are named in the row’s source line and the grid’s tooltip', async () => {
+    const { rowSource } = await import('../../src/lib/dependence.ts');
+    const { sumPairs } = await import('../../src/data/flows.ts');
+    const row = { resource: 'gas', state: 'ok', source: 'eia', year: 2024, partners: ['USA'], top: { id: 'USA', share: 0.99 }, reliance: 0.7, tag: 'most', partnersFrom: { source: 'comtrade', period: '2025', mirror: ['United States → Mexico'] } } as never;
+    expect(rowSource(row)).toBe('EIA, use 2024 · UN Comtrade, imports 2025, United States → Mexico as reported by the exporter');
+    const g: Grid = { ...grid, rows: grid.rows.map((r) => (r.id === 'HUN' ? { ...r, cells: r.cells.map((c, i) => (i === 1 ? { ...c, y: '2024', tm: 1 } : c)) } : r)) };
+    const html = tableHtml({ ...DEFAULTS, sort: 'gas' }, g);
+    const tr = html.slice(html.indexOf('Hungary'), html.indexOf('</tr>', html.indexOf('Hungary')));
+    expect(tr).toMatch(/title="[^"]*main supplier as reported by the exporter"/);
+    // Summing a pair's rows keeps the mark.
+    expect(sumPairs([{ from: 'USA', to: 'MEX', amount: 50, mirror: true }, { from: 'USA', to: 'MEX', amount: 20 }], (r) => r.amount)).toEqual([{ from: 'USA', to: 'MEX', amount: 70, mirror: true }]);
+  });
+});

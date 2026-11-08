@@ -62,6 +62,11 @@ export const DEP_TEXT = {
    *  (imports, or exports when the partners are buyers). */
   dated: (source: string, year: string, flowSource?: string, flowYear?: string, buyers = false) =>
     (!flowSource || !flowYear || (flowSource === source && flowYear === year) ? `${source}, ${year}` : `${source}, use ${year} · ${flowSource}, ${buyers ? 'exports' : 'imports'} ${flowYear}`),
+  /** Flows whose amount is the exporter's report, the importer's quantity being unusable (mirror data). */
+  asReported: (flows: string[]) => `${list(flows)} as reported by the exporter`,
+  flow: (from: string, to: string) => `${from} → ${to}`,
+  /** The grid's tooltip, when the main supplier's figure is the exporter's report. */
+  supplierAsReported: 'main supplier as reported by the exporter',
   /** A row with figures but no partners: the trade source names none for it. */
   noPartners: 'No partner data from the source',
   /** The section's shared source line: each row carries its own year. */

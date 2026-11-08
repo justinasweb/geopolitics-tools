@@ -8,7 +8,8 @@ import { arms } from '../adapters/sipri.ts';
 import { displacement } from '../adapters/unhcr.ts';
 import { registry, type Format } from './indicators.ts';
 
-export interface Pair { from: string; to: string; amount: number }
+/** `mirror`: the amount is the exporter's report of the flow (UN Comtrade mirror data; src/adapters/comtrade.ts). */
+export interface Pair { from: string; to: string; amount: number; mirror?: true }
 export interface Flows { key: string; source: string; format: Format; period: string; pairs: Pair[] }
 
 export interface FlowDef {
@@ -18,7 +19,7 @@ export interface FlowDef {
   pending?: string;
 }
 
-export function sumPairs<T extends { from: string; to: string }>(rows: T[], amount: (r: T) => number): Pair[] {
+export function sumPairs<T extends { from: string; to: string; mirror?: true }>(rows: T[], amount: (r: T) => number): Pair[] {
   const by = new Map<string, Pair>();
   for (const r of rows) {
     if (!r.from || !r.to || r.from === r.to) continue;
@@ -26,6 +27,7 @@ export function sumPairs<T extends { from: string; to: string }>(rows: T[], amou
     const p = by.get(k);
     if (p) p.amount += amount(r);
     else by.set(k, { from: r.from, to: r.to, amount: amount(r) });
+    if (r.mirror) by.get(k)!.mirror = true;
   }
   return [...by.values()].filter((p) => p.amount > 0).sort((a, b) => b.amount - a.amount);
 }

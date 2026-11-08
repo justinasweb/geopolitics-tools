@@ -30,6 +30,7 @@ function cellOf(r: DepRow): Cell {
   const y = r.period ?? (r.year !== undefined ? String(r.year) : undefined);
   if (y) c.y = y;
   if (r.top && r.partnersFrom && r.partnersFrom.period !== y) c.ty = r.partnersFrom.period;
+  if (r.top && r.partnersFrom?.mirror?.some((m) => m.startsWith(`${place(r.top!.id)?.name} →`))) c.tm = 1;
   return c;
 }
 

@@ -39,7 +39,8 @@ function cellHtml(grid: Grid, r: ResourceId, c: Cell, tag: 'td' | 'span' = 'td')
   // The year in the tooltip, with the source; the supplier's year apart when the trade source has another.
   const meta = grid.resources.find((m) => m.id === r);
   const when = c.y && (meta ? DEP_TEXT.dated(meta.credit, c.y, c.ty && meta.flowCredit, c.ty) : T.year(c.y));
-  const title = when ? ` title="${esc(when)}"` : quiet ? ` title="${esc(s)}"` : '';
+  const said = when && c.tm ? `${when}; ${DEP_TEXT.supplierAsReported}` : when;
+  const title = said ? ` title="${esc(said)}"` : quiet ? ` title="${esc(s)}"` : '';
   const sub = !s ? '' : quiet ? `<span class="gt-vh">${esc(s)}</span>` : `<span class="gt-dg__s">${esc(s)}</span>`;
   return `<${tag} class="gt-dg gt-dg--${bandOf(r, c)}"${title}><span class="gt-dg__v"${quiet ? ' aria-hidden="true"' : ''}>${esc(v)}</span>${sub}</${tag}>`;
 }

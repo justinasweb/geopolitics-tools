@@ -5,6 +5,7 @@ import { food, type Balance, type Crop } from '../adapters/faostat.ts';
 import { gas, oil, type Fuel, type Oil } from '../adapters/eia.ts';
 import { FLOWS, loadFlows, topSupplier, type Flows } from '../data/flows.ts';
 import { shared } from './data.ts';
+import { place } from './places.ts';
 import { DEP_TEXT, SOURCE_SHORT } from '../i18n/pages.en.ts';
 
 export const RESOURCES = ['oil', 'gas', 'wheat', 'maize', 'rice', 'soy', 'potash', 'phosphate', 'arms', 'chips'] as const;
@@ -42,8 +43,9 @@ export interface DepRow {
   buyers?: boolean;
   /** Use is zero, so no share. */
   noUse?: boolean;
-  /** Where the partners and the main supplier come from, when it is a trade source with its own period. */
-  partnersFrom?: { source: string; period: string };
+  /** Where the partners and the main supplier come from, when it is a trade source with its own period; `mirror`:
+   *  the flows shown whose amount is the exporter's report (mirror data), named ("United States → Mexico"). */
+  partnersFrom?: { source: string; period: string; mirror?: string[] };
 }
 
 /**
@@ -62,7 +64,8 @@ export function rowSource(r: DepRow): string | null {
   const short = (s: string) => SOURCE_SHORT[s] ?? s;
   if (r.year === undefined) return r.period ? DEP_TEXT.dated(short(r.source), r.period) : null;
   const f = r.partnersFrom;
-  return DEP_TEXT.dated(short(r.source), String(r.year), f && short(f.source), f?.period, r.buyers);
+  const line = DEP_TEXT.dated(short(r.source), String(r.year), f && short(f.source), f?.period, r.buyers);
+  return f?.mirror?.length ? `${line}, ${DEP_TEXT.asReported(f.mirror)}` : line;
 }
 
 const foodData = shared(food);
@@ -106,6 +109,10 @@ function fromBalance(resource: Resource, b: Balance | undefined, id: string, flo
     row.partners = f.pairs.filter((p) => (buyers ? p.from === id : p.to === id)).slice(0, 3).map((p) => (buyers ? p.to : p.from));
     const t = !buyers && (row.reliance ?? 0) > 0 ? topSupplier(f, id) : null;
     if (t) row.top = { id: t.from, share: t.share };
+    // The partners shown whose flow is the exporter's report: named in the row's source line.
+    const shown = (p: { from: string; to: string }) => (buyers ? p.from === id && row.partners.includes(p.to) : p.to === id && (row.partners.includes(p.from) || row.top?.id === p.from));
+    const mirror = f.pairs.filter((p) => p.mirror && shown(p)).map((p) => DEP_TEXT.flow(place(p.from)?.name ?? p.from, place(p.to)?.name ?? p.to));
+    if (mirror.length) row.partnersFrom.mirror = mirror;
   }
   return row;
 }

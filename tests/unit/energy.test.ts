@@ -59,6 +59,23 @@ describe('UN Comtrade adapter', () => {
     expect(flows[0]).toMatchObject({ from: 'NOR', to: 'DEU' });
   });
 
+  it('uses the exporter’s own report of a flow whose importer row was dropped, and marks it', () => {
+    const row = (reporterISO: string, partnerISO: string, flowCode: string, netWgt: number, primaryValue: number) => ({ period: 2025, reporterISO, flowCode, partnerISO, cmdCode: '271121', netWgt, primaryValue });
+    const rows = parseComtrade([{ data: [
+      row('DEU', 'NOR', 'M', 30e9, 18e9), row('ITA', 'DZA', 'M', 15e9, 9e9), row('CHN', 'RUS', 'M', 23e9, 12e9), row('GBR', 'NOR', 'M', 25e9, 16e9),
+      // Mexico's import "kg" are not kg; the United States reports the same flow as 52 Mt for $7.4 bn.
+      row('MEX', 'USA', 'M', 68_336_127_773_249, 7_479_659_362), row('USA', 'MEX', 'X', 52e9, 7.4e9),
+      // Morocco's import from Spain is dropped too, and Spain's own report fails the same check: no flow.
+      row('MAR', 'ESP', 'M', 5.3e9, 2.3e8), row('ESP', 'MAR', 'X', 5.3e9, 2.3e8),
+    ] }]);
+    const flows = gasFlows(rows);
+    const mx = flows.find((f) => f.from === 'USA' && f.to === 'MEX')!;
+    expect(mx.amount).toBeCloseTo(52e9 / 0.75e9, 3);
+    expect(mx.mirror).toBe(true);
+    expect(flows.find((f) => f.from === 'NOR' && f.to === 'DEU')!.mirror).toBeUndefined();
+    expect(flows.some((f) => f.from === 'ESP' && f.to === 'MAR')).toBe(false);
+  });
+
   it('turns crude into barrels a day and gas into cubic metres, pipeline and LNG apart', () => {
     const rows = comtrade(raw);
     const crude = crudeFlows(rows);
