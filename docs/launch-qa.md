@@ -136,6 +136,29 @@ Crawled from `/`: every internal link and asset, then every page with JavaScript
 | /blocs/overlap | Matrix and membership tables had their source only in the header | Source line after the matrix and after the tables (`BlocOverlapPage.astro`) |
 | Every other page (448 checked) | Every figure, chart, map and table has a source and date line next to it | None needed |
 
+## Walkthrough fixes
+
+From a reader walkthrough of the PR #53 Preview (7–8 November 2026). After the fixes, `npm run check` passes and
+`qa:a11y` (92 scans, no serious or critical issues), `qa:phone` (88 pages, no issues) and `qa:crawl` (543 addresses,
+no 404; 448 pages, every figure sourced) are clean.
+
+| # | Page | What the reader saw | Fix |
+|---|---|---|---|
+| 1 | /supply-chains/gas | US → Mexico 91,115 bcm, against about 4,200 bcm of world production | Mexico reports that gas in a unit that is not kg (68 billion "kg" for $7.5 bn). A Comtrade row whose price per kg is under a tenth of its product's median that year now keeps its value but drops out of every flow by weight (also Morocco's gas and Thailand's crude). The build stops when an oil or gas flow, or a year's total, is larger than world production (EIA); a flow larger than its exporter's production and imports is a warning in the log, as re-exports make some real (one now: Malaysia → China crude). Largest gas flows, 2025, before: USA→MEX 91,115; AUS→JPN 35.1; RUS→CHN 31.9; NOR→GBR 30.4; AUS→CHN 28.0 bcm. After: AUS→JPN 35.1; RUS→CHN 31.9; NOR→GBR 30.4; AUS→CHN 28.0; QAT→CHN 26.6 bcm. The real US → Mexico flow (about 70 bcm) is now missing (open items) |
+| 2 | Home → /dependencies?sort=gas&find=Hungary | On a phone the country card opened on Armenia | The phone card opens on `c=`, else the country `find=` names, else the first row |
+| 3 | /countries/germany#deps, /dependencies | Shared source line "2021–2025–2025"; a dash where a source gives no partners | Each row has its own source and year, use and trade dated apart ("EIA, use 2024 · UN Comtrade, imports 2025"; exports when the partners are buyers); the shared line says the year is in each row; the grid's tooltip gives the same; "No partner data from the source" in place of the dash |
+| 4 | Country page dependencies on a phone | The table's net-import explanation and the arms and chips note were missing | The cards open with the explanation; arms and chips say "Supplier concentration only" |
+| 5 | /countries/germany | The summary named rice (and the finding potash), not oil and gas | Both lead with the largest import by share of use, then the largest fuel imported mostly: "It imports all of the rice it uses (FAOSTAT, 2024) and 95% of the gas it uses (EIA, 2024)." |
+| 6 | /compare/united-states-vs-china | "Population, million" beside "1.41 billion"; reserves in billions and trillions | One scale per row, from its larger value ("Population, billion: 0.34 / 1.41") |
+| 7 | Atlas | A lithium figure kept after switching layers lost its Estimate tag and showed EIA's credit | The kept figure carries its own estimate tag and source line (USGS) |
+| 8 | /blocs/nato | Population and GDP shares beside the member lists' citation only; mineral shares without the Estimate label | A World Bank source line with the shares' year; mineral shares built from USGS estimates carry the Estimate tag |
+| 9 | /this-week | The Latest feed under "Last 7 days" listed 21–26 October items | The design keeps older items ("Show older items"), so the feed's line now says it reaches back 30 days and includes updates from before the last 7 |
+| 10 | /this-week/2026-44 | "One is kept every day from now on" on a frozen week | Archived weeks say, in the past tense, that no copy from the week's first day was kept, so those entries or alerts were not counted |
+| 11 | Mineral pages | "Herfindahl index" with thresholds but no explanation | "A measure of how concentrated production is: the sum of each country's squared share, from near 0 (spread out) to 10,000 (one country)." |
+| 12 | Search | "Hormuz" and "Strait of Hormuz" found nothing and offered a spelling hint | While the chokepoints and ports maps are off, search answers "Chokepoints aren't on the site yet." (ports likewise); a live page always wins. Their tiles are already left out of the menu and hubs while off |
+| 13 | Emissions tile | Subtitle still said "imported" | "net imports through trade" |
+
 ## Open items
 
 - **Second-language test (decision D13)** was not run this time.
+- **US → Mexico pipeline gas** is missing from the gas flows: Mexico's reported quantity is not in kg, and the Comtrade files hold importers' reports only, so there is no other figure to show. US exports to Mexico are about 70 bcm a year.
