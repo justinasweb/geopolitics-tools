@@ -56,7 +56,7 @@
     },
     {
       "id": "spof",
-      "statement": "A single point of failure: imports at least 50% of use, with at least 50% of those imports from one supplier.",
+      "statement": "Reliance on one supplier: imports at least 50% of use, with at least 50% of those imports from one supplier.",
       "value": 50,
       "unit": "%",
       "source": "geopolitics.tools code (src/lib/dependencies/model.ts)",

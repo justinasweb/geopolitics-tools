@@ -466,3 +466,4 @@ ucdp,code,940,SLB,,,Gleditsch–Ward number
 ucdp,code,950,FJI,,,Gleditsch–Ward number
 eurepoc,iso2,EU,,,,"EU institutions or the EU as a region, not a country"
 eurepoc,iso2,OC,,,,"Oceania (region), not a country"
+sipri,name,Bosnia-Herzegovina,BIH,,,SIPRI writes it with a hyphen

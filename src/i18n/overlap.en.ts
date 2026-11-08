@@ -23,7 +23,7 @@ export const OVERLAP_TEXT = {
   // Chips
   compare: 'Compare',
   atLeastTwo: 'Choose at least two blocs.',
-  chosen: (n: number) => `${n} blocs chosen.`,
+  chosen: (n: number) => `${n} ${n === 1 ? 'bloc' : 'blocs'} chosen.`,
 
   // Matrix
   matrixTitle: 'Shared members',
@@ -72,7 +72,7 @@ export const OVERLAP_TEXT = {
     `Shapes differ by bloc group, so the table reads without colour. ${byName ? `Sorted by country${asc ? '' : ', Z to A'}` : `Sorted by number of memberships${asc ? ', fewest first' : ''}`}.`,
   showAll: 'Show all countries and blocs',
   showFewer: 'Show fewer',
-  phoneNote: (n: number) => `${n} more countries in these blocs.`,
+  phoneNote: (n: number) => `${n} more ${n === 1 ? 'country' : 'countries'} in these blocs.`,
   download: 'Download CSV',
   csvAsOf: 'members as of',
 };

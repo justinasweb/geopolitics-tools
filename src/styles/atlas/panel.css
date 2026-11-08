@@ -26,7 +26,7 @@
 .gt-pblock { display: grid; gap: 6px; padding-top: 12px; border-top: 1px solid var(--rule); }
 .gt-pblock__head { display: grid; gap: 2px; }
 .gt-pblock__cap { margin: 0; }
-.gt-spark { box-sizing: content-box; width: calc(100% - var(--l)); height: 96px; padding-left: var(--l); display: block; overflow: visible; font: 400 12px var(--sans); fill: var(--ink-muted); font-variant-numeric: tabular-nums; }
+.gt-spark { box-sizing: border-box; width: 100%; height: 96px; padding-left: var(--l); display: block; overflow: visible; font: 400 12px var(--sans); fill: var(--ink-muted); font-variant-numeric: tabular-nums; }
 .gt-spark__grid { stroke: var(--rule); stroke-width: 1; }
 .gt-spark__line { fill: none; stroke: var(--brand); stroke-width: 2; vector-effect: non-scaling-stroke; }
 .gt-spark__dot { fill: var(--brand); }

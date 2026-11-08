@@ -1,7 +1,7 @@
 // Arms transfers (SIPRI, ../adapters/sipri.ts) as five-year totals, the way SIPRI compares them: deliveries are lumpy,
 // so every figure on the arms views is the sum over the five years ending in a year. Only these derived totals are
 // shown, never the yearly rows, as SIPRI's terms ask.
-import { arms, type ArmsPair } from '../adapters/sipri.ts';
+import { OTHER_SUPPLIER, arms, type ArmsPair } from '../adapters/sipri.ts';
 import { sumPairs, type Pair } from '../data/flows.ts';
 import { shared } from './data.ts';
 
@@ -22,10 +22,11 @@ export function windowPairs(pairs: ArmsPair[], end: number): Pair[] {
   return sumPairs(pairs.filter((p) => p.year > end - SPAN && p.year <= end), (p) => p.tiv);
 }
 
-/** Each place's exports (side 'from') or imports ('to') over the period. */
+/** Each place's exports (side 'from') or imports ('to') over the period. Deliveries from suppliers that are not a
+ *  country count in the recipient's imports, never as a place's exports. */
 export function totalsBy(pairs: Pair[], side: 'from' | 'to'): Record<string, number> {
   const out: Record<string, number> = {};
-  for (const p of pairs) out[p[side]] = (out[p[side]] ?? 0) + p.amount;
+  for (const p of pairs) if (p[side] !== OTHER_SUPPLIER) out[p[side]] = (out[p[side]] ?? 0) + p.amount;
   return out;
 }
 

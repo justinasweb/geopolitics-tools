@@ -28,7 +28,7 @@ export const HUB_TEXT = {
   allCountries: 'All countries',
   rankings: 'Indicator rankings',
   top3: (names: string) => `Top 3: ${names}`,
-  /** A ranking's name: its label, and for a share or a rate what it is of ("CO2 imported in goods, % of own emissions"). */
+  /** A ranking's name: its label, and for a share or a rate what it is of ("Net CO2 imports through trade, % of emissions inside the country"). */
   ranking: (label: string, rate?: string) => (rate ? `${label}, ${rate}` : label),
   /** A ranking's line starts with the year it ranks, so a one-year ranking reads apart from a card's total over years. */
   inYear: (year: number, top: string) => `${year} · ${top}`,

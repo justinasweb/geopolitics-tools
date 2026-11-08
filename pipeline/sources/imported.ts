@@ -75,40 +75,47 @@ export const IMPORTED: ImportedSource[] = [
 const country = (r: Row) => /^[A-Z]{3}$/.test(r.ISO3_code);
 
 /**
- * SIPRI's trade register (one row per deal, with the TIV delivered in the chosen years and the years of delivery) as the
- * supplier-and-recipient table the adapter reads. The TIV a deal delivered over several years is split evenly across them:
- * totals over the register's years are exact, single years are an estimate.
+ * SIPRI's "Import/Export values" download (import-export-values_<from>-<to>.csv, every recipient, imported weapons): one
+ * block per recipient, its suppliers' TIV by actual year of delivery, ending in "Total exports to <recipient>". Turned into
+ * the same supplier-and-recipient table; the years are SIPRI's own, so shares match its tables.
  */
-export function registerToTable(text: string): string {
-  if (!/^Recipient,Supplier,/m.test(text)) return text;
-  const rows = csvRecords(text.slice(text.search(/^Recipient,Supplier,/m)));
-  const range = /year range '(\d{4})' to '(\d{4})'/.exec(text);
-  const pairs = new Map<string, Record<number, number>>();
-  let [lo, hi] = range ? [Number(range[1]), Number(range[2])] : [Infinity, -Infinity];
-  for (const r of rows) {
-    const tiv = Number(r['SIPRI TIV of delivered weapons']);
-    const years = (r['Year(s) of delivery'] ?? '').split(/[;,]/).map((y) => Number(y.trim())).filter((y) => y > 1900);
-    if (!r.Recipient || !r.Supplier || !tiv || !years.length) continue;
-    const key = `${r.Supplier}\u0000${r.Recipient}`;
-    const by = pairs.get(key) ?? {};
-    for (const y of years) { by[y] = (by[y] ?? 0) + tiv / years.length; lo = Math.min(lo, y); hi = Math.max(hi, y); }
-    pairs.set(key, by);
-  }
-  const ys = Array.from({ length: hi - lo + 1 }, (_, i) => lo + i);
+export function valuesToTable(text: string): string {
+  if (!/^"?Total exports to /m.test(text)) return text;
+  let header: string[] | null = null;
+  let block: string[][] = [];
+  let years: string[] = [];
   const q = (v: string) => (/[",]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v);
-  const lines = ['"SIPRI Arms Transfers Database"', `"TIV of arms exports by supplier and recipient, ${lo}-${hi}, from the trade register (years split evenly across a deal's deliveries)"`, '',
-    ['Supplier', 'Recipient', ...ys, 'Total'].join(',')];
-  for (const [key, by] of pairs) {
-    const [from, to] = key.split('\u0000');
-    const total = Object.values(by).reduce((a, b) => a + b, 0);
-    lines.push([q(from), q(to), ...ys.map((y) => (by[y] ? String(Math.round(by[y] * 100) / 100) : '')), String(Math.round(total * 100) / 100)].join(','));
+  const out: string[] = [];
+  for (let row of parseCsv(text)) {
+    if (row[0] === 'Supplier') {
+      header = row;
+      block = [];
+      const ys = row.filter((c) => /^\d{4}$/.test(c));
+      if (years.length && ys.join() !== years.join()) throw new CheckError('the recipients\' tables cover different years; download them in one go');
+      years = ys;
+      continue;
+    }
+    if (!header || !row[0]) continue;
+    const to = /^Total exports to (.+)$/.exec(row[0])?.[1];
+    if (!to) {
+      // A name with a comma, unquoted, spills into the next cells.
+      if (row.length > header.length) row = [row.slice(0, row.length - header.length + 1).join(','), ...row.slice(row.length - header.length + 1)];
+      block.push(row);
+      continue;
+    }
+    for (const r of block) {
+      const v = (c: string) => r[header!.indexOf(c)] ?? '';
+      out.push([q(r[0]), q(to.trim()), ...years.map(v), v(`${years[0]}-${years.at(-1)}`)].join(','));
+    }
+    header = null;
   }
-  return `${lines.join('\n')}\n`;
+  return `${['"SIPRI Arms Transfers Database"', `"TIV of arms exports by supplier and recipient, ${years[0]}-${years.at(-1)}, by year of delivery (Import/Export values)"`, '',
+    ['Supplier', 'Recipient', ...years, 'Total'].join(','), ...out].join('\n')}\n`;
 }
 
 function sipriCheck(text: string) {
   check(/SIPRI/i.test(text.slice(0, 500)), 'this does not look like a SIPRI export (no "SIPRI" in its first lines)');
-  check(/^Supplier,Recipient,(\d{4},)+/m.test(text), 'no "Supplier,Recipient,<years>" header row; export the TIV table by supplier and recipient');
+  check(/^Supplier,Recipient,(\d{4},)+/m.test(text), 'no supplier and recipient rows; download the Import/Export values CSV with every recipient chosen');
   return (text.match(/^[^",\n][^\n]*,[^\n]*\d/gm) ?? []).length;
 }
 
@@ -148,8 +155,8 @@ function fasForcesCheck(text: string) {
 
 export const KINDS: Record<string, Kind> = {
   'sipri': {
-    source: 'sipri', save: 'tiv_2015-2025.csv', how: 'raw', check: sipriCheck, convert: registerToTable,
-    about: 'SIPRI Arms Transfers Database: the trade register CSV (all suppliers and recipients, five or more recent years), or a "TIV by supplier and recipient" table',
+    source: 'sipri', save: 'tiv_2015-2025.csv', how: 'raw', check: sipriCheck, convert: valuesToTable,
+    about: 'SIPRI Arms Transfers Database: import-export-values_2015-2025.csv (Import/Export values, every recipient, imported weapons)',
   },
   'wpp-total': {
     source: 'wpp', save: 'total_population.csv', how: 'csv',

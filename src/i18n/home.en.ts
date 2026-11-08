@@ -28,7 +28,7 @@ export const HOME_TEXT = {
     value: (bn: string) => `$${bn}bn`,
   },
   gas: {
-    q: (country: string, supplier: string) => `How much of ${country}’s gas comes from ${supplier}?`,
+    q: (country: string, supplier: string) => `What share of ${country}’s gas imports comes from ${supplier}?`,
     measure: 'Gas imports by supplier, and imports against use',
     lead: (country: string, supplier: string) => `of ${country}’s gas imports came from ${supplier}`,
     others: 'Other suppliers',

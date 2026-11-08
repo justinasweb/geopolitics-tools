@@ -2,6 +2,7 @@
 // the page reads without scripts, and the browser script, which redraws as the reader changes them. Every cell
 // writes its value, so the tint and bar are never the only cue.
 import { DEPS_TEXT as T } from '../../i18n/dependencies.en.ts';
+import { DEP_TEXT } from '../../i18n/pages.en.ts';
 import { formatShare } from '../format.ts';
 import { esc } from '../explorer/render.ts';
 import {
@@ -35,7 +36,11 @@ function cellHtml(grid: Grid, r: ResourceId, c: Cell, tag: 'td' | 'span' = 'td')
   const [v, s] = cellText(grid, r, c);
   // "Not reported" is most of the empty cells: a dash, with the words for screen readers and on hover.
   const quiet = v === '–' && (c.why ?? 'n') === 'n';
-  const title = c.y ? ` title="${esc(T.year(c.y))}"` : quiet ? ` title="${esc(s)}"` : '';
+  // The year in the tooltip, with the source; the supplier's year apart when the trade source has another.
+  const meta = grid.resources.find((m) => m.id === r);
+  const when = c.y && (meta ? DEP_TEXT.dated(meta.credit, c.y, c.ty && meta.flowCredit, c.ty) : T.year(c.y));
+  const said = when && c.tm ? `${when}; ${DEP_TEXT.supplierAsReported}` : when;
+  const title = said ? ` title="${esc(said)}"` : quiet ? ` title="${esc(s)}"` : '';
   const sub = !s ? '' : quiet ? `<span class="gt-vh">${esc(s)}</span>` : `<span class="gt-dg__s">${esc(s)}</span>`;
   return `<${tag} class="gt-dg gt-dg--${bandOf(r, c)}"${title}><span class="gt-dg__v"${quiet ? ' aria-hidden="true"' : ''}>${esc(v)}</span>${sub}</${tag}>`;
 }
@@ -45,7 +50,7 @@ const nameHtml = (grid: Grid, id: string) => {
   return p?.h ? `<a href="${esc(p.h)}">${esc(p.n)}</a>` : esc(p?.n ?? id);
 };
 
-// ---------- single points of failure ----------
+// ---------- reliance on one supplier ----------
 
 export function spofHtml(s: State, grid: Grid): string {
   const all = spofs(rowsOf({ ...s, sort: 'country', dir: 'asc' }, grid));
@@ -58,7 +63,7 @@ export function spofHtml(s: State, grid: Grid): string {
   }).join('');
   const more = all.length > SPOF_PHONE
     ? `<button class="gt-btn gt-btn--quiet" type="button" data-d-all aria-expanded="${s.all}">${esc(s.all ? T.showFewer : T.showAll(all.length))}</button>` : '';
-  return `<div class="gt-spof__head"><h2 class="gt-h2" id="spof-h">${esc(T.spofTitle)}</h2><p class="gt-caption">${esc(T.spofRule)}</p></div>`
+  return `<div class="gt-spof__head"><h2 class="gt-h2" id="one-supplier-h">${esc(T.spofTitle)}</h2><p class="gt-caption">${esc(T.spofRule)}</p></div>`
     + (all.length ? `<ul class="gt-spof__list">${items}</ul>` : '')
     + `<p class="gt-spof__more">${all.length ? `<span class="gt-spof__n">${esc(T.spofCount(all.length, shown.length))}</span>`
       + (s.all ? '' : `<span class="gt-spof__n gt-spof__n--phone">${esc(T.spofCount(all.length, Math.min(all.length, SPOF_PHONE)))}</span>`) : `<span>${esc(T.spofNone)}</span>`}`
@@ -118,7 +123,8 @@ export function phoneHtml(s: State, grid: Grid): string {
   if (!rows.length) return `${seg}${bloc}<p class="gt-notice">${esc(T.noRows)}</p>`;
   if (s.show === 'country') {
     const byName = [...rows].sort((a, b) => (grid.places[a.id]?.n ?? '').localeCompare(grid.places[b.id]?.n ?? '', 'en'));
-    const id = rows.some((r) => r.id === s.c) ? s.c : rows[0].id;
+    // The country asked for (c=), else the one find= names (the home page links ?find=Hungary), else the first row.
+    const id = rows.some((r) => r.id === s.c) ? s.c : foundRow(grid, rows.map((r) => r.id), s.find) ?? rows[0].id;
     const row = rows.find((r) => r.id === id)!;
     const p = grid.places[id];
     const pick = select('dp-c', T.country, 'c', byName.map((r): [string, string] => [r.id, grid.places[r.id]?.n ?? r.id]), id, true);

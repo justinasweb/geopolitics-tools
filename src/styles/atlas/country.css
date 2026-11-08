@@ -109,11 +109,11 @@
 /* LineChart: an SVG without a viewBox inside padding that holds the value ticks (left) and end labels (right),
    so its text keeps these sizes at any width. Narrow columns get fewer year labels and shorter end labels. */
 .gt-lcw { container-type: inline-size; min-width: 0; }
-.gt-lcw > .gt-lc { box-sizing: content-box; width: calc(100% - var(--l) - var(--r)); height: var(--h); padding: 0 var(--r) 0 var(--l); }
+.gt-lcw > .gt-lc { box-sizing: border-box; width: 100%; height: var(--h); padding: 0 var(--r) 0 var(--l); }
 .gt-lcw .gt-lc__line { vector-effect: non-scaling-stroke; }
 .gt-lc__narrow { display: none; }
 @container (max-width: 439px) {
-  .gt-lcw > .gt-lc { width: calc(100% - var(--l) - var(--rn)); padding-right: var(--rn); }
+  .gt-lcw > .gt-lc { padding-right: var(--rn); }
   .gt-lc__wide { display: none; }
   .gt-lc__narrow { display: inline; }
 }
@@ -265,10 +265,11 @@
 
 /* Added in the build (not in the design bundle): the phone versions of the dependencies table and Compare's key
    figures are separate markup, so each is shown at its own width. */
-.gt-deplist, .gt-cmprows, .gt-cmpswitch { display: none; }
+.gt-deplist, .gt-deplist__cap, .gt-cmprows, .gt-cmpswitch { display: none; }
 @container page (max-width: 759px) {
   .gt-deps, .gt-cmptblwrap { display: none; }
   .gt-deplist, .gt-cmprows { display: grid; }
+  .gt-deplist__cap { display: block; margin: 0 0 8px; }
   .gt-cmpswitch { display: flex; }
 }
 .gt-jumpbar details > summary { list-style: none; cursor: pointer; }
@@ -280,3 +281,4 @@
 .gt-jumpbar summary.gt-jumpbar__b { display: flex; align-items: center; min-height: 44px; }
 .gt-jumpbar__b > svg { width: 12px; height: 12px; margin-left: auto; flex: none; fill: none; stroke: currentColor; stroke-width: 1.6; }
 .gt-jumpbar details[open] .gt-jumpbar__b > svg { transform: rotate(180deg); }
+.gt-deps__src { display: block; margin-top: 2px; }

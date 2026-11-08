@@ -51,7 +51,7 @@ servers never see the part after `#`.
 | About, Methodology, Privacy | `src/content/pages/*.md`. Each shows the draft banner until its front matter says `approved: true` and its facts are unchanged since (see [ai-drafting.md](ai-drafting.md)) |
 | Sources | Generated from the source registry, the licence table and the last snapshot; corrections from `src/data/corrections.csv` |
 | Explorer | `/explorer` (table), `/explorer/over-time`, `/explorer/scatter`: every measure with an indicator page. See "Explorer" below |
-| Dependencies | `/dependencies`: countries against the ten commodities of each country page's dependencies table, with the single points of failure. See "Dependencies" below |
+| Dependencies | `/dependencies`: countries against the ten commodities of each country page's dependencies table, with reliance on one supplier. See "Dependencies" below |
 | Bloc overlap | `/blocs/overlap`: shared members between blocs, bridge countries and every country's memberships, from `src/data/blocs.csv`. See "Bloc overlap" below |
 | Topic hubs | `/resources`, `/technology`, `/climate`, `/security`, `/power`: the parent page of a topic's map views. See "Topic hubs" below |
 | Atlas | `/atlas`: every live map view's layer on one map, live when any map view is. Its states are noindex. See [maps.md](maps.md), "The Atlas" |
@@ -116,10 +116,10 @@ default settings and in the browser (`src/scripts/dependencies.ts`) as the reade
 - **Cells.** Six bands on import reliance (75% or more, 50–75%, 15–50%, ±15%, exporting 15–50% or over 50% of
   output), each with its value written and, for importers, the main supplier and its share of imports (ISO code).
   Arms and chips show supplier concentration only, hatched. The cell's year is in its title.
-- **Single points of failure.** Import reliance at least 50% and at least 50% of those imports from one supplier,
+- **Reliance on one supplier.** Import reliance at least 50% and at least 50% of those imports from one supplier,
   largest supplier share first; eight shown (four on a phone) until "Show all". Computed from the rows in the bloc.
 - **Address.** `bloc`, `sort`, `dir`, `find`, and on a phone `show` (country or commodity) and `c`; `all` for every
-  single point of failure.
+  case of reliance on one supplier.
 - **CSV.** The rows shown. Shares of use and output from EIA and FAOSTAT, and FAOSTAT's main suppliers for the crops;
   UN Comtrade suppliers and SIPRI arms are left out under their terms, with a note.
 
@@ -263,7 +263,7 @@ it in the page, and `src/lib/overlap/render.ts` draws it, at build time for the 
   registry; not a share of a country's own total, a per-person figure, a score or a membership; default year; a
   first place shared with the next country does not count), up to ten, each with the maps it is first on.
 - **Indicator rankings.** The indexed indicator pages of the topic's groups (`HUB_GROUPS`), named with what a share or
-  rate is of (`rate` in `src/i18n/en.ts`: "CO2 imported in goods, % of own emissions"), each line starting with the
+  rate is of (`rate` in `src/i18n/en.ts`: "Net CO2 imports through trade, % of emissions inside the country"), each line starting with the
   year it ranks (so a one-year ranking reads apart from a card's total over years: Chinese lending, arms), then the top
   three; when
   several places share the first figure as the page shows it, they are named as tied first instead (`topLine`), on

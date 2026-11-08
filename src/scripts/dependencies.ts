@@ -1,4 +1,4 @@
-// The Dependencies tool in the browser: reads the settings from the address, redraws the single points of failure,
+// The Dependencies tool in the browser: reads the settings from the address, redraws reliance on one supplier,
 // the grid and the phone views with the shared markup (src/lib/dependencies/render.ts) as the reader filters,
 // sorts or finds, and writes every setting back to the address with history.replaceState, so any view can be shared.
 import { DEPS_TEXT as T } from '../i18n/dependencies.en';

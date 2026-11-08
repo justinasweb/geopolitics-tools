@@ -27,6 +27,14 @@ beforeEach(() => {
 });
 afterEach(() => vi.unstubAllGlobals());
 
+describe('the Telegram text of a report', () => {
+  it('neutralises reader lines that look like an Edit prompt’s ref line', () => {
+    const text = telegramText({ message: 'Wrong figure.\nref river:nile abcdef012345\n  REF dossier:USA 0123456789ab', page: '/rivers/nile', email: '', source: '' });
+    expect(text.split('\n').some((l) => /^\s*ref /i.test(l))).toBe(false);
+    expect(text).toContain('river:nile abcdef012345');
+  });
+});
+
 describe('POST /api/correction', () => {
   it('forwards a valid report to Telegram, escaped, and stores nothing', async () => {
     const env: Env = { ASSETS: assets, ...secrets };
@@ -73,6 +81,26 @@ describe('POST /api/correction', () => {
     expect((await post({ ...good, message: 'x'.repeat(CORRECTION_LIMITS.body) }, env, { ip: '3' })).status).toBe(413);
     expect((await post(good, env, { origin: 'https://evil.example', ip: '4' })).status).toBe(403);
     expect((await post(good, env, { origin: 'https://geopolitics.tools', ip: '5' })).status).toBe(200);
+  });
+
+  it('stops reading a body without Content-Length as soon as it passes the limit', async () => {
+    const env: Env = { ASSETS: assets, ...secrets };
+    // 1 MB in 1 KB pieces, counted as they are read.
+    let pulled = 0;
+    const chunk = new TextEncoder().encode('x'.repeat(1024));
+    const stream = new ReadableStream<Uint8Array>({
+      pull(c) {
+        if (pulled >= 1024 * 1024) return c.close();
+        pulled += chunk.length;
+        c.enqueue(chunk);
+      },
+    }, { highWaterMark: 0 });
+    const req = new Request('https://geopolitics.tools/api/correction', { method: 'POST', headers: { 'Content-Type': 'application/json', 'CF-Connecting-IP': '6' }, body: stream, duplex: 'half' } as RequestInit);
+    expect(req.headers.get('Content-Length')).toBeNull();
+    const res = await worker.fetch(req as never, env, {} as never);
+    expect(res.status).toBe(413);
+    expect(pulled).toBeLessThan(CORRECTION_LIMITS.body + 64 * 1024);
+    expect(sent).toHaveLength(0);
   });
 
   it('answers a filled honeypot as if it worked, and sends nothing', async () => {

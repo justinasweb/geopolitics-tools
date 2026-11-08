@@ -20,7 +20,8 @@ import { list } from '../i18n/pages.en';
 import { DAMS_TEXT as DX, RIVERS_TEXT as R } from '../i18n/water.en';
 import { riverIds, riverLede, riverPage } from '../lib/rivers';
 import { creditOf, valueText, viewPage } from '../lib/views';
-import { refreshed } from '../lib/data';
+import { refreshed, sourceName } from '../lib/data';
+import { AQUEDUCT_BASELINE } from '../adapters/water';
 import { place } from '../lib/places';
 import { countryHref, live, route, hubCrumb } from '../lib/routes';
 import { layerPath } from '../lib/map/layers';
@@ -44,7 +45,7 @@ const answer = riverLede(id);
 const summary = publishedText(`river:${id}`);
 const crumbs: { label: string; href?: string }[] = [hubCrumb('climate'), { label: R.section, href: live('view:water:waterstress')?.path }, { label: name }];
 const picker = riverIds().filter((r) => live(key(r))).map((r) => ({ label: R.name[r] ?? r, href: live(key(r))!.path, current: r === id }));
-const source = R.source;
+const stressParts = later ? R.stressPeriods(AQUEDUCT_BASELINE, later.year) : AQUEDUCT_BASELINE;
 const updated = refreshed('gdw');
 const cell = (page: typeof ws | undefined, v: number | null) => (page && v !== null ? valueText(page, v) : '–');
 const related = [
@@ -79,7 +80,7 @@ const largest = p.dams[0];
         </div>
         <div class="gt-pblock gt-pgroup">
           <div class="gt-pblock__head"><span class="gt-label">{R.countries}</span><span class="gt-caption">{R.stress}, {ws.text.measure}</span></div>
-          <ol class="gt-bars gt-bars--tight" aria-label={`${R.countries}, ${R.stress.toLowerCase()}`}>
+          <ol class="gt-bars gt-bars--tight" aria-label={`${R.countries}, ${R.stress(AQUEDUCT_BASELINE).toLowerCase()}`}>
             {p.countries.map((x) => (
               <li><span class="gt-bars__name"><button type="button" data-select={x.id}>{nameOf(x.id)}</button></span><span class="gt-bars__track"><span class="gt-bars__fill" style={`width:${(((x.stress ?? 0) / 5) * 100).toFixed(1)}%`}></span></span><span class="gt-bars__val">{cell(ws, x.stress)}</span></li>
             ))}
@@ -88,7 +89,10 @@ const largest = p.dams[0];
         <div class="gt-blocline" hidden><span class="gt-blocline__key" aria-hidden="true"></span><p></p></div>
         <Notice>
           <p>{R.caveat}</p>
-          <SourceLine source={source} parts={[String(ws.year)]} updated={updated} />
+          {/* One source line per dataset, each with its own period or year. */}
+          <SourceLine source={sourceName('aqueduct')} parts={[stressParts]} updated={refreshed('aqueduct')} />
+          {dep && <SourceLine source={sourceName('aquastat')} parts={[String(dep.year)]} updated={refreshed('aquastat')} />}
+          <SourceLine source={sourceName('gdw')} updated={updated} />
         </Notice>
       </div>
     </div>
@@ -102,9 +106,9 @@ const largest = p.dams[0];
           <caption class="gt-caption">{R.countriesCaption(name)}</caption>
           <thead><tr>
             <th scope="col"><span class="gt-th">{R.country}</span></th>
-            <th scope="col" class="n"><span class="gt-th">{R.stress}</span></th>
-            <th scope="col" class="n"><span class="gt-th">{R.stress2050}</span></th>
-            <th scope="col" class="n"><span class="gt-th">{R.fromAbroad}</span></th>
+            <th scope="col" class="n"><span class="gt-th">{R.stress(AQUEDUCT_BASELINE)}</span></th>
+            <th scope="col" class="n"><span class="gt-th">{later ? R.stress2050(later.year) : '–'}</span></th>
+            <th scope="col" class="n"><span class="gt-th">{dep ? R.fromAbroad(dep.year) : '–'}</span></th>
             <th scope="col" class="n"><span class="gt-th">{R.damsCol}</span></th>
           </tr></thead>
           <tbody>
@@ -117,7 +121,10 @@ const largest = p.dams[0];
           </tbody>
         </table>
       </div>
-      <SourceLine source={source} parts={[String(ws.year)]} updated={updated} />
+      {/* One source line per dataset, each with its own period or year. */}
+      <SourceLine source={sourceName('aqueduct')} parts={[stressParts]} updated={refreshed('aqueduct')} />
+      {dep && <SourceLine source={sourceName('aquastat')} parts={[String(dep.year)]} updated={refreshed('aquastat')} />}
+      <SourceLine source={sourceName('gdw')} updated={updated} />
       <h2 class="gt-h2" id="dams">{R.damsTitle}</h2>
       {p.dams.length === 0 ? <p>{R.noDams}</p> : (
         <div class="gt-tablewrap" style="--gt-table-h:560px" tabindex="0" role="region" aria-label={R.damsTitle}>

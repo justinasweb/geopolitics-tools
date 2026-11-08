@@ -50,3 +50,21 @@ describe('blocs views', () => {
     expect(all.data[0].v.USA[0]).toBe(V.countClass(V.blocsOf('USA').length));
   });
 });
+
+describe('a bloc’s mineral shares', () => {
+  it('carry the Estimate label when USGS marks the figures as estimated, as on the mineral pages', async () => {
+    const { blocPage } = await import('../../src/lib/blocview.ts');
+    const { mineralPages, listed } = await import('../../src/lib/minerals.ts');
+    let seen = 0;
+    for (const id of ['nato', 'brics', 'g20', 'eu']) {
+      const p = blocPage(id);
+      for (const s of p?.minerals ?? []) {
+        const m = mineralPages().find((x) => `mineral:${x.id}` === s.id)!;
+        const members = listed(m.latest).filter((x) => x.place && p!.members.includes(x.place));
+        expect(s.estimated, `${id} ${s.id}`).toBe(Boolean(m.latest.estimated || members.some((x) => x.estimated)));
+        seen++;
+      }
+    }
+    expect(seen).toBeGreaterThan(0);
+  });
+});

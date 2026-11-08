@@ -36,9 +36,9 @@ owner taps Post ──▶ Worker ──▶ the same message, as it is, to the ch
 | Button | What happens |
 | --- | --- |
 | **Approve** | `ai-review.yml` runs `npm run ai:review -- approve <id> --text-hash <h>`: the same step as `npm run ai:approve` (the text must still match its facts and pass the check), with `approvedVia: telegram`. Then the site redeploys and the bot says it is done. |
-| **Edit** | The bot asks for the corrected text. Reply to that message with the whole text. The run checks it with the same number and fact checker as a draft; if it passes, it replaces the draft and comes back to you with the buttons again, so it is published only once you tap Approve. If it fails, the bot lists what failed and nothing changes. |
+| **Edit** | The bot asks for the corrected text. Reply to that message with the whole text. The run checks it with the same number and fact checker as a draft; if it passes, it replaces the draft and comes back to you with the buttons again, so it is published only once you tap Approve. If it fails, the bot lists what failed and nothing changes. Only a reply to the bot's Edit message counts: it opens with the fixed line "✏️ Corrected text wanted" and ends with the text's id and version (`ref <id> <hash>`). A reply to anything else, a correction report included, gets the help text. A reader's line in a correction report that starts with "ref " gets a › in front. |
 | **Skip** | Records `skipped` on the text: it is not published and not sent again. For a week's summary this means the week has no summary, and its page shows the cards only. A later redraft (new facts) can still be approved. |
-| **Post** / **Don't post** | Under the digest only. Post sends that message, word for word, to the channel. |
+| **Post** / **Don't post** | Under the digest only. Post sends that message, word for word, to the channel, once per week: the week is recorded in the SNAPSHOTS bucket (`digest/posted/<week>.json`) before it is sent, so a second tap, or Telegram sending the tap again, answers "already posted". If the channel refuses the post the record is removed and Post can be tried again; without the bucket nothing is posted. |
 
 Drafts are sent for review:
 

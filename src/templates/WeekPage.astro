@@ -21,6 +21,7 @@ import { weekPage } from '../lib/week';
 import { live, paths } from '../lib/routes';
 import { breadcrumbs } from '../lib/structured';
 import { weekNumber } from '../lib/week/period';
+import { FEED_DAYS } from '../lib/week/model';
 
 interface Props { id?: string }
 const { id } = Astro.props;
@@ -59,6 +60,6 @@ const method = live('page:methodology')?.path;
         ))}
       </div>
     </section>
-    <LatestFeed id="wk-feed" items={m.feed} kinds={m.feedKinds} sub={m.id ? W.feedArchiveSub : W.feedSub} />
+    <LatestFeed id="wk-feed" items={m.feed} kinds={m.feedKinds} sub={m.id ? W.feedArchiveSub : W.feedLiveSub(FEED_DAYS)} />
   </div>
 </Page>

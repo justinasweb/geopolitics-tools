@@ -107,6 +107,12 @@ function initBox(form: HTMLFormElement): { show: () => void } {
 
   function render(r: Result, typed: string) {
     matched = r.total > 0;
+    if (!r.total && r.soon) {
+      setNote(r.soon);
+      draw(index?.suggestions.length ? [suggest()] : []);
+      say(r.soon);
+      return;
+    }
     if (!r.total) {
       setNote(`${fill(T.none, { q: typed.trim() })} ${T.noneHelp}`);
       draw(index?.suggestions.length ? [suggest()] : []);

@@ -4,7 +4,7 @@
 // phone; rows with no data say so.
 import '../styles/atlas/country.css';
 import '../styles/atlas/table.css';
-import type { DepRow, DepTag } from '../lib/dependence';
+import { rowSource, type DepRow, type DepTag } from '../lib/dependence';
 import { DEP_TEXT, RESOURCE_TEXT } from '../i18n/pages.en';
 import { formatShare } from '../lib/format';
 import { place } from '../lib/places';
@@ -52,23 +52,27 @@ const partners = (r: DepRow) => r.partners.map((id) => ({ id, name: nameOf(id), 
               <span class="gt-depna" title={DEP_TEXT.concentrationTitle}><span aria-hidden="true">–</span><span class="gt-vh">{DEP_TEXT.concentrationOnly}</span></span>
             ) : <span class="gt-depna" aria-hidden="true">–</span>}
           </td>
-          <td class:list={{ 'gt-muted': r.state !== 'ok' }}>{position(r)}</td>
+          <td class:list={{ 'gt-muted': r.state !== 'ok' }}>{position(r)}{rowSource(r) && <span class="gt-caption gt-deps__src">{rowSource(r)}</span>}</td>
           <td>
             {partners(r).length ? (
               <>{partners(r).map((p, i) => <>{i > 0 && ', '}{p.href ? <a href={p.href}>{p.name}</a> : p.name}</>)}{r.buyers && ` ${DEP_TEXT.buyersTag}`}</>
-            ) : <span class="gt-muted">–</span>}
+            ) : r.state === 'ok' ? <span class="gt-muted">{DEP_TEXT.noPartners}</span> : <span class="gt-muted">–</span>}
           </td>
         </tr>
       ))}
     </tbody>
   </table>
 </div>
+{/* On a phone the table's caption and its arms and chips note come with the cards. */}
+<p class="gt-caption gt-deplist__cap">{DEP_TEXT.caption}</p>
 <ul class="gt-deplist" aria-label={label}>
   {rows.map((r) => (
     <li>
-      <span class="gt-deplist__h">{RESOURCE_TEXT[r.resource].label}{r.tag && !r.main && <span class:list={['gt-deptag', `gt-deptag--${r.tag}`]}><svg viewBox="0 0 16 12" aria-hidden="true" set:html={GLYPH[r.tag]} />{DEP_TEXT.tags[r.tag]}</span>}</span>
+      <span class="gt-deplist__h">{RESOURCE_TEXT[r.resource].label}{r.tag && !r.main && <span class:list={['gt-deptag', `gt-deptag--${r.tag}`]}><svg viewBox="0 0 16 12" aria-hidden="true" set:html={GLYPH[r.tag]} />{DEP_TEXT.tags[r.tag]}</span>}{(r.resource === 'arms' || r.resource === 'chips') && <span class="gt-depna" title={DEP_TEXT.concentrationTitle}>{DEP_TEXT.concentrationOnly}</span>}</span>
       <p class:list={{ 'gt-muted': r.state !== 'ok' }}>{position(r)}</p>
-      {partners(r).length > 0 && <p class="gt-caption">{DEP_TEXT.partners}: {partners(r).map((p) => p.name).join(', ')}{r.buyers && ` ${DEP_TEXT.buyersTag}`}</p>}
+      {partners(r).length > 0 ? <p class="gt-caption">{DEP_TEXT.partners}: {partners(r).map((p) => p.name).join(', ')}{r.buyers && ` ${DEP_TEXT.buyersTag}`}</p>
+        : r.state === 'ok' && <p class="gt-caption">{DEP_TEXT.partners}: {DEP_TEXT.noPartners}</p>}
+      {rowSource(r) && <p class="gt-caption">{rowSource(r)}</p>}
     </li>
   ))}
 </ul>

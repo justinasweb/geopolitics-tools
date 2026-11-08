@@ -52,6 +52,8 @@ import { NUCLEAR_TEXT } from '../../i18n/nuclear.en.ts';
 import type { Pair } from '../../data/flows.ts';
 import type { Hazard } from '../../adapters/hazards.ts';
 import type { Arc, Entry, LayerFile, LayerYear, Overlay, PanelBlock, Point } from './types.ts';
+import { OTHER_SUPPLIER } from '../../adapters/sipri.ts';
+import { DEP_TEXT } from '../../i18n/pages.en.ts';
 
 export interface LayerDef {
   id: string;
@@ -1036,8 +1038,8 @@ function riverLayer(id: string): LayerFile {
       {
         label: R.onRiver(name),
         rows: [
-          ...(later && x.stress2050 !== null ? [{ name: R.stress2050, value: valueText(later, x.stress2050) }] : []),
-          ...(dep && x.fromAbroad !== null ? [{ name: R.fromAbroad, value: valueText(dep, x.fromAbroad) }] : []),
+          ...(later && x.stress2050 !== null ? [{ name: R.stress2050(later.year), value: valueText(later, x.stress2050) }] : []),
+          ...(dep && x.fromAbroad !== null ? [{ name: R.fromAbroad(dep.year), value: valueText(dep, x.fromAbroad) }] : []),
           { name: R.damsCol, value: String(dams.length) },
         ],
       },
@@ -1204,7 +1206,7 @@ function nuclearLayer(id: NuclearPage): LayerFile {
 }
 
 const placeNames = new Map(PLACES.map((x) => [x.id, x.name]));
-const nameOf2 = (id: string) => placeNames.get(id) ?? id;
+const nameOf2 = (id: string) => placeNames.get(id) ?? (id === OTHER_SUPPLIER ? DEP_TEXT.otherSuppliers : id);
 
 let defs: LayerDef[] | null = null;
 export function mapLayers(): LayerDef[] {

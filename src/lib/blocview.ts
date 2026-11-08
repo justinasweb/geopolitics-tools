@@ -27,6 +27,8 @@ export interface BlocShare {
   /** Members with a figure, of all members. */
   have: number;
   of: number;
+  /** A mineral share built from figures USGS marks as estimated. */
+  estimated?: boolean;
 }
 
 export interface BlocPage {
@@ -85,7 +87,7 @@ function buildPage(id: string, members: string[], all: Map<string, string[]>): B
   const minerals = mineralPages().map((p): BlocShare | null => {
     const l = listed(p.latest).filter((x) => x.place && members.includes(x.place));
     if (!l.length) return null;
-    return { id: `mineral:${p.id}`, share: l.reduce((s, x) => s + (x.share ?? 0), 0), year: p.latest.year, have: l.length, of: members.length };
+    return { id: `mineral:${p.id}`, share: l.reduce((s, x) => s + (x.share ?? 0), 0), year: p.latest.year, have: l.length, of: members.length, estimated: Boolean(p.latest.estimated || l.some((x) => x.estimated)) };
   }).filter((s): s is BlocShare => s !== null && s.share >= 0.01).sort((a, b) => b.share - a.share);
   const overlaps = [...all].filter(([b]) => b !== id).map(([b, m]) => ({ id: b, shared: m.filter((x) => members.includes(x)) }))
     .filter((o) => o.shared.length).sort((a, b) => b.shared.length - a.shared.length || BLOC_ORDER.indexOf(a.id) - BLOC_ORDER.indexOf(b.id));

@@ -6,6 +6,8 @@
 //   gas-<y>         271111 LNG, 271121 pipeline gas
 //   fertiliser-<y>  3104 potash; 3103, 310530 (DAP) and 310540 (MAP) phosphate, all in product weight
 //   chips-<y>       8542 integrated circuits, 8486 chipmaking machines
+//   crude-x-<y>, gas-x-<y>, fertiliser-x-<y>  the same goods as their exporters report them (flowCode X): mirror
+//                   data for a flow whose importer figure is unusable (src/adapters/comtrade.ts)
 //   imports-<y>     all goods, imports by partner (dossier trade partners)
 //   exports-<y>     all goods, exports by partner
 // Countries report a year over the following 18 months or so, so the three latest years are fetched again on each
@@ -25,6 +27,10 @@ export const GROUPS: Record<string, { codes: string[]; flows: string; minReporte
   gas: { codes: ['271111', '271121'], flows: 'M', minReporters: 40 },
   fertiliser: { codes: ['3103', '3104', '310530', '310540'], flows: 'M', minReporters: 60 },
   chips: { codes: ['8542', '8486'], flows: 'M', minReporters: 60 },
+  // Fewer countries export these than import them.
+  'crude-x': { codes: ['2709'], flows: 'X', minReporters: 30 },
+  'gas-x': { codes: ['271111', '271121'], flows: 'X', minReporters: 30 },
+  'fertiliser-x': { codes: ['3103', '3104', '310530', '310540'], flows: 'X', minReporters: 40 },
   imports: { codes: ['TOTAL'], flows: 'M', minReporters: 80 },
   exports: { codes: ['TOTAL'], flows: 'X', minReporters: 80 },
 };

@@ -19,6 +19,9 @@ export const FIELDS = ['id', 'year', 'type_of_violence', 'conflict_new_id', 'con
 type Row = Record<string, string | number | null>;
 interface Page { TotalCount?: number; TotalPages?: number; NextPageUrl?: string; Result?: Row[] }
 
+/** The fields src/adapters/ucdp.ts reads: an event without them is dropped there or counts no deaths. */
+export const NEEDED = ['id', 'date_start', 'latitude', 'longitude', 'type_of_violence', 'country_id', 'best'] as const;
+
 export const fileName = (version: string) => `gedevents_${version}.json`;
 export const trim = (r: Row): Row => Object.fromEntries(FIELDS.map((f) => [f, r[f] ?? null]));
 
@@ -44,6 +47,11 @@ async function release(ctx: FetchContext, base: string, token: string, version: 
     if (!page.NextPageUrl) break;
     // The API's next link is plain http on some releases.
     url = page.NextPageUrl.replace(/^http:/, 'https:');
+  }
+  // A renamed field would read as no events, or no deaths: nearly every event must have each one.
+  for (const f of NEEDED) {
+    const have = rows.filter((r) => r[f] !== null && r[f] !== '').length;
+    check(have >= rows.length * 0.99, `${version}: ${rows.length - have} of ${rows.length} events lack "${f}"; the format changed`);
   }
   return rows;
 }

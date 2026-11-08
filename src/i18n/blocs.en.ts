@@ -94,7 +94,7 @@ export const BLOCS_TEXT = {
   allBlocLine: (id: string, bloc: string, n: number) => (NON_COUNTRY_MEMBERS[id] ? `${bloc} members: ${membersText(id, n)}.` : `${bloc} has ${n} members.`),
   overlapLine: (otherId: string, other: string, k: number, n: number, bloc: string) => {
     const noun = NON_COUNTRY_MEMBERS[otherId] ? ['member countries', 'member country'] : ['members', 'member'];
-    return k ? `${k} of the ${n} ${other} ${noun[0]} are also in ${bloc}.` : `No ${other} ${noun[1]} is in ${bloc}.`;
+    return k ? `${k} of the ${n} ${other} ${noun[0]} ${k === 1 ? 'is' : 'are'} also in ${bloc}.` : `No ${other} ${noun[1]} is in ${bloc}.`;
   },
   /** The panel's count: "Members", or "Member countries" with what else belongs. */
   countLabel: (id: string) => (NON_COUNTRY_MEMBERS[id] ? 'Member countries' : 'Members'),

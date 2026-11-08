@@ -37,7 +37,7 @@ const json = JSON.stringify({ chain }).replace(/</g, '\\u003c');
     <Breadcrumbs items={crumbs} />
     <h1 class="gt-title gt-tlhead__t">{head.title} <span class="gt-mvhead__sub">{head.sub}</span></h1>
     <p class="gt-lede gt-tlhead__a">{ledeOf(chain)}</p>
-    <SourceLine source={chain.source} parts={[periodLabel(chain)]} updated={chain.updated} />
+    <SourceLine source={chain.source} parts={[periodLabel(chain), chain.mirrored ?? ''].filter(Boolean)} updated={chain.updated} />
   </header>
   <div class="gt-expctl gt-skctl" data-sk-ctl set:html={controlsHtml(chain, state, chainLinks())} />
   <section class="gt-tlsec gt-skphone" data-sk-phone>
@@ -51,6 +51,8 @@ const json = JSON.stringify({ chain }).replace(/</g, '\\u003c');
   <section class="gt-tlsec">
     <h2 class="gt-h2">{T.tableTitle}</h2>
     <div class="gt-sktable" data-sk-table set:html={tableHtml(chain, state)} />
+    {/* The table is far below the header's source line on a long diagram: it carries its own. */}
+    <SourceLine source={chain.source} parts={[periodLabel(chain), chain.mirrored ?? ''].filter(Boolean)} updated={chain.updated} />
   </section>
   <script type="application/json" id="sk-chain" set:html={json} />
 </Page>

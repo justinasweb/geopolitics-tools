@@ -11,8 +11,13 @@
 //   fertilisers  million tonnes of product (not of nutrient, as FAOSTAT counts them)
 import { type Raw, matcher, num } from './core.ts';
 
-export interface TradeRow { year: number; reporter: string; partner: string; flow: 'M' | 'X'; cmd: string; kg: number | null; usd: number | null }
-export interface Flow { from: string; to: string; amount: number; year: number }
+export interface TradeRow {
+  year: number; reporter: string; partner: string; flow: 'M' | 'X'; cmd: string; kg: number | null; usd: number | null;
+  /** Its quantity was dropped as not in kg (dropNonMass). */
+  dropped?: true;
+}
+/** `mirror`: the amount is the exporter's report of the flow, the importer's quantity having been dropped. */
+export interface Flow { from: string; to: string; amount: number; year: number; mirror?: true }
 export interface GasFlow extends Flow { kind: 'pipe' | 'lng' }
 
 type Row = Record<string, unknown>;
@@ -46,7 +51,30 @@ export function parseComtrade(files: { data?: Row[] }[]): TradeRow[] {
       out.push({ year: Number(r.period), reporter, partner, flow, cmd: String(r.cmdCode), kg: num(r.netWgt), usd: num(r.primaryValue) });
     }
   }
+  dropNonMass(out);
   return out;
+}
+
+/**
+ * Some reporters' net weight is not in kilograms (Mexico's pipeline gas from the United States: 68 billion "kg",
+ * litres by its size, for $7.5 bn). A row whose price per kg is under a tenth of the median for its product and year
+ * keeps its value but loses its quantity, so it drops out of every flow measured by weight. Rows that are dear per kg
+ * (small shipments) are kept.
+ */
+function dropNonMass(rows: TradeRow[]) {
+  const groups = new Map<string, TradeRow[]>();
+  for (const r of rows) {
+    if (!(r.kg && r.usd && r.kg > 0 && r.usd > 0)) continue;
+    const k = `${r.cmd}|${r.year}`;
+    if (!groups.has(k)) groups.set(k, []);
+    groups.get(k)!.push(r);
+  }
+  for (const g of groups.values()) {
+    if (g.length < 3) continue;
+    const prices = g.map((r) => r.usd! / r.kg!).sort((a, b) => a - b);
+    const median = prices[Math.floor(prices.length / 2)];
+    for (const r of g) if (r.usd! / r.kg! < median / 10) { r.kg = null; r.dropped = true; }
+  }
 }
 
 const filesOf = (raw: Raw) => raw.list('comtrade').filter((f) => f.endsWith('.json')).map((f) => raw.json<{ data?: Row[] }>('comtrade', f));
@@ -63,16 +91,27 @@ const imports = (rows: TradeRow[], c: Commodity) => {
   return rows.filter((r) => r.flow === 'M' && codes.includes(r.cmd));
 };
 
-/** Importer-reported flows of one commodity, summed per pair and year, largest first. */
+/**
+ * Importer-reported flows of one commodity, summed per pair and year, largest first. Where the importer's quantity
+ * was dropped as not in kg, the exporter's own report of the same flow is used when it passes the same check
+ * (mirror data), and the flow is marked `mirror`.
+ */
 export function flowsOf(rows: TradeRow[], c: Commodity, amount: (r: TradeRow) => number | null): Flow[] {
+  const codes: readonly string[] = CODES[c];
+  const exported = new Map(rows.filter((r) => r.flow === 'X' && codes.includes(r.cmd)).map((r) => [`${r.year}|${r.cmd}|${r.reporter}>${r.partner}`, r]));
   const by = new Map<string, Flow>();
   for (const r of imports(rows, c)) {
-    const v = amount(r);
+    let v = amount(r);
+    let mirror = false;
+    if (v === null && r.dropped) {
+      const x = exported.get(`${r.year}|${r.cmd}|${r.partner}>${r.reporter}`);
+      if (x && x.kg !== null) { v = amount(x); mirror = true; }
+    }
     if (v === null || !(v > 0)) continue;
     const k = `${r.year}|${r.partner}>${r.reporter}`;
     const f = by.get(k);
-    if (f) f.amount += v;
-    else by.set(k, { from: r.partner, to: r.reporter, amount: v, year: r.year });
+    if (f) { f.amount += v; if (mirror) f.mirror = true; }
+    else by.set(k, { from: r.partner, to: r.reporter, amount: v, year: r.year, ...(mirror ? { mirror: true as const } : {}) });
   }
   return [...by.values()].sort((a, b) => b.amount - a.amount);
 }

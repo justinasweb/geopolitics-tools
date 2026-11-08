@@ -29,6 +29,7 @@ import {
   BLOCK_TEXT, COUNTRY_TEXT, DEP_TEXT, DOSSIER_TEXT, RESOURCE_TEXT, inSentence, list, mineralName, ordinal,
 } from '../i18n/pages.en';
 import { countryModel, countrySources, DOSSIERS, MINERAL_SHARE, type Figure } from '../lib/country';
+import { leadImports } from '../lib/dependence';
 import { dossierFor, peopleSection } from '../lib/dossier';
 import { creditName, data, sourceName } from '../lib/data';
 import { formatDate, formatParts, formatShare, formatValue } from '../lib/format';
@@ -65,15 +66,15 @@ const nameOf = (id: string) => place(id)?.name ?? id;
 const okDeps = m.deps.filter((d) => d.state === 'ok');
 const findDeps = (() => {
   const bits: string[] = [];
-  const most = okDeps.filter((d) => d.tag === 'most').sort((a, b) => (b.reliance ?? 0) - (a.reliance ?? 0))[0];
-  if (most && most.reliance !== undefined) bits.push(most.reliance >= 0.995 ? DEP_TEXT.findImportAll(RESOURCE_TEXT[most.resource].noun) : DEP_TEXT.findImport(formatShare(most.reliance), RESOURCE_TEXT[most.resource].noun));
+  // The same imports as the summary: the largest by share of use, and the largest fuel imported mostly.
+  const lead = leadImports(okDeps);
+  if (lead.length) bits.push(DEP_TEXT.findImports(lead.map((d) => DEP_TEXT.findImportPart(d.reliance! >= 0.995 ? null : formatShare(d.reliance!), RESOURCE_TEXT[d.resource].noun))));
   const exp = okDeps.find((d) => d.tag === 'exp');
   if (exp) bits.push(DEP_TEXT.findExport(RESOURCE_TEXT[exp.resource].noun));
   if (bits.length) return DEP_TEXT.find(subject, bits);
   const self = okDeps.filter((d) => d.tag === 'self').map((d) => RESOURCE_TEXT[d.resource].noun);
   return self.length ? DEP_TEXT.findSelf(subject, list(self)) : undefined;
 })();
-const depYears = [...new Set(okDeps.map((d) => d.period ?? String(d.year)).filter(Boolean))].sort();
 const depSourceNames = [...new Set(okDeps.map((d) => short(d.source)))].sort();
 
 const mineralYear = m.minerals[0]?.year;
@@ -181,7 +182,7 @@ const citation = COUNTRY_TEXT.citation(name, kind, url, Number(m.updated.slice(0
 
         {okDeps.length > 0 && (
           <CpSection n={nDeps} id="deps" heading={DEP_TEXT.heading} find={findDeps}
-            source={{ source: depSourceNames.join('; '), parts: depYears.length ? [depYears.length > 1 ? `${depYears[0]}–${depYears.at(-1)}` : depYears[0]] : [], updated: m.updated }}
+            source={{ source: depSourceNames.join('; '), parts: [DEP_TEXT.yearsByRow], updated: m.updated }}
             link={live('tool:dependencies') ? { href: live('tool:dependencies')!.path, label: DEP_TEXT.link } : undefined}>
             <DependencyTable rows={m.deps} label={`${name}: ${DEP_TEXT.heading.toLowerCase()}`} />
           </CpSection>
@@ -191,7 +192,7 @@ const citation = COUNTRY_TEXT.citation(name, kind, url, Number(m.updated.slice(0
           <CpSection n={nMin} id="minerals" heading={COUNTRY_TEXT.mineralsHeading(Math.round(MINERAL_SHARE * 100))} find={m.summary.filter((s) => / (mines|produces) .*USGS/.test(s)).join(' ') || undefined}
             source={{ source: sourceName('usgs-minerals'), parts: [`${mineralYear}${m.minerals.some((x) => x.estimated) ? ', estimated' : ''}`], updated: m.updated, status: m.minerals.some((x) => x.estimated) ? 'estimate' : undefined }}
             link={mineralView(m.minerals[0]?.id) ? { href: mineralView(m.minerals[0].id)!, label: COUNTRY_TEXT.mineralsLink } : undefined}>
-            <ol class="gt-bars gt-bars--tight gt-cpbars" aria-label={COUNTRY_TEXT.mineralsBars(name, mineralYear!)}>
+            <ol class="gt-bars gt-bars--tight gt-cpbars" aria-label={COUNTRY_TEXT.mineralsBars(subject, mineralYear!)}>
               {m.minerals.map((x) => (
                 <li>
                   <span class="gt-bars__name">{mineralView(x.id) ? <a href={mineralView(x.id)}>{mineralName(x.id, x.label).replace(/^./, (c) => c.toUpperCase())}</a> : mineralName(x.id, x.label).replace(/^./, (c) => c.toUpperCase())}{x.measure === 'primary' && COUNTRY_TEXT.primary}</span>
@@ -205,12 +206,12 @@ const citation = COUNTRY_TEXT.citation(name, kind, url, Number(m.updated.slice(0
 
         {d?.money && (
           <CpSection n={nMoney} id="money" heading={DOSSIER_TEXT.money}
-            find={m.figures.find((f) => f.id === 'gdp') ? DOSSIER_TEXT.moneyFind(name, formatValue(m.figures.find((f) => f.id === 'gdp')!.value, INDICATORS.gdp.format), m.figures.find((f) => f.id === 'gdp')!.year) : undefined}>
+            find={m.figures.find((f) => f.id === 'gdp') ? DOSSIER_TEXT.moneyFind(subject, formatValue(m.figures.find((f) => f.id === 'gdp')!.value, INDICATORS.gdp.format), m.figures.find((f) => f.id === 'gdp')!.year) : undefined}>
             <div class="gt-cpgrid">
               {d.money.gdp && (
                 <div class="gt-cpsub">
                   <h3 class="gt-h3">{INDICATOR_TEXT.gdp.label}, {d.money.gdp.years[0]}–{d.money.gdp.years.at(-1)}</h3>
-                  <LineChart label={DOSSIER_TEXT.gdpChart(name)} years={d.money.gdp.years} lines={[{ label: 'GDP', values: d.money.gdp.values, noLabel: true }]} format={INDICATORS.gdp.format} />
+                  <LineChart label={DOSSIER_TEXT.gdpChart(subject)} years={d.money.gdp.years} lines={[{ label: 'GDP', values: d.money.gdp.values, noLabel: true }]} format={INDICATORS.gdp.format} />
                   <SourceLine source={sourceName('worldbank')} parts={[`${d.money.gdp.years[0]}–${d.money.gdp.years.at(-1)}`]} updated={m.updated} />
                 </div>
               )}
@@ -233,13 +234,13 @@ const citation = COUNTRY_TEXT.citation(name, kind, url, Number(m.updated.slice(0
 
         {people && (
           <CpSection n={nPeople} id="people" heading={DOSSIER_TEXT.people}
-            find={pop ? DOSSIER_TEXT.peopleFind(name, formatValue(pop.value, INDICATORS.population.format), pop.year) : undefined}
+            find={pop ? DOSSIER_TEXT.peopleFind(subject, formatValue(pop.value, INDICATORS.population.format), pop.year) : undefined}
             link={indicatorHref('population') ? { href: indicatorHref('population')!, label: DOSSIER_TEXT.peopleLink } : undefined}>
             <div class="gt-cpgrid">
               {people.years.length > 1 && (
                 <div class="gt-cpsub">
                   <h3 class="gt-h3">{INDICATOR_TEXT.population.label}, {people.years[0]}–{people.years.at(-1)}</h3>
-                  <LineChart label={DOSSIER_TEXT.popChart(name)} years={people.years} lines={[{ label: DOSSIER_TEXT.popProjection, values: people.medium, noLabel: true }]}
+                  <LineChart label={DOSSIER_TEXT.popChart(subject)} years={people.years} lines={[{ label: DOSSIER_TEXT.popProjection, values: people.medium, noLabel: true }]}
                     format={INDICATORS.population.format} projectedAfter={people.lastEstimate} band={people.band ?? undefined} />
                   <div class="gt-legend__extra"><span>{DOSSIER_TEXT.projection}: {DOSSIER_TEXT.popProjection}, after {people.lastEstimate}</span>{people.band && <span><i class="gt-sw gt-lc__bandkey"></i>{DOSSIER_TEXT.popRange}</span>}</div>
                   <SourceLine source={sourceName('wpp')} updated={m.updated} status="projection" />
@@ -247,7 +248,7 @@ const citation = COUNTRY_TEXT.citation(name, kind, url, Number(m.updated.slice(0
               )}
               {pyr && (
                 <div class="gt-cpsub" data-gt-pyramid>
-                  <h3 class="gt-h3">{DOSSIER_TEXT.pyramid(name)}</h3>
+                  <h3 class="gt-h3">{DOSSIER_TEXT.pyramid(subject)}</h3>
                   <figure class="gt-pyr">
                     {pyr.years.length > 1 && (
                       <div class="gt-pyr__yr">
@@ -256,7 +257,7 @@ const citation = COUNTRY_TEXT.citation(name, kind, url, Number(m.updated.slice(0
                       </div>
                     )}
                     {pyr.years.map((y) => (
-                      <Pyramid label={DOSSIER_TEXT.pyramidLabel(name, y)} groups={pyr.byYear[y]} max={pyrMax} year={y} hidden={y !== pyr.year} />
+                      <Pyramid label={DOSSIER_TEXT.pyramidLabel(subject, y)} groups={pyr.byYear[y]} max={pyrMax} year={y} hidden={y !== pyr.year} />
                     ))}
                     <figcaption class="gt-caption">{DOSSIER_TEXT.pyramidCaption(people.lastEstimate)}</figcaption>
                   </figure>
@@ -267,7 +268,7 @@ const citation = COUNTRY_TEXT.citation(name, kind, url, Number(m.updated.slice(0
             {(people.stats.length > 0 || people.old !== null) && (
               <div class="gt-cpstats">
                 {people.stats.map((f) => <CpStat label={label(f.id)} num={parts(f).num} unit={parts(f).unit} caption={statCaption(f)} />)}
-                {people.old !== null && <CpStat label={DOSSIER_TEXT.aged65} num={formatShare(people.old).replace('%', '')} unit="%" caption={`${people.oldYear} · ${short('wpp')}`} />}
+                {people.old !== null && <CpStat label={DOSSIER_TEXT.aged65} num={formatShare(people.old).replace('%', '')} unit="%" caption={DOSSIER_TEXT.aged65Caption(people.oldYear!, people.lastEstimate, short('wpp'))} />}
               </div>
             )}
           </CpSection>
@@ -288,8 +289,8 @@ const citation = COUNTRY_TEXT.citation(name, kind, url, Number(m.updated.slice(0
             find={d.climate.stats.find((f) => f.id === 'co2') ? DOSSIER_TEXT.climateFind(subject, formatValue(d.climate.stats.find((f) => f.id === 'co2')!.value, INDICATORS.co2.format), d.climate.stats.find((f) => f.id === 'co2')!.year) : undefined}>
             {d.climate.co2 && (
               <div class="gt-cpsub">
-                <h3 class="gt-h3">{DOSSIER_TEXT.co2Chart(name)}, {d.climate.co2.years[0]}–{d.climate.co2.years.at(-1)}</h3>
-                <LineChart label={DOSSIER_TEXT.co2Chart(name)} years={d.climate.co2.years} lines={[{ label: 'CO2', values: d.climate.co2.values, noLabel: true }]} format={INDICATORS.co2.format} />
+                <h3 class="gt-h3">{DOSSIER_TEXT.co2Chart(subject)}, {d.climate.co2.years[0]}–{d.climate.co2.years.at(-1)}</h3>
+                <LineChart label={DOSSIER_TEXT.co2Chart(subject)} years={d.climate.co2.years} lines={[{ label: 'CO2', values: d.climate.co2.values, noLabel: true }]} format={INDICATORS.co2.format} />
                 <SourceLine source={sourceName('owid')} parts={[`${d.climate.co2.years[0]}–${d.climate.co2.years.at(-1)}`]} updated={m.updated} />
               </div>
             )}

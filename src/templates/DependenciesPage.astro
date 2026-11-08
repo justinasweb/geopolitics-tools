@@ -1,6 +1,6 @@
 ---
 // Dependencies (DependenciesPage and DependencyGrid designs): every country against the ten commodities of its
-// country page's "Dependencies at a glance", with the single points of failure above. The build draws the default
+// country page's "Dependencies at a glance", with reliance on one supplier above. The build draws the default
 // settings, so the page reads without scripts; the browser script (src/scripts/dependencies.ts) then filters,
 // sorts and finds, keeping the settings in the address. On a phone the grid gives way to one country's card or
 // one commodity ranked.
@@ -36,7 +36,7 @@ const json = JSON.stringify({ grid }).replace(/</g, '\\u003c');
     <p class="gt-tldef">{T.definition} <a href={`${paths.page('methodology')}#import-reliance`}>{T.how}</a></p>
     <SourceLine source={grid.credits} parts={grid.years ? [grid.years] : []} updated={grid.updated} />
   </header>
-  <section class:list={['gt-spof', { 'is-all': state.all }]} aria-labelledby="spof-h" data-d-spof set:html={spofHtml(state, grid)} />
+  <section class:list={['gt-spof', { 'is-all': state.all }]} aria-labelledby="one-supplier-h" data-d-spof set:html={spofHtml(state, grid)} />
   <div class="gt-expctl gt-dgctl" data-d-ctl set:html={controlsHtml(state, grid)} />
   <div class="gt-legend gt-dglegend" set:html={legendHtml()} />
   <div class="gt-dgdesk" data-d-out set:html={tableHtml(state, grid)} />

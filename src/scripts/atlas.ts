@@ -14,8 +14,9 @@ import {
   yearNote, yearOn, type AtlasContext, type AtlasLayerRef,
 } from './map/atlas-state';
 import { legendHtml, markSvg } from './map/legend';
-import { countryPanelHtml, tooltipHtml, worldPanelHtml } from './map/panel';
+import { countryPanelHtml, previousHtml, tooltipHtml, worldPanelHtml } from './map/panel';
 import { esc, fill } from './map/text';
+import { YEAR_TEXT } from '../i18n/en';
 import { initControls } from './controls';
 import { initCopy } from './copy';
 import { bindSearchKey } from './header';
@@ -241,7 +242,7 @@ export function initAtlas(root: HTMLElement): void {
     const word = f.axis === 'months' ? W.year.months : f.axis === 'days' ? W.year.days : W.year.years;
     const play = f.axis !== 'days';
     yearCard.innerHTML = `<div class="gt-years${play ? '' : ' gt-years--noplay'}${n === 2 ? ' gt-years--two' : ''}" data-gt-years data-est="${est.join(' ')}" data-labels="${esc(JSON.stringify(labels))}">`
-      + (play ? '<button class="gt-play" type="button"></button>' : '')
+      + (play ? `<button class="gt-play" type="button" aria-label="${esc(YEAR_TEXT.play)}"></button>` : '')
       + `<div class="gt-years__head"><label class="gt-label" for="at-year">${esc(word)}</label><span class="gt-years__now" aria-hidden="true">${esc(labels[yi()])}</span></div>`
       + `<input id="at-year" type="range" min="0" max="${n - 1}" step="1" value="${yi()}" aria-valuetext="${esc(labels[yi()])}">`
       + `<div class="gt-years__ticks">${ticks.map((i) => `<span>${esc(labels[i])}</span>`).join('')}</div></div>`
@@ -295,9 +296,8 @@ export function initAtlas(root: HTMLElement): void {
       return;
     }
     const p = prev && loaded.get(byKey.get(prev.key)!.file);
-    const after = p
-      ? `<div class="gt-atprev"><span class="gt-label">${esc(W.previous)}</span><p><b>${esc(byKey.get(prev!.key)!.title)}:</b> ${esc(lineOn(p, prev!.index, id))}</p></div>`
-      : '';
+    // The layer before keeps its own source, year and estimate tag.
+    const after = p ? previousHtml(p, prev!.index, id, byKey.get(prev!.key)!.title, lineOn(p, prev!.index, id), W.previous) : '';
     const empty = `<div class="gt-atempty">${EMPTY}<p class="gt-atempty__t">${esc(fill(f.text.none, { year: whenOf(f, yi()) }))}</p>`
       + `<p>${esc(fill(W.greyMeans, { none: f.missing.none.charAt(0).toLowerCase() + f.missing.none.slice(1) }))}</p></div><div class="gt-pblock" data-at-other hidden></div>`;
     panel.innerHTML = countryPanelHtml(f, yi(), id, { sheet: phone, empty, after, first, table: false });

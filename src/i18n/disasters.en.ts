@@ -101,7 +101,9 @@ export const DISASTERS_TEXT = {
   severity: 'Severity (GDACS)',
   atSea: 'At sea',
   quakeTable: (days: number) => `Largest earthquakes, last ${days} days`,
-  quakeCaption: (n: number, total: number) => `The ${n} largest of ${total} earthquakes of magnitude 5.5 and over, by magnitude.`,
+  quakeCaption: (n: number, total: number) => (n >= total
+    ? `${total === 1 ? 'The one earthquake' : `All ${total} earthquakes`} of magnitude 5.5 and over, by magnitude.`
+    : `The ${n === 1 ? 'largest' : `${n} largest`} of ${total} earthquakes of magnitude 5.5 and over, by magnitude.`),
   mag: 'Magnitude',
   place: 'Where (USGS)',
   depth: 'Depth',

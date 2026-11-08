@@ -47,6 +47,9 @@ const projected = (y: number) => ind.projectedAfter !== undefined && y > ind.pro
 const estimated = ind.lastActualBy && ind.projectedAfter !== undefined ? Object.values(ind.lastActualBy).filter((y) => y < ind.projectedAfter!).length : 0;
 
 const answer = answerFor(m);
+const caveats = ANSWER[id]?.caveats ?? [];
+// The lead names the first-ranked figure: it carries that figure's tag, as its row in the table does.
+const leadTag = m.common[0] ? statusAt(ind, m.common[0].id, m.common[0].year) : undefined;
 
 const yearText = String(m.year);
 const behind = m.latest.filter((r) => r.year < m.year).length;
@@ -79,7 +82,7 @@ const years = m.loaded.years;
   <header class="gt-tlhead">
     <Breadcrumbs items={crumbs} />
     <h1 class="gt-title gt-tlhead__t">{label}{text.unit && !['US$', 'people'].includes(text.unit) && <span class="gt-mvhead__sub"> {text.unit}</span>}</h1>
-    {answer && <p class="gt-lede gt-tlhead__a">{answer}</p>}
+    {answer && <p class="gt-lede gt-tlhead__a">{answer}{leadTag && <> <StatusTag status={leadTag} small /></>}</p>}
     <p class="gt-tldef"><b>{T.definition}</b> {DEFINITION[id] ?? text.note} <a href={paths.page('methodology')}>{T.methodology}</a></p>
     <SourceLine source={credit} parts={ind.static ? [] : [yearText]} updated={updated} status={projected(m.year) ? 'projection' : undefined} />
   </header>
@@ -116,6 +119,8 @@ const years = m.loaded.years;
             </table>
           </div>
         ))}
+        {/* The ranking runs to some 200 rows: its own source line under it, as in the header. */}
+        <SourceLine source={credit} parts={ind.static ? [] : [yearText]} updated={updated} status={projected(m.year) ? 'projection' : undefined} />
       </section>
     </div>
     <div class="gt-indgrid__b">
@@ -144,8 +149,8 @@ const years = m.loaded.years;
       </section>
     ) : <div />}
     <aside class="gt-indside">
-      {ANSWER[id]?.caveats && (
-        <section><h2 class="gt-label">{T.caveats}</h2><ul class="gt-caveats">{ANSWER[id].caveats!.map((c) => <li>{c}</li>)}</ul></section>
+      {caveats.length > 0 && (
+        <section><h2 class="gt-label">{T.caveats}</h2><ul class="gt-caveats">{caveats.map((c) => <li>{c}</li>)}</ul></section>
       )}
       {related.length > 0 && (
         <section><h2 class="gt-label">{T.related}</h2><ul class="gt-related">{related.map((r) => <li><a href={indicatorHref(r)}><span>{INDICATOR_TEXT[r].label}</span><small>{T.relatedIndicator}</small></a></li>)}</ul></section>

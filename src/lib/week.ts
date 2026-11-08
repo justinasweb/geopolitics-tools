@@ -174,7 +174,7 @@ function cardView(c: Card, w: WeekData): CardView {
           active: activeShown.map((a) => alertRow(a, W.sinceDay(day(a.from)), span)),
           activeTitle: W.activeTitle, activeNote: W.activeNote(span),
           ...(c.alerts.length ? {} : { empty: W.alertsNone(span) }),
-          notes: [c.alerts.length > shown.length ? W.alertsMore(c.alerts.length - shown.length) : '', c.compared === false ? W.alertsRuleNew(span) : W.alertsRule(span)].filter(Boolean),
+          notes: [c.alerts.length > shown.length ? W.alertsMore(c.alerts.length - shown.length) : '', c.compared === false ? (w.week ? W.alertsRuleNewPast(span) : W.alertsRuleNew(span)) : W.alertsRule(span)].filter(Boolean),
           ...(active.length > activeShown.length ? { activeMore: W.activeMore(active.length - activeShown.length) } : {}),
         },
       };
@@ -228,7 +228,7 @@ function cardView(c: Card, w: WeekData): CardView {
     }
     case 'sanctions': {
       if (c.quiet) return { ...quiet(), source: W.source.sanctions };
-      if (!c.since) return { ...base, headline: W.quietTitle.sanctions, source: W.source.sanctions, period: periodText, quiet: { title: W.noBaseline, text: W.noBaselineText(day(p.from, { long: true })) } };
+      if (!c.since) return { ...base, headline: W.quietTitle.sanctions, source: W.source.sanctions, period: periodText, quiet: { title: w.week ? W.noBaselinePast : W.noBaseline, text: (w.week ? W.noBaselineTextPast : W.noBaselineText)(day(p.from, { long: true })) } };
       const added = c.lists.reduce((s, l) => s + l.added, 0);
       const removed = c.lists.reduce((s, l) => s + l.removed, 0);
       return {

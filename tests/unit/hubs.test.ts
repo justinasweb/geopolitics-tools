@@ -107,7 +107,7 @@ describe('topic hubs', async () => {
   it('names a share or rate measure with what it is of, and every ranking with its year', async () => {
     const climate = hubModel('climate')!;
     const trade = climate.rankings.find((r) => r.id === 'co2trade');
-    if (trade) expect(trade.name).toBe('CO2 imported in goods, % of own emissions');
+    if (trade) expect(trade.name).toBe('Net CO2 imports through trade, % of emissions inside the country');
     for (const r of [...climate.rankings, ...hubModel('power')!.rankings]) expect(r.top).toMatch(/^\d{4} · /);
   });
 

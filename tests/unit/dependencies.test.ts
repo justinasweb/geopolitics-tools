@@ -1,8 +1,8 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import { bandOf, DEFAULTS, parseState, queryOf, rowsOf, spofs, type Grid } from '../../src/lib/dependencies/model.ts';
-import { cellText, gridCsv, spofHtml, tableHtml } from '../../src/lib/dependencies/render.ts';
+import { cellText, gridCsv, phoneHtml, spofHtml, tableHtml } from '../../src/lib/dependencies/render.ts';
 
-// The Dependencies tool: the bands, the settings in the address, the sort, the single points of failure and the
+// The Dependencies tool: the bands, the settings in the address, the sort, reliance on one supplier and the
 // download, on a small grid; then the grid the build makes from the sample files.
 process.env.GT_DATA = 'sample';
 
@@ -60,7 +60,7 @@ describe('Dependencies model', () => {
     expect(ids('bloc=eu')).toEqual(['HUN']);
   });
 
-  it('finds single points of failure: half of use imported, half of that from one supplier', () => {
+  it('finds reliance on one supplier: half of use imported, half of that from one supplier', () => {
     expect(spofs(grid.rows).map((x) => `${x.id} ${x.r}`)).toEqual(['HUN oil', 'EGY wheat']);
     const html = spofHtml(DEFAULTS, grid);
     expect(html).toContain('Imports 84% of the oil it uses; Russia supplies 86% of those imports.');
@@ -102,5 +102,73 @@ describe('Dependencies grid from the sample files', () => {
     expect(g.credits).toContain('FAOSTAT');
     const R = await import('../../src/lib/routes.ts');
     expect(R.live('tool:dependencies')?.path).toBe('/dependencies');
+  });
+});
+
+describe('the phone card', () => {
+  it('opens on the country named by find= (the home page links ?sort=gas&find=Hungary), at every width', () => {
+    // Sorted by wheat, Egypt is the first row; Hungary is further down.
+    const s = parseState(new URLSearchParams('sort=wheat&find=Hungary'), grid);
+    expect(phoneHtml(s, grid)).toMatch(/<article class="gt-dgcard"><h3 class="gt-h3">Hungary<\/h3>/);
+    // c= still wins when both are given, and without either the card opens on the first row.
+    expect(phoneHtml(parseState(new URLSearchParams('find=Hungary&c=NOR'), grid), grid)).toMatch(/<h3 class="gt-h3">Norway<\/h3>/);
+    expect(phoneHtml(parseState(new URLSearchParams('find=Atlantis'), grid), grid)).toMatch(/<article class="gt-dgcard">/);
+  });
+});
+
+describe('years and sources by row', () => {
+  it('dates use and imports apart when they differ, and says when a source gives no partners', async () => {
+    const { DEP_TEXT } = await import('../../src/i18n/pages.en.ts');
+    expect(DEP_TEXT.dated('EIA', '2024', 'UN Comtrade', '2025')).toBe('EIA, use 2024 · UN Comtrade, imports 2025');
+    expect(DEP_TEXT.dated('FAOSTAT', '2023', 'FAOSTAT', '2023')).toBe('FAOSTAT, 2023');
+    // An exporter's partners are its buyers.
+    expect(DEP_TEXT.dated('FAOSTAT', '2024', 'UN Comtrade', '2025', true)).toBe('FAOSTAT, use 2024 · UN Comtrade, exports 2025');
+    expect(DEP_TEXT.dated('SIPRI', '2021–2025')).toBe('SIPRI, 2021–2025');
+    expect(DEP_TEXT.noPartners).toBe('No partner data from the source');
+  });
+
+  it('puts both years in the grid cell’s tooltip', () => {
+    const g: Grid = { ...grid, rows: grid.rows.map((r) => (r.id === 'HUN' ? { ...r, cells: r.cells.map((c, i) => (i === 1 ? { ...c, y: '2024', ty: '2025' } : c)) } : r)) };
+    const html = tableHtml({ ...DEFAULTS, sort: 'gas' }, g);
+    const row = html.slice(html.indexOf('Hungary'), html.indexOf('</tr>', html.indexOf('Hungary')));
+    expect(row).toMatch(/title="[^"]*use 2024 · [^"]*imports 2025"/);
+  });
+});
+
+describe('which imports a country page names first', () => {
+  it('leads with the largest by share of use and adds the largest fuel it imports most of', async () => {
+    const { leadImports } = await import('../../src/lib/dependence.ts');
+    const row = (resource: string, reliance: number, tag = 'most') => ({ resource, state: 'ok', source: 'x', partners: [], reliance, tag }) as never;
+    // Germany: rice 100%, soybeans 97%, phosphate 96%, gas 95%, oil 91%.
+    const de = [row('oil', 0.91), row('gas', 0.95), row('rice', 1), row('soy', 0.97), row('phosphate', 0.96), row('wheat', -0.05, 'self')];
+    expect(leadImports(de).map((r: { resource: string }) => r.resource)).toEqual(['rice', 'gas']);
+    // A fuel that leads is named once.
+    expect(leadImports([row('oil', 1), row('rice', 0.6)]).map((r: { resource: string }) => r.resource)).toEqual(['oil']);
+    // No fuel imported mostly: the largest alone.
+    expect(leadImports([row('oil', 0.2, 'some'), row('rice', 0.8)]).map((r: { resource: string }) => r.resource)).toEqual(['rice']);
+    expect(leadImports([row('wheat', -0.5, 'exp')])).toEqual([]);
+  });
+});
+
+describe('the dependencies section’s finding', () => {
+  it('names the lead imports under one verb, and an export after a semicolon', async () => {
+    const { DEP_TEXT } = await import('../../src/i18n/pages.en.ts');
+    const imports = DEP_TEXT.findImports([DEP_TEXT.findImportPart(null, 'rice'), DEP_TEXT.findImportPart('95%', 'gas')]);
+    expect(DEP_TEXT.find('Germany', [imports, DEP_TEXT.findExport('potash')])).toBe('Germany imports all of the rice it uses and 95% of the gas it uses; it exports potash.');
+  });
+});
+
+describe('flows from the exporter’s report (mirror data)', () => {
+  it('are named in the row’s source line and the grid’s tooltip', async () => {
+    const { rowSource } = await import('../../src/lib/dependence.ts');
+    const { sumPairs } = await import('../../src/data/flows.ts');
+    const row = { resource: 'gas', state: 'ok', source: 'eia', year: 2024, partners: ['USA'], top: { id: 'USA', share: 0.99 }, reliance: 0.7, tag: 'most', partnersFrom: { source: 'comtrade', period: '2025', mirror: ['United States → Mexico'] } } as never;
+    expect(rowSource(row)).toBe('EIA, use 2024 · UN Comtrade, imports 2025, United States → Mexico as reported by the exporter');
+    const g: Grid = { ...grid, rows: grid.rows.map((r) => (r.id === 'HUN' ? { ...r, cells: r.cells.map((c, i) => (i === 1 ? { ...c, y: '2024', tm: 1 } : c)) } : r)) };
+    const html = tableHtml({ ...DEFAULTS, sort: 'gas' }, g);
+    const tr = html.slice(html.indexOf('Hungary'), html.indexOf('</tr>', html.indexOf('Hungary')));
+    expect(tr).toMatch(/title="[^"]*main supplier as reported by the exporter"/);
+    // Summing a pair's rows keeps the mark.
+    expect(sumPairs([{ from: 'USA', to: 'MEX', amount: 50, mirror: true }, { from: 'USA', to: 'MEX', amount: 20 }], (r) => r.amount)).toEqual([{ from: 'USA', to: 'MEX', amount: 70, mirror: true }]);
   });
 });

@@ -101,7 +101,7 @@ export const NUCLEAR_TEXT = {
   /** Only a sample build shows the treaties page before the file is checked. */
   unchecked: 'not yet checked against UNODA',
   treatyLede: (npt: number, tpnw: number, signed: number) =>
-    `${npt} countries are party to the NPT; ${tpnw} are party to the TPNW, which bans nuclear weapons outright, and ${signed} more have signed it.`,
+    `${npt} countries are party to the NPT; ${tpnw} are party to the TPNW, which bans nuclear weapons outright, and ${signed} more ${signed === 1 ? 'has' : 'have'} signed it.`,
   treatyCaption: 'The NPT (1968) commits states without nuclear weapons not to acquire them, and the five it recognises to pursue disarmament. The TPNW (2017) prohibits nuclear weapons for its parties.',
   treatyNotes: {
     PRK: 'Acceded to the NPT in 1985 and announced its withdrawal on 10 January 2003. UNODA still lists the 1985 accession; the parties have not agreed on its status.',
@@ -110,7 +110,7 @@ export const NUCLEAR_TEXT = {
   treatyTable: 'Treaty status by country',
   treatyTableCaption: 'Status as the UNODA Treaties Database lists it: party (ratified or acceded), signed only, or not a party.',
   date: 'Date',
-  treatyBloc: (bloc: string, both: number, of: number) => `${both} of ${of} ${bloc} members are party to both treaties.`,
+  treatyBloc: (bloc: string, both: number, of: number) => `${both} of ${of} ${bloc} members ${both === 1 ? 'is' : 'are'} party to both treaties.`,
   treatyLabel: 'World map of NPT and TPNW status by country. The same statuses are in the table below.',
 
   // Sharing
@@ -147,7 +147,7 @@ export const NUCLEAR_TEXT = {
   arrangement: 'Arrangement',
   with: 'With',
   basis: 'Basis',
-  sharingBloc: (bloc: string, k: number, of: number) => `${k} of ${of} ${bloc} members host weapons or are covered by a guarantee.`,
+  sharingBloc: (bloc: string, k: number, of: number) => `${k} of ${of} ${bloc} members ${k === 1 ? 'hosts weapons or is' : 'host weapons or are'} covered by a guarantee.`,
   sharingLabel: 'World map of nuclear sharing and guarantees. The same arrangements are in the table below.',
   sharingFacts: (date: string) => `Facts as of ${date}`,
   /** The same inside a source line, after the sources' names. */

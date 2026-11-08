@@ -224,6 +224,11 @@ describe('csl', () => {
     expect(saved.results[0]).toEqual({ id: 'r0', source: 'Entity List (EL) - Bureau of Industry and Security', name: 'N0', programs: ['P'], start_date: '2026-10-01', addresses: [{ country: 'CN' }] });
     await expect(csl.fetch(ctxFor(fakeHttp([[/consolidated/, () => list(['Specially Designated Nationals (SDN) - Treasury Department'])]])))).rejects.toThrow(/no Entity List/);
   });
+
+  it('refuses records that no longer give a country (the adapter places each by its address or nationality)', async () => {
+    const rec = (i: number) => ({ id: `r${i}`, source: i % 2 ? 'Entity List (EL) - Bureau of Industry and Security' : 'Specially Designated Nationals (SDN) - Treasury Department', name: `N${i}`, location: [{ country_code: 'CN' }] });
+    await expect(csl.fetch(ctxFor(fakeHttp([[/consolidated/, () => ({ results: Array.from({ length: 6000 }, (_, i) => rec(i)) })]])))).rejects.toThrow(/country/);
+  });
 });
 
 describe('eu-sanctions', () => {
@@ -241,12 +246,21 @@ describe('eu-sanctions', () => {
 });
 
 describe('epoch', () => {
-  it('falls back to the next address and checks for a country column', async () => {
-    const models = toCsv([['Model', 'Country (of organization)'], ...Array.from({ length: 400 }, (_, i) => [`m${i}`, 'US'])]);
-    const clusters = toCsv([['Name', 'Country'], ...Array.from({ length: 150 }, (_, i) => [`c${i}`, 'US'])]);
-    const r = await epoch.fetch(ctxFor(fakeHttp([[/notable/, () => models], [/ai_supercomputers/, () => clusters]])));
+  const models = (head = ['Model', 'Publication date', 'Country (of organization)']) => toCsv([head, ...Array.from({ length: 400 }, (_, i) => [`m${i}`, '2024-05-01', 'US'])]);
+  const clusters = (head = ['Name', 'Country', 'First Operational Date', 'H100 equivalents']) => toCsv([head, ...Array.from({ length: 150 }, (_, i) => [`c${i}`, 'US', '2024-01-01', '1000'])]);
+
+  it('falls back to the next address and checks the columns the adapter reads', async () => {
+    const r = await epoch.fetch(ctxFor(fakeHttp([[/notable/, () => models()], [/ai_supercomputers/, () => clusters()]])));
     expect(r.rows).toBe(550);
-    await expect(epoch.fetch(ctxFor(fakeHttp([[/notable/, () => 'Model,Org\na,b\n']])))).rejects.toThrow(/no country column/);
+    await expect(epoch.fetch(ctxFor(fakeHttp([[/notable/, () => 'Model,Org\na,b\n']])))).rejects.toThrow(/country/);
+  });
+
+  it('refuses a file whose needed columns were renamed, so the last good one is kept', async () => {
+    const run = (m: string, c: string) => epoch.fetch(ctxFor(fakeHttp([[/notable/, () => m], [/gpu_clusters/, () => c]])));
+    // "H100 equivalents" renamed: the adapter would read zero computing power everywhere.
+    await expect(run(models(), clusters(['Name', 'Country', 'First Operational Date', 'H100e (count)']))).rejects.toThrow(/gpu_clusters\.csv: no computing capacity column/);
+    await expect(run(models(), clusters(['Name', 'Country', 'Opened', 'H100 equivalents']))).rejects.toThrow(/no operational date column/);
+    await expect(run(models(['Model', 'Released', 'Country (of organization)']), clusters())).rejects.toThrow(/notable_ai_models\.csv: no publication date column/);
   });
 });
 
@@ -309,6 +323,20 @@ describe('comtrade', () => {
     expect(r.files.find((f) => f.name === 'crude-2016.json')!.body).toBe(old);
     expect(JSON.parse(body(r, 'crude-2024.json')).data[0]).not.toHaveProperty('reporterDesc');
     expect(r.dataTo).toBe('2024');
+  });
+
+  it('also fetches the exporters’ own reports of crude, gas and fertiliser, for flows whose importer figure is unusable', async () => {
+    const p = plan(new Date('2026-10-24T00:00:00Z'));
+    expect(['crude-x', 'gas-x', 'fertiliser-x'].every((g) => p.some((x) => x.group === g && x.year === 2025))).toBe(true);
+    const urls: string[] = [];
+    const http = createHttp((async (url: string) => {
+      urls.push(String(url));
+      const period = Number(/period=(\d{4})/.exec(String(url))![1]);
+      return new Response(JSON.stringify({ count: 100, data: rows(100, '271121', period) }), { status: 200 });
+    }) as typeof fetch, 0);
+    await comtrade.fetch({ ...ctxFor(http), env: { ...env, COMTRADE_MAX_CALLS: '9' } });
+    expect(urls.some((u) => /cmdCode=271111,271121&flowCode=X/.test(u))).toBe(true);
+    expect(urls.some((u) => /cmdCode=271111,271121&flowCode=M/.test(u))).toBe(true);
   });
 
   it('refuses an answer at the row limit and a sharp drop in reporters', async () => {
@@ -407,6 +435,15 @@ describe('ucdp', () => {
     expect(g.Result[0].dyad_name).toBeUndefined();
     expect(r.dataTo).toBe('2026-09');
     expect(seen.some((u) => u.startsWith('https://x/api/gedevents/25.1?page=1'))).toBe(true);
+  });
+
+  it('refuses events that lack a field the adapter reads', async () => {
+    const renamed: Route[] = [[/./, (url: string) => {
+      const v = /gedevents\/([\d.]+)/.exec(url)![1];
+      if (v !== '25.1') return new Response('', { status: 404 });
+      return { TotalCount: 1500, NextPageUrl: '', Result: ev(1500, '2024-11').map(({ best, ...e }) => ({ ...e, best_est: best })) };
+    }]];
+    await expect(ucdp.fetch({ ...ctxFor(fakeHttp(renamed)), now: new Date('2026-10-20T00:00:00Z'), env })).rejects.toThrow(/best/);
   });
 
   it('carries over releases it already has', async () => {

@@ -279,10 +279,9 @@ capitals, so the sector groups match without case.
 ## Arms transfers (phase 5a)
 
 `/arms` (exporters) and `/arms/importers`: SIPRI deliveries of major arms as five-year totals, the way SIPRI compares
-them, with a picker for each five-year period the data covers. The import takes SIPRI's trade register (one row per
-deal) and turns it into supplier → recipient totals by year, splitting a deal's delivered value evenly across its
-delivery years (`registerToTable` in pipeline/sources/imported.ts). Totals over a deal's years are exact; single years
-are estimates, and the indicator pages say so. Only derived totals are shown, never the register's rows, and there is
+them, with a picker for each five-year period the data covers. The import takes SIPRI's Import/Export values download
+(supplier → recipient TIV by actual delivery year, `valuesToTable` in pipeline/sources/imported.ts), so the shares
+match SIPRI's own tables. Only derived totals are shown, never the register's rows, and there is
 no download, as SIPRI's terms ask. The panel lists a country's main partners and, for importers, its suppliers split
 into the United States, China, Russia, European countries and others; the arcs and the table below the map show the
 largest flows. Each layer compares with the period before (`span` in src/data/views.ts), not an overlapping one, so

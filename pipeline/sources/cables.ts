@@ -78,6 +78,12 @@ const source: Source = {
     const cables = elements.length - landings;
     check(cables >= 300, `only ${cables} cable ways and relations`);
     check(landings >= 20, `only ${landings} cable landing stations`);
+    // The map draws each cable from its line and each station at its point: without them nothing is drawn.
+    const hasPoint = (line?: unknown[]) => Boolean(line?.some(Boolean));
+    const unlined = elements.filter((e) => !isLanding(e) && !hasPoint('line' in e ? e.line : undefined) && !('members' in e && e.members?.some((m) => hasPoint(m.line)))).length;
+    check(unlined <= cables * 0.05, `${unlined} of ${cables} cables without a line; the answer has no geometry`);
+    const unplaced = elements.filter((e) => isLanding(e) && !('at' in e && e.at)).length;
+    check(unplaced <= landings * 0.05, `${unplaced} of ${landings} landing stations without a point`);
     const prev = await ctx.previous('overpass.json');
     guardShrink(ctx, 'overpass.json', cables, prev, (p) => (JSON.parse(p).elements as Element[]).filter((e) => !isLanding(e)).length, 0.8);
     ctx.log(`${cables} cable ways and relations, ${landings} landing stations`);

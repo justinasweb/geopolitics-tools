@@ -1,5 +1,5 @@
 // The Dependencies tool's shared model: the compact grid the build writes (/dependencies/data.json), the settings
-// the page keeps in its address, the bands, the sort and the single points of failure. The build
+// the page keeps in its address, the bands, the sort and reliance on one supplier. The build
 // (src/lib/dependencies.ts) and the browser script (src/scripts/dependencies.ts) both use it, so it imports
 // nothing that needs Node.
 
@@ -7,9 +7,9 @@ export const RESOURCE_IDS = ['oil', 'gas', 'wheat', 'maize', 'rice', 'soy', 'pot
 export type ResourceId = (typeof RESOURCE_IDS)[number];
 /** Arms and chips show supplier concentration only: no share of use is measured. */
 export const CONCENTRATION: ResourceId[] = ['arms', 'chips'];
-/** Import reliance and supplier share that make a single point of failure. */
+/** Import reliance and supplier share that count as reliance on one supplier. */
 export const SPOF = { reliance: 0.5, supplier: 0.5 };
-/** Single points of failure shown before "Show all". */
+/** Cases of reliance on one supplier shown before "Show all". */
 export const SPOF_SHOWN = 8;
 /** On a phone, the first four. */
 export const SPOF_PHONE = 4;
@@ -26,6 +26,10 @@ export interface Cell {
   t?: [string, number];
   /** Year, or period for arms ("2020–2024"). */
   y?: string;
+  /** The main supplier's year, when it comes from a trade source with another year ("2025"). */
+  ty?: string;
+  /** 1 when the main supplier's figure is the exporter's report (mirror data). */
+  tm?: 1;
   /** Why there is no figure: p no data yet, n not reported, u not used, i no imports. */
   why?: 'p' | 'n' | 'u' | 'i';
 }
@@ -65,7 +69,7 @@ export interface State {
   /** Phone: one country's card, or one commodity ranked. */
   show: Show;
   c: string;
-  /** All single points of failure, not just the first eight. */
+  /** All cases of reliance on one supplier, not just the first eight. */
   all: boolean;
 }
 
@@ -139,7 +143,7 @@ export function rowsOf(s: State, grid: Grid) {
 
 export interface Spof { id: string; r: ResourceId; v: number; t: [string, number] }
 
-/** Single points of failure among these rows: largest share from one supplier first. */
+/** Reliance on one supplier among these rows: largest share from one supplier first. */
 export function spofs(rows: Grid['rows']): Spof[] {
   const out: Spof[] = [];
   for (const row of rows) {

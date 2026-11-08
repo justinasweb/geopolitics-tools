@@ -6,6 +6,7 @@
 
 const n = (x: number) => new Intl.NumberFormat('en').format(x);
 const s = (x: number, one: string, many: string) => `${n(x)} ${x === 1 ? one : many}`;
+const EDIT_HEAD = '✏️ Corrected text wanted';
 
 export const TELEGRAM_TEXT = {
   /** What each kind of text is, in the review message's title. */
@@ -19,12 +20,16 @@ export const TELEGRAM_TEXT = {
   // What the Worker answers when a button is tapped (Telegram shows it briefly on the owner's screen).
   recorded: { a: 'Approval recorded. A GitHub run commits it and the site redeploys; you get a message when it is done.', s: 'Skip recorded. Nothing is published for this text.' } as Record<string, string>,
   dispatchFailed: (status: number | string) => `Could not start the GitHub run (${status}). Nothing was recorded; try the button again.`,
-  editPrompt: (label: string, ref: string) => `Reply to this message with the corrected text for ${label}. It goes through the same number and fact check; if it passes, it comes back to you to approve.\n\n${ref}`,
+  /** The Edit prompt's fixed first line: a reply counts as a correction only when it answers a message opening with it. */
+  editHead: EDIT_HEAD,
+  editPrompt: (label: string, ref: string) => `${EDIT_HEAD}\nReply to this message with the corrected text for ${label}. It goes through the same number and fact check; if it passes, it comes back to you to approve.\n\n${ref}`,
   editNoText: 'Send the corrected text as a plain text reply to the Edit message.',
   editTooLong: (max: number) => `That reply is longer than ${n(max)} characters; send a shorter text.`,
   editReceived: 'Correction received. It is being checked; you get the result here.',
   help: 'This bot sends the site’s AI drafts for review (Approve, Edit, Skip) and the weekly digest (Post). It takes no other commands.',
   posted: 'Posted to the channel.',
+  alreadyPosted: 'This week’s digest is already posted to the channel.',
+  postNoRecord: 'The Worker cannot record the post (SNAPSHOTS bucket), so nothing was posted, to avoid posting it twice.',
   notPosted: 'Not posted.',
   postHolding: 'The site is still on the holding page, so nothing is posted to the channel.',
   postNoChannel: 'TELEGRAM_CHANNEL_ID is not set on the Worker, so nothing was posted.',

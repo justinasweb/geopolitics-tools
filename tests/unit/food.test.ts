@@ -4,6 +4,8 @@ import { join } from 'node:path';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { rawDir } from '../../src/adapters/core.ts';
 import { food } from '../../src/adapters/faostat.ts';
+import { FOOD_TEXT } from '../../src/i18n/food.en.ts';
+import { INDICATORS, registry, statusAt } from '../../src/data/indicators.ts';
 import { formatValue } from '../../src/lib/format.ts';
 import { FOOD_LAYER_SLUGS, FOOD_SLUGS } from '../../src/i18n/slugs.en.ts';
 
@@ -76,6 +78,15 @@ describe('FAOSTAT in the CSV format', () => {
     expect(f.crops.wheat.estimated.use.CHN).toBeUndefined();
     expect(f.fertilisers.potash.estimated.production.CAN[2023]).toBe(1);
   });
+
+  it('carries the estimate flags into the indicator registry, so every page and download labels them', () => {
+    const r = registry(rawDir(csvSnapshot()));
+    r.get('wheatprod');
+    expect(r.get('wheatprod').EGY[2023]).toBeGreaterThan(0);
+    expect(statusAt(INDICATORS.wheatprod, 'EGY', 2023)).toBe('estimate');
+    expect(statusAt(INDICATORS.wheatprod, 'CHN', 2023)).toBeUndefined();
+    expect(INDICATORS.wheatprod.estimatedBy?.EGY?.[2023]).toBe(1);
+  });
 });
 
 describe('food views', () => {
@@ -127,5 +138,14 @@ describe('food views', () => {
       }
       for (const d of f.data) for (const e of Object.values(d.v)) expect([-1, 1, 2, 3, 4, 5, 6, 7]).toContain(e[0]);
     }
+  });
+});
+
+describe('food view descriptions', () => {
+  it('say fertiliser use is FAOSTAT’s reported agricultural use and fertiliser flows come from UN Comtrade', () => {
+    expect(FOOD_TEXT.description('use', 'potash fertiliser', 2023, false)).toBe('Agricultural use of potash fertiliser by country in 2023, as reported by FAOSTAT, on a map and in a table.');
+    expect(FOOD_TEXT.description('trade', 'potash fertiliser', 2023, false)).toMatch(/Sources: FAOSTAT for national totals; UN Comtrade for flows between countries\.$/);
+    expect(FOOD_TEXT.description('use', 'wheat', 2023)).toMatch(/worked out from production and trade.*Source: FAOSTAT\.$/);
+    expect(FOOD_TEXT.description('trade', 'wheat', 2023)).toMatch(/Source: FAOSTAT\.$/);
   });
 });

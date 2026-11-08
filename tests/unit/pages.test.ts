@@ -30,6 +30,10 @@ describe('route registry', () => {
     expect(routes.filter((r) => r.kind === 'country' && r.live).length).toBeGreaterThan(50);
     expect(R.live('compare:USA,CHN')?.path).toBe('/compare/united-states-vs-china');
     expect(R.route('compare:USA,CHN')?.aliases).toContain('/compare/china-vs-united-states');
+    // Renamed pages keep their old address as a redirect.
+    expect(R.route('indicator:co2trade')?.aliases).toContain('/indicators/co2-imported-in-goods');
+    expect(R.route('view:emissions:co2trade')?.aliases).toContain('/emissions/imported');
+    expect(R.redirects()).toContain('/emissions/imported /emissions/net-imports 301');
   });
 
   it('fails on two pages with one path, an alias that is a page, or a path that breaks the rules', () => {
@@ -59,7 +63,7 @@ describe('route registry', () => {
 
   it('builds the emissions and refugees views, each family’s first layer at the section’s own address', () => {
     const paths = R.routes().filter((r) => /^view:(emissions|refugees):/.test(r.key)).map((r) => r.path).sort();
-    expect(paths).toEqual(['/emissions', '/emissions/imported', '/emissions/per-person', '/emissions/since-1750',
+    expect(paths).toEqual(['/emissions', '/emissions/net-imports', '/emissions/per-person', '/emissions/since-1750',
       '/refugees', '/refugees/displaced', '/refugees/hosted', '/refugees/per-person']);
     expect(R.viewHref('emissions')).toBe('/emissions');
     expect(R.viewHref('refugees')).toBe('/refugees');
@@ -127,6 +131,16 @@ describe('dependence and sentences', () => {
     expect(formatParts(1.44e12, { kind: 'money' })).toEqual({ num: 'US$1.44', unit: 'trillion' });
     expect(formatParts(1.41e9, { kind: 'count' })).toEqual({ num: '1.41', unit: 'billion' });
     expect(formatParts(0.8, { kind: 'percent', digits: 1 }, '% of GDP')).toEqual({ num: '0.8', unit: '% of GDP' });
+  });
+
+  it('writes two figures on the scale of the larger, for a row that compares them', () => {
+    // Compare: the United States' 342 million beside China's 1.41 billion, both in billions.
+    expect(formatParts(3.42e8, { kind: 'count' }, '', undefined, 1.41e9)).toEqual({ num: '0.34', unit: 'billion' });
+    expect(formatParts(1.41e9, { kind: 'count' }, '', undefined, 1.41e9)).toEqual({ num: '1.41', unit: 'billion' });
+    // Reserves: $3.6 trillion beside $910 billion.
+    expect(formatParts(9.1e11, { kind: 'money' }, '', undefined, 3.6e12)).toEqual({ num: 'US$0.91', unit: 'trillion' });
+    // Without a scale to follow, each figure keeps its own.
+    expect(formatParts(3.42e8, { kind: 'count' })).toEqual({ num: '342', unit: 'million' });
   });
 
   it('has a definition for every indicator, and every answer belongs to one', () => {

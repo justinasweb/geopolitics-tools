@@ -3,9 +3,10 @@
 import { getText } from '../lib/http.ts';
 import { parseCsv } from '../lib/csv.ts';
 import { type Source, DAY, check, guardShrink, text } from '../lib/source.ts';
+import { COLUMNS, missingColumns } from '../../src/adapters/epoch.ts';
 
 /** Each file with the addresses to try, in order (Epoch has moved its downloads before). */
-export const FILES: { name: string; urls: string[]; minRows: number }[] = [
+export const FILES: { name: keyof typeof COLUMNS; urls: string[]; minRows: number }[] = [
   { name: 'notable_ai_models.csv', urls: ['https://epoch.ai/data/notable_ai_models.csv'], minRows: 300 },
   { name: 'gpu_clusters.csv', urls: ['https://epoch.ai/data/gpu_clusters.csv', 'https://epoch.ai/data/ai_supercomputers.csv'], minRows: 100 },
 ];
@@ -30,7 +31,9 @@ const source: Source = {
       check(body, `${f.name}: ${errors.join('; ')}`);
       const rows = parseCsv(body);
       const header = rows[0] ?? [];
-      check(header.some((h) => /country/i.test(h)), `${f.name}: no country column; columns are ${header.slice(0, 30).join(', ')}`);
+      // The columns the adapter reads, by any of their names: a renamed one would read as no data, or zero.
+      const missing = missingColumns(header, COLUMNS[f.name]);
+      check(!missing.length, `${f.name}: no ${missing.join(' or ')} column; columns are ${header.slice(0, 30).join(', ')}`);
       const n = rows.length - 1;
       check(n >= f.minRows, `${f.name}: only ${n} rows`);
       const prev = await ctx.previous(f.name);

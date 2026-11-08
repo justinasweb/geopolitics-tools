@@ -46,7 +46,7 @@ For arms and chips the sources give trade but not use, so we cannot say how much
 
 For food, fuel and fertiliser, the Dependencies tool also shows the main supplier's share of a country's imports, from the trade flows (FAOSTAT for crops, UN Comtrade for oil, gas and fertilisers). Their year can differ from the year of the import share.
 
-A **single point of failure** is a country that imports at least half of what it uses of a resource, with at least half of those imports from one supplier.
+We highlight a country and resource when net imports cover at least half of use and one supplier provides at least half of those imports.
 
 ## Five-year arms totals
 

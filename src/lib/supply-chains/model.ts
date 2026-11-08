@@ -17,6 +17,9 @@ export interface Chain {
   div: number;
   digits: number;
   count?: boolean;
+  /** The flows whose amount is the exporter's report, for the source line ("United States → Mexico as reported by the
+   *  exporter"), when there are any. */
+  mirrored?: string;
   /** The source id, its name for the source line, its short name, and the download. */
   src: string;
   source: string;

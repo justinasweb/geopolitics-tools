@@ -4,7 +4,7 @@
 export interface IndicatorText {
   label: string; short?: string; unit: string; note?: string;
   /** For a share or a rate whose label does not say what it is of: what the figure is per, or a share of, read after
-   *  the label in rankings ("CO2 imported in goods, % of own emissions"). */
+   *  the label in rankings ("Net CO2 imports through trade, % of emissions inside the country"). */
   rate?: string;
 }
 
@@ -56,7 +56,7 @@ export const INDICATOR_TEXT: Record<string, IndicatorText> = {
   co2: { label: 'CO2 emissions', unit: 'Mt' },
   co2pc: { label: 'CO2 per person', rate: 'tonnes', unit: 't' },
   co2cum: { label: 'CO2 emitted since 1750', short: 'CO2 since 1750', unit: 'Mt' },
-  co2trade: { label: 'CO2 imported in goods', rate: '% of own emissions', unit: '% of own', note: 'Emissions caused by what a country buys, against those inside its borders.' },
+  co2trade: { label: 'Net CO2 imports through trade', rate: '% of emissions inside the country', unit: '% of emissions inside the country', note: 'Emissions embodied in imports minus those embodied in exports, as a share of emissions inside the country. Negative means more is exported than imported.' },
   waterstress: { label: 'Water stress', rate: 'score from 0 to 5', unit: 'score 0–5', note: '0 low, 5 extremely high: over 80% of available water withdrawn.' },
   waterdep: { label: 'Water from abroad', rate: '% of renewable water', unit: '% of renewable water' },
   milpct: { label: 'Military spending, share of GDP', short: 'Military, % GDP', unit: '% of GDP' },
@@ -105,7 +105,7 @@ export const NAV_TEXT = {
     internet: ['Internet', 'Users, ICT exports, outages, cyber incidents'],
     ai: ['AI and chips', 'Compute, models, chips'],
     space: ['Space', 'Satellites and launches'],
-    emissions: ['Emissions', 'Total, per person, since 1750, imported'],
+    emissions: ['Emissions', 'Total, per person, since 1750, net imports through trade'],
     water: ['Water and dams', 'Stress today and in 2050'],
     rivers: ['Disputed rivers', 'Nile, Indus, Mekong and more'],
     disasters: ['Disasters', 'Earthquakes, cyclones, floods…'],
@@ -175,6 +175,10 @@ export const STATUS_TEXT = {
   estimate: 'Estimate', projection: 'Projection', preliminary: 'Preliminary', notyet: 'Not yet reported', sample: 'Sample',
   sampleTitle: 'Illustrative figure, not real data',
 };
+
+/** A name or figure in running text with its tag, in the tables' word: "India (estimate)". */
+export const tagged = (text: string, status?: 'estimate' | 'projection' | 'preliminary') =>
+  (status ? `${text} (${STATUS_TEXT[status].toLowerCase()})` : text);
 
 export const SOURCE_TEXT = {
   source: 'Source:', updated: 'Updated', cite: 'Copy citation', withheld: 'Withheld', noData: 'No data',

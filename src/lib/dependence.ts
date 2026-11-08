@@ -4,7 +4,10 @@
 import { food, type Balance, type Crop } from '../adapters/faostat.ts';
 import { gas, oil, type Fuel, type Oil } from '../adapters/eia.ts';
 import { FLOWS, loadFlows, topSupplier, type Flows } from '../data/flows.ts';
+import { OTHER_SUPPLIER } from '../adapters/sipri.ts';
 import { shared } from './data.ts';
+import { place } from './places.ts';
+import { DEP_TEXT, SOURCE_SHORT } from '../i18n/pages.en.ts';
 
 export const RESOURCES = ['oil', 'gas', 'wheat', 'maize', 'rice', 'soy', 'potash', 'phosphate', 'arms', 'chips'] as const;
 export type Resource = (typeof RESOURCES)[number];
@@ -41,6 +44,29 @@ export interface DepRow {
   buyers?: boolean;
   /** Use is zero, so no share. */
   noUse?: boolean;
+  /** Where the partners and the main supplier come from, when it is a trade source with its own period; `mirror`:
+   *  the flows shown whose amount is the exporter's report (mirror data), named ("United States → Mexico"). */
+  partnersFrom?: { source: string; period: string; mirror?: string[] };
+}
+
+/**
+ * The imports a country page names first: the largest by share of use, then the largest fuel (oil, gas) the place
+ * imports most of, when that is another row. Germany: rice (100%), then gas (95%).
+ */
+export function leadImports(deps: DepRow[]): DepRow[] {
+  const most = deps.filter((d) => d.state === 'ok' && d.tag === 'most' && d.reliance !== undefined).sort((a, b) => b.reliance! - a.reliance!);
+  if (!most.length) return [];
+  const fuel = most.find((d) => d.resource === 'oil' || d.resource === 'gas');
+  return fuel && fuel !== most[0] ? [most[0], fuel] : [most[0]];
+}
+
+/** A row's source and year as its line reads: "EIA, use 2024 · UN Comtrade, imports 2025"; null without figures. */
+export function rowSource(r: DepRow): string | null {
+  const short = (s: string) => SOURCE_SHORT[s] ?? s;
+  if (r.year === undefined) return r.period ? DEP_TEXT.dated(short(r.source), r.period) : null;
+  const f = r.partnersFrom;
+  const line = DEP_TEXT.dated(short(r.source), String(r.year), f && short(f.source), f?.period, r.buyers);
+  return f?.mirror?.length ? `${line}, ${DEP_TEXT.asReported(f.mirror)}` : line;
 }
 
 const foodData = shared(food);
@@ -80,9 +106,14 @@ function fromBalance(resource: Resource, b: Balance | undefined, id: string, flo
   if (f) {
     const buyers = row.tag === 'exp';
     row.buyers = buyers;
+    row.partnersFrom = { source: f.source, period: f.period };
     row.partners = f.pairs.filter((p) => (buyers ? p.from === id : p.to === id)).slice(0, 3).map((p) => (buyers ? p.to : p.from));
     const t = !buyers && (row.reliance ?? 0) > 0 ? topSupplier(f, id) : null;
     if (t) row.top = { id: t.from, share: t.share };
+    // The partners shown whose flow is the exporter's report: named in the row's source line.
+    const shown = (p: { from: string; to: string }) => (buyers ? p.from === id && row.partners.includes(p.to) : p.to === id && (row.partners.includes(p.from) || row.top?.id === p.from));
+    const mirror = f.pairs.filter((p) => p.mirror && shown(p)).map((p) => DEP_TEXT.flow(place(p.from)?.name ?? p.from, place(p.to)?.name ?? p.to));
+    if (mirror.length) row.partnersFrom.mirror = mirror;
   }
   return row;
 }
@@ -113,7 +144,10 @@ function concentration(resource: Resource, id: string): DepRow {
   const ins = f.pairs.filter((p) => p.to === id);
   const total = ins.reduce((s, p) => s + p.amount, 0);
   if (!total) return { ...base, state: 'none', period: f.period };
-  return { ...base, state: 'ok', period: f.period, main: { id: ins[0].from, share: ins[0].amount / total }, partners: ins.slice(0, 3).map((p) => p.from) };
+  // Deliveries from suppliers that are not a country count in the total, never as a supplier shown.
+  const named = ins.filter((p) => p.from !== OTHER_SUPPLIER);
+  if (!named.length) return { ...base, state: 'none', period: f.period };
+  return { ...base, state: 'ok', period: f.period, main: { id: named[0].from, share: named[0].amount / total }, partners: named.slice(0, 3).map((p) => p.from) };
 }
 
 /** The tool and the country tables have something to show: the food or the fuel balances are in the snapshot. */

@@ -61,16 +61,18 @@ export function formatPartialDate(d: string, locale = 'en-US'): string {
 /**
  * A value split into the number and the words after it, for key figures that set the unit smaller:
  * { num: 'US$1.44', unit: 'trillion' }, { num: '285', unit: 'million' }, { num: '0.8', unit: '% of GDP' }.
- * `unit` is the indicator's unit text for percentages and plain numbers.
+ * `unit` is the indicator's unit text for percentages and plain numbers. `scaleOf`, for figures shown side by side,
+ * is the value whose size picks the scale (the larger of the row), so both read in billions: "0.34" and "1.41".
  */
-export function formatParts(v: number, f: Format, unit = '', locale = 'en'): { num: string; unit: string } {
+export function formatParts(v: number, f: Format, unit = '', locale = 'en', scaleOf?: number): { num: string; unit: string } {
   const n = (x: number, digits: number) => new Intl.NumberFormat(locale, { maximumFractionDigits: digits, minimumFractionDigits: digits }).format(x);
   const sign = v < 0 ? MINUS : '';
   const a = Math.abs(v);
+  const s = scaleOf === undefined ? a : Math.max(a, Math.abs(scaleOf));
   const scaled = (prefix: string) => {
-    if (a >= 999.5e9) return { num: `${sign}${prefix}${n(a / 1e12, 2)}`, unit: 'trillion' };
-    if (a >= 999.5e6) return { num: `${sign}${prefix}${n(a / 1e9, a < 9.995e9 ? 2 : a < 99.95e9 ? 1 : 0)}`, unit: 'billion' };
-    if (a >= 1e6) return { num: `${sign}${prefix}${n(a / 1e6, a < 9.95e6 ? 1 : 0)}`, unit: 'million' };
+    if (s >= 999.5e9) return { num: `${sign}${prefix}${n(a / 1e12, 2)}`, unit: 'trillion' };
+    if (s >= 999.5e6) return { num: `${sign}${prefix}${n(a / 1e9, a < 9.995e9 ? 2 : a < 99.95e9 ? 1 : 0)}`, unit: 'billion' };
+    if (s >= 1e6) return { num: `${sign}${prefix}${n(a / 1e6, a < 9.95e6 ? 1 : 0)}`, unit: 'million' };
     return { num: `${sign}${prefix}${n(a, 0)}`, unit: '' };
   };
   switch (f.kind) {

@@ -88,6 +88,10 @@ describe('Explorer views', () => {
     const a = tagged.measures[0];
     expect([2020, 2021, 2022, 2023].map((y) => statusOf(a, 'AAA', y))).toEqual([undefined, 'estimate', 'estimate', 'projection']);
     expect(statusOf(a, 'CCC', 2022)).toBeUndefined();
+    // A figure the source flags itself (FAOSTAT's E and I) comes in the measure's own data file.
+    const fao = { ...a, projectedAfter: undefined, own: undefined };
+    expect(statusOf(fao, 'EGY', 2023, { from: 2022, v: { EGY: [1, 2] }, e: { EGY: [2023] } })).toBe('estimate');
+    expect(statusOf(fao, 'EGY', 2022, { from: 2022, v: { EGY: [1, 2] }, e: { EGY: [2023] } })).toBeUndefined();
     const html = tableHtml(parseState('table', new URLSearchParams('m=a&year=2022'), tagged), tagged, data);
     const row = (id: string) => html.slice(html.indexOf(`data-id="${id}"`), html.indexOf('</tr>', html.indexOf(`data-id="${id}"`)));
     expect(row('AAA')).toContain('gt-tag--estimate');
@@ -95,6 +99,20 @@ describe('Explorer views', () => {
     // Over time: Aland's line is dashed after 2020, Carpania's after 2022.
     const lines = linesHtml(parseState('lines', new URLSearchParams('m=a&c=AAA,CCC'), tagged), tagged, data);
     expect((lines.match(/gt-lc__line--proj gt-ser-1/g) ?? []).length).toBeGreaterThan(0);
+  });
+
+  it('dashes a line where the source flags a figure as an estimate (FAOSTAT), as it dashes the WEO’s estimates', () => {
+    // Aland's 2020 figure is flagged: the stretch into it and out of it is dashed, the years around it solid.
+    const fao: Data = { ...data, b: { ...data.b!, e: { AAA: [2020] } } };
+    const html = linesHtml(parseState('lines', new URLSearchParams('m=b&c=AAA,BBB'), meta), meta, fao);
+    const paths = (cls: string) => [...html.matchAll(new RegExp(`<path class="gt-lc__line ${cls}" d="([^"]+)"`, 'g'))].map((x) => x[1]);
+    const dashed = [...html.matchAll(/<path class="gt-lc__line gt-lc__line--proj gt-ser-1" d="([^"]+)"/g)].map((x) => x[1]);
+    // 2018–2019 solid, 2019–2021 dashed (through 2020), 2021–2022 solid.
+    expect(paths('gt-ser-1').map((d) => d.split(/[ML]/).filter(Boolean).length)).toEqual([2, 2]);
+    expect(dashed.map((d) => d.split(/[ML]/).filter(Boolean).length)).toEqual([3]);
+    // Barnland has no flagged year: one solid line.
+    expect(html).not.toContain('gt-lc__line--proj gt-ser-2');
+    expect(paths('gt-ser-2')).toHaveLength(1);
   });
 
   it('leaves measures out of the CSV whose licence does not allow it', () => {

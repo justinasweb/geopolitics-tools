@@ -14,13 +14,13 @@
 //
 // A closed week is frozen on the Monday or Tuesday after it, from the last good copies at that moment, with the week
 // as its period; later revisions by a source never reach it. A week the data run missed on both days is not frozen.
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { rawDir } from '../../src/adapters/core.ts';
 import { computeWeek, CARD_SOURCES, type WeekData } from '../../src/lib/week/model.ts';
 import { addDays, lastClosedWeek, weekRange } from '../../src/lib/week/period.ts';
-import { loadState, readRaw } from './runner.ts';
+import { loadState, unpackSources } from './runner.ts';
 import type { State } from './state.ts';
 import type { Stores } from './store.ts';
 
@@ -69,14 +69,8 @@ export function baselineFor(ledger: Ledger, from: string, to: string): { date: s
 
 /** Writes the given raw copies into a folder laid out as pipeline/pull.ts does (<dir>/<source>/<file>). */
 export async function unpack(stores: Stores, files: Record<string, Record<string, Rec>>, dir: string) {
-  for (const [source, byName] of Object.entries(files)) {
-    for (const [name, rec] of Object.entries(byName)) {
-      const body = await readRaw(stores, rec);
-      if (!body) throw new Error(`${rec.key} is missing from ${stores.raw.name}`);
-      mkdirSync(join(dir, source), { recursive: true });
-      writeFileSync(join(dir, source, name), body);
-    }
-  }
+  mkdirSync(dir, { recursive: true });
+  await unpackSources(stores, files, dir);
 }
 
 /** Freezes one closed week from the state's last good copies. */
