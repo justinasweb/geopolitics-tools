@@ -83,7 +83,7 @@ export const MINERALS_VIEW = {
   sameAs: (prev: number) => `Same as ${prev}`,
   concentration: 'Concentration',
   conc: { low: 'Unconcentrated', moderate: 'Moderately concentrated', high: 'Highly concentrated' } as Record<string, string>,
-  concNote: (hhi: string) => `Herfindahl index ${hhi} on country shares; 1,000 to 1,800 counts as moderately and above 1,800 as highly concentrated (2023 US merger guidelines).`,
+  concNote: (hhi: string) => `Herfindahl index ${hhi} on country shares. A measure of how concentrated production is: the sum of each country’s squared share, from near 0 (spread out) to 10,000 (one country). 1,000 to 1,800 counts as moderately and above 1,800 as highly concentrated (2023 US merger guidelines).`,
   howMeasured: 'How we measure',
   producers: 'Producers, share of world total',
   producersLabel: (mineral: string, year: number) => `Producers by share of world ${mineral} mine production, ${year}`,

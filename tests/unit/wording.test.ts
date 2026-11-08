@@ -79,3 +79,10 @@ describe('place names in sentences', () => {
     expect(DOSSIER_TEXT.peopleFind(inSentence('Netherlands', true), '18 million', 2024)).toBe('The Netherlands had 18 million people in 2024.');
   });
 });
+
+describe('the Herfindahl note on mineral pages', () => {
+  it('says what the index measures, on the 0 to 10,000 scale the site uses', async () => {
+    const { MINERALS_VIEW } = await import('../../src/i18n/map.en.ts');
+    expect(MINERALS_VIEW.concNote('2,500')).toContain('A measure of how concentrated production is: the sum of each country’s squared share, from near 0 (spread out) to 10,000 (one country).');
+  });
+});
