@@ -105,7 +105,7 @@ export const NAV_TEXT = {
     internet: ['Internet', 'Users, ICT exports, outages, cyber incidents'],
     ai: ['AI and chips', 'Compute, models, chips'],
     space: ['Space', 'Satellites and launches'],
-    emissions: ['Emissions', 'Total, per person, since 1750, imported'],
+    emissions: ['Emissions', 'Total, per person, since 1750, net imports through trade'],
     water: ['Water and dams', 'Stress today and in 2050'],
     rivers: ['Disputed rivers', 'Nile, Indus, Mekong and more'],
     disasters: ['Disasters', 'Earthquakes, cyclones, floods…'],
