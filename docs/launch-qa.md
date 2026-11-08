@@ -7,7 +7,7 @@ Results of the launch QA run on 6 November 2026, on the full build (`npm run bui
 | Accessibility | `npm run qa:a11y` | axe (WCAG 2.1 A/AA and best practice) on every page below at 1440 and 390 px, with the search dialog and the correction form open; fails on serious or critical issues |
 | Keyboard and motion | `npm run qa:keyboard` | Tab through the home page, a map view and Atlas (every stop visible, with a focus ring); open each dialog, sheet and menu from the keyboard and close it with Esc, checking focus goes back; with reduced motion, nothing left animating |
 | Speed | `npm run qa:speed` | Lighthouse, mobile preset, on every page below, against the budget |
-| Phone layout | `npm run qa:phone` | Full-page screenshots at 390 and 360 px (`shots/qa-phone/`); flags sideways scroll, text cut off by its box, text boxes under 120 px and overlapping controls |
+| Phone layout | `npm run qa:phone` | Full-page screenshots at 390 and 360 px, and 1440 px for the footer check (`shots/qa-phone/`); flags sideways scroll, text cut off by its box, text boxes under 120 px, overlapping controls, and a page that scrolls more than 50 px past its footer (at all three widths) |
 | Links and sources | `npm run qa:crawl` | Crawls the site from `/`; internal links that answer 404, and any figure, chart, map or table without a source and date line next to it (JavaScript off) |
 
 Pages: one of every template, listed in `tests/qa/pages.mjs`: home, a country profile (Germany), a dossier (China), Compare, a bloc and its history (NATO), Bloc overlap, every map view family, Atlas, the five hubs, an indicator ranking (GDP) and the indicators index, the countries index, a supply chain (gas) and the index, Explorer, Dependencies, This week and an archived week, Sources, Methodology and the 404 page; the correction form and search dialog are tested open.
@@ -157,6 +157,7 @@ no 404; 448 pages, every figure sourced) are clean.
 | 11 | Mineral pages | "Herfindahl index" with thresholds but no explanation | "A measure of how concentrated production is: the sum of each country's squared share, from near 0 (spread out) to 10,000 (one country)." |
 | 12 | Search | "Hormuz" and "Strait of Hormuz" found nothing and offered a spelling hint | While the chokepoints and ports maps are off, search answers "Chokepoints aren't on the site yet." (ports likewise); a live page always wins. Their tiles are already left out of the menu and hubs while off |
 | 13 | Emissions tile | Subtitle still said "imported" | "net imports through trade" |
+| 14 | /dependencies | At 1440 px the page scrolled about 14,000 px of blank space past the footer | The table's scroll box was not positioned, so its 472 screen-reader labels (`.gt-vh`, absolutely placed) were laid out against the page. Every `.gt-tablewrap` is now `position: relative`; `qa:phone` fails a page that scrolls more than 50 px past its footer, at 390, 360 and 1440 px |
 
 ## Open items
 

@@ -1,5 +1,6 @@
-// Launch QA, phone layout: every page of tests/qa/pages.mjs at 390 and 360 px wide, full-page screenshots, and three
-// checks: no sideways scroll, no text cut off by its box, no two controls (links, buttons, inputs) overlapping.
+// Launch QA, phone layout: every page of tests/qa/pages.mjs at 390 and 360 px wide, full-page screenshots, and four
+// checks: no sideways scroll, no text cut off by its box, no two controls (links, buttons, inputs) overlapping, and
+// no page running on past its footer. The last one also runs at 1440 px, where wide tables scroll inside a box.
 // Usage: BASE=http://localhost:8787 node tests/qa/phone.mjs [screenshot dir, default shots/qa-phone] [report.json]
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { chromium } from 'playwright';
@@ -10,13 +11,18 @@ mkdirSync(out, { recursive: true });
 const browser = await chromium.launch();
 const rows = [];
 
-for (const width of [390, 360]) {
-  const ctx = await browser.newContext({ viewport: { width, height: 800 }, isMobile: true, hasTouch: true, deviceScaleFactor: 2 });
+// Scroll height allowed below the site footer's bottom edge: anything more is something placed against the page from
+// inside a box (as the screen-reader text of an unpositioned scrolling table was, 14,000 px on /dependencies).
+const PAST_FOOTER = 50;
+
+for (const width of [390, 360, 1440]) {
+  const phone = width < 600;
+  const ctx = await browser.newContext(phone ? { viewport: { width, height: 800 }, isMobile: true, hasTouch: true, deviceScaleFactor: 2 } : { viewport: { width, height: 900 } });
   for (const p of PAGES) {
     const page = await ctx.newPage();
     await page.goto(BASE + p.path, { waitUntil: 'networkidle' });
     await page.waitForTimeout(400);
-    const found = await page.evaluate(() => {
+    const found = await page.evaluate((PAST_FOOTER) => {
       const vw = document.documentElement.clientWidth;
       // Visually hidden text (.gt-vh, for screen readers) is clipped on purpose and is not counted.
       const visible = (el) => { const r = el.getBoundingClientRect(); const cs = getComputedStyle(el); return r.width > 1 && r.height > 1 && cs.visibility !== 'hidden' && !el.closest('[hidden], dialog:not([open]), [aria-hidden="true"], .gt-vh'); };
@@ -45,11 +51,22 @@ for (const width of [390, 360]) {
         const x = Math.min(a.r.right, b.r.right) - Math.max(a.r.left, b.r.left), y = Math.min(a.r.bottom, b.r.bottom) - Math.max(a.r.top, b.r.top);
         if (x > 4 && y > 4) { overlaps.push(`${label(a.el)} × ${label(b.el)}`); break; }
       }
-      return { wide, sticking, clipped, overlaps, scrollWidth: document.documentElement.scrollWidth, vw };
-    });
+      // Past the footer: the page scrolls on below the site footer, and what lies down there.
+      const foot = document.querySelector('.gt-footer');
+      const footBottom = foot ? Math.round(foot.getBoundingClientRect().bottom + scrollY) : null;
+      const scrollHeight = document.documentElement.scrollHeight;
+      const below = footBottom !== null && scrollHeight > footBottom + PAST_FOOTER
+        ? [...new Set([...document.querySelectorAll('body *')].filter((el) => el.getBoundingClientRect().top + scrollY > footBottom).map((el) => label(el.parentElement ?? el)))].slice(0, 3)
+        : null;
+      return { wide, sticking, clipped, overlaps, scrollWidth: document.documentElement.scrollWidth, vw, scrollHeight, footBottom, below };
+    }, PAST_FOOTER);
+    if (!phone) {
+      // At 1440 only the footer check: the others are phone layout checks.
+      found.wide = false; found.clipped = []; found.overlaps = [];
+    }
     const file = `${out}/${width}-${p.path === '/' ? 'home' : p.path.slice(1).replace(/\//g, '_')}.png`;
     await page.screenshot({ path: file, fullPage: true });
-    const issues = [found.wide && `sideways scroll (${found.scrollWidth} px): ${found.sticking.join('; ')}`, found.clipped.length && `clipped: ${found.clipped.join('; ')}`, found.overlaps.length && `overlap: ${found.overlaps.join('; ')}`].filter(Boolean);
+    const issues = [found.wide && `sideways scroll (${found.scrollWidth} px): ${found.sticking.join('; ')}`, found.clipped.length && `clipped: ${found.clipped.join('; ')}`, found.overlaps.length && `overlap: ${found.overlaps.join('; ')}`, found.below && `runs ${found.scrollHeight - found.footBottom} px past the footer (${found.scrollHeight} px tall, footer ends at ${found.footBottom}): ${found.below.join('; ')}`].filter(Boolean);
     rows.push({ name: p.name, path: p.path, width, issues, file });
     console.log(`${issues.length ? 'FAIL' : 'ok  '} ${width} ${p.name}${issues.length ? `\n     ${issues.join('\n     ')}` : ''}`);
     await page.close();
