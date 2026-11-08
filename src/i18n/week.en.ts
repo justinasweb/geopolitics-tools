@@ -104,7 +104,10 @@ export const WEEK_TEXT = {
     sanctions: (d: string) => `None of the three lists has changed since ${d}, so no entries were added or removed in this period.`,
   } as Record<string, (d: string, m: string) => string>,
   noBaseline: 'No earlier copy to compare yet',
+  noBaselinePast: 'No earlier copy to compare',
   noBaselineText: (d: string) => `Entries added and removed are counted against the lists as they stood on ${d}, the first day of the period. There is no copy from that day yet; one is kept every day from now on.`,
+  /** An archived week, frozen as it was: what was missing, in the past, with no promise. */
+  noBaselineTextPast: (d: string) => `Entries added and removed are counted against the lists as they stood on ${d}, the first day of the week. When the week closed, no copy from that day was kept, so none were counted.`,
 
   source: {
     disaster: 'GDACS',
@@ -144,6 +147,7 @@ export const WEEK_TEXT = {
   alertsNone: (span: string) => `GDACS issued no new orange or red alerts ${span}.`,
   alertsRule: (span: string) => `Counted: alerts that began, or rose to orange or red, ${span}.`,
   alertsRuleNew: (span: string) => `Counted: alerts that began ${span}. Earlier alerts that rose to orange or red are counted once a copy of GDACS’s alerts from the period’s first day is kept (one is kept every day from now on).`,
+  alertsRuleNewPast: (span: string) => `Counted: alerts that began ${span}. Earlier alerts that rose to orange or red were not counted: no copy of GDACS’s alerts from the week’s first day was kept.`,
   activeTitle: 'Still active',
   activeNote: (span: string) => `Began before ${span === 'this week' ? 'this week' : 'these 7 days'} and still active (GDACS lists them as current); not counted above.`,
   activeMore: (x: number) => `And ${s(x, 'more', 'more')} on the disasters map.`,

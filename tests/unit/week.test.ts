@@ -251,6 +251,20 @@ describe('This week pages name one range everywhere', () => {
     });
     return weekPageFor(w, week ?? null);
   };
+  it('an archived week without the earlier copies says so in the past, promising nothing; the live page says what comes', async () => {
+    const { weekPageFor } = await import('../../src/lib/week.ts');
+    const made = '2026-11-03';
+    const page = (week?: string) => {
+      const p = week ? weekRange(week) : rollingWeek(made);
+      const src = { fetched: `${made}T06:00:00Z`, changed: `${made}T06:00:00Z` };
+      return weekPageFor(computeWeek({ raw: memRaw(weekFiles(made)), period: p, made: `${made}T06:00:00Z`, week, feedFrom: week ? p.from : undefined, sources: { gdacs: src, ioda: src, csl: src }, baseline: null }), week ?? null);
+    };
+    const words = (m: ReturnType<typeof page>) => JSON.stringify(m.cards);
+    expect(words(page('2026-44'))).not.toMatch(/from now on|compare yet/);
+    expect(words(page('2026-44'))).toMatch(/no copy from that day was kept/);
+    expect(words(page())).toMatch(/one is kept every day from now on/);
+  });
+
   const check = (m: Awaited<ReturnType<typeof pageFor>>, long: string, short: string, id?: string) => {
     expect(m.title).toBe(id ? `Week ${Number(id.slice(5))}: ${long}` : `Last 7 days: ${long}`);
     expect(m.rangeText).toBe(long);
