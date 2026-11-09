@@ -1,8 +1,8 @@
 // Fails the build if dist/ breaks a Cloudflare Workers static-assets limit (free plan: 20,000 files,
 // 25 MiB per file), is missing a file the deploy relies on, or a page outside /dev/ carries a Sample tag
 // (illustrative figures must never reach a live page), or a page in the sitemap has an empty or duplicate title or
-// description, or more than one <h1>. Warns on a title over 65 characters or a description outside 70–170. Prints a
-// size summary.
+// description, or more than one <h1>. Warns on a title over 65 characters or a description outside 70–170, and on
+// indexed pages with fewer than 3 links in from other indexed pages. Prints a size summary.
 import { readdirSync, statSync, existsSync, appendFileSync, readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 
@@ -36,11 +36,16 @@ for (const r of REQUIRED) if (!existsSync(join(dir, r))) errors.push(`missing ${
 // Titles, descriptions and headings of the pages search engines are told about.
 const TITLE_MAX = 65; // as src/lib/site.ts; measured on the final <title>, suffix included when it has one
 const DESC_RANGE = [70, 170];
+const LINKS_IN_MIN = 3; // distinct other indexed pages linking in
 const decode = (s) => s.replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(Number(n))).replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCodePoint(parseInt(n, 16)))
   .replace(/&quot;/g, '"').replace(/&#39;|&apos;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').trim();
 const warnings = [];
 if (existsSync(join(dir, 'sitemap.xml'))) {
-  const locs = [...readFileSync(join(dir, 'sitemap.xml'), 'utf8').matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => new URL(m[1]).pathname);
+  const urls = [...readFileSync(join(dir, 'sitemap.xml'), 'utf8').matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => new URL(m[1]));
+  const locs = urls.map((u) => u.pathname);
+  const origin = urls[0]?.origin;
+  const indexed = new Set(locs);
+  const linksIn = new Map(locs.map((p) => [p, new Set()]));
   const seen = { title: new Map(), description: new Map() };
   const long = [];
   const odd = [];
@@ -60,10 +65,20 @@ if (existsSync(join(dir, 'sitemap.xml'))) {
       if (seen[k].has(v)) errors.push(`${path} has the same ${k} as ${seen[k].get(v)}: "${v}"`);
       else seen[k].set(v, path);
     }
+    // Every same-site link on the page, as a path without its query, hash or trailing slash.
+    for (const m of html.matchAll(/<a\s[^>]*?href="([^"]+)"/g)) {
+      let to;
+      try { to = new URL(decode(m[1]), `${origin}${path}`); } catch { continue; }
+      if (to.origin !== origin) continue;
+      const target = to.pathname.length > 1 ? to.pathname.replace(/\/$/, '') : to.pathname;
+      if (target !== path && indexed.has(target)) linksIn.get(target).add(path);
+    }
     if (title.length > TITLE_MAX) long.push(`  ${path} (${title.length}): ${title}`);
     if (desc && (desc.length < DESC_RANGE[0] || desc.length > DESC_RANGE[1])) odd.push(`  ${path} (${desc.length}): ${desc}`);
   }
   if (long.length) warnings.push(`${long.length} titles over ${TITLE_MAX} characters:\n${long.join('\n')}`);
+  const few = locs.filter((p) => linksIn.get(p).size < LINKS_IN_MIN).map((p) => `  ${p} (${linksIn.get(p).size})`);
+  if (few.length) warnings.push(`${few.length} indexed pages with fewer than ${LINKS_IN_MIN} links in from other indexed pages:\n${few.join('\n')}`);
   if (odd.length) warnings.push(`${odd.length} descriptions outside ${DESC_RANGE[0]}–${DESC_RANGE[1]} characters:\n${odd.join('\n')}`);
 }
 for (const w of warnings) console.warn(`check-dist: warning: ${w}`);

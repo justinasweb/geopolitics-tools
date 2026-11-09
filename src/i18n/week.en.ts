@@ -68,9 +68,9 @@ export const WEEK_TEXT = {
   titleLead: 'Last 7 days:',
   /** What the counts cover, inside sentences: the live page's seven days, or an archived week. */
   span: { live: 'in the last 7 days', week: 'this week' },
-  /** The live page's link to the archive: the latest closed week. */
+  /** The live page's links to the archive: the last few closed weeks. */
   previousWeeks: 'Previous weeks:',
-  weekLink: (x: number) => `week ${x}`,
+  weekLink: (x: number, r: string) => `Week ${x}, ${r}`,
   archiveLead: (week: number) => `Week ${week}:`,
   archiveTitle: (week: number, r: string) => `Week ${week}: ${r}`,
   lede: 'Disasters, conflict, prices, internet outages and sanctions, from the latest data each source has published.',

@@ -112,8 +112,9 @@ export const BLOCS_TEXT = {
   itsBlocs: 'Its groupings',
   weightLabel: 'Its share of the grouping',
   weightCaption: 'Of the members’ combined total',
-  history: 'Membership history',
-  historyNote: (bloc: string) => `Who joined and left ${bloc}, year by year`,
+  /** The link to the grouping's alliance history: named for what it shows, for readers and search engines. */
+  historyLink: (bloc: string) => `${bloc} membership year by year`,
+  historyNote: 'Who joined and left, and when',
   // The tables.
   summary: 'Summary',
   members: 'Members',
@@ -135,6 +136,7 @@ export const BLOCS_TEXT = {
   shareOfBloc: 'Share of the grouping',
   ofWorld: 'Share of the world',
   related: 'Related',
+  others: 'Other groupings',
   countryPage: 'Country page',
   allLink: 'All groupings on one map',
   sameView: 'Another grouping',
@@ -260,4 +262,5 @@ export const HISTORY_TEXT = {
   blocLine: (other: string, k: number, n: number, bloc: string, y: number) => (k ? `${k} of ${todaysMembers(other, { count: n })} were in ${bloc} in ${y}.` : `None of ${todaysMembers(other)} were in ${bloc} in ${y}.`),
   today: 'Members today',
   history: 'Membership history',
+  others: 'Other alliance histories',
 };

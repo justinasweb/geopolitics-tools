@@ -269,10 +269,14 @@ export interface WeekPageModel {
   cards: CardView[];
   feed: FeedView[];
   feedKinds: string[];
-  /** prev: an archived week's previous week; latest: the live page's link to the latest closed week, once one exists. */
-  nav: { prev?: { href: string; label: string; range: string }; latest?: { href: string; label: string }; options: { value: string; label: string; selected: boolean }[] };
+  /** prev: an archived week's previous week; recent: the live page's links to the last closed weeks (up to
+   *  RECENT_WEEKS), once one exists. */
+  nav: { prev?: { href: string; label: string; range: string }; recent: { href: string; label: string }[]; options: { value: string; label: string; selected: boolean }[] };
   summary: (Summary & { week: number; range: string }) | null;
 }
+
+/** How many closed weeks the live page links to by name. */
+const RECENT_WEEKS = 4;
 
 /** The page for the live week (no id) or an archived one. */
 export function weekPage(id?: string): WeekPageModel | null {
@@ -289,7 +293,7 @@ export function weekPageFor(w: WeekData, weekOf: string | null): WeekPageModel {
   const n = alertCount(w);
   const counts = n === null ? [] : [{ num: String(n), label: W.counts.disaster(n), source: `GDACS · ${range(p.from, p.to)}` }];
   const archive = [...archivedWeeks().keys()];
-  // An archived week links to the one before it; the live page to the latest closed week.
+  // An archived week links to the one before it; the live page to the last few closed weeks.
   const prevId = weekOf ? archive.find((k) => k < weekOf) : undefined;
   const latestId = weekOf ? undefined : archive[0];
   const opt = (k: string) => {
@@ -317,7 +321,7 @@ export function weekPageFor(w: WeekData, weekOf: string | null): WeekPageModel {
     feedKinds: [...new Set(feed.map((f) => f.kind))].sort((a, b) => CARD_ORDER.indexOf(a as never) - CARD_ORDER.indexOf(b as never)),
     nav: {
       prev: prevId ? { href: paths.week(prevId), label: W.week(weekNumber(prevId)), range: range(weekRange(prevId).from, weekRange(prevId).to, { year: false }) } : undefined,
-      latest: latestId ? { href: paths.week(latestId), label: W.weekLink(weekNumber(latestId)) } : undefined,
+      recent: weekOf ? [] : archive.slice(0, RECENT_WEEKS).map((k) => ({ href: paths.week(k), label: W.weekLink(weekNumber(k), range(weekRange(k).from, weekRange(k).to, { year: false })) })),
       options: options.length > 1 ? options : [],
     },
     summary: s && summaryId ? { ...s, week: weekNumber(summaryId), range: range(weekRange(summaryId).from, weekRange(summaryId).to, { long: true }) } : null,

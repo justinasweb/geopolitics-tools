@@ -50,8 +50,9 @@ const names = (ids: string[]) => list(ids.map(nameOf));
 const source = `${H.source}, ${formatDate(BLOCS_CHECKED)}`;
 const related = [
   ...(live(`view:blocs:${id}`) ? [{ href: live(`view:blocs:${id}`)!.path, name, note: H.today }] : []),
-  ...picker.filter((o) => !o.current).slice(0, 3).map((o) => ({ href: o.href, name: o.label, note: H.history })),
 ];
+// Every other grouping's history by name (the picker above the map is a select, not links).
+const others = picker.filter((o) => !o.current).map((o) => ({ href: o.href, name: H.title(o.label) }));
 ---
 <Page title={title} description={H.description(name, first)} hub="power" container="mv" image={route(key(id))!.image}
   jsonld={[breadcrumbs(crumbs.map((c) => ({ label: c.label, href: c.href })))]}>
@@ -155,7 +156,11 @@ const related = [
     </div>
     <aside class="gt-mvbelow__side">
       <h2 class="gt-label">{BLOCS_TEXT.related}</h2>
-      <ul class="gt-related">{related.map((r) => <li><a href={r.href}><span>{r.name}</span><small>{r.note}</small></a></li>)}</ul>
+      {related.length > 0 && <ul class="gt-related">{related.map((r) => <li><a href={r.href}><span>{r.name}</span><small>{r.note}</small></a></li>)}</ul>}
+      {others.length > 0 && <>
+        <h2 class="gt-label">{H.others}</h2>
+        <ul class="gt-related">{others.map((o) => <li><a href={o.href}><span>{o.name}</span></a></li>)}</ul>
+      </>}
       <div class="gt-mvbelow__share"><ShareRow url={url} text={answer ?? title} /></div>
     </aside>
   </section>

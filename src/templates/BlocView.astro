@@ -66,11 +66,13 @@ const picker = ['all', ...BLOC_ORDER].filter((b) => live(key(b))).map((b) => ({ 
 const notes = all ? [] : Object.entries(MEMBER_NOTES[id] ?? {}).map(([x, text]) => ({ id: x, text }));
 const noteNo = (x: string) => notes.findIndex((n) => n.id === x) + 1;
 const related = [
-  ...(all || !live(`view:alliance-history:${id}`) ? [] : [{ href: live(`view:alliance-history:${id}`)!.path, name: B.history, note: B.historyNote(name) }]),
+  ...(all || !live(`view:alliance-history:${id}`) ? [] : [{ href: live(`view:alliance-history:${id}`)!.path, name: B.historyLink(name), note: B.historyNote }]),
   ...(all ? [] : [{ href: route(key('all'))!.path, name: B.allTitle, note: B.allLink }]),
   ...(all ? [] : p!.byPopulation.slice(0, 3)).filter((x) => countryHref(x)).map((x) => ({ href: countryHref(x)!, name: nameOf(x), note: B.countryPage })),
-  ...(all ? blocPages().slice(0, 4) : p!.overlaps.slice(0, 2).map((o) => blocPage(o.id)!)).filter((b) => live(key(b.id))).map((b) => ({ href: live(key(b.id))!.path, name: BLOC_TEXT[b.id] ?? b.id, note: B.sameView })),
+  ...(all ? blocPages().slice(0, 4).filter((b) => live(key(b.id))).map((b) => ({ href: live(key(b.id))!.path, name: BLOC_TEXT[b.id] ?? b.id, note: B.sameView })) : []),
 ];
+// A grouping's page links every other grouping by name (the picker above the map is a select, not links).
+const others = all ? [] : picker.filter((o) => !o.current && o.href !== route(key('all'))!.path);
 const mapLabel = all ? B.allMapLabel(counts.slice(0, 3).map((c) => `${nameOf(c.id)} ${B.memberOf(c.n)}`).join(', ')) : B.mapLabel(name, p!.byPopulation.map(nameOf).join(', '));
 const shareBars = (ss: BlocShare[]) => ss.map((s) => ({ label: label(s), text: shareText(s.share), w: Math.min(100, s.share * 100), note: `${s.year}${s.have < s.of ? `, ${B.have(id, s.have, s.of).toLowerCase()}` : ''}`, estimated: Boolean(s.estimated) }));
 ---
@@ -243,6 +245,10 @@ const shareBars = (ss: BlocShare[]) => ss.map((s) => ({ label: label(s), text: s
     <aside class="gt-mvbelow__side">
       <h2 class="gt-label">{B.related}</h2>
       <ul class="gt-related">{related.map((r) => <li><a href={r.href}><span>{r.name}</span><small>{r.note}</small></a></li>)}</ul>
+      {others.length > 0 && <>
+        <h2 class="gt-label">{B.others}</h2>
+        <ul class="gt-related">{others.map((o) => <li><a href={o.href}><span>{o.label}</span></a></li>)}</ul>
+      </>}
       <div class="gt-mvbelow__share"><ShareRow url={url} text={answer ?? name} /></div>
     </aside>
   </section>

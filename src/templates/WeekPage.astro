@@ -45,7 +45,7 @@ const method = live('page:methodology')?.path;
         : <><span>{W.updatedDaily}</span><span class="gt-source__sep" aria-hidden="true">·</span><span>{W.lastUpdate(day(made, { year: true }), made.slice(11, 16))}</span></>}
     </p>
     <ShareRow url={url} text={m.shareText} />
-    <WeekNav id={m.id ? `wk-pick-${m.id}` : 'wk-pick'} prev={m.nav.prev} latest={m.nav.latest} options={m.nav.options} />
+    <WeekNav id={m.id ? `wk-pick-${m.id}` : 'wk-pick'} prev={m.nav.prev} recent={m.nav.recent} options={m.nav.options} />
   </div>
   {m.summary && <WeekSummary id="wk-sum" text={m.summary.text} week={m.summary.week} range={m.summary.range} approved={day(m.summary.approved, { year: true })} method={method} />}
   {m.id && <Notice><p>{W.frozenNote}</p></Notice>}

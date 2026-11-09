@@ -16,7 +16,9 @@ one data snapshot, through one route registry. Nothing on these pages is written
 4. `scripts/check-dist.mjs` checks the result: Cloudflare's limits, the required files, and no Sample tag on any page. For
    every page in `sitemap.xml` it fails on an empty or duplicate `<title>` or meta description, or more than one `<h1>`,
    and warns (listing the pages) on a title over 65 characters (the final `<title>`: `fullTitle` in `src/lib/site.ts` adds
-   " | geopolitics.tools" only when the whole stays within 65) or a description outside 70–170. Descriptions aim for 160
+   " | geopolitics.tools" only when the whole stays within 65) or a description outside 70–170. It also warns on indexed
+   pages with fewer than 3 links in from other indexed pages (distinct pages, any `<a>` on them, header and footer
+   included), to show pages that need more internal links. Descriptions aim for 160
    at most: country pages fit whole sentences with `fitSentences` (`src/lib/format.ts`), starting with the page's
    strongest figure (`lead` in `src/lib/country.ts`).
 
@@ -35,7 +37,7 @@ CI uses the sample build only for pull requests from forks, which get no Cloudfl
 | `live` | Built and linked. Map views (the critical minerals views from phase 4 on), hubs and tools are registered but not live until their phase, so the menu and every link skip them |
 | `indexed` | In the sitemap and without `noindex` |
 | `aliases` | Old or alternative addresses, answered with a 301 (`/countries/usa`, `/compare/china-vs-united-states`) |
-| `image`, `lastmod` | Share image, and when the page's data last changed (sitemap) |
+| `image`, `lastmod` | Share image, and when the page's data last changed (sitemap). About, Methodology and Privacy take the `updated` date in their Markdown front matter: change it with the text. Sources takes the snapshot date |
 
 The build fails when two routes claim one path, an alias is also a page, a key is used twice, or a path is not a
 clean lowercase path without a trailing slash. Slugs live in `src/i18n/slugs.en.ts`; another language is another
