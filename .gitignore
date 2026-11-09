@@ -8,3 +8,4 @@ dist/
 data/raw/
 shots/
 .ai-pr-body.md
+.DS_Store
