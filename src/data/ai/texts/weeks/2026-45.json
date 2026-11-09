@@ -1,0 +1,28 @@
+{
+  "id": "week:2026-45",
+  "author": "ai",
+  "text": "GDACS issued 0 new orange or red disaster alerts this week. In the World Bank's Pink Sheet, natural gas in Europe averaged $28.5 per MMBtu in October 2026, up 12.1% on September 2026 and up 161.7% on October 2025. US hard red winter wheat averaged $317 per tonne in October 2026, down 8.6% on September 2026. Copper averaged $14,508 per tonne in October 2026, up 0.2% on September 2026. Gold averaged $4,105 per troy oz in October 2026, down 5% on September 2026. IODA recorded 0 national-scale internet outages that began this week. On the United States SDN list and Entity List, 79 entries were added and 0 removed this week. Added entries most often give an address or nationality in Cambodia, India and Canada. The UK Sanctions List and the EU Financial sanctions file had 0 entries added or removed this week.",
+  "model": "claude-sonnet-5-5",
+  "factsHash": "sha256:5a5b4d2f779674ff679e2aed4bb17af1",
+  "usedFacts": [
+    "alerts",
+    "outages",
+    "price-copper",
+    "price-copper-month",
+    "price-gold",
+    "price-gold-month",
+    "price-ngas-eur",
+    "price-ngas-eur-month",
+    "price-ngas-eur-year",
+    "price-wheat-us-hrw",
+    "price-wheat-us-hrw-month",
+    "sanctions-places",
+    "sanctions-uk-none",
+    "sanctions-us-added",
+    "sanctions-us-removed"
+  ],
+  "drafted": "2026-11-09",
+  "approved": false,
+  "approvedOn": null,
+  "approvedVia": null
+}
