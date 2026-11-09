@@ -3,7 +3,8 @@
 // the data; these are the page's own words. Nothing is called popular: there is no traffic data to rank by.
 
 export const HOME_TEXT = {
-  title: 'geopolitics.tools',
+  /** The <title> (Base adds " | geopolitics.tools") and og:title; og:site_name and the WebSite JSON-LD keep the site name. */
+  title: 'Who depends on whom, for what',
   description: 'Who depends on whom, for what: maps and data on resources, trade, security and alliances, each figure with its source and date.',
   headline: 'Who depends on whom, for what.',
   lede: 'Maps and data on resources, trade, security and alliances.',

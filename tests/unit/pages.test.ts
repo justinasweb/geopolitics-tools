@@ -197,4 +197,10 @@ describe('the <title>', () => {
     expect(fullTitle('x'.repeat(45))).toHaveLength(65);
     expect(fullTitle('x'.repeat(46))).toBe('x'.repeat(46));
   });
+
+  it('gives the home page its own title, with the site name after it', async () => {
+    const { fullTitle } = await import('../../src/lib/site.ts');
+    const { HOME_TEXT } = await import('../../src/i18n/home.en.ts');
+    expect(fullTitle(HOME_TEXT.title)).toBe('Who depends on whom, for what | geopolitics.tools');
+  });
 });
