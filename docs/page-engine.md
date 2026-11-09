@@ -34,7 +34,7 @@ CI uses the sample build only for pull requests from forks, which get no Cloudfl
 | --- | --- |
 | `key` | Stable internal id: `country:DEU`, `indicator:milpct`, `compare:USA,CHN`, `page:about`. Slugs can change; keys do not |
 | `path` | The address in each language (English only at launch, at the root) |
-| `live` | Built and linked. Map views (the critical minerals views from phase 4 on), hubs and tools are registered but not live until their phase, so the menu and every link skip them |
+| `live` | Built and linked. Map views (the critical minerals views from phase 4 on), hubs and tools are registered but not live until their phase, so the menu and every link skip them. Views that failed the launch gate review stay hidden through `GATE_HIDDEN` in `src/lib/routes.ts` ([gate-review.md](gate-review.md)); take a key out of it once the view passes |
 | `indexed` | In the sitemap and without `noindex` |
 | `aliases` | Old or alternative addresses, answered with a 301 (`/countries/usa`, `/compare/china-vs-united-states`) |
 | `image`, `lastmod` | Share image, and when the page's data last changed (sitemap). About, Methodology and Privacy take the `updated` date in their Markdown front matter: change it with the text. Sources takes the snapshot date |

@@ -162,4 +162,6 @@ no 404; 448 pages, every figure sourced) are clean.
 ## Open items
 
 - **Second-language test (decision D13)** was not run this time.
-- **US → Mexico pipeline gas** is missing from the gas flows: Mexico's reported quantity is not in kg, and the Comtrade files hold importers' reports only, so there is no other figure to show. US exports to Mexico are about 70 bcm a year.
+- ~~**US → Mexico pipeline gas** is missing from the gas flows~~: resolved. The flow now uses the exporter's own
+  report (Comtrade mirror files), and /supply-chains/gas says "United States → Mexico … as reported by the exporter"
+  (checked in the gate review, 9 Nov 2026).

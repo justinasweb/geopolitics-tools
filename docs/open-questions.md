@@ -43,6 +43,17 @@ and share images. A history that began under another name says so (`BEGAN_AS` in
 Confirmed by the owner on 3 Nov 2026: the EU's G7 participation **since 1977**, and calling the 1975 summit "a summit
 of six countries" rather than a named "G6". `tests/unit/bloc-members.test.ts` holds the wording.
 
+### Failing sources still shown outside their views (raised 9 Nov 2026)
+
+**The question.** The gate review ([gate-review.md](gate-review.md)) hid the views whose source states no licence
+(GDACS, IODA, CelesTrak, WRI Aqueduct, AidData). The same sources' figures are still on This week (disasters and
+outages cards), the homepage, country pages, Explorer and four indicator pages.
+
+**What the site does now.** Shows them there, with source lines; only the views are hidden.
+
+**Options.** Take each source off every page until its licence is cleared, or ask the publishers first and decide
+per source once the answers are in.
+
 ### Map canvas: dark band on narrow maps (raised 28 Oct 2026)
 
 **The question.** On a narrow desktop map (the Atlas at 1024px, where the map column is about 420px wide) the MapLibre

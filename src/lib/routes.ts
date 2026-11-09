@@ -108,6 +108,21 @@ export const paths = {
 /** The Compare pairs: every pair of dossier countries, in a fixed order (United States, China, Russia). */
 export const COMPARE_PAIRS: [string, string][] = DOSSIERS.flatMap((a, i) => DOSSIERS.slice(i + 1).map((b): [string, string] => [a, b]));
 
+/**
+ * Views that failed the launch gate review (docs/gate-review.md, which says what each needs to pass): hidden until
+ * they pass. A key ending in ":" hides the whole family.
+ */
+export const GATE_HIDDEN = [
+  'view:disasters:', // GDACS states no reuse licence
+  'view:internet:outages', // IODA states no reuse licence
+  'view:space:', // CelesTrak states no reuse licence
+  'view:water:waterstress', 'view:water:waterstress2050', // WRI Aqueduct states no licence
+  'view:rivers:', // shows Aqueduct's water stress; Dnipro's facts unverified
+  'view:chinese-lending:', // AidData states no licence
+  'view:nuclear:sharing', // three rows cite index pages, not the statements
+];
+export const gateHidden = (key: string) => GATE_HIDDEN.some((k) => (k.endsWith(':') ? key.startsWith(k) : key === k));
+
 /** The long-read pages written in Markdown (src/content/pages/<id>.md). */
 export const STATIC_PAGES = ['about', 'methodology', 'privacy'] as const;
 
@@ -242,6 +257,9 @@ function build(): Route[] {
     });
   }
 
+  // Views that failed the launch gate review stay registered but hidden, so nothing links to them.
+  for (const r of out) if (gateHidden(r.key)) { r.live = false; r.indexed = false; }
+
   // Explorer (phase 6): the table is the tool's own key (tool:explorer, the menu's link), the other views after it.
   const tools = new Set<string>();
   if (explorerMeasures().length >= 2) {
@@ -310,7 +328,7 @@ function build(): Route[] {
   // Topic hubs (phase 6): the parent page of their map views. Then what is not built yet (phases 5–8), registered so
   // links, the menu and redirects know about it.
   for (const hub of NAV_HUBS) {
-    const on = HUBS_BUILT.includes(hub.id) && hub.views.some((v) => families.has(v.id));
+    const on = HUBS_BUILT.includes(hub.id) && hub.views.some((v) => out.some((r) => r.live && r.key.startsWith(`view:${v.id}:`)));
     out.push({
       key: `hub:${hub.id}`, kind: 'hub', lang, path: hub.path, live: on, indexed: on, aliases: [], id: hub.id,
       ...(on ? { image: paths.image('hubs', hub.id), lastmod: snapshotDate } : {}),
