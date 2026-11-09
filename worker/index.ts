@@ -18,6 +18,10 @@ export interface Env extends WatchEnv, CorrectionEnv, TelegramEnv {
 const SITE_HOSTS = new Set(['geopolitics.tools', 'www.geopolitics.tools']);
 const HOLDING_FILES = new Set(['/', '/robots.txt', '/favicon.svg', '/og.png']);
 
+// Only the production domain is ever indexable. Every other host (workers.dev, Previews, www) sends noindex on every
+// response, even when the build has SITE_INDEXABLE=true.
+const INDEXABLE_HOST = 'geopolitics.tools';
+
 // Pages whose every state is in the query string (/atlas?layer=…&country=IND): the page itself is indexed, its states
 // are not (site map, "Atlas states"; 10-seo-plan.md). A static page cannot tell its query, so the Worker says it.
 // The canonical in the HTML is already the path alone.
@@ -40,12 +44,11 @@ export default {
     if (pathname === '/api/telegram') return telegramWebhook(request, env);
     if (pathname.startsWith('/api/')) return json({ ok: false, error: 'not found' }, 404);
     const res = await env.ASSETS.fetch(request);
-    if (search && STATE_PAGES.has(pathname) && res.ok) {
-      const out = new Response(res.body, res);
-      out.headers.set('X-Robots-Tag', 'noindex, follow');
-      return out;
-    }
-    return res;
+    const robots = hostname !== INDEXABLE_HOST ? 'noindex' : search && STATE_PAGES.has(pathname) && res.ok ? 'noindex, follow' : null;
+    if (!robots) return res;
+    const out = new Response(res.body, res);
+    out.headers.set('X-Robots-Tag', robots);
+    return out;
   },
   async scheduled(_controller, env, ctx): Promise<void> {
     const now = new Date();

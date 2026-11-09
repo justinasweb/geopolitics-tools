@@ -9,6 +9,10 @@ import { chromium } from 'playwright';
 const base = (process.env.BASE || 'http://localhost:8787').replace(/\/$/, '');
 const out = process.argv[2] ?? 'shots';
 const expectIndexable = process.env.SITE_INDEXABLE === 'true';
+// Only the production domain is ever indexable: the Worker sends X-Robots-Tag: noindex on every other host
+// (workers.dev, Previews, local), whatever SITE_INDEXABLE says. The HTML tag and robots.txt follow the build.
+const host = new URL(base).hostname;
+const headerIndexable = expectIndexable && host === 'geopolitics.tools';
 const headers = process.env.CF_ACCESS_CLIENT_ID
   ? { 'CF-Access-Client-Id': process.env.CF_ACCESS_CLIENT_ID, 'CF-Access-Client-Secret': process.env.CF_ACCESS_CLIENT_SECRET ?? '' }
   : {};
@@ -79,9 +83,9 @@ check([400, 429].includes(corr.status) && ['required', 'rate_limited'].includes(
 const favicon = await get('/favicon.svg');
 check(favicon.status === 200, `favicon loads (got ${favicon.status})`);
 check(home.headers.get('x-content-type-options') === 'nosniff', 'security headers from _headers are applied');
-for (const [path, res] of [['/', home], ['/robots.txt', robots], ['/favicon.svg', favicon]]) {
+for (const [path, res] of [['/', home], ['/robots.txt', robots], ['/favicon.svg', favicon], ['/countries/united-states', await get('/countries/united-states')]]) {
   const tag = /noindex/.test(res.headers.get('x-robots-tag') ?? '');
-  check(tag !== expectIndexable, `${path} ${expectIndexable ? 'has no' : 'sends an'} X-Robots-Tag: noindex header`);
+  check(tag !== headerIndexable, `${path} ${headerIndexable ? 'has no' : 'sends an'} X-Robots-Tag: noindex header${host.endsWith('.workers.dev') ? ` (${host} is never indexable)` : ''}`);
 }
 
 mkdirSync(out, { recursive: true });
