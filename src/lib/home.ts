@@ -8,8 +8,8 @@ import { HUB_TEXT as H } from '../i18n/hubs.en.ts';
 import { SUMMARY } from '../i18n/pages.en.ts';
 import { treasuryHolders } from '../adapters/treasury.ts';
 import { INDICATORS } from '../data/indicators.ts';
-import { DOSSIERS, countryModel } from './country.ts';
-import { data, shared } from './data.ts';
+import { countryModel } from './country.ts';
+import { creditName, data, shared } from './data.ts';
 import { dependencies } from './dependence.ts';
 import { explorerMeasures } from './explorer.ts';
 import { formatDate, formatValue } from './format.ts';
@@ -55,6 +55,8 @@ export interface QCard {
   measure: string;
   /** Ranked bars, the widths against the largest. */
   bars?: { name: string; value: string; width: number }[];
+  /** A sentence under the bars stating the lead figure and its period. */
+  lead?: string;
   /** A dependence bar: the main supplier's share of imports, and the net imports' share of use. */
   dep?: { num: string; lead: string; segments: { cls: 'a' | 'c'; width: number; label: string }[]; note: string; label: string };
   source: string;
@@ -64,6 +66,7 @@ export interface QCard {
 
 const ticData = shared(treasuryHolders);
 const pct = (s: number) => `${Math.round(s * 100)}%`;
+const monthLong = (ym: string) => new Intl.DateTimeFormat('en', { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${ym}-01T00:00:00Z`));
 const month = (ym: string) => new Intl.DateTimeFormat('en', { month: 'short', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${ym}-01T00:00:00Z`));
 
 function rareEarths(): QCard | null {
@@ -79,17 +82,19 @@ function rareEarths(): QCard | null {
   };
 }
 
-/** The largest holders in TIC Table 5's latest month, linked to the dossier of the first dossier country among them. */
+/** The largest holders in TIC Table 5's latest month, linked to the money section of the largest one's country page,
+ *  with its holding and the month in words. */
 function treasuries(): QCard | null {
   const t = ticData();
   if (!t?.months.length) return null;
   const top = t.holders.filter((h) => h.place && h.values[0] !== null).sort((a, b) => b.values[0]! - a.values[0]!).slice(0, 3);
-  const doss = top.find((h) => DOSSIERS.includes(h.place!));
-  const href = doss && countryHref(doss.place!);
-  if (top.length < 3 || !doss || !href) return null;
+  const href = top[0] && countryHref(top[0].place!);
+  if (top.length < 3 || !href) return null;
   const max = top[0].values[0]!;
+  const largest = nameOf(top[0].place!);
   return {
-    q: T.treasuries.q, href: `${href}#money`, go: T.treasuries.go(nameOf(doss.place!)), measure: T.treasuries.measure,
+    q: T.treasuries.q, href: `${href}#money`, go: T.treasuries.go(largest), measure: T.treasuries.measure,
+    lead: T.treasuries.lead(largest, T.treasuries.value(new Intl.NumberFormat('en').format(Math.round(max))), monthLong(t.months[0])),
     bars: top.map((h) => ({ name: nameOf(h.place!), value: T.treasuries.value(new Intl.NumberFormat('en').format(Math.round(h.values[0]!))), width: (h.values[0]! / max) * 100 })),
     source: T.treasuries.source, parts: [T.treasuries.month(month(t.months[0]))],
   };
@@ -163,21 +168,29 @@ export const questions = (): (Link & { to: string })[] => QUESTIONS.flatMap((q) 
 
 // ---- Countries and rankings --------------------------------------------------------------------------------------
 
+export interface Card extends Link {
+  /** The first sentence of its page's template summary. */
+  what: string;
+  /** Whether that sentence has a USGS year that is an estimate. */
+  estimated: boolean;
+}
+
 export interface Places {
-  /** Each with the first sentence of its page's template summary, and whether that sentence's USGS year is an estimate. */
-  dossiers: (Link & { id: string; fact: string | null; estimated: boolean })[];
-  /** The largest economies after the dossiers, by GDP in the common year: a stated rule, not popularity. */
-  profiles: { year: number; links: Link[] } | null;
+  /** The largest economies by GDP in the common year (a stated rule, not popularity): three cards, then the next
+   *  six as links, under one line naming the rule, its year and its source. */
+  gdp: { year: number; source: string; cards: Card[]; links: Link[] } | null;
+  /** /countries' Compare section, when a Compare page is live. */
+  compareHref: string | null;
   rankings: (Link & { top: string })[];
 }
 
 const RANKINGS = ['milusd', 'co2pc', 'refin'];
 
-/** A dossier card's fact: the first sentence of the country page's template summary (src/lib/country.ts), with its
+/** A country card's fact: the first sentence of the country page's template summary (src/lib/country.ts), with its
  *  source and year in it. With mineral shares that sentence is always the USGS one, for the lead mineral's year, so
  *  its Estimate tag follows that mineral, as on the minerals pages; none when the sentence already says so in words
  *  ("(USGS, 2025, estimated)"). */
-export function dossierFact(id: string): { fact: string | null; estimated: boolean } {
+export function countryFact(id: string): { fact: string | null; estimated: boolean } {
   const m = countryModel(id);
   const fact = m?.summary[0] ?? null;
   const top = m?.minerals.slice(0, 3) ?? [];
@@ -187,9 +200,14 @@ export function dossierFact(id: string): { fact: string | null; estimated: boole
 }
 
 export function places(): Places {
-  const dossiers = DOSSIERS.flatMap((id) => { const href = countryHref(id); return href ? [{ id, label: nameOf(id), href, ...dossierFact(id) }] : []; });
   const gdp = indicatorModel('gdp');
-  const links = gdp ? gdp.common.filter((r) => !DOSSIERS.includes(r.id)).flatMap((r) => { const href = countryHref(r.id); return href ? [{ label: nameOf(r.id), href }] : []; }).slice(0, 6) : [];
+  const byGdp = gdp ? gdp.common.flatMap((r) => { const href = countryHref(r.id); return href ? [{ id: r.id, label: nameOf(r.id), href }] : []; }) : [];
+  const cards: Card[] = byGdp.slice(0, 3).map((c) => {
+    const f = countryFact(c.id);
+    return { label: c.label, href: c.href, what: f.fact ?? T.countryWhat, estimated: f.estimated };
+  });
+  const links = byGdp.slice(3, 9).map(({ label, href }) => ({ label, href }));
+  const compareHref = routes().some((r) => r.kind === 'compare' && r.live) ? `${paths.countries()}#compare` : null;
   const rankings = RANKINGS.flatMap((id) => {
     const r = live(`indicator:${id}`);
     const m = r ? indicatorModel(id) : null;
@@ -197,17 +215,17 @@ export function places(): Places {
     const t = INDICATOR_TEXT[id];
     return [{ label: H.ranking(t.label, t.rate), href: r.path, top: H.inYear(m.year, topLine(m.common, (v) => formatValue(v, INDICATORS[id].format), (x) => tagOf(m, x.id, x.year))) }];
   });
-  return { dossiers, profiles: gdp && links.length ? { year: gdp.year, links } : null, rankings };
+  return { gdp: gdp && cards.length ? { year: gdp.year, source: creditName(INDICATORS.gdp.source as string), cards, links } : null, compareHref, rankings };
 }
 
 // ---- Countries -------------------------------------------------------------------------------------------------
 
-/** The Countries section's finder: every country and territory page, the dossiers and territories marked. Site search
+/** The Countries section's finder: every country and territory page, the territories marked. Site search
  *  (the hero's box) finds everything else. */
 export function countryOptions(): { name: string; note?: string; href: string }[] {
   return routes().filter((r) => r.live && r.kind === 'country').map((r) => {
     const p = place(r.id)!;
-    const note = DOSSIERS.includes(r.id) ? T.kind.dossier : p.kind === 'territory' ? T.kind.territory : undefined;
+    const note = p.kind === 'territory' ? T.kind.territory : undefined;
     return { name: p.name, ...(note ? { note } : {}), href: r.path };
   });
 }

@@ -1,6 +1,7 @@
 // Everything a country page shows, worked out once per place from the registry and the adapters: key figures
 // with world rank, the dependencies table, minerals it mines a large share of, the short blocks, the template
-// summary, and the sources it used. Profiles and dossiers share it; dossiers add their own sections on top.
+// summary, and the sources it used. Every country page uses it; src/lib/dossier.ts adds money, people, technology and
+// climate.
 import { aggregate, sanctions as loadSanctions, type PlaceListings } from '../adapters/sanctions.ts';
 import { lending as loadLending } from '../adapters/aiddata.ts';
 import { minerals as loadMinerals, type Mineral } from '../adapters/minerals.ts';
@@ -17,7 +18,8 @@ import { PLACES, place, type Place } from './places.ts';
 import { defaultYear, figureFor, ranked } from './stats.ts';
 import { notReported } from '../data/not-reported.ts';
 
-/** The full dossiers (spec: United States, Russia, China); every other place with data gets a profile. */
+/** The three countries behind Compare and the AI-drafted summaries (United States, China, Russia). Every place with data
+ *  gets the same country page (spec D20). */
 export const DOSSIERS = ['USA', 'CHN', 'RUS'];
 
 /** Key figures, in order, with the measure that replaces one when the place has no value for it. */
@@ -133,6 +135,7 @@ export interface SourceUse { source: string; feeds: string[] }
 
 export interface CountryModel {
   place: Place;
+  /** One of DOSSIERS: an AI-drafted summary and Compare links. */
   dossier: boolean;
   figures: Figure[];
   /** Every registry measure with a recent value for this place (the profile rule counts these). */

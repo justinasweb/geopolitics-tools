@@ -88,9 +88,8 @@ export const DEP_TEXT = {
 
 export const COUNTRY_TEXT = {
   countries: 'Countries',
-  kindProfile: 'Country profile',
-  kindTerritory: 'Territory profile',
-  kindDossier: 'Country dossier',
+  kindCountry: 'Country page',
+  kindTerritory: 'Territory',
   updated: (d: string) => `Updated ${d}`,
   auto: 'Written automatically from the figures on this page.',
   facts: { population: 'Population', administered: 'Administered by', status: 'Status' },
@@ -388,8 +387,7 @@ export const NOT_FOUND = {
 };
 
 export const OG_TEXT = {
-  countryKicker: 'Country profile',
-  dossierKicker: 'Country dossier',
+  countryKicker: 'Country page',
   indicatorKicker: 'Indicator',
   compareKicker: 'Compare',
   pageKicker: 'geopolitics.tools',
@@ -428,9 +426,8 @@ export const COUNTRIES_INDEX = {
   title: 'Countries',
   lede: (n: number, t: number) => `${n} country and territory pages${t ? `, ${t} of them territories` : ''}, each built from the figures our sources publish for it.`,
   description: 'Every country and territory on geopolitics.tools: key figures with world rank, dependencies, minerals, sanctions and more, with sources.',
-  dossiers: 'Full dossiers',
-  dossiersLede: 'The three countries with full dossiers: money, people, technology and climate as well as the profile.',
   compare: 'Compare',
+  compareLede: 'Side by side: the United States, China and Russia.',
   az: 'All countries and territories',
   find: 'Find a country',
   territory: 'Territory',

@@ -26,7 +26,6 @@ import { refreshed } from '../lib/data';
 import { place } from '../lib/places';
 import { countryHref, indicatorHref, live, route, hubCrumb } from '../lib/routes';
 import { layerPath } from '../lib/map/layers';
-import { DOSSIERS } from '../lib/country';
 import { breadcrumbs } from '../lib/structured';
 import { shareExact, shareText } from '../lib/minerals';
 import { formatDate } from '../lib/format';
@@ -80,7 +79,7 @@ const related = [
   ...fuelPages(p.fuel).filter((o) => o.id !== p.id && live(energyKey(o))).map((o) => ({ href: live(energyKey(o))!.path, name: E.layer[o.layer].title(T.pick), note: E.sameFuel })),
   ...(otherFuel && live(energyKey(otherFuel)) ? [{ href: live(energyKey(otherFuel))!.path, name: E.layer[p.layer].title(otherFuel.text.pick), note: E.otherFuel }] : []),
   ...(indicatorId && indicatorHref(indicatorId) ? [{ href: indicatorHref(indicatorId)!, name: INDICATOR_TEXT[indicatorId]?.label ?? title, note: E.indicatorPage }] : []),
-  ...top.filter((r) => countryHref(r.id)).map((r) => ({ href: countryHref(r.id)!, name: nameOf(r.id), note: DOSSIERS.includes(r.id) ? E.dossier : E.countryPage })),
+  ...top.filter((r) => countryHref(r.id)).map((r) => ({ href: countryHref(r.id)!, name: nameOf(r.id), note: E.countryPage })),
 ];
 const mapTop = top.map((r) => `${nameOf(r.id)} ${trade ? valueText(p, r.value) : shareOf(r.value, y.world)}`).join(', ');
 const bars = (rs: EnergyRow[], max: number) => rs.map((r) => ({ id: r.id, text: amountShort(p.fuel, p.layer, Math.abs(r.value)), w: max ? (100 * Math.abs(r.value)) / max : 0 }));

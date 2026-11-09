@@ -62,7 +62,6 @@ export const CONFLICT_TEXT = {
   totalCol: 'Total',
   related: 'Related',
   countryPage: 'Country page',
-  dossier: 'Full dossier',
   indicator: 'Deaths by country and year',
   refugees: 'Refugees and displaced people',
   blocLine: (bloc: string, v: string, month: string) => `${todaysMembers(bloc, { start: true })}: ${v} deaths in the 12 months to ${month}.`,

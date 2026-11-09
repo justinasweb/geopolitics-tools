@@ -62,11 +62,10 @@ const columns = [
   { key: 'c', label: 'Country' }, { key: 't', label: 'Tonnes, 2025', num: true }, { key: 's', label: 'Share', num: true }, { key: 'st', label: 'Status' },
 ];
 const countries = [
-  ['Argentina', 'Profile'], ['Australia', 'Profile'], ['Brazil', 'Profile'], ['Canada', 'Profile'], ['Chile', 'Profile'],
-  ['China', 'Full dossier'], ['Germany', 'Profile'], ['India', 'Profile'], ['Indonesia', 'Profile'], ['Japan', 'Profile'],
-  ['Mali', 'Profile'], ['Portugal', 'Profile'], ['Russia', 'Full dossier'], ['South Africa', 'Profile'],
-  ['United Kingdom', 'Profile'], ['United States', 'Full dossier'], ['Zimbabwe', 'Profile'],
-].map(([name, note]) => ({ name, note }));
+  ['Argentina'], ['Australia'], ['Brazil'], ['Canada'], ['Chile'], ['China'], ['Gibraltar', 'Territory'], ['Germany'],
+  ['India'], ['Indonesia'], ['Japan'], ['Mali'], ['Portugal'], ['Russia'], ['South Africa'], ['United Kingdom'],
+  ['United States'], ['Zimbabwe'],
+].map(([name, note]) => ({ name, ...(note ? { note } : {}) }));
 const minerals = ['Lithium', 'Cobalt', 'Rare earths', 'Gallium', 'Graphite', 'Nickel', 'Palladium', 'Tungsten'].map((m) => ({ value: m.toLowerCase(), label: m }));
 const layers = [
   { value: 'production', label: 'Mine production' }, { value: 'reserves', label: 'Reserves' },

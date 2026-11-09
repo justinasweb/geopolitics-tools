@@ -207,6 +207,11 @@ its tool entry on a hub has no links under it. Topic presets would give it some.
 
 ## Decided
 
+- **Country pages for every country, follow-ups.** Decided 9 Nov 2026: the homepage shows the three largest economies'
+  country pages by GDP, then the next six, under "Largest economies by GDP, {year} · World Bank", and links to
+  /countries#compare. CO2 stays in Mt everywhere, with two significant figures below 1 Mt ("0.011 Mt"); only the
+  Climate section's sentence writes tonnes. The US Treasuries question links to the largest holder in TIC's latest
+  month (Japan in Aug 2026) and states its holding and month.
 - **Submarine cables.** Decided 5 Nov 2026: dropped (TeleGeography asked USD 25,000 a year; no open source of routes
   and landings fits); `/internet` keeps waiting and outages stay live.
 - **Sources waiting on replies.** Decided 5 Nov 2026: no follow-ups; IPC, PeeringDB and PortWatch are treated as no

@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { dossierFor, peopleSection } from '../../src/lib/dossier.ts';
 
-// The People section (every country page has it; the sample files only cover the dossiers) on the sample files: the age pyramid's five-year steps and the year it opens on.
+// A country page's money, people, technology and climate sections (every country page has them, spec D20) on the
+// sample files, which only cover the United States, China and Russia: the age pyramid's five-year steps and the year it
+// opens on, and no section for a place no source covers.
 process.env.GT_DATA = 'sample';
 
-describe('Dossier people', () => {
+describe('Country page sections', () => {
   it('gives the pyramid every fifth year and opens on the last one up to the build year', () => {
     const p = dossierFor('CHN', 2026).people!;
     expect(p.pyramid!.years[0]).toBe(1950);
@@ -19,7 +21,13 @@ describe('Dossier people', () => {
     expect(dossierFor('CHN', 2026).people!.stats.map((f) => f.id)).toEqual(['tfr', 'median']);
   });
 
-  it('builds the same section for any country page, not only dossiers', () => {
+  it('builds the same People section on its own', () => {
     expect(peopleSection('CHN', 2026)).toEqual(dossierFor('CHN', 2026).people);
+  });
+
+  it('builds the sections for any place, and leaves out each one with no figure', () => {
+    const chn = dossierFor('CHN', 2026);
+    expect(chn.money && chn.tech && chn.climate).toBeTruthy();
+    expect(dossierFor('TUV', 2026)).toEqual({ money: null, people: null, tech: null, climate: null });
   });
 });

@@ -2,8 +2,8 @@
 // Shared by every script in tests/qa/.
 export const PAGES = [
   { name: 'Home', path: '/' },
-  { name: 'Country profile', path: '/countries/germany' },
-  { name: 'Dossier', path: '/countries/china' },
+  { name: 'Country page', path: '/countries/germany' },
+  { name: 'Country page, AI summary', path: '/countries/china' },
   { name: 'Compare', path: '/compare/united-states-vs-china' },
   { name: 'Bloc', path: '/blocs/nato' },
   { name: 'Bloc history', path: '/blocs/nato/history' },

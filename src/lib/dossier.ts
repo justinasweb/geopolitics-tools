@@ -1,6 +1,6 @@
-// The extra sections of the three dossiers (United States, China, Russia), on top of the profile: money and
-// reserves, people, technology and space, sanctions and lending, climate and hazards. Each part is left out when
-// its source has no figure, so a dossier never shows an empty chart.
+// A country page's money, people, technology and climate sections (spec D16, D20): every country page has them,
+// from the figures already in the snapshot. Each part is left out when its source has no figure, so a page never
+// shows an empty chart.
 import { demography, ageShares, type AgeGroup } from '../adapters/wpp.ts';
 import { treasuryHolders } from '../adapters/treasury.ts';
 import { ai } from '../adapters/epoch.ts';
@@ -82,7 +82,7 @@ export interface Dossier {
 
 const pick = (ids: string[], placeId: string) => ids.map((i) => figure(i, placeId)).filter((f): f is Figure => f !== null);
 
-/** The People section: every country page has it, profiles and dossiers alike. */
+/** The People section on its own (the AI facts and tests use it). */
 export function peopleSection(id: string, buildYear: number): (People & { stats: Figure[] }) | null {
   const people = peopleFor(id, buildYear);
   const stats = pick(['tfr', 'median'], id);

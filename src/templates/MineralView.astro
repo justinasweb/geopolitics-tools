@@ -21,7 +21,6 @@ import { amount, concentration, lede, listed, mineralPage, mineralPages, nameOf,
 import { refreshed, data } from '../lib/data';
 import { countryHref, paths, live, hubCrumb } from '../lib/routes';
 import { layerPath } from '../lib/map/layers';
-import { DOSSIERS } from '../lib/country';
 import { breadcrumbs } from '../lib/structured';
 
 interface Props { id: string }
@@ -61,7 +60,7 @@ const rows = y.producers.map((x) => {
   return { x, q, ch, marks };
 });
 const related = [
-  ...listed(y).slice(0, 3).filter((x) => x.place && countryHref(x.place)).map((x) => ({ href: countryHref(x.place!)!, name: nameOf(x), note: DOSSIERS.includes(x.place!) ? T.dossier : T.countryPage })),
+  ...listed(y).slice(0, 3).filter((x) => x.place && countryHref(x.place)).map((x) => ({ href: countryHref(x.place!)!, name: nameOf(x), note: T.countryPage })),
   ...all.filter((m) => m.id !== p.id && live(`view:minerals:${m.id}`)).slice(0, 2).map((m) => ({ href: paths.mineral(m.id), name: m.title, note: T.sameView })),
 ];
 const mapTop = listed(y).slice(0, 3).map((x) => `${nameOf(x)} ${shareText(x.share!)}`).join(', ');

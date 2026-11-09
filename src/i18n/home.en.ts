@@ -11,7 +11,7 @@ export const HOME_TEXT = {
   search: 'Search a country, commodity or measure',
   try: 'Try',
   /** What a country in the finder is, after its name. */
-  kind: { dossier: 'Full dossier', territory: 'Territory' } as Record<string, string>,
+  kind: { territory: 'Territory' } as Record<string, string>,
 
   questions: 'Or start with a question',
   rareEarths: {
@@ -24,8 +24,9 @@ export const HOME_TEXT = {
     measure: 'US Treasury securities, by where they are held',
     source: 'US Treasury, TIC',
     month: (m: string) => `end of ${m}`,
-    go: (country: string) => `Open the ${country} dossier`,
+    go: (country: string) => `Open the ${country} country page`,
     value: (bn: string) => `$${bn}bn`,
+    lead: (country: string, value: string, month: string) => `${country} held the most: ${value} at the end of ${month}.`,
   },
   gas: {
     q: (country: string, supplier: string) => `What share of ${country}’s gas imports comes from ${supplier}?`,
@@ -59,11 +60,14 @@ export const HOME_TEXT = {
   countries: 'Countries and rankings',
   findCountry: 'Go to a country',
   findPlaceholder: 'Find a country',
-  dossier: 'Full dossier',
-  /** A dossier card's line when its page has no summary sentence. */
-  dossierWhat: 'The profile, plus money, technology and climate',
-  /** The stated rule for the other profiles listed. */
-  profiles: (year: number) => `Largest economies after these three, by GDP in ${year}:`,
+  /** The stated rule for the country cards and links, with its year and source. */
+  byGdp: (year: number, source: string) => `Largest economies by GDP, ${year} · ${source}`,
+  countryPage: 'Country page',
+  /** A country card's line when its page has no summary sentence. */
+  countryWhat: 'Key figures, money, people, technology and climate',
+  /** Before the next six. */
+  next: 'Next:',
+  compare: 'Compare the United States, China and Russia',
   allCountries: 'See all countries',
   rankings: 'Rankings',
   allRankings: 'See all rankings',

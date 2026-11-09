@@ -136,7 +136,6 @@ export const BLOCS_TEXT = {
   ofWorld: 'Share of the world',
   related: 'Related',
   countryPage: 'Country page',
-  dossier: 'Full dossier',
   allLink: 'All groupings on one map',
   sameView: 'Another grouping',
   notes: 'Notes',

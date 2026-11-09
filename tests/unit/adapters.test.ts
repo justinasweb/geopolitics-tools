@@ -237,5 +237,11 @@ describe('indicator registry and flows', () => {
     expect(formatValue(1234.5, { kind: 'number', unit: 'kb/d' })).toBe('1,235 kb/d');
     expect(formatValue(1234.5, { kind: 'number', unit: 'Mt', digits: 1 }, 'de')).toBe('1.234,5 Mt');
     expect(formatValue(null, { kind: 'count' })).toBe('–');
+    // CO2 in Mt: a small emitter keeps two significant figures, not "0 Mt".
+    const mt = { kind: 'number', unit: 'Mt', digits: 0, small: true } as const;
+    expect(formatValue(0.011, mt)).toBe('0.011 Mt');
+    expect(formatValue(0.297, mt)).toBe('0.30 Mt');
+    expect(formatValue(6.96, mt)).toBe('7 Mt');
+    expect(formatValue(0, mt)).toBe('0 Mt');
   });
 });

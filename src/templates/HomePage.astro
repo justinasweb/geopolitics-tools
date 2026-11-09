@@ -70,6 +70,7 @@ const method = live('page:methodology')?.path;
                   {c.bars.map((b) => <li><span class="gt-qbars__name">{b.name}</span><span class="gt-qbars__track"><span style={`width:${b.width.toFixed(1)}%`}></span></span><span class="gt-qbars__val">{b.value}</span></li>)}
                 </ol>
               )}
+              {c.lead && <p class="gt-qcard__lead">{c.lead}</p>}
               {c.dep && (
                 <div class="gt-dep">
                   <div class="gt-dep__bar" role="img" aria-label={c.dep.label}>{c.dep.segments.map((s) => <span class={`gt-dep__${s.cls}`} style={`width:${s.width.toFixed(1)}%`}></span>)}</div>
@@ -130,12 +131,16 @@ const method = live('page:methodology')?.path;
     <div class="gt-cr">
       <div class="gt-cr__c">
         <CountrySearch id="home-cs" label={T.findCountry} placeholder={T.findPlaceholder} options={countryOptions()} />
-        {pl.dossiers.length > 0 && (
-          <ul class="gt-dossiers">
-            {pl.dossiers.map((d) => <li><a class="gt-doss" href={d.href}><span class="gt-label">{T.dossier}</span><span class="gt-doss__name">{d.label}</span><span class="gt-doss__what">{d.fact ?? T.dossierWhat}{d.fact && d.estimated && <> <StatusTag status="estimate" small /></>}</span></a></li>)}
-          </ul>
+        {pl.gdp && (
+          <>
+            <p class="gt-caption gt-cr__rule">{T.byGdp(pl.gdp.year, pl.gdp.source)}</p>
+            <ul class="gt-crcards">
+              {pl.gdp.cards.map((c) => <li><a class="gt-crcard" href={c.href}><span class="gt-label">{T.countryPage}</span><span class="gt-crcard__name">{c.label}</span><span class="gt-crcard__what">{c.what}{c.estimated && <> <StatusTag status="estimate" small /></>}</span></a></li>)}
+            </ul>
+            {pl.gdp.links.length > 0 && <p class="gt-cr__pop"><span>{T.next}</span> {pl.gdp.links.map((l, i) => <Fragment>{i > 0 ? ', ' : ''}<a href={l.href}>{l.label}</a></Fragment>)}</p>}
+          </>
         )}
-        {pl.profiles && <p class="gt-cr__pop"><span>{T.profiles(pl.profiles.year)}</span> {pl.profiles.links.map((l, i) => <Fragment>{i > 0 ? ', ' : ''}<a href={l.href}>{l.label}</a></Fragment>)}</p>}
+        {pl.compareHref && <a class="gt-sechead__link" href={pl.compareHref}>{T.compare} <span aria-hidden="true">→</span></a>}
         <a class="gt-sechead__link" href={paths.countries()}>{T.allCountries} <span aria-hidden="true">→</span></a>
       </div>
       {pl.rankings.length > 0 && (

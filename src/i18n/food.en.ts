@@ -159,7 +159,6 @@ export const FOOD_TEXT = {
   sameCommodity: 'Same commodity, another measure',
   sameMeasure: 'Same measure, another commodity',
   countryPage: 'Country page',
-  dossier: 'Full dossier',
   indicatorPage: 'Ranked table and trend',
   notes: 'Notes',
   estNote: 'e: FAOSTAT’s own estimate or imputation.',

@@ -113,7 +113,6 @@ export const DISASTERS_TEXT = {
   related: 'Related',
   sameView: 'Same view, another kind',
   countryPage: 'Country page',
-  dossier: 'Full dossier',
   // Tooltips on marks.
   tipAlert: (name: string, level: string, dates: string, where: string, severity: string) => [name, level, dates, where, severity].filter(Boolean).join(' · '),
   tipQuake: (title: string, date: string, depth: string, pager: string) => [title, date, depth, pager].filter(Boolean).join(' · '),

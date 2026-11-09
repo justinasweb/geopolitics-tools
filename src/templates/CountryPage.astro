@@ -1,8 +1,9 @@
 ---
 // A country page (IndonesiaProfile, ThinProfile and ChinaDossier designs): header with the template summary and a
-// locator map, key figures with world rank, a numbered menu, then one section per thing a source reports. The
-// three dossiers add money, technology and climate sections; every page has People. A place few sources cover gets the "few
-// sources" box and is not indexed. Nothing is shown for a section with no data.
+// locator map, key figures with world rank, a numbered menu, then one section per thing a source reports: money,
+// people, technology and climate among them (spec D16, D20). The three countries in DOSSIERS add an AI-drafted summary
+// and Compare links. A place few sources cover gets the "few sources" box and is not indexed. Nothing is shown for a
+// section with no data.
 import Page from '../layouts/Page.astro';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
 import StaticMap from '../components/StaticMap.astro';
@@ -22,7 +23,7 @@ import Icon from '../components/Icon.astro';
 import AiText from '../components/AiText.astro';
 import '../styles/atlas/country.css';
 import '../styles/atlas/bars.css';
-import { INDICATORS, statusAt } from '../data/indicators';
+import { INDICATORS, statusAt, type Format } from '../data/indicators';
 import { INDICATOR_TEXT, SOURCE_TEXT } from '../i18n/en';
 import { NOT_REPORTED_TEXT } from '../i18n/views.en';
 import {
@@ -30,7 +31,7 @@ import {
 } from '../i18n/pages.en';
 import { countryModel, countrySources, DOSSIERS, MINERAL_SHARE, type Figure } from '../lib/country';
 import { leadImports } from '../lib/dependence';
-import { dossierFor, peopleSection } from '../lib/dossier';
+import { dossierFor } from '../lib/dossier';
 import { creditName, data, sourceName } from '../lib/data';
 import { formatDate, formatParts, formatShare, formatValue } from '../lib/format';
 import { notesFor, place } from '../lib/places';
@@ -48,16 +49,18 @@ const p = m.place;
 const name = p.name;
 const subject = inSentence(name, true);
 const url = new URL(paths.country(p.id), Astro.site).href;
-const kind = m.dossier ? COUNTRY_TEXT.kindDossier : p.kind === 'territory' ? COUNTRY_TEXT.kindTerritory : COUNTRY_TEXT.kindProfile;
+const kind = p.kind === 'territory' ? COUNTRY_TEXT.kindTerritory : COUNTRY_TEXT.kindCountry;
 const updated = formatDate(m.updated);
-// A dossier's summary drafted with AI from its figures, once the owner approved it and while those figures are
-// unchanged (src/lib/ai/texts.ts); until then, and on every other profile, the template summary.
+// The summary drafted with AI from its figures (the three in DOSSIERS only), once the owner approved it and while those
+// figures are unchanged (src/lib/ai/texts.ts); until then, and on every other page, the template summary.
 const aiSummary = m.dossier ? publishedText(`dossier:${p.id}`) : null;
 
 const label = (id: string) => INDICATOR_TEXT[id].short ?? INDICATOR_TEXT[id].label;
 const parts = (f: Figure) => formatParts(f.value, INDICATORS[f.id].format, INDICATOR_TEXT[f.id].unit);
 // A figure's tag: a projection, or an estimate after the country's own last actual year (WEO).
 const tagOf = (f: Figure) => statusAt(INDICATORS[f.id], p.id, f.year);
+// Climate's sentence writes CO2 in tonnes below one million ("Tuvalu emitted 11,000 t"); figures stay in Mt.
+const MT: Format = { kind: 'mt' };
 const short = (s: string) => creditName(s);
 const statCaption = (f: Figure, rank = true) => [String(f.year), rank && f.of > 1 ? `${ordinal(f.rank)} of ${f.of}` : '', short(f.source)].filter(Boolean).join(' · ');
 const nameOf = (id: string) => place(id)?.name ?? id;
@@ -82,11 +85,14 @@ const blocks = m.blocks;
 const disasterParts = blocks.disasters ? Object.entries(blocks.disasters.byKind).sort((a, b) => b[1] - a[1]).map(([k, n]) => `${n} ${(BLOCK_TEXT.kinds[k] ?? [k, k])[n === 1 ? 0 : 1]}`) : [];
 // Refugees hosted shown as not reported from a year on (src/data/not-reported.ts), as on the hosted maps.
 const nrHosted = blocks.refugees?.hostedUnreported;
-const hasBlocks = Boolean(blocks.refugees || blocks.disasters || blocks.emissions || blocks.sanctions || blocks.lending || blocks.nuclear || blocks.cyber);
 
 const buildYear = Number(data().snapshot.created.slice(0, 4));
-const d = m.dossier ? dossierFor(p.id, buildYear) : null;
-const people = d ? d.people : peopleSection(p.id, buildYear);
+const d = dossierFor(p.id, buildYear);
+const people = d.people;
+const co2Stat = d.climate?.stats.find((f) => f.id === 'co2');
+// CO2 per person sits in Climate when that section shows it, so More figures leaves it out.
+const emissions = d.climate?.stats.some((f) => f.id === 'co2pc') ? undefined : blocks.emissions;
+const hasBlocks = Boolean(blocks.refugees || blocks.disasters || emissions || blocks.sanctions || blocks.lending || blocks.nuclear || blocks.cyber);
 const pop = m.allFigures.find((f) => f.id === 'population');
 // The age pyramid: one drawing per five-year step on one shared scale, so moving the slider shows the shape change.
 const pyr = people?.pyramid ?? null;
@@ -99,10 +105,10 @@ const nDeps = add('deps', COUNTRY_TEXT.depsMenu, okDeps.length);
 // A mineral's map view, opened with this country selected.
 const mineralView = (id?: string) => (id && live(`view:minerals:${id}`) ? `${live(`view:minerals:${id}`)!.path}?country=${p.slug}` : undefined);
 const nMin = add('minerals', COUNTRY_TEXT.mineralsMenu, m.minerals.length);
-const nMoney = add('money', DOSSIER_TEXT.moneyMenu, d?.money);
+const nMoney = add('money', DOSSIER_TEXT.moneyMenu, d.money);
 const nPeople = add('people', DOSSIER_TEXT.peopleMenu, people);
-const nTech = add('tech', DOSSIER_TEXT.techMenu, d?.tech);
-const nClimate = add('climate', DOSSIER_TEXT.climateMenu, d?.climate);
+const nTech = add('tech', DOSSIER_TEXT.techMenu, d.tech);
+const nClimate = add('climate', DOSSIER_TEXT.climateMenu, d.climate);
 const nMore = add('more', COUNTRY_TEXT.moreMenu, hasBlocks);
 const nAll = add('all', COUNTRY_TEXT.allMenu, m.allFigures.length);
 
@@ -204,7 +210,7 @@ const citation = COUNTRY_TEXT.citation(name, kind, url, Number(m.updated.slice(0
           </CpSection>
         )}
 
-        {d?.money && (
+        {d.money && (
           <CpSection n={nMoney} id="money" heading={DOSSIER_TEXT.money}
             find={m.figures.find((f) => f.id === 'gdp') ? DOSSIER_TEXT.moneyFind(subject, formatValue(m.figures.find((f) => f.id === 'gdp')!.value, INDICATORS.gdp.format), m.figures.find((f) => f.id === 'gdp')!.year) : undefined}>
             <div class="gt-cpgrid">
@@ -274,7 +280,7 @@ const citation = COUNTRY_TEXT.citation(name, kind, url, Number(m.updated.slice(0
           </CpSection>
         )}
 
-        {d?.tech && (
+        {d.tech && (
           <CpSection n={nTech} id="tech" heading={DOSSIER_TEXT.tech}
             find={d.tech.stats.find((f) => f.id === 'satellites') ? DOSSIER_TEXT.techFind(inSentence(name), formatValue(d.tech.stats.find((f) => f.id === 'satellites')!.value, INDICATORS.satellites.format), d.tech.stats.find((f) => f.id === 'satellites')!.year) : undefined}>
             <div class="gt-cpstats">
@@ -284,9 +290,9 @@ const citation = COUNTRY_TEXT.citation(name, kind, url, Number(m.updated.slice(0
           </CpSection>
         )}
 
-        {d?.climate && (
+        {d.climate && (
           <CpSection n={nClimate} id="climate" heading={DOSSIER_TEXT.climate}
-            find={d.climate.stats.find((f) => f.id === 'co2') ? DOSSIER_TEXT.climateFind(subject, formatValue(d.climate.stats.find((f) => f.id === 'co2')!.value, INDICATORS.co2.format), d.climate.stats.find((f) => f.id === 'co2')!.year) : undefined}>
+            find={co2Stat ? DOSSIER_TEXT.climateFind(subject, formatValue(co2Stat.value, MT), co2Stat.year) : undefined}>
             {d.climate.co2 && (
               <div class="gt-cpsub">
                 <h3 class="gt-h3">{DOSSIER_TEXT.co2Chart(subject)}, {d.climate.co2.years[0]}–{d.climate.co2.years.at(-1)}</h3>
@@ -328,11 +334,11 @@ const citation = COUNTRY_TEXT.citation(name, kind, url, Number(m.updated.slice(0
                   <SourceLine source={sourceName('gdacs')} parts={[BLOCK_TEXT.pastYear(formatDate(blocks.disasters.from), formatDate(blocks.disasters.to))]} />
                 </article>
               )}
-              {blocks.emissions && (
+              {emissions && (
                 <article class="gt-cpblock">
                   <h3 class="gt-h3">{BLOCK_TEXT.emissions}</h3>
-                  <CpStat num={parts(blocks.emissions).num} unit={parts(blocks.emissions).unit} caption={BLOCK_TEXT.co2pc(blocks.emissions.year, ordinal(blocks.emissions.rank), blocks.emissions.of)} />
-                  <SourceLine source={sourceName('owid')} parts={[String(blocks.emissions.year)]} />
+                  <CpStat num={parts(emissions).num} unit={parts(emissions).unit} caption={BLOCK_TEXT.co2pc(emissions.year, ordinal(emissions.rank), emissions.of)} />
+                  <SourceLine source={sourceName('owid')} parts={[String(emissions.year)]} />
                 </article>
               )}
               {blocks.sanctions && (
