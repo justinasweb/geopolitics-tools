@@ -15,7 +15,7 @@ export const OVERLAP_TEXT = {
   title: 'Bloc overlap',
   crumb: 'Tools',
   lede: 'Which countries belong to which groupings, and where groupings share members.',
-  description: (n: number) => `${n} groupings side by side: how many members each pair shares, the countries in at least one of NATO, the EU, the G7 and the Quad and at least one of BRICS and the SCO, and every country’s memberships.`,
+  description: (n: number) => `${n} groupings side by side: shared members for each pair, countries in one of NATO, the EU, the G7 or the Quad and one of BRICS or the SCO, and all memberships.`,
   source: 'Membership: the groupings’ own member lists',
   checked: (date: string) => `Members as of ${date}`,
   note: (rows: { bloc: string; text: string }[]) => `${rows.map((r) => `${r.bloc}: ${r.text}.`).join(' ')} Only countries are counted here. Partners and observers are not counted.`,

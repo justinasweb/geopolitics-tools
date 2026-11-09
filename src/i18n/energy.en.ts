@@ -50,10 +50,10 @@ export const ENERGY_TEXT = {
     },
   } as Record<FuelId, FuelText>,
   description: (layer: EnergyLayer, name: string, year: number) => ({
-    production: `Who produces ${name}: production by country, ${year}, with each country’s share of the world, on a map and in a table. Source: U.S. Energy Information Administration.`,
-    consumption: `Who uses ${name}: consumption by country, ${year}, with each country’s share of the world, on a map and in a table. Source: U.S. Energy Information Administration.`,
-    trade: `Who exports and imports ${name}: output minus use by country, ${year}, and the largest flows between countries, on a map and in tables. Sources: EIA and UN Comtrade.`,
-    reserves: `Where the world’s proved ${name} reserves are: reserves by country, ${year}, and how many years of current output they hold. Source: U.S. Energy Information Administration.`,
+    production: `Who produces ${name}: production by country, ${year}, with each country’s share of the world, on a map and in a table. Source: US EIA.`,
+    consumption: `Who uses ${name}: consumption by country, ${year}, with each country’s share of the world, on a map and in a table. Source: US EIA.`,
+    trade: `Who exports and imports ${name}: output minus use by country, ${year}, and the largest flows, on a map and in tables. Sources: US EIA, UN Comtrade.`,
+    reserves: `Where the world’s proved ${name} reserves are: reserves by country, ${year}, and how many years of current output they hold. Source: US EIA.`,
   })[layer],
   lede: {
     production: (top: string, share: string, name: string, year: number, top3: string | null) => `${top} produced ${share} of the world’s ${name} in ${year}${top3 ? `; the top three countries produced ${top3}` : ''}.`,

@@ -6,6 +6,16 @@ export const indexable = process.env.SITE_INDEXABLE === 'true';
 
 export const siteName = 'geopolitics.tools';
 
+/** Search results show about this many characters of a <title>. */
+export const TITLE_MAX = 65;
+
+/** The <title>: the page's title with " | geopolitics.tools" when the whole stays within TITLE_MAX characters, else the
+ *  page's title on its own (og:title is always the page's own title). */
+export function fullTitle(title: string): string {
+  const withSite = `${title} | ${siteName}`;
+  return title === siteName || withSite.length > TITLE_MAX ? title : withSite;
+}
+
 // Until launch the production home page is the holding page. Local and Preview builds get the homepage instead,
 // and the index of the built pages at /dev, so the work in progress can be clicked through. CI sets SITE_HOLDING=true
 // for production builds; at launch the repository variable SITE_HOLDING is set to `false`.

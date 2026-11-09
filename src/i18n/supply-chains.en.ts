@@ -43,7 +43,7 @@ export const CHAINS_TEXT = {
   crumb: 'Tools',
   title: 'Supply chains',
   indexLede: (n: number) => `Trade and arms deliveries between countries, and refugees by country of origin and host country: ${n} ${n === 1 ? 'flow' : 'flows'}, each for the latest year its source reports.`,
-  indexDescription: (n: number) => `Supply chains for ${n} ${n === 1 ? 'flow' : 'flows'}: trade and arms deliveries between countries, and refugees by country of origin and host country, in a diagram and a table, with sources.`,
+  indexDescription: (n: number) => `Supply chains for ${n} ${n === 1 ? 'flow' : 'flows'}: trade and arms deliveries between countries, and refugees from origin to host country, in diagrams and tables, with sources.`,
   description: (full: string, period: string, froms: string, tos: string, credit: string) => `${full}, ${period}: ${froms.toLowerCase()} to ${tos.toLowerCase()} in a diagram and a table, with the largest flows, from ${credit}.`,
   largest: (from: string, to: string, v: string) => `Largest flow: ${from} → ${to}, ${v}`,
 

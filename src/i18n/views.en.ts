@@ -144,7 +144,7 @@ export const VIEW_TEXT: Record<string, FamilyText> = {
         total: (v, y, ch) => `The world emitted ${v} of CO2 ${fossil} in ${y}${ch ? `, ${ch}` : ''}.`,
         bloc: (b, s, y) => `${todaysMembers(b, { start: true })} emitted ${s} of the world’s CO2 in ${y}.`,
         caveat: 'CO2 from fossil fuels and cement inside each country’s borders. Land use, other greenhouse gases, and international flights and shipping (in the world total only) are not given to any country.',
-        description: (y) => `CO2 emissions from fossil fuels and cement by country, 1990–${y}: each country’s total and share of the world, on a map and in a table. Source: Global Carbon Budget.`,
+        description: (y) => `CO2 emissions from fossil fuels and cement by country, 1990–${y}: each country’s total and share of the world, on a map. Source: Global Carbon Budget.`,
       },
       co2pc: {
         pick: 'Per person', title: 'CO2 emissions per person', sub: 'by country', measure: 'per person', figureLabel: 'CO2 per person',
@@ -169,7 +169,7 @@ export const VIEW_TEXT: Record<string, FamilyText> = {
         ends: ['Consumes more than it emits', 'Emits more than it consumes'],
         lede: ({ up, down, year }) => `In ${year}, what ${up} countries consumed caused more CO2 than they emitted at home, because their imports carried more emissions than their exports; in ${down} countries it was the other way round.`,
         caveat: 'Emissions embodied in imports minus those embodied in exports, as a share of emissions inside the country. Negative means more is exported than imported. Consumption-based figures end earlier than the others and cover fewer countries.',
-        description: (y) => `Net CO2 imports through trade by country, ${y}: emissions embodied in imports minus those embodied in exports, as a share of emissions inside each country. Source: Global Carbon Budget.`,
+        description: (y) => `Net CO2 imports through trade by country, ${y}: emissions in imports minus those in exports, as a share of each country’s own. Source: Global Carbon Budget.`,
       },
     },
   },
@@ -293,7 +293,7 @@ export const VIEW_TEXT: Record<string, FamilyText> = {
         legend: () => 'Water stress: share of available water withdrawn each year (low to extremely high)', ticks: ['Under 10%', '10–20%', '20–40%', '40–80%', 'Over 80%'],
         lede: ({ up, of }) => `${up} of ${of} countries face extremely high water stress: each year they use more than 80% of the water available to them.`,
         caveat: 'WRI Aqueduct’s baseline water stress: the share of renewable surface and ground water withdrawn each year, as a score from 0 to 5 (low, under 10%, to extremely high, over 80%). A country’s score averages its river basins, which can differ a great deal. Dots are large dams.',
-        description: () => 'Water stress by country, with large dams: how much of the available water each country withdraws, on a map and in a table. Sources: WRI Aqueduct, Global Dam Watch.',
+        description: () => 'Water stress by country, with large dams: how much of the available water each country withdraws, on a map. Sources: WRI Aqueduct, Global Dam Watch.',
       },
       waterstress2050: {
         pick: 'In 2050', title: 'Water stress in 2050', sub: 'projected, by country', measure: 'out of 5', figureLabel: 'Water stress score, 2050',
@@ -448,7 +448,7 @@ export const VIEW_TEXT: Record<string, FamilyText> = {
         total: (v, y) => `The three lists had ${v} listings with a country in ${y}.`,
         bloc: (b, s, y) => `${s} of the listings were in ${todaysMembers(b)} in ${y}.`,
         caveat: 'Listings on the US Specially Designated Nationals list, the EU financial sanctions list and the UK Sanctions List. A target on two lists counts once for each. Each listing is a person, company, ship or aircraft, placed by the country of its first address, else its nationality. Counts show how many targets a list names, not how severe the measures are.',
-        description: (y) => `Sanctions listings by country, ${y}: how many people, companies, ships and aircraft are listed for each country, on a map and in a table. Source: US Treasury, EU, UK government.`,
+        description: (y) => `Sanctions listings by country, ${y}: the people, companies, ships and aircraft listed for each, on a map. Sources: US Treasury, EU, UK government.`,
       },
       sanctionsus: {
         pick: 'US', title: 'US sanctions listings', sub: 'Specially Designated Nationals list', measure: 'listings', figureLabel: 'Listings',
@@ -457,7 +457,7 @@ export const VIEW_TEXT: Record<string, FamilyText> = {
         total: (v, y) => `The US list had ${v} listings with a country in ${y}.`,
         bloc: (b, s, y) => `${s} of the listings were in ${todaysMembers(b)} in ${y}.`,
         caveat: 'The US Treasury’s Specially Designated Nationals list, as published in the US Consolidated Screening List. Export controls such as the Entity List are not included. Each listing is a person, company, ship or aircraft, placed by the country of its first address, else its nationality. Counts show how many targets a list names, not how severe the measures are.',
-        description: (y) => `US sanctions listings by country, ${y}: how many people, companies, ships and aircraft are listed for each country, on a map and in a table. Source: US Consolidated Screening List.`,
+        description: (y) => `US sanctions listings by country, ${y}: the people, companies, ships and aircraft listed for each, on a map. Source: US Consolidated Screening List.`,
       },
       sanctionseu: {
         pick: 'EU', title: 'EU sanctions listings', sub: 'consolidated financial sanctions list', measure: 'listings', figureLabel: 'Listings',
@@ -466,7 +466,7 @@ export const VIEW_TEXT: Record<string, FamilyText> = {
         total: (v, y) => `The EU list had ${v} listings with a country in ${y}.`,
         bloc: (b, s, y) => `${s} of the listings were in ${todaysMembers(b)} in ${y}.`,
         caveat: 'The EU’s consolidated list of persons, groups and entities subject to financial sanctions. Each listing is a person, company, ship or aircraft, placed by the country of its first address, else its nationality. Counts show how many targets a list names, not how severe the measures are.',
-        description: (y) => `EU sanctions listings by country, ${y}: how many people, companies, ships and aircraft are listed for each country, on a map and in a table. Source: EU financial sanctions files.`,
+        description: (y) => `EU sanctions listings by country, ${y}: the people, companies, ships and aircraft listed for each, on a map. Source: EU financial sanctions files.`,
       },
       sanctionsuk: {
         pick: 'UK', title: 'UK sanctions listings', sub: 'UK Sanctions List', measure: 'listings', figureLabel: 'Listings',
@@ -475,7 +475,7 @@ export const VIEW_TEXT: Record<string, FamilyText> = {
         total: (v, y) => `The UK list had ${v} listings with a country in ${y}.`,
         bloc: (b, s, y) => `${s} of the listings were in ${todaysMembers(b)} in ${y}.`,
         caveat: 'The UK government’s Sanctions List of designations under UK law. Each listing is a person, company, ship or aircraft, placed by the country of its first address, else its nationality. Counts show how many targets a list names, not how severe the measures are.',
-        description: (y) => `UK sanctions listings by country, ${y}: how many people, companies, ships and aircraft are listed for each country, on a map and in a table. Source: UK Sanctions List.`,
+        description: (y) => `UK sanctions listings by country, ${y}: the people, companies, ships and aircraft listed for each, on a map. Source: UK Sanctions List.`,
       },
     },
   },

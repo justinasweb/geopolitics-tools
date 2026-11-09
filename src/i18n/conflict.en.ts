@@ -75,6 +75,6 @@ export const CONFLICT_TEXT = {
   tip: (conflict: string, deaths: string, events: number) => `${conflict}: ${deaths} in ${events === 1 ? '1 event' : `${events} events`}`,
   caveat: 'UCDP counts deaths in events where organised armed violence killed at least one person: fighting involving a government, fighting between armed groups, and attacks on civilians. Figures are UCDP’s best estimates; it also gives low and high ones. Deaths are counted in the country where the event took place. Each mark adds up the events within about 100 km in the month.',
   candidateNote: (from: string) => `Months from ${from} come from UCDP’s monthly Candidate release, which is checked less fully and may be revised; they are marked Preliminary.`,
-  description: (month: string) => `Deaths in organised violence by country and month, to ${month}: state-based and non-state conflict and one-sided violence, on a map and in tables. Source: UCDP.`,
+  description: (month: string) => `Deaths in organised violence by country and month, to ${month}: state-based and non-state conflict and one-sided violence, on a map. Source: UCDP.`,
   source: 'UCDP Georeferenced Event Dataset',
 };

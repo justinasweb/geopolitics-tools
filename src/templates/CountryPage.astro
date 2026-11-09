@@ -34,7 +34,7 @@ import { countryModel, countrySources, DOSSIERS, MINERAL_SHARE, type Figure } fr
 import { leadImports } from '../lib/dependence';
 import { dossierFor } from '../lib/dossier';
 import { creditName, data, sourceName } from '../lib/data';
-import { formatDate, formatParts, formatShare, formatValue } from '../lib/format';
+import { fitSentences, formatDate, formatParts, formatShare, formatValue } from '../lib/format';
 import { notesFor, place } from '../lib/places';
 import { countryHref, indicatorHref, live, paths } from '../lib/routes';
 import { countryCrumbs, countryLd } from '../lib/jsonld';
@@ -127,10 +127,11 @@ const notes = covered.flatMap((s) => notesFor(s, p.id).map((n) => ({ source: s, 
 const uniqueNotes = [...new Map(notes.map((n) => [n.note, n])).values()];
 
 const crumbs = countryCrumbs(p.id);
-const description = `${m.summary[0]} ${kind} with sources: key figures, dependencies${m.minerals.length ? ', minerals' : ''} and more.`.slice(0, 300);
+// The strongest figure first (m.lead), then the closing line when it fits in 160 characters.
+const description = fitSentences([m.lead ?? m.summary[0], COUNTRY_TEXT.descriptionTail(kind, m.minerals.length > 0)]);
 const citation = COUNTRY_TEXT.citation(name, kind, url, Number(m.updated.slice(0, 4)), formatDate(m.updated).replace(/^(\d+) (\w+)/, (_, dd, mm) => `${dd} ${mm}`));
 ---
-<Page title={`${name}: ${kind.toLowerCase()}`} description={description} noindex={m.thin} container="cp" mainClass={m.thin ? 'gt-cp--thin' : undefined}
+<Page title={COUNTRY_TEXT.title(name)} description={description} noindex={m.thin} container="cp" mainClass={m.thin ? 'gt-cp--thin' : undefined}
   image={paths.image('countries', p.slug)} jsonld={countryLd(p.id)}>
     <header class="gt-cphead">
       <div class="gt-cphead__text">

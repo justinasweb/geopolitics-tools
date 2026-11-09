@@ -48,7 +48,7 @@ export const FOOD_TEXT = {
     use: crop
       ? `Who uses ${name}: use by country, ${year}, worked out from production and trade, on a map and in a table. Source: FAOSTAT.`
       : `Agricultural use of ${name} by country in ${year}, as reported by FAOSTAT, on a map and in a table.`,
-    trade: `Who exports and imports ${name}: net trade by country, ${year}, and the largest flows, on a map and in tables. ${crop ? 'Source: FAOSTAT.' : 'Sources: FAOSTAT for national totals; UN Comtrade for flows between countries.'}`,
+    trade: `Who exports and imports ${name}: net trade by country, ${year}, and the largest flows, on a map and in tables. ${crop ? 'Source: FAOSTAT.' : 'Sources: FAOSTAT; UN Comtrade for flows.'}`,
   })[layer],
   /** The answer under the title. */
   lede: {

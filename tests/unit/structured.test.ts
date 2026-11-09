@@ -118,7 +118,15 @@ describe('share card alt text', () => {
     const { cardAlt } = await import('../../src/lib/og-cards.ts');
     expect(cardAlt({ kicker: 'Country page', title: 'Germany', figure: '4.5 trillion US$', caption: 'GDP, 2024', source: 'World Bank' }))
       .toBe('Country page: Germany; 4.5 trillion US$ (GDP, 2024); source: World Bank.');
-    expect(cardAlt({ kicker: 'Indicator', title: 'GDP by country', caption: 'The US reports the most.' })).toBe('Indicator: GDP by country; The US reports the most.');
+    expect(cardAlt({ kicker: 'Indicator', title: 'GDP by country', caption: 'GDP, 2024', source: 'World Bank' })).toBe('Indicator: GDP by country; GDP, 2024; source: World Bank.');
+  });
+
+  it('ends a part and starts the next with ". " around a caption that is a sentence of its own', async () => {
+    const { cardAlt, shareAlt } = await import('../../src/lib/og-cards.ts');
+    expect(cardAlt({ kicker: 'Indicator', title: 'GDP by country', caption: 'The US reports the most.' })).toBe('Indicator: GDP by country. The US reports the most.');
+    expect(cardAlt({ kicker: 'Indicator', title: 'GDP by country', caption: 'The US reports the most.', source: 'World Bank' }))
+      .toBe('Indicator: GDP by country. The US reports the most. Source: World Bank.');
+    expect(shareAlt('/og/page/default.png')).toBe('geopolitics.tools: Maps and figures on resources, technology, climate, security and power. Every number with its source and date.');
   });
 
   it('describes a live page’s share image from its route', async () => {

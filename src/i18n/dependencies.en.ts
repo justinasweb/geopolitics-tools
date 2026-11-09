@@ -7,7 +7,7 @@ export const DEPS_TEXT = {
   lede: 'Import reliance and supplier concentration',
   definition: 'Import reliance is net imports as a share of what a country uses. Supplier concentration is the main supplier’s share of those imports.',
   how: 'How this is measured',
-  description: (n: number) => `${n} countries against ten commodities: for oil, gas, grain, soybeans and fertiliser, net imports against what each country uses; for all ten, arms and chips included, the suppliers’ shares of its imports.`,
+  description: (n: number) => `${n} countries against ten commodities: net imports against use for oil, gas, grain, soybeans and fertiliser, and suppliers’ shares of imports for all ten.`,
   loading: 'Loading the figures…',
   failed: 'The figures did not load. Check your connection and reload the page.',
 

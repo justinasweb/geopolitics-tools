@@ -19,6 +19,8 @@ export const lc = (label: string) => label.replace(/\b[A-Z][a-z]+\b/g, (w) => (P
 /** "a, b and c". */
 /** Items in a sentence, without a serial comma: "Ethiopia, Sudan and Egypt". */
 export const list = (items: string[]) => (items.length < 3 ? items.join(' and ') : `${items.slice(0, -1).join(', ')} and ${items.at(-1)}`);
+/** At most `max` names, then "and n more": "China, Myanmar, Laos and 3 more". */
+export const listUpTo = (items: string[], max: number) => (items.length <= max ? list(items) : `${items.slice(0, max).join(', ')} and ${items.length - max} more`);
 
 /** The possessive of a place name: "Germany's", "the United States'". */
 export const possessive = (name: string) => (name.endsWith('s') ? `${name}’` : `${name}’s`);
@@ -90,6 +92,10 @@ export const COUNTRY_TEXT = {
   countries: 'Countries',
   kindCountry: 'Country page',
   kindTerritory: 'Territory',
+  /** The <title> (the H1 is the name alone). */
+  title: (name: string) => `${name}: imports, resources and key figures`,
+  /** Closes the meta description when it fits: "Country page with sources: key figures, dependencies and more." */
+  descriptionTail: (kind: string, minerals: boolean) => `${kind} with sources: key figures, dependencies${minerals ? ', minerals' : ''} and more.`,
   updated: (d: string) => `Updated ${d}`,
   auto: 'Written automatically from the figures on this page.',
   facts: { population: 'Population', administered: 'Administered by', status: 'Status' },
@@ -141,11 +147,11 @@ export const SUMMARY = {
   estimated: 'estimated',
   people: (c: string, pop: string, popSrc: string, gdp: string | null, gdpSrc: string) =>
     gdp ? `${c} has ${pop} people (${popSrc}) and an economy of ${gdp} a year (${gdpSrc}).` : `${c} has ${pop} people (${popSrc}).`,
-  imports: (share: string, noun: string, src: string) => `It imports ${share} of the ${noun} it uses (${src}).`,
-  importsAll: (noun: string, src: string) => `It imports all of the ${noun} it uses (${src}).`,
+  imports: (c: string, share: string, noun: string, src: string) => `${c} imports ${share} of the ${noun} it uses (${src}).`,
+  importsAll: (c: string, noun: string, src: string) => `${c} imports all of the ${noun} it uses (${src}).`,
   /** Several imports in one sentence, each with its own source: "It imports all of the rice it uses (FAOSTAT, 2024) and
    *  95% of the gas it uses (EIA, 2024)." */
-  importsMany: (parts: string[]) => `It imports ${list(parts)}.`,
+  importsMany: (c: string, parts: string[]) => `${c} imports ${list(parts)}.`,
   importPart: (share: string | null, noun: string, src: string) => `${share === null ? 'all' : share} of the ${noun} it uses (${src})`,
   hosts: (n: string, src: string) => `It hosts ${n} refugees and others in need of protection (${src}).`,
   fled: (n: string, src: string) => `${n} people from it are refugees or others in need of protection abroad (${src}).`,

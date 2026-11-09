@@ -4,6 +4,12 @@
 export const EXPLORER_TEXT = {
   title: 'Explorer',
   crumb: 'Tools',
+  /** Each view's <title>. */
+  pageTitle: {
+    table: (n: number) => `Compare countries on ${n} measures`,
+    lines: () => 'Country measures over time',
+    scatter: () => 'Country measures compared: scatter plot',
+  },
   lede: (n: number) => `Any of our ${n} measures as a table, over time, or as a scatter.`,
   description: {
     table: (n: number) => `Any of ${n} country measures side by side in one sortable table, filtered to a bloc, with a CSV download. Every figure with its source and year.`,

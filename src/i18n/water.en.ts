@@ -53,7 +53,8 @@ export const RIVERS_TEXT = {
   damsHereCaption: 'Largest reservoirs first.',
   mapLabel: (river: string, countries: string) => `Map of ${countries}, the countries that dispute the ${river}, shaded by water stress, with the river’s large dams.`,
   caveat: 'Dams are those in Global Dam Watch (version 1.0) on the river and its main tributaries, matched by the river names it records. It lists large dams built by about 2022, so the newest are missing, and it does not mark dams that have since been destroyed. Water stress is a national average; the river’s own basin can differ.',
-  description: (river: string, countries: string) => `The ${river} and the dispute over its water: water stress, water from abroad and large dams in ${countries}, on a map and in tables. Sources: WRI Aqueduct, FAO AQUASTAT, Global Dam Watch.`,
+  /** `countries`: at most three named, then "and n more" (listUpTo). */
+  description: (river: string, countries: string) => `${river} dispute: water stress, water from abroad and dams in ${countries}. Sources: Aqueduct, AQUASTAT, Global Dam Watch.`,
   blocLine: (bloc: string, k: number, n: number) => (k ? `${k} of the ${n} ${bloc} members are in this dispute.` : `No ${bloc} member is in this dispute.`),
   others: 'Other disputed rivers',
   related: 'Related',

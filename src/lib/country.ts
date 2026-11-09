@@ -144,6 +144,9 @@ export interface CountryModel {
   minerals: MineralShare[];
   blocks: Blocks;
   summary: string[];
+  /** The sentence the meta description starts with: the largest world share the place holds, else its largest import
+   *  share, else population and GDP; none when no source reports any of them. */
+  lead: string | null;
   sources: SourceUse[];
   thin: boolean;
   /** When the newest of the page's sources last changed (sitemap lastmod). */
@@ -178,15 +181,37 @@ function summaryFor(c: Place, figs: Figure[], minerals: MineralShare[], deps: De
     const [most] = lead;
     const src = `${SOURCE_SHORT[most.source]}, ${most.year}`;
     const noun = RESOURCE_TEXT[most.resource].noun;
-    out.push(most.reliance! >= 0.995 ? SUMMARY.importsAll(noun, src) : SUMMARY.imports(formatShare(most.reliance!), noun, src));
+    out.push(most.reliance! >= 0.995 ? SUMMARY.importsAll('It', noun, src) : SUMMARY.imports('It', formatShare(most.reliance!), noun, src));
   } else if (lead.length) {
-    out.push(SUMMARY.importsMany(lead.map((d) => SUMMARY.importPart(d.reliance! >= 0.995 ? null : formatShare(d.reliance!), RESOURCE_TEXT[d.resource].noun, `${SOURCE_SHORT[d.source]}, ${d.year}`))));
+    out.push(SUMMARY.importsMany('It', lead.map((d) => SUMMARY.importPart(d.reliance! >= 0.995 ? null : formatShare(d.reliance!), RESOURCE_TEXT[d.resource].noun, `${SOURCE_SHORT[d.source]}, ${d.year}`))));
   } else if (blocks.refugees?.hosted && blocks.refugees.hosted.value >= 100_000) {
     const h = blocks.refugees.hosted;
     out.push(SUMMARY.hosts(formatValue(h.value, INDICATORS.refin.format), `${SOURCE_SHORT.unhcr}, ${h.year}`));
   }
   if (!out.length) out.push(SUMMARY.none(inSentence(c.name)));
   return out.slice(0, 3);
+}
+
+/** The description's opening sentence, written as the summary writes it but naming the place: the largest world share
+ *  it holds (USGS), else the largest import by share of use, else population and GDP. */
+function leadFor(c: Place, figs: Figure[], minerals: MineralShare[], deps: DepRow[]): string | null {
+  const subject = inSentence(c.name, true);
+  const top = minerals[0];
+  const most = leadImports(deps)[0];
+  if (top) {
+    const src = `${SOURCE_SHORT['usgs-minerals']}, ${top.year}${top.estimated ? `, ${SUMMARY.estimated}` : ''}`;
+    const name = top.measure === 'primary' ? `primary ${mineralName(top.id, top.label)}` : mineralName(top.id, top.label);
+    return (top.measure === 'primary' ? SUMMARY.produces : SUMMARY.mines)(subject, [SUMMARY.minePart(formatShare(top.share), name, true)], src);
+  }
+  if (most) {
+    const src = `${SOURCE_SHORT[most.source]}, ${most.year}`;
+    const noun = RESOURCE_TEXT[most.resource].noun;
+    return most.reliance! >= 0.995 ? SUMMARY.importsAll(subject, noun, src) : SUMMARY.imports(subject, formatShare(most.reliance!), noun, src);
+  }
+  const pop = figs.find((f) => f.id === 'population');
+  const gdp = figs.find((f) => f.id === 'gdp');
+  return pop ? SUMMARY.people(subject, formatValue(pop.value, INDICATORS.population.format), `${SOURCE_SHORT[pop.source]}, ${pop.year}`,
+    gdp ? formatValue(gdp.value, INDICATORS.gdp.format) : null, gdp ? `${SOURCE_SHORT[gdp.source]}, ${gdp.year}` : '') : null;
 }
 
 const models = new Map<string, CountryModel | null>();
@@ -223,7 +248,7 @@ export function countryModel(id: string): CountryModel | null {
       const fetched = sources.map((s) => refreshed(s.source)).filter((d): d is string => !!d).sort();
       out = {
         place: p, dossier: DOSSIERS.includes(id), figures, allFigures, deps, minerals, blocks,
-        summary: summaryFor(p, figures, minerals, deps, blocks), sources,
+        summary: summaryFor(p, figures, minerals, deps, blocks), lead: leadFor(p, figures, minerals, deps), sources,
         thin: allFigures.length < THIN_BELOW && !DOSSIERS.includes(id),
         lastmod: dates.at(-1) ?? data().snapshot.created, updated: fetched.at(-1) ?? data().snapshot.created,
       };
