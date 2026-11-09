@@ -166,6 +166,7 @@
 .gt-pairs__t { height: 14px; background: var(--paper-sunk); display: block; }
 .gt-pairs__f { display: block; height: 100%; background: var(--cc); }
 .gt-cc--second .gt-pairs__f { background: repeating-linear-gradient(45deg, var(--cmp-second) 0 3px, color-mix(in srgb, var(--cmp-second) 55%, var(--paper-raised)) 3px 4.5px); }
+.gt-pairs__note { margin: 12px 0 0; max-width: 760px; }
 .gt-pairs__v { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
 .gt-blocs td, .gt-blocs tbody th { padding: 10px 12px; }
 .gt-blocs .gt-cchip { border: 0; background: none; padding: 0; }

@@ -97,6 +97,13 @@ describe('Compare markup', () => {
     expect(keyHtml(people, [big, { ...small, f: { population: [3.4e6, 2025] as [number, number] } }])).toContain('<small>million</small>');
   });
 
+  it('explains a mineral share USGS does not list, rather than a bare dash', () => {
+    const html = mineralsHtml(meta, [mali, tuvalu], '/compare', 3);
+    expect(html).toContain('<span class="gt-vh">Not listed by USGS</span>');
+    expect(html).toContain('– Not listed by USGS. USGS names the largest producers');
+    expect(mineralsHtml(meta, [mali, { ...tuvalu, m: { gold: 0.03 } }], '/compare', 3)).not.toContain('Not listed');
+  });
+
   it('escapes names', () => {
     expect(keyHtml(meta, [{ ...mali, name: '<b>' }, tuvalu])).not.toContain('<b><b>');
   });

@@ -113,16 +113,6 @@ honours the wildcard on a put: if it did not, every Post would be refused.
 **Options.** Leave it as it is (the gap is milliseconds wide), or confirm `If-None-Match: *` on a Preview's bucket
 and add it to the claim.
 
-### Compare any two countries: what is left open (raised 9 Nov 2026)
-
-- **Minerals with one producer.** Key-figure rows and charts need both countries (D21), but the mineral pairs keep
-  the old rule: a mineral where either country has at least 1% of world production, the other showing "–" when USGS
-  does not list it (not listed is not the same as zero). Options: keep it, or drop such minerals like the rows.
-- **Static pairs opened from /compare** redirect in the browser (`location.replace`), not with a server redirect.
-  The page is noindex, so search engines should not mind; the Worker could answer with a 301 instead if needed.
-- **No share image for /compare.** It uses the site default; one drawn per pair would mean a page per pair again.
-- **A picked name stays in its box.** Focusing it lists only that name until the text is cleared.
-
 ## Launch review leftovers (raised 5 Nov 2026)
 
 - **G7 and Russia (decided 5 Nov 2026).** Russia joins in 1998, as the G8, per the G7 Research Group
@@ -217,6 +207,11 @@ its tool entry on a hub has no links under it. Topic presets would give it some.
 
 ## Decided
 
+- **Compare any two countries, follow-ups.** Decided 9 Nov 2026: mineral pairs keep "–" for a country USGS does not
+  list (not the same as zero), explained on the page as "Not listed by USGS"; a static pair picked on /compare is
+  redirected in the browser (the page is noindex, the static pages carry their own canonical); /compare uses the
+  default share image for launch. Still as built: a picked name stays in its box, and focusing it lists only that
+  name until the text is cleared.
 - **Country pages for every country, follow-ups.** Decided 9 Nov 2026: the homepage shows the three largest economies'
   country pages by GDP, then the next six, under "Largest economies by GDP, {year} · World Bank", and links to
   /countries#compare. CO2 stays in Mt everywhere, with two significant figures below 1 Mt ("0.011 Mt"); only the

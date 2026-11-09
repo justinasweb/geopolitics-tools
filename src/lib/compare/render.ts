@@ -98,9 +98,10 @@ export function mineralsHtml(meta: Meta, c: Two, page: string, n: number): strin
   const year = pairs[0].m.year;
   const est = pairs.some((x) => x.m.estimated);
   const items = pairs.map((x) => `<li><span class="gt-pairs__m">${esc(x.m.name)}</span><ul>`
-    + x.vals.map((v, i) => `<li class="gt-cc--${SIDES[i]}"><span class="gt-pairs__n">${esc(c[i].name)}</span><span class="gt-pairs__t"><span class="gt-pairs__f" style="width:${((v ?? 0) * 100).toFixed(1)}%"></span></span><span class="gt-pairs__v">${v === null ? '–' : esc(formatShare(v))}</span></li>`).join('')
+    + x.vals.map((v, i) => `<li class="gt-cc--${SIDES[i]}"><span class="gt-pairs__n">${esc(c[i].name)}</span><span class="gt-pairs__t"><span class="gt-pairs__f" style="width:${((v ?? 0) * 100).toFixed(1)}%"></span></span><span class="gt-pairs__v">${v === null ? `<span aria-hidden="true" title="${esc(T.notListed)}">–</span><span class="gt-vh">${esc(T.notListed)}</span>` : esc(formatShare(v))}</span></li>`).join('')
     + '</ul></li>').join('');
-  return sectionHtml(n, 'minerals', T.minerals, T.mineralsFind(year), `<ul class="gt-pairs">${items}</ul>`,
+  const note = pairs.some((x) => x.vals.includes(null)) ? `<p class="gt-caption gt-pairs__note">${esc(T.notListedNote)}</p>` : '';
+  return sectionHtml(n, 'minerals', T.minerals, T.mineralsFind(year), `<ul class="gt-pairs">${items}</ul>${note}`,
     sourceLineHtml(meta.mineralSource, [`${year}${est ? ', estimated' : ''}`], page, est ? 'estimate' : undefined));
 }
 

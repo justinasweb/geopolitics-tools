@@ -347,7 +347,8 @@ Any two countries side by side (spec, D21), without a page per pair.
   one line says what was not compared and why ("Not compared, no data for Mali: satellites, launches (source:
   CelesTrak); for either: …"). A chart is drawn only when both countries have the series, over the years both cover.
   Minerals: any mineral where either country has at least 1% of world production; the other shows "–" when USGS does
-  not list it.
+  not list it (decided 9 Nov 2026: not listed is not zero), read out as "Not listed by USGS" and explained in a note
+  under the pairs.
 - **First and second.** The first country is `--cmp-first` (blue), a square, solid lines and bars; the second
   `--cmp-second` (orange), a triangle, dashed lines and hatched bars. `scripts/tokens.ts` checks the two stay apart
   (CIE ΔE ≥ 40) under protanopia, deuteranopia and tritanopia as well as normal vision, in both themes.

@@ -235,6 +235,9 @@ export const COMPARE_TEXT = {
   sameScale: 'Both on the same scale.',
   minerals: 'Share of world production',
   mineralsFind: (year: number) => `Share of world mine production (primary production for gallium) in ${year}, for minerals where either has at least 1%.`,
+  /** The mineral pairs' "–": USGS names the largest producers only, so a country it does not list is not a zero. */
+  notListed: 'Not listed by USGS',
+  notListedNote: '– Not listed by USGS. USGS names the largest producers of each mineral, so a country it does not list has no published share, which is not the same as zero.',
   others: 'Other comparisons',
   change: 'Change',
   /** The first and second country's colour, named on their chips (tokens cmp-first and cmp-second). */
