@@ -72,7 +72,7 @@ export const BLOCS_TEXT = {
     ? `${bloc} members: ${membersText(id, n)}.${pop && gdp ? ` Together, ${todaysMembers(bloc)} had ${pop} of the world’s people and ${gdp} of its GDP in ${year}.` : ''}`
     : `${bloc} has ${n} members${pop && gdp ? `; together, ${todaysMembers(bloc)} had ${pop} of the world’s people and ${gdp} of its GDP in ${year}` : ''}.`),
   allLede: (n: number, top: string[], k: number) => `${n} countries and territories belong to at least one of these ${BLOC_COUNT} groupings; ${list(top)} belong to the most, ${k} each.`,
-  description: (bloc: string) => `${bloc}: its members on a map, their combined share of the world’s people, GDP, military spending and production, and the other groupings they belong to.`,
+  description: (bloc: string) => `${bloc}: members on a map, their share of the world’s people, GDP, military spending and production, and their other groupings.`,
   allDescription: `Nineteen groupings and alliances on one map: how many each country belongs to, and each grouping’s members and share of the world.`,
   checked: (date: string) => `Members as of ${date}`,
   // The map.

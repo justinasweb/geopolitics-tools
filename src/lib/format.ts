@@ -97,3 +97,22 @@ export function formatShare(s: number, locale = 'en'): string {
   const digits = p < 1 && p > 0 ? 1 : 0;
   return `${new Intl.NumberFormat(locale, { maximumFractionDigits: digits }).format(p)}%`;
 }
+
+/** Search engines show about this many characters of a meta description. */
+export const DESCRIPTION_MAX = 160;
+
+/** Text cut at the last whole word that fits in `max` characters, ending "…"; unchanged when it fits. */
+export function cutWords(s: string, max = DESCRIPTION_MAX): string {
+  if (s.length <= max) return s;
+  const head = s.slice(0, max);
+  const end = head.lastIndexOf(' ');
+  return `${(end > 0 ? head.slice(0, end) : head.slice(0, max - 1)).replace(/[\s,;:–(]+$/, '')}…`;
+}
+
+/** Whole sentences, in order, for as long as they fit in `max` characters (one that does not fit is skipped); the
+ *  first is cut at a whole word when it alone is too long. */
+export function fitSentences(sentences: string[], max = DESCRIPTION_MAX): string {
+  let out = cutWords(sentences[0] ?? '', max);
+  for (const s of sentences.slice(1)) if (out.length + 1 + s.length <= max) out = `${out} ${s}`;
+  return out;
+}

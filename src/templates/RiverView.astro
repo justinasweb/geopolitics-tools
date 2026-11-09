@@ -16,7 +16,7 @@ import '../styles/atlas/keyfigure.css';
 import '../styles/atlas/table.css';
 import '../styles/atlas/tools.css';
 import { MAP_TEXT } from '../i18n/map.en';
-import { list } from '../i18n/pages.en';
+import { list, listUpTo } from '../i18n/pages.en';
 import { DAMS_TEXT as DX, RIVERS_TEXT as R } from '../i18n/water.en';
 import { riverIds, riverLede, riverPage } from '../lib/rivers';
 import { creditOf, valueText, viewPage } from '../lib/views';
@@ -54,7 +54,7 @@ const related = [
 ];
 const largest = p.dams[0];
 ---
-<Page title={title} description={R.description(name, countries)} hub="climate" container="mv" image={route(key(id))!.image}
+<Page title={title} description={R.description(name, listUpTo(p.river.countries.map(nameOf), 3))} hub="climate" container="mv" image={route(key(id))!.image}
   jsonld={[breadcrumbs(crumbs.map((c) => ({ label: c.label, href: c.href })))]}>
   <div class="gt-mvhead">
     <Breadcrumbs items={crumbs} />

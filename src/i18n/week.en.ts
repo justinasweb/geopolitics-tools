@@ -75,8 +75,8 @@ export const WEEK_TEXT = {
   archiveTitle: (week: number, r: string) => `Week ${week}: ${r}`,
   lede: 'Disasters, conflict, prices, internet outages and sanctions, from the latest data each source has published.',
   archiveLede: 'Disasters, conflict, prices, internet outages and sanctions in one ISO week, Monday to Sunday (UTC), as the data stood when it closed.',
-  description: (r: string) => `Disaster alerts, conflict events, commodity prices, internet outages and sanctions list changes for ${r}, from the latest official data, with sources and dates.`,
-  archiveDescription: (week: number, r: string) => `Week ${week} (${r}) on geopolitics.tools: disaster alerts, conflict events, commodity prices, internet outages and sanctions list changes as they stood when the week closed.`,
+  description: (r: string) => `Disaster alerts, conflict events, commodity prices, internet outages and sanctions list changes for ${r}, with sources and dates.`,
+  archiveDescription: (week: number, r: string) => `Week ${week} (${r}): disaster alerts, conflict events, commodity prices, internet outages and sanctions list changes as they stood at the week’s close.`,
   updatedDaily: 'Updated daily',
   lastUpdate: (d: string, t: string) => `Last update ${d}, ${t} UTC`,
   /** An archived week. */

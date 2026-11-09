@@ -51,12 +51,19 @@ const nameOf = (id: string) => place(id)?.name ?? id;
 const short = (s: string) => creditName(s);
 const TITLES: Record<string, string> = { countries: 'Countries', indicators: 'Indicators', about: 'About', methodology: 'Methodology', privacy: 'Privacy', sources: 'Sources' };
 
-/** The card in one sentence, for og:image:alt and twitter:image:alt: kicker, title, the headline figure with its
- *  caption (or the caption alone) and the source. */
+/** The card in words, for og:image:alt and twitter:image:alt: kicker, title, the headline figure with its caption (or
+ *  the caption alone) and the source, joined with "; ", or with ". " next to a caption that is a sentence of its own. */
 export function cardAlt(c: Card): string {
+  const sentence = !c.figure && /\.$/.test(c.caption ?? '');
   const caption = c.caption?.replace(/\.$/, '');
   const middle = c.figure ? `${c.figure}${caption ? ` (${caption})` : ''}` : caption;
-  return `${[`${c.kicker}: ${c.title}`, middle, c.source && OG_TEXT.altSource(c.source)].filter(Boolean).join('; ')}.`;
+  const parts = [{ text: `${c.kicker}: ${c.title}`, sentence: false }, { text: middle, sentence }, { text: c.source && OG_TEXT.altSource(c.source), sentence: false }]
+    .filter((p): p is { text: string; sentence: boolean } => Boolean(p.text));
+  return `${parts.map((p, i) => {
+    if (!i) return p.text;
+    const full = p.sentence || parts[i - 1].sentence;
+    return `${full ? '. ' : '; '}${full ? p.text[0].toUpperCase() + p.text.slice(1) : p.text}`;
+  }).join('')}.`;
 }
 
 /** The site default share image, for pages that name none. */

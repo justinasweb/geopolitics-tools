@@ -15,7 +15,7 @@ export interface KindText {
 }
 
 export const KIND_TEXT: Record<string, KindText> = {
-  all: { pick: 'All', title: 'Disaster alerts', forKind: '', description: 'Disaster alerts by country over the last 30, 90 or 365 days: earthquakes, tropical cyclones, floods, droughts, wildfires and volcanoes, on a map and in a table. Sources: GDACS, USGS.' },
+  all: { pick: 'All', title: 'Disaster alerts', forKind: '', description: 'Disaster alerts by country over the last 30, 90 or 365 days: earthquakes, cyclones, floods, droughts, wildfires and volcanoes, on a map. Sources: GDACS, USGS.' },
   EQ: { pick: 'Earthquakes', title: 'Earthquake alerts', forKind: ' for earthquakes', description: 'Earthquake alerts by country over the last 30, 90 or 365 days, and every earthquake of magnitude 5.5 and over, on a map and in tables. Sources: GDACS, USGS.' },
   TC: { pick: 'Cyclones', title: 'Tropical cyclone alerts', forKind: ' for tropical cyclones', description: 'Tropical cyclone alerts by country over the last 30, 90 or 365 days, on a map and in a table. Source: GDACS.' },
   FL: { pick: 'Floods', title: 'Flood alerts', forKind: ' for floods', description: 'Flood alerts by country over the last 30, 90 or 365 days, on a map and in a table. Source: GDACS.' },

@@ -148,3 +148,34 @@ describe('dependence and sentences', () => {
     for (const id of Object.keys(ANSWER)) expect(INDICATOR_TEXT[id], id).toBeDefined();
   });
 });
+
+describe('titles and descriptions', () => {
+  it('cuts a description at the last whole word before 160 characters', async () => {
+    const { cutWords, fitSentences } = await import('../../src/lib/format.ts');
+    const long = `${'word '.repeat(40)}end.`;
+    const cut = cutWords(long);
+    expect(cut.length).toBeLessThanOrEqual(160);
+    expect(cut).toMatch(/ word…$/);
+    expect(cutWords('Short.')).toBe('Short.');
+    expect(fitSentences(['One.', 'x'.repeat(200), 'Two.'])).toBe('One. Two.');
+  });
+
+  it('names at most three countries, then how many more', async () => {
+    const { listUpTo } = await import('../../src/i18n/pages.en.ts');
+    expect(listUpTo(['A', 'B', 'C'], 3)).toBe('A, B and C');
+    expect(listUpTo(['A', 'B', 'C', 'D', 'E'], 3)).toBe('A, B, C and 2 more');
+  });
+
+  it('starts a country page description with the largest world share, else the largest import, else population and GDP', async () => {
+    const { countryModel } = await import('../../src/lib/country.ts');
+    const { PLACES } = await import('../../src/lib/places.ts');
+    for (const p of PLACES) {
+      const m = countryModel(p.id);
+      if (!m) continue;
+      if (m.minerals.length) expect(m.lead).toMatch(/ (mines|produces) [\d.]+% of the world’s .* \(USGS, \d{4}/);
+      else if (m.deps.some((d) => d.state === 'ok' && d.tag === 'most')) expect(m.lead).toMatch(/ imports .* it uses \(.+, \d{4}\)\.$/);
+      else if (m.allFigures.some((f) => f.id === 'population')) expect(m.lead).toMatch(/ has .* people \(/);
+      if (m.lead) expect(m.lead).not.toMatch(/^It /);
+    }
+  });
+});

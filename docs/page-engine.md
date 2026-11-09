@@ -13,7 +13,11 @@ one data snapshot, through one route registry. Nothing on these pages is written
    builds the route registry (`src/lib/routes.ts`).
 3. `src/pages/[...path].astro` builds one page per live route with the template for its kind. Share images, CSVs,
    `sitemap.xml`, `robots.txt` and `_redirects` come from the same registry.
-4. `scripts/check-dist.mjs` checks the result: Cloudflare's limits, the required files, and no Sample tag on any page.
+4. `scripts/check-dist.mjs` checks the result: Cloudflare's limits, the required files, and no Sample tag on any page. For
+   every page in `sitemap.xml` it fails on an empty or duplicate `<title>` or meta description, or more than one `<h1>`,
+   and warns (listing the pages) on a title over 65 characters or a description outside 70–170. Descriptions aim for 160
+   at most: country pages fit whole sentences with `fitSentences` (`src/lib/format.ts`), starting with the page's
+   strongest figure (`lead` in `src/lib/country.ts`).
 
 Without a snapshot the build stops and says what to do. `npm run build:sample` builds from the prototype's sample
 files instead; every page then carries a Sample banner, and check-dist only allows that with `ALLOW_SAMPLE=1`.
