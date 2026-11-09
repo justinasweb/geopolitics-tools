@@ -113,10 +113,8 @@ export const COMPARE_PAIRS: [string, string][] = DOSSIERS.flatMap((a, i) => DOSS
  * each needs to pass): hidden until they pass. A key ending in ":" hides the whole family. Views on a source whose
  * licence is withheld (WITHHELD in src/data/licences.ts) have no data in the build, so they are not built at all.
  */
-export const GATE_HIDDEN = [
-  'view:rivers:', // shows Aqueduct's water stress (withheld) beside its dams; Dnipro's facts unverified
-];
-export const gateHidden = (key: string) => GATE_HIDDEN.some((k) => (k.endsWith(':') ? key.startsWith(k) : key === k));
+export const GATE_HIDDEN: string[] = [];
+export const gateHidden = (key: string, list = GATE_HIDDEN) => list.some((k) => (k.endsWith(':') ? key.startsWith(k) : key === k));
 
 /** The long-read pages written in Markdown (src/content/pages/<id>.md). */
 export const STATIC_PAGES = ['about', 'methodology', 'privacy'] as const;

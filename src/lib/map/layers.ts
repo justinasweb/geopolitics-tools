@@ -13,7 +13,7 @@ import { amount, listed, mineralPages, shareClass, shareText, withheld, nameOf, 
 import { list, inSentence } from '../../i18n/pages.en.ts';
 import { ICT_TEXT, OUTAGE_TEXT, PARTS_TEXT as PX, VIEW_TEXT, VIEWS_TEXT } from '../../i18n/views.en.ts';
 import { classFor, creditOf, familyPages, partsOf, placeNote, shareOf, unreportedIn, unreportedText, valueText, viewPages, type ViewPage } from '../views.ts';
-import { data, indicator, shared } from '../data.ts';
+import { creditName, data, indicator, shared } from '../data.ts';
 import { loadFlows } from '../../data/flows.ts';
 import { countClass, daysText, disasterPages, type DisasterPage } from '../disasters.ts';
 import { DISASTERS_TEXT, KIND_TEXT } from '../../i18n/disasters.en.ts';
@@ -1069,7 +1069,7 @@ function riverLayer(id: string): LayerFile {
   for (const [b, members] of blocs()) bl[b] = R.blocLine(BLOC_TEXT[b] ?? b, members.filter((m) => p.river.countries.includes(m)).length, members.length);
   return {
     id: `rivers-${id}`, name, scale: 'seq', years: [ws.year], year: ws.year, ticks: ws.ticks,
-    missing: { none: R.notInDispute }, source: R.source,
+    missing: { none: R.notInDispute }, source: ['aqueduct', 'aquastat', 'gdw'].map(creditName).join('; '),
     text: {
       ...(c.words as LayerFile['text']),
       kicker: `${name} · ${ws.text.figureLabel}`, measure: ws.text.measure, shareLabel: ws.text.figureLabel, none: R.notInDispute,

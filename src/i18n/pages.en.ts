@@ -441,12 +441,18 @@ export const DRAFT_BANNER = 'Draft, waiting for the editor’s approval. This te
 export const SOURCE_SHORT: Record<string, string> = {
   worldbank: 'World Bank', 'imf-weo': 'IMF WEO', owid: 'Global Carbon Budget', faostat: 'FAOSTAT', 'usgs-minerals': 'USGS',
   unhcr: 'UNHCR', sipri: 'SIPRI', wpp: 'UN WPP 2024', celestrak: 'CelesTrak', epoch: 'Epoch AI', csl: 'US CSL',
-  'eu-sanctions': 'EU sanctions list', 'uk-sanctions': 'UK Sanctions List', aiddata: 'AidData', aqueduct: 'WRI Aqueduct',
+  'eu-sanctions': 'EU sanctions list', 'uk-sanctions': 'UK Sanctions List', aiddata: 'AidData, Global Chinese Development Finance Dataset 3.0', aqueduct: 'WRI Aqueduct',
   aquastat: 'FAO AQUASTAT', gdacs: 'GDACS', 'usgs-quakes': 'USGS', treasury: 'US Treasury TIC', 'treasury-history': 'US Treasury TIC',
   eia: 'EIA', comtrade: 'UN Comtrade', ember: 'Ember', ucdp: 'UCDP', ipc: 'IPC', pinksheet: 'World Bank Pink Sheet',
 };
 
 /** Where an indicator's figures come from, when the publisher is not the original source. */
+/** A source's access date, where its terms ask for one in the credit (WRI Aqueduct). */
+export const ACCESSED = (d: string) => `accessed on ${d}`;
+
+/** Sources whose terms ask for a link with the credit: their name in a source line links there. */
+export const SOURCE_LINK: Record<string, string> = { 'WRI Aqueduct': 'https://aqueduct.wri.org/' };
+
 export const SOURCE_NOTE: Record<string, string> = {
   milpct: 'World Bank, from SIPRI data', milusd: 'World Bank, from SIPRI data',
   unemployment: 'World Bank, from ILO modelled estimates', refinpc: 'UNHCR; World Bank population',

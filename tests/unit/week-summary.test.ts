@@ -39,8 +39,17 @@ const SUMMARY = 'GDACS issued 2 new orange or red disaster alerts this week, 1 o
   + 'IODA recorded 1 national-scale internet outage, in Iraq, from 4 November 2026, lasting 3.5 hours. '
   + '12 entries were added to the United States sanctions lists and 3 to the United Kingdom list.';
 
+/** Every source licensed: the facts with GDACS's and IODA's counts, levels and lengths. */
+const LICENSED = () => false;
+/** The summary drafted while GDACS and IODA are withheld (src/data/licences.ts): their events by kind, place and date. */
+const PUBLIC = 'GDACS listed a tropical cyclone alert in the Philippines and Viet Nam from 3 November 2026, and an earthquake alert in Japan from 5 November 2026. '
+  + 'UCDP recorded 170 events of organised violence in October 2026, preliminary figures, against 150 in September 2026; Ukraine had 60 events in October 2026, up 20% on September 2026. '
+  + 'In the Pink Sheet, wheat (US hard red winter) averaged $249.40 a tonne in October 2026, up 2.1% on the month. '
+  + 'IODA recorded an internet outage in Iraq that began on 4 November 2026. '
+  + '12 entries were added to the United States sanctions lists and 3 to the United Kingdom list.';
+
 describe('the week’s facts', () => {
-  const f = weekFacts('2026-45', WEEK);
+  const f = weekFacts('2026-45', WEEK, LICENSED);
 
   it('come from the frozen week, each with a source, a link and the day the source last changed', () => {
     expect(f).toMatchObject({ id: 'week:2026-45', kind: 'week', subject: 'week 45 of 2026 (2 November 2026 to 8 November 2026)' });
@@ -89,13 +98,29 @@ describe('the week’s facts', () => {
     expect(lengthProblems('Too short.', 'river')).toEqual([]);
   });
 
+  it('give a withheld source’s events by kind, place and date only: no counts, levels or lengths', () => {
+    const w = weekFacts('2026-45', WEEK, (s) => s === 'gdacs' || s === 'ioda');
+    const ids = w.facts.map((x) => x.id);
+    expect(ids).not.toContain('alerts');
+    expect(ids).not.toContain('alerts-red');
+    expect(ids).not.toContain('outages');
+    const byId = Object.fromEntries(w.facts.map((x) => [x.id, x]));
+    expect(byId['alert-1']).toMatchObject({ places: ['PHL', 'VNM'], period: '2026-11-03', source: 'GDACS' });
+    expect(byId['alert-1'].value).toBeUndefined();
+    expect(byId['alert-1'].statement).not.toMatch(/red|orange/i);
+    expect(byId['outage-1']).toMatchObject({ places: ['IRQ'], period: '2026-11-04' });
+    expect(byId['outage-1'].value).toBeUndefined();
+    expect(problemLines(checkDraft(PUBLIC, w))).toEqual([]);
+    expect(checkDraft(PUBLIC.replace('began on 4 November 2026', 'began on 4 November 2026 and lasted 3.5 hours'), w).ok).toBe(false);
+  });
+
   it('give the digest its three counts', () => {
     expect(weekCounts(WEEK)).toEqual([{ kind: 'disaster', n: 2 }, { kind: 'outage', n: 1 }, { kind: 'sanctions', n: 15 }]);
   });
 });
 
 describe('the review steps', () => {
-  const f = weekFacts('2026-45', WEEK);
+  const f = weekFacts('2026-45', WEEK, LICENSED);
   const root = () => mkdtempSync(join(tmpdir(), 'gt-review-'));
 
   it('know week ids', () => {
@@ -162,11 +187,11 @@ describe('the summary and digest runs', () => {
 
   it('drafts, saves and sends a passing summary for review, once', async () => {
     const r = repo();
-    expect(await summary('2026-45', () => model(SUMMARY), b, '2026-11-09')).toEqual({ outcome: 'drafted' });
-    expect(readText('week:2026-45', r)).toMatchObject({ text: SUMMARY, approved: false, drafted: '2026-11-09' });
+    expect(await summary('2026-45', () => model(PUBLIC), b, '2026-11-09')).toEqual({ outcome: 'drafted' });
+    expect(readText('week:2026-45', r)).toMatchObject({ text: PUBLIC, approved: false, drafted: '2026-11-09' });
     expect(sent).toHaveLength(1);
     expect(sent[0].text).toContain('For review');
-    expect(await summary('2026-45', () => model(SUMMARY), b)).toEqual({ outcome: 'exists', detail: 'draft' });
+    expect(await summary('2026-45', () => model(PUBLIC), b)).toEqual({ outcome: 'exists', detail: 'draft' });
   });
 
   it('drops a draft that fails twice and tells the owner the week shows the cards only', async () => {

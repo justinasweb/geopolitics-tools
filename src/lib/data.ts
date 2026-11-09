@@ -12,7 +12,8 @@ import { rawDir, type Raw } from '../adapters/core.ts';
 import { registry, INDICATORS, type Loaded } from '../data/indicators.ts';
 import { LICENCE_OF, LICENCES, withheld, type Licence } from '../data/licences.ts';
 import { weoRelease } from '../adapters/worldbank.ts';
-import { SOURCE_SHORT } from '../i18n/pages.en.ts';
+import { ACCESSED, SOURCE_SHORT } from '../i18n/pages.en.ts';
+import { formatDate } from './format.ts';
 
 export interface SnapshotSource { name: string; attribution: string; licence: string; fetched: string; changed?: string; dataTo?: string; imported?: Record<string, { file?: string; date?: string }> }
 export interface Snapshot { id: string; created: string; sources: Record<string, SnapshotSource> }
@@ -156,8 +157,12 @@ export function isDelayed(source: string): boolean {
   return Boolean(data().status?.sources[source]?.stale);
 }
 
-/** The edition a source line names, read from the source's own files: the WEO's release ("October 2026"). */
-const EDITIONS: Record<string, (raw: Raw) => string | undefined> = { 'imf-weo': (raw) => weoRelease(raw)?.release };
+/** The edition a source line names, read from the source's own files: the WEO's release ("October 2026"); for WRI
+ *  Aqueduct, whose terms ask for it, the day its files were downloaded ("accessed on 25 Oct 2026"). */
+const EDITIONS: Record<string, (raw: Raw) => string | undefined> = {
+  'imf-weo': (raw) => weoRelease(raw)?.release,
+  aqueduct: () => { const d = data().snapshot.sources.aqueduct?.fetched; return d ? ACCESSED(formatDate(d)) : undefined; },
+};
 export const editionOf = (source: string): string | undefined => (EDITIONS[source] ? tryLoad(EDITIONS[source]) ?? undefined : undefined);
 
 /** A source's own name, for source lines: the licence table's, else the snapshot's, else its id; with its edition when it has one. */

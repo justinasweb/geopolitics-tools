@@ -3,6 +3,9 @@
 // so the summary can say nothing the cards do not show. Every fact gives its source, a link and the day the source's
 // data last changed. The words for hazards, prices and lists are the cards' own (src/i18n/week.en.ts).
 //
+// A source whose licence is withheld (src/data/licences.ts) gives no counts, levels or lengths, as on its card: only
+// its events, by kind, country and date. The Telegram digest keeps its counts (weekCounts).
+//
 // The checker wants every figure's period in the same sentence, so figures that cover the week itself carry no period
 // (the subject and the first fact say which week it is), and monthly figures (conflict, prices) carry their month.
 import { list } from '../../i18n/pages.en.ts';
@@ -11,6 +14,7 @@ import { place } from '../places.ts';
 import { hasFigures, type Card, type WeekData } from '../week/model.ts';
 import { addDays, weekNumber, weekRange } from '../week/period.ts';
 import type { Fact, FactsFile } from './facts.ts';
+import { withheld } from '../../data/licences.ts';
 
 /** Where each source's data can be checked. */
 export const WEEK_LINKS: Record<string, string> = {
@@ -43,8 +47,8 @@ const plural = (n: number, one: string, many: string) => (n === 1 ? one : many);
 /** A month as the checker reads it: "October 2026". */
 const monthLong = (m: string) => month(m, true);
 
-/** The facts a week's summary is drafted from. `id` is the ISO week ("2026-45"). */
-export function weekFacts(id: string, w: WeekData): FactsFile {
+/** The facts a week's summary is drafted from. `id` is the ISO week ("2026-45"); `out` says which sources are withheld. */
+export function weekFacts(id: string, w: WeekData, out: (source: string) => boolean = withheld): FactsFile {
   const { from, to } = weekRange(id);
   const n = weekNumber(id);
   const year = Number(id.slice(0, 4));
@@ -52,7 +56,7 @@ export function weekFacts(id: string, w: WeekData): FactsFile {
     id: 'week', statement: `This summary covers ISO week ${n} of ${year}, from ${long(from)} to ${long(to)}.`,
     value: n, unit: 'week', source: 'geopolitics.tools, This week', link: `https://geopolitics.tools/this-week/${id}`, date: w.made.slice(0, 10),
   }];
-  for (const c of w.cards) if (hasFigures(c)) facts.push(...cardFacts(c, to));
+  for (const c of w.cards) if (hasFigures(c)) facts.push(...cardFacts(c, to, out));
   return {
     id: `week:${id}`, kind: 'week', subject: `week ${n} of ${year} (${long(from)} to ${long(to)})`,
     countries: [], names: NAMES,
@@ -60,11 +64,17 @@ export function weekFacts(id: string, w: WeekData): FactsFile {
   };
 }
 
-function cardFacts(c: Card, weekEnd: string): Fact[] {
+function cardFacts(c: Card, weekEnd: string, isWithheld: (source: string) => boolean): Fact[] {
   const date = c.src.changed.slice(0, 10);
   switch (c.kind) {
     case 'disaster': {
       const src = { source: 'GDACS', link: WEEK_LINKS.disaster, date };
+      if (isWithheld('gdacs')) {
+        return c.alerts.slice(0, WEEK_ITEMS).map((a, i): Fact => {
+          const places = known(a.places);
+          return { id: `alert-${i + 1}`, period: a.from.slice(0, 10), places, ...src, statement: `GDACS alert: ${W.hazard(a.type).toLowerCase()}${places.length ? ` in ${list(places.map(nameOf))}` : ''}, from ${long(a.from)}.` };
+        });
+      }
       const red = c.alerts.filter((a) => a.level === 'red').length;
       const out: Fact[] = [
         { id: 'alerts', statement: `GDACS issued ${count(c.alerts.length)} new orange or red disaster ${plural(c.alerts.length, 'alert', 'alerts')} this week: alerts that began, or rose to orange or red, in the week.`, value: c.alerts.length, unit: 'alerts', ...src },
@@ -116,6 +126,12 @@ function cardFacts(c: Card, weekEnd: string): Fact[] {
     }
     case 'outage': {
       const src = { source: 'IODA, Georgia Tech', link: WEEK_LINKS.outage, date };
+      if (isWithheld('ioda')) {
+        return c.rows.slice(0, WEEK_ITEMS).map((r, i): Fact => ({
+          id: `outage-${i + 1}`, statement: `IODA recorded an internet outage in ${nameOf(r.place)} that began on ${long(r.start)}.`,
+          period: r.start.slice(0, 10), places: [r.place], ...src,
+        }));
+      }
       return [
         { id: 'outages', statement: `IODA recorded ${count(c.rows.length)} national-scale internet ${plural(c.rows.length, 'outage', 'outages')} that began this week. IODA reports when an outage began and how long it lasted, not why.`, value: c.rows.length, unit: 'outages', ...src },
         ...c.rows.slice(0, WEEK_ITEMS).map((r, i): Fact => ({

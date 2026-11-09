@@ -10,14 +10,14 @@
       "statement": "CO2 emissions in total, per person, since 1750 and in traded goods, from the Global Carbon Budget.",
       "source": "geopolitics.tools code (src/data/views.ts)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/views.ts",
-      "date": "2026-11-02"
+      "date": "2026-11-09"
     },
     {
       "id": "water",
       "statement": "Water stress and the water a country gets from abroad, from WRI Aqueduct and FAO AQUASTAT, and large dams from Global Dam Watch.",
       "source": "geopolitics.tools code (src/data/views.ts)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/views.ts",
-      "date": "2026-11-02"
+      "date": "2026-11-09"
     },
     {
       "id": "rivers",
@@ -29,21 +29,14 @@
       ],
       "source": "geopolitics.tools code (src/data/rivers.ts)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/rivers.ts",
-      "date": "2026-11-02"
-    },
-    {
-      "id": "disasters",
-      "statement": "Orange and red disaster alerts from GDACS and earthquakes from the USGS.",
-      "source": "geopolitics.tools code (src/data/views.ts)",
-      "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/views.ts",
-      "date": "2026-11-02"
+      "date": "2026-11-09"
     },
     {
       "id": "rule",
       "statement": "Each map shows one source’s own figures for each country, with the year or period it covers.",
       "source": "geopolitics.tools code (docs/page-engine.md)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/docs/page-engine.md",
-      "date": "2026-11-02"
+      "date": "2026-11-09"
     }
   ]
 }
