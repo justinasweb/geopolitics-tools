@@ -131,6 +131,11 @@ function cardFacts(c: Card, weekEnd: string): Fact[] {
         const t = W.list(l.list);
         const src = { source: t.sub ? `${t.name}: ${t.sub}` : t.name, link: WEEK_LINKS[l.list] ?? WEEK_LINKS.US, date, places: LIST_PLACE[l.list] ? [LIST_PLACE[l.list]!] : [] };
         const span = `between ${long(since)} and ${long(weekEnd)}`;
+        // A list with nothing added or removed is one fact: two "no entries" facts would read as one said twice.
+        if (l.added === 0 && l.removed === 0) {
+          out.push({ id: `sanctions-${l.list.toLowerCase()}-none`, statement: `No entries were added to or removed from the ${t.name} sanctions lists (${t.sub}) ${span}.`, value: 0, unit: 'entries', ...src });
+          continue;
+        }
         out.push(
           { id: `sanctions-${l.list.toLowerCase()}-added`, statement: `${l.added === 0 ? 'No' : l.added} ${plural(l.added, 'entry was', 'entries were')} added to the ${t.name} sanctions lists (${t.sub}) ${span}.`, value: l.added, unit: 'entries', ...src },
           { id: `sanctions-${l.list.toLowerCase()}-removed`, statement: `${l.removed === 0 ? 'No' : l.removed} ${plural(l.removed, 'entry was', 'entries were')} removed from the ${t.name} sanctions lists (${t.sub}) ${span}.`, value: l.removed, unit: 'entries', ...src },

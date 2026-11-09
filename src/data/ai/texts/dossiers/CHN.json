@@ -1,9 +1,9 @@
 {
   "id": "dossier:CHN",
   "author": "ai",
-  "text": "Net imports were 67% of China's oil use in 2024 (U.S. Energy Information Administration, 2024) and 84% of its soybean use (FAOSTAT, 2024). Russia was the main supplier of its major arms imports, at 67% (SIPRI, 2021–2025). China produced an estimated 69% of world rare earth mine output and 99% of world primary gallium production (USGS, 2025). It has 1.4 billion people and a GDP of US$19.5 trillion, second of 186 places (World Bank, 2025).",
+  "text": "Net imports were 67% of China's oil use in 2024 (U.S. Energy Information Administration, 2024) and 84% of its soybean use (FAOSTAT, 2024). Russia was the main supplier of its major arms imports, at 66% (SIPRI, 2021–2025). China produced an estimated 69% of world rare earth mine output and 99% of world primary gallium production (USGS, 2025). It has 1.4 billion people and a GDP of US$19.5 trillion, second of 186 places (World Bank, 2025).",
   "model": "claude-sonnet-5-5",
-  "factsHash": "sha256:29178969234bb5e104fb2fec3d96932f",
+  "factsHash": "sha256:de0a0bd240d2df88349b0db59aa2b1e6",
   "usedFacts": [
     "gdp",
     "gdp-of",
@@ -18,6 +18,7 @@
   ],
   "drafted": "2026-11-06",
   "approved": true,
-  "approvedOn": "2026-11-06",
-  "approvedVia": "telegram"
+  "approvedOn": "2026-11-09",
+  "approvedVia": "cli",
+  "edited": "2026-11-09"
 }

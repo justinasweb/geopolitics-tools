@@ -250,8 +250,8 @@
       ]
     },
     {
-      "id": "sanctions-eu-added",
-      "statement": "No entries were added to the European Union sanctions lists (Financial sanctions file) between 2 November 2026 and 8 November 2026.",
+      "id": "sanctions-eu-none",
+      "statement": "No entries were added to or removed from the European Union sanctions lists (Financial sanctions file) between 2 November 2026 and 8 November 2026.",
       "value": 0,
       "unit": "entries",
       "source": "European Union: Financial sanctions file",
@@ -260,30 +260,8 @@
       "places": []
     },
     {
-      "id": "sanctions-eu-removed",
-      "statement": "No entries were removed from the European Union sanctions lists (Financial sanctions file) between 2 November 2026 and 8 November 2026.",
-      "value": 0,
-      "unit": "entries",
-      "source": "European Union: Financial sanctions file",
-      "link": "https://webgate.ec.europa.eu/fsd/fsf",
-      "date": "2026-11-07",
-      "places": []
-    },
-    {
-      "id": "sanctions-uk-added",
-      "statement": "No entries were added to the United Kingdom sanctions lists (UK Sanctions List) between 2 November 2026 and 8 November 2026.",
-      "value": 0,
-      "unit": "entries",
-      "source": "United Kingdom: UK Sanctions List",
-      "link": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
-      "date": "2026-11-07",
-      "places": [
-        "GBR"
-      ]
-    },
-    {
-      "id": "sanctions-uk-removed",
-      "statement": "No entries were removed from the United Kingdom sanctions lists (UK Sanctions List) between 2 November 2026 and 8 November 2026.",
+      "id": "sanctions-uk-none",
+      "statement": "No entries were added to or removed from the United Kingdom sanctions lists (UK Sanctions List) between 2 November 2026 and 8 November 2026.",
       "value": 0,
       "unit": "entries",
       "source": "United Kingdom: UK Sanctions List",
