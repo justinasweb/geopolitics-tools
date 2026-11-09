@@ -29,6 +29,7 @@ const state = { country: '' };
 const head = chainTitle(flow, chain.label);
 const sides = SIDES[chain.kind];
 const crumbs = supplyChainCrumbs(flow);
+const others = chainLinks().filter((f) => f.key !== flow);
 const json = JSON.stringify({ chain }).replace(/</g, '\\u003c');
 ---
 <Page title={head.full} description={T.description(head.full, chain.period, sides.froms, sides.tos, chain.credit)} hub="tools" container="tl" mainClass="gt-skpage"
@@ -54,6 +55,12 @@ const json = JSON.stringify({ chain }).replace(/</g, '\\u003c');
     {/* The table is far below the header's source line on a long diagram: it carries its own. */}
     <SourceLine source={chain.source} parts={[periodLabel(chain), chain.mirrored ?? ''].filter(Boolean)} updated={chain.updated} />
   </section>
+  {others.length > 0 && (
+    <nav class="gt-tlsec" aria-labelledby="sk-others">
+      <h2 class="gt-h2" id="sk-others">{T.otherChains}</h2>
+      <ul class="gt-related">{others.map((f) => <li><a href={f.path}><span>{chainTitle(f.key, f.label).full}</span></a></li>)}</ul>
+    </nav>
+  )}
   <script type="application/json" id="sk-chain" set:html={json} />
 </Page>
 

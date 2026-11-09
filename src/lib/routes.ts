@@ -30,6 +30,8 @@ import { explorerMeasures } from './explorer.ts';
 import { liveChains } from './supply-chains.ts';
 import { VIEWS as EXPLORER_VIEWS } from './explorer/model.ts';
 import { archivedWeeks, liveWeek, weekIndexed } from './week.ts';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 
 export type Lang = 'en';
 export type Kind = 'countries' | 'country' | 'compare' | 'indicators' | 'indicator' | 'page' | 'sources' | 'view' | 'hub' | 'tool' | 'week';
@@ -109,6 +111,12 @@ export const COMPARE_PAIRS: [string, string][] = DOSSIERS.flatMap((a, i) => DOSS
 /** The long-read pages written in Markdown (src/content/pages/<id>.md). */
 export const STATIC_PAGES = ['about', 'methodology', 'privacy'] as const;
 
+/** When a static page's text last changed: the "updated" date in its Markdown front matter (src/content/pages). */
+export function pageUpdated(id: string): string | undefined {
+  const md = readFileSync(join(process.cwd(), 'src/content/pages', `${id}.md`), 'utf8');
+  return md.match(/^---\n[\s\S]*?^updated:\s*"?(\d{4}-\d{2}-\d{2})"?\s*$/m)?.[1];
+}
+
 function build(): Route[] {
   const lang: Lang = 'en';
   const out: Route[] = [];
@@ -136,7 +144,7 @@ function build(): Route[] {
       image: paths.image('indicators', INDICATOR_SLUGS[id]), lastmod: m ? changed(m.source) : undefined,
     });
   }
-  for (const id of STATIC_PAGES) out.push({ key: `page:${id}`, kind: 'page', lang, path: paths.page(id), live: true, indexed: true, aliases: [], id, image: paths.image('page', id) });
+  for (const id of STATIC_PAGES) out.push({ key: `page:${id}`, kind: 'page', lang, path: paths.page(id), live: true, indexed: true, aliases: [], id, image: paths.image('page', id), lastmod: pageUpdated(id) });
   out.push({ key: 'page:sources', kind: 'sources', lang, path: paths.page('sources'), live: true, indexed: true, aliases: [], id: 'sources', image: paths.image('page', 'sources'), lastmod: snapshotDate });
 
   // Map views (phase 4 onwards). A view family's pages have keys "view:<family>:<page>"; the family's own address

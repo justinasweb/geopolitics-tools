@@ -270,8 +270,8 @@ describe('This week pages name one range everywhere', () => {
     expect(m.rangeText).toBe(long);
     expect(m.counts.map((c) => c.source)).toEqual([`GDACS · ${short}`]);
     for (const c of m.cards) expect(c.period, c.kind).toBe(short);
-    // The live page links to the latest closed week (the sample build has week 42); an archived week does not.
-    expect(m.nav.latest).toEqual(id ? undefined : { href: '/this-week/2026-42', label: 'week 42' });
+    // The live page links to the last four closed weeks by name (the sample build has week 42); an archived week does not.
+    expect(m.nav.recent).toEqual(id ? [] : [{ href: '/this-week/2026-42', label: 'Week 42, 12–18 Oct' }]);
   };
 
   it('across two months: the last 7 days, and the closed ISO week Monday to Sunday', { timeout: 30_000 }, async () => {

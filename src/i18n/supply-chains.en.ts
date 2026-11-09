@@ -92,6 +92,9 @@ export const CHAINS_TEXT = {
   // Phone list
   topFlows: (n: number, unit: string) => `Top ${n} flows, ${unit}`,
 
+  // Links to the other flows, below the table
+  otherChains: 'Other supply chains',
+
   // Table and download
   tableTitle: 'The same flows as a table',
   tableLabel: (label: string) => `${label} flows`,

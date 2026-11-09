@@ -1,4 +1,6 @@
 import { beforeAll, describe, expect, it } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import type { Loaded } from '../../src/data/indicators.ts';
 import { INDICATORS } from '../../src/data/indicators.ts';
 import { INDICATOR_TEXT } from '../../src/i18n/en.ts';
@@ -34,6 +36,14 @@ describe('route registry', () => {
     expect(R.route('indicator:co2trade')?.aliases).toContain('/indicators/co2-imported-in-goods');
     expect(R.route('view:emissions:co2trade')?.aliases).toContain('/emissions/imported');
     expect(R.redirects()).toContain('/emissions/imported /emissions/net-imports 301');
+  });
+
+  it('dates About, Methodology and Privacy by the "updated" in their front matter, and Sources by the snapshot', () => {
+    for (const id of R.STATIC_PAGES) {
+      const md = readFileSync(join(process.cwd(), 'src/content/pages', `${id}.md`), 'utf8');
+      expect(R.route(`page:${id}`)?.lastmod).toBe(md.match(/^updated: "(.+)"$/m)![1]);
+    }
+    expect(R.route('page:sources')?.lastmod).toBeTruthy();
   });
 
   it('fails on two pages with one path, an alias that is a page, or a path that breaks the rules', () => {
