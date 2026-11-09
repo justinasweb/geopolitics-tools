@@ -30,8 +30,7 @@ export const SEARCH_TEXT = {
   notYetNames: { chokepoints: ['chokepoint', 'strait', 'shipping lanes', 'Hormuz', 'Suez', 'Malacca', 'Bosporus', 'Bab el-Mandeb', 'Gibraltar', 'Dover', 'Panama Canal', 'Cape of Good Hope'], ports: ['port', 'harbour', 'harbor', 'shipping'] } as Record<string, string[]>,
 
   /** The line under each result. */
-  dossier: 'Full dossier',
-  profile: 'Country profile',
+  country: 'Country page',
   territory: 'Territory',
   former: 'Former state',
   compare: 'Compare',

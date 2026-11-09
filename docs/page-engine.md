@@ -44,9 +44,9 @@ servers never see the part after `#`.
 
 | Page | Rule |
 | --- | --- |
-| Country profile | Every country or territory with at least one figure from any source. Fewer than 4 measures: built, `noindex`, with the "few sources" box listing which sources cover it. Every profile has the People section when WPP covers the place (spec, D16): population 1950–2100 with the UN range, the age pyramid, births per woman, median age, share aged 65+. People needs the three UN WPP imports (`wpp-total`, `wpp-indicators`, `wpp-age`); its age pyramid has a year slider in five-year steps, 1950–2100, every year drawn at build time on one scale |
-| Dossier | United States, China and Russia: the profile plus money, technology and climate sections |
-| Compare | The three pairs of dossier countries |
+| Country page | Every country or territory with at least one figure from any source; the kind line says "Country page" or "Territory". Fewer than 4 measures: built, `noindex`, with the "few sources" box listing which sources cover it. Every page has money, technology and climate sections where the snapshot has their figures (spec, D20; each part and section left out with no figure; CO2 per person then moves from More figures to Climate), and the People section when WPP covers the place (spec, D16): population 1950–2100 with the UN range, the age pyramid, births per woman, median age, share aged 65+. People needs the three UN WPP imports (`wpp-total`, `wpp-indicators`, `wpp-age`); its age pyramid has a year slider in five-year steps, 1950–2100, every year drawn at build time on one scale |
+| United States, China, Russia | The same country page, plus the approved AI-drafted summary and Compare links (`DOSSIERS` in `src/lib/country.ts`) |
+| Compare | The three pairs of the United States, China and Russia; /countries lists them under Compare |
 | Indicator | Every registry measure with data in the snapshot. Fewer than 20 places reporting in the common year: built, `noindex`. Measures waiting on a key or permission have no page and are listed on the index as waiting |
 | About, Methodology, Privacy | `src/content/pages/*.md`. Each shows the draft banner until its front matter says `approved: true` and its facts are unchanged since (see [ai-drafting.md](ai-drafting.md)) |
 | Sources | Generated from the source registry, the licence table and the last snapshot; corrections from `src/data/corrections.csv` |
@@ -158,7 +158,7 @@ part links only to live pages; a part with nothing to show is left out.
   that is not live is left out. Bloc overlap is drawn as two circles here (`ToolIcon circles`); hubs keep the matrix.
   Supply chains counts its live flows of goods (refugees are not a good).
 - **Worked questions.** Rare earths (USGS, the view's latest year, with its Estimate tag), US Treasury holders (TIC
-  Table 5's latest month; links to the dossier of the first dossier country among the top three, China, since there
+  Table 5's latest month; links to the money section of the first of the three `DOSSIERS` among the top three, China, since there
   is no Treasuries map) and Hungary's gas (the Dependencies tool's row: the main supplier's share of imports from
   UN Comtrade, and net imports against use from EIA, each with its own year, never multiplied together). Each card
   is left out when its data is missing.
@@ -166,8 +166,10 @@ part links only to live pages; a part with nothing to show is left out.
   the topics; hidden when /this-week is not live or the week has no count.
 - **Topics.** One card per live hub, in menu order, with its live views. **Questions to start from:** the first six
   live of eight prepared questions (`QUESTIONS`).
-- **Countries and rankings.** The three dossiers, each with the first sentence of its page's template summary (with
-  the Estimate tag when that is USGS's estimated year; the plain line when there is none); then the six largest economies after them by GDP in the common year,
+- **Countries and rankings.** Three cards: the Compare pages (`places('compare')`, at /), or, the other option under
+  review at /dev/home-pages, the three largest economies' country pages by GDP in the common year, each with the first
+  sentence of its page's template summary (with the Estimate tag when that is USGS's estimated year; the plain line
+  when there is none). Then six largest economies by GDP in the common year (after the three cards in the second option),
   a rule the page states (there is no traffic data, so nothing is "popular"); rankings for military spending, CO2 per
   person and refugees hosted, worded as on the hubs.
 - **Trust strip.** The Sources page's count and the snapshot's time.
@@ -258,7 +260,7 @@ it in the page, and `src/lib/overlap/render.ts` draws it, at build time for the 
   the family's layers, worded as the view's picker (up to eight).
 - **Tools.** The topic's tools from `HUB_TOOLS`, live ones only: Supply chains links the topic's flows, the Atlas its
   first two maps.
-- **Countries.** By a rule the page states (no traffic data, so nothing is "popular"): the three dossiers, then the
+- **Countries.** By a rule the page states (no traffic data, so nothing is "popular"): the United States, China and Russia, then the
   countries ranked first on most of the topic's maps of world shares, volumes and counts (layers marked `ranks` in the
   registry; not a share of a country's own total, a per-person figure, a score or a membership; default year; a
   first place shared with the next country does not count), up to ten, each with the maps it is first on.

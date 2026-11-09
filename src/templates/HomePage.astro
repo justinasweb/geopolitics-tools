@@ -16,17 +16,21 @@ import '../styles/atlas/hub.css';
 import '../styles/atlas/home.css';
 import { HOME_TEXT as T } from '../i18n/home.en';
 import { SOURCE_TEXT, TRAIL_TEXT } from '../i18n/en';
-import { countryOptions, places, questionCards, questions, toolRow, topics, trust, weekStrip } from '../lib/home';
+import { countryOptions, places, questionCards, type PlacesCards, questions, toolRow, topics, trust, weekStrip } from '../lib/home';
 import { tryLinks } from '../lib/search';
 import { hashRedirectScript, live, paths } from '../lib/routes';
 import { website } from '../lib/structured';
 
+interface Props {
+  /** The Countries and rankings cards: Compare pages (the default) or the largest economies' country pages. */
+  cards?: PlacesCards;
+}
 const tools = toolRow();
 const cards = questionCards();
 const week = weekStrip();
 const hubs = topics();
 const qs = questions();
-const pl = places();
+const pl = places(Astro.props.cards);
 const tr = trust();
 const tries = tryLinks();
 const method = live('page:methodology')?.path;
@@ -130,12 +134,12 @@ const method = live('page:methodology')?.path;
     <div class="gt-cr">
       <div class="gt-cr__c">
         <CountrySearch id="home-cs" label={T.findCountry} placeholder={T.findPlaceholder} options={countryOptions()} />
-        {pl.dossiers.length > 0 && (
-          <ul class="gt-dossiers">
-            {pl.dossiers.map((d) => <li><a class="gt-doss" href={d.href}><span class="gt-label">{T.dossier}</span><span class="gt-doss__name">{d.label}</span><span class="gt-doss__what">{d.fact ?? T.dossierWhat}{d.fact && d.estimated && <> <StatusTag status="estimate" small /></>}</span></a></li>)}
+        {pl.cards.length > 0 && (
+          <ul class="gt-crcards">
+            {pl.cards.map((c) => <li><a class="gt-crcard" href={c.href}><span class="gt-label">{c.kicker}</span><span class="gt-crcard__name">{c.label}</span><span class="gt-crcard__what">{c.what}{c.estimated && <> <StatusTag status="estimate" small /></>}</span></a></li>)}
           </ul>
         )}
-        {pl.profiles && <p class="gt-cr__pop"><span>{T.profiles(pl.profiles.year)}</span> {pl.profiles.links.map((l, i) => <Fragment>{i > 0 ? ', ' : ''}<a href={l.href}>{l.label}</a></Fragment>)}</p>}
+        {pl.profiles && <p class="gt-cr__pop"><span>{T.profiles(pl.profiles.year, pl.profiles.after)}</span> {pl.profiles.links.map((l, i) => <Fragment>{i > 0 ? ', ' : ''}<a href={l.href}>{l.label}</a></Fragment>)}</p>}
         <a class="gt-sechead__link" href={paths.countries()}>{T.allCountries} <span aria-hidden="true">→</span></a>
       </div>
       {pl.rankings.length > 0 && (

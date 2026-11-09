@@ -7,7 +7,6 @@ import { BLOCS_CHECKED, blocs } from '../blocs.ts';
 import { blocPage, blocPages, blocsOf, countClass as blocCountClass, measureYear, membershipCounts, weightIn } from '../blocview.ts';
 import { BLOCS_TEXT, HISTORY_TEXT, MEASURE_TEXT, MEMBER_NOTES } from '../../i18n/blocs.en.ts';
 import { HISTORY_BLOCS, STATUS_CLASS, historyPage, spanText, statusIn } from '../history.ts';
-import { DOSSIERS } from '../country.ts';
 import { PLACES, NOTES } from '../places.ts';
 import { countryHref, live } from '../routes.ts';
 import { amount, listed, mineralPages, shareClass, shareText, withheld, nameOf, type MineralPage } from '../minerals.ts';
@@ -75,7 +74,7 @@ export interface LayerDef {
 export const fill = (t: string, v: Record<string, string | number>) => t.replace(/\{(\w+)\}/g, (_, k) => String(v[k] ?? ''));
 
 /** The parts of a layer file every layer shares: names, links, notes, blocs and the interface words. */
-function common(): Pick<LayerFile, 'tags' | 'names' | 'hrefs' | 'dossiers' | 'slugs' | 'notes' | 'blocs'> & { words: Partial<LayerFile['text']> } {
+function common(): Pick<LayerFile, 'tags' | 'names' | 'hrefs' | 'slugs' | 'notes' | 'blocs'> & { words: Partial<LayerFile['text']> } {
   const names: Record<string, string> = {};
   const slugs: Record<string, string> = {};
   const hrefs: Record<string, string> = {};
@@ -91,10 +90,10 @@ function common(): Pick<LayerFile, 'tags' | 'names' | 'hrefs' | 'dossiers' | 'sl
   for (const [id, members] of blocs()) bl[id] = { name: BLOC_TEXT[id] ?? id, members };
   return {
     tags: { estimate: tagHtml('estimate'), projection: tagHtml('projection'), preliminary: tagHtml('preliminary') },
-    names, hrefs, dossiers: DOSSIERS, slugs, notes, blocs: bl,
+    names, hrefs, slugs, notes, blocs: bl,
     words: {
-      world: MAP_TEXT.world, close: MAP_TEXT.close, countryPage: MAP_TEXT.countryPage, dossier: MAP_TEXT.dossier, inTable: MAP_TEXT.inTable,
-      countryPageOf: MAP_TEXT.countryPageOf, dossierOf: MAP_TEXT.dossierOf, inYear: MAP_TEXT.inYear,
+      world: MAP_TEXT.world, close: MAP_TEXT.close, countryPage: MAP_TEXT.countryPage, inTable: MAP_TEXT.inTable,
+      countryPageOf: MAP_TEXT.countryPageOf, inYear: MAP_TEXT.inYear,
       hint: MAP_TEXT.clickHint, tapHint: MAP_TEXT.tapHint, note: MAP_TEXT.note, disputed: MAP_TEXT.disputed,
       selected: MAP_TEXT.selected('{name}'), cleared: MAP_TEXT.cleared, members: MAP_TEXT.members(0).replace('0', '{n}'),
       removeBloc: MAP_TEXT.removeBloc('{bloc}'), movedYear: MAP_TEXT.movedYear(0, 1).replace('0', '{want}').replace('1', '{got}'),
@@ -140,7 +139,7 @@ function mineralLayer(p: MineralPage): LayerFile {
       detailLabel: PT.production(p.measure), rankLabel: PT.rankListed, rankOf: PT.rankOf, statusLabel: PT.status,
       trend: PT.shareTrend(p.measure), trendCaption: PT.trendCaption, ranking: PT.producers,
     },
-    tags: c.tags, names: c.names, hrefs: c.hrefs, dossiers: c.dossiers, slugs: c.slugs, notes: withSourceNotes(c.notes, p), blocs: c.blocs, data,
+    tags: c.tags, names: c.names, hrefs: c.hrefs, slugs: c.slugs, notes: withSourceNotes(c.notes, p), blocs: c.blocs, data,
     series: seriesOf(p.years.map((year) => Object.fromEntries(listed(p.byYear[year]).filter((x) => x.place).reverse().map((x) => [x.place!, x.share!])))),
     format: { kind: 'share' }, more: otherMinerals(p),
   };
@@ -242,7 +241,7 @@ function indicatorLayer(p: ViewPage): LayerFile {
       trend: PT.figureTrend(p.text.figureLabel), trendCaption: PT.trendCaption, ranking: PT.ranking,
       ...(p.text.barsLabel ? { bars: `${p.text.barsLabel}, {year}` } : {}),
     },
-    tags: c.tags, names: c.names, hrefs: c.hrefs, dossiers: c.dossiers, slugs: c.slugs, notes, blocs: c.blocs, data,
+    tags: c.tags, names: c.names, hrefs: c.hrefs, slugs: c.slugs, notes, blocs: c.blocs, data,
     series: seriesOf(p.years.map((year) => Object.fromEntries(p.byYear[year].rows.map((r) => [r.id, r.value])))),
     format: p.format, more: p.family.id === 'space' ? withSpace(viewMore(p)) : p.family.id === 'sanctions' ? withSanctions(viewMore(p), p.id) : p.id === 'outages' ? withOutages(viewMore(p)) : p.family.id === 'chinese-lending' ? withLending(viewMore(p), p.id) : p.family.id === 'electricity' ? withMix(viewMore(p), p) : p.family.id === 'food-crises' ? withPhases(viewMore(p)) : CHIP_LAYERS[p.id] ? withSuppliers(viewMore(p), p) : viewMore(p),
     ...(p.id === 'launches' ? { overlays: [launchSites(p)] } : p.id === 'aicompute' ? { overlays: [aiClusters(p)] } : p.id === 'waterstress' ? { overlays: [damMarks()] } : p.family.id === 'arms' ? { overlays: [armsArcs(p)] } : p.id === 'cyber' ? { overlays: [cyberArcs(p)] } : CHIP_LAYERS[p.id] ? { overlays: [chipArcs(p)] } : {}),
@@ -658,7 +657,7 @@ function disasterLayer(p: DisasterPage): LayerFile {
       movedYear: D.movedDays,
       detailLabel: D.byLevel, rankLabel: PT.rank, rankOf: PT.rankOf, ranking: D.rankingIn,
     },
-    tags: c.tags, names: c.names, hrefs: c.hrefs, dossiers: c.dossiers, slugs: c.slugs, notes: c.notes, blocs: c.blocs, data,
+    tags: c.tags, names: c.names, hrefs: c.hrefs, slugs: c.slugs, notes: c.notes, blocs: c.blocs, data,
     series: seriesOf(p.periods.map((x) => Object.fromEntries(x.rows.map((r) => [r.id, r.n])))), format: { kind: 'count' },
     // Red marks last, so they sit on top.
     overlays,
@@ -720,7 +719,7 @@ function conflictLayer(): LayerFile {
       detailLabel: C.civShare, rankLabel: PT.rank, rankOf: PT.rankOf, statusLabel: PT.status,
       trend: C.trend, trendCaption: PT.trendCaption, ranking: PT.ranking,
     },
-    tags: c.tags, names: c.names, hrefs: c.hrefs, dossiers: c.dossiers, slugs: c.slugs, notes: c.notes, blocs: c.blocs, data,
+    tags: c.tags, names: c.names, hrefs: c.hrefs, slugs: c.slugs, notes: c.notes, blocs: c.blocs, data,
     series: seriesOf(p.months.map((m) => Object.fromEntries(m.rows.map((r) => [r.id, r.deaths])))), format: { kind: 'count' },
     more, overlays,
   };
@@ -770,7 +769,7 @@ function foodLayer(p: FoodPage): LayerFile {
       detailLabel: trade ? undefined : L.figure, rankLabel: F.rank, rankOf: F.rankOf, statusLabel: F.status,
       trend: F.trend(L.figure), trendCaption: F.trendCaption, ranking: F.ranking,
     },
-    tags: c.tags, names: c.names, hrefs: c.hrefs, dossiers: c.dossiers, slugs: c.slugs, notes: withFoodNotes(c.notes, p.id), blocs: c.blocs, data,
+    tags: c.tags, names: c.names, hrefs: c.hrefs, slugs: c.slugs, notes: withFoodNotes(c.notes, p.id), blocs: c.blocs, data,
     series: seriesOf(p.years.map((year) => Object.fromEntries(p.byYear[year].rows.map((r) => [r.id, r.value])))),
     format: { kind: 'mt' }, more: foodMore(p),
     ...(overlays.length ? { overlays } : {}),
@@ -827,7 +826,7 @@ function energyLayer(p: EnergyPage): LayerFile {
       detailLabel: trade ? undefined : L.figure, rankLabel: E.rank, rankOf: E.rankOf, statusLabel: E.status,
       trend: E.trend(L.figure), trendCaption: E.trendCaption, ranking: E.ranking,
     },
-    tags: c.tags, names: c.names, hrefs: c.hrefs, dossiers: c.dossiers, slugs: c.slugs, notes: c.notes, blocs: c.blocs, data,
+    tags: c.tags, names: c.names, hrefs: c.hrefs, slugs: c.slugs, notes: c.notes, blocs: c.blocs, data,
     series: seriesOf(p.years.map((year) => Object.fromEntries(p.byYear[year].rows.map((r) => [r.id, r.value])))),
     format: { kind: 'number', unit, digits: p.layer === 'reserves' || p.fuel === 'gas' ? 1 : 0 }, more: energyMore(p),
     ...(overlays.length ? { overlays } : {}),
@@ -977,7 +976,7 @@ function blocLayer(id: string): LayerFile {
       withheld: MAP_TEXT.withheldBy, withheldWhy: '', prev: '{year}: {value}', rank: VIEWS_TEXT.rank(0, 1).replace('0', '{rank}').replace('1', '{of}'),
       detailLabel: id === 'all' ? undefined : B.weightPopLabel, rankLabel: PT.rank, rankOf: PT.rankOf, ranking: B.ranking,
     },
-    tags: c.tags, names: c.names, hrefs: c.hrefs, dossiers: c.dossiers, slugs: c.slugs, notes, blocs: c.blocs,
+    tags: c.tags, names: c.names, hrefs: c.hrefs, slugs: c.slugs, notes, blocs: c.blocs,
     data: [{ year, label, legend: id === 'all' ? B.countLegend : B.legendMember, v, order, blocs: bl }],
     ...(series ? { series, format: { kind: 'count' } as const } : {}), more,
   };
@@ -1015,7 +1014,7 @@ function historyLayer(id: string): LayerFile {
       withheld: MAP_TEXT.withheldBy, withheldWhy: '', prev: '{year}: {value}', rank: VIEWS_TEXT.rank(0, 1).replace('0', '{rank}').replace('1', '{of}'),
       detailLabel: H.spans, statusLabel: PT.status,
     },
-    tags: c.tags, names: c.names, hrefs: c.hrefs, dossiers: c.dossiers, slugs: c.slugs, notes: c.notes, blocs: c.blocs, data, more,
+    tags: c.tags, names: c.names, hrefs: c.hrefs, slugs: c.slugs, notes: c.notes, blocs: c.blocs, data, more,
   };
 }
 
@@ -1077,7 +1076,7 @@ function riverLayer(id: string): LayerFile {
       withheld: MAP_TEXT.withheldBy, withheldWhy: '', prev: '{year}: {value}', rank: VIEWS_TEXT.rank(0, 1).replace('0', '{rank}').replace('1', '{of}'),
       rankLabel: PT.rank, rankOf: PT.rankOf,
     },
-    tags: c.tags, names: c.names, hrefs: c.hrefs, dossiers: c.dossiers, slugs: c.slugs, notes: c.notes, blocs: c.blocs,
+    tags: c.tags, names: c.names, hrefs: c.hrefs, slugs: c.slugs, notes: c.notes, blocs: c.blocs,
     data: [{ year: ws.year, legend: R.legend, v, order, blocs: bl }], more,
     overlays: [{ id: 'dams', kind: 'points', label: DAMS_TEXT.mark, symbol: 'triangle', items }], bounds,
   };
@@ -1101,7 +1100,7 @@ function nuclearLayer(id: NuclearPage): LayerFile {
     measure: '', withheld: MAP_TEXT.withheldBy, withheldWhy: '', prev: '{year}: {value}', rank: VIEWS_TEXT.rank(0, 1).replace('0', '{rank}').replace('1', '{of}'),
     kicker: `${name} · {year}`, shareLabel: '', none: '', ...o,
   });
-  const base = { tags: c.tags, names: c.names, hrefs: c.hrefs, dossiers: c.dossiers, slugs: c.slugs, blocs: c.blocs };
+  const base = { tags: c.tags, names: c.names, hrefs: c.hrefs, slugs: c.slugs, blocs: c.blocs };
   if (id === 'warheads') {
     const m = warheadsModel()!;
     const f = m.forces;

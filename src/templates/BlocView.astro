@@ -29,7 +29,6 @@ import { place } from '../lib/places';
 import { sourceName } from '../lib/data';
 import { countryHref, live, route, hubCrumb } from '../lib/routes';
 import { layerFile, layerPath } from '../lib/map/layers';
-import { DOSSIERS } from '../lib/country';
 import { breadcrumbs } from '../lib/structured';
 
 interface Props { id: string }
@@ -69,7 +68,7 @@ const noteNo = (x: string) => notes.findIndex((n) => n.id === x) + 1;
 const related = [
   ...(all || !live(`view:alliance-history:${id}`) ? [] : [{ href: live(`view:alliance-history:${id}`)!.path, name: B.history, note: B.historyNote(name) }]),
   ...(all ? [] : [{ href: route(key('all'))!.path, name: B.allTitle, note: B.allLink }]),
-  ...(all ? [] : p!.byPopulation.slice(0, 3)).filter((x) => countryHref(x)).map((x) => ({ href: countryHref(x)!, name: nameOf(x), note: DOSSIERS.includes(x) ? B.dossier : B.countryPage })),
+  ...(all ? [] : p!.byPopulation.slice(0, 3)).filter((x) => countryHref(x)).map((x) => ({ href: countryHref(x)!, name: nameOf(x), note: B.countryPage })),
   ...(all ? blocPages().slice(0, 4) : p!.overlaps.slice(0, 2).map((o) => blocPage(o.id)!)).filter((b) => live(key(b.id))).map((b) => ({ href: live(key(b.id))!.path, name: BLOC_TEXT[b.id] ?? b.id, note: B.sameView })),
 ];
 const mapLabel = all ? B.allMapLabel(counts.slice(0, 3).map((c) => `${nameOf(c.id)} ${B.memberOf(c.n)}`).join(', ')) : B.mapLabel(name, p!.byPopulation.map(nameOf).join(', '));

@@ -24,7 +24,6 @@ import { formatValue } from '../lib/format';
 import { place } from '../lib/places';
 import { countryHref, indicatorHref, live, route, hubCrumb } from '../lib/routes';
 import { layerPath } from '../lib/map/layers';
-import { DOSSIERS } from '../lib/country';
 import { breadcrumbs } from '../lib/structured';
 import type { Row } from '../lib/stats';
 import { constellations, sitesIn, spaceAsOf } from '../lib/space';
@@ -91,7 +90,7 @@ const noteNo = (id: string) => notes.findIndex((n) => n.id === id) + 1;
 const top = y.rows.slice(0, 3);
 const related = [
   ...(indicatorHref(p.id) ? [{ href: indicatorHref(p.id)!, name: indicatorLabel(p), note: W.indicatorPage }] : []),
-  ...top.filter((r) => countryHref(r.id)).map((r) => ({ href: countryHref(r.id)!, name: nameOf(r.id), note: DOSSIERS.includes(r.id) ? W.dossier : W.countryPage })),
+  ...top.filter((r) => countryHref(r.id)).map((r) => ({ href: countryHref(r.id)!, name: nameOf(r.id), note: W.countryPage })),
   ...familyPages(p.family.id).filter((o) => o.id !== p.id && live(key(o.id))).slice(0, 2).map((o) => ({ href: live(key(o.id))!.path, name: o.text.title, note: W.sameView })),
 ];
 const mapTop = (div ? [...y.rows.slice(0, 2), ...y.rows.slice(-2)] : top).map((r) => `${nameOf(r.id)} ${valueText(p, r.value)}`).join(', ');

@@ -59,7 +59,7 @@ export function card(r: Route | null): Card {
     const f = m.figures[0];
     const fm = f && indicatorModel(f.id);
     return {
-      kicker: m.dossier ? OG_TEXT.dossierKicker : OG_TEXT.countryKicker, title: m.place.name,
+      kicker: OG_TEXT.countryKicker, title: m.place.name,
       figure: f ? formatValue(f.value, INDICATORS[f.id].format) : undefined,
       caption: f ? tagged(`${INDICATOR_TEXT[f.id].label}, ${f.year}`, fm ? tagOf(fm, r.id, f.year) : undefined) : m.summary[0],
       source: f ? short(f.source) : undefined,

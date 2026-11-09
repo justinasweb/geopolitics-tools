@@ -108,7 +108,7 @@ layers whose view is live, and loads their files (`/map/<id>.json`) as the views
   analysis"), says grey means that, not zero, and lists the country's figures on up to five other rows' current
   layers with their units ("222 outages"), nearest topic first, each a button that switches to it.
 - **Panel words (every map).** The year before is labelled with what it measures ("Share of world in 2024"); the
-  country page and dossier links are named for screen readers with the place ("India country page"). An oil or gas
+  country page link is named for screen readers with the place ("India country page"). An oil or gas
   place's balance is from the latest year with both its output and its use (`balanceYear`), so production, use and
   net trade show together, and the note on net trade appears only with a net trade row.
 - **Year card.** Shown when the layer has more than one step; it steps by index, so years with gaps (launches), months

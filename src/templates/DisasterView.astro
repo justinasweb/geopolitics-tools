@@ -25,7 +25,6 @@ import { formatDate } from '../lib/format';
 import { place } from '../lib/places';
 import { countryHref, live, route, hubCrumb } from '../lib/routes';
 import { layerPath } from '../lib/map/layers';
-import { DOSSIERS } from '../lib/country';
 import { breadcrumbs } from '../lib/structured';
 import type { Hazard } from '../adapters/hazards';
 
@@ -68,7 +67,7 @@ const thirty = p.periods[0].rows;
 for (const r of thirty) if (!rows.some((x) => x.id === r.id)) rows.push({ id: r.id, n: p.periods.map((x) => x.rows.find((y) => y.id === r.id)?.n ?? 0), red: 0 });
 const where = (h: Hazard) => (h.places.length ? list(h.places.map((x, i) => inSentence(nameOf(x), i === 0))) : D.atSea);
 const related = [
-  ...year.rows.slice(0, 3).filter((r) => countryHref(r.id)).map((r) => ({ href: countryHref(r.id)!, name: nameOf(r.id), note: DOSSIERS.includes(r.id) ? D.dossier : D.countryPage })),
+  ...year.rows.slice(0, 3).filter((r) => countryHref(r.id)).map((r) => ({ href: countryHref(r.id)!, name: nameOf(r.id), note: D.countryPage })),
   ...disasterPages().filter((o) => o.id !== p.id && live(key(o.id))).slice(0, 3).map((o) => ({ href: live(key(o.id))!.path, name: KIND_TEXT[o.id].title, note: D.sameView })),
 ];
 const mapTop = per.rows.slice(0, 3).map((r) => `${nameOf(r.id)} ${D.alerts(r.n)}`).join(', ');

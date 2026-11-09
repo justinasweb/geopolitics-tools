@@ -22,7 +22,7 @@ export const HUB_TEXT = {
   countries: 'Countries and rankings for this topic',
   countryPages: 'Country pages',
   /** The stated rule for which countries are listed: there is no traffic data to rank by. */
-  countryRule: 'The three dossiers, then the countries ranked first on most of this topic’s maps of world shares, volumes and counts.',
+  countryRule: 'The United States, China and Russia, then the countries ranked first on most of this topic’s maps of world shares, volumes and counts.',
   firstOn: (maps: string) => `First on ${maps}`,
   topThree: (n: number) => `In the top three on ${n} of this topic’s maps`,
   allCountries: 'All countries',

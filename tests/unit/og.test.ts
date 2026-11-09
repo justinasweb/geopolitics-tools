@@ -108,7 +108,7 @@ describe('share image cards', () => {
     const { card } = await import('../../src/lib/og-cards.ts');
     cards = routes().filter((r) => r.live && r.image).map((r) => {
       const [kind, family] = r.key.split(':');
-      return { family: kind === 'view' ? family : kind === 'country' && ['USA', 'CHN', 'RUS'].includes(r.key.split(':')[1]) ? 'dossier' : kind, key: r.key, card: card(r) };
+      return { family: kind === 'view' ? family : kind, key: r.key, card: card(r) };
     });
   }, 300_000);
 
@@ -119,7 +119,7 @@ describe('share image cards', () => {
 
   it('fit the longest label of each view family, five times over, under its longest title, and render inside the card', async () => {
     const families = [...new Set(cards.map((c) => c.family))];
-    expect(families).toEqual(expect.arrayContaining(['blocs', 'minerals', 'oil', 'food', 'dossier', 'country', 'indicator']));
+    expect(families).toEqual(expect.arrayContaining(['blocs', 'minerals', 'oil', 'food', 'country', 'indicator']));
     for (const f of families) {
       const mine = cards.filter((c) => c.family === f && c.card.bars?.length);
       if (!mine.length) continue;

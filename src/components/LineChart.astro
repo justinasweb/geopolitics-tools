@@ -51,7 +51,14 @@ lo = Math.floor(lo / step) * step;
 hi = Math.ceil(hi / step) * step;
 const ticks: number[] = [];
 for (let v = lo; v <= hi + step / 2; v += step) ticks.push(Number(v.toPrecision(12)));
-const short = (v: number) => formatValue(v, format);
+// A plain number's ticks get the decimals their step needs, up to four, so a small emitter's axis reads "0.0025 Mt",
+// not "0 Mt" on every line.
+let tickFormat = format;
+const rounds = (d: number) => ticks.some((t) => Math.abs(Number(t.toFixed(d)) - t) > step * 1e-6);
+while (tickFormat.kind === 'number' && (tickFormat.digits ?? 0) < 4 && rounds(tickFormat.digits ?? 0)) {
+  tickFormat = { ...tickFormat, digits: (tickFormat.digits ?? 0) + 1 };
+}
+const short = (v: number) => formatValue(v, tickFormat);
 // x: the plot's width, as a share (for text, in %) or in the nested SVG's 0–1000 units (for paths).
 const share = (i: number) => (years.length > 1 ? i / (years.length - 1) : 0);
 const pct = (i: number) => `${(share(i) * 100).toFixed(2)}%`;

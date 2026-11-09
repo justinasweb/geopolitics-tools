@@ -160,10 +160,9 @@ export function countryPanelHtml(f: LayerFile, yearIndex: number, id: string, op
   const links: string[] = [];
   if (o.first) links.push(`<a class="gt-btn" href="${esc(o.first.href)}">${esc(o.first.label)}</a>`);
   if (f.hrefs[id]) {
-    const dossier = f.dossiers.includes(id);
     // The visible words stay short; the name says whose page it is.
-    const named = dossier ? f.text.dossierOf : f.text.countryPageOf;
-    links.push(`<a class="gt-btn gt-btn--quiet" href="${esc(f.hrefs[id])}"${named ? ` aria-label="${esc(fill(named, { name }))}"` : ''}>${esc(dossier ? f.text.dossier : f.text.countryPage)}</a>`);
+    const named = f.text.countryPageOf;
+    links.push(`<a class="gt-btn gt-btn--quiet" href="${esc(f.hrefs[id])}"${named ? ` aria-label="${esc(fill(named, { name }))}"` : ''}>${esc(f.text.countryPage)}</a>`);
   }
   if (e && o.table !== false) links.push(`<a class="gt-btn gt-btn--quiet" href="#table" data-show-row="${esc(id)}">${esc(f.text.inTable)}</a>`);
   return `${sheet ? `<button class="gt-sheet__grab" type="button" aria-label="${esc(f.text.close)}" data-sheet-grab></button>` : ''}`

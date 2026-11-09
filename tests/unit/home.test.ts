@@ -47,12 +47,13 @@ describe('homepage tool row', () => {
     for (const q of qs) expect(paths.has(path(q.href))).toBe(true);
   });
 
-  it('lists every country page in the Countries finder, the dossiers marked', async () => {
+  it('lists every country page in the Countries finder, only territories marked', async () => {
     const { countryOptions } = await import('../../src/lib/home.ts');
     const { routes } = await import('../../src/lib/routes.ts');
     const opts = countryOptions();
     expect(opts.length).toBe(routes().filter((r) => r.live && r.kind === 'country').length);
-    expect(opts.find((o) => o.href === '/countries/china')?.note).toBe('Full dossier');
+    expect(opts.find((o) => o.href === '/countries/china')?.note).toBeUndefined();
+    expect(opts.filter((o) => o.note).every((o) => o.note === 'Territory')).toBe(true);
   });
 
   it("shows the This week strip with the current week's counts, and hides it with no counts or no /this-week", async () => {
@@ -66,12 +67,12 @@ describe('homepage tool row', () => {
     expect(weekStrip(() => null, live)).toBeNull();
   });
 
-  it('gives each dossier card the first sentence of its page summary, tagged when the USGS year is an estimate the sentence does not name', async () => {
-    const { dossierFact } = await import('../../src/lib/home.ts');
+  it('gives each country card the first sentence of its page summary, tagged when the USGS year is an estimate the sentence does not name', async () => {
+    const { countryFact } = await import('../../src/lib/home.ts');
     const { countryModel } = await import('../../src/lib/country.ts');
     for (const id of ['USA', 'CHN', 'RUS']) {
       const m = countryModel(id);
-      const f = dossierFact(id);
+      const f = countryFact(id);
       expect(f.fact).toBe(m?.summary[0] ?? null);
       const lead = m?.minerals.slice(0, 3).find((x) => x.measure === 'mine') ?? m?.minerals[0];
       // No tag when the sentence already ends "…, estimated)." in words.
@@ -79,7 +80,25 @@ describe('homepage tool row', () => {
       expect(f.estimated).toBe(Boolean(f.fact && lead?.estimated && !says));
       if (says) expect(f.estimated).toBe(false);
     }
-    expect(dossierFact('XXX')).toEqual({ fact: null, estimated: false });
+    expect(countryFact('XXX')).toEqual({ fact: null, estimated: false });
+  });
+
+  it('shows the Compare pages as cards, or the three largest economies by GDP with the next six after them', async () => {
+    const { places } = await import('../../src/lib/home.ts');
+    const { routes } = await import('../../src/lib/routes.ts');
+    const { indicatorModel } = await import('../../src/lib/indicator.ts');
+    const compares = routes().filter((r) => r.kind === 'compare' && r.live).map((r) => r.path);
+    const a = places('compare');
+    expect(a.cards.map((c) => c.href)).toEqual(compares);
+    for (const c of a.cards) expect(c.kicker).toBe('Compare');
+    expect(a.profiles?.after ?? false).toBe(false);
+    const b = places('pages');
+    const gdp = indicatorModel('gdp');
+    if (!gdp) return;
+    expect(b.cards.length).toBe(3);
+    for (const c of b.cards) expect(c.kicker).toBe('Country page');
+    expect(b.profiles!.after).toBe(true);
+    expect(b.profiles!.links.map((l) => l.href)).not.toContain(b.cards[0].href);
   });
 
   it('says in the summary’s source when USGS’s mineral figures are estimates, as the minerals section does', async () => {

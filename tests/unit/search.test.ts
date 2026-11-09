@@ -8,11 +8,11 @@ process.env.GT_DATA = 'sample';
 const wire: WireIndex = {
   g: ['countries', 'maps', 'measures', 'places', 'blocs', 'tools', 'pages'],
   e: [
-    ['Myanmar', 0, 'Country profile', '/countries/myanmar', 'Burma', 'MM MMR', 'MMR'],
-    ['Türkiye', 0, 'Country profile', '/countries/turkiye', 'Turkey', 'TR TUR', 'TUR'],
-    ['Germany', 0, 'Country profile', '/countries/germany', '', 'DE DEU', 'DEU'],
-    ['Lithuania', 0, 'Country profile', '/countries/lithuania', '', 'LT LTU', 'LTU'],
-    ['United States', 0, 'Full dossier', '/countries/united-states', 'USA|United States of America', 'US USA', 'USA'],
+    ['Myanmar', 0, 'Country page', '/countries/myanmar', 'Burma', 'MM MMR', 'MMR'],
+    ['Türkiye', 0, 'Country page', '/countries/turkiye', 'Turkey', 'TR TUR', 'TUR'],
+    ['Germany', 0, 'Country page', '/countries/germany', '', 'DE DEU', 'DEU'],
+    ['Lithuania', 0, 'Country page', '/countries/lithuania', '', 'LT LTU', 'LTU'],
+    ['United States', 0, 'Country page', '/countries/united-states', 'USA|United States of America', 'US USA', 'USA'],
     ['Lithium', 1, 'Resources · Critical minerals', '/minerals/lithium', 'Critical minerals', '', ''],
     ['Wheat use', 1, 'Resources · Food and fertiliser', '/food/wheat/use', 'Food and fertiliser', '', ''],
     ['US sanctions listings', 1, 'Power and alliances · Sanctions', '/sanctions/us', 'Sanctions', '', ''],
@@ -83,7 +83,7 @@ describe('site search: matching', () => {
   });
 
   it('searches the words that match when several match nothing together, and says nothing matches only when no word does', () => {
-    const withUkraine = decode({ ...wire, e: [...wire.e, ['Ukraine', 0, 'Country profile', '/countries/ukraine', '', 'UA UKR', 'UKR']] });
+    const withUkraine = decode({ ...wire, e: [...wire.e, ['Ukraine', 0, 'Country page', '/countries/ukraine', '', 'UA UKR', 'UKR']] });
     const r = search(withUkraine, 'ukraine war');
     expect(r.partial).toBe('Ukraine');
     expect(r.groups[0].entries[0].path).toBe('/countries/ukraine');

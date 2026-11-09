@@ -17,7 +17,6 @@ import { SEARCH_ALIASES, SEARCH_TEXT as T } from '../i18n/search.en.ts';
 import { NAV_FOOTER } from '../data/nav.ts';
 import { atlasLayers } from './atlas.ts';
 import { blocs } from './blocs.ts';
-import { DOSSIERS } from './country.ts';
 import { menu } from './menu.ts';
 import { CODES, PLACES, place } from './places.ts';
 import { countryHref, hubOf, live, routes } from './routes.ts';
@@ -64,7 +63,7 @@ function items(): Item[] {
   // Countries, then Compare.
   for (const r of all.filter((x) => x.kind === 'country')) {
     const p = place(r.id)!;
-    const detail = DOSSIERS.includes(r.id) ? T.dossier : p.kind === 'territory' ? T.territory : p.kind === 'historical' ? T.former : T.profile;
+    const detail = p.kind === 'territory' ? T.territory : p.kind === 'historical' ? T.former : T.country;
     out.push({ name: p.name, group: 'countries', detail, path: r.path, aliases: otherNames(r.id), codes: [p.iso2, p.iso3].filter(Boolean), extra: r.id });
   }
   for (const r of all.filter((x) => x.kind === 'compare')) {

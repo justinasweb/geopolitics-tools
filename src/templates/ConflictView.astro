@@ -26,7 +26,6 @@ import { formatValue } from '../lib/format';
 import { place } from '../lib/places';
 import { countryHref, indicatorHref, live, route, hubCrumb } from '../lib/routes';
 import { layerPath } from '../lib/map/layers';
-import { DOSSIERS } from '../lib/country';
 import { breadcrumbs } from '../lib/structured';
 
 const p = conflictPage()!;
@@ -62,7 +61,7 @@ const rows = m.rows.map((r) => {
 const pct = (ch: number) => `${ch > 0 ? '+' : ch < 0 ? '−' : ''}${new Intl.NumberFormat('en', { maximumFractionDigits: 0 }).format(Math.abs(ch * 100))}%`;
 const related = [
   ...(indicatorHref('conflictdeaths') ? [{ href: indicatorHref('conflictdeaths')!, name: C.indicator, note: '' }] : []),
-  ...m.rows.slice(0, 3).filter((r) => countryHref(r.id)).map((r) => ({ href: countryHref(r.id)!, name: nameOf(r.id), note: DOSSIERS.includes(r.id) ? C.dossier : C.countryPage })),
+  ...m.rows.slice(0, 3).filter((r) => countryHref(r.id)).map((r) => ({ href: countryHref(r.id)!, name: nameOf(r.id), note: C.countryPage })),
   ...(live('view:refugees:refout') ? [{ href: live('view:refugees:refout')!.path, name: C.refugees, note: '' }] : []),
 ];
 const mapTop = m.rows.slice(0, 3).map((r) => `${nameOf(r.id)} ${count(r.deaths)}`).join(', ');

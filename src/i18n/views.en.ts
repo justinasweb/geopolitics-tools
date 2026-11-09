@@ -547,7 +547,6 @@ export const VIEWS_TEXT = {
   sameView: 'Same view, another measure',
   indicatorPage: 'Ranked table and trend',
   countryPage: 'Country page',
-  dossier: 'Full dossier',
   highest: 'Highest',
   importers: 'Consume more than they emit',
   exporters: 'Emit more than they consume',

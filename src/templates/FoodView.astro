@@ -24,7 +24,6 @@ import { refreshed, data } from '../lib/data';
 import { place } from '../lib/places';
 import { countryHref, indicatorHref, live, route, hubCrumb } from '../lib/routes';
 import { layerPath } from '../lib/map/layers';
-import { DOSSIERS } from '../lib/country';
 import { breadcrumbs } from '../lib/structured';
 import { shareExact, shareText } from '../lib/minerals';
 import type { FoodRow } from '../lib/food';
@@ -76,7 +75,7 @@ const top = trade ? [y.rows[0], y.rows.at(-1)!] : y.rows.slice(0, 3);
 const related = [
   ...commodityPages(p.commodity).filter((o) => o.id !== p.id && live(key(o.id))).map((o) => ({ href: live(key(o.id))!.path, name: F.layer[o.layer].title(T.pick), note: F.sameCommodity })),
   ...(indicatorId && indicatorHref(indicatorId) ? [{ href: indicatorHref(indicatorId)!, name: INDICATOR_TEXT[indicatorId]?.label ?? title, note: F.indicatorPage }] : []),
-  ...top.filter((r) => countryHref(r.id)).map((r) => ({ href: countryHref(r.id)!, name: nameOf(r.id), note: DOSSIERS.includes(r.id) ? F.dossier : F.countryPage })),
+  ...top.filter((r) => countryHref(r.id)).map((r) => ({ href: countryHref(r.id)!, name: nameOf(r.id), note: F.countryPage })),
 ];
 const mapTop = top.map((r) => `${nameOf(r.id)} ${trade ? netText(r.value) : shareOf(r.value, y.world)}`).join(', ');
 const bars = (rs: FoodRow[], max: number) => rs.map((r) => ({ id: r.id, text: mtShort(Math.abs(r.value)), w: max ? (100 * Math.abs(r.value)) / max : 0 }));

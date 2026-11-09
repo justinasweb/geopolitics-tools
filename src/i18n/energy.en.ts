@@ -174,7 +174,6 @@ export const ENERGY_TEXT = {
   sameFuel: 'Same fuel, another measure',
   otherFuel: 'Same measure, the other fuel',
   countryPage: 'Country page',
-  dossier: 'Full dossier',
   indicatorPage: 'Ranked table and trend',
   pricesTitle: 'Oil prices',
   pricesCaption: (from: string, to: string) => `Brent and WTI spot prices, US dollars a barrel, monthly averages, ${from} to ${to}.`,

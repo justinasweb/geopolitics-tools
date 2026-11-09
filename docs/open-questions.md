@@ -113,6 +113,21 @@ honours the wildcard on a put: if it did not, every Post would be refused.
 **Options.** Leave it as it is (the gap is milliseconds wide), or confirm `If-None-Match: *` on a Preview's bucket
 and add it to the claim.
 
+### Country pages for every country: three follow-ups (raised 9 Nov 2026)
+
+Money, technology and climate are now on every country page with data (spec D20).
+
+- **Homepage cards.** Countries and rankings shows the three Compare pages at /; the other option, the three largest
+  economies' country pages by GDP with the next six after them, is at /dev/home-pages (`places('pages')`). Choose
+  one; then drop the other option and /dev/home-pages.
+- **"0 Mt" for small emitters.** The Climate section writes CO2 under one million tonnes in tonnes ("11,000 t"), and
+  the chart's axis takes the decimals it needs. The All figures table and the CO2 indicator pages still use the
+  registry's whole-Mt format, so about 30 small places read "0 Mt" there. Options: switch `co2` and `co2cum` to the
+  `mt` format site-wide, or leave it.
+- **US Treasuries question.** The homepage card still links to the first of the United States, China and Russia among
+  the top three holders (China) at #money. Every holder's page now has a money section, so it could link to the
+  largest holder (Japan) instead.
+
 ## Launch review leftovers (raised 5 Nov 2026)
 
 - **G7 and Russia (decided 5 Nov 2026).** Russia joins in 1998, as the G8, per the G7 Research Group

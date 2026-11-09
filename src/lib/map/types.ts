@@ -111,9 +111,9 @@ export interface LayerFile {
     withheldWhy: string;   // one sentence
     prev: string;          // "{year}: {detail} ({value})"
     rank: string;          // "{rank} of {of} listed"
-    world: string; close: string; countryPage: string; dossier: string; inTable: string; hint: string; tapHint: string;
-    /** The country page and dossier links' names with the place ({name}); a figure from another year ({label}, {year}). */
-    countryPageOf?: string; dossierOf?: string; inYear?: string;
+    world: string; close: string; countryPage: string; inTable: string; hint: string; tapHint: string;
+    /** The country page link's name with the place ({name}); a figure from another year ({label}, {year}). */
+    countryPageOf?: string; inYear?: string;
     note: string; disputed: string; selected: string; cleared: string; members: string; removeBloc: string;
     movedYear: string; keys: string;
     /** The selected place's panel: fact labels, the trend's title ({from}, {to}) and caption ({first}, {from}, {last}, {to}), the ranking's title ({year}). */
@@ -125,9 +125,8 @@ export interface LayerFile {
   /** Status tags as HTML (their glyph and word). */
   tags: Record<Status, string>;
   names: Record<string, string>;
-  /** Country pages and dossiers that exist. */
+  /** Country pages that exist. */
   hrefs: Record<string, string>;
-  dossiers: string[];
   /** URL slugs of places, for ?country= */
   slugs: Record<string, string>;
   /** One-line notes for disputed places (territories policy, section 4). */

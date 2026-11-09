@@ -36,10 +36,8 @@ export const MAP_TEXT = {
   tapHint: 'Tap for details',
   close: 'Back to the world',
   countryPage: 'Country page',
-  dossier: 'Full dossier',
-  /** The same links' names for screen readers, with the place ({name}). */
+  /** The same link's name for screen readers, with the place ({name}). */
   countryPageOf: '{name} country page',
-  dossierOf: '{name}: full dossier',
   /** A figure from another year in the panel: "Share of world in 2024". */
   inYear: '{label} in {year}',
   inTable: 'Show in the table',
@@ -116,7 +114,6 @@ export const MINERALS_VIEW = {
   related: 'Related',
   sameView: 'Same view, another mineral',
   countryPage: 'Country page',
-  dossier: 'Full dossier',
   unitWord: (kg: boolean) => (kg ? 'Kilograms' : 'Tonnes'),
   /** The summary paragraph. Parts are already formatted. */
   total: (world: string, unit: string, mineral: string, basis: string | null, year: number, change: string | null, estimated: boolean) =>
