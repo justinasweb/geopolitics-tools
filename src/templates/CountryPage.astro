@@ -59,9 +59,8 @@ const label = (id: string) => INDICATOR_TEXT[id].short ?? INDICATOR_TEXT[id].lab
 const parts = (f: Figure) => formatParts(f.value, INDICATORS[f.id].format, INDICATOR_TEXT[f.id].unit);
 // A figure's tag: a projection, or an estimate after the country's own last actual year (WEO).
 const tagOf = (f: Figure) => statusAt(INDICATORS[f.id], p.id, f.year);
-// Climate's figures write CO2 in tonnes below one million ("10,000 t", not "0 Mt"), so small emitters' figures read.
+// Climate's sentence writes CO2 in tonnes below one million ("Tuvalu emitted 11,000 t"); figures stay in Mt.
 const MT: Format = { kind: 'mt' };
-const climateParts = (f: Figure) => (f.id === 'co2' || f.id === 'co2cum' ? formatParts(f.value, MT) : parts(f));
 const short = (s: string) => creditName(s);
 const statCaption = (f: Figure, rank = true) => [String(f.year), rank && f.of > 1 ? `${ordinal(f.rank)} of ${f.of}` : '', short(f.source)].filter(Boolean).join(' · ');
 const nameOf = (id: string) => place(id)?.name ?? id;
@@ -301,7 +300,7 @@ const citation = COUNTRY_TEXT.citation(name, kind, url, Number(m.updated.slice(0
                 <SourceLine source={sourceName('owid')} parts={[`${d.climate.co2.years[0]}–${d.climate.co2.years.at(-1)}`]} updated={m.updated} />
               </div>
             )}
-            <div class="gt-cpstats">{d.climate.stats.map((f) => <CpStat label={label(f.id)} num={climateParts(f).num} unit={climateParts(f).unit} caption={statCaption(f)} />)}</div>
+            <div class="gt-cpstats">{d.climate.stats.map((f) => <CpStat label={label(f.id)} num={parts(f).num} unit={parts(f).unit} caption={statCaption(f)} />)}</div>
           </CpSection>
         )}
 

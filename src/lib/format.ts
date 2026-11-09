@@ -16,6 +16,12 @@ export function formatValue(v: number | null | undefined, f: Format, locale = 'e
   return v < 0 && /[1-9]/.test(text) ? `${MINUS}${text}` : text;
 }
 
+/** A plain number's decimals: its own, or for a `small` one below 1, those two significant figures need. */
+function numberDigits(a: number, f: Extract<Format, { kind: 'number' }>): number {
+  const d = f.digits ?? 0;
+  return f.small && a > 0 && a < 1 ? Math.max(d, 1 - Math.floor(Math.log10(a))) : d;
+}
+
 /** A value's size as formatValue writes it, without its sign. Units are picked after rounding. */
 function formatAbs(a: number, f: Format, n: (x: number, digits: number) => string): string {
   switch (f.kind) {
@@ -34,7 +40,7 @@ function formatAbs(a: number, f: Format, n: (x: number, digits: number) => strin
     case 'share':
       return `${n(a * 100, a < 0.1 ? 1 : 0)}%`;
     case 'number':
-      return `${n(a, f.digits ?? 0)}${f.unit ? ` ${f.unit}` : ''}`;
+      return `${n(a, numberDigits(a, f))}${f.unit ? ` ${f.unit}` : ''}`;
     case 'mt':
       if (a >= 100) return `${n(a, 0)} Mt`;
       if (a >= 1) return `${n(a, 1)} Mt`;
@@ -80,7 +86,7 @@ export function formatParts(v: number, f: Format, unit = '', locale = 'en', scal
     case 'count': return scaled('');
     case 'percent': return { num: `${sign}${n(a, f.digits ?? 1)}`, unit: unit.startsWith('%') ? unit : '%' };
     case 'share': return { num: `${sign}${n(a * 100, a < 0.1 ? 1 : 0)}`, unit: '%' };
-    case 'number': return { num: `${sign}${n(a, f.digits ?? 0)}`, unit: f.unit ?? '' };
+    case 'number': return { num: `${sign}${n(a, numberDigits(a, f))}`, unit: f.unit ?? '' };
     case 'mt': return a >= 1 ? { num: `${sign}${n(a, a >= 100 ? 0 : 1)}`, unit: 'Mt' } : { num: formatValue(v, f).replace(' t', ''), unit: 't' };
   }
 }

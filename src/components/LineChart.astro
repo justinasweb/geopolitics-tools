@@ -58,7 +58,7 @@ const rounds = (d: number) => ticks.some((t) => Math.abs(Number(t.toFixed(d)) - 
 while (tickFormat.kind === 'number' && (tickFormat.digits ?? 0) < 4 && rounds(tickFormat.digits ?? 0)) {
   tickFormat = { ...tickFormat, digits: (tickFormat.digits ?? 0) + 1 };
 }
-const short = (v: number) => formatValue(v, tickFormat);
+const short = (v: number) => formatValue(v, v === 0 ? format : tickFormat);
 // x: the plot's width, as a share (for text, in %) or in the nested SVG's 0–1000 units (for paths).
 const share = (i: number) => (years.length > 1 ? i / (years.length - 1) : 0);
 const pct = (i: number) => `${(share(i) * 100).toFixed(2)}%`;

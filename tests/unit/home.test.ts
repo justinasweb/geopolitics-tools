@@ -83,22 +83,41 @@ describe('homepage tool row', () => {
     expect(countryFact('XXX')).toEqual({ fact: null, estimated: false });
   });
 
-  it('shows the Compare pages as cards, or the three largest economies by GDP with the next six after them', async () => {
+  it('shows the three largest economies by GDP as cards, the next six as links, with the rule, year and source', async () => {
+    const { places } = await import('../../src/lib/home.ts');
+    const { indicatorModel } = await import('../../src/lib/indicator.ts');
+    const { countryHref } = await import('../../src/lib/routes.ts');
+    const gdp = indicatorModel('gdp');
+    const p = places();
+    if (!gdp) return expect(p.gdp).toBeNull();
+    const ranked = gdp.common.map((r) => countryHref(r.id)).filter(Boolean);
+    expect(p.gdp!.cards.map((c) => c.href)).toEqual(ranked.slice(0, 3));
+    expect(p.gdp!.links.map((l) => l.href)).toEqual(ranked.slice(3, 9));
+    expect(p.gdp!.year).toBe(gdp.year);
+    expect(p.gdp!.source).toBe('World Bank');
+  });
+
+  it('links Compare to the /countries section, only when a Compare page is live', async () => {
     const { places } = await import('../../src/lib/home.ts');
     const { routes } = await import('../../src/lib/routes.ts');
-    const { indicatorModel } = await import('../../src/lib/indicator.ts');
-    const compares = routes().filter((r) => r.kind === 'compare' && r.live).map((r) => r.path);
-    const a = places('compare');
-    expect(a.cards.map((c) => c.href)).toEqual(compares);
-    for (const c of a.cards) expect(c.kicker).toBe('Compare');
-    expect(a.profiles?.after ?? false).toBe(false);
-    const b = places('pages');
-    const gdp = indicatorModel('gdp');
-    if (!gdp) return;
-    expect(b.cards.length).toBe(3);
-    for (const c of b.cards) expect(c.kicker).toBe('Country page');
-    expect(b.profiles!.after).toBe(true);
-    expect(b.profiles!.links.map((l) => l.href)).not.toContain(b.cards[0].href);
+    const any = routes().some((r) => r.kind === 'compare' && r.live);
+    expect(places().compareHref).toBe(any ? '/countries#compare' : null);
+  });
+
+  it('links the US Treasuries question to the largest holder in the latest month, with its holding and month', async () => {
+    const { questionCards } = await import('../../src/lib/home.ts');
+    const { treasuryHolders } = await import('../../src/adapters/treasury.ts');
+    const { shared } = await import('../../src/lib/data.ts');
+    const { place } = await import('../../src/lib/places.ts');
+    const card = questionCards().find((c) => c.q === 'Who holds US government debt?');
+    const t = shared(treasuryHolders)();
+    if (!card || !t) return;
+    const largest = t.holders.filter((h) => h.place && h.values[0] !== null).sort((a, b) => b.values[0]! - a.values[0]!)[0];
+    const name = place(largest.place!)!.name;
+    expect(card.href).toMatch(/#money$/);
+    expect(card.go).toBe(`Open the ${name} country page`);
+    expect(card.lead).toMatch(new RegExp(`^${name} held the most: \\$[\\d,]+bn at the end of [A-Z][a-z]+ \\d{4}\\.$`));
+    expect(card.bars![0].name).toBe(name);
   });
 
   it('says in the summary’s source when USGS’s mineral figures are estimates, as the minerals section does', async () => {

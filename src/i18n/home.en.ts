@@ -26,6 +26,7 @@ export const HOME_TEXT = {
     month: (m: string) => `end of ${m}`,
     go: (country: string) => `Open the ${country} country page`,
     value: (bn: string) => `$${bn}bn`,
+    lead: (country: string, value: string, month: string) => `${country} held the most: ${value} at the end of ${month}.`,
   },
   gas: {
     q: (country: string, supplier: string) => `What share of ${country}’s gas imports comes from ${supplier}?`,
@@ -59,15 +60,14 @@ export const HOME_TEXT = {
   countries: 'Countries and rankings',
   findCountry: 'Go to a country',
   findPlaceholder: 'Find a country',
-  /** The three cards: Compare pages, or country pages. */
-  compare: 'Compare',
-  pair: (a: string, b: string) => `${a} and ${b}`,
-  compareWhat: 'Key figures side by side, on the same year',
+  /** The stated rule for the country cards and links, with its year and source. */
+  byGdp: (year: number, source: string) => `Largest economies by GDP, ${year} · ${source}`,
   countryPage: 'Country page',
   /** A country card's line when its page has no summary sentence. */
   countryWhat: 'Key figures, money, people, technology and climate',
-  /** The stated rule for the other country pages listed: after the country cards, or on their own. */
-  profiles: (year: number, after: boolean) => (after ? `Largest economies after these three, by GDP in ${year}:` : `Largest economies, by GDP in ${year}:`),
+  /** Before the next six. */
+  next: 'Next:',
+  compare: 'Compare the United States, China and Russia',
   allCountries: 'See all countries',
   rankings: 'Rankings',
   allRankings: 'See all rankings',

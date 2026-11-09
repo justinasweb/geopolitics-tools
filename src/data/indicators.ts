@@ -32,7 +32,9 @@ export const GROUPS: Group[] = ['economy', 'people', 'energy', 'food', 'climate'
 
 /** How a value is written: money in US$, a count, a percentage (value 12.5 → 12.5%), a share (0.125 → 12.5%), or a number with a unit. */
 /** Money with `millions` writes any sum under a million dollars as "under $1 m" (totals, not amounts per person). */
-export type Format = { kind: 'money'; millions?: boolean } | { kind: 'count' } | { kind: 'percent'; digits?: number } | { kind: 'share' } | { kind: 'number'; digits?: number; unit?: string }
+export type Format = { kind: 'money'; millions?: boolean } | { kind: 'count' } | { kind: 'percent'; digits?: number } | { kind: 'share' }
+  /** `small`: below 1, the decimals two significant figures need ("0.011 Mt", not "0 Mt"). */
+  | { kind: 'number'; digits?: number; unit?: string; small?: boolean }
   /** Million tonnes, written in tonnes below one million ("148 Mt", "12.3 Mt", "540,000 t"). */
   | { kind: 'mt' };
 
@@ -106,6 +108,8 @@ const count: Format = { kind: 'count' };
 const share: Format = { kind: 'share' };
 const pct = (digits = 1): Format => ({ kind: 'percent', digits });
 const unit = (u: string, digits = 0): Format => ({ kind: 'number', unit: u, digits });
+// CO2 in million tonnes, the one unit in tables, maps and charts; small emitters keep their decimals.
+const mtCo2: Format = { kind: 'number', unit: 'Mt', digits: 0, small: true };
 
 const LIST: Indicator[] = [
   // Economy
@@ -148,9 +152,9 @@ const LIST: Indicator[] = [
   { id: 'fertpotash', group: 'food', source: 'faostat', format: unit('Mt', 2), scale: 'log', load: (raw) => foodOf(raw).fertilisers.potash.use, estimates: (raw) => foodOf(raw).fertilisers.potash.estimated.use },
   { id: 'fertphosphate', group: 'food', source: 'faostat', format: unit('Mt', 2), scale: 'log', load: (raw) => foodOf(raw).fertilisers.phosphate.use, estimates: (raw) => foodOf(raw).fertilisers.phosphate.estimated.use },
   // Climate and water
-  { id: 'co2', group: 'climate', source: 'owid', format: unit('Mt'), scale: 'log', load: (raw) => emisOf(raw).byField.co2 },
+  { id: 'co2', group: 'climate', source: 'owid', format: mtCo2, scale: 'log', load: (raw) => emisOf(raw).byField.co2 },
   { id: 'co2pc', group: 'climate', source: 'owid', format: unit('t', 1), scale: 'linear', load: (raw) => emisOf(raw).byField.pc },
-  { id: 'co2cum', group: 'climate', source: 'owid', format: unit('Mt'), scale: 'log', load: (raw) => emisOf(raw).byField.cum },
+  { id: 'co2cum', group: 'climate', source: 'owid', format: mtCo2, scale: 'log', load: (raw) => emisOf(raw).byField.cum },
   { id: 'co2trade', group: 'climate', source: 'owid', format: share, scale: 'linear', load: (raw) => combine(emisOf(raw).byField.cons, emisOf(raw).byField.co2, (c, t) => (t ? c / t - 1 : null)) },
   { id: 'waterstress', group: 'climate', source: 'aqueduct', format: unit('', 1), scale: 'linear', static: true,
     load: (raw) => staticYear(Object.fromEntries(Object.entries(waterOf(raw).stress).map(([id, s]) => [id, s.score])), 2023) },

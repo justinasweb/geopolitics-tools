@@ -158,7 +158,7 @@ part links only to live pages; a part with nothing to show is left out.
   that is not live is left out. Bloc overlap is drawn as two circles here (`ToolIcon circles`); hubs keep the matrix.
   Supply chains counts its live flows of goods (refugees are not a good).
 - **Worked questions.** Rare earths (USGS, the view's latest year, with its Estimate tag), US Treasury holders (TIC
-  Table 5's latest month; links to the money section of the first of the three `DOSSIERS` among the top three, China, since there
+  Table 5's latest month; links to the money section of the largest holder's country page and states its holding and month, since there
   is no Treasuries map) and Hungary's gas (the Dependencies tool's row: the main supplier's share of imports from
   UN Comtrade, and net imports against use from EIA, each with its own year, never multiplied together). Each card
   is left out when its data is missing.
@@ -166,11 +166,10 @@ part links only to live pages; a part with nothing to show is left out.
   the topics; hidden when /this-week is not live or the week has no count.
 - **Topics.** One card per live hub, in menu order, with its live views. **Questions to start from:** the first six
   live of eight prepared questions (`QUESTIONS`).
-- **Countries and rankings.** Three cards: the Compare pages (`places('compare')`, at /), or, the other option under
-  review at /dev/home-pages, the three largest economies' country pages by GDP in the common year, each with the first
-  sentence of its page's template summary (with the Estimate tag when that is USGS's estimated year; the plain line
-  when there is none). Then six largest economies by GDP in the common year (after the three cards in the second option),
-  a rule the page states (there is no traffic data, so nothing is "popular"); rankings for military spending, CO2 per
+- **Countries and rankings.** The three largest economies by GDP in the common year as country page cards, each with
+  the first sentence of its page's template summary (with the Estimate tag when that is USGS's estimated year; the
+  plain line when there is none), then the next six as links, under one line naming the rule, year and source
+  ("Largest economies by GDP, 2025 · World Bank"), a rule the page states (there is no traffic data, so nothing is "popular"); rankings for military spending, CO2 per
   person and refugees hosted, worded as on the hubs.
 - **Trust strip.** The Sources page's count and the snapshot's time.
 

@@ -37,7 +37,7 @@ const options = pages.map((m) => ({ name: m.place.name, note: m.place.kind === '
     <CountrySearch id="country-find" label={T.find} options={options} placeholder={T.find} />
 
     {compares.length > 0 && (
-      <section aria-labelledby="compare-h" class="gt-cindex__sec">
+      <section aria-labelledby="compare-h" class="gt-cindex__sec" id="compare">
         <h2 class="gt-h2" id="compare-h">{T.compare}</h2>
         <p class="gt-caption">{T.compareLede}</p>
         <ul class="gt-cplinks">{compares.map((c) => <li><a href={c.href}>{c.label} <span aria-hidden="true">→</span></a></li>)}</ul>

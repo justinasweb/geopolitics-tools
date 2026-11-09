@@ -15,7 +15,7 @@ const groups: { title: string; items: Route[] }[] = [
   { title: 'Compare', items: of('compare') },
   { title: 'Indicators', items: of('indicator') },
 ];
-const dev = ['/dev/components', '/dev/map', '/dev/home-pages', '/does-not-exist'];
+const dev = ['/dev/components', '/dev/map', '/does-not-exist'];
 const notLive = routes().filter((r) => !r.live).length;
 ---
 <Page title="Development index" description="Every page built so far, for local and Preview builds." noindex fromData={false}>

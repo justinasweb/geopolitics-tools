@@ -39,6 +39,7 @@
 .gt-qcard__q a:focus-visible { outline: none; }
 .gt-qcard__q a::after { content: ""; position: absolute; inset: 0; }
 .gt-qcard:hover .gt-qcard__q a { text-decoration: underline; text-decoration-thickness: 2px; }
+.gt-qcard__lead { margin: 0; font: 400 14px/20px var(--sans); }
 .gt-qcard__m { margin: -6px 0 0; font: 400 13px/18px var(--sans); color: var(--ink-muted); }
 .gt-qcard .gt-source { position: relative; z-index: 1; margin: 0; }
 .gt-qcard__go { display: inline-flex; gap: 6px; font: 600 15px/20px var(--sans); color: var(--brand); }
@@ -81,6 +82,7 @@
 
 /* countries and rankings: the homepage's own parts */
 .gt-cr__c .gt-combo { max-width: 420px; }
+.gt-cr__rule { margin: 0 0 -8px; }
 .gt-cr__pop { margin: 0; font: 400 15px/24px var(--sans); }
 .gt-cr__pop span { color: var(--ink-muted); }
 .gt-cr__pop a { display: inline-block; padding: 10px 0; }
