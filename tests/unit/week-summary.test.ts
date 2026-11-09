@@ -2,9 +2,9 @@ import { cpSync, mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { checkDraft, problemLines } from '../../src/lib/ai/check.ts';
+import { checkDraft, problemLines, strayNumbers } from '../../src/lib/ai/check.ts';
 import { lengthProblems, NoKeyError, wordCount, type DraftClient } from '../../src/lib/ai/draft.ts';
-import { factsHash, validateFacts } from '../../src/lib/ai/facts.ts';
+import { duplicateFacts, factsHash, validateFacts } from '../../src/lib/ai/facts.ts';
 import { approveText, editText, readText, saveDraft, skipText, stateOf, textHash } from '../../src/lib/ai/store.ts';
 import { isTextId } from '../../src/lib/ai/texts.ts';
 import { weekCounts, weekFacts } from '../../src/lib/ai/week-facts.ts';
@@ -56,7 +56,18 @@ describe('the week’s facts', () => {
     expect(byId['price-rice-05-year']).toBeUndefined();
     expect(byId['outage-1']).toMatchObject({ value: 3.5, unit: 'hours', places: ['IRQ'] });
     expect(byId['sanctions-us-added']).toMatchObject({ value: 12, places: ['USA'] });
-    expect(byId['sanctions-eu-added'].statement).toMatch(/^No entries were added/);
+    expect(byId['sanctions-eu-none'].statement).toMatch(/^No entries were added to or removed from the European Union/);
+    expect(byId['sanctions-eu-added']).toBeUndefined();
+  });
+
+  it('pass the repository checks: a fall is "down 5%" for a value of -5, and a list with no changes is one fact', () => {
+    // Week 2026-45 failed ci: "down 8.6%" read as a stray figure, and "no entries added" and "no entries removed" from
+    // the UK list as one fact said twice.
+    const uk = weekFacts('2026-45', { ...WEEK, cards: WEEK.cards.map((c) => (c.kind === 'sanctions' ? { ...c, lists: [{ list: 'UK', added: 0, removed: 0 }] } : c)) });
+    expect(uk.facts.find((x) => x.id === 'price-wheat-us-hrw-year')!.statement).toContain('down 5%');
+    for (const x of uk.facts) expect(strayNumbers(x, uk.names), x.id).toEqual([]);
+    expect(duplicateFacts(uk)).toEqual([]);
+    expect(uk.facts.filter((x) => x.id.startsWith('sanctions-uk')).map((x) => x.id)).toEqual(['sanctions-uk-none']);
   });
 
   it('leave out quiet cards, so last month’s figures never read as this week’s', () => {

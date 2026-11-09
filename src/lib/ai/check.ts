@@ -322,7 +322,8 @@ export function strayNumbers(x: Fact, names: string[] = []): string[] {
   const inName = (q: Quantity) => names.some((n) => { const i = x.statement.indexOf(n); return i >= 0 && q.start >= i && q.end <= i + n.length; });
   return readQuantities(x.statement)
     .filter((q) => !q.words && !q.ordinal && !q.yearLike && !inName(q) && !dates.some((d) => q.start >= d.start && q.end <= d.end))
-    .filter((q) => x.value === undefined || x.value === null || !(Math.abs(q.value - x.value) < 1e-9 || Math.abs(q.bare - x.value) < 1e-9))
+    // A figure is the fact's value with or without its sign: "down 8.6%" states a value of -8.6, as sameFigure reads it.
+    .filter((q) => x.value === undefined || x.value === null || !(Math.abs(Math.abs(q.value) - Math.abs(x.value)) < 1e-9 || Math.abs(Math.abs(q.bare) - Math.abs(x.value)) < 1e-9))
     .map((q) => q.text);
 }
 
