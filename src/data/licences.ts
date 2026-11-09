@@ -29,6 +29,14 @@ const ON = '2026-10-24';
 /** Sources kept under another source's licence row: the FAS table imported by hand is part of FAS. */
 export const LICENCE_OF: Record<string, string> = { 'fas-forces': 'fas' };
 
+/**
+ * Sources whose licence did not clear the launch gate (docs/gate-review.md). A built page reads them as not in the
+ * snapshot (src/lib/data.ts), so no page, map, ranking or download shows their figures; This week names their events
+ * and links to the source. Fetching and importing go on. Take a source out once its licence is recorded below.
+ */
+export const WITHHELD = ['gdacs', 'ioda', 'celestrak', 'aqueduct', 'aiddata'];
+export const withheld = (source: string) => WITHHELD.includes(LICENCE_OF[source] ?? source);
+
 export const LICENCES: Licence[] = [
   // Fetched on a schedule.
   { source: 'gdacs', name: 'GDACS disaster alerts', licence: 'No licence stated; terms are a disclaimer only', terms: 'https://gdacs.org/About/termofuse.aspx', downloads: 'shown only', commercial: 'to confirm', credit: 'GDACS, a cooperation framework of the United Nations and the European Commission', status: 'to confirm', checked: ON, note: 'The terms say data is "as is" and should be confirmed before decisions; nothing on reuse. Ask the JRC before offering downloads' },

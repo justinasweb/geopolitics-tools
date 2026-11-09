@@ -72,8 +72,7 @@ describe('route registry', () => {
   });
 
   it('hides the views that failed the launch gate review, and links nothing to them', () => {
-    expect(R.gateHidden('view:disasters:EQ')).toBe(true);
-    expect(R.gateHidden('view:water:waterstress')).toBe(true);
+    expect(R.gateHidden('view:rivers:nile')).toBe(true);
     expect(R.gateHidden('view:water:waterdep')).toBe(false);
     const hidden = R.routes().filter((r) => R.gateHidden(r.key));
     expect(hidden.length).toBeGreaterThan(0);
@@ -81,8 +80,7 @@ describe('route registry', () => {
     const paths = new Set(hidden.map((r) => r.path));
     expect(R.redirects().split('\n').some((l) => paths.has(l.split(' ')[1]))).toBe(false);
     expect(Object.values(R.hashMap()).some((p) => paths.has(p))).toBe(false);
-    expect(R.viewHref('disasters')).toBeUndefined();
-    expect(R.viewHref('water')).not.toBe('/water');
+    expect(R.viewHref('rivers')).toBeUndefined();
   });
 
   it('builds the emissions and refugees views, each family’s first layer at the section’s own address', () => {

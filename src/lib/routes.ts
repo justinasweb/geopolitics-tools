@@ -109,17 +109,12 @@ export const paths = {
 export const COMPARE_PAIRS: [string, string][] = DOSSIERS.flatMap((a, i) => DOSSIERS.slice(i + 1).map((b): [string, string] => [a, b]));
 
 /**
- * Views that failed the launch gate review (docs/gate-review.md, which says what each needs to pass): hidden until
- * they pass. A key ending in ":" hides the whole family.
+ * Views that failed the launch gate review for a reason other than a licence (docs/gate-review.md, which says what
+ * each needs to pass): hidden until they pass. A key ending in ":" hides the whole family. Views on a source whose
+ * licence is withheld (WITHHELD in src/data/licences.ts) have no data in the build, so they are not built at all.
  */
 export const GATE_HIDDEN = [
-  'view:disasters:', // GDACS states no reuse licence
-  'view:internet:outages', // IODA states no reuse licence
-  'view:space:', // CelesTrak states no reuse licence
-  'view:water:waterstress', 'view:water:waterstress2050', // WRI Aqueduct states no licence
-  'view:rivers:', // shows Aqueduct's water stress; Dnipro's facts unverified
-  'view:chinese-lending:', // AidData states no licence
-  'view:nuclear:sharing', // three rows cite index pages, not the statements
+  'view:rivers:', // shows Aqueduct's water stress (withheld) beside its dams; Dnipro's facts unverified
 ];
 export const gateHidden = (key: string) => GATE_HIDDEN.some((k) => (k.endsWith(':') ? key.startsWith(k) : key === k));
 

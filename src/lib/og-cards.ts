@@ -237,7 +237,8 @@ export function card(r: Route | null): Card {
     // The alert count when there is one, else the first card's finding; every figure with its period.
     const m = weekPage(r.id || undefined)!;
     const c = m.counts[0];
-    const lead = m.cards.find((x) => !x.quiet) ?? m.cards[0];
+    // A card that only names events (a withheld source) has no finding to lead with.
+    const lead = m.cards.find((x) => !x.quiet && x.body?.type !== 'links') ?? m.cards[0];
     return {
       kicker: WEEK_TEXT.ogKicker, title: m.title, figure: c?.num, caption: c ? `${c.label}, ${c.source.split(' · ')[1]}` : lead?.headline,
       source: c ? 'GDACS' : lead ? `${lead.source}, ${lead.period}` : undefined,

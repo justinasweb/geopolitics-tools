@@ -261,7 +261,7 @@ describe('fact dates', () => {
     expect(formatPartialDate('2023')).toBe('2023');
     expect(formatPartialDate('2023-06')).toBe('Jun 2023');
     expect(formatPartialDate('2024-12-06')).toBe('6 Dec 2024');
-    expect(L.layerFile('nuclear-sharing').more!.BLR[0].rows.map((r) => r.note?.split(' · ')[0])).toEqual(['Jun 2023', '6 Dec 2024']);
+    expect(L.layerFile('nuclear-sharing').more!.BLR[0].rows.map((r) => r.note?.split(' · ')[0])).toEqual(['16 Jun 2023', '6 Dec 2024']);
   });
 });
 

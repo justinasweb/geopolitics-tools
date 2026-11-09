@@ -23,3 +23,20 @@ describe('licence table', () => {
     expect(readFileSync(new URL('../../docs/licences.md', import.meta.url), 'utf8')).toBe(licenceTable());
   });
 });
+
+describe('withheld sources', () => {
+  it('reads a withheld source as not in the snapshot, and leaves the others alone', async () => {
+    const { withholding } = await import('../../src/lib/data.ts');
+    const { withheld, WITHHELD } = await import('../../src/data/licences.ts');
+    for (const s of WITHHELD) expect(LICENCES.some((l) => l.source === s)).toBe(true);
+    expect(withheld('gdacs')).toBe(true);
+    expect(withheld('usgs-quakes')).toBe(false);
+    const raw = { has: () => true, list: () => ['a.json'], text: () => 'x', json: <T>() => ({ ok: 1 }) as T };
+    const w = withholding(raw, (s) => s === 'gdacs');
+    expect(w.has('gdacs', 'events.json')).toBe(false);
+    expect(w.list('gdacs')).toEqual([]);
+    expect(() => w.json('gdacs', 'events.json')).toThrow(/is not in the snapshot/);
+    expect(w.has('usgs-quakes', 'earthquakes.json')).toBe(true);
+    expect(w.json('usgs-quakes', 'earthquakes.json')).toEqual({ ok: 1 });
+  });
+});

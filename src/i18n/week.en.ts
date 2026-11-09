@@ -175,6 +175,21 @@ export const WEEK_TEXT = {
   hours: (h: number) => (h < 1 ? 'under 1 h' : `${n(Math.round(h))} h`),
   outagesNone: (span: string) => `IODA recorded no country-level outages that began ${span}.`,
   outagesNote: 'IODA reports when an outage began and how long it lasted, not why.',
+  // A card whose source's licence is not cleared (docs/gate-review.md): the events by name, each linking to the source.
+  brief: {
+    head: { disaster: 'Disaster alerts, on GDACS', outage: 'Internet outages, on IODA' } as Record<string, string>,
+    disaster: (kind: string, places: string[]) => `${HAZARD[kind] ?? kind}${places.length ? `: ${places.length > 3 ? `${places.slice(0, 3).join(', ')} and ${n(places.length - 3)} more` : list(places)}` : ''}`,
+    outage: (place: string) => `Internet outage in ${place}`,
+    note: {
+      disaster: 'Alert levels, maps and figures are on GDACS; each item links to its report.',
+      outage: 'Times, lengths and figures are on IODA; each item links to the country’s page.',
+    } as Record<string, string>,
+    more: { disaster: 'GDACS lists more alerts.', outage: 'IODA lists more outages.' } as Record<string, string>,
+    quiet: {
+      disaster: (d: string) => `GDACS has sent no new alert data since ${d}.`,
+      outage: (d: string) => `IODA has sent no new outage data since ${d}.`,
+    } as Record<string, (d: string) => string>,
+  },
   // Sanctions
   sanctionsHead: (added: number, removed: number, lists: string[]) => {
     const names = list(lists);

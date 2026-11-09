@@ -57,8 +57,9 @@ export function parseDams(text: string): Dam[] {
   }));
 }
 
+// Water stress is optional, so the other files still load when Aqueduct is not in the build (its licence is withheld).
 export const water = (raw: Raw) => ({
-  stress: parseAqueduct(raw.text('aqueduct', 'rankings_baseline.csv'), raw.text('aqueduct', 'rankings_future.csv')),
+  stress: raw.has('aqueduct', 'rankings_baseline.csv') ? parseAqueduct(raw.text('aqueduct', 'rankings_baseline.csv'), raw.text('aqueduct', 'rankings_future.csv')) : {},
   resources: parseAquastat(raw.text('aquastat', 'water_resources.csv')),
   dams: parseDams(raw.text('gdw', 'dams.csv')),
 });

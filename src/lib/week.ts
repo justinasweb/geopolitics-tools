@@ -13,11 +13,11 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { rawDir } from '../adapters/core.ts';
-import { data } from './data.ts';
+import { data, isWithheld } from './data.ts';
 import { publishedText } from './ai/texts.ts';
 import { place } from './places.ts';
 import { viewHref, paths } from './routes.ts';
-import { computeWeek, alertCount, hasFigures, CARD_ORDER, type AlertItem, type Card, type FeedItem, type WeekData } from './week/model.ts';
+import { computeWeek, alertCount, hasFigures, CARD_ORDER, CARD_SOURCES, type AlertItem, type Card, type CardKind, type DisasterCard, type FeedItem, type OutageCard, type WeekData } from './week/model.ts';
 import { isWeekId, lastClosedWeek, rollingWeek, weekNumber, weekRange } from './week/period.ts';
 import { WEEK_TEXT as W, PRICE_TEXT, day, month, months, pct, range } from '../i18n/week.en.ts';
 import type { Status } from './tags.ts';
@@ -36,7 +36,8 @@ export function liveWeek(): WeekData | null {
   const b = d.sample ? null : readJson<{ date: string }>(join(weeksDir(), 'baseline.json'));
   // Only the copy from the period's first day: any other would make the sanctions and alert counts cover another range.
   const baseline = b && b.date === period.from ? { date: b.date, raw: rawDir(join(weeksDir(), 'baseline')) } : null;
-  const w = computeWeek({ raw: d.raw, period, sources: snapshotSources(), baseline, made: d.snapshot.created });
+  // The full snapshot: a card whose source's licence is withheld still names its events (briefView).
+  const w = computeWeek({ raw: d.full, period, sources: snapshotSources(), baseline, made: d.snapshot.created });
   return (liveCache = w.cards.length ? w : null);
 }
 
@@ -114,7 +115,8 @@ export type Body =
   | { type: 'alerts'; rows: AlertRow[]; empty?: string; active: AlertRow[]; activeTitle: string; activeNote: string; activeMore?: string; notes: string[] }
   | { type: 'pair'; label: string; rows: PairRow[]; keyA: string; keyB: string; key: string; notes: string[] }
   | { type: 'table'; cols: { text: string; num?: boolean }[]; rows: TableRow[]; notes: string[] }
-  | { type: 'notes'; notes: string[] };
+  | { type: 'notes'; notes: string[] }
+  | { type: 'links'; items: { text: string; date: string; datetime: string; href: string }[]; empty?: string; notes: string[] };
 
 export interface CardView {
   kind: string;
@@ -147,6 +149,46 @@ function alertRow(a: AlertItem, date: string, span: string): AlertRow {
 const dirOf = (c: number | null): 'up' | 'down' | 'flat' | undefined => (c === null ? undefined : c > 0.0005 ? 'up' : c < -0.0005 ? 'down' : 'flat');
 const fmt = (v: number) => new Intl.NumberFormat('en', { maximumFractionDigits: v >= 100 ? 0 : v >= 10 ? 1 : 2 }).format(v);
 
+/** A kind whose source's licence is withheld (src/data/licences.ts): its card names the events and links to the source,
+ *  with no counts, levels, lengths or tables, and its items stay out of the feed and the counts. */
+export const briefKind = (kind: string) => (CARD_SOURCES[kind as CardKind] ?? []).some(isWithheld);
+/** At most this many events on a brief card. */
+const BRIEF_ITEMS = 7;
+/** GDACS's report on one alert: its id is the event type and number ("TC1001234"). */
+const gdacsReport = (id: string) => {
+  const m = id.match(/^([A-Z]{2})(\d+)$/);
+  return m ? `https://www.gdacs.org/report.aspx?eventtype=${m[1]}&eventid=${m[2]}` : 'https://www.gdacs.org/';
+};
+/** IODA's page for one country. */
+const iodaCountry = (id: string) => {
+  const c = place(id)?.iso2;
+  return c ? `https://ioda.inetintel.cc.gatech.edu/country/${c}` : 'https://ioda.inetintel.cc.gatech.edu/';
+};
+
+function briefView(c: DisasterCard | OutageCard, base: Pick<CardView, 'kind' | 'label' | 'wide' | 'updated' | 'tags' | 'href' | 'go'>, span: string, period: string): CardView {
+  const B = W.brief;
+  const source = c.kind === 'disaster' ? W.source.disaster : W.source.outage;
+  // Its map view is not built while the source is withheld; the family's other views are not this card's map.
+  base = { ...base, href: undefined };
+  if (c.quiet) {
+    return {
+      ...base, headline: W.quietTitle[c.kind], source, period: W.lastData(day(c.src.changed, { year: true })),
+      quiet: { title: W.noNewData(day(c.src.changed)), text: B.quiet[c.kind](day(c.src.changed, { long: true })) },
+    };
+  }
+  const items = c.kind === 'disaster'
+    ? c.alerts.map((a) => ({ text: B.disaster(a.type, a.places.map(nameOf)), date: day(a.from), datetime: a.from.slice(0, 10), href: gdacsReport(a.id) }))
+    : c.rows.map((r) => ({ text: B.outage(nameOf(r.place)), date: day(r.start), datetime: r.start.slice(0, 10), href: iodaCountry(r.place) }));
+  return {
+    ...base, headline: B.head[c.kind], source, period,
+    body: {
+      type: 'links', items: items.slice(0, BRIEF_ITEMS),
+      ...(items.length ? {} : { empty: c.kind === 'disaster' ? W.alertsNone(span) : W.outagesNone(span) }),
+      notes: [items.length > BRIEF_ITEMS ? B.more[c.kind] : '', B.note[c.kind]].filter(Boolean),
+    },
+  };
+}
+
 function cardView(c: Card, w: WeekData): CardView {
   const p = w.period;
   const span = w.week ? W.span.week : W.span.live;
@@ -159,6 +201,7 @@ function cardView(c: Card, w: WeekData): CardView {
     ...base, headline: W.quietTitle[c.kind], source: '', period: W.lastData(day(c.src.changed, { year: true })),
     quiet: { title: W.noNewData(day(c.src.changed)), text: W.quiet[c.kind](day(c.src.changed, { long: true }), m) },
   });
+  if ((c.kind === 'disaster' || c.kind === 'outage') && briefKind(c.kind)) return briefView(c, base, span, periodText);
   switch (c.kind) {
     case 'disaster': {
       if (c.quiet) return { ...quiet(), source: W.source.disaster };
@@ -290,7 +333,7 @@ export function weekPageFor(w: WeekData, weekOf: string | null): WeekPageModel {
   const p = w.period;
   const longRange = range(p.from, p.to, { long: true });
   const path = paths.week(weekOf ?? undefined);
-  const n = alertCount(w);
+  const n = briefKind('disaster') ? null : alertCount(w);
   const counts = n === null ? [] : [{ num: String(n), label: W.counts.disaster(n), source: `GDACS · ${range(p.from, p.to)}` }];
   const archive = [...archivedWeeks().keys()];
   // An archived week links to the one before it; the live page to the last few closed weeks.
@@ -308,7 +351,7 @@ export function weekPageFor(w: WeekData, weekOf: string | null): WeekPageModel {
   // Summaries are per closed week. The live page shows the latest closed week's, labelled with that week.
   const summaryId = weekOf ?? latestId;
   const s = summaryId ? weekSummary(summaryId) : null;
-  const feed = w.feed.map(feedView);
+  const feed = w.feed.filter((f) => !briefKind(f.kind)).map(feedView);
   return {
     id: weekOf, data: w, path,
     title: weekOf ? W.archiveTitle(weekNumber(weekOf), longRange) : W.title(longRange),

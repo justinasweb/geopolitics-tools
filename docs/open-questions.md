@@ -43,18 +43,25 @@ and share images. A history that began under another name says so (`BEGAN_AS` in
 Confirmed by the owner on 3 Nov 2026: the EU's G7 participation **since 1977**, and calling the 1975 summit "a summit
 of six countries" rather than a named "G6". `tests/unit/bloc-members.test.ts` holds the wording.
 
-### Failing sources still shown outside their views (raised 9 Nov 2026)
+### Withheld sources: what is left (raised 9 Nov 2026)
 
-**The question.** The gate review ([gate-review.md](gate-review.md)) hid the views whose source states no licence
-(GDACS, IODA, CelesTrak, WRI Aqueduct, AidData). The same sources' figures are still on This week (disasters and
-outages cards), the homepage, country pages, Explorer and four indicator pages.
+**The question.** GDACS, IODA, CelesTrak, WRI Aqueduct and AidData are withheld until their licences are cleared
+(`WITHHELD` in `src/data/licences.ts`, [gate-review.md](gate-review.md)): no page shows their figures, and This week
+names their events with links to the source. Three things still touch them.
 
-**What the site does now.** Shows them there, with source lines; only the views are hidden.
+- **Hub intros.** The approved AI intros of Climate ("how much of its available water it draws, which large dams stand
+  on disputed rivers, and where disaster alerts were issued"), Technology ("own and launch satellites", "where the
+  internet goes down") and Power ("which received loans and grants from China") describe views that are now hidden.
+  They state no figures. Options: redraft them without those views (and approve again), or leave them until the
+  licences are answered.
+- **This week's AI summary and the Telegram digest.** The summary facts (`src/lib/ai/week-facts.ts`) and the digest's
+  counts still include GDACS's alert count and IODA's outages. The approved 2026-45 summary says no new alerts were
+  issued and no outages began. Leaving the facts as they are keeps that summary approved; taking the two cards out
+  of the facts would mark it stale and hide it until it is redrafted.
+- **Asking the publishers.** The JRC (GDACS), Georgia Tech (IODA), CelesTrak, WRI and AidData, for their reuse terms in
+  writing.
 
-**Options.** Take each source off every page until its licence is cleared, or ask the publishers first and decide
-per source once the answers are in.
-
-### Map canvas: dark band on narrow maps (raised 28 Oct 2026)
+### Map canvas: dark band on narrow maps (raised 28 Oct 2026)### Map canvas: dark band on narrow maps (raised 28 Oct 2026)
 
 **The question.** On a narrow desktop map (the Atlas at 1024px, where the map column is about 420px wide) the MapLibre
 canvas draws a dark band at the top left, under the borders line. It is the canvas itself, not a page element, and it
