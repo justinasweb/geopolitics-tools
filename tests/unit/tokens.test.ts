@@ -1,7 +1,7 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { checkTokens, colour, contrast, loadTokens, tokensCss, tokensCssPath } from '../../scripts/tokens.ts';
+import { checkTokens, colour, colourDistance, contrast, loadTokens, tokensCss, tokensCssPath } from '../../scripts/tokens.ts';
 import { formatDate } from '../../src/lib/format.ts';
 
 const tokens = loadTokens();
@@ -24,6 +24,19 @@ describe('design tokens', () => {
     const fixed = structuredClone(bad);
     fixed.color.tokens.find((t) => t.name === 'focus')!.value = '{accent}';
     expect(checkTokens(fixed).some((e) => e.startsWith('ink-muted on paper (light)'))).toBe(true);
+  });
+
+  it('keeps Compare’s two colours apart for every kind of colour vision', () => {
+    for (const v of [undefined, 'protanopia', 'deuteranopia', 'tritanopia'] as const) {
+      expect(colourDistance(colour(tokens, 'cmp-first', 'light'), colour(tokens, 'cmp-second', 'light'), v)).toBeGreaterThan(40);
+    }
+    // Red and green that differ only in hue fall together for deuteranopia, and the check says so.
+    expect(colourDistance('#b05a2a', '#5f8a2a')).toBeGreaterThan(40);
+    expect(colourDistance('#b05a2a', '#5f8a2a', 'deuteranopia')).toBeLessThan(20);
+    const bad = structuredClone(tokens);
+    bad.color.tokens.find((t) => t.name === 'cmp-second')!.value = '#5f8a2a';
+    bad.color.tokens.find((t) => t.name === 'cmp-first')!.value = '#b05a2a';
+    expect(checkTokens(bad).some((e) => e.startsWith('cmp-first and cmp-second'))).toBe(true);
   });
 
   it('resolves references and measures contrast', () => {

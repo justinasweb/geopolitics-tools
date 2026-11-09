@@ -5,6 +5,7 @@ import type { GetStaticPaths } from 'astro';
 import CountriesIndex from '../templates/CountriesIndex.astro';
 import CountryPage from '../templates/CountryPage.astro';
 import ComparePage from '../templates/ComparePage.astro';
+import CompareAnyPage from '../templates/CompareAnyPage.astro';
 import IndicatorsIndex from '../templates/IndicatorsIndex.astro';
 import IndicatorPage from '../templates/IndicatorPage.astro';
 import LongRead from '../templates/LongRead.astro';
@@ -40,7 +41,8 @@ const [a, b] = route.id.split(',');
 ---
 {route.kind === 'countries' && <CountriesIndex />}
 {route.kind === 'country' && <CountryPage id={route.id} />}
-{route.kind === 'compare' && <ComparePage a={a} b={b} />}
+{route.kind === 'compare' && route.id && <ComparePage a={a} b={b} />}
+{route.kind === 'compare' && !route.id && <CompareAnyPage />}
 {route.kind === 'indicators' && <IndicatorsIndex />}
 {route.kind === 'indicator' && <IndicatorPage id={route.id} />}
 {route.kind === 'page' && <LongRead id={route.id} />}

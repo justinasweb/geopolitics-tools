@@ -76,7 +76,38 @@ export const CONTRAST_RULES: { fg: string[]; bg: string[]; min: number; why: str
   { fg: ['tooltip-ink'], bg: ['tooltip-bg'], min: 7, why: 'tooltip text' },
   { fg: ['tooltip-muted'], bg: ['tooltip-bg'], min: 4.5, why: 'tooltip source line' },
   { fg: ['cat-1', 'cat-2', 'cat-3', 'cat-4', 'cat-5', 'cat-6', 'cat-7', 'cat-8'], bg: ['paper', 'paper-raised'], min: 3, why: 'chart lines' },
+  { fg: ['cmp-first', 'cmp-second'], bg: ['paper', 'paper-raised'], min: 3, why: 'Compare lines and bars' },
   { fg: ['seq-5'], bg: ['paper', 'paper-raised'], min: 3, why: 'bars' },
+];
+
+// ---- colour vision (Compare's two sides) ----
+
+// Machado, Oliveira and Fernandes (2009), full severity, applied to linear RGB.
+const CVD: Record<string, number[][]> = {
+  protanopia: [[0.152286, 1.052583, -0.204868], [0.114503, 0.786281, 0.099216], [-0.003882, -0.048116, 1.051998]],
+  deuteranopia: [[0.367322, 0.860646, -0.227968], [0.280085, 0.672501, 0.047413], [-0.01182, 0.04294, 0.968881]],
+  tritanopia: [[1.255528, -0.076749, -0.178779], [-0.078411, 0.930809, 0.147602], [0.004733, 0.691367, 0.3039]],
+};
+const toLinear = (v: number) => { v /= 255; return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; };
+function lab(lin: number[]): [number, number, number] {
+  const [r, g, b] = lin.map((v) => Math.min(1, Math.max(0, v)));
+  const xyz = [0.4124 * r + 0.3576 * g + 0.1805 * b, 0.2126 * r + 0.7152 * g + 0.0722 * b, 0.0193 * r + 0.1192 * g + 0.9505 * b];
+  const f = (t: number) => (t > 216 / 24389 ? Math.cbrt(t) : (24389 / 27 * t + 16) / 116);
+  const [fx, fy, fz] = xyz.map((v, i) => f(v / [0.95047, 1, 1.08883][i]));
+  return [116 * fy - 16, 500 * (fx - fy), 200 * (fy - fz)];
+}
+/** How far apart two colours look (CIE76 ΔE), with normal vision or one of the three full colour-vision deficiencies. */
+export function colourDistance(a: string, b: string, vision?: keyof typeof CVD): number {
+  const sim = (c: string) => {
+    const lin = rgb(c).map(toLinear);
+    return lab(vision ? CVD[vision].map((row) => row.reduce((s, k, i) => s + k * lin[i], 0)) : lin);
+  };
+  const [p, q] = [sim(a), sim(b)];
+  return Math.hypot(p[0] - q[0], p[1] - q[1], p[2] - q[2]);
+}
+/** Compare's two sides must stay apart for every kind of colour vision (markers, dashes and names back them up). */
+export const CVD_PAIRS: { a: string; b: string; min: number; why: string }[] = [
+  { a: 'cmp-first', b: 'cmp-second', min: 40, why: 'Compare’s first and second country' },
 ];
 
 /** Everything wrong with the tokens, as sentences. Empty means they pass. */
@@ -108,6 +139,15 @@ export function checkTokens(tokens: Tokens): string[] {
           const ratio = contrast(colour(tokens, fg, theme), colour(tokens, bg, theme));
           if (ratio < rule.min) errors.push(`${fg} on ${bg} (${theme}) is ${ratio.toFixed(2)}:1, needs ${rule.min}:1 for ${rule.why}`);
         }
+      }
+    }
+  }
+  for (const pair of CVD_PAIRS) {
+    if (!names.has(pair.a) || !names.has(pair.b)) continue;
+    for (const theme of THEMES) {
+      for (const vision of [undefined, ...Object.keys(CVD)]) {
+        const d = colourDistance(colour(tokens, pair.a, theme), colour(tokens, pair.b, theme), vision);
+        if (d < pair.min) errors.push(`${pair.a} and ${pair.b} (${theme}, ${vision ?? 'normal vision'}) are ${d.toFixed(1)} apart (ΔE), need ${pair.min} for ${pair.why}`);
       }
     }
   }

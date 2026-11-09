@@ -237,7 +237,34 @@ export const COMPARE_TEXT = {
   mineralsFind: (year: number) => `Share of world mine production (primary production for gallium) in ${year}, for minerals where either has at least 1%.`,
   others: 'Other comparisons',
   change: 'Change',
-  colours: { USA: 'blue', CHN: 'orange', RUS: 'teal' } as Record<string, string>,
+  /** The first and second country's colour, named on their chips (tokens cmp-first and cmp-second). */
+  colours: { first: 'blue', second: 'orange' } as Record<string, string>,
+  /** "Not compared, no data for Mali: satellites, launches (source: CelesTrak); for either: AI computing power (source: Epoch AI)." */
+  notCompared: (groups: { name: string | null; items: string[]; sources: string[] }[]) =>
+    `Not compared, ${groups.map((g, i) => `${i ? 'for' : 'no data for'} ${g.name ?? 'either'}: ${g.items.join(', ')} (${g.sources.length > 1 ? 'sources' : 'source'}: ${g.sources.join(', ')})`).join('; ')}.`,
+  /** Each measure as it reads inside the "Not compared" line. */
+  nouns: {
+    gdp: 'GDP', population: 'population', gdppc: 'GDP per person', growth: 'economic growth', inflation: 'inflation',
+    reserves: 'reserves', milpct: 'military spending as a share of GDP', milusd: 'military spending', armsexp: 'arms exports',
+    armsimp: 'arms imports', co2: 'CO2 emissions', co2pc: 'CO2 per person', satellites: 'satellites', launches: 'launches',
+    aicompute: 'AI computing power', lex: 'life expectancy', median: 'median age',
+  } as Record<string, string>,
+  // The page for any two countries (/compare?a=germany&b=france, D21).
+  anyTitle: 'Compare two countries',
+  anyLede: 'Pick any two countries or territories to see them side by side on the same measures, each figure with its source and year.',
+  anyDescription: 'Any two countries side by side: economy, people, military spending, emissions, minerals and more, with sources.',
+  pickAny: 'Pick any two countries',
+  first: 'First country',
+  second: 'Second country',
+  compareWith: 'Compare with…',
+  go: 'Compare',
+  readyMade: 'Ready-made comparisons',
+  loading: 'Loading the figures…',
+  failed: 'The figures could not be loaded. Check your connection and try again.',
+  unknown: (slug: string) => `There is no country page called “${slug}”. Pick a country from the list.`,
+  same: 'Pick two different countries.',
+  pickTwo: 'Pick two countries to compare them.',
+  shown: (a: string, b: string) => `Showing ${a} and ${b}.`,
 };
 
 export const INDICATOR_PAGE = {
@@ -427,7 +454,6 @@ export const COUNTRIES_INDEX = {
   lede: (n: number, t: number) => `${n} country and territory pages${t ? `, ${t} of them territories` : ''}, each built from the figures our sources publish for it.`,
   description: 'Every country and territory on geopolitics.tools: key figures with world rank, dependencies, minerals, sanctions and more, with sources.',
   compare: 'Compare',
-  compareLede: 'Side by side: the United States, China and Russia.',
   az: 'All countries and territories',
   find: 'Find a country',
   territory: 'Territory',

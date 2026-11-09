@@ -66,7 +66,7 @@ function items(): Item[] {
     const detail = p.kind === 'territory' ? T.territory : p.kind === 'historical' ? T.former : T.country;
     out.push({ name: p.name, group: 'countries', detail, path: r.path, aliases: otherNames(r.id), codes: [p.iso2, p.iso3].filter(Boolean), extra: r.id });
   }
-  for (const r of all.filter((x) => x.kind === 'compare')) {
+  for (const r of all.filter((x) => x.kind === 'compare' && x.id)) {
     const [a, b] = r.id.split(',').map((id) => place(id)!);
     out.push({ name: `${a.name} and ${b.name}`, group: 'countries', detail: T.compare, path: r.path, aliases: [...otherNames(a.id), ...otherNames(b.id)] });
   }

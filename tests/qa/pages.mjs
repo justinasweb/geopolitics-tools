@@ -5,6 +5,7 @@ export const PAGES = [
   { name: 'Country page', path: '/countries/germany' },
   { name: 'Country page, AI summary', path: '/countries/china' },
   { name: 'Compare', path: '/compare/united-states-vs-china' },
+  { name: 'Compare, any two', path: '/compare?a=germany&b=france' },
   { name: 'Bloc', path: '/blocs/nato' },
   { name: 'Bloc history', path: '/blocs/nato/history' },
   { name: 'Bloc overlap', path: '/blocs/overlap' },

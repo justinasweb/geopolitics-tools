@@ -117,12 +117,12 @@
   .gt-lc__wide { display: none; }
   .gt-lc__narrow { display: inline; }
 }
-/* compare colours: fixed per country, always named and paired with a marker */
-.gt-cc--us { --cc: var(--cat-1); }
-.gt-cc--cn { --cc: var(--cat-6); }
-.gt-cc--ru { --cc: var(--cat-5); }
-.gt-lc__line.gt-cc--us, .gt-lc__line.gt-cc--cn, .gt-lc__line.gt-cc--ru { stroke: var(--cc); }
-.gt-lc__mk.gt-cc--us, .gt-lc__mk.gt-cc--cn, .gt-lc__mk.gt-cc--ru, .gt-lc__lab.gt-cc--us, .gt-lc__lab.gt-cc--cn, .gt-lc__lab.gt-cc--ru { fill: var(--cc); }
+/* compare colours: the first and second country (D21), always named and paired with a marker (square, triangle);
+   the second's lines are dashed and its bars hatched, so colour is never the only cue */
+.gt-cc--first { --cc: var(--cmp-first); }
+.gt-cc--second { --cc: var(--cmp-second); }
+.gt-lc__line.gt-cc--first, .gt-lc__line.gt-cc--second { stroke: var(--cc); }
+.gt-lc__mk.gt-cc--first, .gt-lc__mk.gt-cc--second, .gt-lc__lab.gt-cc--first, .gt-lc__lab.gt-cc--second { fill: var(--cc); }
 .gt-lc__lab { fill: var(--ink); }
 .gt-tb__us { fill: var(--cat-1); }
 .gt-tb__cn { stroke: var(--cat-6); stroke-width: 1; }
@@ -141,6 +141,15 @@
 .gt-cmphead .gt-lede { margin: 0; max-width: 760px; }
 .gt-cmphead__pick { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; }
 .gt-cmphead__pick[hidden] { display: none; }
+.gt-ckey[hidden] { display: none; }
+/* the Compare pickers: two country boxes and a button, or one box beside a country's own page */
+.gt-cmppick { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px 16px; margin: 0; }
+.gt-cmppick > [data-cmp-for] { flex: 1 1 240px; max-width: 360px; min-width: 0; }
+.gt-cmppick__msg { flex-basis: 100%; margin: 0; }
+.gt-cmppick__msg:empty { display: none; }
+.gt-cmppick + .gt-h3, .gt-cmppick + .gt-cplinks { margin-top: 24px; }
+.gt-cmpgaps { margin: 16px 0 8px; max-width: 760px; }
+.gt-cmpout:empty { display: none; }
 .gt-cmp2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 48px; }
 .gt-cmptbl .gt-cchip { border: 0; background: none; padding: 0; }
 .gt-cmptbl tbody th small { display: block; font: 400 13px/18px var(--sans); color: var(--ink-muted); }
@@ -156,7 +165,7 @@
 .gt-pairs ul li { display: grid; grid-template-columns: 120px minmax(0, 1fr) 72px; gap: 10px; align-items: center; font: 400 14px/20px var(--sans); color: var(--ink); }
 .gt-pairs__t { height: 14px; background: var(--paper-sunk); display: block; }
 .gt-pairs__f { display: block; height: 100%; background: var(--cc); }
-.gt-cc--cn .gt-pairs__f { background: repeating-linear-gradient(45deg, var(--cat-6) 0 3px, color-mix(in srgb, var(--cat-6) 55%, var(--paper-raised)) 3px 4.5px); }
+.gt-cc--second .gt-pairs__f { background: repeating-linear-gradient(45deg, var(--cmp-second) 0 3px, color-mix(in srgb, var(--cmp-second) 55%, var(--paper-raised)) 3px 4.5px); }
 .gt-pairs__v { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
 .gt-blocs td, .gt-blocs tbody th { padding: 10px 12px; }
 .gt-blocs .gt-cchip { border: 0; background: none; padding: 0; }

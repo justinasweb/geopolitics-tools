@@ -1,8 +1,8 @@
 ---
 // A country page (IndonesiaProfile, ThinProfile and ChinaDossier designs): header with the template summary and a
 // locator map, key figures with world rank, a numbered menu, then one section per thing a source reports: money,
-// people, technology and climate among them (spec D16, D20). The three countries in DOSSIERS add an AI-drafted summary
-// and Compare links. A place few sources cover gets the "few sources" box and is not indexed. Nothing is shown for a
+// people, technology and climate among them (spec D16, D20), and a "Compare with…" box (D21). The three countries in
+// DOSSIERS add an AI-drafted summary and links to their Compare pairs. A place few sources cover gets the "few sources" box and is not indexed. Nothing is shown for a
 // section with no data.
 import Page from '../layouts/Page.astro';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
@@ -21,6 +21,7 @@ import ShareRow from '../components/ShareRow.astro';
 import StatusTag from '../components/StatusTag.astro';
 import Icon from '../components/Icon.astro';
 import AiText from '../components/AiText.astro';
+import ComparePicker from '../components/ComparePicker.astro';
 import '../styles/atlas/country.css';
 import '../styles/atlas/bars.css';
 import { INDICATORS, statusAt, type Format } from '../data/indicators';
@@ -147,6 +148,7 @@ const citation = COUNTRY_TEXT.citation(name, kind, url, Number(m.updated.slice(0
           {p.kind === 'territory' && p.parent && <div><dt>{COUNTRY_TEXT.facts.administered}</dt><dd>{countryHref(p.parent) ? <a href={countryHref(p.parent)}>{nameOf(p.parent)}</a> : nameOf(p.parent)}</dd></div>}
           {p.status && <div><dt>{COUNTRY_TEXT.facts.status}</dt><dd>{p.status}</dd></div>}
         </dl>
+        {live('compare') && <ComparePicker id="cp-cmp" with={{ slug: p.slug, name }} />}
         <ul class="gt-cplinks">{links.map((l) => <li><a href={l.href}>{l.label} <span aria-hidden="true">→</span></a></li>)}</ul>
       </div>
       <div class="gt-cphead__map">

@@ -13,15 +13,17 @@ interface Props {
   /** Text when nothing matches; "{q}" is replaced by what was typed. */
   emptyText?: string;
   disabled?: boolean;
+  /** The name already picked, shown in the box. */
+  value?: string;
 }
-const { id, label, options, placeholder = 'Find a country', emptyText = 'No country called “{q}”. Try its English name.', disabled = false } = Astro.props;
+const { id, label, options, placeholder = 'Find a country', emptyText = 'No country called “{q}”. Try its English name.', disabled = false, value } = Astro.props;
 ---
 <div class="gt-field">
   <label for={`${id}-i`}>{label}</label>
   <div class:list={['gt-combo', { 'is-disabled': disabled }]} id={id} data-gt-combo data-options={JSON.stringify(options)} data-empty={emptyText}>
     <div class="gt-combo__box">
       <Icon name="search" />
-      <input id={`${id}-i`} role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls={`${id}-l`} placeholder={placeholder} autocomplete="off" disabled={disabled} />
+      <input id={`${id}-i`} role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls={`${id}-l`} placeholder={placeholder} autocomplete="off" disabled={disabled} value={value} />
     </div>
     <ul class="gt-combo__list" role="listbox" id={`${id}-l`} hidden></ul>
   </div>
