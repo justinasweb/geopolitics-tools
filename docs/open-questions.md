@@ -43,7 +43,24 @@ and share images. A history that began under another name says so (`BEGAN_AS` in
 Confirmed by the owner on 3 Nov 2026: the EU's G7 participation **since 1977**, and calling the 1975 summit "a summit
 of six countries" rather than a named "G6". `tests/unit/bloc-members.test.ts` holds the wording.
 
-### Map canvas: dark band on narrow maps (raised 28 Oct 2026)
+### Withheld sources: what is left (raised 9 Nov 2026)
+
+**The question.** GDACS, IODA and CelesTrak are withheld until their licences are cleared (`WITHHELD` in
+`src/data/licences.ts`, [gate-review.md](gate-review.md)): no page shows their figures, and This week names their
+events with links to the source. WRI Aqueduct and AidData were cleared on 9 Nov 2026 and are live.
+
+- **Asking the publishers.** The JRC (GDACS), Georgia Tech (IODA) and CelesTrak, for their reuse terms in writing.
+- **Registering with WRI.** The Aqueduct FAQ asks anyone who adapts or shares the data to register with WRI, and to
+  share public work that uses it with the team. Until the site is registered, water stress is shown with its credit
+  but has no CSV download (`downloads: 'shown only'`). Registering, and telling WRI once the site is live, is for the
+  owner.
+- **Approvals waiting.** The Climate and Technology hub intros (redrafted without the hidden views) are approved in the
+  pull request; week 45's redrafted summary goes to Telegram on merge. Until then week 45 shows the cards only and the
+  two hubs show the draft banner.
+- **About's facts file.** It now trails the code by two licences (Aqueduct, AidData). The text does not mention them,
+  so it stays approved; the next redraft of About picks them up.
+
+### Map canvas: dark band on narrow maps (raised 28 Oct 2026)### Map canvas: dark band on narrow maps (raised 28 Oct 2026)### Map canvas: dark band on narrow maps (raised 28 Oct 2026)
 
 **The question.** On a narrow desktop map (the Atlas at 1024px, where the map column is about 420px wide) the MapLibre
 canvas draws a dark band at the top left, under the borders line. It is the canvas itself, not a page element, and it
@@ -78,10 +95,11 @@ treaties.unoda.org, so some data and links need a human check.
   treaties.unoda.org/t/npt and /t/tpnw, fills in the dates and sets `TREATIES_CHECKED` in src/lib/nuclear.ts.
 - **North Korea and the NPT**: shown as its own class, "Announced NPT withdrawal", with a note that UNODA still lists
   its 1985 accession. The alternative is to follow UNODA and show it as a party, with the note.
-- **Sharing links**: the Russia–Belarus rows link to the Kremlin's news index and the Japan row to the Foreign
-  Ministry's US page, not to the statements themselves; replace them with the exact pages.
-- **The United Kingdom**: FAS reported in 2025 that US weapons may have returned to RAF Lakenheath. It is not in the
-  sharing file; add it as `reported` if FAS's current estimate counts it.
+- **Sharing links**: replaced on 9 Nov 2026 with the statements themselves (Kremlin, 16 Jun 2023 and 6 Dec 2024; the
+  United States–Japan joint statement, 7 Feb 2025), see [gate-review.md](gate-review.md).
+- **The United Kingdom (RAF Lakenheath): out, decided 9 Nov 2026.** FAS reported in 2025 that US weapons may have
+  returned to RAF Lakenheath, but no government or NATO has stated it, so it is not added to the sharing file, not even
+  as `reported`.
 - **OWID's files**: the first live check showed OWID's "nuclear warhead inventories" export holds only the latest
   year, so the series now comes from its "nuclear warhead stockpiles" chart and the inventories file gives the split.
   Both are read by column name. What the stockpile figure counts (military stockpile, or retired warheads too) is to

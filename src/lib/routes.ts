@@ -108,6 +108,14 @@ export const paths = {
 /** The Compare pairs: every pair of dossier countries, in a fixed order (United States, China, Russia). */
 export const COMPARE_PAIRS: [string, string][] = DOSSIERS.flatMap((a, i) => DOSSIERS.slice(i + 1).map((b): [string, string] => [a, b]));
 
+/**
+ * Views that failed the launch gate review for a reason other than a licence (docs/gate-review.md, which says what
+ * each needs to pass): hidden until they pass. A key ending in ":" hides the whole family. Views on a source whose
+ * licence is withheld (WITHHELD in src/data/licences.ts) have no data in the build, so they are not built at all.
+ */
+export const GATE_HIDDEN: string[] = [];
+export const gateHidden = (key: string, list = GATE_HIDDEN) => list.some((k) => (k.endsWith(':') ? key.startsWith(k) : key === k));
+
 /** The long-read pages written in Markdown (src/content/pages/<id>.md). */
 export const STATIC_PAGES = ['about', 'methodology', 'privacy'] as const;
 
@@ -242,6 +250,9 @@ function build(): Route[] {
     });
   }
 
+  // Views that failed the launch gate review stay registered but hidden, so nothing links to them.
+  for (const r of out) if (gateHidden(r.key)) { r.live = false; r.indexed = false; }
+
   // Explorer (phase 6): the table is the tool's own key (tool:explorer, the menu's link), the other views after it.
   const tools = new Set<string>();
   if (explorerMeasures().length >= 2) {
@@ -310,7 +321,7 @@ function build(): Route[] {
   // Topic hubs (phase 6): the parent page of their map views. Then what is not built yet (phases 5–8), registered so
   // links, the menu and redirects know about it.
   for (const hub of NAV_HUBS) {
-    const on = HUBS_BUILT.includes(hub.id) && hub.views.some((v) => families.has(v.id));
+    const on = HUBS_BUILT.includes(hub.id) && hub.views.some((v) => out.some((r) => r.live && r.key.startsWith(`view:${v.id}:`)));
     out.push({
       key: `hub:${hub.id}`, kind: 'hub', lang, path: hub.path, live: on, indexed: on, aliases: [], id: hub.id,
       ...(on ? { image: paths.image('hubs', hub.id), lastmod: snapshotDate } : {}),

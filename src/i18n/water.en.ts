@@ -59,5 +59,4 @@ export const RIVERS_TEXT = {
   others: 'Other disputed rivers',
   related: 'Related',
   allStress: 'Water stress, every country',
-  source: 'WRI Aqueduct; FAO AQUASTAT; Global Dam Watch',
 };

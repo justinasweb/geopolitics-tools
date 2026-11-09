@@ -28,15 +28,6 @@
       "date": "2026-11-09"
     },
     {
-      "id": "alerts",
-      "statement": "GDACS issued no new orange or red disaster alerts this week: alerts that began, or rose to orange or red, in the week.",
-      "value": 0,
-      "unit": "alerts",
-      "source": "GDACS",
-      "link": "https://www.gdacs.org/",
-      "date": "2026-11-08"
-    },
-    {
       "id": "price-ngas-eur",
       "statement": "Natural gas, Europe: 28.5 $/MMBtu, the monthly average for October 2026.",
       "value": 28.5,
@@ -215,15 +206,6 @@
       "source": "World Bank Pink Sheet",
       "link": "https://www.worldbank.org/en/research/commodity-markets",
       "date": "2026-11-07"
-    },
-    {
-      "id": "outages",
-      "statement": "IODA recorded no national-scale internet outages that began this week. IODA reports when an outage began and how long it lasted, not why.",
-      "value": 0,
-      "unit": "outages",
-      "source": "IODA, Georgia Tech",
-      "link": "https://ioda.inetintel.cc.gatech.edu/",
-      "date": "2026-11-08"
     },
     {
       "id": "sanctions-us-added",

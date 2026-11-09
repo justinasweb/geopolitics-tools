@@ -68,7 +68,18 @@ describe('route registry', () => {
   it('keeps views, hubs and tools out of the build until their phase', () => {
     // Phase 4 builds the critical minerals views, phase 5 the views on registry measures, phase 5b those on keyed sources (with sample data here), phase 6 the Explorer, Dependencies, Supply chains, Bloc overlap, the Atlas and the five topic hubs; the rest wait for theirs.
     const built = /^(view:(minerals|emissions|refugees|disasters|food|blocs|alliance-history|space|ai|sanctions|internet|water|chinese-lending|arms|rivers|oil|gas|electricity|conflict|food-crises|nuclear):|tool:(explorer|dependencies|supply-chains|blocs-overlap|atlas)(:|$)|hub:(resources|technology|climate|security|power)$)/;
-    for (const r of R.routes().filter((x) => ['view', 'hub', 'tool'].includes(x.kind))) expect(r.live).toBe(built.test(r.key));
+    for (const r of R.routes().filter((x) => ['view', 'hub', 'tool'].includes(x.kind))) expect(r.live).toBe(built.test(r.key) && !R.gateHidden(r.key));
+  });
+
+  it('hides the views that failed the launch gate review, and links nothing to them', () => {
+    expect(R.gateHidden('view:rivers:nile', ['view:rivers:'])).toBe(true);
+    expect(R.gateHidden('view:water:waterdep', ['view:water:waterstress'])).toBe(false);
+    const hidden = R.routes().filter((r) => R.gateHidden(r.key));
+    expect(hidden.every((r) => !r.live && !r.indexed)).toBe(true);
+    const paths = new Set(hidden.map((r) => r.path));
+    expect(R.redirects().split('\n').some((l) => paths.has(l.split(' ')[1]))).toBe(false);
+    expect(Object.values(R.hashMap()).some((p) => paths.has(p))).toBe(false);
+    expect(R.viewHref('rivers')).toBeDefined();
   });
 
   it('builds the emissions and refugees views, each family’s first layer at the section’s own address', () => {

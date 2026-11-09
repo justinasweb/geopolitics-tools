@@ -17,17 +17,29 @@
   "facts": [
     {
       "id": "agreement-1992",
-      "statement": "Ukraine and Russia signed an agreement on the joint use and protection of border water bodies in Kyiv on 19 October 1992.",
+      "statement": "Ukraine and Russia concluded an agreement on the joint use and protection of border water bodies in Kyiv on 19 October 1992.",
       "period": "1992-10-19",
       "places": [
         "RUS",
         "UKR"
       ],
-      "source": "Verkhovna Rada of Ukraine, legislation database: Cabinet of Ministers Resolution No. 1488 of 30 December 2022",
-      "link": "https://zakon.rada.gov.ua/laws/show/1488-2022-%D0%BF",
+      "source": "Cabinet of Ministers of Ukraine, Resolution No. 1488 of 30 December 2022",
+      "link": "https://www.kmu.gov.ua/npas/pro-prypynennia-dii-uhody-mizh-ukrainoiu-ta-rosiisk-a1488",
       "date": "1992-10-19",
-      "unverified": true,
-      "note": "Day not confirmed; Ukraine's Cabinet reportedly ended water cooperation with Russia on 30 December (probably 2022), check the decree. Found (search excerpts of zakon.rada.gov.ua, page not opened): Resolution No. 1488 of 30 December 2022 ends the agreement “done on 19 October 1992 in Kyiv”."
+      "note": "Checked 9 Nov 2026 on the Cabinet's page: the resolution ends the agreement “здійснену 19 жовтня 1992 р. у м. Києві” (concluded on 19 October 1992 in Kyiv)."
+    },
+    {
+      "id": "termination-2022",
+      "statement": "Ukraine's Cabinet of Ministers decided on 30 December 2022 to terminate the 1992 agreement with Russia on the joint use and protection of border water bodies.",
+      "period": "2022-12-30",
+      "places": [
+        "UKR",
+        "RUS"
+      ],
+      "source": "Cabinet of Ministers of Ukraine, Resolution No. 1488 of 30 December 2022",
+      "link": "https://www.kmu.gov.ua/npas/pro-prypynennia-dii-uhody-mizh-ukrainoiu-ta-rosiisk-a1488",
+      "date": "2022-12-30",
+      "note": "Checked 9 Nov 2026 on the Cabinet's page (Resolution No. 1488 of 30 December 2022, paragraph 1). The resolution states no date of entry into force; the Rada's legislation database records the agreement as ended from 4 January 2023."
     },
     {
       "id": "kakhovka-2023",
@@ -39,20 +51,6 @@
       "source": "UN OCHA, Ukraine: Destruction of the Kakhovka dam, Flash update",
       "link": "https://www.unocha.org/ukraine",
       "date": "2023-06-06"
-    },
-    {
-      "id": "termination-2022",
-      "statement": "Ukraine's Cabinet of Ministers ended the 1992 agreement with Russia on the joint use and protection of border water bodies on 30 December 2022.",
-      "period": "2022-12-30",
-      "places": [
-        "UKR",
-        "RUS"
-      ],
-      "source": "Verkhovna Rada of Ukraine, legislation database: Cabinet of Ministers Resolution No. 1488 of 30 December 2022",
-      "link": "https://zakon.rada.gov.ua/laws/show/1488-2022-%D0%BF",
-      "date": "2022-12-30",
-      "unverified": true,
-      "note": "Found through search excerpts of the resolution page (zakon.rada.gov.ua refused the connection). LexInform reports it in force from 4 January 2023. For Justinas to review."
     }
   ]
 }

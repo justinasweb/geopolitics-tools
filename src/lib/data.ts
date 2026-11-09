@@ -10,9 +10,10 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { rawDir, type Raw } from '../adapters/core.ts';
 import { registry, INDICATORS, type Loaded } from '../data/indicators.ts';
-import { LICENCE_OF, LICENCES, type Licence } from '../data/licences.ts';
+import { LICENCE_OF, LICENCES, withheld, type Licence } from '../data/licences.ts';
 import { weoRelease } from '../adapters/worldbank.ts';
-import { SOURCE_SHORT } from '../i18n/pages.en.ts';
+import { ACCESSED, SOURCE_SHORT } from '../i18n/pages.en.ts';
+import { formatDate } from './format.ts';
 
 export interface SnapshotSource { name: string; attribution: string; licence: string; fetched: string; changed?: string; dataTo?: string; imported?: Record<string, { file?: string; date?: string }> }
 export interface Snapshot { id: string; created: string; sources: Record<string, SnapshotSource> }
@@ -65,7 +66,10 @@ function load() {
   if (!sample && !existsSync(join(dir, 'snapshot.json'))) {
     throw new Error(`No data snapshot in ${dir}. Run "node pipeline/pull.ts" (needs the Cloudflare keys), or build with the sample files: "npm run build:sample".`);
   }
-  const raw = sample ? sampleRaw() : rawDir(dir);
+  // `full` keeps the withheld sources, for This week's linked items only; every other page reads `raw`. Sample builds
+  // keep everything, so those code paths stay tested (they are never deployed).
+  const full = sample ? sampleRaw() : rawDir(dir);
+  const raw = sample ? full : withholding(full);
   const sources: Record<string, SnapshotSource> = {};
   if (sample) {
     for (const l of LICENCES) sources[l.source] = { name: l.name, attribution: l.credit, licence: l.licence, fetched: SAMPLE_DATE };
@@ -75,7 +79,18 @@ function load() {
     : JSON.parse(readFileSync(join(dir, 'snapshot.json'), 'utf8'));
   const statusFile = join(dir, 'status.json');
   const status: PublicStatus | null = !sample && existsSync(statusFile) ? JSON.parse(readFileSync(statusFile, 'utf8')) : null;
-  return { sample, raw, snapshot, status, reg: registry(raw) };
+  return { sample, raw, full, snapshot, status, reg: registry(raw) };
+}
+
+/** A snapshot without the sources whose licence is withheld (src/data/licences.ts): their files read as not in it. */
+export function withholding(raw: Raw, out: (source: string) => boolean = withheld): Raw {
+  const gone = (s: string, f: string): never => { throw new Error(`${s}/${f} is not in the snapshot (licence withheld)`); };
+  return {
+    has: (s, f) => !out(s) && raw.has(s, f),
+    list: (s) => (out(s) ? [] : raw.list(s)),
+    text: (s, f) => (out(s) ? gone(s, f) : raw.text(s, f)),
+    json: <T>(s: string, f: string) => (out(s) ? gone(s, f) : raw.json<T>(s, f)),
+  };
 }
 
 let cached: ReturnType<typeof load> | null = null;
@@ -134,13 +149,20 @@ export function changed(source: string): string | undefined {
   return s?.changed ?? s?.fetched;
 }
 
+/** Whether this build withholds a source's figures (never in a sample build). */
+export const isWithheld = (source: string): boolean => !data().sample && withheld(source);
+
 /** Whether a source is past its freshness deadline, by the runner's last public status. */
 export function isDelayed(source: string): boolean {
   return Boolean(data().status?.sources[source]?.stale);
 }
 
-/** The edition a source line names, read from the source's own files: the WEO's release ("October 2026"). */
-const EDITIONS: Record<string, (raw: Raw) => string | undefined> = { 'imf-weo': (raw) => weoRelease(raw)?.release };
+/** The edition a source line names, read from the source's own files: the WEO's release ("October 2026"); for WRI
+ *  Aqueduct, whose terms ask for it, the day its files were downloaded ("accessed on 25 Oct 2026"). */
+const EDITIONS: Record<string, (raw: Raw) => string | undefined> = {
+  'imf-weo': (raw) => weoRelease(raw)?.release,
+  aqueduct: () => { const d = data().snapshot.sources.aqueduct?.fetched; return d ? ACCESSED(formatDate(d)) : undefined; },
+};
 export const editionOf = (source: string): string | undefined => (EDITIONS[source] ? tryLoad(EDITIONS[source]) ?? undefined : undefined);
 
 /** A source's own name, for source lines: the licence table's, else the snapshot's, else its id; with its edition when it has one. */

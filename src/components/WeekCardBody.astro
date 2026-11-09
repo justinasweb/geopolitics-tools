@@ -1,7 +1,8 @@
 ---
 // The chart or table inside a WeekCard, from the page model (src/lib/week.ts): the alert list (./AlertList.astro),
 // with the alerts still active from earlier under "Still active", paired bars for the latest month against the one before (.gt-pair, the earlier
-// month an outline bar), or a compact table (prices with arrows, outages, sanctions lists), then its notes.
+// month an outline bar), a compact table (prices with arrows, outages, sanctions lists), or the events by name, each
+// linking to its source (a source whose licence is withheld), then its notes.
 import '../styles/atlas/week.css';
 import '../styles/atlas/table.css';
 import AlertList from './AlertList.astro';
@@ -22,6 +23,11 @@ const FLAT = '<path d="M2 6h8"/>';
     {body.activeMore && <p class="gt-caption">{body.activeMore}</p>}
   </div>
 )}
+{body.type === 'links' && (body.items.length > 0 ? (
+  <ul class="gt-weeklinks">
+    {body.items.map((i) => <li><a href={i.href} rel="noopener">{i.text}</a><time class="gt-alerts__date" datetime={i.datetime}>{i.date}</time></li>)}
+  </ul>
+) : body.empty && <p class="gt-caption">{body.empty}</p>)}
 {body.type === 'pair' && body.rows.length > 0 && (
   <>
     <ol class="gt-pair" aria-label={body.label}>

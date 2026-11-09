@@ -4,7 +4,7 @@ Generated from `src/data/licences.ts` by `node scripts/licence-table.ts > docs/l
 
 What each source's terms allow and what the site does with it (decision D9). Downloads are "Yes" only where the terms
 allow redistribution; otherwise the site shows charts and figures only. Credits travel with every chart and export.
-35 sources: 10 checked against the terms page, 22 to confirm, 3 waiting on permission.
+35 sources: 12 checked against the terms page, 20 to confirm, 3 waiting on permission.
 
 | Source | Licence | Downloads | Commercial use | Status | Note |
 |---|---|---|---|---|---|
@@ -30,10 +30,10 @@ allow redistribution; otherwise the site shows charts and figures only. Credits 
 | [SIPRI Arms Transfers Database](https://www.sipri.org/about/terms-and-conditions) | SIPRI terms: non-commercial reuse of under 10% of a dataset, with credit | Shown only | No | To confirm | Spec: derived five-year totals only, no download |
 | [UN World Population Prospects](https://population.un.org/wpp/downloads/) | CC BY 3.0 IGO | Yes | Yes | To confirm | Licence as recorded by Our World in Data for the 2024 files; read it on the UN page |
 | [Global Energy Monitor](https://globalenergymonitor.org/creative-commons-license) | CC BY 4.0 | Yes | Yes | To confirm |  |
-| [WRI Aqueduct](https://datasets.wri.org/datasets/aqueduct-40-current-and-future-country-rankings) | Not stated on the dataset page | Shown only | To confirm | To confirm | WRI data is usually CC BY 4.0; the dataset page does not say |
+| [WRI Aqueduct](https://www.wri.org/aqueduct/faq) | CC BY 4.0 | Shown only | Yes | Checked 2026-11-09 | The FAQ: the Aqueduct 4.0 database is under the Creative Commons Attribution International 4.0 License; credit “Source: WRI Aqueduct, accessed on [date]” with a link to aqueduct.wri.org. Adapting or sharing the data asks users to register with WRI, and public work using it is to be shared with the team, so downloads wait until the site is registered |
 | [FAO AQUASTAT](https://www.fao.org/contact-us/terms/db-terms-of-use) | CC BY 4.0, with FAO’s additional terms | Yes | Yes | Checked 2026-10-24 |  |
 | [Global Dam Watch](https://doi.org/10.6084/m9.figshare.25988293.v1) | CC BY 4.0 | Yes | Yes | To confirm | Licence as listed by the Earth Engine community catalogue; read it on figshare |
-| [AidData Chinese development finance](https://www.aiddata.org/data/aiddatas-global-chinese-development-finance-dataset-version-3-0) | Not stated on the dataset page | Shown only | To confirm | To confirm | The spec names CLG-Global 1.0, the prototype used GCDF 3.0: check which is current and its licence |
+| [AidData Chinese development finance](https://github.com/aiddata/gcdf-geospatial-data/blob/main/LICENSE.md) | ODC-By 1.0 (Open Data Commons Attribution License) | Yes | Yes | Checked 2026-11-09 | AidData’s LICENSE.md puts the GCDF 3.0 dataset under ODC-By; any use must credit AidData. Its geospatial layer (GeoGCDF, with OpenStreetMap features) is under ODbL and is not used. The site uses GCDF 3.0, not the CLG-Global 1.0 the spec names |
 | [USGS Mineral Commodity Summaries](https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits) | Public domain (US government work) | Yes | Yes | To confirm |  |
 | [US Treasury holdings, history](https://home.treasury.gov/data/treasury-international-capital-tic-system) | Public domain (US government work) | Yes | Yes | To confirm |  |
 | [UNODA Treaties Database](https://www.un.org/en/about-us/terms-of-use) | United Nations terms of use (not yet read) | Shown only | To confirm | To confirm | treaties.unoda.org could not be reached from the session that added it (2 Nov 2026). Treaty status is a public record; read the UN terms before offering a download |

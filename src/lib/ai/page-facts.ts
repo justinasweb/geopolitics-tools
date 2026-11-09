@@ -3,7 +3,7 @@
 // (src/data/places/notes.csv, docs/territories.md). Each fact links to the file in the repository that makes it
 // true, so it can be checked. `npm run ai:facts` writes them to src/data/ai/facts/pages and .../hubs; `npm run
 // ai:status` says when the committed files no longer match what the code says.
-import { LICENCES } from '../../data/licences.ts';
+import { LICENCES, withheld } from '../../data/licences.ts';
 import { RIVERS } from '../../data/rivers.ts';
 import { HISTORY_BLOCS } from '../history.ts';
 import { BLOC_ORDER } from '../blocs.ts';
@@ -159,9 +159,13 @@ export function pageFacts(name: string, on: string): FactsFile | null {
   return { id: `page:${name}`, kind: 'page', subject: p.subject, countries: [...new Set(facts.flatMap((f) => f.places ?? []))], names, generated: 'src/lib/ai/page-facts.ts', facts };
 }
 
+/** A hub fact about a view whose source's licence is withheld (src/data/licences.ts): left out while the view is hidden,
+ *  so an intro never describes a map the hub does not show. */
+const HUB_FACT_SOURCE: Record<string, string> = { space: 'celestrak', internet: 'ioda', disasters: 'gdacs' };
+
 export function hubFacts(name: string, on: string): FactsFile | null {
   const h = HUB_FACTS[name];
   if (!h) return null;
-  const facts = h(on);
+  const facts = h(on).filter((f) => !(HUB_FACT_SOURCE[f.id] && withheld(HUB_FACT_SOURCE[f.id])));
   return { id: `hub:${name}`, kind: 'hub', subject: HUB_SUBJECT[name], countries: [...new Set(facts.flatMap((f) => f.places ?? []))], ...(HUB_NAMES[name] ? { names: HUB_NAMES[name] } : {}), generated: 'src/lib/ai/page-facts.ts', facts };
 }

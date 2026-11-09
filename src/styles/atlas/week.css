@@ -70,6 +70,10 @@
 .gt-alerts__lvl { display: inline-flex; align-items: center; gap: 5px; font: 600 13px/18px var(--sans); color: var(--ink); }
 .gt-alerts__lvl svg { width: 11px; height: 11px; fill: currentColor; color: var(--cat-4); }
 .gt-alerts__date { font-size: 13px; color: var(--ink-muted); }
+.gt-weeklinks { list-style: none; margin: 0; padding: 0; display: grid; font: 400 15px/20px var(--sans); }
+.gt-weeklinks li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: baseline; padding: 6px 0; border-bottom: 1px solid var(--rule); }
+.gt-weeklinks li:last-child { border-bottom: 0; }
+.gt-weeklinks a { overflow-wrap: anywhere; }
 .gt-pair { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font: 400 14px/20px var(--sans); }
 .gt-pair li { display: grid; grid-template-columns: minmax(0, 6.4em) minmax(0, 1fr) 3.4em 3.4em; gap: 10px; align-items: center; }
 .gt-pair__bars { display: grid; gap: 2px; }
