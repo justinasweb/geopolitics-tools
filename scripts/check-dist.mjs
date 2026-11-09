@@ -34,7 +34,7 @@ for (const f of files) {
 for (const r of REQUIRED) if (!existsSync(join(dir, r))) errors.push(`missing ${r}`);
 
 // Titles, descriptions and headings of the pages search engines are told about.
-const TITLE_MAX = 65;
+const TITLE_MAX = 65; // as src/lib/site.ts; measured on the final <title>, suffix included when it has one
 const DESC_RANGE = [70, 170];
 const decode = (s) => s.replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(Number(n))).replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCodePoint(parseInt(n, 16)))
   .replace(/&quot;/g, '"').replace(/&#39;|&apos;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').trim();

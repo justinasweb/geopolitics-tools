@@ -8,7 +8,7 @@ import '../styles/atlas/base.css';
 import serifFont from '@fontsource-variable/newsreader/files/newsreader-latin-opsz-normal.woff2?url';
 import sansFont from '@fontsource-variable/source-sans-3/files/source-sans-3-latin-wght-normal.woff2?url';
 import StatusTag from '../components/StatusTag.astro';
-import { fathomTag, indexable, siteName } from '../lib/site';
+import { fathomTag, fullTitle, indexable, siteName } from '../lib/site';
 import { organization } from '../lib/structured';
 import { SOCIAL_HANDLE } from '../data/nav';
 import { DEFAULT_IMAGE, shareAlt } from '../lib/og-cards';
@@ -33,7 +33,6 @@ interface Props {
 }
 const { title, description, noindex = false, image = DEFAULT_IMAGE, imageAlt, published, jsonld = [], sample = false, lang = 'en' } = Astro.props;
 const canonical = new URL(Astro.url.pathname.replace(/\.html$/, '').replace(/\/index$/, '/'), Astro.site).href;
-const fullTitle = title === siteName ? title : `${title} | ${siteName}`;
 const imageUrl = new URL(image, Astro.site).href;
 const alt = imageAlt ?? shareAlt(image) ?? OG_TEXT.altFallback(title);
 const ld = [organization(), ...jsonld];
@@ -43,7 +42,7 @@ const ld = [organization(), ...jsonld];
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{fullTitle}</title>
+    <title>{fullTitle(title)}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     <link rel="alternate" hreflang={lang} href={canonical} />

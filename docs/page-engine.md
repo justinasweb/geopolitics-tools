@@ -15,7 +15,8 @@ one data snapshot, through one route registry. Nothing on these pages is written
    `sitemap.xml`, `robots.txt` and `_redirects` come from the same registry.
 4. `scripts/check-dist.mjs` checks the result: Cloudflare's limits, the required files, and no Sample tag on any page. For
    every page in `sitemap.xml` it fails on an empty or duplicate `<title>` or meta description, or more than one `<h1>`,
-   and warns (listing the pages) on a title over 65 characters or a description outside 70–170. Descriptions aim for 160
+   and warns (listing the pages) on a title over 65 characters (the final `<title>`: `fullTitle` in `src/lib/site.ts` adds
+   " | geopolitics.tools" only when the whole stays within 65) or a description outside 70–170. Descriptions aim for 160
    at most: country pages fit whole sentences with `fitSentences` (`src/lib/format.ts`), starting with the page's
    strongest figure (`lead` in `src/lib/country.ts`).
 

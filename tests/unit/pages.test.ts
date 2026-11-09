@@ -179,3 +179,22 @@ describe('titles and descriptions', () => {
     }
   });
 });
+
+describe('the <title>', () => {
+  const titleAt = async (path: string) => {
+    const { fullTitle } = await import('../../src/lib/site.ts');
+    const { countryModel } = await import('../../src/lib/country.ts');
+    const { COUNTRY_TEXT } = await import('../../src/i18n/pages.en.ts');
+    const r = R.routes().find((x) => x.path === path)!;
+    return fullTitle(COUNTRY_TEXT.title(countryModel(r.id)!.place.name));
+  };
+
+  it('adds " | geopolitics.tools" only when the whole stays within 65 characters', async () => {
+    expect(await titleAt('/countries/democratic-republic-of-the-congo')).toBe('Democratic Republic of the Congo: imports, resources and key figures');
+    expect(await titleAt('/countries/germany')).toMatch(/^Germany: .* \| geopolitics\.tools$/);
+    const { fullTitle } = await import('../../src/lib/site.ts');
+    expect(fullTitle('geopolitics.tools')).toBe('geopolitics.tools');
+    expect(fullTitle('x'.repeat(45))).toHaveLength(65);
+    expect(fullTitle('x'.repeat(46))).toBe('x'.repeat(46));
+  });
+});
