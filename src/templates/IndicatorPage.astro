@@ -19,15 +19,15 @@ import '../styles/atlas/table.css';
 import '../styles/atlas/filters.css';
 import '../styles/atlas/country.css';
 import { INDICATORS, statusAt } from '../data/indicators';
-import { GROUP_TEXT, INDICATOR_TEXT } from '../i18n/en';
+import { INDICATOR_TEXT } from '../i18n/en';
 import { ANSWER, DEFINITION, INDICATOR_PAGE as T, RELATED, SOURCE_NOTE, list } from '../i18n/pages.en';
 import { answerFor, csvAllowed, indicatorModel } from '../lib/indicator';
-import { creditLine, creditName, licenceOf, refreshed, sourceName } from '../lib/data';
+import { creditLine, creditName, licenceOf, refreshed } from '../lib/data';
 import { formatValue } from '../lib/format';
 import { place } from '../lib/places';
 import { breaks, classOf, type Row } from '../lib/stats';
 import { countryHref, indicatorHref, paths } from '../lib/routes';
-import { breadcrumbs, dataset } from '../lib/structured';
+import { indicatorCrumbs, indicatorDescription, indicatorLd } from '../lib/jsonld';
 
 interface Props { id: string }
 const { id } = Astro.props;
@@ -40,7 +40,6 @@ const path = paths.indicator(id);
 const url = new URL(path, Astro.site).href;
 const nameOf = (pid: string) => place(pid)?.name ?? pid;
 const credit = SOURCE_NOTE[id] ?? m.sources.map((s) => creditName(s)).join('; ');
-const sourceFull = m.sources.map(sourceName).join('; ');
 const updated = refreshed(m.source);
 const projected = (y: number) => ind.projectedAfter !== undefined && y > ind.projectedAfter;
 // Places whose own actual figures end before the indicator's (WEO estimates), for the notice.
@@ -70,15 +69,13 @@ const trendFind = medVals.length > 1 ? T.trendFind(formatValue(Math.min(...medVa
 
 const related = [...new Set([...(RELATED[id] ?? []), ...Object.values(INDICATORS).filter((x) => x.group === ind.group && x.id !== id).map((x) => x.id)])]
   .filter((r) => r !== id && indicatorHref(r)).slice(0, 5);
-const lic = licenceOf(m.source);
 const csv = csvAllowed(m) ? paths.csv(id) : null;
-const crumbs = [{ label: T.indexTitle, href: paths.indicators() }, { label: GROUP_TEXT[ind.group] }, { label }];
-const description = T.description(label, ind.static ? undefined : m.year, credit);
-const years = m.loaded.years;
+const crumbs = indicatorCrumbs(id);
+const description = indicatorDescription(id);
 
 ---
 <Page title={T.shareText(label)} description={description} noindex={!m.indexed} container="tl" image={paths.image('indicators', path.split('/').at(-1)!)}
-  jsonld={[dataset({ name: `${label} by country`, description: DEFINITION[id] ?? description, path, creator: sourceFull, licenceUrl: lic?.terms, variable: label, unit: text.unit, csv: csv ?? undefined, updated, years: years.length ? [Math.min(...years), Math.max(...years)] : undefined }), breadcrumbs(crumbs)]}>
+  jsonld={indicatorLd(id)}>
   <header class="gt-tlhead">
     <Breadcrumbs items={crumbs} />
     <h1 class="gt-title gt-tlhead__t">{label}{text.unit && !['US$', 'people'].includes(text.unit) && <span class="gt-mvhead__sub"> {text.unit}</span>}</h1>

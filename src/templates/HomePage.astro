@@ -19,7 +19,7 @@ import { SOURCE_TEXT, TRAIL_TEXT } from '../i18n/en';
 import { countryOptions, places, questionCards, questions, toolRow, topics, trust, weekStrip } from '../lib/home';
 import { tryLinks } from '../lib/search';
 import { hashRedirectScript, live, paths } from '../lib/routes';
-import { website } from '../lib/structured';
+import { homeLd } from '../lib/jsonld';
 
 const tools = toolRow();
 const cards = questionCards();
@@ -31,7 +31,7 @@ const tr = trust();
 const tries = tryLinks();
 const method = live('page:methodology')?.path;
 ---
-<Page title={T.title} description={T.description} mainClass="gt-home" jsonld={[website()]}>
+<Page title={T.title} description={T.description} mainClass="gt-home" jsonld={homeLd()}>
   <script is:inline set:html={hashRedirectScript()} />
   <section class="gt-hero gt-hero--c">
     <div class="gt-hero__lead">

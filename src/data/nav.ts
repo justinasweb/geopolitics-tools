@@ -75,3 +75,5 @@ export const NAV_FOOTER = [
 ];
 
 export const SOCIAL = { x: 'https://x.com/geopolitools', telegram: 'https://t.me/geopolitools' };
+/** The X account, for twitter:site on every share card. */
+export const SOCIAL_HANDLE = '@geopolitools';

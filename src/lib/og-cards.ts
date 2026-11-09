@@ -9,7 +9,7 @@ import { formatDate, formatShare, formatValue } from './format';
 import { answerFor, indicatorModel, tagOf } from './indicator';
 import type { Card } from './og';
 import { place } from './places';
-import type { Route } from './routes';
+import { routes, type Route } from './routes';
 import { siteName } from './site';
 import { MINERALS_VIEW } from '../i18n/map.en';
 import { amount, lede, listed, mineralPage, nameOf as producerName, shareText } from './minerals';
@@ -50,6 +50,22 @@ import { WEEK_TEXT } from '../i18n/week.en';
 const nameOf = (id: string) => place(id)?.name ?? id;
 const short = (s: string) => creditName(s);
 const TITLES: Record<string, string> = { countries: 'Countries', indicators: 'Indicators', about: 'About', methodology: 'Methodology', privacy: 'Privacy', sources: 'Sources' };
+
+/** The card in one sentence, for og:image:alt and twitter:image:alt: kicker, title, the headline figure with its
+ *  caption (or the caption alone) and the source. */
+export function cardAlt(c: Card): string {
+  const caption = c.caption?.replace(/\.$/, '');
+  const middle = c.figure ? `${c.figure}${caption ? ` (${caption})` : ''}` : caption;
+  return `${[`${c.kicker}: ${c.title}`, middle, c.source && OG_TEXT.altSource(c.source)].filter(Boolean).join('; ')}.`;
+}
+
+let byImage: Map<string, Route> | null = null;
+/** The alt text for a share image path (/og/countries/germany.png), or undefined when no live page names it. */
+export function shareAlt(image: string | undefined): string | undefined {
+  byImage ??= new Map(routes().filter((r) => r.live && r.image).map((r) => [r.image!, r]));
+  const r = image ? byImage.get(image) : undefined;
+  return r ? cardAlt(card(r)) : undefined;
+}
 
 /** The card for one page, from its route; null gives the site default. */
 export function card(r: Route | null): Card {

@@ -24,12 +24,12 @@ import { conflictPage, ledeFor, VIOLENCE, type ConflictMonth } from '../lib/conf
 import { refreshed } from '../lib/data';
 import { formatValue } from '../lib/format';
 import { place } from '../lib/places';
-import { countryHref, indicatorHref, live, route, hubCrumb } from '../lib/routes';
+import { countryHref, indicatorHref, live, route } from '../lib/routes';
 import { layerPath } from '../lib/map/layers';
-import { breadcrumbs } from '../lib/structured';
+import { CONFLICT_KEY, conflictCrumbs, conflictLd } from '../lib/jsonld';
 
 const p = conflictPage()!;
-const key = 'view:conflict:events';
+const key = CONFLICT_KEY;
 const path = route(key)!.path;
 const url = new URL(path, Astro.site).href;
 const updated = refreshed('ucdp');
@@ -52,7 +52,7 @@ const summary = [
   [C.caveat, firstPrelim ? C.candidateNote(monthText(firstPrelim.n, true)) : ''].filter(Boolean).join(' '),
 ];
 
-const crumbs: { label: string; href?: string }[] = [hubCrumb('security'), { label: C.section }];
+const crumbs = conflictCrumbs();
 const marks = VIOLENCE.map((k) => ({ symbol: symbols[k], label: C.mark(k) }));
 const rows = m.rows.map((r) => {
   const q = prev?.rows.find((x) => x.id === r.id);
@@ -68,7 +68,7 @@ const mapTop = m.rows.slice(0, 3).map((r) => `${nameOf(r.id)} ${count(r.deaths)}
 const recent = [...p.months].reverse();
 ---
 <Page title={C.title} description={C.description(monthText(p.month, true))} hub="security" container="mv" image={route(key)!.image}
-  jsonld={[breadcrumbs(crumbs.map((c) => ({ label: c.label, href: undefined })))]}>
+  jsonld={conflictLd()}>
   <div class="gt-mvhead">
     <Breadcrumbs items={crumbs} />
     <h1 class="gt-title gt-mvhead__t">{C.title} <span class="gt-mvhead__sub">{C.sub}</span></h1>

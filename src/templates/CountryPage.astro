@@ -37,7 +37,7 @@ import { creditName, data, sourceName } from '../lib/data';
 import { formatDate, formatParts, formatShare, formatValue } from '../lib/format';
 import { notesFor, place } from '../lib/places';
 import { countryHref, indicatorHref, live, paths } from '../lib/routes';
-import { breadcrumbs, country as countryLd } from '../lib/structured';
+import { countryCrumbs, countryLd } from '../lib/jsonld';
 import { NUCLEAR_TEXT } from '../i18n/nuclear.en';
 import { warheads } from '../lib/nuclear';
 import { CYBER_TEXT } from '../i18n/cyber.en';
@@ -126,12 +126,12 @@ const notCovered = allSources.filter((s) => !covered.includes(s));
 const notes = covered.flatMap((s) => notesFor(s, p.id).map((n) => ({ source: s, note: n.note })));
 const uniqueNotes = [...new Map(notes.map((n) => [n.note, n])).values()];
 
-const crumbs = [{ label: COUNTRY_TEXT.countries, href: paths.countries() }, { label: name }];
+const crumbs = countryCrumbs(p.id);
 const description = `${m.summary[0]} ${kind} with sources: key figures, dependencies${m.minerals.length ? ', minerals' : ''} and more.`.slice(0, 300);
 const citation = COUNTRY_TEXT.citation(name, kind, url, Number(m.updated.slice(0, 4)), formatDate(m.updated).replace(/^(\d+) (\w+)/, (_, dd, mm) => `${dd} ${mm}`));
 ---
 <Page title={`${name}: ${kind.toLowerCase()}`} description={description} noindex={m.thin} container="cp" mainClass={m.thin ? 'gt-cp--thin' : undefined}
-  image={paths.image('countries', p.slug)} jsonld={[countryLd(name, paths.country(p.id), p.kind === 'territory' ? 'territory' : 'country', p.iso3), breadcrumbs(crumbs)]}>
+  image={paths.image('countries', p.slug)} jsonld={countryLd(p.id)}>
     <header class="gt-cphead">
       <div class="gt-cphead__text">
         <Breadcrumbs items={crumbs} />
