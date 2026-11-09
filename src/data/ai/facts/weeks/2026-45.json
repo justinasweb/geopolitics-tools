@@ -1,0 +1,309 @@
+{
+  "id": "week:2026-45",
+  "kind": "week",
+  "subject": "week 45 of 2026 (2 November 2026 to 8 November 2026)",
+  "countries": [],
+  "names": [
+    "GDACS",
+    "UCDP",
+    "IODA",
+    "Pink Sheet",
+    "SDN",
+    "Entity List",
+    "UK Sanctions List",
+    "Consolidated Screening List",
+    "Rice, Thai 5%",
+    "Thai 5%",
+    "US hard red winter"
+  ],
+  "generated": "scripts/week.ts, from the frozen week 2026-45 (data/raw/weeks/2026-45.json, made 2026-11-09T00:41:28.431Z)",
+  "facts": [
+    {
+      "id": "week",
+      "statement": "This summary covers ISO week 45 of 2026, from 2 November 2026 to 8 November 2026.",
+      "value": 45,
+      "unit": "week",
+      "source": "geopolitics.tools, This week",
+      "link": "https://geopolitics.tools/this-week/2026-45",
+      "date": "2026-11-09"
+    },
+    {
+      "id": "alerts",
+      "statement": "GDACS issued no new orange or red disaster alerts this week: alerts that began, or rose to orange or red, in the week.",
+      "value": 0,
+      "unit": "alerts",
+      "source": "GDACS",
+      "link": "https://www.gdacs.org/",
+      "date": "2026-11-08"
+    },
+    {
+      "id": "price-ngas-eur",
+      "statement": "Natural gas, Europe: 28.5 $/MMBtu, the monthly average for October 2026.",
+      "value": 28.5,
+      "unit": "$/MMBtu",
+      "period": "2026-10",
+      "source": "World Bank Pink Sheet",
+      "link": "https://www.worldbank.org/en/research/commodity-markets",
+      "date": "2026-11-07"
+    },
+    {
+      "id": "price-ngas-eur-month",
+      "statement": "Natural gas, Europe was up 12.1% in October 2026 on September 2026.",
+      "value": 12.1,
+      "unit": "%",
+      "period": "2026-10",
+      "source": "World Bank Pink Sheet",
+      "link": "https://www.worldbank.org/en/research/commodity-markets",
+      "date": "2026-11-07"
+    },
+    {
+      "id": "price-ngas-eur-year",
+      "statement": "Natural gas, Europe was up 161.7% in October 2026 on October 2025.",
+      "value": 161.7,
+      "unit": "%",
+      "period": "2026-10",
+      "source": "World Bank Pink Sheet",
+      "link": "https://www.worldbank.org/en/research/commodity-markets",
+      "date": "2026-11-07"
+    },
+    {
+      "id": "price-wheat-us-hrw",
+      "statement": "Wheat, US hard red winter: 317 $/tonne, the monthly average for October 2026.",
+      "value": 317,
+      "unit": "$/tonne",
+      "period": "2026-10",
+      "source": "World Bank Pink Sheet",
+      "link": "https://www.worldbank.org/en/research/commodity-markets",
+      "date": "2026-11-07"
+    },
+    {
+      "id": "price-wheat-us-hrw-month",
+      "statement": "Wheat, US hard red winter was down 8.6% in October 2026 on September 2026.",
+      "value": -8.6,
+      "unit": "%",
+      "period": "2026-10",
+      "source": "World Bank Pink Sheet",
+      "link": "https://www.worldbank.org/en/research/commodity-markets",
+      "date": "2026-11-07"
+    },
+    {
+      "id": "price-wheat-us-hrw-year",
+      "statement": "Wheat, US hard red winter was up 37.3% in October 2026 on October 2025.",
+      "value": 37.3,
+      "unit": "%",
+      "period": "2026-10",
+      "source": "World Bank Pink Sheet",
+      "link": "https://www.worldbank.org/en/research/commodity-markets",
+      "date": "2026-11-07"
+    },
+    {
+      "id": "price-maize",
+      "statement": "Maize: 226.5 $/tonne, the monthly average for October 2026.",
+      "value": 226.5,
+      "unit": "$/tonne",
+      "period": "2026-10",
+      "source": "World Bank Pink Sheet",
+      "link": "https://www.worldbank.org/en/research/commodity-markets",
+      "date": "2026-11-07"
+    },
+    {
+      "id": "price-maize-month",
+      "statement": "Maize was down 5.5% in October 2026 on September 2026.",
+      "value": -5.5,
+      "unit": "%",
+      "period": "2026-10",
+      "source": "World Bank Pink Sheet",
+      "link": "https://www.worldbank.org/en/research/commodity-markets",
+      "date": "2026-11-07"
+    },
+    {
+      "id": "price-maize-year",
+      "statement": "Maize was up 14.3% in October 2026 on October 2025.",
+      "value": 14.3,
+      "unit": "%",
+      "period": "2026-10",
+      "source": "World Bank Pink Sheet",
+      "link": "https://www.worldbank.org/en/research/commodity-markets",
+      "date": "2026-11-07"
+    },
+    {
+      "id": "price-rice-05",
+      "statement": "Rice, Thai 5%: 489 $/tonne, the monthly average for October 2026.",
+      "value": 489,
+      "unit": "$/tonne",
+      "period": "2026-10",
+      "source": "World Bank Pink Sheet",
+      "link": "https://www.worldbank.org/en/research/commodity-markets",
+      "date": "2026-11-07"
+    },
+    {
+      "id": "price-rice-05-month",
+      "statement": "Rice, Thai 5% was up 1.5% in October 2026 on September 2026.",
+      "value": 1.5,
+      "unit": "%",
+      "period": "2026-10",
+      "source": "World Bank Pink Sheet",
+      "link": "https://www.worldbank.org/en/research/commodity-markets",
+      "date": "2026-11-07"
+    },
+    {
+      "id": "price-rice-05-year",
+      "statement": "Rice, Thai 5% was up 37.4% in October 2026 on October 2025.",
+      "value": 37.4,
+      "unit": "%",
+      "period": "2026-10",
+      "source": "World Bank Pink Sheet",
+      "link": "https://www.worldbank.org/en/research/commodity-markets",
+      "date": "2026-11-07"
+    },
+    {
+      "id": "price-copper",
+      "statement": "Copper: 14508 $/tonne, the monthly average for October 2026.",
+      "value": 14508,
+      "unit": "$/tonne",
+      "period": "2026-10",
+      "source": "World Bank Pink Sheet",
+      "link": "https://www.worldbank.org/en/research/commodity-markets",
+      "date": "2026-11-07"
+    },
+    {
+      "id": "price-copper-month",
+      "statement": "Copper was up 0.2% in October 2026 on September 2026.",
+      "value": 0.2,
+      "unit": "%",
+      "period": "2026-10",
+      "source": "World Bank Pink Sheet",
+      "link": "https://www.worldbank.org/en/research/commodity-markets",
+      "date": "2026-11-07"
+    },
+    {
+      "id": "price-copper-year",
+      "statement": "Copper was up 35.1% in October 2026 on October 2025.",
+      "value": 35.1,
+      "unit": "%",
+      "period": "2026-10",
+      "source": "World Bank Pink Sheet",
+      "link": "https://www.worldbank.org/en/research/commodity-markets",
+      "date": "2026-11-07"
+    },
+    {
+      "id": "price-gold",
+      "statement": "Gold: 4105 $/troy oz, the monthly average for October 2026.",
+      "value": 4105,
+      "unit": "$/troy oz",
+      "period": "2026-10",
+      "source": "World Bank Pink Sheet",
+      "link": "https://www.worldbank.org/en/research/commodity-markets",
+      "date": "2026-11-07"
+    },
+    {
+      "id": "price-gold-month",
+      "statement": "Gold was down 5% in October 2026 on September 2026.",
+      "value": -5,
+      "unit": "%",
+      "period": "2026-10",
+      "source": "World Bank Pink Sheet",
+      "link": "https://www.worldbank.org/en/research/commodity-markets",
+      "date": "2026-11-07"
+    },
+    {
+      "id": "price-gold-year",
+      "statement": "Gold was up 1.2% in October 2026 on October 2025.",
+      "value": 1.2,
+      "unit": "%",
+      "period": "2026-10",
+      "source": "World Bank Pink Sheet",
+      "link": "https://www.worldbank.org/en/research/commodity-markets",
+      "date": "2026-11-07"
+    },
+    {
+      "id": "outages",
+      "statement": "IODA recorded no national-scale internet outages that began this week. IODA reports when an outage began and how long it lasted, not why.",
+      "value": 0,
+      "unit": "outages",
+      "source": "IODA, Georgia Tech",
+      "link": "https://ioda.inetintel.cc.gatech.edu/",
+      "date": "2026-11-08"
+    },
+    {
+      "id": "sanctions-us-added",
+      "statement": "79 entries were added to the United States sanctions lists (SDN list and Entity List) between 2 November 2026 and 8 November 2026.",
+      "value": 79,
+      "unit": "entries",
+      "source": "United States: SDN list and Entity List",
+      "link": "https://www.trade.gov/consolidated-screening-list",
+      "date": "2026-11-07",
+      "places": [
+        "USA"
+      ]
+    },
+    {
+      "id": "sanctions-us-removed",
+      "statement": "No entries were removed from the United States sanctions lists (SDN list and Entity List) between 2 November 2026 and 8 November 2026.",
+      "value": 0,
+      "unit": "entries",
+      "source": "United States: SDN list and Entity List",
+      "link": "https://www.trade.gov/consolidated-screening-list",
+      "date": "2026-11-07",
+      "places": [
+        "USA"
+      ]
+    },
+    {
+      "id": "sanctions-eu-added",
+      "statement": "No entries were added to the European Union sanctions lists (Financial sanctions file) between 2 November 2026 and 8 November 2026.",
+      "value": 0,
+      "unit": "entries",
+      "source": "European Union: Financial sanctions file",
+      "link": "https://webgate.ec.europa.eu/fsd/fsf",
+      "date": "2026-11-07",
+      "places": []
+    },
+    {
+      "id": "sanctions-eu-removed",
+      "statement": "No entries were removed from the European Union sanctions lists (Financial sanctions file) between 2 November 2026 and 8 November 2026.",
+      "value": 0,
+      "unit": "entries",
+      "source": "European Union: Financial sanctions file",
+      "link": "https://webgate.ec.europa.eu/fsd/fsf",
+      "date": "2026-11-07",
+      "places": []
+    },
+    {
+      "id": "sanctions-uk-added",
+      "statement": "No entries were added to the United Kingdom sanctions lists (UK Sanctions List) between 2 November 2026 and 8 November 2026.",
+      "value": 0,
+      "unit": "entries",
+      "source": "United Kingdom: UK Sanctions List",
+      "link": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+      "date": "2026-11-07",
+      "places": [
+        "GBR"
+      ]
+    },
+    {
+      "id": "sanctions-uk-removed",
+      "statement": "No entries were removed from the United Kingdom sanctions lists (UK Sanctions List) between 2 November 2026 and 8 November 2026.",
+      "value": 0,
+      "unit": "entries",
+      "source": "United Kingdom: UK Sanctions List",
+      "link": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+      "date": "2026-11-07",
+      "places": [
+        "GBR"
+      ]
+    },
+    {
+      "id": "sanctions-places",
+      "statement": "Entries added most often give an address or nationality in Cambodia, India and Canada. An entry is a person, company, vessel or aircraft. Counts say how many entries changed, not what the measures do.",
+      "places": [
+        "KHM",
+        "IND",
+        "CAN"
+      ],
+      "source": "US Consolidated Screening List; EU FSF; UK Sanctions List",
+      "link": "https://www.trade.gov/consolidated-screening-list",
+      "date": "2026-11-07"
+    }
+  ]
+}
