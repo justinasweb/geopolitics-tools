@@ -10,7 +10,9 @@ import sansFont from '@fontsource-variable/source-sans-3/files/source-sans-3-lat
 import StatusTag from '../components/StatusTag.astro';
 import { fathomTag, indexable, siteName } from '../lib/site';
 import { organization } from '../lib/structured';
-import { SAMPLE_BANNER } from '../i18n/pages.en';
+import { SOCIAL_HANDLE } from '../data/nav';
+import { DEFAULT_IMAGE, shareAlt } from '../lib/og-cards';
+import { OG_TEXT, SAMPLE_BANNER } from '../i18n/pages.en';
 
 interface Props {
   title: string;
@@ -18,16 +20,22 @@ interface Props {
   noindex?: boolean;
   /** Share image path (1200 × 630). */
   image?: string;
+  /** The share image in words (og:image:alt, twitter:image:alt). Without one, a share card from the route registry
+   *  describes itself (src/lib/og-cards.ts), the site default included; otherwise "Share card: {title}". */
+  imageAlt?: string;
+  /** A dated piece (This week archive pages): og:type article with its publication date. */
+  published?: string;
   /** Structured data for this page (JSON-LD objects), besides the site-wide Organization. */
   jsonld?: object[];
   /** Pages built from data show the sample banner in a sample build. */
   sample?: boolean;
   lang?: string;
 }
-const { title, description, noindex = false, image = '/og/page/default.png', jsonld = [], sample = false, lang = 'en' } = Astro.props;
+const { title, description, noindex = false, image = DEFAULT_IMAGE, imageAlt, published, jsonld = [], sample = false, lang = 'en' } = Astro.props;
 const canonical = new URL(Astro.url.pathname.replace(/\.html$/, '').replace(/\/index$/, '/'), Astro.site).href;
 const fullTitle = title === siteName ? title : `${title} · ${siteName}`;
 const imageUrl = new URL(image, Astro.site).href;
+const alt = imageAlt ?? shareAlt(image) ?? OG_TEXT.altFallback(title);
 const ld = [organization(), ...jsonld];
 ---
 <!doctype html>
@@ -41,7 +49,8 @@ const ld = [organization(), ...jsonld];
     <link rel="alternate" hreflang={lang} href={canonical} />
     <link rel="alternate" hreflang="x-default" href={canonical} />
     {(noindex || !indexable) && <meta name="robots" content={noindex ? 'noindex, follow' : 'noindex'} />}
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={published ? 'article' : 'website'} />
+    {published && <meta property="article:published_time" content={published} />}
     <meta property="og:site_name" content={siteName} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
@@ -49,7 +58,10 @@ const ld = [organization(), ...jsonld];
     <meta property="og:image" content={imageUrl} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={alt} />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content={SOCIAL_HANDLE} />
+    <meta name="twitter:image:alt" content={alt} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="preload" href={serifFont} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={sansFont} as="font" type="font/woff2" crossorigin />

@@ -422,6 +422,10 @@ export const OG_TEXT = {
   compareKicker: 'Compare',
   pageKicker: 'geopolitics.tools',
   source: (s: string) => `Source: ${s}`,
+  /** The source as it closes the card's alt text. */
+  altSource: (s: string) => `source: ${s}`,
+  /** og:image:alt and twitter:image:alt when a page names no share card. */
+  altFallback: (title: string) => `Share card: ${title}`,
 };
 
 export const SAMPLE_BANNER = 'Sample data build: every figure on this page is illustrative, from the prototype’s sample files, not real data.';

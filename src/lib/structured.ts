@@ -1,5 +1,5 @@
 // Structured data (schema.org JSON-LD): Organization on every page with the social accounts, Dataset on indicator
-// pages, Country or Place on country pages, WebSite on the home page (spec, "SEO"; SEO plan: how Google picks the site name).
+// pages (creator: the source; publisher: this site), Country or Place on country pages, WebSite on the home page (spec, "SEO"; SEO plan: how Google picks the site name).
 import { SOCIAL } from '../data/nav';
 import { siteName } from './site';
 
@@ -7,7 +7,7 @@ const SITE = 'https://geopolitics.tools';
 const abs = (path: string) => new URL(path, SITE).href;
 
 export const organization = () => ({
-  '@context': 'https://schema.org', '@type': 'Organization', name: siteName, url: SITE, logo: abs('/favicon.svg'),
+  '@context': 'https://schema.org', '@type': 'Organization', name: siteName, url: SITE, logo: abs('/logo-512.png'),
   sameAs: [SOCIAL.x, SOCIAL.telegram],
 });
 
@@ -21,6 +21,7 @@ export interface DatasetInput {
 export const dataset = (d: DatasetInput) => ({
   '@context': 'https://schema.org', '@type': 'Dataset', name: d.name, description: d.description, url: abs(d.path),
   creator: { '@type': 'Organization', name: d.creator },
+  publisher: { '@type': 'Organization', name: siteName, url: SITE },
   isAccessibleForFree: true,
   ...(d.licenceUrl ? { license: d.licenceUrl } : {}),
   ...(d.years ? { temporalCoverage: `${d.years[0]}/${d.years[1]}` } : {}),
@@ -37,7 +38,10 @@ export const country = (name: string, path: string, kind: 'country' | 'territory
   ...(iso ? { identifier: { '@type': 'PropertyValue', propertyID: 'ISO 3166-1 alpha-3', value: iso } } : {}),
 });
 
+/** Google requires a link on every ListItem but the last, so a crumb with no page of its own ("Tools", an indicator's
+ *  group) is left out here and the rest renumbered; the visible breadcrumbs keep it. */
 export const breadcrumbs = (items: { label: string; href?: string }[]) => ({
   '@context': 'https://schema.org', '@type': 'BreadcrumbList',
-  itemListElement: items.map((it, i) => ({ '@type': 'ListItem', position: i + 1, name: it.label, ...(it.href ? { item: abs(it.href) } : {}) })),
+  itemListElement: items.filter((it, i) => it.href || i === items.length - 1)
+    .map((it, i) => ({ '@type': 'ListItem', position: i + 1, name: it.label, ...(it.href ? { item: abs(it.href) } : {}) })),
 });
