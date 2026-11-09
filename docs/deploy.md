@@ -49,7 +49,7 @@ build; 100 Previews per Worker, oldest deleted automatically.
 - Repository variables (optional): `PRODUCTION_URL` (leave unset until launch: the domain shows only the holding
   page until then, so the production checks run on the workers.dev address; set it to `https://geopolitics.tools`
   at launch), `SITE_INDEXABLE` (`true` at launch: removes `noindex` and
-  opens `robots.txt`), `SITE_HOLDING` (`false` at launch: production stops serving the holding page as
+  opens `robots.txt` on `geopolitics.tools` only; every other host stays noindex), `SITE_HOLDING` (`false` at launch: production stops serving the holding page as
   the home page; until then production builds get it and pull request builds get the homepage, with the development index at `/dev`; nothing is
   posted to the Telegram channel while it is on), `DIGEST_AT` (the weekly digest's day and hour in UTC, `mon 08` when
   unset).
@@ -88,6 +88,14 @@ The browser checks (`tests/e2e/smoke.mjs`) fail if any of them is missing, so a 
 On top of that, while `SITE_HOLDING` is on, `geopolitics.tools` shows only the holding page: the Worker sends every
 other address there with a 302 (`worker/index.ts`, switched on by the `HOLDING` variable the production deploy sets).
 The workers.dev address and Previews keep every page, so CI can check them; they are not linked anywhere.
+
+## Only the production domain is ever indexable
+
+After launch too, the Worker (`worker/index.ts`) adds `X-Robots-Tag: noindex` to every response whose host is not
+exactly `geopolitics.tools`: the workers.dev address, every Preview and `www`. So turning `SITE_INDEXABLE` on opens
+only the production domain, even though Previews and workers.dev serve a build with the same setting. On
+`geopolitics.tools` the Worker changes nothing, apart from the Atlas's `noindex, follow` on addresses with a query.
+The browser checks expect the header on every host but `geopolitics.tools`, whatever `SITE_INDEXABLE` says.
 `www.geopolitics.tools` is not connected; a Cloudflare Redirect Rule (www to the bare domain) is the planned way
 to cover it.
 

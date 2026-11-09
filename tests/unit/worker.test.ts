@@ -48,6 +48,20 @@ describe('worker', () => {
     expect((await call('/water?year=2020', 'GET', env, 'geopolitics.tools')).headers.get('X-Robots-Tag')).toBeNull();
   });
 
+  it('keeps every host but the production domain noindex', async () => {
+    for (const host of ['geopolitics-tools.example.workers.dev', 'pr-12-geopolitics-tools.example.workers.dev', 'www.geopolitics.tools']) {
+      const res = await call('/water', 'GET', env, host);
+      expect(await res.text()).toBe('asset');
+      expect(res.headers.get('X-Robots-Tag')).toBe('noindex');
+    }
+    expect((await call('/atlas?layer=x', 'GET', env, 'geopolitics-tools.example.workers.dev')).headers.get('X-Robots-Tag')).toBe('noindex');
+  });
+
+  it('leaves pages on the production domain to the build after launch', async () => {
+    expect((await call('/water', 'GET', env, 'geopolitics.tools')).headers.get('X-Robots-Tag')).toBeNull();
+    expect((await call('/atlas?layer=x', 'GET', env, 'geopolitics.tools')).headers.get('X-Robots-Tag')).toBe('noindex, follow');
+  });
+
   it('serves every page on workers.dev, in Previews and after launch', async () => {
     expect(await (await call('/water', 'GET', holding, 'geopolitics-tools.example.workers.dev')).text()).toBe('asset');
     expect(await (await call('/water', 'GET', env, 'geopolitics.tools')).text()).toBe('asset');

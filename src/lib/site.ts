@@ -1,5 +1,7 @@
 // Until launch every page carries noindex and robots.txt disallows everything, wherever the site is served.
-// The launch build sets SITE_INDEXABLE=true (a repository variable read by the production deploy).
+// The launch build sets SITE_INDEXABLE=true (a repository variable read by the production deploy). Even then only the
+// production domain, geopolitics.tools, is ever indexable: the Worker (worker/index.ts) sends X-Robots-Tag: noindex
+// on every other host (workers.dev, Previews, www), whatever this build says.
 export const indexable = process.env.SITE_INDEXABLE === 'true';
 
 export const siteName = 'geopolitics.tools';
