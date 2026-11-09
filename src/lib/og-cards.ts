@@ -75,7 +75,7 @@ export function card(r: Route | null): Card {
       bars: m.common.slice(0, 5).map((x) => ({ label: nameOf(x.id), value: x.value, text: tagged(formatValue(x.value, fmt), tagOf(m, x.id, x.year)) })),
     };
   }
-  if (r.kind === 'compare') {
+  if (r.kind === 'compare' && r.id) {
     const [a, b] = r.id.split(',');
     const gdp = [a, b].map((p) => countryModel(p)!.figures.find((f) => f.id === 'gdp'));
     const gm = indicatorModel('gdp');

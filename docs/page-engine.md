@@ -46,7 +46,7 @@ servers never see the part after `#`.
 | --- | --- |
 | Country page | Every country or territory with at least one figure from any source; the kind line says "Country page" or "Territory". Fewer than 4 measures: built, `noindex`, with the "few sources" box listing which sources cover it. Every page has money, technology and climate sections where the snapshot has their figures (spec, D20; each part and section left out with no figure; CO2 per person then moves from More figures to Climate), and the People section when WPP covers the place (spec, D16): population 1950–2100 with the UN range, the age pyramid, births per woman, median age, share aged 65+. People needs the three UN WPP imports (`wpp-total`, `wpp-indicators`, `wpp-age`); its age pyramid has a year slider in five-year steps, 1950–2100, every year drawn at build time on one scale |
 | United States, China, Russia | The same country page, plus the approved AI-drafted summary and Compare links (`DOSSIERS` in `src/lib/country.ts`) |
-| Compare | The three pairs of the United States, China and Russia; /countries lists them under Compare |
+| Compare | The three pairs of the United States, China and Russia, static and indexed with share images; and `/compare?a={slug}&b={slug}` for any two country pages (spec, D21). See "Compare" below |
 | Indicator | Every registry measure with data in the snapshot. Fewer than 20 places reporting in the common year: built, `noindex`. Measures waiting on a key or permission have no page and are listed on the index as waiting |
 | About, Methodology, Privacy | `src/content/pages/*.md`. Each shows the draft banner until its front matter says `approved: true` and its facts are unchanged since (see [ai-drafting.md](ai-drafting.md)) |
 | Sources | Generated from the source registry, the licence table and the last snapshot; corrections from `src/data/corrections.csv` |
@@ -73,8 +73,8 @@ A sample build has 129 country pages and 37 indicator pages; the real snapshot h
   only. A row whose source is not in the snapshot says "No data yet".
 - **Neutral words.** Templates use plain verbs (mines, imports, hosts) and no adjectives that judge. "Higher" on
   Compare marks the larger value and says it is not a judgement. A sentence whose figure is missing is left out.
-- **Colour is never the only cue.** Dependence tags have a glyph and a word, Compare countries have a marker and a
-  name, lines are labelled at their ends, map classes are named in the legend.
+- **Colour is never the only cue.** Dependence tags have a glyph and a word, Compare's first and second country have
+  a marker, a line style and a name, lines are labelled at their ends, map classes are named in the legend.
 - **Downloads follow the licence table.** An indicator page offers a CSV only when every source behind it allows
   downloads (`csvAllowed`); otherwise it says the figures are shown only.
 
@@ -325,6 +325,35 @@ says is in `src/lib/og-cards.ts`.
   then smaller, then one line each.
 - `tests/unit/og.test.ts` checks every card the site builds, and the longest label of each view family five times
   over under its longest title, rendered with nothing in the card's margins.
+
+## Compare
+
+Any two countries side by side (spec, D21), without a page per pair.
+
+- **Three static pairs.** `/compare/united-states-vs-china`, `/compare/united-states-vs-russia`, `/compare/china-vs-russia`
+  (`COMPARE_PAIRS` in `src/lib/routes.ts`): built pages, indexed, with share images.
+- **`/compare` for any other pair.** One page, route key `compare`; the pair is in the query string
+  (`?a=germany&b=france`, country slugs). It is `noindex` and its canonical is `/compare`. The build draws the two
+  country boxes and the ready-made pairs; `src/scripts/compare.ts` loads `/compare/data/{slug}.json` for the two
+  countries and draws the sections. A pair that is one of the static three goes to its page (`location.replace`).
+- **One model, one markup.** `src/lib/compare/model.ts` (rows, gaps, charts, mineral pairs) and
+  `src/lib/compare/render.ts` (HTML strings) have no Node imports: the static pairs call them at build time with the
+  same `CountryData` the JSON files hold (`compareData` in `src/lib/compare.ts`), so the two cannot drift. The line
+  chart's markup is `src/lib/linechart.ts`, which the `LineChart` component also uses.
+- **Country files.** One per country page, only what Compare uses: the latest figure and year of each key-figure
+  measure, the GDP and military-spending series from 2000, and shares of world mineral production, rounded to six
+  significant figures. With the 9 November snapshot: 238 files, 193 KB in all (0.8 KB each on average, 0.4 KB compressed).
+- **Rows and charts only where both have data.** A key-figure row needs a figure for both countries; under the table
+  one line says what was not compared and why ("Not compared, no data for Mali: satellites, launches (source:
+  CelesTrak); for either: …"). A chart is drawn only when both countries have the series, over the years both cover.
+  Minerals: any mineral where either country has at least 1% of world production; the other shows "–" when USGS does
+  not list it (decided 9 Nov 2026: not listed is not zero), read out as "Not listed by USGS" and explained in a note
+  under the pairs.
+- **First and second.** The first country is `--cmp-first` (blue), a square, solid lines and bars; the second
+  `--cmp-second` (orange), a triangle, dashed lines and hatched bars. `scripts/tokens.ts` checks the two stay apart
+  (CIE ΔE ≥ 40) under protanopia, deuteranopia and tritanopia as well as normal vision, in both themes.
+- **Pickers.** `ComparePicker`: two boxes on `/compare`, on `/countries` ("Pick any two countries", then the
+  ready-made pairs) and under each static pair; one box ("Compare with…") on every country page.
 
 ## Not done in this phase
 

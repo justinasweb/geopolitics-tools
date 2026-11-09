@@ -50,7 +50,7 @@ export interface Route {
   indexed: boolean;
   /** Old or alternative addresses, answered with a 301 to `path`. */
   aliases: string[];
-  /** The id the page template needs: a place, an indicator, a static page, or "a,b" for Compare. */
+  /** The id the page template needs: a place, an indicator, a static page, or "a,b" for a Compare pair ("" for /compare). */
   id: string;
   /** Share image path, for og:image and the sitemap. */
   image?: string;
@@ -64,6 +64,8 @@ export const paths = {
   countries: () => `/${S.countries}`,
   country: (id: string) => `/${S.countries}/${slugOf(id)}`,
   compare: (a: string, b: string) => `/${S.compare}/${slugOf(a)}${COMPARE_JOIN}${slugOf(b)}`,
+  /** Any two countries (D21): /compare?a=germany&b=france, drawn in the browser. */
+  compareAny: () => `/${S.compare}`,
   indicators: () => `/${S.indicators}`,
   indicator: (id: string) => `/${S.indicators}/${INDICATOR_SLUGS[id]}`,
   csv: (id: string) => `/${S.downloads}/${INDICATOR_SLUGS[id]}.csv`,
@@ -123,6 +125,9 @@ function build(): Route[] {
     const lastmod = [countryModel(a)!.lastmod, countryModel(b)!.lastmod].sort().at(-1);
     out.push({ key: `compare:${a},${b}`, kind: 'compare', lang, path: paths.compare(a, b), live: true, indexed: true, aliases: [paths.compare(b, a)], id: `${a},${b}`, image: paths.image('compare', `${slugOf(a)}${COMPARE_JOIN}${slugOf(b)}`), lastmod });
   }
+  // Any two countries (D21): one page whose pair is in the query string, noindex like an Atlas state; the canonical is
+  // /compare. The static pairs above stay indexed, with share images.
+  out.push({ key: 'compare', kind: 'compare', lang, path: paths.compareAny(), live: true, indexed: false, aliases: [], id: '', lastmod: snapshotDate });
   out.push({ key: 'indicators', kind: 'indicators', lang, path: paths.indicators(), live: true, indexed: true, aliases: [], id: '', image: paths.image('page', 'indicators'), lastmod: snapshotDate });
   for (const id of Object.keys(INDICATORS)) {
     const m = indicatorModel(id);
@@ -367,6 +372,9 @@ export const hubOf = (family: string) => NAV_HUBS.find((h) => h.views.some((v) =
 /** A view's first breadcrumb: its topic hub, linked once the hub is live. */
 export const hubCrumb = (hub: string) => ({ label: NAV_TEXT.hubs[hub] ?? hub, href: live(`hub:${hub}`)?.path });
 
+/** The static Compare pairs (/compare/united-states-vs-china), not the page for any two. */
+export const comparePairRoutes = () => routes().filter((r) => r.kind === 'compare' && r.live && r.id);
+
 /** A place's page, if it has one. */
 export const countryHref = (id: string) => live(`country:${id}`)?.path;
 export const indicatorHref = (id: string) => live(`indicator:${id}`)?.path;
@@ -388,7 +396,7 @@ export function hashMap(): Record<string, string> {
     const h = countryHref(p.id);
     if (h) out[`country/${p.id}`] = h;
   }
-  for (const r of routes().filter((x) => x.kind === 'compare' && x.live)) {
+  for (const r of comparePairRoutes()) {
     const [a, b] = r.id.split(',');
     out[`compare/${a},${b}`] = r.path;
     out[`compare/${b},${a}`] = r.path;

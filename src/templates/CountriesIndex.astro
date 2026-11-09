@@ -1,20 +1,22 @@
 ---
-// The countries index: a search box, the Compare pages (United States, China, Russia), then every country and
-// territory page A to Z. Places with no figure from any source have no page and are not listed.
+// The countries index: a search box, Compare (pick any two countries, then the ready-made pairs: United States, China,
+// Russia), then every country and territory page A to Z. Places with no figure from any source have no page and are
+// not listed.
 import Page from '../layouts/Page.astro';
 import CountrySearch from '../components/CountrySearch.astro';
+import ComparePicker from '../components/ComparePicker.astro';
 import '../styles/atlas/site.css';
 import '../styles/atlas/longread.css';
 import '../styles/atlas/country.css';
 import { COUNTRIES_INDEX as T, COMPARE_TEXT } from '../i18n/pages.en';
 import { countryPages } from '../lib/country';
 import { place } from '../lib/places';
-import { paths, routes } from '../lib/routes';
+import { comparePairRoutes, live, paths } from '../lib/routes';
 import { breadcrumbs } from '../lib/structured';
 
 const pages = countryPages();
 const territories = pages.filter((m) => m.place.kind === 'territory').length;
-const compares = routes().filter((r) => r.kind === 'compare' && r.live).map((r) => {
+const compares = comparePairRoutes().map((r) => {
   const [a, b] = r.id.split(',').map((id) => place(id)!.name);
   return { href: r.path, label: COMPARE_TEXT.title(a, b) };
 });
@@ -36,11 +38,17 @@ const options = pages.map((m) => ({ name: m.place.name, note: m.place.kind === '
   <div class="gt-cindex">
     <CountrySearch id="country-find" label={T.find} options={options} placeholder={T.find} />
 
-    {compares.length > 0 && (
+    {live('compare') && (
       <section aria-labelledby="compare-h" class="gt-cindex__sec" id="compare">
         <h2 class="gt-h2" id="compare-h">{T.compare}</h2>
-        <p class="gt-caption">{T.compareLede}</p>
-        <ul class="gt-cplinks">{compares.map((c) => <li><a href={c.href}>{c.label} <span aria-hidden="true">→</span></a></li>)}</ul>
+        <p>{COMPARE_TEXT.pickAny}</p>
+        <ComparePicker id="cindex-cmp" />
+        {compares.length > 0 && (
+          <>
+            <h3 class="gt-h3">{COMPARE_TEXT.readyMade}</h3>
+            <ul class="gt-cplinks">{compares.map((c) => <li><a href={c.href}>{c.label} <span aria-hidden="true">→</span></a></li>)}</ul>
+          </>
+        )}
       </section>
     )}
 

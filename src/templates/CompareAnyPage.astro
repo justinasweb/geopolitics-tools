@@ -1,0 +1,47 @@
+---
+// Any two countries (D21): /compare?a=germany&b=france. The pair is in the query string, so the page is noindex and
+// its canonical is /compare (like an Atlas state). The build draws the two country boxes and the ready-made pairs;
+// the browser script (src/scripts/compare.ts) loads the two countries' small files (/compare/data/{slug}.json) and
+// draws the same sections as the static pairs with the shared markup (src/lib/compare/render.ts). A pair that is one
+// of the static pages goes there instead.
+import Page from '../layouts/Page.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import ComparePicker from '../components/ComparePicker.astro';
+import '../styles/atlas/country.css';
+import '../styles/atlas/table.css';
+import '../styles/atlas/source.css';
+import '../styles/atlas/tags.css';
+import '../styles/atlas/correction.css';
+import { COMPARE_TEXT as T, COUNTRY_TEXT } from '../i18n/pages.en';
+import { compareMeta } from '../lib/compare';
+import { paths } from '../lib/routes';
+import { breadcrumbs } from '../lib/structured';
+
+const meta = compareMeta();
+const crumbs = [{ label: COUNTRY_TEXT.countries, href: paths.countries() }, { label: T.kicker }];
+const json = JSON.stringify(meta).replace(/</g, '\\u003c');
+---
+<Page title={T.anyTitle} description={T.anyDescription} noindex container="cp" mainClass="gt-cmp" jsonld={[breadcrumbs(crumbs)]}>
+  <header class="gt-cmphead">
+    <Breadcrumbs items={crumbs} />
+    <h1 class="gt-title gt-cphead__t" data-cmp-title>{T.anyTitle}</h1>
+    <p class="gt-lede" data-cmp-lede>{T.anyLede}</p>
+    <div class="gt-ckey" data-cmp-chips hidden></div>
+    <ComparePicker id="cmp" />
+  </header>
+
+  <div class="gt-cmpout" data-cmp-out aria-busy="false"></div>
+
+  {meta.pairs.length > 0 && (
+    <section class="gt-cpsec" aria-labelledby="ready-h">
+      <header class="gt-cpsec__head"><h2 class="gt-h2" id="ready-h">{T.readyMade}</h2></header>
+      <ul class="gt-cplinks">{meta.pairs.map((p) => <li><a href={p.path}>{p.title} <span aria-hidden="true">→</span></a></li>)}</ul>
+    </section>
+  )}
+  <script type="application/json" id="cmp-meta" set:html={json} />
+</Page>
+
+<script>
+  import { initCompare } from '../scripts/compare';
+  initCompare();
+</script>
