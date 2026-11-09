@@ -38,7 +38,10 @@ export const country = (name: string, path: string, kind: 'country' | 'territory
   ...(iso ? { identifier: { '@type': 'PropertyValue', propertyID: 'ISO 3166-1 alpha-3', value: iso } } : {}),
 });
 
+/** Google requires a link on every ListItem but the last, so a crumb with no page of its own ("Tools", an indicator's
+ *  group) is left out here and the rest renumbered; the visible breadcrumbs keep it. */
 export const breadcrumbs = (items: { label: string; href?: string }[]) => ({
   '@context': 'https://schema.org', '@type': 'BreadcrumbList',
-  itemListElement: items.map((it, i) => ({ '@type': 'ListItem', position: i + 1, name: it.label, ...(it.href ? { item: abs(it.href) } : {}) })),
+  itemListElement: items.filter((it, i) => it.href || i === items.length - 1)
+    .map((it, i) => ({ '@type': 'ListItem', position: i + 1, name: it.label, ...(it.href ? { item: abs(it.href) } : {}) })),
 });

@@ -3,6 +3,10 @@
 import { GROUP_TEXT, INDICATOR_TEXT } from '../i18n/en';
 import { COUNTRY_TEXT, DEFINITION, INDICATOR_PAGE, SOURCE_NOTE } from '../i18n/pages.en';
 import { CONFLICT_TEXT } from '../i18n/conflict.en';
+import { CHAINS_TEXT, chainTitle } from '../i18n/supply-chains.en';
+import { EXPLORER_TEXT } from '../i18n/explorer.en';
+import { OVERLAP_TEXT } from '../i18n/overlap.en';
+import { chainOf } from './supply-chains';
 import { countryModel } from './country';
 import { creditName, licenceOf, refreshed, sourceName } from './data';
 import { csvAllowed, indicatorModel } from './indicator';
@@ -53,3 +57,17 @@ export const conflictCrumbs = (): Crumb[] => [hubCrumb('security'), { label: CON
 
 /** The conflict map view: its breadcrumbs, with links. */
 export const conflictLd = (): object[] => [breadcrumbs(conflictCrumbs())];
+
+export const supplyChainCrumbs = (flow: string): Crumb[] => [
+  { label: CHAINS_TEXT.crumb }, { label: CHAINS_TEXT.title, href: paths.supplyChains() }, { label: chainTitle(flow, chainOf(flow).label).title },
+];
+/** A supply chain page (/supply-chains/oil): its breadcrumbs. */
+export const supplyChainLd = (flow: string): object[] => [breadcrumbs(supplyChainCrumbs(flow))];
+
+export const explorerCrumbs = (): Crumb[] => [{ label: EXPLORER_TEXT.crumb }, { label: EXPLORER_TEXT.title }];
+/** Every Explorer view (/explorer, /explorer/over-time, /explorer/scatter): its breadcrumbs. */
+export const explorerLd = (): object[] => [breadcrumbs(explorerCrumbs())];
+
+export const overlapCrumbs = (): Crumb[] => [{ label: OVERLAP_TEXT.crumb }, { label: OVERLAP_TEXT.title }];
+/** Bloc overlap (/blocs/overlap): its breadcrumbs. */
+export const overlapLd = (): object[] => [breadcrumbs(overlapCrumbs())];

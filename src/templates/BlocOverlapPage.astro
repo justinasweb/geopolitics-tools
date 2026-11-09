@@ -22,15 +22,15 @@ import { bridges, overlapData } from '../lib/overlap';
 import { DEFAULTS } from '../lib/overlap/model';
 import { bridgeHtml, chipsHtml, matrixHtml, phoneTableHtml, tableHtml, twoHtml } from '../lib/overlap/render';
 import { paths } from '../lib/routes';
-import { breadcrumbs } from '../lib/structured';
+import { overlapCrumbs, overlapLd } from '../lib/jsonld';
 
 const data = overlapData();
 const state = DEFAULTS;
-const crumbs = [{ label: T.crumb }, { label: T.title }];
+const crumbs = overlapCrumbs();
 const json = JSON.stringify({ data }).replace(/</g, '\\u003c');
 ---
 <Page title={T.title} description={T.description(data.blocs.length)} hub="tools" container="tl" mainClass="gt-ov-tool" image={paths.image('tools', 'blocs-overlap')}
-  jsonld={[breadcrumbs(crumbs)]}>
+  jsonld={overlapLd()}>
   <header class="gt-tlhead">
     <Breadcrumbs items={crumbs} />
     <h1 class="gt-title gt-tlhead__t">{T.title}</h1>

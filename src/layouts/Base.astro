@@ -11,7 +11,7 @@ import StatusTag from '../components/StatusTag.astro';
 import { fathomTag, indexable, siteName } from '../lib/site';
 import { organization } from '../lib/structured';
 import { SOCIAL_HANDLE } from '../data/nav';
-import { shareAlt } from '../lib/og-cards';
+import { DEFAULT_IMAGE, shareAlt } from '../lib/og-cards';
 import { OG_TEXT, SAMPLE_BANNER } from '../i18n/pages.en';
 
 interface Props {
@@ -21,7 +21,7 @@ interface Props {
   /** Share image path (1200 × 630). */
   image?: string;
   /** The share image in words (og:image:alt, twitter:image:alt). Without one, a share card from the route registry
-   *  describes itself (src/lib/og-cards.ts); otherwise "Share card: {title}". */
+   *  describes itself (src/lib/og-cards.ts), the site default included; otherwise "Share card: {title}". */
   imageAlt?: string;
   /** A dated piece (This week archive pages): og:type article with its publication date. */
   published?: string;
@@ -31,7 +31,7 @@ interface Props {
   sample?: boolean;
   lang?: string;
 }
-const { title, description, noindex = false, image = '/og/page/default.png', imageAlt, published, jsonld = [], sample = false, lang = 'en' } = Astro.props;
+const { title, description, noindex = false, image = DEFAULT_IMAGE, imageAlt, published, jsonld = [], sample = false, lang = 'en' } = Astro.props;
 const canonical = new URL(Astro.url.pathname.replace(/\.html$/, '').replace(/\/index$/, '/'), Astro.site).href;
 const fullTitle = title === siteName ? title : `${title} · ${siteName}`;
 const imageUrl = new URL(image, Astro.site).href;

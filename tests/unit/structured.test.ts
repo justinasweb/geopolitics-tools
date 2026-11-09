@@ -77,6 +77,42 @@ describe('structured data', () => {
   });
 });
 
+describe('breadcrumbs in structured data', () => {
+  /** Every ListItem but the last has an absolute link, and positions run 1, 2, 3… without gaps. */
+  function valid(lds: object[]) {
+    const items = ofType(lds, 'BreadcrumbList').itemListElement as { position: number; name: string; item?: string }[];
+    expect(items.length).toBeGreaterThan(0);
+    expect(items.map((it) => it.position)).toEqual(items.map((_, i) => i + 1));
+    items.slice(0, -1).forEach((it) => expect(absolute(it.item), `${it.name} has no link`).toBe(true));
+    return items;
+  }
+
+  it('an indicator page drops its group, which has no page', async () => {
+    const { indicatorLd } = await import('../../src/lib/jsonld.ts');
+    expect(valid(indicatorLd('gdp')).map((it) => it.name)).toEqual(['Indicators', 'GDP']);
+  });
+
+  it('a supply chain page, /explorer/over-time and /blocs/overlap drop "Tools"', async () => {
+    const { supplyChainLd, explorerLd, overlapLd } = await import('../../src/lib/jsonld.ts');
+    const chain = valid(supplyChainLd('oil'));
+    expect(chain[0]).toMatchObject({ name: 'Supply chains', item: 'https://geopolitics.tools/supply-chains' });
+    expect(chain).toHaveLength(2);
+    for (const lds of [explorerLd(), overlapLd()]) expect(valid(lds).map((it) => it.name)).not.toContain('Tools');
+  });
+
+  it('keeps the last crumb without a link, and the page’s visible crumbs unchanged', async () => {
+    const { breadcrumbs } = await import('../../src/lib/structured.ts');
+    const { explorerCrumbs } = await import('../../src/lib/jsonld.ts');
+    expect(breadcrumbs([{ label: 'A', href: '/a' }, { label: 'B' }, { label: 'C', href: '/c' }, { label: 'D' }]).itemListElement)
+      .toEqual([
+        { '@type': 'ListItem', position: 1, name: 'A', item: 'https://geopolitics.tools/a' },
+        { '@type': 'ListItem', position: 2, name: 'C', item: 'https://geopolitics.tools/c' },
+        { '@type': 'ListItem', position: 3, name: 'D' },
+      ]);
+    expect(explorerCrumbs()[0].label).toBe('Tools');
+  });
+});
+
 describe('share card alt text', () => {
   it('reads kicker, title, figure with its caption and the source as one sentence', async () => {
     const { cardAlt } = await import('../../src/lib/og-cards.ts');
@@ -88,6 +124,7 @@ describe('share card alt text', () => {
   it('describes a live page’s share image from its route', async () => {
     const { shareAlt } = await import('../../src/lib/og-cards.ts');
     expect(shareAlt('/og/countries/germany.png')).toMatch(/^Country page: Germany; /);
-    expect(shareAlt('/og/page/default.png')).toBeUndefined();
+    expect(shareAlt('/og/page/default.png')).toMatch(/^geopolitics\.tools: Maps and figures on /);
+    expect(shareAlt('/og/page/no-such-card.png')).toBeUndefined();
   });
 });

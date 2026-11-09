@@ -9,7 +9,7 @@ import { formatDate, formatShare, formatValue } from './format';
 import { answerFor, indicatorModel, tagOf } from './indicator';
 import type { Card } from './og';
 import { place } from './places';
-import { routes, type Route } from './routes';
+import { paths, routes, type Route } from './routes';
 import { siteName } from './site';
 import { MINERALS_VIEW } from '../i18n/map.en';
 import { amount, lede, listed, mineralPage, nameOf as producerName, shareText } from './minerals';
@@ -59,9 +59,14 @@ export function cardAlt(c: Card): string {
   return `${[`${c.kicker}: ${c.title}`, middle, c.source && OG_TEXT.altSource(c.source)].filter(Boolean).join('; ')}.`;
 }
 
+/** The site default share image, for pages that name none. */
+export const DEFAULT_IMAGE = paths.image('page', 'default');
+
 let byImage: Map<string, Route> | null = null;
-/** The alt text for a share image path (/og/countries/germany.png), or undefined when no live page names it. */
+/** The alt text for a share image path (/og/countries/germany.png): the site default's own card, or a live page's;
+ *  undefined when no card has that path. */
 export function shareAlt(image: string | undefined): string | undefined {
+  if (image === DEFAULT_IMAGE) return cardAlt(card(null));
   byImage ??= new Map(routes().filter((r) => r.live && r.image).map((r) => [r.image!, r]));
   const r = image ? byImage.get(image) : undefined;
   return r ? cardAlt(card(r)) : undefined;

@@ -327,7 +327,8 @@ says is in `src/lib/og-cards.ts`.
   over under its longest title, rendered with nothing in the card's margins.
 - **Alt text**: `og:image:alt` and `twitter:image:alt` say the card in one sentence (kicker, title, figure with its
   caption, source; `cardAlt` and `shareAlt` in `og-cards.ts`). `Base` finds the card from the image path in the route
-  registry; a page can pass `imageAlt` instead, and a page with no card of its own gets "Share card: {title}".
+  registry, and pages that name no image use the site default card's own wording. A page can pass `imageAlt` instead;
+  "Share card: {title}" is left only for an image path with no card data.
 - Every page also carries `twitter:site` (@geopolitools). This week archive pages are `og:type` article with
   `article:published_time` (the week's last day); everything else is website.
 
@@ -335,8 +336,9 @@ says is in `src/lib/og-cards.ts`.
 
 Base adds the Organization (logo: `public/logo-512.png`) to every page. Each page kind's own JSON-LD is built in
 `src/lib/jsonld.ts` from the template's models (indicator Dataset with the source as creator and this site as
-publisher, Country or Place, WebSite on the home page, breadcrumbs with links), with the builders in
-`src/lib/structured.ts`. `tests/unit/structured.test.ts` checks the required fields for one page of each kind.
+publisher, Country or Place, WebSite on the home page, breadcrumbs), with the builders in `src/lib/structured.ts`.
+Google requires a link on every breadcrumb but the last, so the JSON-LD leaves out crumbs with no page of their own
+("Tools", an indicator's group) and renumbers the rest; the visible breadcrumbs keep them. `tests/unit/structured.test.ts` checks the required fields for one page of each kind.
 The logo is the design system's colour symbol (`src/design/symbol-color.svg`) on white, 512 × 512: after changing
 the symbol, run `node scripts/logo.ts` (the test fails while the PNG is out of date).
 

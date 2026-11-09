@@ -20,7 +20,7 @@ import { explorerData, explorerMeta } from '../lib/explorer';
 import { parseState, queryOf, VIEWS, type View } from '../lib/explorer/model';
 import { controlsHtml, needed, outputHtml, presetsHtml, urlbarHtml, viewSource, type Data } from '../lib/explorer/render';
 import { paths } from '../lib/routes';
-import { breadcrumbs } from '../lib/structured';
+import { explorerCrumbs, explorerLd } from '../lib/jsonld';
 
 interface Props { view: View }
 const { view } = Astro.props;
@@ -30,12 +30,12 @@ const data: Data = Object.fromEntries(needed(state).map((id) => [id, explorerDat
 const viewPaths = Object.fromEntries(VIEWS.map((v) => [v, paths.explorer(v)]));
 const path = viewPaths[view];
 const url = new URL(`${path}?${queryOf(state)}`, Astro.site).href;
-const crumbs = [{ label: T.crumb }, { label: T.title }];
+const crumbs = explorerCrumbs();
 const n = meta.measures.length;
 const json = JSON.stringify({ meta, paths: viewPaths, site: Astro.site?.href ?? '' }).replace(/</g, '\\u003c');
 ---
 <Page title={`${T.title}: ${T.views[view]}`} description={T.description[view](n)} hub="tools" container="tl" mainClass="gt-exp" image={paths.image('tools', `explorer-${path.split('/')[2] ?? 'table'}`)}
-  jsonld={[breadcrumbs(crumbs)]}>
+  jsonld={explorerLd()}>
   <header class="gt-tlhead">
     <Breadcrumbs items={crumbs} />
     <h1 class="gt-title gt-tlhead__t">{T.title}</h1>
