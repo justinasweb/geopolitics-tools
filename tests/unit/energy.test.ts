@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import { rawDir } from '../../src/adapters/core.ts';
-import { chipFlows, comtrade, crudeFlows, fertiliserFlows, gasFlows, parseComtrade, partners } from '../../src/adapters/comtrade.ts';
+import { chipFlows, comtrade, crudeFlows, fertiliserFlows, gasBcm, gasFlows, parseComtrade, partners } from '../../src/adapters/comtrade.ts';
 import { gas, oil, oilPrices, parseOil } from '../../src/adapters/eia.ts';
 import { ENERGY_TEXT } from '../../src/i18n/energy.en.ts';
 
@@ -74,6 +74,42 @@ describe('UN Comtrade adapter', () => {
     expect(mx.mirror).toBe(true);
     expect(flows.find((f) => f.from === 'NOR' && f.to === 'DEU')!.mirror).toBeUndefined();
     expect(flows.some((f) => f.from === 'ESP' && f.to === 'MAR')).toBe(false);
+  });
+
+  it('reads gas by the reporter’s own volume when its weight is Comtrade’s estimate, and never the estimate alone', () => {
+    const row = (reporterISO: string, partnerISO: string, flowCode: string, netWgt: number, primaryValue: number, extra: Record<string, unknown> = {}) =>
+      ({ period: 2024, reporterISO, flowCode, partnerISO, cmdCode: '271121', netWgt, primaryValue, ...extra });
+    const est = { isNetWgtEstimated: true };
+    const rows = parseComtrade([{ data: [
+      row('DEU', 'NOR', 'M', 30e9, 18e9), row('ITA', 'DZA', 'M', 15e9, 9e9), row('GBR', 'NOR', 'M', 25e9, 16e9),
+      // The United States reports its imports from Canada in m³; the 12.3 Mt is Comtrade's estimate.
+      row('USA', 'CAN', 'M', 12_283_889_834.93, 6_197_719_596, { ...est, qtyUnitCode: 8, altQtyUnitCode: 12, altQty: 86_143_576_033 }),
+      // Mexico's "kg" are litres, as its second quantity's unit says: 66.3 bcm, its own report.
+      row('MEX', 'USA', 'M', 66_256_610_000_000, 4_705_397_166, { qtyUnitCode: 8, qty: 66_256_610_000_000, altQtyUnitCode: 7, altQty: 66_256_610_000_000 }),
+      // China gives no quantity: an estimated weight only. Russia does not report: no flow.
+      row('CHN', 'RUS', 'M', 15.9e9, 8e9, { ...est, altQtyUnitCode: 8, altQty: 0 }),
+      // France's weight is estimated too, and Belgium reports the flow: the exporter's report, marked.
+      row('FRA', 'BEL', 'M', 28e9, 14e9, { ...est, altQtyUnitCode: 18, altQty: 0 }), row('BEL', 'FRA', 'X', 2.2e9, 1.2e9),
+    ] }]);
+    const flows = gasFlows(rows);
+    const at = (from: string, to: string) => flows.find((f) => f.from === from && f.to === to);
+    expect(at('CAN', 'USA')!.amount).toBeCloseTo(86.14, 2);
+    expect(at('CAN', 'USA')!.mirror).toBeUndefined();
+    expect(at('USA', 'MEX')!.amount).toBeCloseTo(66.26, 2);
+    expect(at('USA', 'MEX')!.mirror).toBeUndefined();
+    expect(at('RUS', 'CHN')).toBeUndefined();
+    expect(at('BEL', 'FRA')).toMatchObject({ amount: 2.2e9 / 0.75e9, mirror: true });
+  });
+
+  it('reads an LNG volume as liquid or gas by its size against the estimated weight', () => {
+    const row = (partnerISO: string, netWgt: number, altQty: number) =>
+      ({ period: 2024, reporterISO: 'USA', flowCode: 'X', partnerISO, cmdCode: '271111', netWgt, primaryValue: 1e9, isNetWgtEstimated: true, altQtyUnitCode: 12, altQty });
+    const rows = parseComtrade([{ data: [row('FRA', 6e9, 23.6e6), row('JPN', 6e9, 9e9), row('ESP', 6e9, 6e8)] }]);
+    const r = (p: string) => rows.find((x) => x.partner === p)!;
+    expect(gasBcm(r('FRA'), 'lng')).toBeCloseTo((23.6e6 * 612) / 1e9, 3);
+    expect(gasBcm(r('JPN'), 'lng')).toBeCloseTo(9, 3);
+    // 0.1 m³ a kg is neither: no figure.
+    expect(gasBcm(r('ESP'), 'lng')).toBeNull();
   });
 
   it('turns crude into barrels a day and gas into cubic metres, pipeline and LNG apart', () => {

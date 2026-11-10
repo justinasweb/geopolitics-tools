@@ -339,6 +339,22 @@ describe('comtrade', () => {
     expect(urls.some((u) => /cmdCode=271111,271121&flowCode=M/.test(u))).toBe(true);
   });
 
+  it('fetches again an older gas file saved without the second quantity, which gas volumes come from', async () => {
+    const urls: string[] = [];
+    const http = createHttp((async (url: string) => {
+      urls.push(String(url));
+      const period = Number(/period=(\d{4})/.exec(String(url))![1]);
+      return new Response(JSON.stringify({ count: 100, data: rows(100, '271121', period).map((r) => ({ ...r, altQtyUnitCode: 12, altQty: 1 })) }), { status: 200 });
+    }) as typeof fetch, 0);
+    const old = JSON.stringify({ count: 1, data: rows(100, '271121', 2016) });
+    const now = JSON.stringify({ count: 1, data: rows(100, '271121', 2017).map((r) => ({ ...r, altQtyUnitCode: 12, altQty: 1 })) });
+    const r = await comtrade.fetch({ ...ctxFor(http, { 'gas-2016.json': old, 'gas-2017.json': now, 'crude-2016.json': old }), env });
+    expect(urls.some((u) => /period=2016&cmdCode=271111,271121&flowCode=M/.test(u))).toBe(true);
+    expect(urls.some((u) => /period=2017&cmdCode=271111,271121&flowCode=M/.test(u))).toBe(false);
+    expect(urls.some((u) => /period=2016&cmdCode=2709&flowCode=M/.test(u))).toBe(false);
+    expect(JSON.parse(body(r, 'gas-2016.json')).data[0]).toHaveProperty('altQtyUnitCode', 12);
+  });
+
   it('refuses an answer at the row limit and a sharp drop in reporters', async () => {
     const big = fakeHttp([[/comtrade|get\/C/, () => ({ count: 100_000, data: rows(100_000, '2709', 2024) })]]);
     await expect(comtrade.fetch({ ...ctxFor(big), env: { ...env, COMTRADE_MAX_CALLS: '1' } })).rejects.toThrow(/limit/);
