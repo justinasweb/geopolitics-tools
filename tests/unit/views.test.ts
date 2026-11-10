@@ -151,3 +151,20 @@ describe('map legends', () => {
     expect(seqSteps(5)).toEqual([1, 2, 3, 4, 5]);
   });
 });
+
+describe('legend edges as text', () => {
+  it('never round an edge to zero, give two significant figures, and keep neighbours apart', async () => {
+    const { edgeTexts } = await import('../../src/lib/format.ts');
+    const mt = { kind: 'number', unit: 'Mt', digits: 1 } as const;
+    // Maize imports, Mt: tiny edges read "0.023 Mt", not "0.0 Mt".
+    expect(edgeTexts([0.0234, 1, 2, 10], mt)).toEqual(['0.023 Mt', '1.0 Mt', '2.0 Mt', '10.0 Mt']);
+    // Potash use: two edges that would both read 0.00 Mt.
+    const two = edgeTexts([0.0012, 0.0016, 0.5, 2], { kind: 'number', unit: 'Mt', digits: 2 });
+    expect(two.slice(0, 2)).toEqual(['0.0012 Mt', '0.0016 Mt']);
+    // Exact values stay short; CO2's 6.5 gets its decimal.
+    expect(edgeTexts([6.5, 85, 500, 2000], { kind: 'number', unit: 'Mt' })).toEqual(['6.5 Mt', '85 Mt', '500 Mt', '2,000 Mt']);
+    expect(edgeTexts([1000, 83000, 500000, 2e6], { kind: 'count' })).toEqual(['1,000', '83,000', '500,000', '2 m']);
+    expect(edgeTexts([0.0015, 0.011, 0.05, 0.2], { kind: 'share' })).toEqual(['0.15%', '1.1%', '5%', '20%']);
+    expect(edgeTexts([4.1e6, 990e6, 5e9, 50e9], { kind: 'money' })).toEqual(['$4.1 m', '$990 m', '$5 bn', '$50 bn']);
+  });
+});

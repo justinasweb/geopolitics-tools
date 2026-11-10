@@ -67,6 +67,9 @@ thirds of the way to the largest on a log scale, rounded to 1, 2 or 5 (refugees 
 (`seqSteps` in `src/lib/map/steps.ts`, read by the layers, the legends and the indicator pages' static maps). An
 indicator that can be negative (budget balance) keeps plain quantiles of all its values on its page. Food, energy and
 mineral maps use share-of-world classes and are not affected.
+Legend edges are written together (`edgeTexts` in `src/lib/format.ts`): at least two significant figures unless
+fewer write the edge exactly ("2,000", "0.5 Mt"), never zero ("under 0.027 Mt", not "under 0.0 Mt"), and with more
+decimals until neighbouring edges differ.
 
 Year sliders label up to six ticks, evenly spread, the first and the last always (`YearSlider`), so the first tick is
 the slider's first year; the slider runs over every year with at least half the default year's coverage.

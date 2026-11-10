@@ -16,7 +16,7 @@ import { yearsOf } from '../adapters/core.ts';
 import { worldShare } from './electricity.ts';
 import { cyberData, undated, yearSplit, yearTotal } from './cyber.ts';
 import { CYBER_TEXT } from '../i18n/cyber.en.ts';
-import { formatValue } from './format.ts';
+import { edgeTexts, formatValue } from './format.ts';
 import { seqSteps } from './map/steps.ts';
 import { place } from './places.ts';
 import { breaks, classOf, counts, defaultYear, ranking, type Row } from './stats.ts';
@@ -144,7 +144,9 @@ function buildPage(family: ViewFamily, layer: ViewLayer): ViewPage | null {
   }
   const format = loaded.indicator.format;
   const edges = layer.edges ?? (layer.scale === 'div' ? DIV_EDGES : seqEdges(byYear[year].rows.map((r) => r.value)));
-  const f = (v: number) => formatValue(v, format);
+  // Edges as text together (edgeTexts): never "0.0 Mt", and neighbours always read differently.
+  const et = layer.scale === 'div' ? [] : edgeTexts(edges, format);
+  const f = (v: number) => et[edges.indexOf(v)] ?? formatValue(v, format);
   // Ticks name ranges once, with their unit ("1–7 Mt"). A diverging scale's ticks are sizes, the same on both
   // sides ("10–30%"); its two ends say the direction.
   const unitOf = format.kind === 'number' && format.unit ? ` ${format.unit}` : '';

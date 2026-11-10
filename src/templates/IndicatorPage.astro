@@ -23,7 +23,7 @@ import { INDICATOR_TEXT } from '../i18n/en';
 import { ANSWER, DEFINITION, INDICATOR_PAGE as T, RELATED, SOURCE_NOTE, list } from '../i18n/pages.en';
 import { answerFor, csvAllowed, indicatorModel } from '../lib/indicator';
 import { creditLine, creditName, licenceOf, refreshed } from '../lib/data';
-import { formatValue } from '../lib/format';
+import { edgeTexts, formatValue } from '../lib/format';
 import { place } from '../lib/places';
 import { breaks, classOf, type Row } from '../lib/stats';
 import { seqEdges } from '../lib/views';
@@ -63,7 +63,9 @@ const vals = m.common.map((r) => r.value);
 const b = vals.every((v) => v >= 0) ? seqEdges(vals) : breaks(vals);
 const steps = seqSteps(b.length + 1);
 const classes = b.length ? Object.fromEntries(m.common.map((r) => [r.id, steps[classOf(r.value, b)] - 1])) : null;
-const ticks = b.length ? [`under ${formatValue(b[0], fmt)}`, ...b.slice(0, -1).map((x, i) => `${formatValue(x, fmt)}–${formatValue(b[i + 1], fmt)}`), `${formatValue(b.at(-1)!, fmt)}+`] : [];
+// Edges as text together: never "under 0.0 Mt", and neighbours always read differently (edgeTexts).
+const et = edgeTexts(b, fmt);
+const ticks = b.length ? [`under ${et[0]}`, ...b.slice(0, -1).map((_, i) => `${et[i]}–${et[i + 1]}`), `${et.at(-1)}+`] : [];
 
 const trend = m.trend;
 const trendLines = trend.years.length > 2 ? [
