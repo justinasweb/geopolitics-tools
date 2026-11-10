@@ -136,10 +136,12 @@ and add it to the claim.
 US$391 m), shown as 0.81 bcm. Tanzania has no LNG export terminal and reports only small LNG exports (under 1,000 t a
 year, to Burundi, Malawi and Tuvalu; none to Colombia, none at all for 2025). Colombia named Trinidad and Tobago and
 the United States in 2023 and 2024, and Trinidad and Tobago reports 216,470 t to Colombia in 2025, which Colombia's
-2025 figures do not name. The site shows the row as Colombia reports it.
+2025 figures do not name. Since 10 Nov 2026 the row is left out of every flow (`LEFT_OUT` in
+`src/adapters/comtrade.ts`), and the gas supply chain, the gas map and Colombia's gas row say so ("Not shown:
+Colombia's 2025 LNG imports recorded as from Tanzania (0.8 bcm)…"). If UN Comtrade corrects the partner, the row no
+longer matches and nothing is left out; the entry can then go.
 
-**Options.** Keep it as reported; leave the row out, with a note; or ask UN Comtrade or Colombia's DANE about the
-partner code. Separately, Russia → Türkiye cannot be shown at all: Türkiye reports no gas imports to UN Comtrade for
+**Options.** Keep it left out, or ask UN Comtrade or Colombia's DANE about the partner code. Separately, Russia → Türkiye cannot be shown at all: Türkiye reports no gas imports to UN Comtrade for
 2023–2025 and Russia no exports since 2022, so neither side's report is there to use.
 
 ## Launch review leftovers (raised 5 Nov 2026)

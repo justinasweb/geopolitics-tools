@@ -5,7 +5,7 @@
 // layer files and the share images read this. Built on food.ts's rules, so the two read alike.
 import { gas, oil, oilPrices, type Fuel, type Oil } from '../adapters/eia.ts';
 import { overOutput } from '../data/flows.ts';
-import { comtrade, completeYear, crudeFlows, gasFlows, gasUnreported, type GasFlow } from '../adapters/comtrade.ts';
+import { comtrade, completeYear, crudeFlows, gasFlows, gasLeftOut, gasUnreported, type GasFlow } from '../adapters/comtrade.ts';
 import type { Series } from '../adapters/core.ts';
 import { ENERGY_TEXT, type EnergyLayer, type FuelId, type FuelText } from '../i18n/energy.en.ts';
 import { DEP_TEXT, inSentence } from '../i18n/pages.en.ts';
@@ -26,7 +26,7 @@ const fuels = { oil: shared(oil), gas: shared(gas) };
 const flowData = shared((raw) => {
   const r = comtrade(raw);
   const oil = crudeFlows(r), gas = gasFlows(r);
-  return { oil, gas, unreported: gasUnreported(r), year: { oil: completeYear(r, ['crude'], oil), gas: completeYear(r, ['pipe', 'lng'], gas) } };
+  return { oil, gas, unreported: gasUnreported(r), leftOut: gasLeftOut(r), year: { oil: completeYear(r, ['crude'], oil), gas: completeYear(r, ['pipe', 'lng'], gas) } };
 });
 export const prices = shared(oilPrices);
 
@@ -102,6 +102,13 @@ export function overNote(p: EnergyPage, f: EnergyPage['flows'][number]): string 
   const o = overOutput(p.data.production, f.from, f.year, f.amount);
   if (o === null) return null;
   return ENERGY_TEXT.overOutput(p.fuel, inSentence(nameOf(f.from)), inSentence(nameOf(f.to)), f.year, amount(p.fuel, 'production', o), 'mirror' in f && f.mirror === true);
+}
+
+/** The lines naming gas rows left out by name (LEFT_OUT) in `year`, for one importer or all. */
+export function gasLeftOutLines(year: number, to?: string): string[] {
+  const one = (v: number) => `${new Intl.NumberFormat('en', { maximumFractionDigits: 1, minimumFractionDigits: 1 }).format(v)}\u00a0bcm`;
+  return (flowData()?.leftOut ?? []).filter((f) => f.year === year && (!to || f.to === to))
+    .map((f) => ENERGY_TEXT.leftOut(inSentence(nameOf(f.to)), f.year, f.kind, inSentence(nameOf(f.from)), one(f.amount)));
 }
 
 /** Every flow shown on the page that is the exporter's report. */

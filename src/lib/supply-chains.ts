@@ -6,7 +6,7 @@ import { FLOW_TEXT } from '../i18n/en.ts';
 import { DEP_TEXT, SOURCE_SHORT, inSentence } from '../i18n/pages.en.ts';
 import { CHAIN_TEXT, chainTitle } from '../i18n/supply-chains.en.ts';
 import { ENERGY_TEXT } from '../i18n/energy.en.ts';
-import { amount as energyAmount, gasNotShown } from './energy.ts';
+import { amount as energyAmount, gasLeftOutLines, gasNotShown } from './energy.ts';
 import { licenceOf, refreshed, shared, sourceName } from './data.ts';
 import { place } from './places.ts';
 import { countryHref, paths } from './routes.ts';
@@ -57,7 +57,7 @@ export function chainOf(key: string): Chain {
   const fuel = key === 'oil' || key === 'gas' ? key : null;
   const over = Object.fromEntries(fuel ? f.pairs.filter((p) => p.output !== undefined).map((p) => [`${p.from}>${p.to}`,
     ENERGY_TEXT.overOutput(fuel, inSentence(places[p.from].n), inSentence(places[p.to].n), Number(f.period), energyAmount(fuel, 'production', p.output!), p.mirror === true)]) : []);
-  const notShown = key === 'gas' ? ENERGY_TEXT.notShown(...Object.values(gasNotShown(Number(f.period))) as [string[], string[]]) : null;
+  const notShown = key === 'gas' ? [ENERGY_TEXT.notShown(...Object.values(gasNotShown(Number(f.period))) as [string[], string[]]), ...gasLeftOutLines(Number(f.period))].filter(Boolean).join(' ') || null : null;
   const chain: Chain = {
     key, label: FLOW_TEXT[key].label, kind: CHAIN_TEXT[key].kind, period: f.period, ...(f.partial ? { partial: true as const } : {}),
     pairs: f.pairs.map((p) => [p.from, p.to, Number(p.amount.toPrecision(6))]),

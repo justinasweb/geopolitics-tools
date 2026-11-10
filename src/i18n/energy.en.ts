@@ -126,6 +126,9 @@ export const ENERGY_TEXT = {
    *  the flow is the exporter's report, that can include fuel shipped on from elsewhere. */
   overOutput: (fuel: FuelId, from: string, to: string, year: number, output: string, mirror = false) =>
     `More than ${poss(from)} own output in ${year} (${output}, EIA): ${mirror ? `${poss(from)} customs records these exports` : `${poss(to)} customs records this origin`}, which can include ${fuel === 'oil' ? 'oil' : 'gas'} shipped on from elsewhere.`,
+  /** A gas row left out by name (LEFT_OUT in src/adapters/comtrade.ts). */
+  leftOut: (to: string, year: number, kind: 'pipe' | 'lng', from: string, amount: string) =>
+    `Not shown: ${poss(to)} ${year} ${kind === 'lng' ? 'LNG' : 'pipeline gas'} imports recorded as from ${from} (${amount}), which ${poss(from)} own reports do not show; the true origin is unclear.`,
   flowTip: (from: string, to: string, v: string, year: number, kind?: string) => `${from} → ${to}: ${v}${kind ? `, ${kind}` : ''} (${year})`,
   kind: { pipe: 'pipeline', lng: 'LNG' },
   from: 'From',

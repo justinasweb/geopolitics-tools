@@ -31,12 +31,24 @@ export interface TradeRow {
   noQty?: true;
   /** The partner is Comtrade's 490, "Other Asia, not elsewhere specified": Taiwan, or buyers an exporter does not name. */
   asiaNes?: true;
+  /** One of LEFT_OUT: in no flow, only named where its flow would be. */
+  leftOut?: true;
 }
 /** `mirror`: the amount is the exporter's report of the flow, the importer's quantity being unusable or its row missing. */
 export interface Flow { from: string; to: string; amount: number; year: number; mirror?: true }
 export interface GasFlow extends Flow { kind: 'pipe' | 'lng' }
 
 type Row = Record<string, unknown>;
+
+/**
+ * Rows left out of every flow by name, each with its open question. Once UN Comtrade corrects a row it no longer
+ * matches and nothing is left out or named, so its entry can go.
+ */
+export const LEFT_OUT: { year: number; reporter: string; partner: string; cmd: string; question: string }[] = [
+  // Colombia's 2025 LNG imports recorded as from Tanzania (597,442 t), which has no LNG export terminal and reports
+  // none to Colombia. docs/open-questions.md, "Gas: Tanzania → Colombia and the flows no one reports".
+  { year: 2025, reporter: 'COL', partner: 'TZA', cmd: '271111', question: 'docs/open-questions.md#gas-tanzania--colombia-and-the-flows-no-one-reports' },
+];
 
 export const BARRELS_PER_TONNE = 7.33;
 export const KG_PER_BCM_PIPE = 0.75e9;
@@ -71,6 +83,7 @@ export function parseComtrade(files: { data?: Row[] }[]): TradeRow[] {
       const row: TradeRow = { year: Number(r.period), reporter, partner, flow, cmd: String(r.cmdCode), kg: num(r.netWgt), usd: num(r.primaryValue) };
       if (r.isNetWgtEstimated === true) row.kgEst = true;
       if (String(r.partnerCode) === '490') row.asiaNes = true;
+      if (LEFT_OUT.some((x) => x.year === row.year && x.reporter === reporter && x.partner === partner && x.cmd === row.cmd && flow === 'M')) row.leftOut = true;
       const m3 = volume(r);
       if (m3 !== null) {
         row.m3 = m3;
@@ -102,7 +115,7 @@ function volume(r: Row): number | null {
 function dropNonMass(rows: TradeRow[]) {
   const groups = new Map<string, TradeRow[]>();
   for (const r of rows) {
-    if (!(r.kg && r.usd && r.kg > 0 && r.usd > 0)) continue;
+    if (!(r.kg && r.usd && r.kg > 0 && r.usd > 0) || r.leftOut) continue;
     const k = `${r.cmd}|${r.year}`;
     if (!groups.has(k)) groups.set(k, []);
     groups.get(k)!.push(r);
@@ -126,7 +139,7 @@ export function comtrade(raw: Raw): TradeRow[] {
 
 const imports = (rows: TradeRow[], c: Commodity) => {
   const codes: readonly string[] = CODES[c];
-  return rows.filter((r) => r.flow === 'M' && codes.includes(r.cmd));
+  return rows.filter((r) => r.flow === 'M' && codes.includes(r.cmd) && !r.leftOut);
 };
 
 /**
@@ -219,7 +232,7 @@ export function gasUnreported(rows: TradeRow[]): GasFlow[] {
     const reported = new Set(rows.filter((r) => r.flow === 'X' && codes.includes(r.cmd) && gasBcm(r, kind) !== null).map((r) => `${r.year}|${r.reporter}>${r.partner}`));
     const by = new Map<string, GasFlow>();
     for (const r of rows) {
-      if (r.flow !== 'M' || !codes.includes(r.cmd) || !r.noQty || !r.kg || reported.has(`${r.year}|${r.partner}>${r.reporter}`)) continue;
+      if (r.flow !== 'M' || !codes.includes(r.cmd) || r.leftOut || !r.noQty || !r.kg || reported.has(`${r.year}|${r.partner}>${r.reporter}`)) continue;
       const v = kind === 'pipe' ? r.kg / KG_PER_BCM_PIPE : ((r.kg / 1000) * M3_PER_TONNE_LNG) / 1e9;
       const k = `${r.year}|${r.partner}>${r.reporter}`;
       const f = by.get(k);
@@ -229,6 +242,19 @@ export function gasUnreported(rows: TradeRow[]): GasFlow[] {
     out.push(...by.values());
   }
   return out.sort((a, b) => b.amount - a.amount);
+}
+
+/** Gas rows left out by name (LEFT_OUT), as flows, for the line that names them. */
+export function gasLeftOut(rows: TradeRow[]): GasFlow[] {
+  const out: GasFlow[] = [];
+  for (const kind of ['pipe', 'lng'] as const) {
+    const codes: readonly string[] = CODES[kind];
+    for (const r of rows) {
+      const v = r.leftOut && codes.includes(r.cmd) ? gasBcm(r, kind) : null;
+      if (v !== null && v > 0) out.push({ from: r.partner, to: r.reporter, amount: v, year: r.year, kind });
+    }
+  }
+  return out;
 }
 
 export const fertiliserFlows = (rows: TradeRow[], c: 'potash' | 'phosphate') => flowsOf(rows, c, mt);

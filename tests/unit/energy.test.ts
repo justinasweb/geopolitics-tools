@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import { rawDir } from '../../src/adapters/core.ts';
-import { chipFlows, comtrade, completeYear, crudeFlows, fertiliserFlows, gasBcm, gasFlows, gasUnreported, parseComtrade, partners } from '../../src/adapters/comtrade.ts';
+import { LEFT_OUT, chipFlows, comtrade, completeYear, crudeFlows, fertiliserFlows, gasBcm, gasFlows, gasLeftOut, gasUnreported, parseComtrade, partners } from '../../src/adapters/comtrade.ts';
 import { gas, oil, oilPrices, parseOil } from '../../src/adapters/eia.ts';
 import { ENERGY_TEXT } from '../../src/i18n/energy.en.ts';
 
@@ -101,6 +101,22 @@ describe('UN Comtrade adapter', () => {
     expect(crude.map((f) => `${f.from}>${f.to}`)).toEqual(['SAU>CHN']);
     expect(crude[0].mirror).toBeUndefined();
     expect(fertiliserFlows(rows, 'potash')).toEqual([]);
+  });
+
+  it('leaves out the rows named in LEFT_OUT, and names them', () => {
+    expect(LEFT_OUT.map((x) => `${x.year} ${x.partner}>${x.reporter} ${x.cmd}`)).toEqual(['2025 TZA>COL 271111']);
+    const row = (period: number, reporterCode: number, partnerCode: number, netWgt: number) =>
+      ({ period, reporterCode, flowCode: 'M', partnerCode, cmdCode: '271111', netWgt, primaryValue: netWgt * 0.65, altQtyUnitCode: 12, altQty: netWgt / 428 });
+    // Colombia's 2025 LNG from Tanzania; the same row in 2024, and from the United States, stay.
+    const rows = parseComtrade([{ data: [row(2025, 170, 834, 597_441_935), row(2024, 170, 834, 1e8), row(2025, 170, 842, 6e8)] }]);
+    const flows = gasFlows(rows).map((f) => `${f.year} ${f.from}>${f.to}`);
+    expect(flows).toEqual(expect.arrayContaining(['2025 USA>COL', '2024 TZA>COL']));
+    expect(flows).not.toContain('2025 TZA>COL');
+    const left = gasLeftOut(rows);
+    expect(left).toHaveLength(1);
+    expect(left[0]).toMatchObject({ from: 'TZA', to: 'COL', year: 2025, kind: 'lng' });
+    expect(left[0].amount).toBeCloseTo(0.81, 2);
+    expect(ENERGY_TEXT.leftOut('Colombia', 2025, 'lng', 'Tanzania', '0.8\u00a0bcm')).toBe('Not shown: Colombia’s 2025 LNG imports recorded as from Tanzania (0.8\u00a0bcm), which Tanzania’s own reports do not show; the true origin is unclear.');
   });
 
   it('shows a year once its reporters cover 85% of the year before’s flows, else the year before', () => {
