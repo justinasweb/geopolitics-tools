@@ -172,9 +172,12 @@ export function sourceName(source: string): string {
   return edition ? `${name}, ${edition}` : name;
 }
 
-/** The licence table's credit, with the edition when the source has one ("IMF World Economic Outlook, October 2026"). */
+/** The licence table's credit, with the edition when the source has one ("IMF World Economic Outlook, October 2026").
+ *  A credit that names its own "[date]" (WRI Aqueduct's) gets the day the source's files were fetched there. */
 export function creditLine(source: string): string {
   const credit = licenceOf(source)?.credit;
+  const fetched = data().snapshot.sources[source]?.fetched;
+  if (credit?.includes('[date]') && fetched) return credit.replace('[date]', formatDate(fetched));
   const edition = editionOf(source);
   return credit ? (edition ? `${credit}, ${edition}` : credit) : sourceName(source);
 }

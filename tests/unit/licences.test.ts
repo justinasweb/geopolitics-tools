@@ -19,6 +19,15 @@ describe('licence table', () => {
     }
   });
 
+  it('fills the Aqueduct credit with the day its files were fetched', async () => {
+    const { creditLine, data } = await import('../../src/lib/data.ts');
+    const fetched = data().snapshot.sources.aqueduct?.fetched;
+    expect(fetched).toBeTruthy();
+    const line = creditLine('aqueduct');
+    expect(line).toMatch(/^Source: WRI Aqueduct, accessed on \d{1,2} \w{3} \d{4}, aqueduct\.wri\.org \(CC BY 4\.0\)$/);
+    expect(line).not.toContain('[date]');
+  });
+
   it('matches docs/licences.md (regenerate with node scripts/licence-table.ts > docs/licences.md)', () => {
     expect(readFileSync(new URL('../../docs/licences.md', import.meta.url), 'utf8')).toBe(licenceTable());
   });
