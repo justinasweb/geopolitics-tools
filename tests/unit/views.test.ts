@@ -159,8 +159,11 @@ describe('legend edges as text', () => {
     // Maize imports, Mt: tiny edges read "0.023 Mt", not "0.0 Mt".
     expect(edgeTexts([0.0234, 1, 2, 10], mt)).toEqual(['0.023 Mt', '1.0 Mt', '2.0 Mt', '10.0 Mt']);
     // Potash use: two edges that would both read 0.00 Mt.
-    const two = edgeTexts([0.0012, 0.0016, 0.5, 2], { kind: 'number', unit: 'Mt', digits: 2 });
-    expect(two.slice(0, 2)).toEqual(['0.0012 Mt', '0.0016 Mt']);
+    // Under 0.01 Mt, tonnes to two significant figures: potash use, soybean imports.
+    expect(edgeTexts([0.0038, 0.087, 0.5, 2], { kind: 'number', unit: 'Mt', digits: 2 })).toEqual(['3,800 t', '0.087 Mt', '0.50 Mt', '2.00 Mt']);
+    expect(edgeTexts([0.00079, 0.24, 2, 10], mt)[0]).toBe('790 t');
+    // Two that round alike get a third figure.
+    expect(edgeTexts([0.00121, 0.00124, 0.5, 2], mt).slice(0, 2)).toEqual(['1,210 t', '1,240 t']);
     // Exact values stay short; CO2's 6.5 gets its decimal.
     expect(edgeTexts([6.5, 85, 500, 2000], { kind: 'number', unit: 'Mt' })).toEqual(['6.5 Mt', '85 Mt', '500 Mt', '2,000 Mt']);
     expect(edgeTexts([1000, 83000, 500000, 2e6], { kind: 'count' })).toEqual(['1,000', '83,000', '500,000', '2 m']);

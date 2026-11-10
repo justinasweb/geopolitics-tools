@@ -51,7 +51,8 @@ function formatAbs(a: number, f: Format, n: (x: number, digits: number) => strin
 /**
  * A legend's band edges as text, together: each to at least two significant figures unless fewer write it exactly
  * ("2,000", "0.5 Mt"), never as zero ("under 0.02 Mt", not "under 0.0 Mt"), and with more decimals until neighbouring
- * edges read differently. Units as formatValue picks them.
+ * edges read differently. Units as formatValue picks them, but an edge in Mt under 0.01 Mt is written in tonnes to two
+ * significant figures ("under 790 t", "3,800 t–0.087 Mt").
  */
 export function edgeTexts(edges: number[], f: Format, locale = 'en'): string[] {
   const n = (x: number, d: number) => new Intl.NumberFormat(locale, { maximumFractionDigits: d, minimumFractionDigits: d }).format(x);
@@ -71,8 +72,13 @@ export function edgeTexts(edges: number[], f: Format, locale = 'en'): string[] {
       case 'mt': return [a, ' Mt', 0];
     }
   };
+  const inMt = f.kind === 'mt' || (f.kind === 'number' && f.unit === 'Mt');
   const text = (v: number, extra: number): string => {
     const a = Math.abs(v);
+    if (inMt && a > 0 && a < 0.01) {
+      const t = Number((a * 1e6).toPrecision(2 + extra));
+      return `${v < 0 ? MINUS : ''}${new Intl.NumberFormat(locale, { maximumFractionDigits: 6 }).format(t)} t`;
+    }
     const p = parts(a);
     if (!p || a === 0) return formatValue(v, f, locale);
     const [x, unit, base] = p;

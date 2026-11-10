@@ -69,7 +69,8 @@ indicator that can be negative (budget balance) keeps plain quantiles of all its
 mineral maps use share-of-world classes and are not affected.
 Legend edges are written together (`edgeTexts` in `src/lib/format.ts`): at least two significant figures unless
 fewer write the edge exactly ("2,000", "0.5 Mt"), never zero ("under 0.027 Mt", not "under 0.0 Mt"), and with more
-decimals until neighbouring edges differ.
+decimals until neighbouring edges differ. An edge in Mt under 0.01 Mt is written in tonnes to two significant figures
+("under 790 t", "3,800 t–0.087 Mt").
 
 Year sliders label up to six ticks, evenly spread, the first and the last always (`YearSlider`), so the first tick is
 the slider's first year; the slider runs over every year with at least half the default year's coverage.
