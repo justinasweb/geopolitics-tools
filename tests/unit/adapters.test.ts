@@ -139,6 +139,14 @@ describe('adapters on the prototype samples', () => {
     expect(c.rice.use.IND[2023]).toBeCloseTo(3 * RICE_MILLED - 0.5);
   });
 
+  it('gives a crop no use in a year its exports exceed production plus imports, never 0', () => {
+    const row = (item: number, el: number, v: number) => ({ 'Area Code (ISO3)': 'UKR', Area: 'Ukraine', 'Item Code': item, 'Element Code': el, Year: 2024, Unit: 't', Value: v });
+    // Ukraine maize 2024: 26.9 Mt grown, 29.6 Mt shipped, from an earlier harvest.
+    const c = parseFaoCrops({ data: [row(56, 5510, 26_864_000)] }, { data: [row(56, 5910, 29_624_000), row(56, 5610, 10_000)] });
+    expect(c.maize.exports.UKR[2024]).toBeCloseTo(29.624);
+    expect(c.maize.use.UKR?.[2024]).toBeUndefined();
+  });
+
   it('UN population, SIPRI, water, dams and Chinese lending', () => {
     const w = demography(raw);
     expect(w.total.Medium.CHN[1950]).toBe(544_000_000);

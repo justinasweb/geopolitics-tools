@@ -109,7 +109,8 @@ export function parseFaoCrops(qcl: File, tcl: File, areaOf: AreaOf = isoArea): R
   collect(tcl.data ?? [], (code, el) => ((el === 'imports' || el === 'exports') && TRADE[code] ? { key: TRADE[code], factor: 1 } : null), out, areaOf);
   // A place FAOSTAT never lists for production (no wheat grown in Singapore) produces none; one listed in other
   // years but not this one has not reported yet, so it gets no use that year. FAOSTAT leaves out years with no
-  // exports rather than writing zero, so a missing export figure counts as none.
+  // exports rather than writing zero, so a missing export figure counts as none. Exports above production plus
+  // imports (Ukraine's maize, 2024: an earlier harvest shipped) leave the year with no use, never 0 or less.
   const at = (s: Series, id: string, y: number) => (s[id] ? s[id][y] : 0);
   const out_ = (s: Series, id: string, y: number) => s[id]?.[y] ?? 0;
   for (const b of Object.values(out)) {
@@ -118,7 +119,7 @@ export function parseFaoCrops(qcl: File, tcl: File, areaOf: AreaOf = isoArea): R
     for (const id of ids) {
       for (const y of years) {
         const [p, i, e] = [at(b.production, id, y), at(b.imports, id, y), out_(b.exports, id, y)];
-        if (p !== undefined && i !== undefined && e !== undefined && p + i > 0) {
+        if (p !== undefined && i !== undefined && e !== undefined && p + i > 0 && e <= p + i) {
           put(b.use, id, y, Math.max(0, p + i - e));
           if ((['production', 'imports', 'exports'] as const).some((k) => b.estimated[k][id]?.[y])) put(b.estimated.use, id, y, 1);
         }

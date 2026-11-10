@@ -215,6 +215,18 @@ describe('fertilisers on supply', () => {
     expect(DEP_TEXT.imports('84%', 'soybeans')).toBe('Imports 84% of the soybeans it uses');
   });
 
+  it('say a crop’s exports exceed recorded supply when they pass production plus imports at all', async () => {
+    const { fromBalance } = await import('../../src/lib/dependence.ts');
+    const { DEP_TEXT } = await import('../../src/i18n/pages.en.ts');
+    // Ukraine maize 2024: 29.6 Mt exported from 26.9 Mt grown and imported, an earlier harvest. No use, no share.
+    const ua = fromBalance('maize', { ...balance(26.864, 0.010, 29.624, 0), use: {} } as B, 'X');
+    expect(ua).toMatchObject({ excess: 'exports', tag: 'exp' });
+    expect(ua.exportShare).toBeUndefined();
+    // Paraguay's rice, 3% over: a crop has no margin.
+    expect(fromBalance('rice', { ...balance(0.705, 0.001, 0.728, 0), use: {} } as B, 'X').excess).toBe('exports');
+    expect(DEP_TEXT.exportsNote('FAOSTAT')).toBe('Exports can come from an earlier harvest or stocks; FAOSTAT’s yearly figures do not separate them');
+  });
+
   it('label an estimated cell in the grid', () => {
     const g: Grid = { ...grid, rows: grid.rows.map((r) => (r.id === 'HUN' ? { ...r, cells: r.cells.map((c, i) => (i === 6 ? { v: 0.94, y: '2024', est: 1 as const } : c)) } : r)) };
     const html = tableHtml({ ...DEFAULTS, sort: 'potash' }, g);

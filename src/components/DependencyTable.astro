@@ -34,7 +34,8 @@ function position(r: DepRow): string {
   if (r.reliance !== undefined && r.reliance >= 0.995) return DEP_TEXT.importsAll(noun);
   return DEP_TEXT.imports(formatShare(Math.max(0, r.reliance ?? 0)), noun);
 }
-const caveat = (r: DepRow) => (r.excess ? DEP_TEXT.exceedsNote(SOURCE_SHORT[r.source] ?? r.source) : null);
+const crop = (r: DepRow) => ['wheat', 'maize', 'rice', 'soy'].includes(r.resource);
+const caveat = (r: DepRow) => (!r.excess ? null : r.excess === 'exports' && crop(r) ? DEP_TEXT.exportsNote(SOURCE_SHORT[r.source] ?? r.source) : DEP_TEXT.exceedsNote(SOURCE_SHORT[r.source] ?? r.source));
 const partners = (r: DepRow) => r.partners.map((id) => ({ id, name: nameOf(id), href: countryHref(id) }));
 ---
 <div class="gt-legend__extra gt-depkey" aria-label={DEP_TEXT.keyLabel}>

@@ -80,9 +80,11 @@ A sample build has 129 country pages and 37 indicator pages; the real snapshot h
   only. A row whose source is not in the snapshot says "No data yet". Potash and phosphate are a share of supply
   (production plus net imports), not of FAOSTAT's agricultural use, which leaves out industry and transit; their rows
   carry the Estimate label when FAOSTAT flags a figure as its estimate or imputation (E, I), as crop rows do. Net imports
-  more than 10% above use, or exports more than 10% above production plus imports (`THRESHOLDS.excess`; Morocco's
-  phosphate), give no share: the row says "Imports exceed recorded use" (no tag) or "Exports exceed recorded supply"
-  (tagged Exporter, with its buyers) with a caveat, and is left out of the tool's sort and ranking by share, reliance
+  more than 10% above use, a fertiliser's exports more than 10% above production plus imports (`THRESHOLDS.excess`;
+  Morocco's phosphate), or a crop's exports above production plus imports at all (Ukraine's maize 2024, an earlier
+  harvest shipped), give no share: the row says "Imports exceed recorded
+  use" (no tag) or "Exports exceed recorded supply" (tagged Exporter, with its buyers) with a caveat (for crops: "Exports
+  can come from an earlier harvest or stocks…"); a crop's use for that year is not available on the maps, never 0, and is left out of the tool's sort and ranking by share, reliance
   on one supplier and a country page's lead imports.
 - **Neutral words.** Templates use plain verbs (mines, imports, hosts) and no adjectives that judge. "Higher" on
   Compare marks the larger value and says it is not a judgement. A sentence whose figure is missing is left out.

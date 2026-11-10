@@ -66,6 +66,8 @@ export const DEP_TEXT = {
   exceedsUse: 'Imports exceed recorded use',
   exceedsSupply: 'Exports exceed recorded supply',
   exceedsNote: (source: string) => `Likely transit trade or stock changes; ${source}’s figures do not separate them`,
+  /** Crops whose exports exceed production plus imports. */
+  exportsNote: (source: string) => `Exports can come from an earlier harvest or stocks; ${source}’s yearly figures do not separate them`,
   mainSupplier: (name: string, share: string) => `Main supplier: ${name}, ${share} of imports`,
   noImports: (period: string) => `No major arms imports recorded, ${period}`,
   noData: 'No data yet',
