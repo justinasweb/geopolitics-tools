@@ -218,7 +218,7 @@ describe('fertilisers on supply', () => {
     expect(fromBalance('potash', balance(0, 5, 1, 3, ['use']), 'X', undefined, true).estimated).toBeUndefined();
   });
 
-  it('say exports exceed recorded supply when they pass production plus imports by more than 10%', async () => {
+  it('say exports exceed recorded supply when they pass production plus imports at all', async () => {
     const { fromBalance, leadImports } = await import('../../src/lib/dependence.ts');
     // Morocco phosphate 2024: exports 1.7 times production plus imports.
     const ma = fromBalance('phosphate', balance(6.2, 0.0023, 10.5511, 1), 'X', undefined, true);
@@ -227,15 +227,17 @@ describe('fertilisers on supply', () => {
     expect(ma.reliance).toBeUndefined();
     expect(ma.exportShare).toBeUndefined();
     expect(leadImports([ma])).toEqual([]);
-    // Within 10% (Canada's potash, 1.01): an exporter, at most all it produces.
-    expect(fromBalance('potash', balance(13.55, 0.04, 13.75, 1), 'X', undefined, true)).toMatchObject({ tag: 'exp', exportShare: 1 });
+    // Canada's potash, 1% over: no margin, so no share either, not "exports all its output".
+    const ca = fromBalance('potash', balance(13.55, 0.04, 13.75, 1), 'X', undefined, true);
+    expect(ca).toMatchObject({ excess: 'exports', tag: 'exp' });
+    expect(ca.exportShare).toBeUndefined();
     expect(cellText(grid, 'phosphate', { why: 'x', y: '2024' })).toEqual(['Exports exceed', 'recorded supply']);
     const { DEP_TEXT } = await import('../../src/i18n/pages.en.ts');
     expect(DEP_TEXT.imports('94%', 'potash')).toBe('Imports 94% of its potash supply');
     expect(DEP_TEXT.imports('84%', 'soybeans')).toBe('Imports 84% of the soybeans it uses');
   });
 
-  it('say a crop’s exports exceed recorded supply when they pass production plus imports at all', async () => {
+  it('say a crop’s exports exceed recorded supply when they pass production plus imports at all, too', async () => {
     const { fromBalance } = await import('../../src/lib/dependence.ts');
     const { DEP_TEXT } = await import('../../src/i18n/pages.en.ts');
     // Ukraine maize 2024: 29.6 Mt exported from 26.9 Mt grown and imported, an earlier harvest. No use, no share.

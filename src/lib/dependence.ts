@@ -17,10 +17,9 @@ export const RESOURCES = ['oil', 'gas', 'wheat', 'maize', 'rice', 'soy', 'potash
 export type Resource = (typeof RESOURCES)[number];
 export type DepTag = 'most' | 'some' | 'self' | 'exp';
 
-/** Thresholds on import reliance, written out in Methodology. `excess`: net imports above use, or a fertiliser's exports
- *  above production plus imports, by more than this share give no figure (transit trade or stock changes the source
- *  does not separate). A crop's exports above production plus imports give none at any margin: its use is apparent
- *  use, which would be zero. */
+/** Thresholds on import reliance, written out in Methodology. `excess`: net imports above use by more than this share
+ *  give no figure (transit trade or stock changes the source does not separate). Exports above production plus
+ *  imports give none at any margin: the balance would put use, or supply, at zero. */
 export const THRESHOLDS = { most: 0.5, self: 0.15, excess: 0.1 };
 /** A balance more than this many years before the latest any place has for its resource is old: shown with its year
  *  and "No recent data", out of the tool's sort and rankings and a country page's lead imports (Martinique's oil, 2010). */
@@ -54,8 +53,7 @@ export interface DepRow {
   buyers?: boolean;
   /** Use is zero, so no share. */
   noUse?: boolean;
-  /** Net imports exceed use, or a fertiliser's exports exceed production plus imports, by more than THRESHOLDS.excess,
-   *  or a crop's exports exceed production plus imports at all: no share, so
+  /** Net imports exceed use by more than THRESHOLDS.excess, or exports exceed production plus imports at all: no share, so
    *  out of rankings by share and lead imports. 'imports' has no tag; 'exports' is tagged an exporter, with buyers. */
   excess?: 'imports' | 'exports';
   /** The source flags a figure the row uses as its estimate or imputation (FAOSTAT flags E and I): the Estimate label. */
@@ -125,7 +123,7 @@ export function fromBalance(resource: Resource, b: Balance | undefined, id: stri
   if (!r) return { ...base, state: 'none' };
   const net = r.imports - r.exports;
   const row: DepRow = { ...base, state: 'ok', year: r.year, ...(r.est ? { estimated: true as const } : {}) };
-  if (r.exports > (r.production + r.imports) * (supply ? 1 + THRESHOLDS.excess : 1)) {
+  if (r.exports > r.production + r.imports) {
     // Morocco's phosphate: exports 1.7 times production plus imports (stock or re-exports the source does not split);
     // Ukraine's maize, 2024: 29.6 Mt shipped from 26.9 Mt grown and imported, from an earlier harvest. A net exporter
     // all the same, with no share of output.
