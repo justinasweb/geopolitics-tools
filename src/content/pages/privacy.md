@@ -6,7 +6,7 @@ updated: "2026-11-05"
 approved: true
 author: "ai"
 model: "manual (Claude chat)"
-factsHash: "sha256:5559305635f00ba1e421e436909e3e33"
+factsHash: "sha256:dd0450eec20a935059d70ca6671707c0"
 drafted: "2026-11-10"
 approvedOn: "2026-11-10"
 approvedVia: "pr"

@@ -17,11 +17,20 @@
   ],
   "names": [
     "claude-sonnet-5-5",
+    "Public domain (US government work)",
+    "Commission default for raw data: CC0 1.0 (content: CC BY 4.0)",
+    "Open Government Licence v3.0",
     "CC BY 4.0",
+    "CC BY 4.0 (the page links its data to the World Bank’s CC BY terms)",
+    "CC BY 4.0, passing on its providers’ terms",
     "CC BY 4.0, with UNHCR’s supplemental terms",
+    "ODbL 1.0",
     "CC BY-NC 4.0 (since 2 April 2025)",
     "CC BY 4.0, with FAO’s additional terms",
+    "SIPRI terms: non-commercial reuse of under 10% of a dataset, with credit",
+    "CC BY 3.0 IGO",
     "ODC-By 1.0 (GCDF 3.0)",
+    "UN terms: reproduction needs written permission",
     "UN Comtrade terms: a free, not-for-profit visualisation may show its figures; no bulk redistribution",
     "Public domain (US government work); EIA asks to be credited",
     "CC BY-NC-SA 3.0 IGO"
@@ -296,10 +305,10 @@
     },
     {
       "id": "source-usgs-quakes",
-      "statement": "USGS earthquakes is one of the site's sources.",
+      "statement": "USGS earthquakes is one of the site's sources, under Public domain (US government work).",
       "source": "USGS earthquakes",
       "link": "https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits",
-      "date": "2026-10-24"
+      "date": "2026-11-10"
     },
     {
       "id": "source-unhcr",
@@ -317,17 +326,17 @@
     },
     {
       "id": "source-sipri",
-      "statement": "SIPRI Arms Transfers Database is one of the site's sources.",
+      "statement": "SIPRI Arms Transfers Database is one of the site's sources, under SIPRI terms: non-commercial reuse of under 10% of a dataset, with credit.",
       "source": "SIPRI Arms Transfers Database",
       "link": "https://www.sipri.org/about/terms-and-conditions",
-      "date": "2026-10-24"
+      "date": "2026-11-10"
     },
     {
       "id": "source-usgs-minerals",
-      "statement": "USGS Mineral Commodity Summaries is one of the site's sources.",
+      "statement": "USGS Mineral Commodity Summaries is one of the site's sources, under Public domain (US government work).",
       "source": "USGS Mineral Commodity Summaries",
       "link": "https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits",
-      "date": "2026-10-24"
+      "date": "2026-11-10"
     },
     {
       "id": "source-comtrade",

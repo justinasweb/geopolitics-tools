@@ -27,7 +27,8 @@ const rows = sourceRows().sort((a, b) => ORDER.indexOf(a.state) - ORDER.indexOf(
 const count = (s: SourceState) => rows.filter((r) => r.state === s).length;
 const fixes = corrections();
 const download = (r: (typeof rows)[number]) => (!r.licence ? T.toConfirm : r.licence.downloads === 'yes' ? T.yes : T.shownOnly);
-const licence = (r: (typeof rows)[number]) => (!r.licence ? T.toConfirm : r.licence.status === 'checked' ? r.licence.licence : r.licence.status === 'permission asked' ? T.permissionAsked : T.toConfirm);
+// The licence as its record states it, whatever the check's status.
+const licence = (r: (typeof rows)[number]) => r.licence?.licence ?? T.toConfirm;
 const crumbs = [{ label: LONGREAD_TEXT.home, href: '/' }, { label: T.title }];
 const items = [{ id: 'licences', label: T.licencesHeading }, { id: 'late', label: T.lateHeading }, { id: 'corrections', label: T.corrections }];
 ---
@@ -50,7 +51,7 @@ const items = [{ id: 'licences', label: T.licencesHeading }, { id: 'late', label
             <tr>
               <th scope="row">{r.licence?.terms ? <a href={r.licence.terms} rel="noopener">{r.name}</a> : r.name}</th>
               <td>{r.feeds.slice(0, 6).join(', ')}{r.feeds.length > 6 ? ', …' : ''}</td>
-              <td title={r.licence?.licence}>{licence(r)}</td>
+              <td>{licence(r)}</td>
               <td>{download(r)}</td>
               <td>{r.every}</td>
               <td class="n">{r.last ? formatDate(r.last) : T.never}</td>

@@ -382,7 +382,7 @@ export const SOURCES_PAGE = {
   description: 'Every data source used on geopolitics.tools, with licence, update schedule, last refresh and corrections.',
   downloadsLine: 'Downloads are on each page, where the source allows it.',
   columns: { source: 'Source', feeds: 'Feeds', licence: 'Licence', download: 'Download', every: 'We check', last: 'Last refresh', status: 'Status' },
-  yes: 'Yes', shownOnly: 'Shown only', toConfirm: 'To confirm', permissionAsked: 'Permission asked',
+  yes: 'Yes', shownOnly: 'Shown only', toConfirm: 'To confirm',
   status: { live: 'Live', delayed: 'Delayed', manual: 'Manual import', soon: 'Wave 2' } as Record<string, string>,
   statusWhy: {
     live: 'Fetched on schedule', delayed: 'Past its update window',

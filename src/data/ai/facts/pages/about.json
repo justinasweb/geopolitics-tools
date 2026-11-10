@@ -5,11 +5,20 @@
   "countries": [],
   "names": [
     "claude-sonnet-5-5",
+    "Public domain (US government work)",
+    "Commission default for raw data: CC0 1.0 (content: CC BY 4.0)",
+    "Open Government Licence v3.0",
     "CC BY 4.0",
+    "CC BY 4.0 (the page links its data to the World Bank’s CC BY terms)",
+    "CC BY 4.0, passing on its providers’ terms",
     "CC BY 4.0, with UNHCR’s supplemental terms",
+    "ODbL 1.0",
     "CC BY-NC 4.0 (since 2 April 2025)",
     "CC BY 4.0, with FAO’s additional terms",
+    "SIPRI terms: non-commercial reuse of under 10% of a dataset, with credit",
+    "CC BY 3.0 IGO",
     "ODC-By 1.0 (GCDF 3.0)",
+    "UN terms: reproduction needs written permission",
     "UN Comtrade terms: a free, not-for-profit visualisation may show its figures; no bulk redistribution",
     "Public domain (US government work); EIA asks to be credited",
     "CC BY-NC-SA 3.0 IGO"
@@ -61,52 +70,52 @@
     },
     {
       "id": "source-usgs-quakes",
-      "statement": "USGS earthquakes is one of the site's sources.",
+      "statement": "USGS earthquakes is one of the site's sources, under Public domain (US government work).",
       "source": "USGS earthquakes",
       "link": "https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits",
-      "date": "2026-10-24"
+      "date": "2026-11-10"
     },
     {
       "id": "source-csl",
-      "statement": "US Consolidated Screening List is one of the site's sources.",
+      "statement": "US Consolidated Screening List is one of the site's sources, under Public domain (US government work).",
       "source": "US Consolidated Screening List",
       "link": "https://www.trade.gov/consolidated-screening-list",
-      "date": "2026-10-24"
+      "date": "2026-11-10"
     },
     {
       "id": "source-eu-sanctions",
-      "statement": "EU financial sanctions list is one of the site's sources.",
+      "statement": "EU financial sanctions list is one of the site's sources, under Commission default for raw data: CC0 1.0 (content: CC BY 4.0).",
       "source": "EU financial sanctions list",
       "link": "https://digital-strategy.ec.europa.eu/en/news/rules-reuse-commission-information",
-      "date": "2026-10-24"
+      "date": "2026-11-10"
     },
     {
       "id": "source-uk-sanctions",
-      "statement": "UK Sanctions List is one of the site's sources.",
+      "statement": "UK Sanctions List is one of the site's sources, under Open Government Licence v3.0.",
       "source": "UK Sanctions List",
       "link": "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/",
-      "date": "2026-10-24"
+      "date": "2026-11-10"
     },
     {
       "id": "source-worldbank",
-      "statement": "World Bank Indicators is one of the site's sources.",
+      "statement": "World Bank Indicators is one of the site's sources, under CC BY 4.0.",
       "source": "World Bank Indicators",
       "link": "https://www.worldbank.org/en/about/legal/terms-of-use-for-datasets",
-      "date": "2026-10-24"
+      "date": "2026-11-10"
     },
     {
       "id": "source-pinksheet",
-      "statement": "World Bank Pink Sheet is one of the site's sources.",
+      "statement": "World Bank Pink Sheet is one of the site's sources, under CC BY 4.0 (the page links its data to the World Bank’s CC BY terms).",
       "source": "World Bank Pink Sheet",
       "link": "https://www.worldbank.org/en/research/commodity-markets",
-      "date": "2026-10-24"
+      "date": "2026-11-10"
     },
     {
       "id": "source-treasury",
-      "statement": "US Treasury TIC is one of the site's sources.",
+      "statement": "US Treasury TIC is one of the site's sources, under Public domain (US government work).",
       "source": "US Treasury TIC",
       "link": "https://home.treasury.gov/data/treasury-international-capital-tic-system",
-      "date": "2026-10-24"
+      "date": "2026-11-10"
     },
     {
       "id": "source-epoch",
@@ -117,10 +126,10 @@
     },
     {
       "id": "source-owid",
-      "statement": "Our World in Data CO2 is one of the site's sources.",
+      "statement": "Our World in Data CO2 is one of the site's sources, under CC BY 4.0, passing on its providers’ terms.",
       "source": "Our World in Data CO2",
       "link": "https://ourworldindata.org/faqs",
-      "date": "2026-10-24"
+      "date": "2026-11-10"
     },
     {
       "id": "source-unhcr",
@@ -131,10 +140,10 @@
     },
     {
       "id": "source-cables",
-      "statement": "Submarine cables (OpenStreetMap) is one of the site's sources.",
+      "statement": "Submarine cables (OpenStreetMap) is one of the site's sources, under ODbL 1.0.",
       "source": "Submarine cables (OpenStreetMap)",
       "link": "https://www.openstreetmap.org/copyright",
-      "date": "2026-10-24"
+      "date": "2026-11-10"
     },
     {
       "id": "source-fas",
@@ -159,24 +168,24 @@
     },
     {
       "id": "source-sipri",
-      "statement": "SIPRI Arms Transfers Database is one of the site's sources.",
+      "statement": "SIPRI Arms Transfers Database is one of the site's sources, under SIPRI terms: non-commercial reuse of under 10% of a dataset, with credit.",
       "source": "SIPRI Arms Transfers Database",
       "link": "https://www.sipri.org/about/terms-and-conditions",
-      "date": "2026-10-24"
+      "date": "2026-11-10"
     },
     {
       "id": "source-wpp",
-      "statement": "UN World Population Prospects is one of the site's sources.",
+      "statement": "UN World Population Prospects is one of the site's sources, under CC BY 3.0 IGO.",
       "source": "UN World Population Prospects",
-      "link": "https://population.un.org/wpp/downloads/",
-      "date": "2026-10-24"
+      "link": "https://desapublications.un.org/file/20622/download",
+      "date": "2026-11-10"
     },
     {
       "id": "source-gem",
-      "statement": "Global Energy Monitor is one of the site's sources.",
+      "statement": "Global Energy Monitor is one of the site's sources, under CC BY 4.0.",
       "source": "Global Energy Monitor",
       "link": "https://globalenergymonitor.org/creative-commons-license",
-      "date": "2026-10-24"
+      "date": "2026-11-10"
     },
     {
       "id": "source-aqueduct",
@@ -194,10 +203,10 @@
     },
     {
       "id": "source-gdw",
-      "statement": "Global Dam Watch is one of the site's sources.",
+      "statement": "Global Dam Watch is one of the site's sources, under CC BY 4.0.",
       "source": "Global Dam Watch",
       "link": "https://doi.org/10.6084/m9.figshare.25988293.v1",
-      "date": "2026-10-24"
+      "date": "2026-11-10"
     },
     {
       "id": "source-aiddata",
@@ -208,24 +217,24 @@
     },
     {
       "id": "source-usgs-minerals",
-      "statement": "USGS Mineral Commodity Summaries is one of the site's sources.",
+      "statement": "USGS Mineral Commodity Summaries is one of the site's sources, under Public domain (US government work).",
       "source": "USGS Mineral Commodity Summaries",
       "link": "https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits",
-      "date": "2026-10-24"
+      "date": "2026-11-10"
     },
     {
       "id": "source-treasury-history",
-      "statement": "US Treasury holdings, history is one of the site's sources.",
+      "statement": "US Treasury holdings, history is one of the site's sources, under Public domain (US government work).",
       "source": "US Treasury holdings, history",
       "link": "https://home.treasury.gov/data/treasury-international-capital-tic-system",
-      "date": "2026-10-24"
+      "date": "2026-11-10"
     },
     {
       "id": "source-unoda",
-      "statement": "UNODA Treaties Database is one of the site's sources.",
+      "statement": "UNODA Treaties Database is one of the site's sources, under UN terms: reproduction needs written permission.",
       "source": "UNODA Treaties Database",
       "link": "https://www.un.org/en/about-us/terms-of-use",
-      "date": "2026-11-02"
+      "date": "2026-11-10"
     },
     {
       "id": "source-comtrade",
@@ -243,10 +252,10 @@
     },
     {
       "id": "source-ember",
-      "statement": "Ember electricity data is one of the site's sources.",
+      "statement": "Ember electricity data is one of the site's sources, under CC BY 4.0.",
       "source": "Ember electricity data",
       "link": "https://ember-energy.org/data/api",
-      "date": "2026-10-26"
+      "date": "2026-11-10"
     },
     {
       "id": "source-ucdp",
