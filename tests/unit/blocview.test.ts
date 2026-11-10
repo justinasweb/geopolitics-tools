@@ -1,4 +1,6 @@
 import { beforeAll, describe, expect, it } from 'vitest';
+import { readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { BLOC_SLUGS } from '../../src/i18n/slugs.en.ts';
 import { BLOC_ABOUT } from '../../src/i18n/blocs.en.ts';
 
@@ -95,5 +97,21 @@ describe('a country page’s Member of line', () => {
     expect(cn).toEqual(BLOC_ORDER.filter((b) => blocs().get(b)!.includes('CHN')));
     expect(cn).toEqual(expect.arrayContaining(['brics', 'g20', 'sco', 'unsc-p5']));
     for (const b of cn) expect(R.live(`view:blocs:${b}`)?.path, b).toBeTruthy();
+  });
+
+  it('names the UN Security Council as a membership, and dates the line with BLOCS_CHECKED', async () => {
+    const { COUNTRY_TEXT } = await import('../../src/i18n/pages.en.ts');
+    expect(COUNTRY_TEXT.memberName['unsc-p5']).toBe('UN Security Council (permanent member)');
+    const page = readFileSync('src/templates/CountryPage.astro', 'utf8');
+    expect(page).toContain('COUNTRY_TEXT.facts.membersAsOf(formatDate(BLOCS_CHECKED))');
+  });
+
+  it('has one checked date: no page or text writes a membership date by hand', async () => {
+    const { BLOCS_CHECKED } = await import('../../src/lib/blocs.ts');
+    expect(BLOCS_CHECKED).toBe('2026-11-10');
+    const files = (dir: string): string[] => readdirSync(dir, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? (e.name === 'ai' ? [] : files(join(dir, e.name))) : [join(dir, e.name)]));
+    for (const f of files('src').filter((x) => /\.(ts|astro|md)$/.test(x) && x !== join('src', 'lib', 'blocs.ts'))) {
+      expect(readFileSync(f, 'utf8'), f).not.toMatch(/(members?|member lists|memberships?)[^\n`]{0,40}(as of|checked( on)?) \d/i);
+    }
   });
 });

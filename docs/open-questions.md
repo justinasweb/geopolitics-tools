@@ -13,7 +13,10 @@ weekly Wikidata cross-check planned for phase 5a is not built yet. It was last c
 (`BLOCS_CHECKED` in `src/lib/blocs.ts`), but it missed the United Arab Emirates leaving OPEC and OPEC+ on
 1 May 2026 (announced on 28 April 2026, [WAM](https://www.wam.ae/en/article/bzxzuh7-uae-announces-decision-exit-opec-opec+)).
 That was fixed on **2 November 2026**: the UAE was removed from OPEC (now 11 members) and OPEC+ (now 21), its OPEC
-history ends in 2026, and the change is in Sources → Corrections. `BLOCS_CHECKED` still says 21 October 2026.
+history ends in 2026, and the change is in Sources → Corrections.
+
+**Re-checked 10 Nov 2026.** Memberships re-checked; `BLOCS_CHECKED` is now 10 November 2026, the date every bloc
+page, alliance history, Bloc overlap, the bloc maps, their share images and the country pages' "Member of" line show.
 
 **Checked 5 Nov 2026 (launch review).** The member counts of ASEAN, NATO, the EU, the OECD, the CSTO and OPEC were
 confirmed. BRICS is decided (see Decided).

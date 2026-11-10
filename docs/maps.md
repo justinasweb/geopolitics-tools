@@ -172,8 +172,8 @@ dashed. Borders shown do not imply endorsement." with a link to the methodology,
 
 ## Blocs
 
-`src/data/blocs.csv` lists the members of 19 blocs by internal place id (`src/lib/blocs.ts`, checked 21 October
-2026, from the prototype's list). Phase 5a adds the Wikidata cross-check, which this phase's network could not reach.
+`src/data/blocs.csv` lists the members of 19 blocs by internal place id (`src/lib/blocs.ts`, from the prototype's list,
+checked 21 October 2026 and re-checked 10 November 2026: `BLOCS_CHECKED`, the one date every page shows). Phase 5a adds the Wikidata cross-check, which this phase's network could not reach.
 
 ## Tests
 
