@@ -60,7 +60,9 @@ jobs:
       - name: Serve the build locally as Cloudflare would, and check it
         run: |
           npx playwright install --with-deps chromium
-          npx wrangler dev --port 8787 > wrangler-dev.log 2>&1 &
+          # --local-upstream keeps localhost as the request host; without it wrangler dev uses the custom domain route
+          # (geopolitics.tools), and the Worker would treat local checks as the indexable production host.
+          npx wrangler dev --port 8787 --local-upstream localhost:8787 > wrangler-dev.log 2>&1 &
           for i in $(seq 1 30); do curl -sf -o /dev/null http://localhost:8787/ && break; sleep 2; done
           BASE=http://localhost:8787 npm run test:e2e -- shots
       - if: always()
