@@ -81,7 +81,7 @@ export function sankeyHtml(c: Chain, s: State): string {
     ? `<div class="gt-blocchip"><span>${T.focused(esc(nameOf(c, s.country)))}</span><button type="button" aria-label="${esc(T.clear)}" data-sk-clear>${ICON.close}</button></div>` : '';
   return `${chip}<div class="gt-skscroll"><svg class="gt-sk" height="${sk.height}" style="--h:${sk.height}px;--l:${X.from}px;--r:${sk.width - X.to - X.node}px" role="img" aria-label="${esc(label)}">${plot}${labs.join('')}${axis}</svg></div>`
     + `<p class="gt-caption gt-skread" data-sk-read aria-hidden="true">${esc(T.readout)}</p>`
-    + `<p class="gt-caption">${esc(T.caption(SHOWN.from, SHOWN.to))} ${esc(COVERAGE[c.src] ?? '')}</p>`;
+    + `<p class="gt-caption">${esc(T.caption(SHOWN.from, SHOWN.to))} ${esc(COVERAGE[c.src]?.(c.mirror ?? []) ?? '')}</p>`;
 }
 
 // ---------- panel ----------

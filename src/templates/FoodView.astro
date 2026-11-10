@@ -19,7 +19,7 @@ import '../styles/atlas/tools.css';
 import { MAP_TEXT } from '../i18n/map.en';
 import { INDICATOR_TEXT } from '../i18n/en';
 import { FOOD_NOTES, FOOD_TEXT as F } from '../i18n/food.en';
-import { COMMODITIES, FOOD_LAYERS, TOP_FLOWS, balanceOf, estimated, flowSourceOf, mtShort, commodityPages, foodPage, foodPages, lede, mt, netText, shareOf, sourceOf, summary, valueText, worldChange } from '../lib/food';
+import { COMMODITIES, FOOD_LAYERS, TOP_FLOWS, balanceOf, estimated, flowSourceOf, mtShort, commodityPages, pageMirror, foodPage, foodPages, lede, mt, netText, shareOf, sourceOf, summary, valueText, worldChange } from '../lib/food';
 import { refreshed, data } from '../lib/data';
 import { place } from '../lib/places';
 import { countryHref, indicatorHref, live, route, hubCrumb } from '../lib/routes';
@@ -134,7 +134,7 @@ const bars = (rs: FoodRow[], max: number) => rs.map((r) => ({ id: r.id, text: mt
         })}
         <div class="gt-blocline" hidden><span class="gt-blocline__key" aria-hidden="true"></span><p></p></div>
         <Notice>
-          <p>{F.caveats(p.commodity, p.layer, p.flowYear).join(' ')}</p>
+          <p>{F.caveats(p.commodity, p.layer, p.flowYear, pageMirror(p)).join(' ')}</p>
           <SourceLine source={source} parts={[yearsText]} updated={updated} />
         </Notice>
       </div>
@@ -238,7 +238,7 @@ const bars = (rs: FoodRow[], max: number) => rs.map((r) => ({ id: r.id, text: mt
           <h2 class="gt-h2" id="flows">{F.flowsLabel(p.flowYear!)}</h2>
           <div class="gt-tablewrap" style="--gt-table-h:none" tabindex="0" role="region" aria-label={F.flowsLabel(p.flowYear!)}>
             <table class="gt-table" data-gt-sort>
-              <caption class="gt-caption">{F.flowsCaption(flows.length, p.flowYear!, !p.crop)}</caption>
+              <caption class="gt-caption">{F.flowsCaption(flows.length, p.flowYear!, !p.crop, pageMirror(p))}</caption>
               <thead><tr>
                 <th scope="col" data-key="f"><button type="button">{F.from}</button></th>
                 <th scope="col" data-key="t"><button type="button">{F.to}</button></th>

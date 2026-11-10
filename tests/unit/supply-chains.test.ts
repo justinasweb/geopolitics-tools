@@ -135,6 +135,28 @@ describe('Supply chains markup', () => {
   });
 });
 
+describe('flows from the exporter’s report', () => {
+  it('are named wherever flows are said to be as importers report them', async () => {
+    const { DEP_TEXT } = await import('../../src/i18n/pages.en.ts');
+    const { ENERGY_TEXT } = await import('../../src/i18n/energy.en.ts');
+    const { FOOD_TEXT } = await import('../../src/i18n/food.en.ts');
+    const two = ['United States → Mexico', 'Spain → Morocco'];
+    const comtrade = { ...chain, src: 'comtrade', source: 'UN Comtrade', credit: 'UN Comtrade', mirror: two, mirrored: DEP_TEXT.asReported(two) };
+    expect(sankeyHtml(comtrade, { country: '' })).toContain('UN Comtrade, as importers report it, except United States → Mexico and Spain → Morocco, as the exporter reports them: the main flows only');
+    expect(sankeyHtml({ ...comtrade, mirror: undefined }, { country: '' })).toContain('UN Comtrade, as importers report it: the main flows only');
+    expect(ENERGY_TEXT.flowsCaption(20, 2025, 'pipeline gas', two.slice(0, 1))).toBe('The 20 largest flows of pipeline gas in 2025, exporter to importer, as importers report them to UN Comtrade, except United States → Mexico, as the exporter reports it.');
+    expect(ENERGY_TEXT.flowsCaption(20, 2025, 'LNG')).toBe('The 20 largest flows of LNG in 2025, exporter to importer, as importers report them to UN Comtrade.');
+    expect(ENERGY_TEXT.caveats('gas', 'trade', 2025, two).join(' ')).toContain('as importers report them to UN Comtrade, except United States → Mexico and Spain → Morocco, as the exporter reports them: pipeline gas');
+    expect(FOOD_TEXT.flowsCaption(20, 2025, true, ['Russia → Brazil'])).toBe('The 20 largest flows in 2025, exporter to importer, as importers report them to UN Comtrade, except Russia → Brazil, as the exporter reports it, in tonnes of product.');
+  });
+
+  it('label a pair only when most of its amount is the exporter’s report', async () => {
+    const { sumPairs } = await import('../../src/data/flows.ts');
+    // A few cubic metres of pipeline gas from the exporter's report do not make a pair's LNG the exporter's.
+    expect(sumPairs([{ from: 'USA', to: 'KOR', amount: 6 }, { from: 'USA', to: 'KOR', amount: 0.001, mirror: true }], (r) => r.amount)[0].mirror).toBeUndefined();
+  });
+});
+
 describe('Supply chains from the sample files', () => {
   it('builds each live flow for one period only, with pairs and places', async () => {
     const { chainOf, liveChains } = await import('../../src/lib/supply-chains.ts');

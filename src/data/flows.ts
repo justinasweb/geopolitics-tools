@@ -19,16 +19,20 @@ export interface FlowDef {
   pending?: string;
 }
 
+/** Rows summed per pair; a pair is `mirror` when most of its amount is the exporter's report (gas: a pair's pipeline
+ *  and LNG rows are summed, and a few cubic metres of one should not label the other). */
 export function sumPairs<T extends { from: string; to: string; mirror?: true }>(rows: T[], amount: (r: T) => number): Pair[] {
   const by = new Map<string, Pair>();
+  const mirrored = new Map<string, number>();
   for (const r of rows) {
     if (!r.from || !r.to || r.from === r.to) continue;
     const k = `${r.from}>${r.to}`;
     const p = by.get(k);
     if (p) p.amount += amount(r);
     else by.set(k, { from: r.from, to: r.to, amount: amount(r) });
-    if (r.mirror) by.get(k)!.mirror = true;
+    if (r.mirror) mirrored.set(k, (mirrored.get(k) ?? 0) + amount(r));
   }
+  for (const [k, m] of mirrored) if (m > by.get(k)!.amount / 2) by.get(k)!.mirror = true;
   return [...by.values()].filter((p) => p.amount > 0).sort((a, b) => b.amount - a.amount);
 }
 

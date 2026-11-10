@@ -2,7 +2,7 @@
 title: "Methodology"
 lede: "How each measure is worked out, what the labels mean, and what the figures cannot tell you."
 description: "How geopolitics.tools works out import reliance, supplier shares, five-year arms totals, common years and coverage, and the limits of the figures."
-updated: "2026-11-06"
+updated: "2026-11-10"
 approved: true
 author: "owner"
 drafted: "2026-11-06"
@@ -61,6 +61,8 @@ SIPRI's terms allow reuse of under 10% of its dataset, so we publish these deriv
 Each supply chain page shows one flow for one period: the latest year its source reports (for arms, the latest five-year total). We never mix years in one diagram, and flows from different sources can have different latest years, so each page says which year it shows.
 
 The flows are the main bilateral flows each source publishes, not all trade. FAOSTAT's detailed trade matrix is cut to each importer's main suppliers; UN Comtrade's flows are as importers report them; UNHCR lists smaller origin and host pairs together. Totals on these pages are totals of the flows shown.
+
+We use the importer's report because customs records of what comes in are usually the more complete side of a trade. When an importer's quantity cannot be used, we use the exporter's report of the same flow instead, and the page names those flows ("United States → France, as the exporter reports it"). That happens when the quantity cannot be in kilograms (its price per kilogram is under a tenth of the product's that year, such as litres entered as kilograms), or, for gas, when the weight is UN Comtrade's own estimate and the importer gives no volume of its own. Where a country reports gas by volume only, we use its cubic metres. If neither side's figure can be used, the flow is left out.
 
 **Concentration** is the Herfindahl–Hirschman index on suppliers' shares of the flows shown: the sum of the squared percentage shares, from near 0 (many small suppliers) to 10,000 (one supplier). As in the 2023 US merger guidelines, 1,000 to 1,800 counts as moderately concentrated and above 1,800 as highly concentrated. For a country, it is worked out on its own suppliers. Refugee flows have no concentration: countries of origin are not suppliers.
 

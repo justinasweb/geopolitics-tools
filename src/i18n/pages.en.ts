@@ -71,6 +71,10 @@ export const DEP_TEXT = {
   otherSuppliers: 'Other or unknown suppliers',
   /** Flows whose amount is the exporter's report, the importer's quantity being unusable (mirror data). */
   asReported: (flows: string[]) => `${list(flows)} as reported by the exporter`,
+  /** How trade flows are reported, naming the shown flows that are the exporter's report, as the source line does:
+   *  "as importers report them, except United States → Mexico and Spain → Morocco, as the exporter reports them". */
+  asImporters: (them: 'it' | 'them', flows: string[] = [], to = '') =>
+    `as importers report ${them}${to}${flows.length ? `, except ${list(flows)}, as the exporter reports ${flows.length === 1 ? 'it' : 'them'}` : ''}`,
   flow: (from: string, to: string) => `${from} → ${to}`,
   /** The grid's tooltip, when the main supplier's figure is the exporter's report. */
   supplierAsReported: 'main supplier as reported by the exporter',

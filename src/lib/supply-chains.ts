@@ -56,7 +56,7 @@ export function chainOf(key: string): Chain {
     key, label: FLOW_TEXT[key].label, kind: CHAIN_TEXT[key].kind, period: f.period,
     pairs: f.pairs.map((p) => [p.from, p.to, Number(p.amount.toPrecision(6))]),
     places, ...{ div: 1, digits: 1 }, ...SCALE[key],
-    ...(mirror.length ? { mirrored: DEP_TEXT.asReported(mirror) } : {}),
+    ...(mirror.length ? { mirrored: DEP_TEXT.asReported(mirror), mirror } : {}),
     src: f.source, source: sourceName(f.source), credit: SOURCE_SHORT[f.source] ?? sourceName(f.source),
     updated, retrieved: (updated ?? '').slice(0, 10), csv: licenceOf(f.source)?.downloads === 'yes',
     method: `${paths.page('methodology')}#supply-chains`,

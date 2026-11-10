@@ -20,7 +20,7 @@ import '../styles/atlas/tools.css';
 import { MAP_TEXT } from '../i18n/map.en';
 import { INDICATOR_TEXT } from '../i18n/en';
 import { ENERGY_TEXT as E } from '../i18n/energy.en';
-import { ENERGY_LAYERS, FUELS, TOP_FLOWS, amount, amountShort, balanceOf, energyKey, energyPage, energyPages, fuelPages, lede, prices, shareOf, summary, unitWords, valueText, worldChange } from '../lib/energy';
+import { ENERGY_LAYERS, FUELS, amount, amountShort, balanceOf, energyKey, energyPage, energyPages, fuelPages, lede, mirrorNames, pageMirror, prices, shareOf, shownFlows, summary, unitWords, valueText, worldChange } from '../lib/energy';
 import type { EnergyRow } from '../lib/energy';
 import { refreshed } from '../lib/data';
 import { place } from '../lib/places';
@@ -67,7 +67,7 @@ const rows = y.rows.map((r) => {
   return { r, q, ch, b: balanceOf(p, r.id, p.year) };
 });
 const reserves = p.layer === 'reserves';
-const flowsOf = (kind?: 'pipe' | 'lng') => p.flows.filter((f) => f.kind === kind).slice(0, TOP_FLOWS);
+const flowsOf = (kind?: 'pipe' | 'lng') => shownFlows(p, kind);
 const flowSets = p.fuel === 'gas'
   ? [{ label: E.pipeLabel(p.flowYear ?? 0), what: E.kind.pipe + ' gas', items: flowsOf('pipe') }, { label: E.lngLabel(p.flowYear ?? 0), what: E.kind.lng, items: flowsOf('lng') }].filter((s) => s.items.length)
   : [{ label: E.flowsLabel(p.flowYear ?? 0), what: T.flows, items: flowsOf(undefined) }].filter((s) => s.items.length);
@@ -149,7 +149,7 @@ const monthName = (d: string) => formatDate(`${d}-15`).replace(/^\d+ /, '');
         })}
         <div class="gt-blocline" hidden><span class="gt-blocline__key" aria-hidden="true"></span><p></p></div>
         <Notice>
-          <p>{E.caveats(p.fuel, p.layer, p.flowYear).join(' ')}</p>
+          <p>{E.caveats(p.fuel, p.layer, p.flowYear, pageMirror(p)).join(' ')}</p>
           <SourceLine source={source} parts={[yearsText]} updated={updated} />
         </Notice>
       </div>
@@ -242,7 +242,7 @@ const monthName = (d: string) => formatDate(`${d}-15`).replace(/^\d+ /, '');
           <h2 class="gt-h2" id={`flows-${i + 1}`}>{s.label}</h2>
           <div class="gt-tablewrap" style="--gt-table-h:none" tabindex="0" role="region" aria-label={s.label}>
             <table class="gt-table" data-gt-sort>
-              <caption class="gt-caption">{E.flowsCaption(s.items.length, p.flowYear!, s.what)}</caption>
+              <caption class="gt-caption">{E.flowsCaption(s.items.length, p.flowYear!, s.what, mirrorNames(s.items))}</caption>
               <thead><tr>
                 <th scope="col" data-key="f"><button type="button">{E.from}</button></th>
                 <th scope="col" data-key="t"><button type="button">{E.to}</button></th>

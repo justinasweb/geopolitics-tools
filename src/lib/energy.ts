@@ -7,7 +7,7 @@ import { gas, oil, oilPrices, type Fuel, type Oil } from '../adapters/eia.ts';
 import { comtrade, crudeFlows, gasFlows, type GasFlow } from '../adapters/comtrade.ts';
 import type { Series } from '../adapters/core.ts';
 import { ENERGY_TEXT, type EnergyLayer, type FuelId, type FuelText } from '../i18n/energy.en.ts';
-import { inSentence } from '../i18n/pages.en.ts';
+import { DEP_TEXT, inSentence } from '../i18n/pages.en.ts';
 import { shared } from './data.ts';
 import { nice } from './food.ts';
 import { place } from './places.ts';
@@ -69,6 +69,13 @@ export interface EnergyPage {
 }
 
 const nameOf = (id: string) => place(id)?.name ?? id;
+
+/** The flows the map and the tables show: the largest TOP_FLOWS of a kind (pipeline or LNG; oil has none). */
+export const shownFlows = (p: EnergyPage, kind?: 'pipe' | 'lng') => p.flows.filter((f) => f.kind === kind).slice(0, TOP_FLOWS);
+/** Of those, the ones whose amount is the exporter's report, named as source lines name them ("United States → Mexico"). */
+export const mirrorNames = (flows: EnergyPage['flows']) => flows.filter((f) => 'mirror' in f && f.mirror).map((f) => DEP_TEXT.flow(nameOf(f.from), nameOf(f.to)));
+/** Every flow shown on the page that is the exporter's report. */
+export const pageMirror = (p: EnergyPage) => mirrorNames(p.fuel === 'gas' ? [...shownFlows(p, 'pipe'), ...shownFlows(p, 'lng')] : shownFlows(p));
 
 function seriesFor(f: Fuel, layer: EnergyLayer): Series {
   return layer === 'trade' ? f.net : f[layer];
@@ -207,7 +214,7 @@ export function summary(p: EnergyPage, year = p.year): string[] {
     const together = top.length === 3 ? shareOf(top.reduce((s, r) => s + r.value, 0), y.world) : null;
     first.push(T.top(top.map((r, i) => T.topPart(inSentence(nameOf(r.id), i === 0), a(r.value), shareOf(r.value, y.world))), together));
   }
-  const second = [T.coverage(y.rows.length, year), ...(y.notYet.length ? [T.notYetSentence(y.notYet.length, year)] : []), ...T.caveats(p.fuel, p.layer, p.flowYear)];
+  const second = [T.coverage(y.rows.length, year), ...(y.notYet.length ? [T.notYetSentence(y.notYet.length, year)] : []), ...T.caveats(p.fuel, p.layer, p.flowYear, pageMirror(p))];
   return [first.join(' '), second.join(' ')];
 }
 

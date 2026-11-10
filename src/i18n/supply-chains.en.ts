@@ -1,6 +1,8 @@
 // The Supply chains tool's words (SupplyChainPage and SankeyFlow designs). The page templates and the browser
 // script (src/scripts/supply-chains.ts) both read these, so this file imports nothing that needs Node.
 
+import { DEP_TEXT } from './pages.en.ts';
+
 export type ChainKind = 'trade' | 'arms' | 'refugees';
 
 /** Each flow's short unit (labels, headers; its name is FLOW_TEXT's, in en.ts), the noun its sentences use, what its amount is called and its unit in full. */
@@ -31,12 +33,12 @@ export function chainTitle(key: string, label: string): { title: string; sub: st
   return { title: label, sub: 'supply chain', full: `${label} supply chain` };
 }
 
-/** What each source's flows cover, under the diagram. */
-export const COVERAGE: Record<string, string> = {
-  faostat: 'FAOSTAT’s detailed trade matrix, as importers report it, cut to each importer’s main suppliers, so the totals are of the flows shown, not of all trade.',
-  comtrade: 'UN Comtrade, as importers report it: the main flows only, so the totals are of the flows shown, not of all trade. Potash and phosphate are in tonnes of product, not of nutrient.',
-  sipri: 'SIPRI five-year totals of major arms delivered, in trend-indicator values (TIV): a measure of military capability, not of price.',
-  unhcr: 'Refugees, asylum seekers and others in need of international protection, by country of origin and country of asylum, as UNHCR counts them. Smaller pairs are not listed.',
+/** What each source's flows cover, under the diagram; UN Comtrade's names the flows that are the exporter's report. */
+export const COVERAGE: Record<string, (mirror: string[]) => string> = {
+  faostat: () => 'FAOSTAT’s detailed trade matrix, as importers report it, cut to each importer’s main suppliers, so the totals are of the flows shown, not of all trade.',
+  comtrade: (mirror) => `UN Comtrade, ${DEP_TEXT.asImporters('it', mirror)}: the main flows only, so the totals are of the flows shown, not of all trade. Potash and phosphate are in tonnes of product, not of nutrient.`,
+  sipri: () => 'SIPRI five-year totals of major arms delivered, in trend-indicator values (TIV): a measure of military capability, not of price.',
+  unhcr: () => 'Refugees, asylum seekers and others in need of international protection, by country of origin and country of asylum, as UNHCR counts them. Smaller pairs are not listed.',
 };
 
 export const CHAINS_TEXT = {
