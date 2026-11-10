@@ -22,6 +22,8 @@ export interface Chain {
   mirrored?: string;
   /** Those flows' names ("United States → Mexico"), largest first, for the coverage line and the table's marks. */
   mirror?: string[];
+  /** Oil and gas: notes on the flows larger than their exporter's own output that year, by "from>to". */
+  over?: Record<string, string>;
   /** Gas: the flows left out for want of a reported quantity, as a sentence under the diagram. */
   notShown?: string;
   /** The source id, its name for the source line, its short name, and the download. */

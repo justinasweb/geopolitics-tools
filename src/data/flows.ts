@@ -8,8 +8,9 @@ import { OTHER_SUPPLIER, arms } from '../adapters/sipri.ts';
 import { displacement } from '../adapters/unhcr.ts';
 import { registry, type Format } from './indicators.ts';
 
-/** `mirror`: the amount is the exporter's report of the flow (UN Comtrade mirror data; src/adapters/comtrade.ts). */
-export interface Pair { from: string; to: string; amount: number; mirror?: true }
+/** `mirror`: the amount is the exporter's report of the flow (UN Comtrade mirror data; src/adapters/comtrade.ts).
+ *  `output`: oil and gas, the exporter's own production in the same year (EIA), when the flow is larger. */
+export interface Pair { from: string; to: string; amount: number; mirror?: true; output?: number }
 export interface Flows { key: string; source: string; format: Format; period: string; pairs: Pair[] }
 
 export interface FlowDef {
@@ -66,6 +67,15 @@ export function checkFlows(label: string, year: number, pairs: Pair[], productio
     .map((p) => `${label} ${year}: ${p.from} → ${p.to} ${n0(p.amount)} is more than ${p.from} produces and imports (${n0(production[p.from][year] + (imports.get(p.from) ?? 0))})`);
 }
 
+/** The exporter's production in `year` when a flow of `amount` is larger than it (oil, gas; same unit) and at least
+ *  0.1% of world production, as checkFlows warns, else null. Malaysia → China crude, 2025: 1,300 kb/d against 513 kb/d
+ *  produced; China's customs records the origin. Smaller flows from places that produce none are left unmarked. */
+export function overOutput(production: Record<string, Record<number, number>>, from: string, year: number, amount: number): number | null {
+  const o = production[from]?.[year];
+  const world = Object.values(production).reduce((t, ys) => t + (ys[year] ?? 0), 0);
+  return o !== undefined && amount > o && amount >= world / 1000 ? o : null;
+}
+
 const warned = new Set<string>();
 /** Oil and gas flows, checked against EIA production (checkFlows); warnings go to the build log, once each. */
 const checked = (label: string, production: string, format: Format, pick: (rows: ReturnType<typeof comtrade>) => Flow[]): FlowDef => ({
@@ -75,6 +85,7 @@ const checked = (label: string, production: string, format: Format, pick: (rows:
     let prod: Record<string, Record<number, number>> = {};
     try { prod = registry(raw).get(production); } catch { /* no EIA files in this snapshot: nothing to check against */ }
     for (const w of checkFlows(label, Number(l.period), l.pairs, prod)) if (!warned.has(w)) { warned.add(w); console.warn(`flows: ${w}`); }
+    for (const p of l.pairs) { const o = overOutput(prod, p.from, Number(l.period), p.amount); if (o !== null) p.output = o; }
     return l;
   },
 });

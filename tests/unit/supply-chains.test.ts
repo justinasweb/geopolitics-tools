@@ -172,6 +172,26 @@ describe('flows from the exporter’s report', () => {
   });
 });
 
+describe('UN Comtrade’s flows', () => {
+  it('note a flow larger than its exporter’s own output that year', async () => {
+    const { ENERGY_TEXT } = await import('../../src/i18n/energy.en.ts');
+    const { overOutput } = await import('../../src/data/flows.ts');
+    const prod = { MYS: { 2025: 512.7 }, CHN: { 2025: 4300 }, TGO: { 2025: 0 }, USA: { 2025: 75_000 } };
+    expect(overOutput(prod, 'MYS', 2025, 1300)).toBe(512.7);
+    expect(overOutput(prod, 'MYS', 2024, 1300)).toBeNull();
+    expect(overOutput(prod, 'CHN', 2025, 1300)).toBeNull();
+    // Under 0.1% of world output: not marked, though Togo produces none.
+    expect(overOutput(prod, 'TGO', 2025, 50)).toBeNull();
+    expect(overOutput(prod, 'TGO', 2025, 90)).toBe(0);
+    const note = ENERGY_TEXT.overOutput('oil', 'Malaysia', 'China', 2025, '513k b/d');
+    expect(note).toBe('More than Malaysia’s own output in 2025 (513k b/d, EIA): China’s customs records this origin, which can include oil shipped on from elsewhere.');
+    expect(ENERGY_TEXT.overOutput('oil', 'Croatia', 'Slovakia', 2025, '9.0k b/d', true)).toContain('Croatia’s customs records these exports');
+    expect(ENERGY_TEXT.overOutput('oil', 'the Netherlands', 'Belgium', 2025, '21k b/d')).toMatch(/^More than the Netherlands’ own output/);
+    const c = { ...chain, key: 'oil', src: 'comtrade', over: { 'RUS>TUR': note } };
+    expect(tableHtml(c, { country: '' })).toContain(`TUR<span class="gt-caption gt-flowmark">${note}</span>`);
+  });
+});
+
 describe('Supply chains from the sample files', () => {
   it('builds each live flow for one period only, with pairs and places', async () => {
     const { chainOf, liveChains } = await import('../../src/lib/supply-chains.ts');

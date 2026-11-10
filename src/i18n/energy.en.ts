@@ -5,6 +5,9 @@
 import { DEP_TEXT, list } from './pages.en.ts';
 import { todaysMembers } from './members.en.ts';
 
+/** "Malaysia’s", "the Netherlands’". */
+const poss = (name: string) => (name.endsWith('s') ? `${name}’` : `${name}’s`);
+
 export type EnergyLayer = 'production' | 'consumption' | 'trade' | 'reserves';
 export type FuelId = 'oil' | 'gas';
 
@@ -118,6 +121,10 @@ export const ENERGY_TEXT = {
     const parts = [...(pipe.length ? [`${list(pipe)} pipeline gas`] : []), ...(lng.length ? [`${list(lng)} LNG`] : [])];
     return parts.length ? `Not shown: ${parts.join('; ')}, because neither country reports a volume to UN Comtrade.` : null;
   },
+  /** On a flow larger than its exporter's own output that year (EIA): customs record an origin, or a destination when
+   *  the flow is the exporter's report, that can include fuel shipped on from elsewhere. */
+  overOutput: (fuel: FuelId, from: string, to: string, year: number, output: string, mirror = false) =>
+    `More than ${poss(from)} own output in ${year} (${output}, EIA): ${mirror ? `${poss(from)} customs records these exports` : `${poss(to)} customs records this origin`}, which can include ${fuel === 'oil' ? 'oil' : 'gas'} shipped on from elsewhere.`,
   flowTip: (from: string, to: string, v: string, year: number, kind?: string) => `${from} → ${to}: ${v}${kind ? `, ${kind}` : ''} (${year})`,
   kind: { pipe: 'pipeline', lng: 'LNG' },
   from: 'From',

@@ -9,7 +9,9 @@ import { FLOWS, loadFlows, topSupplier, type Flows } from '../data/flows.ts';
 import { OTHER_SUPPLIER } from '../adapters/sipri.ts';
 import { shared } from './data.ts';
 import { place } from './places.ts';
-import { DEP_TEXT, SOURCE_SHORT, onSupply } from '../i18n/pages.en.ts';
+import { DEP_TEXT, SOURCE_SHORT, inSentence, onSupply } from '../i18n/pages.en.ts';
+import { ENERGY_TEXT } from '../i18n/energy.en.ts';
+import { amount as energyAmount } from './energy.ts';
 
 export const RESOURCES = ['oil', 'gas', 'wheat', 'maize', 'rice', 'soy', 'potash', 'phosphate', 'arms', 'chips'] as const;
 export type Resource = (typeof RESOURCES)[number];
@@ -55,7 +57,7 @@ export interface DepRow {
   estimated?: true;
   /** Where the partners and the main supplier come from, when it is a trade source with its own period; `mirror`:
    *  the flows shown whose amount is the exporter's report (mirror data), named ("United States → Mexico"). */
-  partnersFrom?: { source: string; period: string; mirror?: string[] };
+  partnersFrom?: { source: string; period: string; mirror?: string[]; over?: string[] };
 }
 
 /**
@@ -75,7 +77,8 @@ export function rowSource(r: DepRow): string | null {
   if (r.year === undefined) return r.period ? DEP_TEXT.dated(short(r.source), r.period) : null;
   const f = r.partnersFrom;
   const line = DEP_TEXT.dated(short(r.source), String(r.year), f && short(f.source), f?.period, r.buyers, onSupply(r.resource) ? 'supply' : 'use');
-  return f?.mirror?.length ? `${line}, ${DEP_TEXT.asReported(f.mirror)}` : line;
+  const out = f?.mirror?.length ? `${line}, ${DEP_TEXT.asReported(f.mirror)}` : line;
+  return f?.over?.length ? `${out}. ${f.over.join(' ')}` : out;
 }
 
 const foodData = shared(food);
@@ -132,6 +135,13 @@ export function fromBalance(resource: Resource, b: Balance | undefined, id: stri
     const shown = (p: { from: string; to: string }) => (buyers ? p.from === id && row.partners.includes(p.to) : p.to === id && (row.partners.includes(p.from) || row.top?.id === p.from));
     const mirror = f.pairs.filter((p) => p.mirror && shown(p)).map((p) => DEP_TEXT.flow(place(p.from)?.name ?? p.from, place(p.to)?.name ?? p.to));
     if (mirror.length) row.partnersFrom.mirror = mirror;
+    // Oil and gas: a shown flow larger than its exporter's own output that year gets its note.
+    if (resource === 'oil' || resource === 'gas') {
+      const name = (x: string) => inSentence(place(x)?.name ?? x);
+      const over = f.pairs.filter((p) => p.output !== undefined && shown(p))
+        .map((p) => ENERGY_TEXT.overOutput(resource, name(p.from), name(p.to), Number(f.period), energyAmount(resource, 'production', p.output!), p.mirror === true));
+      if (over.length) row.partnersFrom.over = over;
+    }
   }
   return row;
 }

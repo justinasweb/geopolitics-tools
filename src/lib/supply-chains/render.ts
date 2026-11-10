@@ -168,7 +168,8 @@ export function tableHtml(c: Chain, s: State): string {
   // A flow that is the exporter's report says so under the importer, as the coverage line counts them.
   const marked = new Set(c.mirror ?? []);
   const mark = (f: string, t: string) => (marked.has(DEP_TEXT.flow(c.places[f]?.n ?? f, c.places[t]?.n ?? t)) ? `<span class="gt-caption gt-flowmark">${esc(DEP_TEXT.flowMark)}</span>` : '');
-  const body = rows.map(([f, t, v]) => `<tr><th scope="row">${cell(f)}</th><td>${cell(t)}${mark(f, t)}</td><td class="n" data-v="${v}">${esc(amount(v, c))}</td></tr>`).join('');
+  const over = (f: string, t: string) => (c.over?.[`${f}>${t}`] ? `<span class="gt-caption gt-flowmark">${esc(c.over[`${f}>${t}`])}</span>` : '');
+  const body = rows.map(([f, t, v]) => `<tr><th scope="row">${cell(f)}</th><td>${cell(t)}${mark(f, t)}${over(f, t)}</td><td class="n" data-v="${v}">${esc(amount(v, c))}</td></tr>`).join('');
   return `<div class="gt-tablewrap" style="--gt-table-h:360px" tabindex="0" role="region" aria-label="${esc(T.tableLabel(c.label))}">`
     + `<table class="gt-table" data-gt-sort><caption class="gt-caption">${esc(T.tableCaption(w.unit, c.period, rows.length))}</caption>`
     + `<thead><tr>${th('from', sd.from)}${th('to', sd.to)}${th('v', c.count ? w.amount : `${w.amount}, ${w.short}`, true, true)}</tr></thead><tbody>${body}</tbody></table></div>`

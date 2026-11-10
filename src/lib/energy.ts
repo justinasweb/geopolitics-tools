@@ -4,6 +4,7 @@
 // like), the places that have not reported the latest year yet, and the largest flows. The page template, the map
 // layer files and the share images read this. Built on food.ts's rules, so the two read alike.
 import { gas, oil, oilPrices, type Fuel, type Oil } from '../adapters/eia.ts';
+import { overOutput } from '../data/flows.ts';
 import { comtrade, crudeFlows, gasFlows, gasUnreported, type GasFlow } from '../adapters/comtrade.ts';
 import type { Series } from '../adapters/core.ts';
 import { ENERGY_TEXT, type EnergyLayer, type FuelId, type FuelText } from '../i18n/energy.en.ts';
@@ -88,6 +89,13 @@ export function gasNotShown(year: number): Record<'pipe' | 'lng', string[]> {
     out[kind] = top.filter((f) => left.has(f)).map((f) => DEP_TEXT.flow(nameOf(f.from), nameOf(f.to)));
   }
   return out;
+}
+
+/** A flow larger than its exporter's own output in the flow's year (EIA; overOutput), as the note on it says; else null. */
+export function overNote(p: EnergyPage, f: EnergyPage['flows'][number]): string | null {
+  const o = overOutput(p.data.production, f.from, f.year, f.amount);
+  if (o === null) return null;
+  return ENERGY_TEXT.overOutput(p.fuel, inSentence(nameOf(f.from)), inSentence(nameOf(f.to)), f.year, amount(p.fuel, 'production', o), 'mirror' in f && f.mirror === true);
 }
 
 /** Every flow shown on the page that is the exporter's report. */
