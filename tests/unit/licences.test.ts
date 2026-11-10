@@ -5,6 +5,9 @@ import { SOURCES } from '../../pipeline/sources/index.ts';
 import { LICENCE_OF, LICENCES } from '../../src/data/licences.ts';
 import { licenceTable } from '../../scripts/licence-table.ts';
 
+// The credit tests read the sample snapshot, as CI has no data pull.
+process.env.GT_DATA = 'sample';
+
 describe('licence table', () => {
   it('has one record for every fetched and imported source', () => {
     const ids = LICENCES.map((l) => l.source);
