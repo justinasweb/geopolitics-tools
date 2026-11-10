@@ -8,7 +8,7 @@ import { DEP_TEXT, inSentence } from '../../i18n/pages.en.ts';
 import { formatShare } from '../format.ts';
 import { esc } from '../explorer/render.ts';
 import {
-  OTHERS, PHONE_FLOWS, SHOWN, TOP, amount, concentration, hhi, nameOf, pairsOf, sankey, sum, totals, xOf,
+  OTHERS, PHONE_FLOWS, SHOWN, TOP, amount, concentration, fullBeside, hhi, nameOf, pairsOf, sankey, sum, totals, xOf,
   type Chain, type State,
 } from './model.ts';
 
@@ -20,8 +20,6 @@ const ICON = {
 
 const words = (c: Chain) => CHAIN_TEXT[c.key];
 const sides = (c: Chain) => SIDES[c.kind];
-/** A place's full exports (side 0) or imports (side 1) from the source's own totals, when the page has them. */
-const fullOf = (c: Chain, id: string, side: 0 | 1) => (id === OTHERS ? undefined : (side ? c.full?.to : c.full?.from)?.[id]);
 const full = (c: Chain, v: number) => `${amount(v, c)} ${words(c).short}`;
 const name = (c: Chain, id: string) => (id === OTHERS ? T.others : nameOf(c, id));
 
@@ -82,7 +80,7 @@ export function sankeyHtml(c: Chain, s: State): string {
     const pick = n.id === OTHERS || n.sel ? '' : ` data-sk-pick="${esc(n.id)}"`;
     rects.push(`<rect x="${n.x}" y="${n.y.toFixed(1)}" width="${xs.node}" height="${Math.max(1, n.h).toFixed(1)}" class="gt-sk__node${n.sel ? ' is-sel' : ''}${pick ? ' gt-sk__pick' : ''}"${pick}/>`);
     // The total of the flows shown, then the source's full figure in brackets where the page has it.
-    const all = fullOf(c, n.id, n.side);
+    const all = fullBeside(c, n.id, n.side, n.value);
     const of = all !== undefined ? ` <tspan class="gt-sk__all">(${esc(amount(all, c))})</tspan>` : '';
     labs.push(`<text x="${left ? 0 : '100%'}" dx="${left ? -8 : 8}" y="${(n.mid + 4.5).toFixed(1)}"${left ? ' text-anchor="end"' : ''} class="gt-sk__lab${pick ? ' gt-sk__pick' : ''}"${pick}><tspan class="gt-sk__n">${esc(label)}</tspan> ${esc(amount(n.value, c))}${of}</text>`);
   }
@@ -107,11 +105,11 @@ function barsHtml(c: Chain, xs: [string, number][], label: string, share?: numbe
   const items = xs.map(([id, v]) => {
     const p = c.places[id];
     const who = id === OTHERS ? T.others : p?.h ? `<a href="${esc(p.h)}">${esc(nameOf(c, id))}</a>` : esc(nameOf(c, id));
-    const all = side === undefined ? undefined : fullOf(c, id, side);
+    const all = side === undefined ? undefined : fullBeside(c, id, side, v);
     const val = share ? formatShare(v / share) : all !== undefined ? T.ofFull(amount(v, c), amount(all, c)) : amount(v, c);
     return `<li${id === OTHERS ? ' class="gt-bars__other"' : ''}><span class="gt-bars__name">${who}</span><span class="gt-bars__track"><span class="gt-bars__fill" style="width:${((100 * v) / max).toFixed(1)}%"></span></span><span class="gt-bars__val">${esc(val)}</span></li>`;
   }).join('');
-  const of = side !== undefined && !share && xs.some(([id]) => fullOf(c, id, side) !== undefined);
+  const of = side !== undefined && !share && xs.some(([id, v]) => fullBeside(c, id, side, v) !== undefined);
   return `<div class="gt-cpsub"><span class="gt-label">${esc(label)}</span><ol class="gt-bars gt-bars--tight ${of ? 'gt-bars--of' : 'gt-bars--wide'}" aria-label="${esc(label)}">${items}</ol></div>`;
 }
 
@@ -152,13 +150,13 @@ export function panelHtml(c: Chain, s: State): string {
   let body = '';
   if (ins.length) {
     const t = sum(ins);
-    body += stat(c, sd.ins, t, fullOf(c, id, 1), TOTALS[c.kind].allTo);
+    body += stat(c, sd.ins, t, fullBeside(c, id, 1, t), TOTALS[c.kind].allTo);
     if (c.kind !== 'refugees') body += concHtml(hhi(ins), T.concFocus(inSentence(nameOf(c, ins[0][0]), true), formatShare(ins[0][1] / t), inSentence(nameOf(c, id)), hhi(ins).toLocaleString('en')), c.method);
     body += barsHtml(c, topAndRest(ins), sd.inShare, t);
   }
   if (outs.length) {
     const t = sum(outs);
-    body += stat(c, sd.outs, t, fullOf(c, id, 0), TOTALS[c.kind].allFrom) + barsHtml(c, topAndRest(outs), sd.outShare, t);
+    body += stat(c, sd.outs, t, fullBeside(c, id, 0, t), TOTALS[c.kind].allFrom) + barsHtml(c, topAndRest(outs), sd.outShare, t);
   }
   const p = c.places[id];
   const link = p?.h ? `<a class="gt-cpsec__link" href="${esc(p.h)}">${esc(T.countryPage(nameOf(c, id)))} <span aria-hidden="true">→</span></a>` : '';

@@ -78,6 +78,16 @@ export function amount(v: number, c: Chain): string {
 }
 
 export const nameOf = (c: Chain, id: string) => c.places[id]?.n ?? id;
+
+/**
+ * A place's full exports (side 0) or imports (side 1) from the source's own totals, to show beside `shown`, its total
+ * in the flows shown; undefined where the page has none, or where it is no larger than `shown` as written (Brazil's
+ * rice: 1.3 Mt in the flows shown, 1.2 Mt of exports), so the total stands alone.
+ */
+export function fullBeside(c: Chain, id: string, side: 0 | 1, shown: number): number | undefined {
+  const all = id === OTHERS ? undefined : (side ? c.full?.to : c.full?.from)?.[id];
+  return all !== undefined && all > shown && amount(all, c) !== amount(shown, c) ? all : undefined;
+}
 /** Diagram labels: the name, or the short name when the name is too long for the space beside a node. */
 const shortOf = (c: Chain, id: string) => (nameOf(c, id).length > 18 && c.places[id]?.s) || nameOf(c, id);
 

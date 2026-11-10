@@ -36,7 +36,7 @@ import { DEPS_TEXT } from '../i18n/dependencies.en';
 import { OVERLAP_TEXT } from '../i18n/overlap.en';
 import { CHAIN_TEXT, CHAINS_TEXT, chainTitle } from '../i18n/supply-chains.en';
 import { chainLinks, chainOf } from './supply-chains';
-import { amount as chainAmount, totals } from './supply-chains/model';
+import { amount as chainAmount, fullBeside, totals } from './supply-chains/model';
 import { ledeOf, periodLabel, periodNamesSource } from './supply-chains/render';
 import type { View } from './explorer/model';
 import { ATLAS_TEXT } from '../i18n/atlas.en';
@@ -273,7 +273,7 @@ export function card(r: Route | null): Card {
       kicker: CHAINS_TEXT.title, title: chainTitle(c.key, c.label).full, caption: ledeOf(c), source: `${periodNamesSource(c) ? '' : `${c.credit}, `}${periodLabel(c)}${fits ? '' : `, ${unit}`}`,
       // Totals of the flows shown, with the source's full figure where the page gives one ("12.0 of 17.7 Mt").
       bars: totals(c.pairs, 0).slice(0, 5).map(([id, v]) => {
-        const all = c.full?.from[id];
+        const all = fullBeside(c, id, 0, v);
         const n = all !== undefined ? CHAINS_TEXT.ofFull(chainAmount(v, c), chainAmount(all, c)) : chainAmount(v, c);
         return { label: nameOf(id), value: v, text: fits ? `${n} ${short}` : n };
       }),

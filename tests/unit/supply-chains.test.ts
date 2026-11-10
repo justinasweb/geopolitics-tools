@@ -188,6 +188,18 @@ describe('totals beside the source’s full figures', () => {
     expect(sankeyHtml(chain, { country: '' })).toContain('>Suppliers</text>');
   });
 
+  it('show the total alone when it is at least the full figure (Brazil’s rice: 1.3 in the flows shown, 1.2 exported)', () => {
+    const c: Chain = { ...chain, full: { from: { RUS: 14.5, CAN: 3.9, AUS: 9 }, to: {} } };
+    const html = sankeyHtml(c, { country: '' });
+    // Russia 14.5 of 14.5 and Canada 4.0 of 3.9: one number each; Australia 3.5 of 9.0 keeps its bracket.
+    expect(html).toMatch(/>Russia<\/tspan> 14\.5<\/text>/);
+    expect(html).toMatch(/>CAN<\/tspan> 4\.0<\/text>/);
+    expect(html).toMatch(/>AUS<\/tspan> 3\.5 <tspan class="gt-sk__all">\(9\.0\)/);
+    const panel = panelHtml(c, { country: '' });
+    expect(panel).not.toContain('14.5 of');
+    expect(panel).toContain('3.5 of 9.0');
+  });
+
   it('give the full figure in the panel’s lists and under a focused country’s total', () => {
     const panel = panelHtml(full, { country: '' });
     expect(panel).toContain('Top suppliers in the flows shown, Mt');
