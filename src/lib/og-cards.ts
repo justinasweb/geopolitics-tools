@@ -37,7 +37,7 @@ import { OVERLAP_TEXT } from '../i18n/overlap.en';
 import { CHAIN_TEXT, CHAINS_TEXT, chainTitle } from '../i18n/supply-chains.en';
 import { chainLinks, chainOf } from './supply-chains';
 import { amount as chainAmount, totals } from './supply-chains/model';
-import { ledeOf, periodLabel } from './supply-chains/render';
+import { ledeOf, periodLabel, periodNamesSource } from './supply-chains/render';
 import type { View } from './explorer/model';
 import { ATLAS_TEXT } from '../i18n/atlas.en';
 import { atlasLayers } from './atlas';
@@ -270,8 +270,13 @@ export function card(r: Route | null): Card {
     const { short, unit } = CHAIN_TEXT[c.key];
     const fits = short.length <= 4;
     return {
-      kicker: CHAINS_TEXT.title, title: chainTitle(c.key, c.label).full, caption: ledeOf(c), source: `${c.credit}, ${periodLabel(c)}${fits ? '' : `, ${unit}`}`,
-      bars: totals(c.pairs, 0).slice(0, 5).map(([id, v]) => ({ label: nameOf(id), value: v, text: fits ? `${chainAmount(v, c)} ${short}` : chainAmount(v, c) })),
+      kicker: CHAINS_TEXT.title, title: chainTitle(c.key, c.label).full, caption: ledeOf(c), source: `${periodNamesSource(c) ? '' : `${c.credit}, `}${periodLabel(c)}${fits ? '' : `, ${unit}`}`,
+      // Totals of the flows shown, with the source's full figure where the page gives one ("12.0 of 17.7 Mt").
+      bars: totals(c.pairs, 0).slice(0, 5).map(([id, v]) => {
+        const all = c.full?.from[id];
+        const n = all !== undefined ? CHAINS_TEXT.ofFull(chainAmount(v, c), chainAmount(all, c)) : chainAmount(v, c);
+        return { label: nameOf(id), value: v, text: fits ? `${n} ${short}` : n };
+      }),
     };
   }
   return { kicker: OG_TEXT.pageKicker, title: TITLES[r.id || r.kind] ?? r.id };

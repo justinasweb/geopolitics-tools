@@ -26,6 +26,10 @@ export interface Chain {
   mirror?: string[];
   /** Oil and gas: notes on the flows larger than their exporter's own output that year, by "from>to". */
   over?: Record<string, string>;
+  /** Each place's full exports (from) and imports (to) that year, from the source's own totals, beside the totals of the
+   *  flows shown: FAOSTAT's trade for the crops (its matrix keeps each importer's main suppliers only), UNHCR's people
+   *  abroad and hosted for refugees. */
+  full?: { from: Record<string, number>; to: Record<string, number> };
   /** Gas: the flows left out for want of a reported quantity, as a sentence under the diagram. */
   notShown?: string;
   /** The source id, its name for the source line, its short name, and the download. */
@@ -115,6 +119,9 @@ export interface Sankey { width: number; height: number; nodes: SkNode[]; bands:
 const W = 900;
 /** Left nodes at 150 with bands leaving at 164, right nodes at 716; labels outside them (SankeyFlow design). */
 export const X = { from: 150, to: 716, node: 14 };
+/** Wider label gutters where labels carry the full figure too ("United States 14.1 (17.9)"). */
+export const X_FULL = { from: 200, to: 666, node: 14 };
+export const xOf = (c: Chain) => (c.full ? X_FULL : X);
 const PAD = 10, GAP = 10, MIN_SLOT = 18, AXIS = 34;
 
 /**
@@ -124,6 +131,7 @@ const PAD = 10, GAP = 10, MIN_SLOT = 18, AXIS = 34;
  */
 export function sankey(c: Chain, s: State, tallest = 520): Sankey {
   const pairs = pairsOf(c, s);
+  const xs = xOf(c);
   const keep = (side: 0 | 1, n: number) => {
     const t = totals(pairs, side);
     // A focused country is always named on its own side.
@@ -164,7 +172,7 @@ export function sankey(c: Chain, s: State, tallest = 520): Sankey {
       const h = value * k;
       const slot = Math.max(h, MIN_SLOT);
       const top = y + (slot - h) / 2;
-      nodes.push({ id, side, label: id === OTHERS ? '' : shortOf(c, id), value, x: side ? X.to : X.from, y: top, h, mid: y + slot / 2, sel: id === s.country });
+      nodes.push({ id, side, label: id === OTHERS ? '' : shortOf(c, id), value, x: side ? xs.to : xs.from, y: top, h, mid: y + slot / 2, sel: id === s.country });
       at.set(`${side}:${id}`, { y: top, used: 0 });
       y += slot + GAP;
     }
@@ -189,7 +197,7 @@ export function sankey(c: Chain, s: State, tallest = 520): Sankey {
     ends.get(b)![1] = z.y + z.used;
     z.used += b.value * k;
   }
-  const x0 = X.from + X.node, x1 = X.to, mx = (x0 + x1) / 2;
+  const x0 = xs.from + xs.node, x1 = xs.to, mx = (x0 + x1) / 2;
   const f1 = (n: number) => n.toFixed(1);
   for (const b of bands) {
     const [y0, y1] = ends.get(b)!;
