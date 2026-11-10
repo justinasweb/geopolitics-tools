@@ -27,7 +27,7 @@ import { historyPage } from './history';
 import { BLOCS_CHECKED } from './blocs';
 import { riverPage } from './rivers';
 import { RIVERS_TEXT } from '../i18n/water.en';
-import { estimated as foodEstimated, foodPage, lede as foodLede, mt, netText, shareOf as foodShare } from './food';
+import { estimated as foodEstimated, foodPage, fromUsgs, lede as foodLede, mt, netText, shareOf as foodShare } from './food';
 import { amount as energyAmount, energyPage, lede as energyLede, shareOf as energyShare, valueText as energyValue } from './energy';
 import { ENERGY_TEXT } from '../i18n/energy.en';
 import { EXPLORER_TEXT } from '../i18n/explorer.en';
@@ -36,8 +36,8 @@ import { DEPS_TEXT } from '../i18n/dependencies.en';
 import { OVERLAP_TEXT } from '../i18n/overlap.en';
 import { CHAIN_TEXT, CHAINS_TEXT, chainTitle } from '../i18n/supply-chains.en';
 import { chainLinks, chainOf } from './supply-chains';
-import { amount as chainAmount, totals } from './supply-chains/model';
-import { ledeOf, periodLabel } from './supply-chains/render';
+import { amount as chainAmount, fullBeside, totals } from './supply-chains/model';
+import { ledeOf, periodLabel, periodNamesSource } from './supply-chains/render';
 import type { View } from './explorer/model';
 import { ATLAS_TEXT } from '../i18n/atlas.en';
 import { atlasLayers } from './atlas';
@@ -208,8 +208,11 @@ export function card(r: Route | null): Card {
     const y = p.byYear[p.year];
     const trade = p.layer === 'trade';
     const rows = trade ? [...y.rows.slice(0, 3), ...y.rows.slice(-2)] : y.rows.slice(0, 5);
+    // A bar whose production is USGS's (China's potash) names it in the source.
+    const usgs = p.layer === 'production' ? rows.filter((x) => fromUsgs(p, x.id, p.year)).map((x) => nameOf(x.id)) : [];
     return {
-      kicker: FOOD_TEXT.section, title: FOOD_TEXT.layer[p.layer].title(p.text.pick), caption: foodLede(p) ?? undefined, source: `${short('faostat')}, ${p.year}`,
+      kicker: FOOD_TEXT.section, title: FOOD_TEXT.layer[p.layer].title(p.text.pick), caption: foodLede(p) ?? undefined,
+      source: `${short('faostat')}, ${p.year}${usgs.length ? `; ${FOOD_TEXT.usgsSource(usgs)}` : ''}`,
       // An estimate says so after the share, in the same brackets: "12.3 Mt (15%, estimate)".
       bars: rows.map((x) => {
         const est = foodEstimated(p, x.id, p.year);
@@ -267,8 +270,13 @@ export function card(r: Route | null): Card {
     const { short, unit } = CHAIN_TEXT[c.key];
     const fits = short.length <= 4;
     return {
-      kicker: CHAINS_TEXT.title, title: chainTitle(c.key, c.label).full, caption: ledeOf(c), source: `${c.credit}, ${periodLabel(c)}${fits ? '' : `, ${unit}`}`,
-      bars: totals(c.pairs, 0).slice(0, 5).map(([id, v]) => ({ label: nameOf(id), value: v, text: fits ? `${chainAmount(v, c)} ${short}` : chainAmount(v, c) })),
+      kicker: CHAINS_TEXT.title, title: chainTitle(c.key, c.label).full, caption: ledeOf(c), source: `${periodNamesSource(c) ? '' : `${c.credit}, `}${periodLabel(c)}${fits ? '' : `, ${unit}`}`,
+      // Totals of the flows shown, with the source's full figure where the page gives one ("12.0 of 17.7 Mt").
+      bars: totals(c.pairs, 0).slice(0, 5).map(([id, v]) => {
+        const all = fullBeside(c, id, 0, v);
+        const n = all !== undefined ? CHAINS_TEXT.ofFull(chainAmount(v, c), chainAmount(all, c)) : chainAmount(v, c);
+        return { label: nameOf(id), value: v, text: fits ? `${n} ${short}` : n };
+      }),
     };
   }
   return { kicker: OG_TEXT.pageKicker, title: TITLES[r.id || r.kind] ?? r.id };

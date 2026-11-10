@@ -9,16 +9,21 @@ import { FLOWS, loadFlows, topSupplier, type Flows } from '../data/flows.ts';
 import { OTHER_SUPPLIER } from '../adapters/sipri.ts';
 import { shared } from './data.ts';
 import { place } from './places.ts';
-import { DEP_TEXT, SOURCE_SHORT, onSupply } from '../i18n/pages.en.ts';
+import { DEP_TEXT, SOURCE_SHORT, inSentence, onSupply } from '../i18n/pages.en.ts';
+import { ENERGY_TEXT } from '../i18n/energy.en.ts';
+import { amount as energyAmount, gasLeftOutLines } from './energy.ts';
 
 export const RESOURCES = ['oil', 'gas', 'wheat', 'maize', 'rice', 'soy', 'potash', 'phosphate', 'arms', 'chips'] as const;
 export type Resource = (typeof RESOURCES)[number];
 export type DepTag = 'most' | 'some' | 'self' | 'exp';
 
-/** Thresholds on import reliance, written out in Methodology. `excess`: net imports above use, or exports above
- *  production plus imports, by more than this share give no figure (transit trade or stock changes the source does
- *  not separate). */
+/** Thresholds on import reliance, written out in Methodology. `excess`: net imports above use by more than this share
+ *  give no figure (transit trade or stock changes the source does not separate). Exports above production plus
+ *  imports give none at any margin: the balance would put use, or supply, at zero. */
 export const THRESHOLDS = { most: 0.5, self: 0.15, excess: 0.1 };
+/** A balance more than this many years before the latest any place has for its resource is old: shown with its year
+ *  and "No recent data", out of the tool's sort and rankings and a country page's lead imports (Martinique's oil, 2010). */
+export const OLD_YEARS = 10;
 
 export function tagFor(reliance: number): DepTag {
   if (reliance >= THRESHOLDS.most) return 'most';
@@ -48,14 +53,19 @@ export interface DepRow {
   buyers?: boolean;
   /** Use is zero, so no share. */
   noUse?: boolean;
-  /** Net imports exceed use, or exports exceed production plus imports, by more than THRESHOLDS.excess: no share, so
+  /** Net imports exceed use by more than THRESHOLDS.excess, or exports exceed production plus imports at all: no share, so
    *  out of rankings by share and lead imports. 'imports' has no tag; 'exports' is tagged an exporter, with buyers. */
   excess?: 'imports' | 'exports';
   /** The source flags a figure the row uses as its estimate or imputation (FAOSTAT flags E and I): the Estimate label. */
   estimated?: true;
   /** Where the partners and the main supplier come from, when it is a trade source with its own period; `mirror`:
    *  the flows shown whose amount is the exporter's report (mirror data), named ("United States → Mexico"). */
-  partnersFrom?: { source: string; period: string; mirror?: string[] };
+  partnersFrom?: { source: string; period: string; mirror?: string[]; over?: string[]; leftOut?: string[] };
+  /** The balance is more than OLD_YEARS before the latest year any place has for this resource. */
+  old?: true;
+  /** Potash: the balance year's production is USGS's, FAOSTAT's own estimate being far from it (usgsPotash in
+   *  src/adapters/faostat.ts). */
+  usgsProduction?: true;
 }
 
 /**
@@ -63,10 +73,19 @@ export interface DepRow {
  * imports most of, when that is another row. Germany: rice (100%), then gas (95%).
  */
 export function leadImports(deps: DepRow[]): DepRow[] {
-  const most = deps.filter((d) => d.state === 'ok' && d.tag === 'most' && d.reliance !== undefined).sort((a, b) => b.reliance! - a.reliance!);
+  const most = deps.filter((d) => d.state === 'ok' && d.tag === 'most' && d.reliance !== undefined && !d.old).sort((a, b) => b.reliance! - a.reliance!);
   if (!most.length) return [];
   const fuel = most.find((d) => d.resource === 'oil' || d.resource === 'gas');
   return fuel && fuel !== most[0] ? [most[0], fuel] : [most[0]];
+}
+
+/** The notes an old row carries: no recent data, and partners from a much later year (UAE wheat: 2008, 2023). */
+export function oldNotes(r: DepRow): string[] {
+  const out: string[] = [];
+  if (r.old && r.year !== undefined) out.push(DEP_TEXT.noRecent(r.year));
+  const py = Number(r.partnersFrom?.period);
+  if (r.year !== undefined && r.partners.length && py - r.year > OLD_YEARS) out.push(DEP_TEXT.partnersLater(py, py - r.year));
+  return out;
 }
 
 /** A row's source and year as its line reads: "EIA, use 2024 · UN Comtrade, imports 2025"; null without figures. */
@@ -75,7 +94,10 @@ export function rowSource(r: DepRow): string | null {
   if (r.year === undefined) return r.period ? DEP_TEXT.dated(short(r.source), r.period) : null;
   const f = r.partnersFrom;
   const line = DEP_TEXT.dated(short(r.source), String(r.year), f && short(f.source), f?.period, r.buyers, onSupply(r.resource) ? 'supply' : 'use');
-  return f?.mirror?.length ? `${line}, ${DEP_TEXT.asReported(f.mirror)}` : line;
+  const out0 = f?.mirror?.length ? `${line}, ${DEP_TEXT.asReported(f.mirror)}` : line;
+  const out = r.usgsProduction ? `${out0}. ${DEP_TEXT.usgsProduction}` : out0;
+  const notes = [...(f?.over ?? []), ...(f?.leftOut ?? [])];
+  return notes.length ? `${out}. ${notes.join(' ')}` : out;
 }
 
 const foodData = shared(food);
@@ -105,9 +127,10 @@ export function fromBalance(resource: Resource, b: Balance | undefined, id: stri
   if (!r) return { ...base, state: 'none' };
   const net = r.imports - r.exports;
   const row: DepRow = { ...base, state: 'ok', year: r.year, ...(r.est ? { estimated: true as const } : {}) };
-  if (supply && r.exports > (r.production + r.imports) * (1 + THRESHOLDS.excess)) {
-    // Morocco's phosphate: exports 1.7 times production plus imports (stock or re-exports the source does not split).
-    // A net exporter all the same, with no share of output.
+  if (r.exports > r.production + r.imports) {
+    // Morocco's phosphate: exports 1.7 times production plus imports (stock or re-exports the source does not split);
+    // Ukraine's maize, 2024: 29.6 Mt shipped from 26.9 Mt grown and imported, from an earlier harvest. A net exporter
+    // all the same, with no share of output.
     Object.assign(row, { excess: 'exports', tag: 'exp' });
   } else if (r.use <= 0) {
     if (net < 0 && r.production > 0) Object.assign(row, { reliance: -1, exportShare: Math.min(1, -net / r.production), tag: 'exp' });
@@ -132,6 +155,18 @@ export function fromBalance(resource: Resource, b: Balance | undefined, id: stri
     const shown = (p: { from: string; to: string }) => (buyers ? p.from === id && row.partners.includes(p.to) : p.to === id && (row.partners.includes(p.from) || row.top?.id === p.from));
     const mirror = f.pairs.filter((p) => p.mirror && shown(p)).map((p) => DEP_TEXT.flow(place(p.from)?.name ?? p.from, place(p.to)?.name ?? p.to));
     if (mirror.length) row.partnersFrom.mirror = mirror;
+    // Oil and gas: a shown flow larger than its exporter's own output that year gets its note.
+    if (resource === 'oil' || resource === 'gas') {
+      const name = (x: string) => inSentence(place(x)?.name ?? x);
+      const over = f.pairs.filter((p) => p.output !== undefined && shown(p))
+        .map((p) => ENERGY_TEXT.overOutput(resource, name(p.from), name(p.to), Number(f.period), energyAmount(resource, 'production', p.output!), p.mirror === true));
+      if (over.length) row.partnersFrom.over = over;
+    }
+    // Gas rows left out by name (Colombia's LNG recorded as from Tanzania) are named on the importer's row.
+    if (resource === 'gas') {
+      const left = gasLeftOutLines(Number(f.period), id);
+      if (left.length) row.partnersFrom.leftOut = left;
+    }
   }
   return row;
 }
@@ -171,8 +206,36 @@ function concentration(resource: Resource, id: string): DepRow {
 /** The tool and the country tables have something to show: the food or the fuel balances are in the snapshot. */
 export const depsLive = () => Boolean(foodData() || fuels.oil());
 
+/** The latest year any place has a balance for, per resource (oil, gas, crops, fertilisers). */
+const latestYears = shared((): Partial<Record<Resource, number>> => {
+  const top = (s: Record<string, Record<number, number>>) => Math.max(0, ...Object.values(s).flatMap((ys) => Object.keys(ys).map(Number)));
+  const fd = foodData();
+  const out: Partial<Record<Resource, number>> = {};
+  for (const f of ['oil', 'gas'] as const) { const x = fuels[f](); if (x) out[f] = top(x.net); }
+  if (fd) {
+    for (const c of ['wheat', 'maize', 'rice', 'soy'] as const) out[c] = top(fd.crops[c].exports);
+    for (const n of ['potash', 'phosphate'] as const) out[n] = top(fd.fertilisers[n].exports);
+  }
+  return out;
+});
+
+/** Marks a row whose balance year's production is USGS's (potash). */
+function usgsMarked(r: DepRow, b: Balance, id: string): DepRow {
+  return r.year !== undefined && b.usgs?.[id]?.[r.year] ? { ...r, usgsProduction: true } : r;
+}
+
+/** Marks a row whose balance is more than OLD_YEARS before its resource's latest year. */
+function dated(r: DepRow): DepRow {
+  const latest = latestYears()?.[r.resource];
+  return r.state === 'ok' && r.year !== undefined && latest && r.year < latest - OLD_YEARS ? { ...r, old: true } : r;
+}
+
 /** The ten rows for a place. */
 export function dependencies(id: string): DepRow[] {
+  return rows(id).map(dated);
+}
+
+function rows(id: string): DepRow[] {
   const fd = foodData();
   return RESOURCES.map((res): DepRow => {
     switch (res) {
@@ -183,7 +246,8 @@ export function dependencies(id: string): DepRow[] {
       case 'potash': case 'phosphate':
         // The balance is FAOSTAT's, on supply (its trade covers every use, its use only farms); the partners come
         // from UN Comtrade's flows, when it has them.
-        return fd ? fromBalance(res, fd.fertilisers[res], id, res, true) : { resource: res, state: 'pending', source: 'faostat', partners: [] };
+        if (!fd) return { resource: res, state: 'pending', source: 'faostat', partners: [] };
+        return usgsMarked(fromBalance(res, fd.fertilisers[res], id, res, true), fd.fertilisers[res], id);
       default:
         return concentration(res, id);
     }

@@ -12,6 +12,7 @@ import { BLOC_ABOUT } from '../i18n/blocs.en.ts';
 import { RIVERS_TEXT } from '../i18n/water.en.ts';
 import { EXPLORER_TEXT } from '../i18n/explorer.en.ts';
 import { FLOW_TEXT, INDICATOR_TEXT, NAV_TEXT, TRAIL_TEXT } from '../i18n/en.ts';
+import { chainTitle } from '../i18n/supply-chains.en.ts';
 import { INDICATOR_SLUGS } from '../i18n/slugs.en.ts';
 import { SEARCH_ALIASES, SEARCH_TEXT as T } from '../i18n/search.en.ts';
 import { NAV_FOOTER } from '../data/nav.ts';
@@ -118,7 +119,7 @@ function items(): Item[] {
   for (const r of all.filter((x) => x.kind === 'tool')) {
     const [, id, sub] = r.key.split(':');
     if (id === 'explorer' && sub) out.push({ name: T.explorerView(EXPLORER_TEXT.views[sub] ?? sub), group: 'tools', detail: tool('explorer')[1], path: r.path });
-    if (id === 'supply-chains' && sub && FLOW_TEXT[sub]) out.push({ name: FLOW_TEXT[sub].label, group: 'tools', detail: T.flow, path: r.path, aliases: ['supply chain', ...aliasesOf(r.key)] });
+    if (id === 'supply-chains' && sub && FLOW_TEXT[sub]) out.push({ name: chainTitle(sub, FLOW_TEXT[sub].label).title, group: 'tools', detail: T.flow, path: r.path, aliases: ['supply chain', ...aliasesOf(r.key)] });
   }
   const week = live('week');
   if (week) out.push({ name: tool('this-week')[0], group: 'tools', detail: tool('this-week')[1], path: week.path, aliases: ['news', 'latest'] });

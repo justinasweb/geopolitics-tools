@@ -4,7 +4,8 @@
 // like), the places that have not reported the latest year yet, and the largest flows. The page template, the map
 // layer files and the share images read this. Built on food.ts's rules, so the two read alike.
 import { gas, oil, oilPrices, type Fuel, type Oil } from '../adapters/eia.ts';
-import { comtrade, crudeFlows, gasFlows, gasUnreported, type GasFlow } from '../adapters/comtrade.ts';
+import { overOutput } from '../data/flows.ts';
+import { comtrade, completeYear, crudeFlows, gasFlows, gasLeftOut, gasUnreported, type GasFlow } from '../adapters/comtrade.ts';
 import type { Series } from '../adapters/core.ts';
 import { ENERGY_TEXT, type EnergyLayer, type FuelId, type FuelText } from '../i18n/energy.en.ts';
 import { DEP_TEXT, inSentence } from '../i18n/pages.en.ts';
@@ -22,7 +23,11 @@ export const TOP_FLOWS = 20;
 export type { EnergyLayer, FuelId };
 
 const fuels = { oil: shared(oil), gas: shared(gas) };
-const flowData = shared((raw) => { const r = comtrade(raw); return { oil: crudeFlows(r), gas: gasFlows(r), unreported: gasUnreported(r) }; });
+const flowData = shared((raw) => {
+  const r = comtrade(raw);
+  const oil = crudeFlows(r), gas = gasFlows(r);
+  return { oil, gas, unreported: gasUnreported(r), leftOut: gasLeftOut(r), year: { oil: completeYear(r, ['crude'], oil), gas: completeYear(r, ['pipe', 'lng'], gas) } };
+});
 export const prices = shared(oilPrices);
 
 const n = (v: number, digits: number) => new Intl.NumberFormat('en', { maximumFractionDigits: digits, minimumFractionDigits: digits }).format(v);
@@ -66,6 +71,8 @@ export interface EnergyPage {
   /** Trade: the largest flows in Comtrade's latest year, exporter → importer, as importers report them. */
   flows: (GasFlow | { from: string; to: string; amount: number; year: number; kind?: undefined })[];
   flowYear: number | null;
+  /** UN Comtrade's latest year is not complete yet, so the flows are for the year before (completeYear). */
+  flowPartial: boolean;
 }
 
 const nameOf = (id: string) => place(id)?.name ?? id;
@@ -88,6 +95,20 @@ export function gasNotShown(year: number): Record<'pipe' | 'lng', string[]> {
     out[kind] = top.filter((f) => left.has(f)).map((f) => DEP_TEXT.flow(nameOf(f.from), nameOf(f.to)));
   }
   return out;
+}
+
+/** A flow larger than its exporter's own output in the flow's year (EIA; overOutput), as the note on it says; else null. */
+export function overNote(p: EnergyPage, f: EnergyPage['flows'][number]): string | null {
+  const o = overOutput(p.data.production, f.from, f.year, f.amount);
+  if (o === null) return null;
+  return ENERGY_TEXT.overOutput(p.fuel, inSentence(nameOf(f.from)), inSentence(nameOf(f.to)), f.year, amount(p.fuel, 'production', o), 'mirror' in f && f.mirror === true);
+}
+
+/** The lines naming gas rows left out by name (LEFT_OUT) in `year`, for one importer or all. */
+export function gasLeftOutLines(year: number, to?: string): string[] {
+  const one = (v: number) => `${new Intl.NumberFormat('en', { maximumFractionDigits: 1, minimumFractionDigits: 1 }).format(v)}\u00a0bcm`;
+  return (flowData()?.leftOut ?? []).filter((f) => f.year === year && (!to || f.to === to))
+    .map((f) => ENERGY_TEXT.leftOut(inSentence(nameOf(f.to)), f.year, f.kind, inSentence(nameOf(f.from)), one(f.amount)));
 }
 
 /** Every flow shown on the page that is the exporter's report. */
@@ -148,12 +169,13 @@ function buildPage(fuel: FuelId, layer: EnergyLayer): EnergyPage | null {
     : T.shareTicks;
   let flows: EnergyPage['flows'] = [];
   let flowYear: number | null = null;
-  const all = layer === 'trade' ? flowData()?.[fuel] ?? [] : [];
-  if (all.length) {
-    flowYear = Math.max(...all.map((x) => x.year));
-    flows = all.filter((x) => x.year === flowYear).sort((x, z) => z.amount - x.amount);
+  const d = layer === 'trade' ? flowData() : null;
+  const fy = d?.year[fuel];
+  if (d && fy) {
+    flowYear = fy.year;
+    flows = d[fuel].filter((x) => x.year === flowYear).sort((x, z) => z.amount - x.amount);
   }
-  return { id: `${fuel}-${layer}`, fuel, layer, text: T.fuels[fuel], data: f, years, year, byYear, edges, ticks, flows, flowYear };
+  return { id: `${fuel}-${layer}`, fuel, layer, text: T.fuels[fuel], data: f, years, year, byYear, edges, ticks, flows, flowYear, flowPartial: Boolean(fy?.partial) };
 }
 
 let cache: EnergyPage[] | null = null;
@@ -230,7 +252,7 @@ export function summary(p: EnergyPage, year = p.year): string[] {
     const together = top.length === 3 ? shareOf(top.reduce((s, r) => s + r.value, 0), y.world) : null;
     first.push(T.top(top.map((r, i) => T.topPart(inSentence(nameOf(r.id), i === 0), a(r.value), shareOf(r.value, y.world))), together));
   }
-  const second = [T.coverage(y.rows.length, year), ...(y.notYet.length ? [T.notYetSentence(y.notYet.length, year)] : []), ...T.caveats(p.fuel, p.layer, p.flowYear, pageMirror(p))];
+  const second = [T.coverage(y.rows.length, year), ...(y.notYet.length ? [T.notYetSentence(y.notYet.length, year)] : []), ...T.caveats(p.fuel, p.layer, p.flowYear, pageMirror(p), p.flowPartial)];
   return [first.join(' '), second.join(' ')];
 }
 

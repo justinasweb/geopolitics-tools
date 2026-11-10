@@ -2,7 +2,7 @@ import { CHAIN_TEXT } from '../../src/i18n/supply-chains.en.ts';
 import { describe, expect, it } from 'vitest';
 import { amount, concentration, foundPlace, hhi, parseState, queryOf, sankey, totals, OTHERS, type Chain } from '../../src/lib/supply-chains/model.ts';
 import { SIDES, chainTitle } from '../../src/i18n/supply-chains.en.ts';
-import { chainCsv, ledeOf, panelHtml, periodLabel, sankeyHtml, tableHtml } from '../../src/lib/supply-chains/render.ts';
+import { chainCsv, flowListHtml, ledeOf, panelHtml, periodLabel, sankeyHtml, tableHtml } from '../../src/lib/supply-chains/render.ts';
 
 // The Supply chains tool: the focus in the address, totals and concentration, the Sankey's grouping and layout,
 // the panel and the download, on a small flow; then the flows the build makes from the sample files.
@@ -74,8 +74,10 @@ describe('Supply chains model', () => {
 });
 
 describe('Supply chains markup', () => {
-  it('labels the year as the latest available, and five-year totals as such', () => {
-    expect(periodLabel(chain)).toBe('2023, latest available');
+  it('labels the year as the latest available, FAOSTAT’s as its trade between countries, and five-year totals as such', () => {
+    // FAOSTAT's matrix lags its trade totals (2023 against 2024), so its year says what it is.
+    expect(periodLabel(chain)).toBe('Trade between countries: 2023, the latest FAOSTAT has published');
+    expect(periodLabel({ ...chain, src: 'comtrade' })).toBe('2023, latest available');
     expect(periodLabel({ ...chain, period: '2021–2025' })).toBe('2021–2025, latest five years available');
     expect(ledeOf(chain)).toBe('In the FAOSTAT flows for 2023, Russia, CAN and AUS ship the most wheat.');
   });
@@ -97,10 +99,10 @@ describe('Supply chains markup', () => {
     expect(panelHtml({ ...chain, kind: 'refugees' }, { country: '' })).not.toContain('Concentration');
   });
 
-  it('labels a focused country’s figures as in the flows shown, for every kind of flow', () => {
+  it('labels a focused country’s figures as in the flows (refugees: pairs) shown, for every kind of flow', () => {
     for (const kind of Object.keys(SIDES) as (keyof typeof SIDES)[]) {
-      expect(SIDES[kind].ins, kind).toMatch(/ in the flows shown$/);
-      expect(SIDES[kind].outs, kind).toMatch(/ in the flows shown$/);
+      expect(SIDES[kind].ins, kind).toMatch(kind === 'refugees' ? / in the pairs shown$/ : / in the flows shown$/);
+      expect(SIDES[kind].outs, kind).toMatch(kind === 'refugees' ? / in the pairs shown$/ : / in the flows shown$/);
       const egy = panelHtml({ ...chain, kind }, { country: 'EGY' });
       expect(egy, kind).toContain(`>${SIDES[kind].ins}</span>`);
       expect(egy, kind).toContain(`>${SIDES[kind].outs}</span>`);
@@ -116,9 +118,10 @@ describe('Supply chains markup', () => {
 
   it('calls refugees refugee flows, not a supply chain', () => {
     expect(chainTitle('wheat', 'Wheat')).toEqual({ title: 'Wheat', sub: 'supply chain', full: 'Wheat supply chain' });
-    expect(chainTitle('refugees', 'Refugees')).toEqual({ title: 'Refugee flows', sub: 'Countries of origin → host countries', full: 'Refugee flows' });
+    // People hosted, not yearly movements: not "flows".
+    expect(chainTitle('refugees', 'Refugees')).toEqual({ title: 'Refugees by origin and host country', sub: '', full: 'Refugees by origin and host country' });
     const html = sankeyHtml({ ...chain, key: 'refugees', kind: 'refugees', label: 'Refugees', count: true }, { country: '' });
-    expect(html).toContain('aria-label="Refugee flows, 2023, largest countries of origin to largest host countries, in people"');
+    expect(html).toContain('aria-label="Refugees by origin and host country, 2023, largest countries of origin to largest host countries, in people"');
     expect(html).not.toContain('supply chain');
   });
 
@@ -169,6 +172,79 @@ describe('flows from the exporter’s report', () => {
     const { sumPairs } = await import('../../src/data/flows.ts');
     // A few cubic metres of pipeline gas from the exporter's report do not make a pair's LNG the exporter's.
     expect(sumPairs([{ from: 'USA', to: 'KOR', amount: 6 }, { from: 'USA', to: 'KOR', amount: 0.001, mirror: true }], (r) => r.amount)[0].mirror).toBeUndefined();
+  });
+});
+
+describe('totals beside the source’s full figures', () => {
+  // India's rice, 2023: 12.0 Mt in the flows shown (FAOSTAT's matrix, each importer's main suppliers), 17.7 Mt of exports.
+  const full: Chain = { ...chain, full: { from: { RUS: 17.7, CAN: 4.5 }, to: { EGY: 13 } } };
+
+  it('label the diagram’s totals in the flows shown, the full figure in brackets', () => {
+    const html = sankeyHtml(full, { country: '' });
+    expect(html).toMatch(/>Russia<\/tspan> 14\.5 <tspan class="gt-sk__all">\(17\.7\)<\/tspan>/);
+    expect(html).toContain('then in brackets all its exports or imports that year, from FAOSTAT’s trade figures.');
+    // Wider label gutters: no label runs off the page.
+    expect(html).toContain('--l:200px');
+    expect(sankeyHtml(chain, { country: '' })).toContain('>Suppliers</text>');
+  });
+
+  it('show the total alone when it is at least the full figure (Brazil’s rice: 1.3 in the flows shown, 1.2 exported)', () => {
+    const c: Chain = { ...chain, full: { from: { RUS: 14.5, CAN: 3.9, AUS: 9 }, to: {} } };
+    const html = sankeyHtml(c, { country: '' });
+    // Russia 14.5 of 14.5 and Canada 4.0 of 3.9: one number each; Australia 3.5 of 9.0 keeps its bracket.
+    expect(html).toMatch(/>Russia<\/tspan> 14\.5<\/text>/);
+    expect(html).toMatch(/>CAN<\/tspan> 4\.0<\/text>/);
+    expect(html).toMatch(/>AUS<\/tspan> 3\.5 <tspan class="gt-sk__all">\(9\.0\)/);
+    const panel = panelHtml(c, { country: '' });
+    expect(panel).not.toContain('14.5 of');
+    expect(panel).toContain('3.5 of 9.0');
+  });
+
+  it('give the full figure in the panel’s lists and under a focused country’s total', () => {
+    const panel = panelHtml(full, { country: '' });
+    expect(panel).toContain('Top suppliers in the flows shown, Mt');
+    expect(panel).toContain('14.5 of 17.7');
+    const egy = panelHtml(full, { country: 'EGY' });
+    expect(egy).toContain('All imports, 2023: 13.0 Mt');
+    const ref = panelHtml({ ...full, kind: 'refugees', key: 'refugees', count: true, full: { from: {}, to: { EGY: 4_176_592 } } }, { country: 'EGY' });
+    expect(ref).toContain('Hosted in the pairs shown');
+    expect(ref).toContain('All hosted, 2023: 4.2 m people');
+  });
+});
+
+describe('UN Comtrade’s flows', () => {
+  it('rank the flows reported to it, not all trade', () => {
+    const c = { ...chain, key: 'oil', src: 'comtrade', source: 'UN Comtrade', credit: 'UN Comtrade' };
+    expect(ledeOf(c)).toBe('In the flows reported to UN Comtrade for 2023, Russia, CAN and AUS ship the most crude oil.');
+    expect(ledeOf(chain)).toBe('In the FAOSTAT flows for 2023, Russia, CAN and AUS ship the most wheat.');
+    const panel = panelHtml(c, { country: '' });
+    expect(panel).toContain('Largest suppliers in the flows reported to UN Comtrade, kb/d');
+    expect(panel).toContain('Largest buyers in the flows reported to UN Comtrade, kb/d');
+    expect(panelHtml(chain, { country: '' })).toContain('Top suppliers, Mt');
+    expect(flowListHtml(c, { country: '' })).toContain('Top 10 flows reported to UN Comtrade, kb/d');
+  });
+
+  it('say when the latest year is not complete yet', () => {
+    expect(periodLabel({ ...chain, src: 'comtrade', partial: true, period: '2024' })).toBe('2024, the latest year most countries have reported');
+    expect(periodLabel({ ...chain, src: 'comtrade' })).toBe('2023, latest available');
+  });
+
+  it('note a flow larger than its exporter’s own output that year', async () => {
+    const { ENERGY_TEXT } = await import('../../src/i18n/energy.en.ts');
+    const { overOutput } = await import('../../src/data/flows.ts');
+    const prod = { MYS: { 2025: 512.7 }, CHN: { 2025: 4300 }, TGO: { 2025: 0 }, USA: { 2025: 75_000 } };
+    expect(overOutput(prod, 'MYS', 2025, 1300)).toBe(512.7);
+    expect(overOutput(prod, 'MYS', 2024, 1300)).toBeNull();
+    expect(overOutput(prod, 'CHN', 2025, 1300)).toBeNull();
+    // Under 0.1% of world output: not marked, though Togo produces none.
+    expect(overOutput(prod, 'TGO', 2025, 50)).toBeNull();
+    expect(overOutput(prod, 'TGO', 2025, 90)).toBe(0);
+    const note = ENERGY_TEXT.overOutput('oil', 'Malaysia', 'China', 2025, '513k b/d');
+    expect(note).toBe('More than Malaysia’s own output in 2025 (513k b/d, EIA): China’s customs records this origin, which can include oil shipped on from elsewhere.');
+    expect(ENERGY_TEXT.overOutput('oil', 'Croatia', 'Slovakia', 2025, '9.0k b/d', true)).toContain('Croatia’s customs records these exports');
+    expect(ENERGY_TEXT.overOutput('oil', 'the Netherlands', 'Belgium', 2025, '21k b/d')).toMatch(/^More than the Netherlands’ own output/);
+    const c = { ...chain, key: 'oil', src: 'comtrade', over: { 'RUS>TUR': note } };
+    expect(tableHtml(c, { country: '' })).toContain(`TUR<span class="gt-caption gt-flowmark">${note}</span>`);
   });
 });
 

@@ -48,6 +48,53 @@ function formatAbs(a: number, f: Format, n: (x: number, digits: number) => strin
   }
 }
 
+/**
+ * A legend's band edges as text, together: each to at least two significant figures unless fewer write it exactly
+ * ("2,000", "0.5 Mt"), never as zero ("under 0.02 Mt", not "under 0.0 Mt"), and with more decimals until neighbouring
+ * edges read differently. Units as formatValue picks them, but an edge in Mt under 0.01 Mt is written in tonnes to two
+ * significant figures ("under 790 t", "3,800 t–0.087 Mt").
+ */
+export function edgeTexts(edges: number[], f: Format, locale = 'en'): string[] {
+  const n = (x: number, d: number) => new Intl.NumberFormat(locale, { maximumFractionDigits: d, minimumFractionDigits: d }).format(x);
+  // An edge's scaled value, its unit, and the decimals formatValue would give it.
+  const parts = (a: number): [number, string, number] | null => {
+    switch (f.kind) {
+      case 'money':
+        if (a >= 999.5e9) return [a / 1e12, ' tn', 0];
+        if (a >= 999.5e6) return [a / 1e9, ' bn', 0];
+        return a >= 1e6 ? [a / 1e6, ' m', 0] : null;
+      case 'count':
+        if (a >= 999.995e6) return [a / 1e9, ' bn', 0];
+        return a >= 1e6 ? [a / 1e6, ' m', 0] : [a, '', 0];
+      case 'percent': return [a, '%', f.digits ?? 1];
+      case 'share': return [a * 100, '%', 0];
+      case 'number': return [a, f.unit ? ` ${f.unit}` : '', f.digits ?? 0];
+      case 'mt': return [a, ' Mt', 0];
+    }
+  };
+  const inMt = f.kind === 'mt' || (f.kind === 'number' && f.unit === 'Mt');
+  const text = (v: number, extra: number): string => {
+    const a = Math.abs(v);
+    if (inMt && a > 0 && a < 0.01) {
+      const t = Number((a * 1e6).toPrecision(2 + extra));
+      return `${v < 0 ? MINUS : ''}${new Intl.NumberFormat(locale, { maximumFractionDigits: 6 }).format(t)} t`;
+    }
+    const p = parts(a);
+    if (!p || a === 0) return formatValue(v, f, locale);
+    const [x, unit, base] = p;
+    // Decimals for two significant figures, unless fewer already write the value exactly.
+    let d = base;
+    while (d < 8 && (Number(n(x, d).replace(/,/g, '')) === 0 || (Math.abs(Number(n(x, d).replace(/,/g, '')) - x) > 1e-9 * x && Math.floor(Math.log10(x)) + 1 + d < 2))) d++;
+    const body = `${f.kind === 'money' ? '$' : ''}${n(x, d + extra)}${unit}`;
+    return v < 0 ? `${MINUS}${body}` : body;
+  };
+  for (let extra = 0; extra < 6; extra++) {
+    const out = edges.map((v) => text(v, extra));
+    if (new Set(out).size === out.length) return out;
+  }
+  return edges.map((v) => text(v, 6));
+}
+
 /** "21 Oct 2026": the date style of source lines and key figures, read in UTC so a build anywhere gives the same
  *  text. Day, short month, year in that order; en-US month names, because en-GB now writes "Sept". */
 export function formatDate(d: string | Date, locale = 'en-US'): string {

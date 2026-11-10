@@ -16,7 +16,8 @@ import { yearsOf } from '../adapters/core.ts';
 import { worldShare } from './electricity.ts';
 import { cyberData, undated, yearSplit, yearTotal } from './cyber.ts';
 import { CYBER_TEXT } from '../i18n/cyber.en.ts';
-import { formatValue } from './format.ts';
+import { edgeTexts, formatValue } from './format.ts';
+import { seqSteps } from './map/steps.ts';
 import { place } from './places.ts';
 import { breaks, classOf, counts, defaultYear, ranking, type Row } from './stats.ts';
 
@@ -64,13 +65,39 @@ export function valueText(p: ViewPage, v: number): string {
 /** The colour class of a value: 1–5 sequential; 1–7 diverging, 1 at the "consumes more" end. */
 export function classFor(p: ViewPage, v: number): number {
   if (p.layer.scale === 'div') return 7 - p.edges.filter((e) => v >= e).length;
-  return 1 + classOf(v, p.edges);
+  return seqSteps(p.edges.length + 1)[classOf(v, p.edges)];
 }
 
-/** Five sequential classes from the default year's values, rounded, and kept for every year. */
-function seqEdges(rows: Row[]): number[] {
-  const b = breaks(rows.map((r) => r.value).filter((v) => v > 0));
-  return b.length === 4 ? b : [...b, ...Array(4 - b.length).fill(b.at(-1) ?? 1)].slice(0, 4);
+/** A map whose largest value is more than this many times its top quintile edge gets upper bands. */
+export const TAIL = 10;
+
+/** The nearest 1, 2 or 5 times a power of ten, on a log scale: 768,000 → 1 m. */
+function nearest125(v: number): number {
+  const p = 10 ** Math.floor(Math.log10(v));
+  return [1, 2, 5, 10].map((m) => m * p).reduce((a, b) => (Math.abs(Math.log(b / v)) < Math.abs(Math.log(a / v)) ? b : a));
+}
+
+/**
+ * Quintile edges with a long tail split: when the largest value is more than TAIL times the top edge (refugees by
+ * origin: the top fifth runs from 83,000 to 7.6 m; CO2: 85 Mt to 12,300 Mt), the 40th and 80th percentiles stay and two
+ * upper edges are added, a third and two thirds of the way to the largest on a log scale (500,000, 2 m), so the largest
+ * are told apart. Edges that are not four distinct values come back as they are.
+ */
+export function withTail(b: number[], max: number): number[] {
+  if (b.length !== 4 || !(b[3] > 0) || max <= TAIL * b[3]) return b;
+  const r = max / b[3];
+  const up = [nearest125(b[3] * r ** (1 / 3)), nearest125(b[3] * r ** (2 / 3))];
+  return up[0] > b[3] && up[1] > up[0] && up[1] < max ? [b[1], b[3], ...up] : b;
+}
+
+/**
+ * Up to five sequential classes from the default year's values, rounded, and kept for every year: quintiles, split at
+ * the top for a long tail (withTail). Edges that fall on one value are merged (AI models: most countries at 36), so
+ * the map has fewer bands rather than a band twice; their colours are spread (seqSteps).
+ */
+export function seqEdges(values: number[]): number[] {
+  const v = values.filter((x) => x > 0);
+  return withTail(breaks(v), Math.max(...v));
 }
 
 function worldOf(layer: ViewLayer, year: number, rows: Row[]): { world: number | null; worldOwn: boolean } {
@@ -116,8 +143,10 @@ function buildPage(family: ViewFamily, layer: ViewLayer): ViewPage | null {
     byYear[y] = { year: y, rows, ...worldOf(layer, y, rows) };
   }
   const format = loaded.indicator.format;
-  const edges = layer.edges ?? (layer.scale === 'div' ? DIV_EDGES : seqEdges(byYear[year].rows));
-  const f = (v: number) => formatValue(v, format);
+  const edges = layer.edges ?? (layer.scale === 'div' ? DIV_EDGES : seqEdges(byYear[year].rows.map((r) => r.value)));
+  // Edges as text together (edgeTexts): never "0.0 Mt", and neighbours always read differently.
+  const et = layer.scale === 'div' ? [] : edgeTexts(edges, format);
+  const f = (v: number) => et[edges.indexOf(v)] ?? formatValue(v, format);
   // Ticks name ranges once, with their unit ("1–7 Mt"). A diverging scale's ticks are sizes, the same on both
   // sides ("10–30%"); its two ends say the direction.
   const unitOf = format.kind === 'number' && format.unit ? ` ${format.unit}` : '';
@@ -131,8 +160,9 @@ function buildPage(family: ViewFamily, layer: ViewLayer): ViewPage | null {
   const ticks = named ?? (layer.scale === 'div'
     ? [...side, `±${d1}%`, ...[...side].reverse()]
     // Money ranges are too long for the legend ("$430 m–$1.4 bn"), so each class names its lower bound.
+    : !edges.length ? []
     : format.kind === 'money' ? [`<${f(edges[0])}`, ...edges.map((x) => `${f(x)}+`)]
-    : [`under ${t(edges[0])}`, ...edges.slice(0, 3).map((x, i) => `${bare(x)}–${t(edges[i + 1])}`), `${t(edges[3])}+`]);
+    : [`under ${t(edges[0])}`, ...edges.slice(0, -1).map((x, i) => `${bare(x)}–${t(edges[i + 1])}`), `${t(edges.at(-1)!)}+`]);
   return {
     family, layer, id: layer.indicator, text: VIEW_TEXT[family.id].layers[layer.indicator], format, loaded,
     years, year, byYear, edges, ticks,

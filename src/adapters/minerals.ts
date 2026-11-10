@@ -4,7 +4,7 @@
 // code: W (withheld), s (small), NA, XX (no world total), — (zero). Ported from the prototype's
 // src/adapters/usgs.js.
 import { csvRecords } from '../../pipeline/lib/csv.ts';
-import { type Raw, matcher } from './core.ts';
+import { type Raw, type Series, matcher, put } from './core.ts';
 
 /** The minerals the site shows, in order, by the release's commodity (or detail) label. */
 export const MINERALS = ['Lithium', 'Cobalt', 'Rare earths', 'Gallium', 'Graphite (natural)', 'Nickel', 'Palladium', 'Tungsten'];
@@ -211,4 +211,29 @@ export function minerals(raw: Raw): Mineral[] {
   const file = raw.list('usgs-minerals').filter((f) => /^MCS\d{4}_Commodities_Data\.csv$/.test(f)).at(-1);
   if (!file) throw new Error('usgs-minerals/MCS<year>_Commodities_Data.csv is not in the snapshot');
   return parseMinerals(raw.text('usgs-minerals', file));
+}
+
+/**
+ * Potash mine production per place and year, in million tonnes of K2O equivalent, from the newest edition's world
+ * table, and the figures USGS marks as estimated: a check on FAOSTAT's own estimates of potash output (usgsPotash in
+ * src/adapters/faostat.ts). Empty when the chapter is not in K2O.
+ */
+export function potashOutput(raw: Raw): { output: Series; estimated: Series } {
+  const file = raw.list('usgs-minerals').filter((f) => /^MCS\d{4}_Commodities_Data\.csv$/.test(f)).at(-1);
+  if (!file) throw new Error('usgs-minerals/MCS<year>_Commodities_Data.csv is not in the snapshot');
+  const rows = normalise(csvRecords(raw.text('usgs-minerals', file))).filter((r) => /^potash$/i.test(r.Commodity ?? '') && /^mine production/i.test(r.Statistics ?? ''));
+  const out: Series = {};
+  const estimated: Series = {};
+  if (!/K2O/.test(basisOf(rows.find((r) => r['Other notes'])?.['Other notes']) ?? '')) return { output: out, estimated };
+  const m = matcher('usgs-minerals', 'name');
+  for (const r of rows) {
+    if (isAggregate(r.Country)) continue;
+    const id = m.match(r.Country);
+    const v = parseValue(r.Value).value;
+    // Thousand metric tons.
+    if (!id || v === null || !/^thousand metric tons$/i.test(r.Unit ?? '')) continue;
+    put(out, id, Number(r.Year), v / 1000);
+    if (isEstimated(r)) put(estimated, id, Number(r.Year), 1);
+  }
+  return { output: out, estimated };
 }

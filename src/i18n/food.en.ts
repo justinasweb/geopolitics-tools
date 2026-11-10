@@ -84,14 +84,15 @@ export const FOOD_TEXT = {
   notYetSentence: (n: number, y: number) => `${n} more reported a figure for one of the two years before but not yet for ${y}; they are hatched on the map.`,
   /** The caveats under the summary, by commodity and layer. */
   /** `mirror`: the fertiliser flows shown whose amount is the exporter's report, by name. */
-  caveats: (c: string, layer: Layer, flowYear: number | null, mirror: string[] = []): string[] => {
+  /** `partial`: the flows' year is shown because UN Comtrade's latest one is not complete yet (fertilisers). */
+  caveats: (c: string, layer: Layer, flowYear: number | null, mirror: string[] = [], partial = false): string[] => {
     const out: string[] = [];
     const fert = c === 'potash' || c === 'phosphate';
     if (fert) out.push('Fertilisers are counted in tonnes of nutrient: potassium oxide (K2O) for potash, phosphorus pentoxide (P2O5) for phosphate. Most fertiliser figures are FAOSTAT’s own estimates, marked e in the table.');
     if (c === 'rice') out.push('Rice is counted as milled rice: FAOSTAT’s paddy production times 0.67, and trade in milled equivalent.');
     if (layer === 'use' && !fert) out.push('Use is production plus imports minus exports. It covers food, animal feed, industrial uses, seed and waste, and leaves out changes in stocks; FAOSTAT’s food balance sheets, which split these, come two years or more later.');
     if (layer === 'use' && fert) out.push('Use is FAOSTAT’s agricultural use: what farmers apply, as countries report it.');
-    if (layer === 'trade') out.push(`Net trade is exports minus imports, as each country reports them to FAOSTAT; one country’s exports and its partners’ imports often differ.${flowYear ? ` Flows on the map are the largest in ${flowYear}, ${DEP_TEXT.asImporters('them', mirror)}.` : ''}`);
+    if (layer === 'trade') out.push(`Net trade is exports minus imports, as each country reports them to FAOSTAT; one country’s exports and its partners’ imports often differ.${flowYear ? ` Flows on the map are the largest in ${flowYear}${partial ? `, ${DEP_TEXT.mostReported}` : ''}, ${DEP_TEXT.asImporters('them', mirror)}.` : ''}`);
     if (layer === 'trade' && fert) out.push(flowYear
       ? `FAOSTAT does not publish who trades fertilisers with whom, so the flows come from UN Comtrade, ${DEP_TEXT.asImporters('them', mirror)}, and are in tonnes of product, not of nutrient: potash as HS 3104 (mostly potassium chloride, about 60% K2O); phosphate as HS 3103 and the phosphates DAP and MAP (HS 310530, 310540, about 46–52% P2O5).`
       : 'FAOSTAT does not publish who trades fertilisers with whom, so this map has no flows.');
@@ -164,6 +165,12 @@ export const FOOD_TEXT = {
   notes: 'Notes',
   estNote: 'e: FAOSTAT’s own estimate or imputation.',
   estTitle: 'FAOSTAT estimate',
+  estTitleUsgs: 'USGS estimate',
+  /** A potash output that is USGS's, not FAOSTAT's (usgsPotash in src/adapters/faostat.ts); `world` on the production map. */
+  usgsNote: (years: number[], world: boolean) =>
+    `Production in ${list(years.map(String))}: USGS, as FAOSTAT’s figure is an estimate far from it${world ? '; the world total uses USGS’s figure' : ''}.`,
+  /** The share image's source when a bar's figure is USGS's. */
+  usgsSource: (names: string[]) => `${list(names)}: USGS`,
   mapLabel: (title: string, year: number, top: string) => `World map: ${title.toLowerCase()} by country, ${year}. ${top}. The same figures are in the table below.`,
   sourceCrops: 'FAOSTAT (FAO)',
   sourceFertilisers: 'FAOSTAT (FAO), fertilisers by nutrient',

@@ -30,6 +30,7 @@
 .gt-sk__node.is-sel { fill: var(--accent); }
 .gt-sk__lab { font: 400 13px var(--sans); fill: var(--ink-muted); }
 .gt-sk__n { font-weight: 600; fill: var(--ink); }
+.gt-sk__all { font-size: 12px; }
 .gt-sk__ax { font: 600 12px var(--sans); letter-spacing: .06em; text-transform: uppercase; fill: var(--ink-muted); }
 .gt-sk__pick { cursor: pointer; }
 .gt-sk__pick:hover .gt-sk__n { text-decoration: underline; }

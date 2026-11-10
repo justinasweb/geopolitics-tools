@@ -123,3 +123,51 @@ describe('not reported on country pages', () => {
     expect(countryModel('DEU')!.blocks.refugees!.hostedUnreported).toBeUndefined();
   });
 });
+
+describe('map legends', () => {
+  it('split a long tail into upper bands, for every kind of figure', () => {
+    // Refugees by origin: the top fifth runs from 83,000 to 7.6 m.
+    const origins = [...Array.from({ length: 40 }, (_, i) => 10 * (i + 1)), ...Array.from({ length: 40 }, (_, i) => 1_000 * (i + 1)), ...Array.from({ length: 15 }, (_, i) => 83_000 + 10_000 * i), 600_000, 1_500_000, 2_500_000, 5_200_000, 7_640_000];
+    const tail = V.seqEdges(origins);
+    expect(tail.slice(2)).toEqual([500_000, 2_000_000]);
+    // CO2, Mt: 85 to 12,300 in the top fifth.
+    expect(V.withTail([0.8, 6.5, 21, 85], 12_300)).toEqual([6.5, 85, 500, 2_000]);
+    // A share works the same: AI compute, 1.1% to 81%.
+    expect(V.withTail([0.00062, 0.0015, 0.0032, 0.011], 0.809)).toEqual([0.0015, 0.011, 0.05, 0.2]);
+    // A short tail keeps its quintiles.
+    const even = Array.from({ length: 100 }, (_, i) => i + 1);
+    expect(V.seqEdges(even)).toEqual([21, 41, 61, 81]);
+  });
+
+  it('merge edges that fall on one value, so no band is repeated, and spread their colours', async () => {
+    const { seqSteps } = await import('../../src/lib/map/steps.ts');
+    // AI models: most countries at 36.
+    const models = [1, 1, 1, ...Array(12).fill(36), 50, 65];
+    const e = V.seqEdges(models);
+    expect(e).toEqual([...new Set(e)]);
+    expect(e).toEqual([36]);
+    expect(seqSteps(e.length + 1)).toEqual([2, 5]);
+    expect(seqSteps(3)).toEqual([1, 3, 5]);
+    expect(seqSteps(5)).toEqual([1, 2, 3, 4, 5]);
+  });
+});
+
+describe('legend edges as text', () => {
+  it('never round an edge to zero, give two significant figures, and keep neighbours apart', async () => {
+    const { edgeTexts } = await import('../../src/lib/format.ts');
+    const mt = { kind: 'number', unit: 'Mt', digits: 1 } as const;
+    // Maize imports, Mt: tiny edges read "0.023 Mt", not "0.0 Mt".
+    expect(edgeTexts([0.0234, 1, 2, 10], mt)).toEqual(['0.023 Mt', '1.0 Mt', '2.0 Mt', '10.0 Mt']);
+    // Potash use: two edges that would both read 0.00 Mt.
+    // Under 0.01 Mt, tonnes to two significant figures: potash use, soybean imports.
+    expect(edgeTexts([0.0038, 0.087, 0.5, 2], { kind: 'number', unit: 'Mt', digits: 2 })).toEqual(['3,800 t', '0.087 Mt', '0.50 Mt', '2.00 Mt']);
+    expect(edgeTexts([0.00079, 0.24, 2, 10], mt)[0]).toBe('790 t');
+    // Two that round alike get a third figure.
+    expect(edgeTexts([0.00121, 0.00124, 0.5, 2], mt).slice(0, 2)).toEqual(['1,210 t', '1,240 t']);
+    // Exact values stay short; CO2's 6.5 gets its decimal.
+    expect(edgeTexts([6.5, 85, 500, 2000], { kind: 'number', unit: 'Mt' })).toEqual(['6.5 Mt', '85 Mt', '500 Mt', '2,000 Mt']);
+    expect(edgeTexts([1000, 83000, 500000, 2e6], { kind: 'count' })).toEqual(['1,000', '83,000', '500,000', '2 m']);
+    expect(edgeTexts([0.0015, 0.011, 0.05, 0.2], { kind: 'share' })).toEqual(['0.15%', '1.1%', '5%', '20%']);
+    expect(edgeTexts([4.1e6, 990e6, 5e9, 50e9], { kind: 'money' })).toEqual(['$4.1 m', '$990 m', '$5 bn', '$50 bn']);
+  });
+});

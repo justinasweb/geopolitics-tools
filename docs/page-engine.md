@@ -80,10 +80,24 @@ A sample build has 129 country pages and 37 indicator pages; the real snapshot h
   only. A row whose source is not in the snapshot says "No data yet". Potash and phosphate are a share of supply
   (production plus net imports), not of FAOSTAT's agricultural use, which leaves out industry and transit; their rows
   carry the Estimate label when FAOSTAT flags a figure as its estimate or imputation (E, I), as crop rows do. Net imports
-  more than 10% above use, or exports more than 10% above production plus imports (`THRESHOLDS.excess`; Morocco's
-  phosphate), give no share: the row says "Imports exceed recorded use" (no tag) or "Exports exceed recorded supply"
-  (tagged Exporter, with its buyers) with a caveat, and is left out of the tool's sort and ranking by share, reliance
-  on one supplier and a country page's lead imports.
+  more than 10% above use (`THRESHOLDS.excess`), or exports above production plus imports at all (Morocco's phosphate;
+  Canada's potash; Ukraine's maize 2024, an earlier harvest shipped), give no share: the row says "Imports exceed recorded
+  use" (no tag) or "Exports exceed recorded supply" (tagged Exporter, with its buyers) with a caveat (for crops: "Exports
+  can come from an earlier harvest or stocks…"); a crop's use for that year is not available on the maps, never 0, and is left out of the tool's sort and ranking by share, reliance
+  on one supplier and a country page's lead imports. A balance more than 10 years before the latest any place has for
+  its resource (`OLD_YEARS`; Martinique's oil 2010, Austria's phosphate 2001) is kept but marked old: "No recent data:
+  the latest balance is from 2010" on the country page, "2010, no recent data" in the tool's cell, and left out of the
+  sort, the phone ranking, reliance on one supplier and lead imports. Partners more than 10 years newer than the
+  balance say so ("Main partners are from 2023, 15 years after the balance").
+  Potash production that is FAOSTAT's own estimate (E, I) and more than 2× from USGS's mine production in K2O for the
+  same year is replaced by USGS's in `food()` itself (`usgsPotash`, `USGS_GAP` in `src/adapters/faostat.ts`;
+  `potashOutput` in `src/adapters/minerals.ts`), so the balance rows, the potash maps, their world total, rankings,
+  layer files and share images all read the same figure. The cell is marked in `Balance.usgs`, keeps USGS's own
+  estimate flag ("USGS estimate" in the table), and the world total moves by the difference. Rows and the grid say
+  "Production: USGS, as FAOSTAT's figure is an estimate far from it"; the potash maps carry a place note
+  (`placeNotes` in `src/lib/food.ts`) and the share image's source names it; a change across a FAOSTAT and a USGS
+  year is not shown (`comparable`, `worldChange`). China, 2024. Potash production is not an indicator, so Compare and
+  the Explorer do not show it.
 - **Neutral words.** Templates use plain verbs (mines, imports, hosts) and no adjectives that judge. "Higher" on
   Compare marks the larger value and says it is not a judgement. A sentence whose figure is missing is left out.
 - **Colour is never the only cue.** Dependence tags have a glyph and a word, Compare's first and second country have

@@ -66,6 +66,13 @@ export const DEP_TEXT = {
   exceedsUse: 'Imports exceed recorded use',
   exceedsSupply: 'Exports exceed recorded supply',
   exceedsNote: (source: string) => `Likely transit trade or stock changes; ${source}’s figures do not separate them`,
+  /** A balance far older than the latest for its resource, and partners from a much later year. */
+  noRecent: (year: number) => `No recent data: the latest balance is from ${year}`,
+  partnersLater: (year: number, gap: number) => `Main partners are from ${year}, ${gap} years after the balance`,
+  /** A potash row whose production is USGS's (usgsPotash in src/lib/dependence.ts). */
+  usgsProduction: 'Production: USGS, as FAOSTAT’s figure is an estimate far from it',
+  /** Crops whose exports exceed production plus imports. */
+  exportsNote: (source: string) => `Exports can come from an earlier harvest or stocks; ${source}’s yearly figures do not separate them`,
   mainSupplier: (name: string, share: string) => `Main supplier: ${name}, ${share} of imports`,
   noImports: (period: string) => `No major arms imports recorded, ${period}`,
   noData: 'No data yet',
@@ -91,6 +98,8 @@ export const DEP_TEXT = {
   asImporters: (them: 'it' | 'them', flows: string[] = [], to = '') =>
     `as importers report ${them}${to}${flows.length ? `, except ${DEP_TEXT.flowList(flows)}, as the exporter reports ${flows.length === 1 ? 'it' : 'them'}` : ''}`,
   flow: (from: string, to: string) => `${from} → ${to}`,
+  /** After a year that is shown because UN Comtrade's latest one is not yet complete. */
+  mostReported: 'the latest year most countries have reported',
   /** The grid's tooltip, when the main supplier's figure is the exporter's report. */
   supplierAsReported: 'main supplier as reported by the exporter',
   /** A row with figures but no partners: the trade source names none for it. */

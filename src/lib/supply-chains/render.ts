@@ -2,13 +2,13 @@
 // page with no country focused so it reads without scripts, and the browser script, which redraws for a focus.
 // Every band is named at both ends with its amount, and the table below lists every flow, so nothing depends on
 // reading the diagram.
-import { CHAIN_TEXT, CHAINS_TEXT as T, COVERAGE, SIDES, chainTitle } from '../../i18n/supply-chains.en.ts';
+import { CHAIN_TEXT, CHAINS_TEXT as T, COVERAGE, SIDES, TOTALS, chainTitle } from '../../i18n/supply-chains.en.ts';
 import { SOURCE_TEXT } from '../../i18n/en.ts';
 import { DEP_TEXT, inSentence } from '../../i18n/pages.en.ts';
 import { formatShare } from '../format.ts';
 import { esc } from '../explorer/render.ts';
 import {
-  OTHERS, PHONE_FLOWS, SHOWN, TOP, X, amount, concentration, hhi, nameOf, pairsOf, sankey, sum, totals,
+  OTHERS, PHONE_FLOWS, SHOWN, TOP, amount, concentration, fullBeside, hhi, nameOf, pairsOf, sankey, sum, totals, xOf,
   type Chain, type State,
 } from './model.ts';
 
@@ -23,16 +23,23 @@ const sides = (c: Chain) => SIDES[c.kind];
 const full = (c: Chain, v: number) => `${amount(v, c)} ${words(c).short}`;
 const name = (c: Chain, id: string) => (id === OTHERS ? T.others : nameOf(c, id));
 
-/** "2023, latest available", or SIPRI's "2021–2025, latest five years available". */
-export const periodLabel = (c: Chain) => (c.period.includes('–') ? T.latestPeriod(c.period) : T.latestYear(c.period));
+/** "2023, latest available", "2024, the latest year most countries have reported", FAOSTAT's "Trade between countries: 2023,
+ *  the latest FAOSTAT has published", or SIPRI's "2021–2025, latest five years available". */
+export const periodLabel = (c: Chain) => (c.period.includes('–') ? T.latestPeriod(c.period) : c.partial ? T.latestReported(c.period)
+  : c.src === 'faostat' ? T.latestMatrix(c.period) : T.latestYear(c.period));
+/** The period label names its source (FAOSTAT's): lines that give both say the source once. */
+export const periodNamesSource = (c: Chain) => c.src === 'faostat' && !c.partial && !c.period.includes('–');
 
 /** "A, B and C". */
 export const listOf = (xs: string[]) => (xs.length < 2 ? xs.join('') : `${xs.slice(0, -1).join(', ')} ${T.and} ${xs.at(-1)}`);
 
+/** UN Comtrade's name when the flows are those reported to it, not all trade: rankings of them say so. */
+export const reportedTo = (c: Chain) => (c.src === 'comtrade' ? c.credit : undefined);
+
 /** The page's first sentence, from the three largest suppliers. */
 export function ledeOf(c: Chain): string {
   const top = totals(c.pairs, 0).slice(0, 3).map(([id]) => inSentence(nameOf(c, id)));
-  return T.lede[c.kind](listOf(top), words(c).noun, c.period, c.credit);
+  return T.lede[c.kind](listOf(top), words(c).noun, c.period, c.credit, Boolean(reportedTo(c)));
 }
 
 const sourceHtml = (c: Chain) => `<p class="gt-source"><span>${esc(SOURCE_TEXT.source)} <b>${esc(c.source)}</b></span>`
@@ -56,6 +63,7 @@ export function controlsHtml(c: Chain, s: State, flows: { key: string; label: st
 
 export function sankeyHtml(c: Chain, s: State): string {
   const sk = sankey(c, s);
+  const xs = xOf(c);
   const w = words(c);
   const bands = sk.bands.map((b) => {
     const t = esc(T.bandTitle(name(c, b.from), name(c, b.to), full(c, b.value)));
@@ -70,33 +78,39 @@ export function sankeyHtml(c: Chain, s: State): string {
     const label = n.id === OTHERS ? T.others : n.label;
     // Named places can be focused from the diagram too; the focus field below does the same from the keyboard.
     const pick = n.id === OTHERS || n.sel ? '' : ` data-sk-pick="${esc(n.id)}"`;
-    rects.push(`<rect x="${n.x}" y="${n.y.toFixed(1)}" width="${X.node}" height="${Math.max(1, n.h).toFixed(1)}" class="gt-sk__node${n.sel ? ' is-sel' : ''}${pick ? ' gt-sk__pick' : ''}"${pick}/>`);
-    labs.push(`<text x="${left ? 0 : '100%'}" dx="${left ? -8 : 8}" y="${(n.mid + 4.5).toFixed(1)}"${left ? ' text-anchor="end"' : ''} class="gt-sk__lab${pick ? ' gt-sk__pick' : ''}"${pick}><tspan class="gt-sk__n">${esc(label)}</tspan> ${esc(amount(n.value, c))}</text>`);
+    rects.push(`<rect x="${n.x}" y="${n.y.toFixed(1)}" width="${xs.node}" height="${Math.max(1, n.h).toFixed(1)}" class="gt-sk__node${n.sel ? ' is-sel' : ''}${pick ? ' gt-sk__pick' : ''}"${pick}/>`);
+    // The total of the flows shown, then the source's full figure in brackets where the page has it.
+    const all = fullBeside(c, n.id, n.side, n.value);
+    const of = all !== undefined ? ` <tspan class="gt-sk__all">(${esc(amount(all, c))})</tspan>` : '';
+    labs.push(`<text x="${left ? 0 : '100%'}" dx="${left ? -8 : 8}" y="${(n.mid + 4.5).toFixed(1)}"${left ? ' text-anchor="end"' : ''} class="gt-sk__lab${pick ? ' gt-sk__pick' : ''}"${pick}><tspan class="gt-sk__n">${esc(label)}</tspan> ${esc(amount(n.value, c))}${of}</text>`);
   }
-  const plot = `<svg width="100%" height="${sk.height}" viewBox="${X.from} 0 ${X.to + X.node - X.from} ${sk.height}" preserveAspectRatio="none" overflow="visible">${bands}${rects.join('')}</svg>`;
+  const plot = `<svg width="100%" height="${sk.height}" viewBox="${xs.from} 0 ${xs.to + xs.node - xs.from} ${sk.height}" preserveAspectRatio="none" overflow="visible">${bands}${rects.join('')}</svg>`;
+  // The side labels stay short (they share the drawing's width); the caption says what the totals are of.
   const axis = `<text x="0" y="${sk.height - 8}" class="gt-sk__ax">${esc(sides(c).froms)}</text>`
     + `<text x="100%" y="${sk.height - 8}" text-anchor="end" class="gt-sk__ax">${esc(sides(c).tos)}</text>`;
   const label = T.diagramLabel(chainTitle(c.key, c.label).full, c.period, sides(c).froms, sides(c).tos, w.unit, s.country ? nameOf(c, s.country) : undefined);
   const chip = s.country
     ? `<div class="gt-blocchip"><span>${T.focused(esc(nameOf(c, s.country)))}</span><button type="button" aria-label="${esc(T.clear)}" data-sk-clear>${ICON.close}</button></div>` : '';
-  return `${chip}<div class="gt-skscroll"><svg class="gt-sk" height="${sk.height}" style="--h:${sk.height}px;--l:${X.from}px;--r:${sk.width - X.to - X.node}px" role="img" aria-label="${esc(label)}">${plot}${labs.join('')}${axis}</svg></div>`
+  return `${chip}<div class="gt-skscroll"><svg class="gt-sk" height="${sk.height}" style="--h:${sk.height}px;--l:${xs.from}px;--r:${sk.width - xs.to - xs.node}px" role="img" aria-label="${esc(label)}">${plot}${labs.join('')}${axis}</svg></div>`
     + `<p class="gt-caption gt-skread" data-sk-read aria-hidden="true">${esc(T.readout)}</p>`
-    + `<p class="gt-caption">${esc(T.caption(SHOWN.from, SHOWN.to))} ${esc(COVERAGE[c.src]?.(c.mirror ?? []) ?? '')}</p>`
+    + `<p class="gt-caption">${esc(T.caption(SHOWN.from, SHOWN.to))} ${c.full ? `${esc(T.fullCaption[c.kind](c.credit))} ` : ''}${esc(COVERAGE[c.src]?.(c.mirror ?? []) ?? '')}</p>`
     + (c.notShown ? `<p class="gt-caption">${esc(c.notShown)}</p>` : '');
 }
 
 // ---------- panel ----------
 
-function barsHtml(c: Chain, xs: [string, number][], label: string, share?: number): string {
+function barsHtml(c: Chain, xs: [string, number][], label: string, share?: number, side?: 0 | 1): string {
   // Others, last, can be larger than the first bar.
   const max = Math.max(...xs.map(([, v]) => v)) || 1;
   const items = xs.map(([id, v]) => {
     const p = c.places[id];
     const who = id === OTHERS ? T.others : p?.h ? `<a href="${esc(p.h)}">${esc(nameOf(c, id))}</a>` : esc(nameOf(c, id));
-    const val = share ? formatShare(v / share) : amount(v, c);
+    const all = side === undefined ? undefined : fullBeside(c, id, side, v);
+    const val = share ? formatShare(v / share) : all !== undefined ? T.ofFull(amount(v, c), amount(all, c)) : amount(v, c);
     return `<li${id === OTHERS ? ' class="gt-bars__other"' : ''}><span class="gt-bars__name">${who}</span><span class="gt-bars__track"><span class="gt-bars__fill" style="width:${((100 * v) / max).toFixed(1)}%"></span></span><span class="gt-bars__val">${esc(val)}</span></li>`;
   }).join('');
-  return `<div class="gt-cpsub"><span class="gt-label">${esc(label)}</span><ol class="gt-bars gt-bars--tight gt-bars--wide" aria-label="${esc(label)}">${items}</ol></div>`;
+  const of = side !== undefined && !share && xs.some(([id, v]) => fullBeside(c, id, side, v) !== undefined);
+  return `<div class="gt-cpsub"><span class="gt-label">${esc(label)}</span><ol class="gt-bars gt-bars--tight ${of ? 'gt-bars--of' : 'gt-bars--wide'}" aria-label="${esc(label)}">${items}</ol></div>`;
 }
 
 function concHtml(h: number, note: string, method: string): string {
@@ -107,8 +121,10 @@ function concHtml(h: number, note: string, method: string): string {
     + `</ol><p class="gt-caption gt-conc__note">${esc(note)} <a href="${esc(method)}">${esc(T.how)}</a></p></div>`;
 }
 
-const stat = (c: Chain, label: string, v: number) => `<div class="gt-cpstat"><span class="gt-cpstat__l">${esc(label)}</span>`
-  + `<span class="gt-cpstat__n">${esc(amount(v, c))}<small>${esc(words(c).short)}</small></span><span class="gt-caption">${esc(c.period)}</span></div>`;
+/** A focused place's total in the flows shown, with its full figure from the source under it where the page has one. */
+const stat = (c: Chain, label: string, v: number, all?: number, allLabel?: string) => `<div class="gt-cpstat"><span class="gt-cpstat__l">${esc(label)}</span>`
+  + `<span class="gt-cpstat__n">${esc(amount(v, c))}<small>${esc(words(c).short)}</small></span><span class="gt-caption">${esc(c.period)}</span>`
+  + (all !== undefined && allLabel ? `<span class="gt-caption">${esc(T.fullStat(allLabel, c.period, `${amount(all, c)} ${words(c).short}`))}</span>` : '') + '</div>';
 
 /** The top few, and the rest as Others. */
 const topAndRest = (xs: [string, number][]): [string, number][] => (xs.length > TOP + 1 ? [...xs.slice(0, TOP), [OTHERS, sum(xs.slice(TOP))]] : xs);
@@ -117,13 +133,16 @@ export function panelHtml(c: Chain, s: State): string {
   const w = words(c), sd = sides(c);
   const head = (title: string, clear: boolean) => `<div class="gt-mpanel__head"><span class="gt-kicker">${esc(c.label)} · ${esc(c.period)}</span><h2 class="gt-h3">${esc(title)}</h2>`
     + (clear ? `<button class="gt-iconbtn" type="button" aria-label="${esc(T.clear)}" data-sk-clear>${ICON.close}</button>` : '') + '</div>';
+  // Totals beside the source's full figures say what they are of.
+  const shownWord = c.full ? TOTALS[c.kind].shown : undefined;
   if (!s.country) {
     const froms = totals(c.pairs, 0), tos = totals(c.pairs, 1);
     const all = sum(froms);
     const five = sum(froms.slice(0, TOP));
     const conc = c.kind === 'refugees' ? '' : concHtml(hhi(froms), T.concWorld(Math.min(TOP, froms.length), formatShare(five / all), w.noun, hhi(froms).toLocaleString('en')), c.method);
-    return head(T.world, false) + stat(c, T.total, all) + conc
-      + barsHtml(c, froms.slice(0, TOP), T.topFroms(sd.froms, w.short)) + barsHtml(c, tos.slice(0, TOP), T.topTos(sd.tos, w.short)) + sourceHtml(c);
+    return head(TOTALS[c.kind].world, false) + stat(c, TOTALS[c.kind].total, all) + conc
+      + barsHtml(c, froms.slice(0, TOP), T.topFroms(sd.froms, w.short, reportedTo(c), shownWord), undefined, 0)
+      + barsHtml(c, tos.slice(0, TOP), T.topTos(sd.tos, w.short, reportedTo(c), shownWord), undefined, 1) + sourceHtml(c);
   }
   const id = s.country;
   const ins = totals(c.pairs.filter((p) => p[1] === id), 0);
@@ -131,13 +150,13 @@ export function panelHtml(c: Chain, s: State): string {
   let body = '';
   if (ins.length) {
     const t = sum(ins);
-    body += stat(c, sd.ins, t);
+    body += stat(c, sd.ins, t, fullBeside(c, id, 1, t), TOTALS[c.kind].allTo);
     if (c.kind !== 'refugees') body += concHtml(hhi(ins), T.concFocus(inSentence(nameOf(c, ins[0][0]), true), formatShare(ins[0][1] / t), inSentence(nameOf(c, id)), hhi(ins).toLocaleString('en')), c.method);
     body += barsHtml(c, topAndRest(ins), sd.inShare, t);
   }
   if (outs.length) {
     const t = sum(outs);
-    body += stat(c, sd.outs, t) + barsHtml(c, topAndRest(outs), sd.outShare, t);
+    body += stat(c, sd.outs, t, fullBeside(c, id, 0, t), TOTALS[c.kind].allFrom) + barsHtml(c, topAndRest(outs), sd.outShare, t);
   }
   const p = c.places[id];
   const link = p?.h ? `<a class="gt-cpsec__link" href="${esc(p.h)}">${esc(T.countryPage(nameOf(c, id)))} <span aria-hidden="true">→</span></a>` : '';
@@ -151,7 +170,7 @@ export function flowListHtml(c: Chain, s: State): string {
   const max = top[0]?.[2] || 1;
   const items = top.map(([f, t, v]) => `<li><span class="gt-flowlist__ab"><b>${esc(nameOf(c, f))}</b> → <b>${esc(nameOf(c, t))}</b></span>`
     + `<span class="gt-bars__track"><span class="gt-bars__fill" style="width:${((100 * v) / max).toFixed(1)}%"></span></span><span class="gt-flowlist__v">${esc(amount(v, c))}</span></li>`).join('');
-  return `<h2 class="gt-h2">${esc(T.topFlows(top.length, words(c).short))}</h2><ol class="gt-flowlist">${items}</ol>${sourceHtml(c)}`;
+  return `<h2 class="gt-h2">${esc(T.topFlows(top.length, words(c).short, reportedTo(c)))}</h2><ol class="gt-flowlist">${items}</ol>${sourceHtml(c)}`;
 }
 
 // ---------- table and download ----------
@@ -168,7 +187,8 @@ export function tableHtml(c: Chain, s: State): string {
   // A flow that is the exporter's report says so under the importer, as the coverage line counts them.
   const marked = new Set(c.mirror ?? []);
   const mark = (f: string, t: string) => (marked.has(DEP_TEXT.flow(c.places[f]?.n ?? f, c.places[t]?.n ?? t)) ? `<span class="gt-caption gt-flowmark">${esc(DEP_TEXT.flowMark)}</span>` : '');
-  const body = rows.map(([f, t, v]) => `<tr><th scope="row">${cell(f)}</th><td>${cell(t)}${mark(f, t)}</td><td class="n" data-v="${v}">${esc(amount(v, c))}</td></tr>`).join('');
+  const over = (f: string, t: string) => (c.over?.[`${f}>${t}`] ? `<span class="gt-caption gt-flowmark">${esc(c.over[`${f}>${t}`])}</span>` : '');
+  const body = rows.map(([f, t, v]) => `<tr><th scope="row">${cell(f)}</th><td>${cell(t)}${mark(f, t)}${over(f, t)}</td><td class="n" data-v="${v}">${esc(amount(v, c))}</td></tr>`).join('');
   return `<div class="gt-tablewrap" style="--gt-table-h:360px" tabindex="0" role="region" aria-label="${esc(T.tableLabel(c.label))}">`
     + `<table class="gt-table" data-gt-sort><caption class="gt-caption">${esc(T.tableCaption(w.unit, c.period, rows.length))}</caption>`
     + `<thead><tr>${th('from', sd.from)}${th('to', sd.to)}${th('v', c.count ? w.amount : `${w.amount}, ${w.short}`, true, true)}</tr></thead><tbody>${body}</tbody></table></div>`

@@ -58,6 +58,20 @@ before and without the map script.
   page's live region.
 - **Reduced motion.** No fades, instant zooms, and a slower play.
 
+Sequential registry maps (the views in `src/lib/views.ts` and the indicator pages) shade in up to five quantile
+classes of the default year's positive values (`seqEdges`). Where the largest value is more than 10 times the top
+quintile edge (`TAIL`, `withTail`), the 40th and 80th percentiles stay and two upper edges are added, a third and two
+thirds of the way to the largest on a log scale, rounded to 1, 2 or 5 (refugees by origin: 1,000, 83,000, 500,000,
+2 m; CO2: 7, 85, 500, 2,000 Mt). Edges that fall on one value are merged, so a band never repeats (AI models: under 1,
+1–36, 36+); the map then has fewer bands and their colours are spread over the five steps, the top band darkest
+(`seqSteps` in `src/lib/map/steps.ts`, read by the layers, the legends and the indicator pages' static maps). An
+indicator that can be negative (budget balance) keeps plain quantiles of all its values on its page. Food, energy and
+mineral maps use share-of-world classes and are not affected.
+Legend edges are written together (`edgeTexts` in `src/lib/format.ts`): at least two significant figures unless
+fewer write the edge exactly ("2,000", "0.5 Mt"), never zero ("under 0.027 Mt", not "under 0.0 Mt"), and with more
+decimals until neighbouring edges differ. An edge in Mt under 0.01 Mt is written in tonnes to two significant figures
+("under 790 t", "3,800 t–0.087 Mt").
+
 Year sliders label up to six ticks, evenly spread, the first and the last always (`YearSlider`), so the first tick is
 the slider's first year; the slider runs over every year with at least half the default year's coverage.
 

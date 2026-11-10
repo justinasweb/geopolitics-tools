@@ -39,6 +39,10 @@ describe('Dependencies model', () => {
     expect(cellText(grid, 'oil', { v: 0.84, t: ['RUS', 0.86] })).toEqual(['84%', 'RUS 86%']);
     expect(cellText(grid, 'oil', { v: -4, x: 0.9 })).toEqual(['Exports', '90% of output']);
     expect(cellText(grid, 'oil', { v: -0.08 })).toEqual(['−8%', 'net exporter']);
+    // 100% and the shares above it up to 110% (Martinique's oil, 101%) read as on the country pages.
+    expect(cellText(grid, 'oil', { v: 1.013, t: ['FRA', 0.9] })).toEqual(['Imports all', 'FRA 90%']);
+    expect(cellText(grid, 'oil', { v: 1 })).toEqual(['Imports all', '']);
+    expect(cellText(grid, 'oil', { v: 0.99 })).toEqual(['99%', '']);
     expect(cellText(grid, 'arms', { t: ['USA', 0.9] })).toEqual(['USA 90%', 'top supplier']);
     expect(cellText(grid, 'arms', { why: 'i' })).toEqual(['–', 'no imports']);
   });
@@ -65,6 +69,22 @@ describe('Dependencies model', () => {
     const html = spofHtml(DEFAULTS, grid);
     expect(html).toContain('Imports 84% of the oil it uses; Russia supplies 86% of those imports.');
     expect(html).toContain('2 found in this table.');
+  });
+
+  it('shows an old balance with its year, out of the sort, the phone ranking and reliance on one supplier', async () => {
+    // The United Arab Emirates' wheat: a 2008 balance, partners from 2023.
+    const old = { v: 1, t: ['RUS', 0.6] as [string, number], y: '2008', ty: '2023', o: 1 as const };
+    const g: Grid = { ...grid, rows: [...grid.rows, { id: 'ARE', cells: cells(old, old, { why: 'i' }) }], places: { ...grid.places, ARE: { n: 'United Arab Emirates', c: 'ARE' } } };
+    expect(cellText(g, 'oil', old)).toEqual(['Imports all', '2008, no recent data']);
+    expect(rowsOf(parseState(new URLSearchParams(''), g), g).map((r) => r.id)).toEqual(['HUN', 'EGY', 'NOR', 'ARE']);
+    expect(spofs(g.rows).map((x) => x.id)).not.toContain('ARE');
+    expect(phoneHtml({ ...DEFAULTS, show: 'commodity', sort: 'oil' }, g)).not.toContain('United Arab Emirates');
+    const html = tableHtml(DEFAULTS, g);
+    expect(html).toContain('No recent data: the latest balance is from 2008; Main partners are from 2023, 15 years after the balance');
+    const { leadImports, oldNotes } = await import('../../src/lib/dependence.ts');
+    const row = { resource: 'wheat', state: 'ok', source: 'faostat', year: 2008, reliance: 1, tag: 'most', partners: ['RUS'], partnersFrom: { source: 'faostat', period: '2023' }, old: true } as const;
+    expect(oldNotes({ ...row, partners: [...row.partners] })).toEqual(['No recent data: the latest balance is from 2008', 'Main partners are from 2023, 15 years after the balance']);
+    expect(leadImports([{ ...row, partners: [...row.partners] }])).toEqual([]);
   });
 
   it('marks the found row and the sorted column', () => {
@@ -198,7 +218,7 @@ describe('fertilisers on supply', () => {
     expect(fromBalance('potash', balance(0, 5, 1, 3, ['use']), 'X', undefined, true).estimated).toBeUndefined();
   });
 
-  it('say exports exceed recorded supply when they pass production plus imports by more than 10%', async () => {
+  it('say exports exceed recorded supply when they pass production plus imports at all', async () => {
     const { fromBalance, leadImports } = await import('../../src/lib/dependence.ts');
     // Morocco phosphate 2024: exports 1.7 times production plus imports.
     const ma = fromBalance('phosphate', balance(6.2, 0.0023, 10.5511, 1), 'X', undefined, true);
@@ -207,12 +227,57 @@ describe('fertilisers on supply', () => {
     expect(ma.reliance).toBeUndefined();
     expect(ma.exportShare).toBeUndefined();
     expect(leadImports([ma])).toEqual([]);
-    // Within 10% (Canada's potash, 1.01): an exporter, at most all it produces.
-    expect(fromBalance('potash', balance(13.55, 0.04, 13.75, 1), 'X', undefined, true)).toMatchObject({ tag: 'exp', exportShare: 1 });
+    // Canada's potash, 1% over: no margin, so no share either, not "exports all its output".
+    const ca = fromBalance('potash', balance(13.55, 0.04, 13.75, 1), 'X', undefined, true);
+    expect(ca).toMatchObject({ excess: 'exports', tag: 'exp' });
+    expect(ca.exportShare).toBeUndefined();
     expect(cellText(grid, 'phosphate', { why: 'x', y: '2024' })).toEqual(['Exports exceed', 'recorded supply']);
     const { DEP_TEXT } = await import('../../src/i18n/pages.en.ts');
     expect(DEP_TEXT.imports('94%', 'potash')).toBe('Imports 94% of its potash supply');
     expect(DEP_TEXT.imports('84%', 'soybeans')).toBe('Imports 84% of the soybeans it uses');
+  });
+
+  it('say a crop’s exports exceed recorded supply when they pass production plus imports at all, too', async () => {
+    const { fromBalance } = await import('../../src/lib/dependence.ts');
+    const { DEP_TEXT } = await import('../../src/i18n/pages.en.ts');
+    // Ukraine maize 2024: 29.6 Mt exported from 26.9 Mt grown and imported, an earlier harvest. No use, no share.
+    const ua = fromBalance('maize', { ...balance(26.864, 0.010, 29.624, 0), use: {} } as B, 'X');
+    expect(ua).toMatchObject({ excess: 'exports', tag: 'exp' });
+    expect(ua.exportShare).toBeUndefined();
+    // Paraguay's rice, 3% over: a crop has no margin.
+    expect(fromBalance('rice', { ...balance(0.705, 0.001, 0.728, 0), use: {} } as B, 'X').excess).toBe('exports');
+    expect(DEP_TEXT.exportsNote('FAOSTAT')).toBe('Exports can come from an earlier harvest or stocks; FAOSTAT’s yearly figures do not separate them');
+  });
+
+  it('use USGS’s potash output where FAOSTAT’s own estimate is more than twice from it, world total too', async () => {
+    const { fromBalance, rowSource } = await import('../../src/lib/dependence.ts');
+    const { usgsPotash } = await import('../../src/adapters/faostat.ts');
+    const { potashOutput } = await import('../../src/adapters/minerals.ts');
+    // China 2024, Mt K2O: FAOSTAT estimates 1.12 produced; USGS 6.3, its own estimate.
+    const cn = { ...balance(1.115391, 7.7, 0.04, 9, ['production'])!, world: { production: { 2024: 44.3 } } };
+    const usgs = (v: number, y = 2024, est = true): { output: Record<string, Record<number, number>>; estimated: Record<string, Record<number, number>> } =>
+      ({ output: { X: { [y]: v } }, estimated: est ? { X: { [y]: 1 } } : {} });
+    const u = usgsPotash(cn, usgs(6.3));
+    expect(u.production.X[2024]).toBe(6.3);
+    expect(u.usgs).toEqual({ X: { 2024: 1 } });
+    expect(u.world.production[2024]).toBeCloseTo(44.3 - 1.115391 + 6.3, 6);
+    expect(u.estimated.production.X[2024]).toBe(1);
+    expect(usgsPotash(cn, usgs(6.3, 2024, false)).estimated.production.X?.[2024]).toBeUndefined();
+    const row = { ...fromBalance('potash', u, 'X', undefined, true), usgsProduction: true as const };
+    expect(row.reliance).toBeCloseTo(7.66 / (6.3 + 7.66), 4);
+    expect(rowSource(row)).toBe('FAOSTAT, 2024. Production: USGS, as FAOSTAT’s figure is an estimate far from it');
+    // Within 2×, FAOSTAT's own figure (not an estimate), or another year: FAOSTAT's stays.
+    expect(usgsPotash(balance(1.62, 0, 1.5, 0, ['production'])!, usgs(2.4)).usgs).toEqual({});
+    expect(usgsPotash(balance(1.1, 7.7, 0, 9)!, usgs(6.3)).usgs).toEqual({});
+    expect(usgsPotash(cn, usgs(6.3, 2023)).production.X[2024]).toBe(1.115391);
+    // USGS's world table, thousand tonnes of K2O equivalent.
+    const csv = 'MCS chapter,Section,Commodity,Country,Statistics,Statistics_detail,Unit,Year,Value,Notes,Is critical mineral 2025,Other notes\n'
+      + 'POTASH,World Mine Production and Reserves,Potash,China,Production,Mine production,thousand metric tons,2024,"6,300",Estimated.,Yes,"(Data in thousand metric tons, potassium oxide (K2O) equivalent, unless otherwise specified)"\n'
+      + 'POTASH,World Mine Production and Reserves,Potash,World total,Production,Mine production,thousand metric tons,2024,"46,700",,Yes,"(Data in thousand metric tons, potassium oxide (K2O) equivalent, unless otherwise specified)"\n';
+    const raw = { has: () => true, list: () => ['MCS2026_Commodities_Data.csv'], text: () => csv, json: () => ({}) } as never;
+    expect(potashOutput(raw)).toEqual({ output: { CHN: { 2024: 6.3 } }, estimated: { CHN: { 2024: 1 } } });
+    const { FOOD_TEXT } = await import('../../src/i18n/food.en.ts');
+    expect(FOOD_TEXT.usgsNote([2024], true)).toBe('Production in 2024: USGS, as FAOSTAT’s figure is an estimate far from it; the world total uses USGS’s figure.');
   });
 
   it('label an estimated cell in the grid', () => {

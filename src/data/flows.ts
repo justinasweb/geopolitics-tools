@@ -2,20 +2,22 @@
 // (exporter, origin), to = buyer (importer, host), amounts summed per pair. Ported from the
 // prototype's src/data/flows.js; words are in src/i18n/<lang>.ts.
 import type { Raw } from '../adapters/core.ts';
-import { chipFlows, comtrade, crudeFlows, fertiliserFlows, gasFlows, type Flow } from '../adapters/comtrade.ts';
+import { chipFlows, comtrade, completeYear, crudeFlows, fertiliserFlows, gasFlows, type Commodity, type Flow, type TradeRow } from '../adapters/comtrade.ts';
 import { food } from '../adapters/faostat.ts';
 import { OTHER_SUPPLIER, arms } from '../adapters/sipri.ts';
 import { displacement } from '../adapters/unhcr.ts';
 import { registry, type Format } from './indicators.ts';
 
-/** `mirror`: the amount is the exporter's report of the flow (UN Comtrade mirror data; src/adapters/comtrade.ts). */
-export interface Pair { from: string; to: string; amount: number; mirror?: true }
-export interface Flows { key: string; source: string; format: Format; period: string; pairs: Pair[] }
+/** `mirror`: the amount is the exporter's report of the flow (UN Comtrade mirror data; src/adapters/comtrade.ts).
+ *  `output`: oil and gas, the exporter's own production in the same year (EIA), when the flow is larger. */
+export interface Pair { from: string; to: string; amount: number; mirror?: true; output?: number }
+/** `partial`: UN Comtrade's latest year is not yet complete, so `period` is the year before (completeYear). */
+export interface Flows { key: string; source: string; format: Format; period: string; pairs: Pair[]; partial?: true }
 
 export interface FlowDef {
   source: string;
   format: Format;
-  load?: (raw: Raw) => { period: string; pairs: Pair[] };
+  load?: (raw: Raw) => { period: string; pairs: Pair[]; partial?: true };
   pending?: string;
 }
 
@@ -39,10 +41,14 @@ export function sumPairs<T extends { from: string; to: string; mirror?: true }>(
 const maxYear = (rows: { year: number }[]) => Math.max(0, ...rows.map((r) => r.year));
 const mt: Format = { kind: 'number', unit: 'Mt', digits: 1 };
 
-/** The latest year of a set of yearly flows, summed per pair. */
-const latest = (f: Flow[]) => { const y = maxYear(f); return { period: String(y), pairs: sumPairs(f.filter((r) => r.year === y), (r) => r.amount) }; };
-const fromComtrade = (format: Format, pick: (rows: ReturnType<typeof comtrade>) => Flow[]): FlowDef => ({
-  source: 'comtrade', format, load: (raw) => latest(pick(comtrade(raw))),
+/** UN Comtrade's flows for the latest complete year (completeYear), summed per pair. */
+function latestComplete(rows: TradeRow[], cs: Commodity[], f: Flow[]) {
+  const y = completeYear(rows, cs, f);
+  if (!y) return { period: '0', pairs: [] };
+  return { period: String(y.year), pairs: sumPairs(f.filter((r) => r.year === y.year), (r) => r.amount), ...(y.partial ? { partial: true as const } : {}) };
+}
+const fromComtrade = (format: Format, cs: Commodity[], pick: (rows: TradeRow[]) => Flow[]): FlowDef => ({
+  source: 'comtrade', format, load: (raw) => { const rows = comtrade(raw); return latestComplete(rows, cs, pick(rows)); },
 });
 
 const n0 = (v: number) => Math.round(v).toLocaleString('en');
@@ -66,15 +72,26 @@ export function checkFlows(label: string, year: number, pairs: Pair[], productio
     .map((p) => `${label} ${year}: ${p.from} → ${p.to} ${n0(p.amount)} is more than ${p.from} produces and imports (${n0(production[p.from][year] + (imports.get(p.from) ?? 0))})`);
 }
 
+/** The exporter's production in `year` when a flow of `amount` is larger than it (oil, gas; same unit) and at least
+ *  0.1% of world production, as checkFlows warns, else null. Malaysia → China crude, 2025: 1,300 kb/d against 513 kb/d
+ *  produced; China's customs records the origin. Smaller flows from places that produce none are left unmarked. */
+export function overOutput(production: Record<string, Record<number, number>>, from: string, year: number, amount: number): number | null {
+  const o = production[from]?.[year];
+  const world = Object.values(production).reduce((t, ys) => t + (ys[year] ?? 0), 0);
+  return o !== undefined && amount > o && amount >= world / 1000 ? o : null;
+}
+
 const warned = new Set<string>();
 /** Oil and gas flows, checked against EIA production (checkFlows); warnings go to the build log, once each. */
-const checked = (label: string, production: string, format: Format, pick: (rows: ReturnType<typeof comtrade>) => Flow[]): FlowDef => ({
+const checked = (label: string, production: string, format: Format, cs: Commodity[], pick: (rows: TradeRow[]) => Flow[]): FlowDef => ({
   source: 'comtrade', format,
   load: (raw) => {
-    const l = latest(pick(comtrade(raw)));
+    const rows = comtrade(raw);
+    const l = latestComplete(rows, cs, pick(rows));
     let prod: Record<string, Record<number, number>> = {};
     try { prod = registry(raw).get(production); } catch { /* no EIA files in this snapshot: nothing to check against */ }
     for (const w of checkFlows(label, Number(l.period), l.pairs, prod)) if (!warned.has(w)) { warned.add(w); console.warn(`flows: ${w}`); }
+    for (const p of l.pairs) { const o = overOutput(prod, p.from, Number(l.period), p.amount); if (o !== null) p.output = o; }
     return l;
   },
 });
@@ -85,20 +102,20 @@ const crop = (k: 'wheat' | 'maize' | 'rice' | 'soy'): FlowDef => ({
 });
 
 export const FLOWS: Record<string, FlowDef> = {
-  oil: checked('oil', 'oilprod', { kind: 'number', unit: 'kb/d' }, crudeFlows),
-  gas: checked('gas', 'gasprod', { kind: 'number', unit: 'bcm', digits: 1 }, gasFlows),
+  oil: checked('oil', 'oilprod', { kind: 'number', unit: 'kb/d' }, ['crude'], crudeFlows),
+  gas: checked('gas', 'gasprod', { kind: 'number', unit: 'bcm', digits: 1 }, ['pipe', 'lng'], gasFlows),
   wheat: crop('wheat'),
   maize: crop('maize'),
   rice: crop('rice'),
   soy: crop('soy'),
   // FAOSTAT has no fertiliser trade matrix; Comtrade's are in tonnes of product, not of nutrient.
-  potash: fromComtrade(mt, (r) => fertiliserFlows(r, 'potash')),
-  phosphate: fromComtrade(mt, (r) => fertiliserFlows(r, 'phosphate')),
+  potash: fromComtrade(mt, ['potash'], (r) => fertiliserFlows(r, 'potash')),
+  phosphate: fromComtrade(mt, ['phosphate'], (r) => fertiliserFlows(r, 'phosphate')),
   arms: {
     source: 'sipri', format: { kind: 'number', unit: 'TIV m' },
     load: (raw) => { const a = arms(raw).pairs; const y = maxYear(a); return { period: `${y - 4}–${y}`, pairs: sumPairs(a.filter((p) => p.year > y - 5), (p) => p.tiv) }; },
   },
-  chips: fromComtrade({ kind: 'money' }, (r) => chipFlows(r, 'chips')),
+  chips: fromComtrade({ kind: 'money' }, ['chips'], (r) => chipFlows(r, 'chips')),
   refugees: {
     source: 'unhcr', format: { kind: 'count' },
     load: (raw) => { const p = displacement(raw).pairs; const y = maxYear(p); return { period: String(y), pairs: sumPairs(p.filter((r) => r.year === y), (r) => r.people) }; },

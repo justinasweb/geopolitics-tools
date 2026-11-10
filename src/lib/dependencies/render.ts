@@ -7,7 +7,7 @@ import { formatShare } from '../format.ts';
 import { esc } from '../explorer/render.ts';
 import { tagHtml } from '../tags.ts';
 import {
-  CONCENTRATION, RESOURCE_IDS, SPOF_PHONE, SPOF_SHOWN, bandOf, foundRow, resIndex, rowsOf, spofs, sortValue,
+  ALL, CONCENTRATION, RESOURCE_IDS, SPOF_PHONE, SPOF_SHOWN, bandOf, foundRow, resIndex, rowsOf, spofs, sortValue,
   type Cell, type Grid, type ResourceId, type State,
 } from './model.ts';
 
@@ -18,7 +18,7 @@ const ICON = {
 };
 
 const MINUS = '−';
-const pct = (v: number) => (v < 0 ? `${MINUS}${formatShare(-v)}` : formatShare(v));
+const pct = (v: number) => (v < 0 ? `${MINUS}${formatShare(-v)}` : v >= ALL ? T.importsAll : formatShare(v));
 const iso = (grid: Grid, id: string) => grid.places[id]?.c ?? id;
 const label = (grid: Grid, r: string) => grid.resources[resIndex(r)]?.label ?? r;
 const WHY: Record<NonNullable<Cell['why']>, string> = { p: T.noData, n: T.noRow, u: T.noUse, i: T.noImports, e: T.exceedsSub, x: T.exportsExceedSub };
@@ -30,6 +30,7 @@ export function cellText(grid: Grid, r: ResourceId, c: Cell): [string, string] {
   if (c.why === 'x') return [T.exportsExceed, T.exportsExceedSub];
   if (c.v === undefined) return ['–', WHY[c.why ?? 'n']];
   const b = bandOf(r, c);
+  if (c.o && c.y) return [b === 5 || b === 6 ? T.exports : pct(c.v), T.oldData(c.y)];
   if (b === 5 || b === 6) return [T.exports, c.x !== undefined ? T.ofOutput(formatShare(c.x)) : ''];
   if (c.v < 0) return [pct(c.v), T.netExporter];
   return [pct(c.v), c.t ? `${iso(grid, c.t[0])} ${formatShare(c.t[1])}` : ''];
@@ -42,8 +43,13 @@ function cellHtml(grid: Grid, r: ResourceId, c: Cell, tag: 'td' | 'span' = 'td')
   // The year in the tooltip, with the source; the supplier's year apart when the trade source has another.
   const meta = grid.resources.find((m) => m.id === r);
   const when = c.y && (meta ? DEP_TEXT.dated(meta.credit, c.y, c.ty && meta.flowCredit, c.ty, false, onSupply(r) ? 'supply' : 'use') : T.year(c.y));
-  const noted = when && (c.why === 'e' || c.why === 'x') && meta ? `${when}; ${DEP_TEXT.exceedsNote(meta.credit)}` : when;
-  const said = noted && c.tm ? `${noted}; ${DEP_TEXT.supplierAsReported}` : noted;
+  const crop = ['wheat', 'maize', 'rice', 'soy'].includes(r);
+  const noted = when && (c.why === 'e' || c.why === 'x') && meta ? `${when}; ${(c.why === 'x' && crop ? DEP_TEXT.exportsNote : DEP_TEXT.exceedsNote)(meta.credit)}` : when;
+  const said0 = noted && c.tm ? `${noted}; ${DEP_TEXT.supplierAsReported}` : noted;
+  // An old balance says so, and that its partners are from a much later year.
+  const gap = c.y && c.ty ? Number(c.ty) - Number(c.y) : 0;
+  const said1 = said0 && c.pu ? `${said0}; ${DEP_TEXT.usgsProduction}` : said0;
+  const said = said1 && c.o ? `${said1}; ${DEP_TEXT.noRecent(Number(c.y))}${gap > 10 ? `; ${DEP_TEXT.partnersLater(Number(c.ty), gap)}` : ''}` : said1;
   const title = said ? ` title="${esc(said)}"` : quiet ? ` title="${esc(s)}"` : '';
   const sub = !s ? '' : quiet ? `<span class="gt-vh">${esc(s)}</span>` : `<span class="gt-dg__s">${esc(s)}</span>`;
   const est = c.est ? tagHtml('estimate') : '';
@@ -64,7 +70,7 @@ export function spofHtml(s: State, grid: Grid): string {
     const r = grid.resources[resIndex(x.r)];
     const supplier = grid.places[x.t[0]]?.n ?? x.t[0];
     return `<li><div class="gt-spof__h"><b>${nameHtml(grid, x.id)}</b><span class="gt-deptag gt-deptag--most">${ICON.most}${esc(r.label)}</span></div>`
-      + `<p>${esc(T.spofItem(formatShare(x.v), r.noun, supplier, formatShare(x.t[1])))}</p></li>`;
+      + `<p>${esc(T.spofItem(x.v >= ALL ? null : formatShare(x.v), r.noun, supplier, formatShare(x.t[1])))}</p></li>`;
   }).join('');
   const more = all.length > SPOF_PHONE
     ? `<button class="gt-btn gt-btn--quiet" type="button" data-d-all aria-expanded="${s.all}">${esc(s.all ? T.showFewer : T.showAll(all.length))}</button>` : '';

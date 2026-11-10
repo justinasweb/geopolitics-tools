@@ -32,11 +32,11 @@ const crumbs = supplyChainCrumbs(flow);
 const others = chainLinks().filter((f) => f.key !== flow);
 const json = JSON.stringify({ chain }).replace(/</g, '\\u003c');
 ---
-<Page title={head.full} description={T.description(head.full, chain.period, sides.froms, sides.tos, chain.credit)} hub="tools" container="tl" mainClass="gt-skpage"
+<Page title={head.full} description={T.description(head.full, chain.period, sides.froms, sides.tos, chain.credit, chain.kind === 'refugees')} hub="tools" container="tl" mainClass="gt-skpage"
   image={paths.image('tools', `supply-chains-${CHAIN_SLUGS[flow] ?? flow}`)} jsonld={supplyChainLd(flow)}>
   <header class="gt-tlhead">
     <Breadcrumbs items={crumbs} />
-    <h1 class="gt-title gt-tlhead__t">{head.title} <span class="gt-mvhead__sub">{head.sub}</span></h1>
+    <h1 class="gt-title gt-tlhead__t">{head.title}{head.sub && <> <span class="gt-mvhead__sub">{head.sub}</span></>}</h1>
     <p class="gt-lede gt-tlhead__a">{ledeOf(chain)}</p>
     <SourceLine source={chain.source} parts={[periodLabel(chain), chain.mirrored ?? ''].filter(Boolean)} updated={chain.updated} />
   </header>

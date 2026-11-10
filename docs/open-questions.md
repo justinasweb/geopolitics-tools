@@ -130,6 +130,20 @@ honours the wildcard on a put: if it did not, every Post would be refused.
 **Options.** Leave it as it is (the gap is milliseconds wide), or confirm `If-None-Match: *` on a Preview's bucket
 and add it to the claim.
 
+### Gas: Tanzania → Colombia and the flows no one reports (raised 10 Nov 2026)
+
+**The question.** Colombia's 2025 LNG imports name Tanzania (M49 834) for 597,442 t (1,395,716 m³ of liquid,
+US$391 m), shown as 0.81 bcm. Tanzania has no LNG export terminal and reports only small LNG exports (under 1,000 t a
+year, to Burundi, Malawi and Tuvalu; none to Colombia, none at all for 2025). Colombia named Trinidad and Tobago and
+the United States in 2023 and 2024, and Trinidad and Tobago reports 216,470 t to Colombia in 2025, which Colombia's
+2025 figures do not name. Since 10 Nov 2026 the row is left out of every flow (`LEFT_OUT` in
+`src/adapters/comtrade.ts`), and the gas supply chain, the gas map and Colombia's gas row say so ("Not shown:
+Colombia's 2025 LNG imports recorded as from Tanzania (0.8 bcm)…"). If UN Comtrade corrects the partner, the row no
+longer matches and nothing is left out; the entry can then go.
+
+**Options.** Keep it left out, or ask UN Comtrade or Colombia's DANE about the partner code. Separately, Russia → Türkiye cannot be shown at all: Türkiye reports no gas imports to UN Comtrade for
+2023–2025 and Russia no exports since 2022, so neither side's report is there to use.
+
 ## Launch review leftovers (raised 5 Nov 2026)
 
 - **G7 and Russia (decided 5 Nov 2026).** Russia joins in 1998, as the G8, per the G7 Research Group

@@ -4,6 +4,7 @@
 // time and the Atlas redraw it in the browser from the same code.
 import type { LayerFile } from '../../lib/map/types';
 import { esc } from './text';
+import { seqSteps } from '../../lib/map/steps';
 
 export type MarkSymbol = 'dot' | 'hollow' | 'triangle' | 'diamond' | 'square' | 'arc' | 'arc-dashed' | 'outline';
 
@@ -24,13 +25,15 @@ export const markSvg = (s: MarkSymbol) => `<svg class="gt-mark" viewBox="0 0 16 
 
 /** The shaded layer's legend for one of its years (by index): title, scale or classes, ticks, ends, missing shapes. */
 export function legendHtml(f: LayerFile, yi: number): string {
-  const n = f.scale === 'seq' ? 5 : 7;
+  // One band per tick on a sequential scale (fewer than five when quantile edges merged), its steps spread (seqSteps).
+  const steps = f.scale === 'seq' ? seqSteps(f.ticks.length || 5) : [1, 2, 3, 4, 5, 6, 7];
+  const n = steps.length;
   const out = [`<span class="gt-legend__title">${esc(f.data[yi]?.legend ?? '')}</span>`];
   if (f.categories?.length) {
     const hatch = f.hatch ? `<span><i class="gt-sw gt-sw--hatch" style="--gt-hatch:var(--${f.palette ?? 'seq'}-${f.hatch.cls})"></i>${esc(f.hatch.label)}</span>` : '';
     out.push(`<div class="gt-legend__extra gt-legend__cats">${f.categories.map((c) => `<span><i class="gt-sw" style="background:var(--${f.palette ?? 'seq'}-${c.cls})"></i>${esc(c.label)}</span>`).join('')}${hatch}</div>`);
   } else {
-    out.push(`<div class="gt-legend__scale" style="--n:${n}">${Array.from({ length: n }, (_, i) => `<i style="background:var(--${f.scale}-${i + 1})"></i>`).join('')}</div>`);
+    out.push(`<div class="gt-legend__scale" style="--n:${n}">${steps.map((k) => `<i style="background:var(--${f.scale}-${k})"></i>`).join('')}</div>`);
     if (f.ticks.length) out.push(`<div class="gt-legend__ticks${f.scale === 'div' ? ' gt-legend__ticks--dense' : ''}" style="--n:${n}">${f.ticks.map((t) => `<span>${esc(t)}</span>`).join('')}</div>`);
   }
   if (f.ends) out.push(`<div class="gt-legend__ends"><span>← ${esc(f.ends[0])}</span><span>${esc(f.ends[1])} →</span></div>`);

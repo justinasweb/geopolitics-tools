@@ -5,6 +5,9 @@
 import { DEP_TEXT, list } from './pages.en.ts';
 import { todaysMembers } from './members.en.ts';
 
+/** "Malaysia’s", "the Netherlands’". */
+const poss = (name: string) => (name.endsWith('s') ? `${name}’` : `${name}’s`);
+
 export type EnergyLayer = 'production' | 'consumption' | 'trade' | 'reserves';
 export type FuelId = 'oil' | 'gas';
 
@@ -89,7 +92,8 @@ export const ENERGY_TEXT = {
   coverage: (n: number, y: number) => `${n} countries and territories have a figure for ${y}.`,
   notYetSentence: (n: number, y: number) => `${n} more reported a figure for one of the two years before but not yet for ${y}; they are hatched on the map.`,
   /** `mirror`: the flows shown whose amount is the exporter's report, by name. */
-  caveats: (fuel: FuelId, layer: EnergyLayer, flowYear: number | null, mirror: string[] = []): string[] => {
+  /** `partial`: the flows' year is shown because UN Comtrade's latest one is not complete yet. */
+  caveats: (fuel: FuelId, layer: EnergyLayer, flowYear: number | null, mirror: string[] = [], partial = false): string[] => {
     const out: string[] = [];
     if (fuel === 'oil' && layer === 'production') out.push('Production is crude oil including lease condensate. Natural gas liquids and biofuels are left out here, but counted in net trade.');
     if (fuel === 'oil' && layer === 'consumption') out.push('Consumption covers all petroleum products, including those made from natural gas liquids.');
@@ -98,8 +102,8 @@ export const ENERGY_TEXT = {
     if (layer === 'reserves') out.push('Proved reserves are what can be recovered with reasonable certainty at today’s prices and technology. They are revised often and some countries report the same figure for years; they are not all the oil or gas in the ground.');
     if (layer === 'trade' && flowYear) {
       out.push(fuel === 'oil'
-        ? `Flows on the map are the largest crude oil flows in ${flowYear}, ${DEP_TEXT.asImporters('them', mirror, ' to UN Comtrade (HS 2709)')}, turned from tonnes into barrels a day at about 7.33 barrels a tonne.`
-        : `Flows on the map are the largest gas flows in ${flowYear}, ${DEP_TEXT.asImporters('them', mirror, ' to UN Comtrade')}: pipeline gas (HS 271121, solid lines) at about 0.75 million tonnes per billion cubic metres, and liquefied natural gas (LNG), gas cooled into a liquid for shipping, shown as dashed lines (HS 271111), at about 1,360 cubic metres of gas per tonne. Where a country reports gas by volume only, its own cubic metres are used.`);
+        ? `Flows on the map are the largest crude oil flows in ${flowYear}${partial ? `, ${DEP_TEXT.mostReported}` : ''}, ${DEP_TEXT.asImporters('them', mirror, ' to UN Comtrade (HS 2709)')}, turned from tonnes into barrels a day at about 7.33 barrels a tonne.`
+        : `Flows on the map are the largest gas flows in ${flowYear}${partial ? `, ${DEP_TEXT.mostReported}` : ''}, ${DEP_TEXT.asImporters('them', mirror, ' to UN Comtrade')}: pipeline gas (HS 271121, solid lines) at about 0.75 million tonnes per billion cubic metres, and liquefied natural gas (LNG), gas cooled into a liquid for shipping, shown as dashed lines (HS 271111), at about 1,360 cubic metres of gas per tonne. Where a country reports gas by volume only, its own cubic metres are used.`);
     }
     out.push('The latest year is preliminary: EIA revises it as countries report.');
     return out;
@@ -118,6 +122,13 @@ export const ENERGY_TEXT = {
     const parts = [...(pipe.length ? [`${list(pipe)} pipeline gas`] : []), ...(lng.length ? [`${list(lng)} LNG`] : [])];
     return parts.length ? `Not shown: ${parts.join('; ')}, because neither country reports a volume to UN Comtrade.` : null;
   },
+  /** On a flow larger than its exporter's own output that year (EIA): customs record an origin, or a destination when
+   *  the flow is the exporter's report, that can include fuel shipped on from elsewhere. */
+  overOutput: (fuel: FuelId, from: string, to: string, year: number, output: string, mirror = false) =>
+    `More than ${poss(from)} own output in ${year} (${output}, EIA): ${mirror ? `${poss(from)} customs records these exports` : `${poss(to)} customs records this origin`}, which can include ${fuel === 'oil' ? 'oil' : 'gas'} shipped on from elsewhere.`,
+  /** A gas row left out by name (LEFT_OUT in src/adapters/comtrade.ts). */
+  leftOut: (to: string, year: number, kind: 'pipe' | 'lng', from: string, amount: string) =>
+    `Not shown: ${poss(to)} ${year} ${kind === 'lng' ? 'LNG' : 'pipeline gas'} imports recorded as from ${from} (${amount}), which ${poss(from)} own reports do not show; the true origin is unclear.`,
   flowTip: (from: string, to: string, v: string, year: number, kind?: string) => `${from} → ${to}: ${v}${kind ? `, ${kind}` : ''} (${year})`,
   kind: { pipe: 'pipeline', lng: 'LNG' },
   from: 'From',

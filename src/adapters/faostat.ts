@@ -13,6 +13,7 @@
 // regional totals left in; `food` reads whichever the snapshot has, so both give the same figures.
 import { parseCsv } from '../../pipeline/lib/csv.ts';
 import { type Raw, type Series, matcher, num, put } from './core.ts';
+import { potashOutput } from './minerals.ts';
 
 export const CROPS = ['wheat', 'maize', 'rice', 'soy'] as const;
 export const NUTRIENTS = ['nitrogen', 'phosphate', 'potash'] as const;
@@ -75,6 +76,8 @@ export interface Balance {
   world: { production: Record<number, number> };
   /** Figures FAOSTAT flags as its own estimate or imputation (flags E and I), by element: 1 by place and year. */
   estimated: Record<'production' | 'imports' | 'exports' | 'use', Series>;
+  /** Potash: production that is USGS's, not FAOSTAT's (usgsPotash): 1 by place and year. */
+  usgs?: Series;
 }
 
 const empty = (): Balance => ({ production: {}, imports: {}, exports: {}, use: {}, world: { production: {} }, estimated: { production: {}, imports: {}, exports: {}, use: {} } });
@@ -109,7 +112,8 @@ export function parseFaoCrops(qcl: File, tcl: File, areaOf: AreaOf = isoArea): R
   collect(tcl.data ?? [], (code, el) => ((el === 'imports' || el === 'exports') && TRADE[code] ? { key: TRADE[code], factor: 1 } : null), out, areaOf);
   // A place FAOSTAT never lists for production (no wheat grown in Singapore) produces none; one listed in other
   // years but not this one has not reported yet, so it gets no use that year. FAOSTAT leaves out years with no
-  // exports rather than writing zero, so a missing export figure counts as none.
+  // exports rather than writing zero, so a missing export figure counts as none. Exports above production plus
+  // imports (Ukraine's maize, 2024: an earlier harvest shipped) leave the year with no use, never 0 or less.
   const at = (s: Series, id: string, y: number) => (s[id] ? s[id][y] : 0);
   const out_ = (s: Series, id: string, y: number) => s[id]?.[y] ?? 0;
   for (const b of Object.values(out)) {
@@ -118,7 +122,7 @@ export function parseFaoCrops(qcl: File, tcl: File, areaOf: AreaOf = isoArea): R
     for (const id of ids) {
       for (const y of years) {
         const [p, i, e] = [at(b.production, id, y), at(b.imports, id, y), out_(b.exports, id, y)];
-        if (p !== undefined && i !== undefined && e !== undefined && p + i > 0) {
+        if (p !== undefined && i !== undefined && e !== undefined && p + i > 0 && e <= p + i) {
           put(b.use, id, y, Math.max(0, p + i - e));
           if ((['production', 'imports', 'exports'] as const).some((k) => b.estimated[k][id]?.[y])) put(b.estimated.use, id, y, 1);
         }
@@ -156,7 +160,45 @@ export function parseFaoMatrix(tm: File, codes: 'iso3' | 'm49' = 'iso3'): Partia
   return out;
 }
 
+/** Potash: FAOSTAT's output gives way to USGS's for the same year when one is more than this many times the other. */
+export const USGS_GAP = 2;
+
+/**
+ * The one rule for potash output, so every page shows the same figure: where FAOSTAT's production is its own estimate
+ * (flag E or I) and USGS's mine production for the same year, in K2O, is more than USGS_GAP times it or under its
+ * 1/USGS_GAP, the balance takes USGS's, marks the cell in `usgs`, and moves FAOSTAT's world total by the difference.
+ * The cell is an estimate when USGS marks it so (`usgs` tells whose). China, 2024: 1.1 Mt estimated by FAOSTAT, 6.3 Mt
+ * by USGS.
+ */
+export function usgsPotash(b: Balance, usgs: { output: Series; estimated: Series }): Balance {
+  const est = { ...b.estimated.production };
+  const out: Balance = { ...b, production: { ...b.production }, world: { production: { ...b.world.production } }, estimated: { ...b.estimated, production: est }, usgs: {} };
+  for (const [id, ys] of Object.entries(usgs.output)) {
+    for (const [yr, u] of Object.entries(ys)) {
+      const y = Number(yr);
+      const p = b.production[id]?.[y];
+      if (p === undefined || !b.estimated.production[id]?.[y] || !(u > USGS_GAP * p || p > USGS_GAP * u)) continue;
+      out.production[id] = { ...out.production[id], [y]: u };
+      est[id] = { ...est[id] };
+      if (usgs.estimated[id]?.[y]) est[id][y] = 1; else delete est[id][y];
+      if (out.world.production[y] !== undefined) out.world.production[y] += u - p;
+      put(out.usgs!, id, y, 1);
+    }
+  }
+  return out;
+}
+
+/** USGS's potash output, or none when its file is not in the snapshot. */
+function usgsOf(raw: Raw): { output: Series; estimated: Series } {
+  try { return potashOutput(raw); } catch (e) { if (/is not in the snapshot/.test((e as Error).message)) return { output: {}, estimated: {} }; throw e; }
+}
+
 export function food(raw: Raw) {
+  const f = faostat(raw);
+  return { ...f, fertilisers: { ...f.fertilisers, potash: usgsPotash(f.fertilisers.potash, usgsOf(raw)) } };
+}
+
+function faostat(raw: Raw) {
   if (!raw.has('faostat', 'QCL_production.json') && raw.has('faostat', 'crops.csv')) {
     const csv = (f: string) => csvFile(raw.text('faostat', f));
     return {

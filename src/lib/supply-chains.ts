@@ -3,15 +3,18 @@
 // live once its source is in the snapshot with at least one pair; the rest stay hidden.
 import { FLOWS, loadFlows } from '../data/flows.ts';
 import { FLOW_TEXT } from '../i18n/en.ts';
-import { DEP_TEXT, SOURCE_SHORT } from '../i18n/pages.en.ts';
+import { DEP_TEXT, SOURCE_SHORT, inSentence } from '../i18n/pages.en.ts';
 import { CHAIN_TEXT, chainTitle } from '../i18n/supply-chains.en.ts';
 import { ENERGY_TEXT } from '../i18n/energy.en.ts';
-import { gasNotShown } from './energy.ts';
+import { amount as energyAmount, gasLeftOutLines, gasNotShown } from './energy.ts';
 import { licenceOf, refreshed, shared, sourceName } from './data.ts';
 import { place } from './places.ts';
 import { countryHref, paths } from './routes.ts';
 import type { Chain } from './supply-chains/model.ts';
 import { OTHER_SUPPLIER } from '../adapters/sipri.ts';
+import { food, type Crop } from '../adapters/faostat.ts';
+import { displacement } from '../adapters/unhcr.ts';
+import type { Series } from '../adapters/core.ts';
 
 /** The flows in the site map's order. */
 export const CHAIN_KEYS = ['oil', 'gas', 'wheat', 'maize', 'rice', 'soy', 'potash', 'phosphate', 'arms', 'chips', 'refugees'] as const;
@@ -36,6 +39,19 @@ export function liveChains(): string[] {
   });
 }
 
+const foodData = shared(food);
+const people = shared(displacement);
+/** The source's full exports and imports (crops: FAOSTAT's trade) or people abroad and hosted (refugees) in a flow's
+ *  year, for the places in it: the diagram's totals cover the flows shown only. */
+function fullOf(key: string, year: number, ids: string[]): Chain['full'] {
+  const crop = ['wheat', 'maize', 'rice', 'soy'].includes(key) ? foodData()?.crops[key as Crop] : null;
+  const p = key === 'refugees' ? people() : null;
+  const [from, to]: [Series, Series] | [null, null] = crop ? [crop.exports, crop.imports] : p ? [p.origin, p.host] : [null, null];
+  if (!from || !to) return undefined;
+  const pick = (s: Series) => Object.fromEntries(ids.filter((id) => s[id]?.[year] !== undefined).map((id) => [id, Number(s[id][year].toPrecision(6))]));
+  return { from: pick(from), to: pick(to) };
+}
+
 const cache = new Map<string, Chain>();
 export function chainOf(key: string): Chain {
   const hit = cache.get(key);
@@ -54,12 +70,18 @@ export function chainOf(key: string): Chain {
   }
   const updated = refreshed(f.source);
   const mirror = f.pairs.filter((p) => p.mirror).map((p) => DEP_TEXT.flow(places[p.from].n, places[p.to].n));
-  const notShown = key === 'gas' ? ENERGY_TEXT.notShown(...Object.values(gasNotShown(Number(f.period))) as [string[], string[]]) : null;
+  const full = fullOf(key, Number(f.period), Object.keys(places));
+  const fuel = key === 'oil' || key === 'gas' ? key : null;
+  const over = Object.fromEntries(fuel ? f.pairs.filter((p) => p.output !== undefined).map((p) => [`${p.from}>${p.to}`,
+    ENERGY_TEXT.overOutput(fuel, inSentence(places[p.from].n), inSentence(places[p.to].n), Number(f.period), energyAmount(fuel, 'production', p.output!), p.mirror === true)]) : []);
+  const notShown = key === 'gas' ? [ENERGY_TEXT.notShown(...Object.values(gasNotShown(Number(f.period))) as [string[], string[]]), ...gasLeftOutLines(Number(f.period))].filter(Boolean).join(' ') || null : null;
   const chain: Chain = {
-    key, label: FLOW_TEXT[key].label, kind: CHAIN_TEXT[key].kind, period: f.period,
+    key, label: FLOW_TEXT[key].label, kind: CHAIN_TEXT[key].kind, period: f.period, ...(f.partial ? { partial: true as const } : {}),
     pairs: f.pairs.map((p) => [p.from, p.to, Number(p.amount.toPrecision(6))]),
     places, ...{ div: 1, digits: 1 }, ...SCALE[key],
     ...(mirror.length ? { mirrored: DEP_TEXT.asReported(mirror, true), mirror } : {}),
+    ...(Object.keys(over).length ? { over } : {}),
+    ...(full ? { full } : {}),
     ...(key === 'gas' && notShown ? { notShown } : {}),
     src: f.source, source: sourceName(f.source), credit: SOURCE_SHORT[f.source] ?? sourceName(f.source),
     updated, retrieved: (updated ?? '').slice(0, 10), csv: licenceOf(f.source)?.downloads === 'yes',

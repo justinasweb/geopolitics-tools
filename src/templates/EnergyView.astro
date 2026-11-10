@@ -21,7 +21,7 @@ import { MAP_TEXT } from '../i18n/map.en';
 import { INDICATOR_TEXT } from '../i18n/en';
 import { ENERGY_TEXT as E } from '../i18n/energy.en';
 import { DEP_TEXT } from '../i18n/pages.en';
-import { ENERGY_LAYERS, FUELS, amount, amountShort, balanceOf, energyKey, energyPage, energyPages, fuelPages, gasNotShown, lede, mirrorNames, pageMirror, prices, shareOf, shownFlows, summary, unitWords, valueText, worldChange } from '../lib/energy';
+import { ENERGY_LAYERS, FUELS, amount, amountShort, balanceOf, energyKey, energyPage, energyPages, fuelPages, gasLeftOutLines, gasNotShown, lede, mirrorNames, overNote, pageMirror, prices, shareOf, shownFlows, summary, unitWords, valueText, worldChange } from '../lib/energy';
 import type { EnergyRow } from '../lib/energy';
 import { refreshed } from '../lib/data';
 import { place } from '../lib/places';
@@ -69,7 +69,7 @@ const rows = y.rows.map((r) => {
 });
 const reserves = p.layer === 'reserves';
 const flowsOf = (kind?: 'pipe' | 'lng') => shownFlows(p, kind);
-const notShown = p.fuel === 'gas' && p.flowYear ? E.notShown(...Object.values(gasNotShown(p.flowYear)) as [string[], string[]]) : null;
+const notShown = p.fuel === 'gas' && p.flowYear ? [E.notShown(...Object.values(gasNotShown(p.flowYear)) as [string[], string[]]), ...gasLeftOutLines(p.flowYear)].filter(Boolean).join(' ') || null : null;
 const flowSets = p.fuel === 'gas'
   ? [{ label: E.pipeLabel(p.flowYear ?? 0), what: E.kind.pipe + ' gas', items: flowsOf('pipe') }, { label: E.lngLabel(p.flowYear ?? 0), what: E.kind.lng, items: flowsOf('lng') }].filter((s) => s.items.length)
   : [{ label: E.flowsLabel(p.flowYear ?? 0), what: T.flows, items: flowsOf(undefined) }].filter((s) => s.items.length);
@@ -151,7 +151,7 @@ const monthName = (d: string) => formatDate(`${d}-15`).replace(/^\d+ /, '');
         })}
         <div class="gt-blocline" hidden><span class="gt-blocline__key" aria-hidden="true"></span><p></p></div>
         <Notice>
-          <p>{E.caveats(p.fuel, p.layer, p.flowYear, pageMirror(p)).join(' ')}</p>
+          <p>{E.caveats(p.fuel, p.layer, p.flowYear, pageMirror(p), p.flowPartial).join(' ')}</p>
           {notShown && <p>{notShown}</p>}
           <SourceLine source={source} parts={[yearsText]} updated={updated} />
         </Notice>
@@ -255,7 +255,7 @@ const monthName = (d: string) => formatDate(`${d}-15`).replace(/^\d+ /, '');
                 {s.items.map((f) => (
                   <tr>
                     <td>{nameOf(f.from)}</td>
-                    <td>{nameOf(f.to)}{'mirror' in f && f.mirror && <span class="gt-caption gt-flowmark">{DEP_TEXT.flowMark}</span>}</td>
+                    <td>{nameOf(f.to)}{'mirror' in f && f.mirror && <span class="gt-caption gt-flowmark">{DEP_TEXT.flowMark}</span>}{overNote(p, f) && <span class="gt-caption gt-flowmark">{overNote(p, f)}</span>}</td>
                     <td class="n" data-v={f.amount}>{amount(p.fuel, 'production', f.amount)}</td>
                   </tr>
                 ))}

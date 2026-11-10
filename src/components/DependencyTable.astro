@@ -4,7 +4,7 @@
 // phone; rows with no data say so.
 import '../styles/atlas/country.css';
 import '../styles/atlas/table.css';
-import { rowSource, type DepRow, type DepTag } from '../lib/dependence';
+import { oldNotes, rowSource, type DepRow, type DepTag } from '../lib/dependence';
 import { DEP_TEXT, RESOURCE_TEXT, SOURCE_SHORT } from '../i18n/pages.en';
 import StatusTag from './StatusTag.astro';
 import { formatShare } from '../lib/format';
@@ -34,7 +34,8 @@ function position(r: DepRow): string {
   if (r.reliance !== undefined && r.reliance >= 0.995) return DEP_TEXT.importsAll(noun);
   return DEP_TEXT.imports(formatShare(Math.max(0, r.reliance ?? 0)), noun);
 }
-const caveat = (r: DepRow) => (r.excess ? DEP_TEXT.exceedsNote(SOURCE_SHORT[r.source] ?? r.source) : null);
+const crop = (r: DepRow) => ['wheat', 'maize', 'rice', 'soy'].includes(r.resource);
+const caveat = (r: DepRow) => (!r.excess ? null : r.excess === 'exports' && crop(r) ? DEP_TEXT.exportsNote(SOURCE_SHORT[r.source] ?? r.source) : DEP_TEXT.exceedsNote(SOURCE_SHORT[r.source] ?? r.source));
 const partners = (r: DepRow) => r.partners.map((id) => ({ id, name: nameOf(id), href: countryHref(id) }));
 ---
 <div class="gt-legend__extra gt-depkey" aria-label={DEP_TEXT.keyLabel}>
@@ -55,7 +56,7 @@ const partners = (r: DepRow) => r.partners.map((id) => ({ id, name: nameOf(id), 
               <span class="gt-depna" title={DEP_TEXT.concentrationTitle}><span aria-hidden="true">–</span><span class="gt-vh">{DEP_TEXT.concentrationOnly}</span></span>
             ) : <span class="gt-depna" aria-hidden="true">–</span>}
           </td>
-          <td class:list={{ 'gt-muted': r.state !== 'ok' }}>{position(r)}{r.estimated && <> <StatusTag status="estimate" small /></>}{caveat(r) && <span class="gt-caption gt-deps__src">{caveat(r)}</span>}{rowSource(r) && <span class="gt-caption gt-deps__src">{rowSource(r)}</span>}</td>
+          <td class:list={{ 'gt-muted': r.state !== 'ok' }}>{position(r)}{r.estimated && <> <StatusTag status="estimate" small /></>}{caveat(r) && <span class="gt-caption gt-deps__src">{caveat(r)}</span>}{oldNotes(r).map((n) => <span class="gt-caption gt-deps__src">{n}</span>)}{rowSource(r) && <span class="gt-caption gt-deps__src">{rowSource(r)}</span>}</td>
           <td>
             {partners(r).length ? (
               <>{partners(r).map((p, i) => <>{i > 0 && ', '}{p.href ? <a href={p.href}>{p.name}</a> : p.name}</>)}{r.buyers && ` ${DEP_TEXT.buyersTag}`}</>
@@ -74,6 +75,7 @@ const partners = (r: DepRow) => r.partners.map((id) => ({ id, name: nameOf(id), 
       <span class="gt-deplist__h">{RESOURCE_TEXT[r.resource].label}{r.tag && !r.main && <span class:list={['gt-deptag', `gt-deptag--${r.tag}`]}><svg viewBox="0 0 16 12" aria-hidden="true" set:html={GLYPH[r.tag]} />{DEP_TEXT.tags[r.tag]}</span>}{(r.resource === 'arms' || r.resource === 'chips') && <span class="gt-depna" title={DEP_TEXT.concentrationTitle}>{DEP_TEXT.concentrationOnly}</span>}</span>
       <p class:list={{ 'gt-muted': r.state !== 'ok' }}>{position(r)}{r.estimated && <> <StatusTag status="estimate" small /></>}</p>
       {caveat(r) && <p class="gt-caption">{caveat(r)}</p>}
+      {oldNotes(r).map((n) => <p class="gt-caption">{n}</p>)}
       {partners(r).length > 0 ? <p class="gt-caption">{DEP_TEXT.partners}: {partners(r).map((p) => p.name).join(', ')}{r.buyers && ` ${DEP_TEXT.buyersTag}`}</p>
         : r.state === 'ok' && <p class="gt-caption">{DEP_TEXT.partners}: {DEP_TEXT.noPartners}</p>}
       {rowSource(r) && <p class="gt-caption">{rowSource(r)}</p>}

@@ -13,6 +13,8 @@ export const SPOF = { reliance: 0.5, supplier: 0.5 };
 export const SPOF_SHOWN = 8;
 /** On a phone, the first four. */
 export const SPOF_PHONE = 4;
+/** Import reliance written as "Imports all", as on the country pages: 100% and the shares above it up to 110%. */
+export const ALL = 0.995;
 
 /** 1–6 on the diverging scale (imports most → exports most), 'c' supplier concentration only, 0 no figure. */
 export type Band = 1 | 2 | 3 | 4 | 5 | 6 | 'c' | 0;
@@ -35,6 +37,11 @@ export interface Cell {
   why?: 'p' | 'n' | 'u' | 'i' | 'e' | 'x';
   /** 1 when the source flags a figure behind the cell as its estimate: the Estimate label. */
   est?: 1;
+  /** 1 when the balance is more than OLD_YEARS (src/lib/dependence.ts) before its resource's latest year: shown with
+   *  its year and "no recent data", out of the sort, the phone ranking and reliance on one supplier. */
+  o?: 1;
+  /** 1 when a potash balance uses USGS's production, FAOSTAT's estimate being far from it. */
+  pu?: 1;
 }
 
 export interface ResourceMeta {
@@ -91,6 +98,7 @@ export function bandOf(r: ResourceId, cell: Cell): Band {
 
 /** The figure a column sorts on: import reliance, or the main supplier's share for arms and chips. */
 export function sortValue(r: ResourceId, cell: Cell): number | undefined {
+  if (cell.o) return undefined;
   return CONCENTRATION.includes(r) ? cell.t?.[1] : cell.v;
 }
 
@@ -152,7 +160,7 @@ export function spofs(rows: Grid['rows']): Spof[] {
   for (const row of rows) {
     RESOURCE_IDS.forEach((r, i) => {
       const c = row.cells[i];
-      if (CONCENTRATION.includes(r) || c.v === undefined || !c.t) return;
+      if (CONCENTRATION.includes(r) || c.v === undefined || !c.t || c.o) return;
       if (c.v >= SPOF.reliance && c.t[1] >= SPOF.supplier) out.push({ id: row.id, r, v: c.v, t: c.t });
     });
   }

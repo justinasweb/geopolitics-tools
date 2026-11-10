@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import { rawDir } from '../../src/adapters/core.ts';
-import { chipFlows, comtrade, crudeFlows, fertiliserFlows, gasBcm, gasFlows, gasUnreported, parseComtrade, partners } from '../../src/adapters/comtrade.ts';
+import { LEFT_OUT, chipFlows, comtrade, completeYear, crudeFlows, fertiliserFlows, gasBcm, gasFlows, gasLeftOut, gasUnreported, parseComtrade, partners } from '../../src/adapters/comtrade.ts';
 import { gas, oil, oilPrices, parseOil } from '../../src/adapters/eia.ts';
 import { ENERGY_TEXT } from '../../src/i18n/energy.en.ts';
 
@@ -34,7 +34,7 @@ describe('UN Comtrade adapter', () => {
       { period: '2024', reporterISO: 'DEU', flowCode: 'M', partnerISO: 'CAN', cmdCode: 3104, netWgt: 2e9 },
     ] }]);
     expect(rows).toEqual([
-      { year: 2024, reporter: 'USA', partner: 'TWN', flow: 'M', cmd: '8542', kg: 1, usd: 9 },
+      { year: 2024, reporter: 'USA', partner: 'TWN', flow: 'M', cmd: '8542', kg: 1, usd: 9, asiaNes: true },
       { year: 2024, reporter: 'DEU', partner: 'CAN', flow: 'M', cmd: '3104', kg: 2e9, usd: null },
     ]);
     expect(fertiliserFlows(rows, 'potash')).toEqual([{ from: 'CAN', to: 'DEU', amount: 2, year: 2024 }]);
@@ -74,6 +74,64 @@ describe('UN Comtrade adapter', () => {
     expect(mx.mirror).toBe(true);
     expect(flows.find((f) => f.from === 'NOR' && f.to === 'DEU')!.mirror).toBeUndefined();
     expect(flows.some((f) => f.from === 'ESP' && f.to === 'MAR')).toBe(false);
+  });
+
+  it('uses the exporter’s report of an oil or gas flow the importer has no row for, and marks it', () => {
+    const row = (reporterISO: string, partnerISO: string, flowCode: string, cmdCode: string, netWgt: number | null, extra: Record<string, unknown> = {}) =>
+      ({ period: 2025, reporterISO, flowCode, partnerISO, cmdCode, netWgt, primaryValue: 1e9, ...extra });
+    const rows = parseComtrade([{ data: [
+      // Germany reports no partner for its pipeline gas; Norway reports 32.7 Mt to Germany.
+      row('NOR', 'DEU', 'X', '271121', 32.7e9), row('GBR', 'NOR', 'M', '271121', 22.6e9), row('NOR', 'GBR', 'X', '271121', 22.3e9),
+      // Colombia names the United States with a volume but no weight, so no figure of its own: the exporter's report.
+      row('COL', 'USA', 'M', '271111', null, { altQtyUnitCode: 12, altQty: 1.57e6 }), row('USA', 'COL', 'X', '271111', 363e6, { isNetWgtEstimated: true, altQtyUnitCode: 12, altQty: 1.63e6 }),
+      // Saudi Arabia's crude to "Other Asia, not elsewhere specified" (490) is not Taiwan's.
+      { period: 2025, reporterISO: 'SAU', flowCode: 'X', partnerCode: 490, cmdCode: '2709', netWgt: 258e9, primaryValue: 1e11 },
+      row('SAU', 'CHN', 'X', '2709', 80e9), row('CHN', 'SAU', 'M', '2709', 81e9),
+      // Fertilisers keep the importers' rows only.
+      row('CAN', 'USA', 'X', '3104', 9e9),
+    ] }]);
+    const g = gasFlows(rows);
+    const at = (from: string, to: string) => g.find((f) => f.from === from && f.to === to);
+    expect(at('NOR', 'DEU')).toMatchObject({ kind: 'pipe', amount: 32.7e9 / 0.75e9, mirror: true });
+    expect(at('NOR', 'GBR')!.amount).toBeCloseTo(22.6e9 / 0.75e9, 3);
+    expect(at('NOR', 'GBR')!.mirror).toBeUndefined();
+    expect(at('USA', 'COL')).toMatchObject({ kind: 'lng', mirror: true });
+    expect(at('USA', 'COL')!.amount).toBeCloseTo((1.63e6 * 612) / 1e9, 3);
+    const crude = crudeFlows(rows);
+    expect(crude.map((f) => `${f.from}>${f.to}`)).toEqual(['SAU>CHN']);
+    expect(crude[0].mirror).toBeUndefined();
+    expect(fertiliserFlows(rows, 'potash')).toEqual([]);
+  });
+
+  it('leaves out the rows named in LEFT_OUT, and names them', () => {
+    expect(LEFT_OUT.map((x) => `${x.year} ${x.partner}>${x.reporter} ${x.cmd}`)).toEqual(['2025 TZA>COL 271111']);
+    const row = (period: number, reporterCode: number, partnerCode: number, netWgt: number) =>
+      ({ period, reporterCode, flowCode: 'M', partnerCode, cmdCode: '271111', netWgt, primaryValue: netWgt * 0.65, altQtyUnitCode: 12, altQty: netWgt / 428 });
+    // Colombia's 2025 LNG from Tanzania; the same row in 2024, and from the United States, stay.
+    const rows = parseComtrade([{ data: [row(2025, 170, 834, 597_441_935), row(2024, 170, 834, 1e8), row(2025, 170, 842, 6e8)] }]);
+    const flows = gasFlows(rows).map((f) => `${f.year} ${f.from}>${f.to}`);
+    expect(flows).toEqual(expect.arrayContaining(['2025 USA>COL', '2024 TZA>COL']));
+    expect(flows).not.toContain('2025 TZA>COL');
+    const left = gasLeftOut(rows);
+    expect(left).toHaveLength(1);
+    expect(left[0]).toMatchObject({ from: 'TZA', to: 'COL', year: 2025, kind: 'lng' });
+    expect(left[0].amount).toBeCloseTo(0.81, 2);
+    expect(ENERGY_TEXT.leftOut('Colombia', 2025, 'lng', 'Tanzania', '0.8\u00a0bcm')).toBe('Not shown: Colombia’s 2025 LNG imports recorded as from Tanzania (0.8\u00a0bcm), which Tanzania’s own reports do not show; the true origin is unclear.');
+  });
+
+  it('shows a year once its reporters cover 85% of the year before’s flows, else the year before', () => {
+    const row = (period: number, reporterISO: string, partnerISO: string, flowCode: string, netWgt: number) =>
+      ({ period, reporterISO, flowCode, partnerISO, cmdCode: '2709', netWgt, primaryValue: netWgt / 2 });
+    const y2024 = [row(2024, 'CHN', 'RUS', 'M', 100e9), row(2024, 'IND', 'RUS', 'M', 80e9), row(2024, 'JPN', 'SAU', 'M', 20e9)];
+    // Early in 2026: only Japan has reported 2025, 10% of 2024's flows.
+    const early = parseComtrade([{ data: [...y2024, row(2025, 'JPN', 'SAU', 'M', 21e9)] }]);
+    expect(completeYear(early, ['crude'], crudeFlows(early))).toEqual({ year: 2024, partial: true });
+    // China and India in too: 2025 is shown.
+    const later = parseComtrade([{ data: [...y2024, row(2025, 'JPN', 'SAU', 'M', 21e9), row(2025, 'CHN', 'RUS', 'M', 90e9), row(2025, 'IND', 'RUS', 'M', 70e9)] }]);
+    expect(completeYear(later, ['crude'], crudeFlows(later))).toEqual({ year: 2025, partial: false });
+    // A flow from the exporter's report counts once the exporter has reported the year.
+    const mirror = parseComtrade([{ data: [row(2024, 'RUS', 'TUR', 'X', 100e9), row(2025, 'RUS', 'CHN', 'X', 1e9)] }]);
+    expect(completeYear(mirror, ['crude'], crudeFlows(mirror))).toEqual({ year: 2025, partial: false });
   });
 
   it('reads gas by the reporter’s own volume when its weight is Comtrade’s estimate, and never the estimate alone', () => {
