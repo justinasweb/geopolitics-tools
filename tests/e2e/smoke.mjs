@@ -126,6 +126,11 @@ for (const [name, viewport] of [['desktop', { width: 1440, height: 900 }], ['pho
     check(errors.length === 0, `${name}: ${path} has no console errors${errors.length ? ` (${errors.join('; ')})` : ''}`);
     await page.screenshot({ path: `${out}/${shot}-${name}.png`, fullPage: true });
   }
+  // China's "Member of" line links its groupings and wraps inside the page, never wider than its box.
+  await page.goto(`${base}/countries/china`, { waitUntil: 'networkidle' });
+  const member = page.locator('.gt-cpfacts__member dd');
+  check(await member.locator('a').count() > 3, `${name}: /countries/china lists its groupings as links`);
+  check(await member.evaluate((d) => d.scrollWidth <= d.clientWidth + 1 && d.getBoundingClientRect().right <= window.innerWidth), `${name}: the Member of line wraps inside the screen`);
 
   // The lithium map view, opened on a country: the map draws, the panel shows the country, the URL keeps it.
   errors.length = 0;

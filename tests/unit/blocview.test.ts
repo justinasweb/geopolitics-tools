@@ -1,4 +1,6 @@
 import { beforeAll, describe, expect, it } from 'vitest';
+import { readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { BLOC_SLUGS } from '../../src/i18n/slugs.en.ts';
 import { BLOC_ABOUT } from '../../src/i18n/blocs.en.ts';
 
@@ -66,5 +68,50 @@ describe('a bloc’s mineral shares', () => {
       }
     }
     expect(seen).toBeGreaterThan(0);
+  });
+});
+
+describe('a bloc’s mineral sentences', () => {
+  it('use each mineral’s own verb and keep the year and "estimated"', async () => {
+    const { mineralSentences } = await import('../../src/lib/blocview.ts');
+    const m = (id: string, share: number, measure: 'mine' | 'primary', estimated: boolean) => ({ id: `mineral:${id}`, share, year: 2025, have: 3, of: 11, estimated, measure });
+    expect(mineralSentences([m('gallium', 0.99, 'primary', true), m('tungsten', 0.79, 'mine', true), m('rare-earths', 0.72, 'mine', false)])).toEqual([
+      'Together they mine 79% of the world’s tungsten and 72% of the world’s rare earths (USGS, 2025, estimated).',
+      'They produce 99% of the world’s primary gallium (USGS, 2025, estimated).',
+    ]);
+    expect(mineralSentences([m('gallium', 0.99, 'primary', false)])).toEqual(['Together they produce 99% of the world’s primary gallium (USGS, 2025).']);
+  });
+
+  it('give every bloc’s mineral its USGS measure', async () => {
+    const { blocPage } = await import('../../src/lib/blocview.ts');
+    const { mineralPages } = await import('../../src/lib/minerals.ts');
+    for (const s of blocPage('brics')?.minerals ?? []) expect(s.measure).toBe(mineralPages().find((x) => `mineral:${x.id}` === s.id)!.mineral.measure);
+  });
+});
+
+
+describe('a country page’s Member of line', () => {
+  it('lists its groupings from blocs.csv in the blocs’ order, each with a live bloc page', async () => {
+    const { BLOC_ORDER, blocs } = await import('../../src/lib/blocs.ts');
+    const cn = V.blocsOf('CHN');
+    expect(cn).toEqual(BLOC_ORDER.filter((b) => blocs().get(b)!.includes('CHN')));
+    expect(cn).toEqual(expect.arrayContaining(['brics', 'g20', 'sco', 'unsc-p5']));
+    for (const b of cn) expect(R.live(`view:blocs:${b}`)?.path, b).toBeTruthy();
+  });
+
+  it('names the UN Security Council as a membership, and dates the line with BLOCS_CHECKED', async () => {
+    const { COUNTRY_TEXT } = await import('../../src/i18n/pages.en.ts');
+    expect(COUNTRY_TEXT.memberName['unsc-p5']).toBe('UN Security Council (permanent member)');
+    const page = readFileSync('src/templates/CountryPage.astro', 'utf8');
+    expect(page).toContain('COUNTRY_TEXT.facts.membersAsOf(formatDate(BLOCS_CHECKED))');
+  });
+
+  it('has one checked date: no page or text writes a membership date by hand', async () => {
+    const { BLOCS_CHECKED } = await import('../../src/lib/blocs.ts');
+    expect(BLOCS_CHECKED).toBe('2026-11-10');
+    const files = (dir: string): string[] => readdirSync(dir, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? (e.name === 'ai' ? [] : files(join(dir, e.name))) : [join(dir, e.name)]));
+    for (const f of files('src').filter((x) => /\.(ts|astro|md)$/.test(x) && x !== join('src', 'lib', 'blocs.ts'))) {
+      expect(readFileSync(f, 'utf8'), f).not.toMatch(/(members?|member lists|memberships?)[^\n`]{0,40}(as of|checked( on)?) \d/i);
+    }
   });
 });

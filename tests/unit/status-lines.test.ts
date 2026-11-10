@@ -69,3 +69,41 @@ describe('tags in one-line summaries and share images', () => {
     expect(O.card(food).bars![0].text).toMatch(/\(\d[^)]*%, estimate\)$/);
   });
 });
+
+describe('EIA’s preliminary latest year', () => {
+  it('is tagged Preliminary wherever the figure appears, as an estimate is', async () => {
+    const { statusAt } = R;
+    const l = I.indicatorModel('gasprod')!;
+    const latest = l.indicator.preliminaryYear!;
+    expect(latest).toBe(l.loaded.years.at(-1));
+    // A place the earlier tests did not mark as an estimate.
+    const id = Object.keys(l.loaded.values).find((x) => l.loaded.values[x][latest] !== undefined && l.loaded.values[x][latest - 1] !== undefined && !l.indicator.estimatedBy?.[x])!;
+    expect(statusAt(l.indicator, id, latest)).toBe('preliminary');
+    expect(statusAt(l.indicator, id, latest - 1)).toBeUndefined();
+    // Indicator rankings and share image.
+    expect(I.tagOf(l, id, latest)).toBe('preliminary');
+    const bars = O.card(route('indicator', 'gasprod')).bars!;
+    l.common.slice(0, 5).forEach((x, i) => { if (x.year === latest) expect(bars[i].text).toContain('(preliminary)'); });
+    // Compare's country files carry the tag with the figure.
+    const { compareData, compareMeta } = await import('../../src/lib/compare.ts');
+    for (const m of compareMeta().measures) {
+      const f = compareData('USA').f[m.id];
+      if (f) expect(f[2], m.id).toBe(statusAt(R.INDICATORS[m.id], 'USA', f[1]));
+    }
+  });
+
+  it('tags the energy maps’ latest year in the slider, the panel and a figure kept in the Atlas, and their share images', async () => {
+    const { energyPages, isPreliminary } = await import('../../src/lib/energy.ts');
+    const L = await import('../../src/lib/map/layers.ts');
+    const p = energyPages().find((x) => x.id === 'gas-production')!;
+    expect(isPreliminary(p, p.year)).toBe(p.year === p.preliminary);
+    const file = L.layerFile('energy-gas-production');
+    for (const d of file.data) {
+      const pre = isPreliminary(p, d.year);
+      expect(d.status === 'preliminary', String(d.year)).toBe(pre);
+      for (const e of Object.values(d.v)) if (e[0] !== -1) expect(e[3] === 'preliminary').toBe(pre);
+    }
+    const card = O.card(P.routes().find((r) => r.key === 'view:gas:production')!);
+    expect(card.source?.endsWith(', preliminary')).toBe(isPreliminary(p, p.year));
+  });
+});

@@ -2,7 +2,7 @@
 // source, from the same models the pages use. Kept here rather than in the image route so tests can build every card.
 import { INDICATORS } from '../data/indicators';
 import { INDICATOR_TEXT, STATUS_TEXT, tagged } from '../i18n/en';
-import { COMPARE_TEXT, INDICATOR_PAGE, OG_TEXT, SOURCE_NOTE, mineralName } from '../i18n/pages.en';
+import { COMPARE_TEXT, COUNTRY_TEXT, INDICATOR_PAGE, OG_TEXT, SOURCE_NOTE, mineralName } from '../i18n/pages.en';
 import { countryModel } from './country';
 import { creditName, licenceOf } from './data';
 import { formatDate, formatShare, formatValue } from './format';
@@ -12,7 +12,7 @@ import { place } from './places';
 import { paths, routes, type Route } from './routes';
 import { siteName } from './site';
 import { MINERALS_VIEW } from '../i18n/map.en';
-import { amount, lede, listed, mineralPage, nameOf as producerName, shareText } from './minerals';
+import { amount, lede, listed, mineralPage, nameOf as producerName } from './minerals';
 import { creditOf, lede as viewLede, valueText, viewPage } from './views';
 import { VIEW_TEXT } from '../i18n/views.en';
 import { DISASTERS_TEXT, KIND_TEXT } from '../i18n/disasters.en';
@@ -28,7 +28,7 @@ import { BLOCS_CHECKED } from './blocs';
 import { riverPage } from './rivers';
 import { RIVERS_TEXT } from '../i18n/water.en';
 import { estimated as foodEstimated, foodPage, fromUsgs, lede as foodLede, mt, netText, shareOf as foodShare } from './food';
-import { amount as energyAmount, energyPage, lede as energyLede, shareOf as energyShare, valueText as energyValue } from './energy';
+import { amount as energyAmount, energyPage, isPreliminary, lede as energyLede, shareOf as energyShare, valueText as energyValue } from './energy';
 import { ENERGY_TEXT } from '../i18n/energy.en';
 import { EXPLORER_TEXT } from '../i18n/explorer.en';
 import { explorerMeasures } from './explorer';
@@ -91,8 +91,12 @@ export function card(r: Route | null): Card {
       kicker: OG_TEXT.countryKicker, title: m.place.name,
       figure: f ? formatValue(f.value, INDICATORS[f.id].format) : undefined,
       caption: f ? tagged(`${INDICATOR_TEXT[f.id].label}, ${f.year}`, fm ? tagOf(fm, r.id, f.year) : undefined) : m.summary[0],
-      source: f ? short(f.source) : undefined,
-      bars: m.minerals.map((x) => ({ label: mineralName(x.id, x.label), value: x.share, text: formatShare(x.share) })),
+      // The mineral shares are USGS's: each bar names its year and measure, and says "estimate" where USGS does.
+      source: [f ? short(f.source) : null, m.minerals.length ? OG_TEXT.mineralSource(short('usgs-minerals')) : null].filter(Boolean).join('; ') || undefined,
+      bars: m.minerals.map((x) => ({
+        label: `${mineralName(x.id, x.label)}${x.measure === 'primary' ? COUNTRY_TEXT.primary : ''}, ${x.year}`, value: x.share,
+        text: tagged(formatShare(x.share), x.estimated ? 'estimate' : undefined),
+      })),
     };
   }
   if (r.kind === 'indicator') {
@@ -119,8 +123,9 @@ export function card(r: Route | null): Card {
     const y = p.latest;
     return {
       kicker: MINERALS_VIEW.section, title: p.text.title(p.title), figure: y.world ? `${amount(y.world)} ${p.unit}` : undefined,
-      caption: lede(p) ?? undefined, source: `${p.source}${y.estimated ? ', estimated' : ''}`,
-      bars: listed(y).slice(0, 5).map((x) => ({ label: producerName(x), value: x.share!, text: shareText(x.share!) })),
+      // The data year, not the edition's ("Mineral Commodity Summaries 2026" reports 2025).
+      caption: lede(p) ?? undefined, source: `${short('usgs-minerals')}, ${y.year}${y.estimated ? ', estimated' : ''}`,
+      bars: listed(y).slice(0, 5).map((x) => ({ label: producerName(x), value: x.share!, text: formatShare(x.share!) })),
     };
   }
   if (r.kind === 'view' && r.id.startsWith('disasters:')) {
@@ -154,7 +159,7 @@ export function card(r: Route | null): Card {
     const others = [...new Set(shares.flatMap((s) => [INDICATORS[s.id].source].flat()).map(short))];
     return {
       kicker: BLOCS_TEXT.section, title: BLOC_TEXT[id] ?? id, figure: String(p.members.length), caption: BLOCS_TEXT.imageCaption(id, BLOC_TEXT[id] ?? id, p.members.length),
-      bars: shares.map((s) => ({ label: `${MEASURE_TEXT[s.id]}, ${s.year}`, value: s.share, text: formatShare(s.share) })),
+      bars: shares.map((s) => ({ label: `${MEASURE_TEXT[s.id]}, ${s.year}`, value: s.share, text: tagged(formatShare(s.share), s.estimated ? 'estimate' : undefined) })),
       source: BLOCS_TEXT.imageSource(formatDate(BLOCS_CHECKED), others),
     };
   }
@@ -226,7 +231,7 @@ export function card(r: Route | null): Card {
     const trade = p.layer === 'trade';
     const rows = trade ? [...y.rows.slice(0, 3), ...y.rows.slice(-2)] : y.rows.slice(0, 5);
     return {
-      kicker: p.text.pick, title: ENERGY_TEXT.layer[p.layer].title(p.text.pick), caption: energyLede(p) ?? undefined, source: `${short('eia')}, ${p.year}`,
+      kicker: p.text.pick, title: ENERGY_TEXT.layer[p.layer].title(p.text.pick), caption: energyLede(p) ?? undefined, source: `${short('eia')}, ${p.year}${isPreliminary(p, p.year) ? `, ${STATUS_TEXT.preliminary.toLowerCase()}` : ''}`,
       bars: rows.map((x) => ({ label: nameOf(x.id), value: Math.abs(x.value), text: trade ? energyValue(p, x.value) : `${energyAmount(p.fuel, p.layer, x.value)} (${energyShare(x.value, y.world)})` })),
     };
   }

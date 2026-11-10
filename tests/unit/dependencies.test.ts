@@ -318,3 +318,51 @@ describe('a fertiliser row’s source line', () => {
     expect(rowSource(row)).toBe('FAOSTAT, supply 2024 · UN Comtrade, imports 2025');
   });
 });
+
+describe('the grid and the country pages', () => {
+  it('write every share alike: the grid keeps enough digits not to round twice', async () => {
+    const { dependencyGrid } = await import('../../src/lib/dependencies.ts');
+    const { dependencies } = await import('../../src/lib/dependence.ts');
+    const { formatShare } = await import('../../src/lib/format.ts');
+    const g = dependencyGrid();
+    for (const row of g.rows) {
+      const deps = dependencies(row.id);
+      g.resources.forEach((r, i) => {
+        const d = deps.find((x) => x.resource === r.id);
+        const c = row.cells[i];
+        if (d?.reliance !== undefined && c.v !== undefined) expect(formatShare(c.v), `${row.id} ${r.id}`).toBe(formatShare(d.reliance));
+        if (d?.exportShare !== undefined && c.x !== undefined) expect(formatShare(c.x), `${row.id} ${r.id}`).toBe(formatShare(d.exportShare));
+      });
+    }
+  }, 30000);
+});
+
+describe('oil and gas dependence in EIA’s preliminary latest year', () => {
+  it('is tagged Preliminary in the country rows, the tool, its CSV and the summary', async () => {
+    const { dependencies, depCite, depStatus } = await import('../../src/lib/dependence.ts');
+    const { dependencyGrid } = await import('../../src/lib/dependencies.ts');
+    const { PLACES } = await import('../../src/lib/places.ts');
+    const latest = Math.max(...PLACES.flatMap((p) => dependencies(p.id).filter((r) => r.resource === 'gas' && r.year !== undefined).map((r) => r.year!)));
+    let seen = 0;
+    for (const p of PLACES) {
+      for (const r of dependencies(p.id).filter((x) => (x.resource === 'oil' || x.resource === 'gas') && x.state === 'ok')) {
+        if (r.resource === 'gas') expect(Boolean(r.preliminary), `${p.id} gas ${r.year}`).toBe(r.year === latest);
+        if (r.preliminary && !r.estimated) { expect(depStatus(r)).toBe('preliminary'); expect(depCite(r)).toMatch(/^EIA, \d{4}, preliminary$/); seen++; }
+      }
+      expect(dependencies(p.id).filter((r) => r.source !== 'eia').some((r) => r.preliminary)).toBe(false);
+    }
+    expect(seen).toBeGreaterThan(0);
+    const g = dependencyGrid();
+    const gi = g.resources.findIndex((r) => r.id === 'gas');
+    const row = g.rows.find((x) => x.cells[gi].pre)!;
+    const html = tableHtml(DEFAULTS, g);
+    const at = html.indexOf(`data-id="${row.id}"`);
+    expect(html.slice(at, html.indexOf('</tr>', at))).toContain('gt-tag--preliminary');
+    const { parseCsv } = await import('../../pipeline/lib/csv.ts');
+    const [head, ...lines] = parseCsv(gridCsv(DEFAULTS, g).csv);
+    const col = head.indexOf('Natural gas status');
+    expect(col).toBeGreaterThan(0);
+    expect(lines.find((l) => l[1] === g.places[row.id].c)![col]).toBe('preliminary');
+  }, 60000);
+});
+

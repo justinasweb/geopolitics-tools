@@ -129,7 +129,9 @@ export const COUNTRY_TEXT = {
   descriptionTail: (kind: string, minerals: boolean) => `${kind} with sources: key figures, dependencies${minerals ? ', minerals' : ''} and more.`,
   updated: (d: string) => `Updated ${d}`,
   auto: 'Written automatically from the figures on this page.',
-  facts: { population: 'Population', administered: 'Administered by', status: 'Status' },
+  facts: { population: 'Population', administered: 'Administered by', status: 'Status', memberOf: 'Member of', membersAsOf: (date: string) => `as of ${date}` },
+  /** A grouping's name in the "Member of" line, where the bloc's own name reads as a list of members. */
+  memberName: { 'unsc-p5': 'UN Security Council (permanent member)' } as Record<string, string>,
   supplyChains: 'Its supply chains',
   compare: (other: string) => `Compare with ${other}`,
   allCountries: 'All countries',
@@ -461,6 +463,8 @@ export const OG_TEXT = {
   source: (s: string) => `Source: ${s}`,
   /** The source as it closes the card's alt text. */
   altSource: (s: string) => `source: ${s}`,
+  /** The credit for a country card's mineral bars, beside the headline figure's. */
+  mineralSource: (credit: string) => `${credit} (mineral shares)`,
   /** og:image:alt and twitter:image:alt when a page names no share card. */
   altFallback: (title: string) => `Share card: ${title}`,
 };

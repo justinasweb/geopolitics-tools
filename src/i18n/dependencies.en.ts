@@ -69,6 +69,8 @@ export const DEPS_TEXT = {
   csvReliance: (label: string) => `${label} net imports (share of ${onSupply(label) ? 'supply' : 'use'})`,
   csvExports: (label: string) => `${label} net exports (share of output)`,
   csvYear: (label: string) => `${label} year`,
+  /** "estimate" (FAOSTAT's own) or "preliminary" (EIA's latest year), as the indicator CSVs' status column. */
+  csvStatus: (label: string) => `${label} status`,
   csvTop: (label: string) => `${label} main supplier`,
   csvTopShare: (label: string) => `${label} main supplier share of imports`,
   csvTopOf: (label: string, credit: string) => `the main ${label} supplier (${credit})`,

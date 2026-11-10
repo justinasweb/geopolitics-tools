@@ -87,14 +87,24 @@ describe('Compare markup', () => {
     expect([...all.matchAll(/gt-cpsec__n">(\d+)/g)].map((m) => m[1])).toEqual(['1', '2', '3']);
   });
 
-  it('keeps one scale per row, unless it would write a figure as zero', () => {
+  it('writes each figure in its own scale, as the country page does', () => {
     const people = { ...meta, measures: [{ ...meta.measures[0], id: 'population', unit: 'people', format: { kind: 'count' as const } }] };
-    const big = { ...mali, f: { population: [2.5e7, 2025] as [number, number] } };
-    const small = { ...tuvalu, f: { population: [9492, 2025] as [number, number] } };
+    const big = { ...mali, f: { population: [1.41e9, 2025] as [number, number] } };
+    const small = { ...tuvalu, f: { population: [3.42e8, 2025] as [number, number] } };
     const html = keyHtml(people, [big, small]);
-    expect(html).toContain('>25 million<');
-    expect(html).toContain('>9,492<');
-    expect(keyHtml(people, [big, { ...small, f: { population: [3.4e6, 2025] as [number, number] } }])).toContain('<small>million</small>');
+    expect(html).toContain('>1.41 billion<');
+    expect(html).toContain('>342 million<');
+    expect(html).not.toContain('<small>');
+    expect(keyHtml(people, [big, { ...small, f: { population: [9492, 2025] as [number, number] } }])).toContain('>9,492<');
+    const money = keyHtml(meta, [{ ...mali, f: { gdp: [3.6e12, 2025] } }, { ...tuvalu, f: { gdp: [4.27e11, 2025] } }]);
+    expect(money).toContain('>US$427 billion<');
+    expect(money).toContain('>US$3.60 trillion<');
+  });
+
+  it('tags a figure as the country page does', () => {
+    const html = keyHtml(meta, [{ ...mali, f: { gdp: [2.6e10, 2025, 'estimate'] } }, { ...tuvalu, f: { gdp: [5.7e7, 2025] } }]);
+    expect(html.match(/gt-tag--estimate/g)).toHaveLength(2);
+    expect(html).toContain('>US$26.0 billion <span class="gt-tag gt-tag--estimate');
   });
 
   it('explains a mineral share USGS does not list, rather than a bare dash', () => {

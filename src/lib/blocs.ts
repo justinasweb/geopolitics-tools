@@ -3,7 +3,7 @@
 // in the per-language text (src/i18n/map.en.ts).
 //
 // The table is the membership list the prototype kept by hand and the design review checked on 21 October 2026
-// (design batch 5). Phase 5a adds the weekly Wikidata cross-check the spec names as the source; until then a change
+// (design batch 5), re-checked on 10 November 2026. Phase 5a adds the weekly Wikidata cross-check the spec names as the source; until then a change
 // is an edit to the CSV, logged in Sources → Corrections like any other fix.
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -17,7 +17,7 @@ export const BLOC_ORDER = [
 ];
 
 /** When the membership table was last checked against the blocs' own member lists. */
-export const BLOCS_CHECKED = '2026-10-21';
+export const BLOCS_CHECKED = '2026-11-10';
 
 let cache: Map<string, string[]> | null = null;
 /** Members by bloc id, in BLOC_ORDER. Fails on an unknown place or bloc, so a typo cannot drop a member silently. */

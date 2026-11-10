@@ -51,7 +51,7 @@ servers never see the part after `#`.
 
 | Page | Rule |
 | --- | --- |
-| Country page | Every country or territory with at least one figure from any source; the kind line says "Country page" or "Territory". Fewer than 4 measures: built, `noindex`, with the "few sources" box listing which sources cover it. Every page has money, technology and climate sections where the snapshot has their figures (spec, D20; each part and section left out with no figure; CO2 per person then moves from More figures to Climate), and the People section when WPP covers the place (spec, D16): population 1950–2100 with the UN range, the age pyramid, births per woman, median age, share aged 65+. People needs the three UN WPP imports (`wpp-total`, `wpp-indicators`, `wpp-age`); its age pyramid has a year slider in five-year steps, 1950–2100, every year drawn at build time on one scale |
+| Country page | Every country or territory with at least one figure from any source; the kind line says "Country page" or "Territory". The header's facts end with a "Member of" line: its groupings from blocs.csv, each linked to its bloc page, "as of" the bloc pages' date. Fewer than 4 measures: built, `noindex`, with the "few sources" box listing which sources cover it. Every page has money, technology and climate sections where the snapshot has their figures (spec, D20; each part and section left out with no figure; CO2 per person then moves from More figures to Climate), and the People section when WPP covers the place (spec, D16): population 1950–2100 with the UN range, the age pyramid, births per woman, median age, share aged 65+. People needs the three UN WPP imports (`wpp-total`, `wpp-indicators`, `wpp-age`); its age pyramid has a year slider in five-year steps, 1950–2100, every year drawn at build time on one scale |
 | United States, China, Russia | The same country page, plus the approved AI-drafted summary and Compare links (`DOSSIERS` in `src/lib/country.ts`) |
 | Compare | The three pairs of the United States, China and Russia, static and indexed with share images; and `/compare?a={slug}&b={slug}` for any two country pages (spec, D21). See "Compare" below |
 | Indicator | Every registry measure with data in the snapshot. Fewer than 20 places reporting in the common year: built, `noindex`. Measures waiting on a key or permission have no page and are listed on the index as waiting |
@@ -98,6 +98,12 @@ A sample build has 129 country pages and 37 indicator pages; the real snapshot h
   (`placeNotes` in `src/lib/food.ts`) and the share image's source names it; a change across a FAOSTAT and a USGS
   year is not shown (`comparable`, `worldChange`). China, 2024. Potash production is not an indicator, so Compare and
   the Explorer do not show it.
+- **One rounding for shares.** Every share on every page, tool, map and share image goes through `formatShare`
+  (`src/lib/format.ts`; `formatValue` uses it for share indicators): whole percent from 10%, one decimal below,
+  "<0.1%" for a share above zero that would read as zero, and one decimal for a share under 100% that would read
+  100% (BRICS's 99.7% of primary gallium). Data files keep shares to six significant figures, so a
+  share is not rounded twice (India's gas, 0.49498, read 49% on its page and 50% in Dependencies when the tool kept
+  four decimals; a test now checks every cell against the country rows).
 - **Neutral words.** Templates use plain verbs (mines, imports, hosts) and no adjectives that judge. "Higher" on
   Compare marks the larger value and says it is not a judgement. A sentence whose figure is missing is left out.
 - **Colour is never the only cue.** Dependence tags have a glyph and a word, Compare's first and second country have
@@ -351,6 +357,11 @@ says is in `src/lib/og-cards.ts`.
 - **Rows** get the space left beside the figure column: the value column is as wide as the widest value, the label
   column up to 240px, the bar the rest. When five two-line rows would not fit under the title, the rows get tighter,
   then smaller, then one line each.
+- **Every figure has its own source and year.** Bars from a second source name it in the source line: a country
+  card's mineral bars read "Gallium (primary production), 2025", "69% (estimate)" where USGS estimates, under
+  "World Bank; USGS (mineral shares)". USGS cards give the data year, not the edition ("USGS, 2025, estimated"
+  for Mineral Commodity Summaries 2026). A figure tagged on its page (Estimate, Projection, Preliminary) carries the
+  word on the card.
 - `tests/unit/og.test.ts` checks every card the site builds, and the longest label of each view family five times
   over under its longest title, rendered with nothing in the card's margins.
 - **Alt text**: `og:image:alt` and `twitter:image:alt` say the card in one sentence (kicker, title, figure with its
@@ -393,6 +404,9 @@ Any two countries side by side (spec, D21), without a page per pair.
   Minerals: any mineral where either country has at least 1% of world production; the other shows "–" when USGS does
   not list it (decided 9 Nov 2026: not listed is not zero), read out as "Not listed by USGS" and explained in a note
   under the pairs.
+- **Each figure in its own scale.** Money and counts carry their own unit, as on the country page ("342 million"
+  beside "1.41 billion", "US$427 billion" beside "US$3.60 trillion"); units that do not scale ("% of GDP", "years")
+  stay under the row's label (decided 10 Nov 2026, replacing one scale per row, which wrote "0.34 billion").
 - **First and second.** The first country is `--cmp-first` (blue), a square, solid lines and bars; the second
   `--cmp-second` (orange), a triangle, dashed lines and hatched bars. `scripts/tokens.ts` checks the two stay apart
   (CIE ΔE ≥ 40) under protanopia, deuteranopia and tritanopia as well as normal vision, in both themes.

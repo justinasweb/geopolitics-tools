@@ -11,9 +11,9 @@ export function formatValue(v: number | null | undefined, f: Format, locale = 'e
   const n = (x: number, digits: number) => new Intl.NumberFormat(locale, { maximumFractionDigits: digits, minimumFractionDigits: digits }).format(x);
   const a = Math.abs(v);
   // A small negative total (a net outflow) keeps its sign, in tenths of a million.
-  const text = f.kind === 'money' && f.millions && v < 0 && a < 1e6 ? (a < 5e4 ? '$0' : `$${n(a / 1e6, 1)} m`) : formatAbs(a, f, n);
-  // A value that rounds to zero has no sign ("0%", not "−0%").
-  return v < 0 && /[1-9]/.test(text) ? `${MINUS}${text}` : text;
+  const text = f.kind === 'money' && f.millions && v < 0 && a < 1e6 ? (a < 5e4 ? '$0' : `$${n(a / 1e6, 1)} m`) : formatAbs(a, f, n, locale);
+  // A value that rounds to zero has no sign ("0%", not "−0%"; "<0.1%").
+  return v < 0 && /[1-9]/.test(text) && !text.startsWith('<') ? `${MINUS}${text}` : text;
 }
 
 /** A plain number's decimals: its own, or for a `small` one below 1, those two significant figures need. */
@@ -23,7 +23,7 @@ function numberDigits(a: number, f: Extract<Format, { kind: 'number' }>): number
 }
 
 /** A value's size as formatValue writes it, without its sign. Units are picked after rounding. */
-function formatAbs(a: number, f: Format, n: (x: number, digits: number) => string): string {
+function formatAbs(a: number, f: Format, n: (x: number, digits: number) => string, locale: string): string {
   switch (f.kind) {
     case 'money':
       if (a >= 999.5e9) return `$${n(a / 1e12, 2)} tn`;
@@ -38,7 +38,7 @@ function formatAbs(a: number, f: Format, n: (x: number, digits: number) => strin
     case 'percent':
       return `${n(a, f.digits ?? 1)}%`;
     case 'share':
-      return `${n(a * 100, a < 0.1 ? 1 : 0)}%`;
+      return formatShare(a, locale);
     case 'number':
       return `${n(a, numberDigits(a, f))}${f.unit ? ` ${f.unit}` : ''}`;
     case 'mt':
@@ -114,35 +114,39 @@ export function formatPartialDate(d: string, locale = 'en-US'): string {
 /**
  * A value split into the number and the words after it, for key figures that set the unit smaller:
  * { num: 'US$1.44', unit: 'trillion' }, { num: '285', unit: 'million' }, { num: '0.8', unit: '% of GDP' }.
- * `unit` is the indicator's unit text for percentages and plain numbers. `scaleOf`, for figures shown side by side,
- * is the value whose size picks the scale (the larger of the row), so both read in billions: "0.34" and "1.41".
+ * `unit` is the indicator's unit text for percentages and plain numbers. Each value picks its own scale.
  */
-export function formatParts(v: number, f: Format, unit = '', locale = 'en', scaleOf?: number): { num: string; unit: string } {
+export function formatParts(v: number, f: Format, unit = '', locale = 'en'): { num: string; unit: string } {
   const n = (x: number, digits: number) => new Intl.NumberFormat(locale, { maximumFractionDigits: digits, minimumFractionDigits: digits }).format(x);
   const sign = v < 0 ? MINUS : '';
   const a = Math.abs(v);
-  const s = scaleOf === undefined ? a : Math.max(a, Math.abs(scaleOf));
   const scaled = (prefix: string) => {
-    if (s >= 999.5e9) return { num: `${sign}${prefix}${n(a / 1e12, 2)}`, unit: 'trillion' };
-    if (s >= 999.5e6) return { num: `${sign}${prefix}${n(a / 1e9, a < 9.995e9 ? 2 : a < 99.95e9 ? 1 : 0)}`, unit: 'billion' };
-    if (s >= 1e6) return { num: `${sign}${prefix}${n(a / 1e6, a < 9.95e6 ? 1 : 0)}`, unit: 'million' };
+    if (a >= 999.5e9) return { num: `${sign}${prefix}${n(a / 1e12, 2)}`, unit: 'trillion' };
+    if (a >= 999.5e6) return { num: `${sign}${prefix}${n(a / 1e9, a < 9.995e9 ? 2 : a < 99.95e9 ? 1 : 0)}`, unit: 'billion' };
+    if (a >= 1e6) return { num: `${sign}${prefix}${n(a / 1e6, a < 9.95e6 ? 1 : 0)}`, unit: 'million' };
     return { num: `${sign}${prefix}${n(a, 0)}`, unit: '' };
   };
   switch (f.kind) {
     case 'money': return scaled('US$');
     case 'count': return scaled('');
     case 'percent': return { num: `${sign}${n(a, f.digits ?? 1)}`, unit: unit.startsWith('%') ? unit : '%' };
-    case 'share': return { num: `${sign}${n(a * 100, a < 0.1 ? 1 : 0)}`, unit: '%' };
+    case 'share': return { num: formatShare(v, locale).replace('%', ''), unit: '%' };
     case 'number': return { num: `${sign}${n(a, numberDigits(a, f))}`, unit: f.unit ?? '' };
     case 'mt': return a >= 1 ? { num: `${sign}${n(a, a >= 100 ? 0 : 1)}`, unit: 'Mt' } : { num: formatValue(v, f).replace(' t', ''), unit: 't' };
   }
 }
 
-/** A share (0.32) as a percentage rounded for reading: "32%", "0.4%". */
+/**
+ * A share (0.32) as a percentage rounded for reading, the one rule for every share on the site: whole percent from
+ * 10%, one decimal below, "<0.1%" for a share above zero that would read as zero ("32%", "9.7%", "4%", "<0.1%"), and
+ * one decimal for a share under 100% that would read as 100% ("99.7%").
+ * Pass the share as the source gives it: a share rounded before this (0.495 for 0.49498) can read one point apart.
+ */
 export function formatShare(s: number, locale = 'en'): string {
-  const p = s * 100;
-  const digits = p < 1 && p > 0 ? 1 : 0;
-  return `${new Intl.NumberFormat(locale, { maximumFractionDigits: digits }).format(p)}%`;
+  const p = Math.abs(s) * 100;
+  if (p > 0 && p < 0.05) return '<0.1%';
+  const text = `${new Intl.NumberFormat(locale, { maximumFractionDigits: p >= 9.95 && (p < 99.5 || p >= 100) ? 0 : 1 }).format(p)}%`;
+  return s < 0 && /[1-9]/.test(text) ? `${MINUS}${text}` : text;
 }
 
 /** Search engines show about this many characters of a meta description. */

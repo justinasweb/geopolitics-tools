@@ -21,15 +21,15 @@ import { MAP_TEXT } from '../i18n/map.en';
 import { INDICATOR_TEXT } from '../i18n/en';
 import { ENERGY_TEXT as E } from '../i18n/energy.en';
 import { DEP_TEXT } from '../i18n/pages.en';
-import { ENERGY_LAYERS, FUELS, amount, amountShort, balanceOf, energyKey, energyPage, energyPages, fuelPages, gasLeftOutLines, gasNotShown, lede, mirrorNames, overNote, pageMirror, pageUs, viaEia, prices, shareOf, shownFlows, summary, unitWords, valueText, worldChange } from '../lib/energy';
+import { ENERGY_LAYERS, FUELS, amount, amountShort, balanceOf, energyKey, energyPage, energyPages, fuelPages, gasLeftOutLines, gasNotShown, isPreliminary, lede, mirrorNames, overNote, pageMirror, pageUs, viaEia, prices, shareOf, shownFlows, summary, unitWords, valueText, worldChange } from '../lib/energy';
 import type { EnergyRow } from '../lib/energy';
 import { refreshed } from '../lib/data';
 import { place } from '../lib/places';
 import { countryHref, indicatorHref, live, route, hubCrumb } from '../lib/routes';
 import { layerPath } from '../lib/map/layers';
 import { breadcrumbs } from '../lib/structured';
-import { shareExact, shareText } from '../lib/minerals';
-import { formatDate } from '../lib/format';
+import { shareExact } from '../lib/minerals';
+import { formatDate, formatShare } from '../lib/format';
 
 interface Props { id: string }
 const p = energyPage(Astro.props.id)!;
@@ -46,6 +46,8 @@ const flowSource = E.sourceFlows(p.fuel, pageUs(p));
 const flowsUpdated = refreshed('comtrade');
 const y = p.byYear[p.year];
 const prevYear = p.years.includes(p.year - 1) ? p.year - 1 : null;
+// EIA's latest year is preliminary: every source line for it carries the tag.
+const pre = isPreliminary(p, p.year) ? 'preliminary' as const : undefined;
 const prev = prevYear ? p.byYear[prevYear] : null;
 const answer = lede(p);
 const nameOf = (id: string) => place(id)?.name ?? id;
@@ -103,7 +105,7 @@ const monthName = (d: string) => formatDate(`${d}-15`).replace(/^\d+ /, '');
     <Breadcrumbs items={crumbs} />
     <h1 class="gt-title gt-mvhead__t">{title} <span class="gt-mvhead__sub">{sub}</span></h1>
     {answer && <p class="gt-lede gt-mvhead__a">{answer}</p>}
-    <SourceLine source={source} parts={[String(p.year)]} updated={updated} />
+    <SourceLine source={source} parts={[String(p.year)]} updated={updated} status={pre} />
   </div>
 
   <MapControls pickerLabel={E.fuelLabel} picker={picker} picker2={picker2} years={p.years} year={p.year} />
@@ -132,7 +134,7 @@ const monthName = (d: string) => formatDate(`${d}-15`).replace(/^\d+ /, '');
                   <span class="gt-pkf__label">{L.worldLabel}</span>
                   <span class="gt-pkf__num">{a(Y.world)}</span>
                   {ch !== null && (
-                    <span class="gt-pkf__meta"><span class="gt-kf__change"><Icon name={Math.abs(ch) < 0.005 ? 'flat' : ch > 0 ? 'up' : 'down'} />{Math.abs(ch) < 0.005 ? E.sameAs(yr - 1) : E.change2(shareText(Math.abs(ch)), ch > 0, yr - 1, a(p.byYear[yr - 1].world!))}</span></span>
+                    <span class="gt-pkf__meta"><span class="gt-kf__change"><Icon name={Math.abs(ch) < 0.005 ? 'flat' : ch > 0 ? 'up' : 'down'} />{Math.abs(ch) < 0.005 ? E.sameAs(yr - 1) : E.change2(formatShare(Math.abs(ch)), ch > 0, yr - 1, a(p.byYear[yr - 1].world!))}</span></span>
                   )}
                 </div>
               )}
@@ -163,7 +165,7 @@ const monthName = (d: string) => formatDate(`${d}-15`).replace(/^\d+ /, '');
     <div class="gt-mvbelow__main">
       <h2 class="gt-h2" id="mv-sum">{E.summary}</h2>
       <div class="gt-prose">{summary(p).map((s) => <p>{s}</p>)}</div>
-      <SourceLine source={source} parts={[String(p.year)]} updated={updated} />
+      <SourceLine source={source} parts={[String(p.year)]} updated={updated} status={pre} />
       <h2 class="gt-h2" id="table">{E.all}</h2>
       <div class="gt-tablewrap" style="--gt-table-h:560px" tabindex="0" role="region" aria-label={E.tableLabel(title)}>
         <table class="gt-table" data-gt-sort>
@@ -233,7 +235,7 @@ const monthName = (d: string) => formatDate(`${d}-15`).replace(/^\d+ /, '');
           )}
         </table>
       </div>
-      <SourceLine source={source} parts={[prev && !reserves ? `${prev.year} and ${p.year}` : String(p.year)]} updated={updated} />
+      <SourceLine source={source} parts={[prev && !reserves ? `${prev.year} and ${p.year}` : String(p.year)]} updated={updated} status={pre} />
       {y.notYet.length > 0 && (
         <div class="gt-mvnotes">
           <h3 class="gt-label">{E.notYet}</h3>

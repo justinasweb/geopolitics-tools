@@ -20,11 +20,11 @@ import '../styles/atlas/tools.css';
 import { MAP_TEXT, BLOC_TEXT } from '../i18n/map.en';
 import { NON_COUNTRY_MEMBERS } from '../i18n/members.en';
 import { BLOC_ABOUT, BLOC_SHORT, blocIn, BLOCS_TEXT as B, MEASURE_IN, MEASURE_TEXT, MEMBER_NOTES } from '../i18n/blocs.en';
-import { MINERAL_TEXT } from '../i18n/pages.en';
+import { COUNTRY_TEXT, MINERAL_TEXT } from '../i18n/pages.en';
 import { BLOCS_CHECKED, BLOC_ORDER, blocs } from '../lib/blocs';
-import { blocLede, blocPage, blocPages, blocsOf, membershipCounts, shareOn, valueOf, weightIn, type BlocShare } from '../lib/blocview';
-import { formatDate, formatValue } from '../lib/format';
-import { shareText } from '../lib/minerals';
+import { blocLede, blocPage, blocPages, blocsOf, membershipCounts, mineralSentences, shareOn, valueOf, weightIn, type BlocShare } from '../lib/blocview';
+import { formatDate, formatValue, formatShare } from '../lib/format';
+
 import { place } from '../lib/places';
 import { sourceName } from '../lib/data';
 import { countryHref, live, route, hubCrumb } from '../lib/routes';
@@ -47,7 +47,7 @@ const count = (v: number | null) => (v === null ? '–' : formatValue(v, { kind:
 const money = (v: number | null) => (v === null ? '–' : formatValue(v, { kind: 'money' }));
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 const mineralName = (s: BlocShare) => MINERAL_TEXT[s.id.slice(8)] ?? s.id.slice(8);
-const label = (s: BlocShare) => (s.id.startsWith('mineral:') ? cap(mineralName(s)) : MEASURE_TEXT[s.id]);
+const label = (s: BlocShare) => (s.id.startsWith('mineral:') ? cap(mineralName(s)) + (s.measure === 'primary' ? COUNTRY_TEXT.primary : '') : MEASURE_TEXT[s.id]);
 
 // A grouping's page.
 const pop = p?.shares.find((s) => s.id === 'population');
@@ -57,8 +57,8 @@ const counts = all ? membershipCounts() : [];
 const answer = blocLede(id);
 const summary = all ? [B.allSummary(BLOC_ORDER.length), B.scope] : [
   BLOC_ABOUT[id],
-  [p!.shares.length ? B.summaryShares(name, p!.shares.slice(0, 4).map((s) => B.sharePart(shareText(s.share), MEASURE_IN[s.id], s.year))) : '',
-    p!.minerals.length ? B.summaryMinerals(p!.minerals.slice(0, 3).map((s) => B.mineralPart(shareText(s.share), mineralName(s)))) : '',
+  [p!.shares.length ? B.summaryShares(name, p!.shares.slice(0, 4).map((s) => B.sharePart(formatShare(s.share), MEASURE_IN[s.id], s.year))) : '',
+    ...mineralSentences(p!.minerals.slice(0, 3)),
     p!.overlaps.length ? B.summaryOverlap(p!.overlaps.slice(0, 4).map((o, i) => B.overlapPart(o.shared.length, blocIn(o.id, BLOC_TEXT[o.id] ?? o.id), i === 0))) : ''].filter(Boolean).join(' '),
   B.scope,
 ];
@@ -74,7 +74,7 @@ const related = [
 // A grouping's page links every other grouping by name (the picker above the map is a select, not links).
 const others = all ? [] : picker.filter((o) => !o.current && o.href !== route(key('all'))!.path);
 const mapLabel = all ? B.allMapLabel(counts.slice(0, 3).map((c) => `${nameOf(c.id)} ${B.memberOf(c.n)}`).join(', ')) : B.mapLabel(name, p!.byPopulation.map(nameOf).join(', '));
-const shareBars = (ss: BlocShare[]) => ss.map((s) => ({ label: label(s), text: shareText(s.share), w: Math.min(100, s.share * 100), note: `${s.year}${s.have < s.of ? `, ${B.have(id, s.have, s.of).toLowerCase()}` : ''}`, estimated: Boolean(s.estimated) }));
+const shareBars = (ss: BlocShare[]) => ss.map((s) => ({ label: label(s), text: formatShare(s.share), w: Math.min(100, s.share * 100), note: `${s.year}${s.have < s.of ? `, ${B.have(id, s.have, s.of).toLowerCase()}` : ''}`, estimated: Boolean(s.estimated) }));
 ---
 <Page title={all ? B.allTitle : name} description={all ? B.allDescription : B.description(name)} hub="power" container="mv" image={route(key(id))!.image}
   jsonld={[breadcrumbs(crumbs.map((c) => ({ label: c.label, href: c.href })))]}>
@@ -169,8 +169,8 @@ const shareBars = (ss: BlocShare[]) => ss.map((s) => ({ label: label(s), text: s
                     <tr>
                       <th scope="row">{live(key(b)) ? <a href={live(key(b))!.path}>{BLOC_TEXT[b]}</a> : BLOC_TEXT[b]}</th>
                       <td class="n" data-v={m.length}>{m.length}</td>
-                      <td class="n" data-v={sp?.share ?? ''}>{sp ? shareText(sp.share) : '–'}</td>
-                      <td class="n" data-v={sg?.share ?? ''}>{sg ? shareText(sg.share) : '–'}</td>
+                      <td class="n" data-v={sp?.share ?? ''}>{sp ? formatShare(sp.share) : '–'}</td>
+                      <td class="n" data-v={sg?.share ?? ''}>{sg ? formatShare(sg.share) : '–'}</td>
                     </tr>
                   );
                 })}
@@ -223,7 +223,7 @@ const shareBars = (ss: BlocShare[]) => ss.map((s) => ({ label: label(s), text: s
                     <tr data-place={m}>
                       <th scope="row">{countryHref(m) ? <a href={countryHref(m)}>{nameOf(m)}</a> : nameOf(m)}{noteNo(m) > 0 && <sup class="gt-fn"><a href={`#mv-note-${noteNo(m)}`} aria-label={`${B.notes} ${noteNo(m)}`}>{noteNo(m)}</a></sup>}</th>
                       <td class="n" data-v={pv ?? ''}>{count(pv)}</td>
-                      <td class="n" data-v={w ?? ''}>{w === null ? '–' : shareText(w)}</td>
+                      <td class="n" data-v={w ?? ''}>{w === null ? '–' : formatShare(w)}</td>
                       <td class="n" data-v={g ?? ''}>{money(g)}</td>
                       <td>{blocsOf(m).filter((b) => b !== id).map((b) => BLOC_SHORT[b] ?? BLOC_TEXT[b] ?? b).join(', ') || '–'}</td>
                     </tr>

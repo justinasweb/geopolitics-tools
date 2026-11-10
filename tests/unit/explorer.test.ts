@@ -92,6 +92,8 @@ describe('Explorer views', () => {
     const fao = { ...a, projectedAfter: undefined, own: undefined };
     expect(statusOf(fao, 'EGY', 2023, { from: 2022, v: { EGY: [1, 2] }, e: { EGY: [2023] } })).toBe('estimate');
     expect(statusOf(fao, 'EGY', 2022, { from: 2022, v: { EGY: [1, 2] }, e: { EGY: [2023] } })).toBeUndefined();
+    // A source's preliminary latest year (EIA).
+    expect([2022, 2023].map((y) => statusOf({ ...fao, pre: 2023 }, 'EGY', y))).toEqual([undefined, 'preliminary']);
     const html = tableHtml(parseState('table', new URLSearchParams('m=a&year=2022'), tagged), tagged, data);
     const row = (id: string) => html.slice(html.indexOf(`data-id="${id}"`), html.indexOf('</tr>', html.indexOf(`data-id="${id}"`)));
     expect(row('AAA')).toContain('gt-tag--estimate');

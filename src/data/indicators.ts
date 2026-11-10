@@ -61,6 +61,11 @@ export interface Indicator {
   estimates?: (raw: Raw) => Series;
   /** Set from `estimates` when the indicator loads: statusAt tags these values Estimate wherever they are shown. */
   estimatedBy?: Series;
+  /** The source's latest year is preliminary, revised as countries report (EIA's international data). */
+  preliminaryLatest?: boolean;
+  /** Set from preliminaryLatest when the indicator loads: the latest year in the snapshot, tagged Preliminary wherever
+   *  it is shown (country rows, rankings, maps, the Explorer, Compare, share images, CSVs). */
+  preliminaryYear?: number;
   /** Why it has no loader yet. */
   pending?: string;
 }
@@ -136,10 +141,10 @@ const LIST: Indicator[] = [
   { id: 'refinpc', group: 'people', source: 'unhcr', format: unit('', 1), scale: 'linear', load: (_r, get) => combine(get('refin'), get('population'), (r, p) => (r / p) * 1000) },
   { id: 'idps', group: 'people', source: 'unhcr', format: count, scale: 'log', load: (raw) => unhcrOf(raw).idps },
   // Energy
-  { id: 'oilprod', group: 'energy', source: 'eia', format: unit('kb/d'), scale: 'log', load: (raw) => oilOf(raw).production },
-  { id: 'oiluse', group: 'energy', source: 'eia', format: unit('kb/d'), scale: 'log', load: (raw) => oilOf(raw).consumption },
-  { id: 'gasprod', group: 'energy', source: 'eia', format: unit('bcm', 1), scale: 'log', load: (raw) => gasOf(raw).production },
-  { id: 'gasuse', group: 'energy', source: 'eia', format: unit('bcm', 1), scale: 'log', load: (raw) => gasOf(raw).consumption },
+  { id: 'oilprod', group: 'energy', source: 'eia', preliminaryLatest: true, format: unit('kb/d'), scale: 'log', load: (raw) => oilOf(raw).production },
+  { id: 'oiluse', group: 'energy', source: 'eia', preliminaryLatest: true, format: unit('kb/d'), scale: 'log', load: (raw) => oilOf(raw).consumption },
+  { id: 'gasprod', group: 'energy', source: 'eia', preliminaryLatest: true, format: unit('bcm', 1), scale: 'log', load: (raw) => gasOf(raw).production },
+  { id: 'gasuse', group: 'energy', source: 'eia', preliminaryLatest: true, format: unit('bcm', 1), scale: 'log', load: (raw) => gasOf(raw).consumption },
   { id: 'power', group: 'energy', source: 'ember', format: unit('TWh'), scale: 'log', load: (raw) => powerSeries(powerOf(raw), 'total') },
   { id: 'lowcarbon', group: 'energy', source: 'ember', format: share, scale: 'linear', load: (raw) => powerSeries(powerOf(raw), 'lowcarbon') },
   { id: 'coalpower', group: 'energy', source: 'ember', format: share, scale: 'linear', load: (raw) => powerSeries(powerOf(raw), 'coal') },
@@ -199,6 +204,7 @@ export function registry(raw: Raw) {
     if (d.lastActual) d.projectedAfter = d.lastActual(raw) ?? PROJECTED_AFTER.get(d.id);
     if (d.ownLastActual) d.lastActualBy = d.ownLastActual(raw);
     if (d.estimates) d.estimatedBy = undefined;
+    if (d.preliminaryLatest) d.preliminaryYear = undefined;
   }
   const get = (id: string): Series => {
     const d = INDICATORS[id];
@@ -207,6 +213,7 @@ export function registry(raw: Raw) {
     if (!cache.has(id)) {
       cache.set(id, d.load(raw, get));
       if (d.estimates) d.estimatedBy = d.estimates(raw);
+      if (d.preliminaryLatest) d.preliminaryYear = yearsOf(cache.get(id)!).at(-1);
     }
     return cache.get(id)!;
   };
@@ -233,18 +240,19 @@ export function valueAt(l: Loaded, id: string, year: number, fallback = 0): { va
   return null;
 }
 
-export type ValueStatus = 'estimate' | 'projection';
+export type ValueStatus = 'estimate' | 'projection' | 'preliminary';
 
 /**
  * A value's tag: a projection after the indicator's last actual year; an estimate after the place's own last actual
  * year and up to the indicator's (a country whose WEO figures end in 2023 has estimates for 2024 and 2025), or where
- * the source flags the figure itself as an estimate (FAOSTAT).
+ * the source flags the figure itself as an estimate (FAOSTAT); preliminary in a source's preliminary latest year (EIA).
  */
 export function statusAt(ind: Indicator, place: string, year: number): ValueStatus | undefined {
   if (ind.projectedAfter !== undefined && year > ind.projectedAfter) return 'projection';
   const own = ind.lastActualBy?.[place];
   if (own !== undefined && year > own) return 'estimate';
-  return ind.estimatedBy?.[place]?.[year] ? 'estimate' : undefined;
+  if (ind.estimatedBy?.[place]?.[year]) return 'estimate';
+  return ind.preliminaryYear !== undefined && year >= ind.preliminaryYear ? 'preliminary' : undefined;
 }
 
 /** Latest actual year (projections excluded) with values for at least `min` places, or the best-covered recent year. */

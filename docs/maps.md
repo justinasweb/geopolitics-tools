@@ -44,7 +44,8 @@ before and without the map script.
 - **Controls.** The mineral picker is a row of links (each mineral is its own page; a phone gets a select). The year
   slider plays through the years; estimated years carry the Estimate tag. "Outline a bloc" draws the members'
   borders and adds one sentence to the panel ("Today’s BRICS members mined 35%…": a bloc is its members today, for
-  every year shown, said with `todaysMembers` in `src/i18n/members.en.ts`). On a phone, year and bloc sit in a
+  every year shown, said with `todaysMembers` in `src/i18n/members.en.ts`; "produced" for gallium, USGS's primary
+  production, and ", according to USGS estimates" where the members' figures are estimated). On a phone, year and bloc sit in a
   Filters sheet.
 - **URL state.** `?year=2024&country=australia&bloc=brics` (`src/scripts/map/state.ts`), kept with
   `history.replaceState`; defaults are left out and the canonical stays the bare path. A year a source does not
@@ -171,8 +172,8 @@ dashed. Borders shown do not imply endorsement." with a link to the methodology,
 
 ## Blocs
 
-`src/data/blocs.csv` lists the members of 19 blocs by internal place id (`src/lib/blocs.ts`, checked 21 October
-2026, from the prototype's list). Phase 5a adds the Wikidata cross-check, which this phase's network could not reach.
+`src/data/blocs.csv` lists the members of 19 blocs by internal place id (`src/lib/blocs.ts`, from the prototype's list,
+checked 21 October 2026 and re-checked 10 November 2026: `BLOCS_CHECKED`, the one date every page shows). Phase 5a adds the Wikidata cross-check, which this phase's network could not reach.
 
 ## Tests
 
@@ -231,7 +232,7 @@ How the adapter (`src/adapters/minerals.ts`) reads them:
 
 ## Blocs (phase 5a)
 
-/blocs maps how many of the 19 groupings each country belongs to; /blocs/{bloc} maps one grouping's members (src/lib/blocview.ts, src/templates/BlocView.astro). Members come from src/data/blocs.csv, as of the date it was last checked; the layer has one "year" and no slider. A grouping's share of the world adds up its members' figures (population, GDP, military spending, CO2, the four crops, and each mineral's mine production where members mine at least 1%) against the sum for every country with a figure, a year back where the latest is missing. "Outline a bloc" on a grouping's page shows its overlap with a second one. A line on what each grouping is, and notes on single memberships (Armenia in the CSTO), are in src/i18n/blocs.en.ts. Alliance history (/blocs/{bloc}/history) is not built yet.
+/blocs maps how many of the 19 groupings each country belongs to; /blocs/{bloc} maps one grouping's members (src/lib/blocview.ts, src/templates/BlocView.astro). Members come from src/data/blocs.csv, as of the date it was last checked; the layer has one "year" and no slider. A grouping's share of the world adds up its members' figures (population, GDP, military spending, CO2, the four crops, and each mineral's mine production, or primary production for gallium, where members have at least 1%) against the sum for every country with a figure, a year back where the latest is missing. "Outline a bloc" on a grouping's page shows its overlap with a second one. A line on what each grouping is, and notes on single memberships (Armenia in the CSTO), are in src/i18n/blocs.en.ts. The summary's mineral sentences (`mineralSentences`) use each mineral's own verb, as the country pages do, with USGS's year and "estimated" in brackets: "Together they mine 79% of the world’s tungsten (USGS, 2025, estimated). They produce 99% of the world’s primary gallium (USGS, 2025, estimated)." Country pages list the groupings a country belongs to in a "Member of" line in their header, linked to these pages. Alliance history (/blocs/{bloc}/history) is not built yet.
 
 ## Alliance history (phase 5a)
 

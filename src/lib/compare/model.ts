@@ -29,8 +29,8 @@ export interface CountryData {
   name: string;
   /** Its country page. */
   href?: string;
-  /** Latest figure of each measure: [value, year]. */
-  f: Record<string, [number, number]>;
+  /** Latest figure of each measure: [value, year], and its tag when it has one, as on the country page. */
+  f: Record<string, Fig>;
   /** Yearly series of the chart measures from SERIES_FROM: [first year, values]. */
   s: Record<string, [number, (number | null)[]]>;
   /** Share of world production, by mineral (any share above zero). */
@@ -75,9 +75,12 @@ export const pairQuery = (a: string, b: string) => `a=${encodeURIComponent(a)}${
 /** Where a pair is shown: its static page, or `page` (/compare) with the pair in the query. */
 export const pairHref = (pairs: Pair[], page: string, a: string, b: string) => staticPair(pairs, a, b)?.path ?? `${page}?${pairQuery(a, b)}`;
 
+/** A figure: value, year and, when it has one, its tag (Estimate, Projection, Preliminary). */
+export type Fig = [number, number] | [number, number, 'estimate' | 'projection' | 'preliminary'];
+
 export interface Row {
   m: MeasureMeta;
-  f: [[number, number], [number, number]];
+  f: [Fig, Fig];
   /** The side with the larger value, or -1 when they are equal. */
   higher: -1 | 0 | 1;
 }

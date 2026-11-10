@@ -5,7 +5,7 @@ import { minerals as loadMinerals, type Mineral, type MineralYear, type Producer
 import { MINERAL_TEXT, inSentence, list } from '../i18n/pages.en.ts';
 import { mineralText } from '../i18n/map.en.ts';
 import { shared } from './data.ts';
-import { formatValue } from './format.ts';
+import { formatValue, formatShare } from './format.ts';
 import { place } from './places.ts';
 
 const mineralsData = shared(loadMinerals);
@@ -19,12 +19,6 @@ export const shareClass = (s: number) => 1 + SHARE_BINS.filter((b) => s >= b).le
 /** Concentration labels from the Herfindahl index (2023 US merger guidelines; spec, design review decision 3.3). */
 export const concentration = (hhi: number): 'low' | 'moderate' | 'high' => (hhi > 1800 ? 'high' : hhi >= 1000 ? 'moderate' : 'low');
 
-/** A share for reading: whole percent from 10%, one decimal below ("32%", "9.7%", "0.1%"). */
-export function shareText(s: number): string {
-  const p = s * 100;
-  if (p > 0 && p < 0.05) return '<0.1%';
-  return `${new Intl.NumberFormat('en', { maximumFractionDigits: p >= 10 ? 0 : 1 }).format(p)}%`;
-}
 /** A share as the table shows it: one decimal ("31.7%", "<0.1%"). */
 export const shareExact = (s: number) => (s > 0 && s < 0.0005 ? '<0.1%' : `${new Intl.NumberFormat('en', { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(s * 100)}%`);
 
@@ -94,7 +88,7 @@ export function lede(p: MineralPage, y = p.latest): string | null {
   if (!l.length) return null;
   // "The top three" says something only when more than three countries are listed (gallium has three).
   const top3 = l.length > 3 ? l.slice(0, 3).reduce((s, x) => s + (x.share ?? 0), 0) : null;
-  return p.text.lede(inSentence(nameOf(l[0]), true), shareText(l[0].share!), p.name, top3 !== null ? shareText(top3) : undefined);
+  return p.text.lede(inSentence(nameOf(l[0]), true), formatShare(l[0].share!), p.name, top3 !== null ? formatShare(top3) : undefined);
 }
 
 /** The summary paragraphs: the world total and change, the top producers, who follows, withheld producers, scope. */
@@ -105,16 +99,16 @@ export function summary(p: MineralPage, y = p.latest): string[] {
   const ch = worldChange(y);
   const first: string[] = [];
   if (y.world) {
-    const change = ch === null ? null : Math.abs(ch) < 0.005 ? null : T.changeIn(shareText(Math.abs(ch)), ch > 0, y.year - 1);
+    const change = ch === null ? null : Math.abs(ch) < 0.005 ? null : T.changeIn(formatShare(Math.abs(ch)), ch > 0, y.year - 1);
     first.push(T.total(count(y.world), unit, p.name, p.basis, y.year, change, y.estimated));
   }
   const top = l.slice(0, 3);
   if (top.length) {
-    const together = top.length === 3 && l.length > 3 ? shareText(top.reduce((s, x) => s + (x.share ?? 0), 0)) : null;
-    first.push(T.top(top.map((x, i) => T.topPart(inSentence(nameOf(x), i === 0), amount(x.value!), p.unit, shareText(x.share!), i === 0)), together));
+    const together = top.length === 3 && l.length > 3 ? formatShare(top.reduce((s, x) => s + (x.share ?? 0), 0)) : null;
+    first.push(T.top(top.map((x, i) => T.topPart(inSentence(nameOf(x), i === 0), amount(x.value!), p.unit, formatShare(x.share!), i === 0)), together));
   }
   const next = l.slice(3, 5);
-  if (next.length) first.push(T.follow(next.map((x) => inSentence(nameOf(x), false)), next.map((x) => shareText(x.share!))));
+  if (next.length) first.push(T.follow(next.map((x) => inSentence(nameOf(x), false)), next.map((x) => formatShare(x.share!))));
   const second: string[] = [];
   const w = withheld(y);
   if (w.length) second.push(T.withheldSentence(list(w.map((x, i) => inSentence(nameOf(x), i === 0))), p.name, w.length > 1));

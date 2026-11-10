@@ -58,6 +58,8 @@ export interface DepRow {
   excess?: 'imports' | 'exports';
   /** The source flags a figure the row uses as its estimate or imputation (FAOSTAT flags E and I): the Estimate label. */
   estimated?: true;
+  /** Oil and gas: the row's year is EIA's latest, which EIA marks preliminary: the Preliminary label. */
+  preliminary?: true;
   /** Where the partners and the main supplier come from, when it is a trade source with its own period; `mirror`:
    *  the flows shown whose amount is the exporter's report (mirror data), named ("United States → Mexico"). */
   partnersFrom?: { source: string; period: string; mirror?: string[]; over?: string[]; leftOut?: string[]; via?: string[] };
@@ -234,9 +236,24 @@ function dated(r: DepRow): DepRow {
   return r.state === 'ok' && r.year !== undefined && latest && r.year < latest - OLD_YEARS ? { ...r, old: true } : r;
 }
 
+/** Marks an oil or gas row whose year is EIA's latest, as the energy maps and indicator pages tag it. */
+function preliminaryMarked(r: DepRow): DepRow {
+  const latest = latestYears()?.[r.resource];
+  return r.source === 'eia' && r.state === 'ok' && r.year !== undefined && latest && r.year >= latest ? { ...r, preliminary: true } : r;
+}
+
+/** A row's tag: Estimate (FAOSTAT's own estimates), else Preliminary (EIA's latest year). */
+export const depStatus = (r: DepRow): 'estimate' | 'preliminary' | undefined => (r.estimated ? 'estimate' : r.preliminary ? 'preliminary' : undefined);
+
+/** A row's source and year in a sentence's brackets, with its tag's word: "EIA, 2024, preliminary". */
+export const depCite = (r: DepRow) => {
+  const s = depStatus(r);
+  return `${SOURCE_SHORT[r.source] ?? r.source}, ${r.year}${s ? `, ${s === 'estimate' ? 'estimated' : 'preliminary'}` : ''}`;
+};
+
 /** The ten rows for a place. */
 export function dependencies(id: string): DepRow[] {
-  return rows(id).map(dated);
+  return rows(id).map(dated).map(preliminaryMarked);
 }
 
 function rows(id: string): DepRow[] {

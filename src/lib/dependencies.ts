@@ -16,7 +16,8 @@ import { PLACES, place } from './places.ts';
 const BALANCE: Record<string, string> = { oil: 'eia', gas: 'eia', arms: 'sipri', chips: 'comtrade' };
 const short = (s: string) => creditName(s);
 const downloads = (s: string) => licenceOf(s)?.downloads === 'yes';
-const share = (v: number) => Number(v.toFixed(4));
+/** Six significant figures, so a share reads here as on the country page (0.49498 is 49%; rounded to 0.495 it read 50%). */
+const share = (v: number) => Number(v.toPrecision(6));
 
 function cellOf(r: DepRow): Cell {
   const c: Cell = {};
@@ -25,6 +26,7 @@ function cellOf(r: DepRow): Cell {
   if (r.noUse) return { why: 'u' };
   if (r.excess) c.why = r.excess === 'exports' ? 'x' : 'e';
   if (r.estimated) c.est = 1;
+  if (r.preliminary) c.pre = 1;
   if (r.old) c.o = 1;
   if (r.usgsProduction) c.pu = 1;
   if (r.reliance !== undefined && !r.main) c.v = share(r.reliance);

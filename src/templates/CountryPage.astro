@@ -38,6 +38,9 @@ import { creditName, data, sourceName } from '../lib/data';
 import { fitSentences, formatDate, formatParts, formatShare, formatValue } from '../lib/format';
 import { notesFor, place } from '../lib/places';
 import { countryHref, indicatorHref, live, paths } from '../lib/routes';
+import { blocsOf } from '../lib/blocview';
+import { BLOCS_CHECKED } from '../lib/blocs';
+import { BLOC_TEXT } from '../i18n/map.en';
 import { countryCrumbs, countryLd } from '../lib/jsonld';
 import { NUCLEAR_TEXT } from '../i18n/nuclear.en';
 import { warheads } from '../lib/nuclear';
@@ -119,6 +122,9 @@ const compareLinks = m.dossier ? DOSSIERS.filter((o) => o !== p.id).map((o) => {
   return r ? { href: r.path, label: COUNTRY_TEXT.compare(nameOf(o)) } : null;
 }).filter((x): x is { href: string; label: string } => x !== null) : [];
 const links = [...compareLinks, { href: paths.countries(), label: COUNTRY_TEXT.allCountries }];
+// The groupings it belongs to (src/data/blocs.csv), in the blocs' order, each linked to its page when live, dated as the
+// bloc pages date their member lists.
+const memberOf = blocsOf(p.id).map((b) => ({ name: COUNTRY_TEXT.memberName[b] ?? BLOC_TEXT[b] ?? b, href: live(`view:blocs:${b}`)?.path }));
 
 // The few-sources box: which of the sources country pages use have something for this place.
 const allSources = countrySources();
@@ -149,6 +155,11 @@ const citation = COUNTRY_TEXT.citation(name, kind, url, Number(m.updated.slice(0
           {pop && <div><dt>{COUNTRY_TEXT.facts.population}</dt><dd>{formatValue(pop.value, INDICATORS.population.format)} <span class="gt-caption">({pop.year})</span></dd></div>}
           {p.kind === 'territory' && p.parent && <div><dt>{COUNTRY_TEXT.facts.administered}</dt><dd>{countryHref(p.parent) ? <a href={countryHref(p.parent)}>{nameOf(p.parent)}</a> : nameOf(p.parent)}</dd></div>}
           {p.status && <div><dt>{COUNTRY_TEXT.facts.status}</dt><dd>{p.status}</dd></div>}
+          {memberOf.length > 0 && (
+            <div class="gt-cpfacts__member"><dt>{COUNTRY_TEXT.facts.memberOf}</dt><dd>
+              {memberOf.map((b, i) => <>{i > 0 && ', '}{b.href ? <a href={b.href}>{b.name}</a> : b.name}</>)}{' '}<span class="gt-caption">({COUNTRY_TEXT.facts.membersAsOf(formatDate(BLOCS_CHECKED))})</span>
+            </dd></div>
+          )}
         </dl>
         {live('compare') && <ComparePicker id="cp-cmp" with={{ slug: p.slug, name }} />}
         <ul class="gt-cplinks">{links.map((l) => <li><a href={l.href}>{l.label} <span aria-hidden="true">→</span></a></li>)}</ul>

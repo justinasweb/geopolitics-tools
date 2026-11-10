@@ -124,7 +124,7 @@ export const MINERALS_VIEW = {
   follow: (names: string[], shares: string[]) => `${names.join(' and ')} follow${names.length === 1 ? 's' : ''} with ${shares.join(' and ')}.`,
   withheldSentence: (names: string, mineral: string, many: boolean) => `${names} also mine${many ? '' : 's'} ${mineral}, but USGS withholds the figure${many ? 's' : ''} to protect company data, so ${many ? 'they are' : 'it is'} not in the world total.`,
   scope: (mineral: string) => `These figures say where ${mineral} ${are(mineral)} mined; refining and trade are not covered here.`,
-  bloc: (bloc: string, share: string, mineral: string, year: number) => `${todaysMembers(bloc, { start: true })} mined ${share} of the world’s ${mineral} in ${year}.`,
+  bloc: (bloc: string, share: string, mineral: string, year: number, estimated = false) => `${todaysMembers(bloc, { start: true })} mined ${share} of the world’s ${mineral} in ${year}${estimated ? ', according to USGS estimates' : ''}.`,
   blocNone: (bloc: string, mineral: string, year: number) => `None of ${todaysMembers(bloc)} is listed as mining ${mineral} in ${year}.`,
   blocWithheld: (names: string) => `Not counted: ${names}, withheld by source.`,
   citation: (edition: number, mineral: string, years: string, url: string, version: string) =>
@@ -160,7 +160,7 @@ export const PRIMARY_VIEW: typeof MINERALS_VIEW = {
   top: (parts: string[], together: string | null) => V.top(parts, null).replace(/\.$/, together ? `; together they produced ${together}.` : '.'),
   withheldSentence: (names: string, mineral: string, many: boolean) => `${names} also produce${many ? '' : 's'} ${mineral}, but USGS withholds the figure${many ? 's' : ''} to protect company data, so ${many ? 'they are' : 'it is'} not in the world total.`,
   scope: (mineral: string) => `These figures say where primary ${mineral} ${are(mineral)} produced; refining to high purity and trade are not covered here.`,
-  bloc: (bloc: string, share: string, mineral: string, year: number) => `${todaysMembers(bloc, { start: true })} produced ${share} of the world’s primary ${mineral} in ${year}.`,
+  bloc: (bloc: string, share: string, mineral: string, year: number, estimated = false) => `${todaysMembers(bloc, { start: true })} produced ${share} of the world’s primary ${mineral} in ${year}${estimated ? ', according to USGS estimates' : ''}.`,
   blocNone: (bloc: string, mineral: string, year: number) => `None of ${todaysMembers(bloc)} is listed as producing primary ${mineral} in ${year}.`,
   citation: (edition: number, mineral: string, years: string, url: string, version: string) =>
     V.citation(edition, mineral, years, url, version).replace('world mine production', 'world primary production'),

@@ -9,7 +9,7 @@ import { formatParts, formatShare } from '../format.ts';
 import { lineChartHtml } from '../linechart.ts';
 import { tagHtml, type Status } from '../tags.ts';
 import { sourceLinksHtml } from '../source-links.ts';
-import { MARK, SIDES, compareCharts, comparePairs, compareRows, gapGroups, type CountryData, type MeasureMeta, type Meta, type Row, type Side } from './model.ts';
+import { MARK, SIDES, compareCharts, comparePairs, compareRows, gapGroups, type CountryData, type Fig, type MeasureMeta, type Meta, type Row, type Side } from './model.ts';
 
 export const esc = (s: string | number) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
 
@@ -37,19 +37,18 @@ function sectionHtml(n: number, id: string, heading: string, find: string, vis: 
 
 // ---------- key figures ----------
 
-// One scale per row, picked from its larger value: "Population, billion: 0.34 and 1.41", never millions beside billions.
-// When that scale would write a figure that is not zero as zero (Tuvalu's 9,492 people as "0.0 million"), each figure
-// keeps its own scale and carries its unit: "9,492" and "25 million".
-const scaleOf = (r: Row) => Math.max(...r.f.map((x) => Math.abs(x[0])));
-const zeroed = (r: Row) => r.f.some(([v]) => v !== 0 && /^\D*0([.,]0+)?$/.test(formatParts(v, r.m.format, r.m.unit, undefined, scaleOf(r)).num));
-const unitOf = (r: Row) => (zeroed(r) ? '' : formatParts(scaleOf(r), r.m.format, r.m.unit).unit);
+// Each figure in its own scale, as the country page writes it: "342 million" beside "1.41 billion", never "0.34" in a
+// billions row. The row's label keeps the units that do not scale ("% of GDP", "years").
+const scaled = (r: Row) => r.m.format.kind === 'money' || r.m.format.kind === 'count';
+const unitOf = (r: Row) => (scaled(r) ? '' : formatParts(r.f[0][0], r.m.format, r.m.unit).unit);
 const shown = (r: Row, v: number) => {
-  if (!zeroed(r)) return formatParts(v, r.m.format, r.m.unit, undefined, scaleOf(r)).num;
   const own = formatParts(v, r.m.format, r.m.unit);
-  return own.unit && !own.unit.startsWith('%') ? `${own.num} ${own.unit}` : own.num;
+  return scaled(r) && own.unit ? `${own.num} ${own.unit}` : own.num;
 };
 const srcYear = (r: Row, c: Two) => T.sourceYear(r.m.credit, r.f.map((x, i) => ({ name: c[i].name, year: x[1] })));
 const label = (m: MeasureMeta) => (m.href ? `<a href="${esc(m.href)}">${esc(m.label)}</a>` : esc(m.label));
+/** A figure's tag, as the country page shows it beside the year. */
+const tagOf = (f: Fig) => (f[2] ? ` ${tagHtml(f[2])}` : '');
 const higherHtml = `<span class="gt-higher">${esc(T.higher)}</span>`;
 
 export function keyHtml(meta: Meta, c: Two): string {
@@ -63,13 +62,13 @@ export function keyHtml(meta: Meta, c: Two): string {
   const body = rows.map((r) => {
     const unit = unitOf(r);
     return `<tr><th scope="row">${label(r.m)}${unit ? `<small>${esc(unit)}</small>` : ''}</th>`
-      + r.f.map((f, i) => `<td class="n${r.higher === i ? ' is-high' : ''}">${esc(shown(r, f[0]))}${r.higher === i ? higherHtml : ''}</td>`).join('')
+      + r.f.map((f, i) => `<td class="n${r.higher === i ? ' is-high' : ''}">${esc(shown(r, f[0]))}${tagOf(f)}${r.higher === i ? higherHtml : ''}</td>`).join('')
       + `<td class="gt-cmptbl__s">${esc(srcYear(r, c))}</td></tr>`;
   }).join('');
   const table = `<div class="gt-tablewrap gt-cmptblwrap" style="--gt-table-h:none" tabindex="0" role="region" aria-label="${esc(T.keyHeading)}">`
     + `<table class="gt-table gt-cmptbl"><caption class="gt-caption">${esc(T.higherNote)}</caption><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
   const phone = `<ul class="gt-cmprows" aria-label="${esc(T.keyHeading)}">` + rows.map((r) => `<li><div class="gt-cmprows__h"><b>${esc(r.m.label)}</b><span class="gt-caption">${esc(unitOf(r))}</span></div>`
-    + `<ul>${r.f.map((f, i) => `<li class="gt-cc--${SIDES[i]}"><span class="gt-cmprows__n">${chipHtml(SIDES[i], c[i])}</span><span class="gt-cmprows__v">${esc(shown(r, f[0]))}</span>${r.higher === i ? higherHtml : ''}</li>`).join('')}</ul>`
+    + `<ul>${r.f.map((f, i) => `<li class="gt-cc--${SIDES[i]}"><span class="gt-cmprows__n">${chipHtml(SIDES[i], c[i])}</span><span class="gt-cmprows__v">${esc(shown(r, f[0]))}${tagOf(f)}</span>${r.higher === i ? higherHtml : ''}</li>`).join('')}</ul>`
     + `<span class="gt-caption">${esc(srcYear(r, c))}</span></li>`).join('') + '</ul>';
   return sectionHtml(1, 'kf', T.keyHeading, '', table + phone + gapLine);
 }

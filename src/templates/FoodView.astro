@@ -26,7 +26,8 @@ import { place } from '../lib/places';
 import { countryHref, indicatorHref, live, route, hubCrumb } from '../lib/routes';
 import { layerPath } from '../lib/map/layers';
 import { breadcrumbs } from '../lib/structured';
-import { shareExact, shareText } from '../lib/minerals';
+import { shareExact } from '../lib/minerals';
+import { formatShare } from '../lib/format';
 import type { FoodRow } from '../lib/food';
 
 interface Props { id: string }
@@ -117,7 +118,7 @@ const bars = (rs: FoodRow[], max: number) => rs.map((r) => ({ id: r.id, text: mt
                   <span class="gt-pkf__label">{Y.worldOwn ? L.worldLabel.replace(', countries reporting', '') : L.worldLabel}</span>
                   <span class="gt-pkf__num">{mt(Y.world)}</span>
                   {ch !== null && (
-                    <span class="gt-pkf__meta"><span class="gt-kf__change"><Icon name={Math.abs(ch) < 0.005 ? 'flat' : ch > 0 ? 'up' : 'down'} />{Math.abs(ch) < 0.005 ? F.sameAs(yr - 1) : F.change2(shareText(Math.abs(ch)), ch > 0, yr - 1, mt(p.byYear[yr - 1].world!))}</span></span>
+                    <span class="gt-pkf__meta"><span class="gt-kf__change"><Icon name={Math.abs(ch) < 0.005 ? 'flat' : ch > 0 ? 'up' : 'down'} />{Math.abs(ch) < 0.005 ? F.sameAs(yr - 1) : F.change2(formatShare(Math.abs(ch)), ch > 0, yr - 1, mt(p.byYear[yr - 1].world!))}</span></span>
                   )}
                 </div>
               )}

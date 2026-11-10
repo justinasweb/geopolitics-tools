@@ -1,6 +1,7 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import { Resvg } from '@resvg/resvg-js';
 import { barLayout, fitLabel, G, measure, shareSvg, type Card } from '../../src/lib/og.ts';
+import { formatShare } from '../../src/lib/format.ts';
 
 // Share images (src/lib/og.ts): bar labels wrap to two lines or are cut after a whole word, never mid-word, and every
 // row fits the card, whatever the label.
@@ -131,6 +132,32 @@ describe('share image cards', () => {
     expect(history).toHaveLength(11);
     for (const c of blocs) expect(c.card.source, c.key).toMatch(/^The groupings’ own member lists, as of \d{1,2} \w{3} \d{4}/);
     for (const c of history) expect(c.card.source, c.key).toMatch(/^The groupings’ own member lists and histories, as of \d{4}$/);
+  });
+
+  it('give the mineral bars on country cards their year, USGS as a source and "estimate" where USGS estimates', async () => {
+    const { countryModel } = await import('../../src/lib/country.ts');
+    const withBars = cards.filter((c) => c.family === 'country' && c.card.bars?.length);
+    expect(withBars.length).toBeGreaterThan(0);
+    for (const c of withBars) {
+      const m = countryModel(c.key.split(':')[1])!;
+      expect(c.card.source, c.key).toContain('USGS (mineral shares)');
+      c.card.bars!.forEach((b, i) => {
+        expect(b.label, c.key).toMatch(new RegExp(`, ${m.minerals[i].year}$`));
+        expect(b.text.endsWith('(estimate)'), `${c.key} ${b.label}`).toBe(m.minerals[i].estimated);
+        // The site's one share formatter, as the country page writes the same share.
+        expect(b.text.replace(/ \(estimate\)$/, ''), `${c.key} ${b.label}`).toBe(formatShare(m.minerals[i].share));
+      });
+    }
+  });
+
+  it('date the mineral cards by the data year, not USGS’s edition', async () => {
+    const { mineralPage, listed } = await import('../../src/lib/minerals.ts');
+    for (const c of cards.filter((x) => x.family === 'minerals')) {
+      const p = mineralPage(c.key.split(':')[2])!;
+      expect(c.card.source, c.key).toBe(`USGS, ${p.latest.year}${p.latest.estimated ? ', estimated' : ''}`);
+      const top = listed(p.latest).slice(0, 5);
+      expect(c.card.bars!.map((b) => b.text), c.key).toEqual(top.map((x) => formatShare(x.share!)));
+    }
   });
 
   it('credit the dams and the water figures on every river card, on one line beside the site name', () => {
