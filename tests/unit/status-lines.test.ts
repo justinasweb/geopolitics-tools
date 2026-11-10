@@ -47,7 +47,8 @@ describe('tags in one-line summaries and share images', () => {
     const home = M.places().rankings;
     expect(home.length).toBeGreaterThan(0);
     for (const r of home) expect(r.top, r.label).toContain('(estimate)');
-  });
+    // Builds the hub and home page models from every sample file: about 2 s here, over 5 s on a slow CI runner.
+  }, 30_000);
 
   it('labels an estimate on the indicator, country and food share images', () => {
     markTop('co2');
