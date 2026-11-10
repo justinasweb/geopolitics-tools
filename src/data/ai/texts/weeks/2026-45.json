@@ -24,7 +24,7 @@
     "sanctions-us-added"
   ],
   "drafted": "2026-11-09",
-  "approved": false,
-  "approvedOn": null,
-  "approvedVia": null
+  "approved": true,
+  "approvedOn": "2026-11-10",
+  "approvedVia": "telegram"
 }
