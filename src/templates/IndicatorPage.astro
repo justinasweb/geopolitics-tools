@@ -26,6 +26,7 @@ import { creditLine, creditName, licenceOf, refreshed } from '../lib/data';
 import { formatValue } from '../lib/format';
 import { place } from '../lib/places';
 import { breaks, classOf, type Row } from '../lib/stats';
+import { seqEdges } from '../lib/views';
 import { countryHref, indicatorHref, paths } from '../lib/routes';
 import { indicatorCrumbs, indicatorDescription, indicatorLd } from '../lib/jsonld';
 
@@ -54,8 +55,9 @@ const yearText = String(m.year);
 const behind = m.latest.filter((r) => r.year < m.year).length;
 const max = Math.max(...m.latest.map((r) => Math.abs(r.value))) || 1;
 
-// The map: five quantile classes of the common year.
-const b = breaks(m.common.map((r) => r.value));
+// The map: five quantile classes of the common year; a count with a long tail gets upper bands, as on the views.
+const q = breaks(m.common.map((r) => r.value));
+const b = fmt.kind === 'count' && q.length === 4 ? seqEdges(m.common.map((r) => r.value), true) : q;
 const classes = b.length === 4 ? Object.fromEntries(m.common.map((r) => [r.id, classOf(r.value, b)])) : null;
 const ticks = b.length === 4 ? [`under ${formatValue(b[0], fmt)}`, ...b.slice(0, 3).map((x, i) => `${formatValue(x, fmt)}–${formatValue(b[i + 1], fmt)}`), `${formatValue(b[3], fmt)}+`] : [];
 

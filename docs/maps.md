@@ -58,6 +58,12 @@ before and without the map script.
   page's live region.
 - **Reduced motion.** No fades, instant zooms, and a slower play.
 
+Sequential registry maps (the views in `src/lib/views.ts` and the indicator pages) shade in five quantile classes of
+the default year (`seqEdges`). A count whose largest value is more than 10 times its top quintile edge (`TAIL`: refugees
+by origin and hosted, sanctions, the Entity List) keeps the 40th and 80th percentiles and adds two upper edges, a third
+and two thirds of the way to the largest on a log scale, rounded to 1, 2 or 5 (refugees by origin: 1,000, 83,000,
+500,000, 2 m). Other long tails (CO2, arms exports, chip trade, lending) keep their quintiles for now.
+
 Year sliders label up to six ticks, evenly spread, the first and the last always (`YearSlider`), so the first tick is
 the slider's first year; the slider runs over every year with at least half the default year's coverage.
 

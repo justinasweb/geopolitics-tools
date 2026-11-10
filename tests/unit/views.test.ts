@@ -123,3 +123,18 @@ describe('not reported on country pages', () => {
     expect(countryModel('DEU')!.blocks.refugees!.hostedUnreported).toBeUndefined();
   });
 });
+
+describe('map legends', () => {
+  it('give a count with a long tail upper bands, so the largest are told apart', () => {
+    // Refugees by origin: the top fifth runs from 83,000 to 7.6 m.
+    const origins = [...Array.from({ length: 40 }, (_, i) => 10 * (i + 1)), ...Array.from({ length: 40 }, (_, i) => 1_000 * (i + 1)), ...Array.from({ length: 15 }, (_, i) => 83_000 + 10_000 * i), 600_000, 1_500_000, 2_500_000, 5_200_000, 7_640_000];
+    const plain = V.seqEdges(origins);
+    const tail = V.seqEdges(origins, true);
+    expect(plain).toHaveLength(4);
+    expect(tail.slice(2)).toEqual([500_000, 2_000_000]);
+    expect(tail[1]).toBe(plain[3]);
+    // A short tail keeps its quintiles.
+    const even = Array.from({ length: 100 }, (_, i) => i + 1);
+    expect(V.seqEdges(even, true)).toEqual(V.seqEdges(even));
+  });
+});

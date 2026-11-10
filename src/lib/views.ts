@@ -67,10 +67,30 @@ export function classFor(p: ViewPage, v: number): number {
   return 1 + classOf(v, p.edges);
 }
 
-/** Five sequential classes from the default year's values, rounded, and kept for every year. */
-function seqEdges(rows: Row[]): number[] {
-  const b = breaks(rows.map((r) => r.value).filter((v) => v > 0));
-  return b.length === 4 ? b : [...b, ...Array(4 - b.length).fill(b.at(-1) ?? 1)].slice(0, 4);
+/** A count map whose largest value is more than this many times its top quintile edge gets upper bands. */
+export const TAIL = 10;
+
+/** The nearest 1, 2 or 5 times a power of ten, on a log scale: 768,000 → 1 m. */
+function nearest125(v: number): number {
+  const p = 10 ** Math.floor(Math.log10(v));
+  return [1, 2, 5, 10].map((m) => m * p).reduce((a, b) => (Math.abs(Math.log(b / v)) < Math.abs(Math.log(a / v)) ? b : a));
+}
+
+/**
+ * Five sequential classes from the default year's values, rounded, and kept for every year: quintiles. A count with a
+ * long tail (refugees by origin: the top fifth runs from 83,000 to 7.6 m) keeps the 40th and 80th percentiles and adds
+ * two upper edges, a third and two thirds of the way to the largest value on a log scale (500,000, 2 m), so the largest
+ * are told apart.
+ */
+export function seqEdges(values: number[], tail = false): number[] {
+  const v = values.filter((x) => x > 0);
+  const b = breaks(v);
+  if (b.length < 4) return [...b, ...Array(4 - b.length).fill(b.at(-1) ?? 1)].slice(0, 4);
+  const max = Math.max(...v);
+  if (!tail || max <= TAIL * b[3]) return b;
+  const r = max / b[3];
+  const up = [nearest125(b[3] * r ** (1 / 3)), nearest125(b[3] * r ** (2 / 3))];
+  return up[0] > b[3] && up[1] > up[0] ? [b[1], b[3], ...up] : b;
 }
 
 function worldOf(layer: ViewLayer, year: number, rows: Row[]): { world: number | null; worldOwn: boolean } {
@@ -116,7 +136,7 @@ function buildPage(family: ViewFamily, layer: ViewLayer): ViewPage | null {
     byYear[y] = { year: y, rows, ...worldOf(layer, y, rows) };
   }
   const format = loaded.indicator.format;
-  const edges = layer.edges ?? (layer.scale === 'div' ? DIV_EDGES : seqEdges(byYear[year].rows));
+  const edges = layer.edges ?? (layer.scale === 'div' ? DIV_EDGES : seqEdges(byYear[year].rows.map((r) => r.value), format.kind === 'count'));
   const f = (v: number) => formatValue(v, format);
   // Ticks name ranges once, with their unit ("1–7 Mt"). A diverging scale's ticks are sizes, the same on both
   // sides ("10–30%"); its two ends say the direction.
