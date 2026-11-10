@@ -249,6 +249,28 @@ describe('fertilisers on supply', () => {
     expect(DEP_TEXT.exportsNote('FAOSTAT')).toBe('Exports can come from an earlier harvest or stocks; FAOSTAT’s yearly figures do not separate them');
   });
 
+  it('use USGS’s potash output where FAOSTAT’s own estimate is more than twice from it', async () => {
+    const { fromBalance, rowSource, usgsPotash } = await import('../../src/lib/dependence.ts');
+    const { potashOutput } = await import('../../src/adapters/minerals.ts');
+    // China 2024, Mt K2O: FAOSTAT estimates 1.12 produced; USGS 6.3.
+    const cn = balance(1.115391, 7.7, 0.04, 9, ['production'])!;
+    const u = usgsPotash(cn, 'X', { X: { 2024: 6.3 } })!;
+    expect(u.production.X[2024]).toBe(6.3);
+    const row = { ...fromBalance('potash', u, 'X', undefined, true), usgsProduction: true as const };
+    expect(row.reliance).toBeCloseTo(7.66 / (6.3 + 7.66), 4);
+    expect(rowSource(row)).toBe('FAOSTAT, 2024. Production: USGS, as FAOSTAT’s figure is an estimate far from it');
+    // Within 2×, or FAOSTAT's own figure, not an estimate: FAOSTAT's stays.
+    expect(usgsPotash(balance(1.62, 0, 1.5, 0, ['production'])!, 'X', { X: { 2024: 2.4 } })).toBeNull();
+    expect(usgsPotash(balance(1.1, 7.7, 0, 9)!, 'X', { X: { 2024: 6.3 } })).toBeNull();
+    expect(usgsPotash(cn, 'X', { X: { 2023: 6.3 } })).toBeNull();
+    // USGS's world table, thousand tonnes of K2O equivalent.
+    const csv = 'MCS chapter,Section,Commodity,Country,Statistics,Statistics_detail,Unit,Year,Value,Notes,Is critical mineral 2025,Other notes\n'
+      + 'POTASH,World Mine Production and Reserves,Potash,China,Production,Mine production,thousand metric tons,2024,"6,300",Estimated.,Yes,"(Data in thousand metric tons, potassium oxide (K2O) equivalent, unless otherwise specified)"\n'
+      + 'POTASH,World Mine Production and Reserves,Potash,World total,Production,Mine production,thousand metric tons,2024,"46,700",,Yes,"(Data in thousand metric tons, potassium oxide (K2O) equivalent, unless otherwise specified)"\n';
+    const raw = { has: () => true, list: () => ['MCS2026_Commodities_Data.csv'], text: () => csv, json: () => ({}) } as never;
+    expect(potashOutput(raw)).toEqual({ CHN: { 2024: 6.3 } });
+  });
+
   it('label an estimated cell in the grid', () => {
     const g: Grid = { ...grid, rows: grid.rows.map((r) => (r.id === 'HUN' ? { ...r, cells: r.cells.map((c, i) => (i === 6 ? { v: 0.94, y: '2024', est: 1 as const } : c)) } : r)) };
     const html = tableHtml({ ...DEFAULTS, sort: 'potash' }, g);

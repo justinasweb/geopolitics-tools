@@ -48,7 +48,8 @@ function cellHtml(grid: Grid, r: ResourceId, c: Cell, tag: 'td' | 'span' = 'td')
   const said0 = noted && c.tm ? `${noted}; ${DEP_TEXT.supplierAsReported}` : noted;
   // An old balance says so, and that its partners are from a much later year.
   const gap = c.y && c.ty ? Number(c.ty) - Number(c.y) : 0;
-  const said = said0 && c.o ? `${said0}; ${DEP_TEXT.noRecent(Number(c.y))}${gap > 10 ? `; ${DEP_TEXT.partnersLater(Number(c.ty), gap)}` : ''}` : said0;
+  const said1 = said0 && c.pu ? `${said0}; ${DEP_TEXT.usgsProduction}` : said0;
+  const said = said1 && c.o ? `${said1}; ${DEP_TEXT.noRecent(Number(c.y))}${gap > 10 ? `; ${DEP_TEXT.partnersLater(Number(c.ty), gap)}` : ''}` : said1;
   const title = said ? ` title="${esc(said)}"` : quiet ? ` title="${esc(s)}"` : '';
   const sub = !s ? '' : quiet ? `<span class="gt-vh">${esc(s)}</span>` : `<span class="gt-dg__s">${esc(s)}</span>`;
   const est = c.est ? tagHtml('estimate') : '';

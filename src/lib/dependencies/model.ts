@@ -40,6 +40,8 @@ export interface Cell {
   /** 1 when the balance is more than OLD_YEARS (src/lib/dependence.ts) before its resource's latest year: shown with
    *  its year and "no recent data", out of the sort, the phone ranking and reliance on one supplier. */
   o?: 1;
+  /** 1 when a potash balance uses USGS's production, FAOSTAT's estimate being far from it. */
+  pu?: 1;
 }
 
 export interface ResourceMeta {

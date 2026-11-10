@@ -69,6 +69,8 @@ export const DEP_TEXT = {
   /** A balance far older than the latest for its resource, and partners from a much later year. */
   noRecent: (year: number) => `No recent data: the latest balance is from ${year}`,
   partnersLater: (year: number, gap: number) => `Main partners are from ${year}, ${gap} years after the balance`,
+  /** A potash row whose production is USGS's (usgsPotash in src/lib/dependence.ts). */
+  usgsProduction: 'Production: USGS, as FAOSTAT’s figure is an estimate far from it',
   /** Crops whose exports exceed production plus imports. */
   exportsNote: (source: string) => `Exports can come from an earlier harvest or stocks; ${source}’s yearly figures do not separate them`,
   mainSupplier: (name: string, share: string) => `Main supplier: ${name}, ${share} of imports`,
