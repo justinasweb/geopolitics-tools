@@ -9,7 +9,7 @@
     "GBR",
     "TWN"
   ],
-  "generated": "src/lib/ai/dossier-facts.ts from snapshot 2026-11-09T0429Z",
+  "generated": "src/lib/ai/dossier-facts.ts from snapshot 2026-11-09T1526Z",
   "facts": [
     {
       "id": "gdp",
@@ -578,90 +578,6 @@
       "date": "2026-10-28"
     },
     {
-      "id": "satellites",
-      "statement": "Satellites in orbit of the United States.",
-      "value": 14008,
-      "unit": "satellites",
-      "period": "2026",
-      "places": [
-        "USA"
-      ],
-      "source": "CelesTrak SATCAT",
-      "link": "https://celestrak.org/satcat/search.php",
-      "date": "2026-11-08"
-    },
-    {
-      "id": "satellites-rank",
-      "statement": "The United States’ place on satellites in orbit, largest first.",
-      "value": 1,
-      "unit": "rank",
-      "period": "2026",
-      "places": [
-        "USA"
-      ],
-      "source": "CelesTrak SATCAT",
-      "link": "https://celestrak.org/satcat/search.php",
-      "date": "2026-11-08"
-    },
-    {
-      "id": "satellites-of",
-      "statement": "Places ranked on satellites in orbit.",
-      "value": 81,
-      "unit": "places",
-      "unitAliases": [
-        "countries"
-      ],
-      "period": "2026",
-      "places": [
-        "USA"
-      ],
-      "source": "CelesTrak SATCAT",
-      "link": "https://celestrak.org/satcat/search.php",
-      "date": "2026-11-08"
-    },
-    {
-      "id": "launches",
-      "statement": "Orbital launches of the United States.",
-      "value": 131,
-      "unit": "launches",
-      "period": "2026",
-      "places": [
-        "USA"
-      ],
-      "source": "CelesTrak SATCAT",
-      "link": "https://celestrak.org/satcat/search.php",
-      "date": "2026-11-08"
-    },
-    {
-      "id": "launches-rank",
-      "statement": "The United States’ place on orbital launches, largest first.",
-      "value": 1,
-      "unit": "rank",
-      "period": "2026",
-      "places": [
-        "USA"
-      ],
-      "source": "CelesTrak SATCAT",
-      "link": "https://celestrak.org/satcat/search.php",
-      "date": "2026-11-08"
-    },
-    {
-      "id": "launches-of",
-      "statement": "Places ranked on orbital launches.",
-      "value": 9,
-      "unit": "places",
-      "unitAliases": [
-        "countries"
-      ],
-      "period": "2026",
-      "places": [
-        "USA"
-      ],
-      "source": "CelesTrak SATCAT",
-      "link": "https://celestrak.org/satcat/search.php",
-      "date": "2026-11-08"
-    },
-    {
       "id": "aicompute",
       "statement": "Share of AI computing power of the United States.",
       "value": 80.9335,
@@ -796,7 +712,7 @@
       "places": [
         "USA"
       ],
-      "source": "WRI Aqueduct",
+      "source": "WRI Aqueduct, accessed on 25 Oct 2026, aqueduct.wri.org (CC BY 4.0)",
       "link": "https://www.wri.org/aqueduct",
       "date": "2026-10-25"
     },
@@ -809,7 +725,7 @@
       "places": [
         "USA"
       ],
-      "source": "WRI Aqueduct",
+      "source": "WRI Aqueduct, accessed on 25 Oct 2026, aqueduct.wri.org (CC BY 4.0)",
       "link": "https://www.wri.org/aqueduct",
       "date": "2026-10-25"
     },
@@ -825,7 +741,7 @@
       "places": [
         "USA"
       ],
-      "source": "WRI Aqueduct",
+      "source": "WRI Aqueduct, accessed on 25 Oct 2026, aqueduct.wri.org (CC BY 4.0)",
       "link": "https://www.wri.org/aqueduct",
       "date": "2026-10-25"
     },
@@ -1051,7 +967,7 @@
       ],
       "source": "UN Comtrade",
       "link": "https://comtradeplus.un.org/",
-      "date": "2026-11-02"
+      "date": "2026-11-09"
     },
     {
       "id": "mineral-rare-earths",
