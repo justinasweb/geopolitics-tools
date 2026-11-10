@@ -3,8 +3,12 @@
 // ISO3 code. Units as EIA reports them: oil in thousand barrels a day (reserves in billion barrels), gas in billion
 // cubic metres a year (reserves in trillion cubic metres); rows in cubic feet are converted.
 //
+// crude_imports_us.json is EIA's US crude oil imports by country of origin, in thousand barrels a day: the flows into the
+// United States on the oil map and supply chain, in place of UN Comtrade's tonnes turned into barrels (usCrude).
+//
 // Oil's net trade uses total petroleum and other liquids (crude plus natural gas liquids and other liquids), not
 // crude alone: the United States buys crude but is a net exporter of petroleum overall.
+import type { Flow } from './comtrade.ts';
 import { type Raw, type Series, matcher, num, put } from './core.ts';
 
 type Row = Record<string, string | number | null>;
@@ -81,3 +85,21 @@ export function parsePrices(file: File): Prices {
 export const oil = (raw: Raw) => parseOil(raw.json<File>('eia', 'oil_international.json'));
 export const gas = (raw: Raw) => parseGas(raw.json<File>('eia', 'gas_international.json'));
 export const oilPrices = (raw: Raw) => parsePrices(raw.json<File>('eia', 'oil_spot_prices.json'));
+
+/** US crude oil imports by country of origin as flows into the United States (thousand barrels a day), largest first.
+ *  Rows named by EIA's own "NA" (South Sudan) or another unmatched name drop out. */
+export function parseUsCrude(file: File): Flow[] {
+  const m = matcher('eia', 'iso3');
+  const out: Flow[] = [];
+  for (const r of file.response?.data ?? []) {
+    const v = num(r.value);
+    const name = String(r['area-name'] ?? '');
+    if (v === null || !(v > 0) || !/^[A-Z]{3}$/.test(name)) continue;
+    const id = m.match(name);
+    if (id && id !== 'USA') out.push({ from: id, to: 'USA', amount: v, year: Number(r.period), via: 'eia' });
+  }
+  return out.sort((a, b) => b.amount - a.amount);
+}
+
+/** Empty when the snapshot was fetched before the file was added (10 Nov 2026): the flows stay UN Comtrade's. */
+export const usCrude = (raw: Raw) => (raw.has('eia', 'crude_imports_us.json') ? parseUsCrude(raw.json<File>('eia', 'crude_imports_us.json')) : []);

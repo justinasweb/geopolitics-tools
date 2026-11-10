@@ -70,6 +70,7 @@ export function chainOf(key: string): Chain {
   }
   const updated = refreshed(f.source);
   const mirror = f.pairs.filter((p) => p.mirror).map((p) => DEP_TEXT.flow(places[p.from].n, places[p.to].n));
+  const via = f.pairs.filter((p) => p.via === 'eia').map((p) => DEP_TEXT.flow(places[p.from].n, places[p.to].n));
   const full = fullOf(key, Number(f.period), Object.keys(places));
   const fuel = key === 'oil' || key === 'gas' ? key : null;
   const over = Object.fromEntries(fuel ? f.pairs.filter((p) => p.output !== undefined).map((p) => [`${p.from}>${p.to}`,
@@ -83,7 +84,9 @@ export function chainOf(key: string): Chain {
     ...(Object.keys(over).length ? { over } : {}),
     ...(full ? { full } : {}),
     ...(key === 'gas' && notShown ? { notShown } : {}),
-    src: f.source, source: sourceName(f.source), credit: SOURCE_SHORT[f.source] ?? sourceName(f.source),
+    ...(via.length ? { via } : {}),
+    ...(key === 'oil' ? { notes: [...(via.length ? [ENERGY_TEXT.usImports] : []), ENERGY_TEXT.crudeTonnes].join(' ') } : {}),
+    src: f.source, source: via.length ? `${sourceName(f.source)}; ${sourceName('eia')} (${ENERGY_TEXT.usSource})` : sourceName(f.source), credit: SOURCE_SHORT[f.source] ?? sourceName(f.source),
     updated, retrieved: (updated ?? '').slice(0, 10), csv: licenceOf(f.source)?.downloads === 'yes',
     method: `${paths.page('methodology')}#supply-chains`,
   };

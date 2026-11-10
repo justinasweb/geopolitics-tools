@@ -1,7 +1,9 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import { rawDir } from '../../src/adapters/core.ts';
-import { LEFT_OUT, chipFlows, comtrade, completeYear, crudeFlows, fertiliserFlows, gasBcm, gasFlows, gasLeftOut, gasUnreported, parseComtrade, partners } from '../../src/adapters/comtrade.ts';
-import { gas, oil, oilPrices, parseOil } from '../../src/adapters/eia.ts';
+import { LEFT_OUT, chipFlows, comtrade, completeYear, crudeFlows, fertiliserFlows, gasBcm, gasFlows, gasLeftOut, gasUnreported, parseComtrade, partners, withUsImports } from '../../src/adapters/comtrade.ts';
+import { gas, oil, oilPrices, parseOil, parseUsCrude, usCrude } from '../../src/adapters/eia.ts';
+import { type Raw } from '../../src/adapters/core.ts';
+import { loadFlows } from '../../src/data/flows.ts';
 import { ENERGY_TEXT } from '../../src/i18n/energy.en.ts';
 
 // The oil and gas views and the Comtrade and EIA adapters, built from the sample files.
@@ -212,6 +214,58 @@ describe('EIA adapter', () => {
     expect(p.brent[0].date < p.brent.at(-1)!.date).toBe(true);
     const bcf = parseOil({ response: { data: [{ period: '2024', productId: 57, activityName: 'Production', countryRegionId: 'XXX', unit: 'TBPD', value: '--' }] } });
     expect(bcf.production).toEqual({});
+  });
+});
+
+describe('crude flows into the United States', () => {
+  // EIA's US crude imports by country of origin, as the fetcher saves them (pipeline/sources/eia.ts).
+  const row = (period: string, name: string, value: string) => ({ period, duoarea: `NUS-N${name.slice(0, 2)}`, 'area-name': name, units: 'MBBL/D', value });
+  const file = (rows: ReturnType<typeof row>[]) => ({ response: { data: rows } });
+  const withEia = (rows: ReturnType<typeof row>[]): Raw => ({
+    ...raw,
+    has: (s, f) => (s === 'eia' && f === 'crude_imports_us.json') || raw.has(s, f),
+    json: <T,>(s: string, f: string) => (s === 'eia' && f === 'crude_imports_us.json' ? file(rows) : raw.json(s, f)) as T,
+  });
+
+  it('reads EIA\'s imports by country of origin, without its "NA" rows or empty values', () => {
+    const f = parseUsCrude(file([row('2025', 'CAN', '3910'), row('2025', 'MEX', '383'), row('2025', 'NA', '3'), row('2025', 'SAU', '0')]));
+    expect(f).toEqual([
+      { from: 'CAN', to: 'USA', amount: 3910, year: 2025, via: 'eia' },
+      { from: 'MEX', to: 'USA', amount: 383, year: 2025, via: 'eia' },
+    ]);
+    expect(usCrude(raw)).toEqual([]);
+  });
+
+  it('takes EIA\'s flows into the United States in the years EIA has, and UN Comtrade\'s for the rest', () => {
+    const comtradeFlows = [
+      { from: 'CAN', to: 'USA', amount: 4549, year: 2025 }, { from: 'MEX', to: 'USA', amount: 439, year: 2025 },
+      { from: 'CAN', to: 'USA', amount: 4300, year: 2024 }, { from: 'RUS', to: 'CHN', amount: 2150, year: 2025 },
+    ];
+    const f = withUsImports(comtradeFlows, [{ from: 'CAN', to: 'USA', amount: 3910, year: 2025, via: 'eia' }]);
+    expect(f.map((x) => `${x.year} ${x.from}>${x.to} ${x.amount}`)).toEqual(['2024 CAN>USA 4300', '2025 CAN>USA 3910', '2025 RUS>CHN 2150']);
+  });
+
+  it('gives the oil flows EIA\'s figure for the United States, in UN Comtrade\'s year', () => {
+    const before = loadFlows(raw, 'oil');
+    const y = before.period;
+    const after = loadFlows(withEia([row(y, 'CAN', '3910'), row(y, 'MEX', '383'), row(String(Number(y) - 1), 'CAN', '3800')]), 'oil');
+    expect(after.period).toBe(y);
+    expect(after.pairs.filter((p) => p.to === 'USA')).toEqual([
+      { from: 'CAN', to: 'USA', amount: 3910, via: 'eia' },
+      { from: 'MEX', to: 'USA', amount: 383, via: 'eia' },
+    ]);
+    // Every other flow is unchanged.
+    const rest = (ps: typeof after.pairs) => ps.filter((p) => p.to !== 'USA');
+    expect(rest(after.pairs)).toEqual(rest(before.pairs));
+  });
+
+  it('says how crude flows become barrels, and when the US flows are EIA\'s', () => {
+    const line = (us: boolean) => ENERGY_TEXT.caveats('oil', 'trade', 2025, [], false, us).join(' ');
+    expect(line(false)).toContain('Converted from tonnes at an average 7.33 barrels a tonne; heavy crudes (Canada, Venezuela) hold fewer barrels a tonne, so their flows read up to about 15% high.');
+    expect(line(false)).not.toContain('EIA’s crude oil imports');
+    expect(line(true)).toContain('Flows into the United States are EIA’s crude oil imports by country of origin, in barrels a day.');
+    expect(ENERGY_TEXT.sourceFlows('oil', true)).toBe('UN Comtrade, imports by partner (HS 2709); EIA, US crude oil imports by country of origin');
+    expect(ENERGY_TEXT.flowTip('Canada', 'United States', '3.9 m b/d', 2025, undefined, true)).toBe('Canada → United States: 3.9 m b/d (2025, EIA)');
   });
 });
 

@@ -20,7 +20,7 @@ import { DISASTERS_TEXT, KIND_TEXT } from '../../i18n/disasters.en.ts';
 import { formatDate, formatPartialDate, formatValue } from '../format.ts';
 import { TOP_FLOWS, balanceOf, estimated as foodEstimated, classFor as foodClass, foodPages, mt, netText, placeNotes, shareOf as foodShare, sourceOf, valueText as foodValue, type FoodPage } from '../food.ts';
 import { FOOD_TEXT } from '../../i18n/food.en.ts';
-import { TOP_FLOWS as ENERGY_TOP, amount as energyAmount, balanceOf as energyBalance, balanceYear, classFor as energyClass, energyPages, shareOf as energyShare, valueText as energyValue, type EnergyPage } from '../energy.ts';
+import { TOP_FLOWS as ENERGY_TOP, amount as energyAmount, balanceOf as energyBalance, balanceYear, classFor as energyClass, energyPages, pageUs, shareOf as energyShare, viaEia, valueText as energyValue, type EnergyPage } from '../energy.ts';
 import { ENERGY_TEXT } from '../../i18n/energy.en.ts';
 import { arcXY, toMap } from './projection.ts';
 import { sitesIn, spaceAsOf, workingBy } from '../space.ts';
@@ -811,7 +811,7 @@ function energyLayer(p: EnergyPage): LayerFile {
     const kinds = p.fuel === 'gas' ? (['pipe', 'lng'] as const) : ([undefined] as const);
     for (const kind of kinds) {
       const items = p.flows.filter((f) => f.kind === kind && at[f.from] && at[f.to]).slice(0, ENERGY_TOP)
-        .map((f) => ({ p: arcXY(at[f.from], at[f.to]), w: f.amount, tip: E.flowTip(nameOf2(f.from), nameOf2(f.to), energyAmount(p.fuel, 'production', f.amount), p.flowYear!, kind && E.kind[kind]) }));
+        .map((f) => ({ p: arcXY(at[f.from], at[f.to]), w: f.amount, tip: E.flowTip(nameOf2(f.from), nameOf2(f.to), energyAmount(p.fuel, 'production', f.amount), p.flowYear!, kind && E.kind[kind], viaEia(f)) }));
       if (!items.length) continue;
       overlays.push({ id: `flows-${kind ?? 'all'}`, kind: 'arcs', label: E.marks[kind ?? 'flows'], year: p.flowYear, ...(kind === 'lng' ? { dashed: true } : {}), items });
     }
@@ -820,7 +820,7 @@ function energyLayer(p: EnergyPage): LayerFile {
   return {
     id: `energy-${p.id}`, name: L.title(T.pick), scale: trade ? 'div' : 'seq', years: p.years, year: p.year, ticks: p.ticks, ends: trade ? E.ends : undefined,
     missing: { none: E.none, notyet: data.some((d) => Object.values(d.v).some((e) => e[0] === -1)) ? E.notYetLegend : undefined },
-    source: overlays.length ? `${E.source}; ${E.sourceFlows(p.fuel)}` : E.source,
+    source: overlays.length ? `${E.source}; ${E.sourceFlows(p.fuel, pageUs(p))}` : E.source,
     text: {
       ...(c.words as LayerFile['text']),
       kicker: `${L.title(T.pick)} · {year}`, measure: L.measure, shareLabel: trade ? L.figure : E.share, none: E.notListed(0).replace('0', '{year}'),

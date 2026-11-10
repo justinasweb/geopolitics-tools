@@ -60,7 +60,7 @@ export interface DepRow {
   estimated?: true;
   /** Where the partners and the main supplier come from, when it is a trade source with its own period; `mirror`:
    *  the flows shown whose amount is the exporter's report (mirror data), named ("United States → Mexico"). */
-  partnersFrom?: { source: string; period: string; mirror?: string[]; over?: string[]; leftOut?: string[] };
+  partnersFrom?: { source: string; period: string; mirror?: string[]; over?: string[]; leftOut?: string[]; via?: string[] };
   /** The balance is more than OLD_YEARS before the latest year any place has for this resource. */
   old?: true;
   /** Potash: the balance year's production is USGS's, FAOSTAT's own estimate being far from it (usgsPotash in
@@ -94,7 +94,8 @@ export function rowSource(r: DepRow): string | null {
   if (r.year === undefined) return r.period ? DEP_TEXT.dated(short(r.source), r.period) : null;
   const f = r.partnersFrom;
   const line = DEP_TEXT.dated(short(r.source), String(r.year), f && short(f.source), f?.period, r.buyers, onSupply(r.resource) ? 'supply' : 'use');
-  const out0 = f?.mirror?.length ? `${line}, ${DEP_TEXT.asReported(f.mirror)}` : line;
+  const reported = f?.mirror?.length ? `${line}, ${DEP_TEXT.asReported(f.mirror)}` : line;
+  const out0 = f?.via?.length ? `${reported}; ${ENERGY_TEXT.usRow(f.via)}` : reported;
   const out = r.usgsProduction ? `${out0}. ${DEP_TEXT.usgsProduction}` : out0;
   const notes = [...(f?.over ?? []), ...(f?.leftOut ?? [])];
   return notes.length ? `${out}. ${notes.join(' ')}` : out;
@@ -155,6 +156,9 @@ export function fromBalance(resource: Resource, b: Balance | undefined, id: stri
     const shown = (p: { from: string; to: string }) => (buyers ? p.from === id && row.partners.includes(p.to) : p.to === id && (row.partners.includes(p.from) || row.top?.id === p.from));
     const mirror = f.pairs.filter((p) => p.mirror && shown(p)).map((p) => DEP_TEXT.flow(place(p.from)?.name ?? p.from, place(p.to)?.name ?? p.to));
     if (mirror.length) row.partnersFrom.mirror = mirror;
+    // Oil flows into the United States are EIA's: named in the row's source line too.
+    const via = f.pairs.filter((p) => p.via === 'eia' && shown(p)).map((p) => DEP_TEXT.flow(place(p.from)?.name ?? p.from, place(p.to)?.name ?? p.to));
+    if (via.length) row.partnersFrom.via = via;
     // Oil and gas: a shown flow larger than its exporter's own output that year gets its note.
     if (resource === 'oil' || resource === 'gas') {
       const name = (x: string) => inSentence(place(x)?.name ?? x);

@@ -5,6 +5,7 @@
 import { CHAIN_TEXT, CHAINS_TEXT as T, COVERAGE, SIDES, TOTALS, chainTitle } from '../../i18n/supply-chains.en.ts';
 import { SOURCE_TEXT } from '../../i18n/en.ts';
 import { DEP_TEXT, inSentence } from '../../i18n/pages.en.ts';
+import { ENERGY_TEXT } from '../../i18n/energy.en.ts';
 import { formatShare } from '../format.ts';
 import { esc } from '../explorer/render.ts';
 import {
@@ -36,10 +37,13 @@ export const listOf = (xs: string[]) => (xs.length < 2 ? xs.join('') : `${xs.sli
 /** UN Comtrade's name when the flows are those reported to it, not all trade: rankings of them say so. */
 export const reportedTo = (c: Chain) => (c.src === 'comtrade' ? c.credit : undefined);
 
+/** The source's short name, with EIA's when some flows are its US crude imports. */
+export const chainCredit = (c: Chain) => (c.via?.length ? ENERGY_TEXT.withEia(c.credit) : c.credit);
+
 /** The page's first sentence, from the three largest suppliers. */
 export function ledeOf(c: Chain): string {
   const top = totals(c.pairs, 0).slice(0, 3).map(([id]) => inSentence(nameOf(c, id)));
-  return T.lede[c.kind](listOf(top), words(c).noun, c.period, c.credit, Boolean(reportedTo(c)));
+  return T.lede[c.kind](listOf(top), words(c).noun, c.period, chainCredit(c), Boolean(reportedTo(c)));
 }
 
 const sourceHtml = (c: Chain) => `<p class="gt-source"><span>${esc(SOURCE_TEXT.source)} <b>${esc(c.source)}</b></span>`
@@ -94,7 +98,8 @@ export function sankeyHtml(c: Chain, s: State): string {
   return `${chip}<div class="gt-skscroll"><svg class="gt-sk" height="${sk.height}" style="--h:${sk.height}px;--l:${xs.from}px;--r:${sk.width - xs.to - xs.node}px" role="img" aria-label="${esc(label)}">${plot}${labs.join('')}${axis}</svg></div>`
     + `<p class="gt-caption gt-skread" data-sk-read aria-hidden="true">${esc(T.readout)}</p>`
     + `<p class="gt-caption">${esc(T.caption(SHOWN.from, SHOWN.to))} ${c.full ? `${esc(T.fullCaption[c.kind](c.credit))} ` : ''}${esc(COVERAGE[c.src]?.(c.mirror ?? []) ?? '')}</p>`
-    + (c.notShown ? `<p class="gt-caption">${esc(c.notShown)}</p>` : '');
+    + (c.notShown ? `<p class="gt-caption">${esc(c.notShown)}</p>` : '')
+    + (c.notes ? `<p class="gt-caption">${esc(c.notes)}</p>` : '');
 }
 
 // ---------- panel ----------
@@ -188,7 +193,9 @@ export function tableHtml(c: Chain, s: State): string {
   const marked = new Set(c.mirror ?? []);
   const mark = (f: string, t: string) => (marked.has(DEP_TEXT.flow(c.places[f]?.n ?? f, c.places[t]?.n ?? t)) ? `<span class="gt-caption gt-flowmark">${esc(DEP_TEXT.flowMark)}</span>` : '');
   const over = (f: string, t: string) => (c.over?.[`${f}>${t}`] ? `<span class="gt-caption gt-flowmark">${esc(c.over[`${f}>${t}`])}</span>` : '');
-  const body = rows.map(([f, t, v]) => `<tr><th scope="row">${cell(f)}</th><td>${cell(t)}${mark(f, t)}${over(f, t)}</td><td class="n" data-v="${v}">${esc(amount(v, c))}</td></tr>`).join('');
+  const eia = new Set(c.via ?? []);
+  const via = (f: string, t: string) => (eia.has(DEP_TEXT.flow(c.places[f]?.n ?? f, c.places[t]?.n ?? t)) ? `<span class="gt-caption gt-flowmark">${esc(ENERGY_TEXT.usMark)}</span>` : '');
+  const body = rows.map(([f, t, v]) => `<tr><th scope="row">${cell(f)}</th><td>${cell(t)}${mark(f, t)}${via(f, t)}${over(f, t)}</td><td class="n" data-v="${v}">${esc(amount(v, c))}</td></tr>`).join('');
   return `<div class="gt-tablewrap" style="--gt-table-h:360px" tabindex="0" role="region" aria-label="${esc(T.tableLabel(c.label))}">`
     + `<table class="gt-table" data-gt-sort><caption class="gt-caption">${esc(T.tableCaption(w.unit, c.period, rows.length))}</caption>`
     + `<thead><tr>${th('from', sd.from)}${th('to', sd.to)}${th('v', c.count ? w.amount : `${w.amount}, ${w.short}`, true, true)}</tr></thead><tbody>${body}</tbody></table></div>`
@@ -200,7 +207,7 @@ export function chainCsv(c: Chain, s: State): string {
   const cell = (v: string | number) => (/[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v));
   const sd = sides(c), w = words(c);
   const iso = (id: string) => c.places[id]?.c ?? id;
-  const head = [sd.from, `${sd.from} iso3`, sd.to, `${sd.to} iso3`, `${T.csvAmount(w.amount, w.unit)} [${c.credit}, retrieved ${c.retrieved}]`, T.csvPeriod];
+  const head = [sd.from, `${sd.from} iso3`, sd.to, `${sd.to} iso3`, `${T.csvAmount(w.amount, w.unit)} [${chainCredit(c)}, retrieved ${c.retrieved}]`, T.csvPeriod];
   const lines = [head.map(cell).join(',')];
   for (const [f, t, v] of pairsOf(c, s)) lines.push([nameOf(c, f), iso(f), nameOf(c, t), iso(t), Number((v / c.div).toPrecision(6)), c.period].map(cell).join(','));
   return `${lines.join('\n')}\n`;

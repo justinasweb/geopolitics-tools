@@ -21,7 +21,7 @@ import { MAP_TEXT } from '../i18n/map.en';
 import { INDICATOR_TEXT } from '../i18n/en';
 import { ENERGY_TEXT as E } from '../i18n/energy.en';
 import { DEP_TEXT } from '../i18n/pages.en';
-import { ENERGY_LAYERS, FUELS, amount, amountShort, balanceOf, energyKey, energyPage, energyPages, fuelPages, gasLeftOutLines, gasNotShown, lede, mirrorNames, overNote, pageMirror, prices, shareOf, shownFlows, summary, unitWords, valueText, worldChange } from '../lib/energy';
+import { ENERGY_LAYERS, FUELS, amount, amountShort, balanceOf, energyKey, energyPage, energyPages, fuelPages, gasLeftOutLines, gasNotShown, lede, mirrorNames, overNote, pageMirror, pageUs, viaEia, prices, shareOf, shownFlows, summary, unitWords, valueText, worldChange } from '../lib/energy';
 import type { EnergyRow } from '../lib/energy';
 import { refreshed } from '../lib/data';
 import { place } from '../lib/places';
@@ -42,7 +42,7 @@ const title = L.title(T.pick);
 const sub = T.basis[p.layer] ? `${E.sub}, ${T.basis[p.layer]}` : E.sub;
 const source = E.source;
 const updated = refreshed('eia');
-const flowSource = E.sourceFlows(p.fuel);
+const flowSource = E.sourceFlows(p.fuel, pageUs(p));
 const flowsUpdated = refreshed('comtrade');
 const y = p.byYear[p.year];
 const prevYear = p.years.includes(p.year - 1) ? p.year - 1 : null;
@@ -151,7 +151,7 @@ const monthName = (d: string) => formatDate(`${d}-15`).replace(/^\d+ /, '');
         })}
         <div class="gt-blocline" hidden><span class="gt-blocline__key" aria-hidden="true"></span><p></p></div>
         <Notice>
-          <p>{E.caveats(p.fuel, p.layer, p.flowYear, pageMirror(p), p.flowPartial).join(' ')}</p>
+          <p>{E.caveats(p.fuel, p.layer, p.flowYear, pageMirror(p), p.flowPartial, pageUs(p)).join(' ')}</p>
           {notShown && <p>{notShown}</p>}
           <SourceLine source={source} parts={[yearsText]} updated={updated} />
         </Notice>
@@ -245,7 +245,7 @@ const monthName = (d: string) => formatDate(`${d}-15`).replace(/^\d+ /, '');
           <h2 class="gt-h2" id={`flows-${i + 1}`}>{s.label}</h2>
           <div class="gt-tablewrap" style="--gt-table-h:none" tabindex="0" role="region" aria-label={s.label}>
             <table class="gt-table" data-gt-sort>
-              <caption class="gt-caption">{E.flowsCaption(s.items.length, p.flowYear!, s.what, mirrorNames(s.items))}</caption>
+              <caption class="gt-caption">{E.flowsCaption(s.items.length, p.flowYear!, s.what, mirrorNames(s.items), s.items.some(viaEia))}</caption>
               <thead><tr>
                 <th scope="col" data-key="f"><button type="button">{E.from}</button></th>
                 <th scope="col" data-key="t"><button type="button">{E.to}</button></th>
@@ -255,7 +255,7 @@ const monthName = (d: string) => formatDate(`${d}-15`).replace(/^\d+ /, '');
                 {s.items.map((f) => (
                   <tr>
                     <td>{nameOf(f.from)}</td>
-                    <td>{nameOf(f.to)}{'mirror' in f && f.mirror && <span class="gt-caption gt-flowmark">{DEP_TEXT.flowMark}</span>}{overNote(p, f) && <span class="gt-caption gt-flowmark">{overNote(p, f)}</span>}</td>
+                    <td>{nameOf(f.to)}{'mirror' in f && f.mirror && <span class="gt-caption gt-flowmark">{DEP_TEXT.flowMark}</span>}{viaEia(f) && <span class="gt-caption gt-flowmark">{E.usMark}</span>}{overNote(p, f) && <span class="gt-caption gt-flowmark">{overNote(p, f)}</span>}</td>
                     <td class="n" data-v={f.amount}>{amount(p.fuel, 'production', f.amount)}</td>
                   </tr>
                 ))}
