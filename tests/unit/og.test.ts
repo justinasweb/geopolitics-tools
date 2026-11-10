@@ -117,6 +117,16 @@ describe('share image cards', () => {
     for (const c of cards) fitsCard(c.card, c.key);
   });
 
+  it('credit the dams and the water figures on every river card, on one line beside the site name', () => {
+    const rivers = cards.filter((c) => c.family === 'rivers');
+    expect(rivers).toHaveLength(8);
+    for (const c of rivers) {
+      expect(c.card.source, c.key).toMatch(/^Lehner et al\. \(2024\), Global Dam Watch database version 1\.0 \(CC BY 4\.0\)/);
+      if (c.card.bars?.length) expect(c.card.source, c.key).toContain('FAO AQUASTAT');
+      expect(measure(`Source: ${c.card.source}`, 20) + measure('geopolitics.tools', 20, 'sans600') + 40, c.key).toBeLessThan(G.innerW);
+    }
+  });
+
   it('fit the longest label of each view family, five times over, under its longest title, and render inside the card', async () => {
     const families = [...new Set(cards.map((c) => c.family))];
     expect(families).toEqual(expect.arrayContaining(['blocs', 'minerals', 'oil', 'food', 'country', 'indicator']));

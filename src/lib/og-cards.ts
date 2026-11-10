@@ -4,7 +4,7 @@ import { INDICATORS } from '../data/indicators';
 import { INDICATOR_TEXT, STATUS_TEXT, tagged } from '../i18n/en';
 import { COMPARE_TEXT, INDICATOR_PAGE, OG_TEXT, SOURCE_NOTE, mineralName } from '../i18n/pages.en';
 import { countryModel } from './country';
-import { creditName } from './data';
+import { creditName, licenceOf } from './data';
 import { formatDate, formatShare, formatValue } from './format';
 import { answerFor, indicatorModel, tagOf } from './indicator';
 import type { Card } from './og';
@@ -170,9 +170,11 @@ export function card(r: Route | null): Card {
     const p = riverPage(id)!;
     const dep = viewPage('waterdep');
     const name = RIVERS_TEXT.name[id] ?? id;
+    const bars = dep ? p.countries.filter((x) => x.fromAbroad !== null).map((x) => ({ label: `${nameOf(x.id)}, ${RIVERS_TEXT.fromAbroad(dep.year).toLowerCase()}`, value: x.fromAbroad!, text: valueText(dep, x.fromAbroad!) })) : [];
+    // The dams are Global Dam Watch's, credited in full as its licence asks; the bars are AQUASTAT's.
     return {
-      kicker: RIVERS_TEXT.section, title: RIVERS_TEXT.title(name), figure: String(p.dams.length), caption: RIVERS_TEXT.damsTitle,
-      bars: dep ? p.countries.filter((x) => x.fromAbroad !== null).map((x) => ({ label: `${nameOf(x.id)}, ${RIVERS_TEXT.fromAbroad(dep.year).toLowerCase()}`, value: x.fromAbroad!, text: valueText(dep, x.fromAbroad!) })) : [],
+      kicker: RIVERS_TEXT.section, title: RIVERS_TEXT.title(name), figure: String(p.dams.length), caption: RIVERS_TEXT.damsTitle, bars,
+      source: [licenceOf('gdw')?.credit ?? short('gdw'), ...(bars.length ? [short('aquastat')] : [])].join('; '),
     };
   }
   if (r.kind === 'view' && r.id.startsWith('nuclear:')) {
