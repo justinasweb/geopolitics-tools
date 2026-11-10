@@ -23,8 +23,8 @@ const sides = (c: Chain) => SIDES[c.kind];
 const full = (c: Chain, v: number) => `${amount(v, c)} ${words(c).short}`;
 const name = (c: Chain, id: string) => (id === OTHERS ? T.others : nameOf(c, id));
 
-/** "2023, latest available", or SIPRI's "2021–2025, latest five years available". */
-export const periodLabel = (c: Chain) => (c.period.includes('–') ? T.latestPeriod(c.period) : T.latestYear(c.period));
+/** "2023, latest available", "2024, the latest year most countries have reported", or SIPRI's "2021–2025, latest five years available". */
+export const periodLabel = (c: Chain) => (c.period.includes('–') ? T.latestPeriod(c.period) : c.partial ? T.latestReported(c.period) : T.latestYear(c.period));
 
 /** "A, B and C". */
 export const listOf = (xs: string[]) => (xs.length < 2 ? xs.join('') : `${xs.slice(0, -1).join(', ')} ${T.and} ${xs.at(-1)}`);

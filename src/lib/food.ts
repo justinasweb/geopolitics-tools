@@ -3,7 +3,7 @@
 // the colour classes (fixed across years so the slider compares like with like), the places that have not reported
 // the latest year yet, and the largest flows. The page template, the map layer files and the share images read this.
 import { food, type Balance, type Crop, type Flow, type Nutrient } from '../adapters/faostat.ts';
-import { comtrade, fertiliserFlows } from '../adapters/comtrade.ts';
+import { comtrade, completeYear, fertiliserFlows } from '../adapters/comtrade.ts';
 import type { Series } from '../adapters/core.ts';
 import { FOOD_TEXT, type CommodityText } from '../i18n/food.en.ts';
 import { DEP_TEXT, inSentence } from '../i18n/pages.en.ts';
@@ -25,7 +25,8 @@ const foodData = shared(food);
 /** Fertiliser flows come from UN Comtrade (FAOSTAT has no fertiliser trade matrix), in tonnes of product. */
 const fertFlows = shared((raw) => {
   const rows = comtrade(raw);
-  return { potash: fertiliserFlows(rows, 'potash'), phosphate: fertiliserFlows(rows, 'phosphate') };
+  const potash = fertiliserFlows(rows, 'potash'), phosphate = fertiliserFlows(rows, 'phosphate');
+  return { potash, phosphate, year: { potash: completeYear(rows, ['potash'], potash), phosphate: completeYear(rows, ['phosphate'], phosphate) } };
 });
 export const MT = { kind: 'mt' } as const;
 export const mt = (v: number) => formatValue(v, MT);
@@ -65,6 +66,8 @@ export interface FoodPage {
    * crops, UN Comtrade for fertilisers (in tonnes of product, unlike the nutrient tonnes of the rest of the page). */
   flows: (Flow & { mirror?: true })[];
   flowYear: number | null;
+  /** Fertilisers: UN Comtrade's latest year is not complete yet, so the flows are for the year before (completeYear). */
+  flowPartial: boolean;
 }
 
 const nameOf = (id: string) => place(id)?.name ?? id;
@@ -148,12 +151,14 @@ function buildPage(commodity: Commodity, layer: FoodLayer): FoodPage | null {
     : T.shareTicks;
   let flows: FoodPage['flows'] = [];
   let flowYear: number | null = null;
-  const all = crop ? d.flows[commodity as Crop] ?? [] : fertFlows()?.[commodity as 'potash' | 'phosphate'] ?? [];
+  const fert = crop ? null : fertFlows();
+  const all = crop ? d.flows[commodity as Crop] ?? [] : fert?.[commodity as 'potash' | 'phosphate'] ?? [];
+  const fy = fert?.year[commodity as 'potash' | 'phosphate'];
   if (layer === 'trade' && all.length) {
-    flowYear = Math.max(...all.map((f) => f.year));
+    flowYear = fy?.year ?? Math.max(...all.map((f) => f.year));
     flows = all.filter((f) => f.year === flowYear).sort((x, z) => z.amount - x.amount);
   }
-  return { id: `${commodity}-${layer}`, commodity, layer, crop, text: T.commodities[commodity], balance: b, years, year, byYear, edges, ticks, flows, flowYear };
+  return { id: `${commodity}-${layer}`, commodity, layer, crop, text: T.commodities[commodity], balance: b, years, year, byYear, edges, ticks, flows, flowYear, flowPartial: Boolean(fy?.partial) };
 }
 
 let cache: FoodPage[] | null = null;
@@ -219,7 +224,7 @@ export function summary(p: FoodPage, year = p.year): string[] {
     const together = top.length === 3 ? shareOf(top.reduce((s, r) => s + r.value, 0), y.world) : null;
     first.push(T.top(top.map((r, i) => T.topPart(inSentence(nameOf(r.id), i === 0), mt(r.value), shareOf(r.value, y.world))), together));
   }
-  const second = [T.coverage(y.rows.length, year), ...(y.notYet.length ? [T.notYetSentence(y.notYet.length, year)] : []), ...T.caveats(p.commodity, p.layer, p.flowYear, pageMirror(p))];
+  const second = [T.coverage(y.rows.length, year), ...(y.notYet.length ? [T.notYetSentence(y.notYet.length, year)] : []), ...T.caveats(p.commodity, p.layer, p.flowYear, pageMirror(p), p.flowPartial)];
   return [first.join(' '), second.join(' ')];
 }
 

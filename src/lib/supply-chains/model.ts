@@ -9,6 +9,8 @@ export interface Chain {
   kind: ChainKind;
   /** The one year (or SIPRI's five-year period) every pair is for. */
   period: string;
+  /** UN Comtrade's latest year is not complete yet, so `period` is the year before. */
+  partial?: true;
   /** Pairs as [from, to, amount], largest first. */
   pairs: [string, string, number][];
   /** Names (n), ISO codes (c), short names (s) and country page links (h) of every place in the pairs. */

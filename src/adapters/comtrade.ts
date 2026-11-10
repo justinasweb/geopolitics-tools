@@ -164,6 +164,28 @@ export function flowsOf(rows: TradeRow[], c: Commodity, amount: (r: TradeRow) =>
   return [...by.values()].sort((a, b) => b.amount - a.amount);
 }
 
+/** A year counts as complete once the reporters with data for it cover this share of the year before's flows. */
+export const COMPLETE_SHARE = 0.85;
+
+/**
+ * The year a product's flows are shown for: the latest, once it is reasonably complete, else the year before
+ * (`partial`: a later year has started). Complete means the reporters with data for the latest year, the importer
+ * of each flow or the exporter of one from its report, cover at least COMPLETE_SHARE of the year before's total.
+ * Early in a year a few reporters are in, and their flows alone would rank as the year's largest.
+ */
+export function completeYear(rows: TradeRow[], cs: readonly Commodity[], flows: Flow[]): { year: number; partial: boolean } | null {
+  if (!flows.length) return null;
+  const codes: readonly string[] = cs.flatMap((c) => CODES[c]);
+  const latest = Math.max(...flows.map((f) => f.year));
+  const before = flows.filter((f) => f.year === latest - 1);
+  const total = before.reduce((t, f) => t + f.amount, 0);
+  if (!total) return { year: latest, partial: false };
+  const reported = (flow: 'M' | 'X') => new Set(rows.filter((r) => r.year === latest && r.flow === flow && codes.includes(r.cmd)).map((r) => r.reporter));
+  const m = reported('M'), x = reported('X');
+  const covered = before.filter((f) => (f.mirror ? x.has(f.from) : m.has(f.to))).reduce((t, f) => t + f.amount, 0);
+  return covered >= COMPLETE_SHARE * total ? { year: latest, partial: false } : { year: latest - 1, partial: true };
+}
+
 const mt = (r: TradeRow) => (r.kg === null ? null : r.kg / 1e9);
 
 export const crudeFlows = (rows: TradeRow[]) => flowsOf(rows, 'crude', (r) => (r.kg === null ? null : ((r.kg / 1000) * BARRELS_PER_TONNE) / 365 / 1000), true);

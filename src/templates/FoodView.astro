@@ -135,7 +135,7 @@ const bars = (rs: FoodRow[], max: number) => rs.map((r) => ({ id: r.id, text: mt
         })}
         <div class="gt-blocline" hidden><span class="gt-blocline__key" aria-hidden="true"></span><p></p></div>
         <Notice>
-          <p>{F.caveats(p.commodity, p.layer, p.flowYear, pageMirror(p)).join(' ')}</p>
+          <p>{F.caveats(p.commodity, p.layer, p.flowYear, pageMirror(p), p.flowPartial).join(' ')}</p>
           <SourceLine source={source} parts={[yearsText]} updated={updated} />
         </Notice>
       </div>

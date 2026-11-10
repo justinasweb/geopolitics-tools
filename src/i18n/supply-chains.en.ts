@@ -62,6 +62,7 @@ export const CHAINS_TEXT = {
   flow: 'Flow',
   year: 'Year',
   latestYear: (period: string) => `${period}, latest available`,
+  latestReported: (period: string) => `${period}, ${DEP_TEXT.mostReported}`,
   latestPeriod: (period: string) => `${period}, latest five years available`,
   focus: 'Focus a country',
   focusHint: 'Type a country',

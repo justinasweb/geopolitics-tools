@@ -92,7 +92,8 @@ export const ENERGY_TEXT = {
   coverage: (n: number, y: number) => `${n} countries and territories have a figure for ${y}.`,
   notYetSentence: (n: number, y: number) => `${n} more reported a figure for one of the two years before but not yet for ${y}; they are hatched on the map.`,
   /** `mirror`: the flows shown whose amount is the exporter's report, by name. */
-  caveats: (fuel: FuelId, layer: EnergyLayer, flowYear: number | null, mirror: string[] = []): string[] => {
+  /** `partial`: the flows' year is shown because UN Comtrade's latest one is not complete yet. */
+  caveats: (fuel: FuelId, layer: EnergyLayer, flowYear: number | null, mirror: string[] = [], partial = false): string[] => {
     const out: string[] = [];
     if (fuel === 'oil' && layer === 'production') out.push('Production is crude oil including lease condensate. Natural gas liquids and biofuels are left out here, but counted in net trade.');
     if (fuel === 'oil' && layer === 'consumption') out.push('Consumption covers all petroleum products, including those made from natural gas liquids.');
@@ -101,8 +102,8 @@ export const ENERGY_TEXT = {
     if (layer === 'reserves') out.push('Proved reserves are what can be recovered with reasonable certainty at today’s prices and technology. They are revised often and some countries report the same figure for years; they are not all the oil or gas in the ground.');
     if (layer === 'trade' && flowYear) {
       out.push(fuel === 'oil'
-        ? `Flows on the map are the largest crude oil flows in ${flowYear}, ${DEP_TEXT.asImporters('them', mirror, ' to UN Comtrade (HS 2709)')}, turned from tonnes into barrels a day at about 7.33 barrels a tonne.`
-        : `Flows on the map are the largest gas flows in ${flowYear}, ${DEP_TEXT.asImporters('them', mirror, ' to UN Comtrade')}: pipeline gas (HS 271121, solid lines) at about 0.75 million tonnes per billion cubic metres, and liquefied natural gas (LNG), gas cooled into a liquid for shipping, shown as dashed lines (HS 271111), at about 1,360 cubic metres of gas per tonne. Where a country reports gas by volume only, its own cubic metres are used.`);
+        ? `Flows on the map are the largest crude oil flows in ${flowYear}${partial ? `, ${DEP_TEXT.mostReported}` : ''}, ${DEP_TEXT.asImporters('them', mirror, ' to UN Comtrade (HS 2709)')}, turned from tonnes into barrels a day at about 7.33 barrels a tonne.`
+        : `Flows on the map are the largest gas flows in ${flowYear}${partial ? `, ${DEP_TEXT.mostReported}` : ''}, ${DEP_TEXT.asImporters('them', mirror, ' to UN Comtrade')}: pipeline gas (HS 271121, solid lines) at about 0.75 million tonnes per billion cubic metres, and liquefied natural gas (LNG), gas cooled into a liquid for shipping, shown as dashed lines (HS 271111), at about 1,360 cubic metres of gas per tonne. Where a country reports gas by volume only, its own cubic metres are used.`);
     }
     out.push('The latest year is preliminary: EIA revises it as countries report.');
     return out;

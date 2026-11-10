@@ -184,6 +184,11 @@ describe('UN Comtrade’s flows', () => {
     expect(flowListHtml(c, { country: '' })).toContain('Top 10 flows reported to UN Comtrade, kb/d');
   });
 
+  it('say when the latest year is not complete yet', () => {
+    expect(periodLabel({ ...chain, partial: true, period: '2024' })).toBe('2024, the latest year most countries have reported');
+    expect(periodLabel(chain)).toBe('2023, latest available');
+  });
+
   it('note a flow larger than its exporter’s own output that year', async () => {
     const { ENERGY_TEXT } = await import('../../src/i18n/energy.en.ts');
     const { overOutput } = await import('../../src/data/flows.ts');

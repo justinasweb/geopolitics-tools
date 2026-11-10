@@ -61,7 +61,7 @@ SIPRI's terms allow reuse of under 10% of its dataset, so we publish these deriv
 
 ## Supply chains
 
-Each supply chain page shows one flow for one period: the latest year its source reports (for arms, the latest five-year total). We never mix years in one diagram, and flows from different sources can have different latest years, so each page says which year it shows.
+Each supply chain page shows one flow for one period: the latest year its source reports (for arms, the latest five-year total). We never mix years in one diagram, and flows from different sources can have different latest years, so each page says which year it shows. For UN Comtrade's flows, a new year is used once the countries that have reported it cover at least 85% of the year before's flows; until then the page shows the year before, as "the latest year most countries have reported".
 
 The flows are the main bilateral flows each source publishes, not all trade. FAOSTAT's detailed trade matrix is cut to each importer's main suppliers; UN Comtrade's flows are as importers report them; UNHCR lists smaller origin and host pairs together. Totals on these pages are totals of the flows shown.
 

@@ -59,7 +59,7 @@ export function chainOf(key: string): Chain {
     ENERGY_TEXT.overOutput(fuel, inSentence(places[p.from].n), inSentence(places[p.to].n), Number(f.period), energyAmount(fuel, 'production', p.output!), p.mirror === true)]) : []);
   const notShown = key === 'gas' ? ENERGY_TEXT.notShown(...Object.values(gasNotShown(Number(f.period))) as [string[], string[]]) : null;
   const chain: Chain = {
-    key, label: FLOW_TEXT[key].label, kind: CHAIN_TEXT[key].kind, period: f.period,
+    key, label: FLOW_TEXT[key].label, kind: CHAIN_TEXT[key].kind, period: f.period, ...(f.partial ? { partial: true as const } : {}),
     pairs: f.pairs.map((p) => [p.from, p.to, Number(p.amount.toPrecision(6))]),
     places, ...{ div: 1, digits: 1 }, ...SCALE[key],
     ...(mirror.length ? { mirrored: DEP_TEXT.asReported(mirror, true), mirror } : {}),

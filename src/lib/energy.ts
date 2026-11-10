@@ -5,7 +5,7 @@
 // layer files and the share images read this. Built on food.ts's rules, so the two read alike.
 import { gas, oil, oilPrices, type Fuel, type Oil } from '../adapters/eia.ts';
 import { overOutput } from '../data/flows.ts';
-import { comtrade, crudeFlows, gasFlows, gasUnreported, type GasFlow } from '../adapters/comtrade.ts';
+import { comtrade, completeYear, crudeFlows, gasFlows, gasUnreported, type GasFlow } from '../adapters/comtrade.ts';
 import type { Series } from '../adapters/core.ts';
 import { ENERGY_TEXT, type EnergyLayer, type FuelId, type FuelText } from '../i18n/energy.en.ts';
 import { DEP_TEXT, inSentence } from '../i18n/pages.en.ts';
@@ -23,7 +23,11 @@ export const TOP_FLOWS = 20;
 export type { EnergyLayer, FuelId };
 
 const fuels = { oil: shared(oil), gas: shared(gas) };
-const flowData = shared((raw) => { const r = comtrade(raw); return { oil: crudeFlows(r), gas: gasFlows(r), unreported: gasUnreported(r) }; });
+const flowData = shared((raw) => {
+  const r = comtrade(raw);
+  const oil = crudeFlows(r), gas = gasFlows(r);
+  return { oil, gas, unreported: gasUnreported(r), year: { oil: completeYear(r, ['crude'], oil), gas: completeYear(r, ['pipe', 'lng'], gas) } };
+});
 export const prices = shared(oilPrices);
 
 const n = (v: number, digits: number) => new Intl.NumberFormat('en', { maximumFractionDigits: digits, minimumFractionDigits: digits }).format(v);
@@ -67,6 +71,8 @@ export interface EnergyPage {
   /** Trade: the largest flows in Comtrade's latest year, exporter → importer, as importers report them. */
   flows: (GasFlow | { from: string; to: string; amount: number; year: number; kind?: undefined })[];
   flowYear: number | null;
+  /** UN Comtrade's latest year is not complete yet, so the flows are for the year before (completeYear). */
+  flowPartial: boolean;
 }
 
 const nameOf = (id: string) => place(id)?.name ?? id;
@@ -156,12 +162,13 @@ function buildPage(fuel: FuelId, layer: EnergyLayer): EnergyPage | null {
     : T.shareTicks;
   let flows: EnergyPage['flows'] = [];
   let flowYear: number | null = null;
-  const all = layer === 'trade' ? flowData()?.[fuel] ?? [] : [];
-  if (all.length) {
-    flowYear = Math.max(...all.map((x) => x.year));
-    flows = all.filter((x) => x.year === flowYear).sort((x, z) => z.amount - x.amount);
+  const d = layer === 'trade' ? flowData() : null;
+  const fy = d?.year[fuel];
+  if (d && fy) {
+    flowYear = fy.year;
+    flows = d[fuel].filter((x) => x.year === flowYear).sort((x, z) => z.amount - x.amount);
   }
-  return { id: `${fuel}-${layer}`, fuel, layer, text: T.fuels[fuel], data: f, years, year, byYear, edges, ticks, flows, flowYear };
+  return { id: `${fuel}-${layer}`, fuel, layer, text: T.fuels[fuel], data: f, years, year, byYear, edges, ticks, flows, flowYear, flowPartial: Boolean(fy?.partial) };
 }
 
 let cache: EnergyPage[] | null = null;
@@ -238,7 +245,7 @@ export function summary(p: EnergyPage, year = p.year): string[] {
     const together = top.length === 3 ? shareOf(top.reduce((s, r) => s + r.value, 0), y.world) : null;
     first.push(T.top(top.map((r, i) => T.topPart(inSentence(nameOf(r.id), i === 0), a(r.value), shareOf(r.value, y.world))), together));
   }
-  const second = [T.coverage(y.rows.length, year), ...(y.notYet.length ? [T.notYetSentence(y.notYet.length, year)] : []), ...T.caveats(p.fuel, p.layer, p.flowYear, pageMirror(p))];
+  const second = [T.coverage(y.rows.length, year), ...(y.notYet.length ? [T.notYetSentence(y.notYet.length, year)] : []), ...T.caveats(p.fuel, p.layer, p.flowYear, pageMirror(p), p.flowPartial)];
   return [first.join(' '), second.join(' ')];
 }
 

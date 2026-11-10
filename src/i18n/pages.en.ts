@@ -91,6 +91,8 @@ export const DEP_TEXT = {
   asImporters: (them: 'it' | 'them', flows: string[] = [], to = '') =>
     `as importers report ${them}${to}${flows.length ? `, except ${DEP_TEXT.flowList(flows)}, as the exporter reports ${flows.length === 1 ? 'it' : 'them'}` : ''}`,
   flow: (from: string, to: string) => `${from} → ${to}`,
+  /** After a year that is shown because UN Comtrade's latest one is not yet complete. */
+  mostReported: 'the latest year most countries have reported',
   /** The grid's tooltip, when the main supplier's figure is the exporter's report. */
   supplierAsReported: 'main supplier as reported by the exporter',
   /** A row with figures but no partners: the trade source names none for it. */

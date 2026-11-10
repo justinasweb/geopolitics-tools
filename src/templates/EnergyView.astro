@@ -151,7 +151,7 @@ const monthName = (d: string) => formatDate(`${d}-15`).replace(/^\d+ /, '');
         })}
         <div class="gt-blocline" hidden><span class="gt-blocline__key" aria-hidden="true"></span><p></p></div>
         <Notice>
-          <p>{E.caveats(p.fuel, p.layer, p.flowYear, pageMirror(p)).join(' ')}</p>
+          <p>{E.caveats(p.fuel, p.layer, p.flowYear, pageMirror(p), p.flowPartial).join(' ')}</p>
           {notShown && <p>{notShown}</p>}
           <SourceLine source={source} parts={[yearsText]} updated={updated} />
         </Notice>
