@@ -154,16 +154,6 @@ describe('dependence and sentences', () => {
     expect(formatParts(0.8, { kind: 'percent', digits: 1 }, '% of GDP')).toEqual({ num: '0.8', unit: '% of GDP' });
   });
 
-  it('writes two figures on the scale of the larger, for a row that compares them', () => {
-    // Compare: the United States' 342 million beside China's 1.41 billion, both in billions.
-    expect(formatParts(3.42e8, { kind: 'count' }, '', undefined, 1.41e9)).toEqual({ num: '0.34', unit: 'billion' });
-    expect(formatParts(1.41e9, { kind: 'count' }, '', undefined, 1.41e9)).toEqual({ num: '1.41', unit: 'billion' });
-    // Reserves: $3.6 trillion beside $910 billion.
-    expect(formatParts(9.1e11, { kind: 'money' }, '', undefined, 3.6e12)).toEqual({ num: 'US$0.91', unit: 'trillion' });
-    // Without a scale to follow, each figure keeps its own.
-    expect(formatParts(3.42e8, { kind: 'count' })).toEqual({ num: '342', unit: 'million' });
-  });
-
   it('has a definition for every indicator, and every answer belongs to one', () => {
     for (const id of Object.keys(INDICATORS)) expect(DEFINITION[id], id).toBeTruthy();
     for (const id of Object.keys(ANSWER)) expect(INDICATOR_TEXT[id], id).toBeDefined();

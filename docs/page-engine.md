@@ -393,6 +393,9 @@ Any two countries side by side (spec, D21), without a page per pair.
   Minerals: any mineral where either country has at least 1% of world production; the other shows "–" when USGS does
   not list it (decided 9 Nov 2026: not listed is not zero), read out as "Not listed by USGS" and explained in a note
   under the pairs.
+- **Each figure in its own scale.** Money and counts carry their own unit, as on the country page ("342 million"
+  beside "1.41 billion", "US$427 billion" beside "US$3.60 trillion"); units that do not scale ("% of GDP", "years")
+  stay under the row's label (decided 10 Nov 2026, replacing one scale per row, which wrote "0.34 billion").
 - **First and second.** The first country is `--cmp-first` (blue), a square, solid lines and bars; the second
   `--cmp-second` (orange), a triangle, dashed lines and hatched bars. `scripts/tokens.ts` checks the two stay apart
   (CIE ΔE ≥ 40) under protanopia, deuteranopia and tritanopia as well as normal vision, in both themes.

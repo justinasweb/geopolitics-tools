@@ -37,16 +37,13 @@ function sectionHtml(n: number, id: string, heading: string, find: string, vis: 
 
 // ---------- key figures ----------
 
-// One scale per row, picked from its larger value: "Population, billion: 0.34 and 1.41", never millions beside billions.
-// When that scale would write a figure that is not zero as zero (Tuvalu's 9,492 people as "0.0 million"), each figure
-// keeps its own scale and carries its unit: "9,492" and "25 million".
-const scaleOf = (r: Row) => Math.max(...r.f.map((x) => Math.abs(x[0])));
-const zeroed = (r: Row) => r.f.some(([v]) => v !== 0 && /^\D*0([.,]0+)?$/.test(formatParts(v, r.m.format, r.m.unit, undefined, scaleOf(r)).num));
-const unitOf = (r: Row) => (zeroed(r) ? '' : formatParts(scaleOf(r), r.m.format, r.m.unit).unit);
+// Each figure in its own scale, as the country page writes it: "342 million" beside "1.41 billion", never "0.34" in a
+// billions row. The row's label keeps the units that do not scale ("% of GDP", "years").
+const scaled = (r: Row) => r.m.format.kind === 'money' || r.m.format.kind === 'count';
+const unitOf = (r: Row) => (scaled(r) ? '' : formatParts(r.f[0][0], r.m.format, r.m.unit).unit);
 const shown = (r: Row, v: number) => {
-  if (!zeroed(r)) return formatParts(v, r.m.format, r.m.unit, undefined, scaleOf(r)).num;
   const own = formatParts(v, r.m.format, r.m.unit);
-  return own.unit && !own.unit.startsWith('%') ? `${own.num} ${own.unit}` : own.num;
+  return scaled(r) && own.unit ? `${own.num} ${own.unit}` : own.num;
 };
 const srcYear = (r: Row, c: Two) => T.sourceYear(r.m.credit, r.f.map((x, i) => ({ name: c[i].name, year: x[1] })));
 const label = (m: MeasureMeta) => (m.href ? `<a href="${esc(m.href)}">${esc(m.label)}</a>` : esc(m.label));
