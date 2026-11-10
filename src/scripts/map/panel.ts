@@ -5,6 +5,7 @@ import type { LayerFile, LayerYear, PanelBlock } from '../../lib/map/types';
 import { formatValue } from '../../lib/format';
 import { CHART_TICK_PX, textWidth } from '../../lib/chart';
 import { esc, fill } from './text';
+import { sourceLinksHtml } from '../../lib/source-links';
 
 const INFO = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg>';
 const CLOSE = '<svg class="gt-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5 5 19"/></svg>';
@@ -99,7 +100,7 @@ export function blockHtml(b: PanelBlock): string {
     : b.rows.map((r) => `<li><span class="gt-prow__n">${r.href ? `<a href="${esc(r.href)}">${esc(r.name)}</a>` : esc(r.name)}${r.note ? `<small>${esc(r.note)}</small>` : ''}</span><span class="gt-prow__v">${esc(r.value)}</span></li>`).join('');
   return `<div class="gt-pblock"><div class="gt-pblock__head"><span class="gt-label">${esc(b.label)}</span>${b.caption ? `<span class="gt-caption">${esc(b.caption)}</span>` : ''}</div>`
     + `<ul class="gt-prows${b.stack ? ' gt-prows--stack' : ''}">${rows}</ul>${b.more ? `<p class="gt-caption gt-pblock__cap">${esc(b.more)}</p>` : ''}`
-    + `${b.source ? `<p class="gt-source"><span>${esc(b.source)}</span></p>` : ''}</div>`;
+    + `${b.source ? `<p class="gt-source"><span>${sourceLinksHtml(b.source)}</span></p>` : ''}</div>`;
 }
 
 /** What a page adds to the panel (the Atlas): its own block where the place has no figure, a block after the facts,
@@ -120,7 +121,7 @@ export function previousHtml(f: LayerFile, yearIndex: number, id: string, title:
   const status = f.data[yearIndex]?.v[id]?.[3] || f.data[yearIndex]?.status;
   const tag = status ? ` ${f.tags[status]}` : '';
   return `<div class="gt-atprev"><span class="gt-label">${esc(label)}</span><p><b>${esc(title)}:</b> ${esc(line)}${tag}</p>`
-    + `<p class="gt-source"><span>${esc(f.source)}</span></p></div>`;
+    + `<p class="gt-source"><span>${sourceLinksHtml(f.source)}</span></p></div>`;
 }
 
 /** The panel for a selected place: its facts (figure, detail, rank, the year before), its trend, the ranking around it, more blocks, notes and links on. */
@@ -156,7 +157,7 @@ export function countryPanelHtml(f: LayerFile, yearIndex: number, id: string, op
   for (const b of f.more?.[id] ?? []) body.push(blockHtml(b));
   if (f.notes[id]) body.push(`<div class="gt-notice gt-notice--inline" role="note">${INFO}<div class="gt-notice__body"><p>${esc(f.notes[id])}</p></div></div>`);
   if (f.caveat) body.splice(o.after ? 2 : 1, 0, `<div class="gt-notice gt-notice--inline" role="note">${INFO}<div class="gt-notice__body"><p>${esc(f.caveat)}</p></div></div>`);
-  body.push(`<p class="gt-source"><span>${esc(f.source)}</span></p>`);
+  body.push(`<p class="gt-source"><span>${sourceLinksHtml(f.source)}</span></p>`);
   const links: string[] = [];
   if (o.first) links.push(`<a class="gt-btn" href="${esc(o.first.href)}">${esc(o.first.label)}</a>`);
   if (f.hrefs[id]) {
@@ -187,12 +188,12 @@ export function worldPanelHtml(f: LayerFile, yearIndex: number, o: { hint: strin
     return `<div class="gt-panel__head"><div class="gt-panel__title"><span class="gt-kicker">${esc(fill(f.text.kicker, { year: when(y) }))}</span><h2 class="gt-h3" tabindex="-1">${esc(f.text.world)}</h2></div></div>`
       + `<div class="gt-panel__body"><p class="gt-atpanel__tip">${esc(o.hint)}</p>`
       + `<div class="gt-pblock"><ul class="gt-prows">${cats.map((c) => `<li><span class="gt-prow__n">${esc(c.label)}</span><span class="gt-prow__v">${c.n}</span></li>`).join('')}</ul></div>`
-      + `<p class="gt-source"><span>${esc(f.source)}</span></p></div>`
+      + `<p class="gt-source"><span>${sourceLinksHtml(f.source)}</span></p></div>`
       + (o.first ? `<div class="gt-panel__foot gt-plinks"><a class="gt-btn" href="${esc(o.first.href)}">${esc(o.first.label)}</a></div>` : '');
   }
   return `<div class="gt-panel__head"><div class="gt-panel__title"><span class="gt-kicker">${esc(fill(f.text.kicker, { year: when(y) }))}</span><h2 class="gt-h3" tabindex="-1">${esc(f.text.world)}</h2></div></div>`
     + `<div class="gt-panel__body"><p class="gt-atpanel__tip">${esc(o.hint)}</p>`
     + (rows ? `<div class="gt-pblock gt-pgroup"><span class="gt-label">${esc(label)}</span><ol class="gt-bars gt-bars--tight${f.unranked ? '' : ' gt-bars--rank'}" aria-label="${esc(label)}">${rows}</ol></div>` : '')
-    + `<p class="gt-source"><span>${esc(f.source)}</span></p></div>`
+    + `<p class="gt-source"><span>${sourceLinksHtml(f.source)}</span></p></div>`
     + (o.first ? `<div class="gt-panel__foot gt-plinks"><a class="gt-btn" href="${esc(o.first.href)}">${esc(o.first.label)}</a></div>` : '');
 }

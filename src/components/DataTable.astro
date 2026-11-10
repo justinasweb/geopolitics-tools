@@ -3,6 +3,7 @@
 // visible gaps. "Withheld" and "–" (not reported) are never shown as 0; an empty sort value sorts last.
 import '../styles/atlas/table.css';
 import StatusTag, { type Status } from './StatusTag.astro';
+import SourceText from './SourceText.astro';
 
 export interface Column { key: string; label: string; num?: boolean; sortable?: boolean }
 export interface Cell {
@@ -70,7 +71,7 @@ const SortIcon = '<path class="up" d="M5 0 9 5H1z"/><path class="down" d="M5 12 
                   : c.status ? <StatusTag status={c.status} small />
                   : c.note ? <span class="gt-caption">{c.note}</span>
                   : c.href ? <a href={c.href}>{shown(c, num)}</a>
-                  : shown(c, num)}
+                  : num ? shown(c, num) : <SourceText text={String(shown(c, num))} />}
                 {c.year && <abbr class="gt-yr" title={c.year.title}>{c.year.year}</abbr>}
               </td>
             );

@@ -9,6 +9,7 @@ import { CORRECTION_TEXT, correctionMailto } from '../../i18n/correction.en.ts';
 import { formatParts, formatShare } from '../format.ts';
 import { lineChartHtml } from '../linechart.ts';
 import { tagHtml, type Status } from '../tags.ts';
+import { sourceLinksHtml } from '../source-links.ts';
 import { MARK, SIDES, compareCharts, comparePairs, compareRows, gapGroups, type CountryData, type MeasureMeta, type Meta, type Row, type Side } from './model.ts';
 
 export const esc = (s: string | number) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
@@ -25,7 +26,7 @@ export function chipHtml(side: Side, d: CountryData, opts: { colour?: boolean; l
 /** The source line (SourceLine component) with its Report a correction link. */
 export function sourceLineHtml(source: string, parts: string[], page: string, status?: Status): string {
   const sep = '<span class="gt-source__sep" aria-hidden="true">·</span>';
-  return `<p class="gt-source"><span>${esc(SOURCE_TEXT.source)} <b>${esc(source)}</b></span>${parts.map((p) => `${sep}<span>${esc(p)}</span>`).join('')}`
+  return `<p class="gt-source"><span>${esc(SOURCE_TEXT.source)} <b>${sourceLinksHtml(source)}</b></span>${parts.map((p) => `${sep}<span>${esc(p)}</span>`).join('')}`
     + `${status ? `${sep}${tagHtml(status)}` : ''}`
     + `<a class="gt-corrlink" href="${esc(correctionMailto(page))}" data-gt-corr data-gt-corr-source="${esc(source)}" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 20h20z"/><path d="M12 10v4.5M12 17.2v.3"/></svg>${esc(CORRECTION_TEXT.link)}</a></p>`;
 }

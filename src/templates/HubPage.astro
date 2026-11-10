@@ -9,6 +9,7 @@ import Page from '../layouts/Page.astro';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
 import Notice from '../components/Notice.astro';
 import SourceLine from '../components/SourceLine.astro';
+import SourceText from '../components/SourceText.astro';
 import ToolIcon from '../components/ToolIcon.astro';
 import '../styles/atlas/tools.css';
 import '../styles/atlas/source.css';
@@ -139,7 +140,7 @@ const approved = longApproved(`hub:${id}`);
   )}
 
   <p class="gt-source gt-hubfoot">
-    <span>{H.sources} <b>{m.sources.join('; ')}</b></span>
+    <span>{H.sources} <b><SourceText text={m.sources.join('; ')} /></b></span>
     <span class="gt-source__sep" aria-hidden="true">·</span>
     <a href={paths.page('methodology')}>{H.howWeMeasure}</a>
     <span class="gt-source__sep" aria-hidden="true">·</span>

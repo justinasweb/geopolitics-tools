@@ -4,7 +4,7 @@ Generated from `src/data/licences.ts` by `node scripts/licence-table.ts > docs/l
 
 What each source's terms allow and what the site does with it (decision D9). Downloads are "Yes" only where the terms
 allow redistribution; otherwise the site shows charts and figures only. Credits travel with every chart and export.
-35 sources: 11 checked against the terms page, 17 to confirm, 7 waiting on permission.
+35 sources: 12 checked against the terms page, 17 to confirm, 6 waiting on permission.
 
 | Source | Licence | Downloads | Commercial use | Status | Note |
 |---|---|---|---|---|---|
@@ -33,7 +33,7 @@ allow redistribution; otherwise the site shows charts and figures only. Credits 
 | [WRI Aqueduct](https://www.wri.org/aqueduct/faq) | CC BY 4.0 | Shown only | Yes | Checked 2026-11-10 | WRI FAQ and the Aqueduct request form both say CC BY 4.0 with this credit; courtesy note sent 10 Nov 2026 |
 | [FAO AQUASTAT](https://www.fao.org/contact-us/terms/db-terms-of-use) | CC BY 4.0, with FAO’s additional terms | Yes | Yes | Checked 2026-10-24 |  |
 | [Global Dam Watch](https://doi.org/10.6084/m9.figshare.25988293.v1) | CC BY 4.0 | Yes | Yes | To confirm | Licence as listed by the Earth Engine community catalogue; read it on figshare |
-| [AidData Chinese development finance](https://github.com/aiddata/gcdf-geospatial-data/blob/main/LICENSE.md) | ODC-By 1.0 (Open Data Commons Attribution License) | Yes | Yes | Permission asked | AidData’s LICENSE.md puts the GCDF 3.0 dataset under ODC-By; any use must credit AidData. Its geospatial layer (GeoGCDF, with OpenStreetMap features) is under ODbL and is not used. The site uses GCDF 3.0, not the CLG-Global 1.0 the spec names. Asked 10 Nov 2026 |
+| [AidData Chinese development finance](https://github.com/aiddata/gcdf-geospatial-data/blob/main/LICENSE.md) | ODC-By 1.0 (GCDF 3.0) | Yes | Yes | Checked 2026-11-10 | AidData’s dataset repository licenses GCDF 3.0 under ODC-By. Their general Data User Guide mentions non-commercial use; the site is non-commercial either way. Asked info@aiddata.org on 10 Nov 2026 to confirm, and for the licence of CLG-Global 1.0 |
 | [USGS Mineral Commodity Summaries](https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits) | Public domain (US government work) | Yes | Yes | To confirm |  |
 | [US Treasury holdings, history](https://home.treasury.gov/data/treasury-international-capital-tic-system) | Public domain (US government work) | Yes | Yes | To confirm |  |
 | [UNODA Treaties Database](https://www.un.org/en/about-us/terms-of-use) | United Nations terms of use (not yet read) | Shown only | To confirm | To confirm | treaties.unoda.org could not be reached from the session that added it (2 Nov 2026). Treaty status is a public record; read the UN terms before offering a download |
