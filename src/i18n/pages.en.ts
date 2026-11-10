@@ -446,6 +446,9 @@ export const SOURCE_SHORT: Record<string, string> = {
   eia: 'EIA', comtrade: 'UN Comtrade', ember: 'Ember', ucdp: 'UCDP', ipc: 'IPC', pinksheet: 'World Bank Pink Sheet',
 };
 
+/** Shorter still, for meta descriptions, where the source line's full name would run past 170 characters. */
+export const SOURCE_BRIEF: Record<string, string> = { aiddata: 'AidData' };
+
 /** Where an indicator's figures come from, when the publisher is not the original source. */
 /** WRI Aqueduct's credit after its name, as its terms ask: the access date, its site and its licence (links in
  *  src/lib/source-links.ts). */
