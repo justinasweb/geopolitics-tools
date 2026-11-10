@@ -10,7 +10,8 @@
 //   47.3%. Signs are ignored, so "down 3%" matches −3.
 // - A percentage only matches a fact in % (and money only a fact in dollars), and the fact's unit and period must
 //   be in the same sentence: "55.5 billion cubic metres a year (1959)".
-// - Dates: "6 June 2023", "June 2023", "2023-06-06", years, decades ("the 1990s") and ranges of years. A day must be
+// - Dates: "6 June 2023", "June 2023", "2023-06-06", years, decades ("the 1990s"), ranges of years and ranges of days
+//   in a month ("2–8 November", whose ends must be days in the facts, in any of their years without one). A day must be
 //   a day in the facts, a month a month in them, a year a year in them.
 // - Country names, aliases and demonyms (./names.ts): only the places the facts file names.
 // - Words that state a comparison ("doubled", "twice") must be in a fact; words the site never uses (forecasts,
@@ -202,7 +203,8 @@ const MONTHS = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 
 const MON = MONTHS.map((m) => `${m}|${m.slice(0, 3)}${m === 'september' ? '|sept' : ''}`).join('|');
 const monthNo = (s: string) => String(MONTHS.findIndex((m) => m.startsWith(s.toLowerCase().slice(0, 3))) + 1).padStart(2, '0');
 
-export interface DateRef { start: number; end: number; text: string; day?: string; month?: string; year?: number; decade?: number }
+/** `days`: the ends of a range of days in one month ("2–8 November"), "2026-11-02", or "-11-02" without a year. */
+export interface DateRef { start: number; end: number; text: string; day?: string; days?: string[]; month?: string; year?: number; decade?: number }
 
 /** Every date in a text: days, months, years and decades, with where they are. */
 export function readDates(text: string): DateRef[] {
@@ -210,6 +212,11 @@ export function readDates(text: string): DateRef[] {
   const add = (d: DateRef) => { if (!out.some((o) => d.start < o.end && d.end > o.start)) out.push(d); };
   const pad = (n: string) => n.padStart(2, '0');
   for (const m of text.matchAll(/\b(\d{4})-(\d{2})-(\d{2})\b/g)) add({ start: m.index!, end: m.index! + m[0].length, text: m[0], day: m[0], year: Number(m[1]) });
+  // A range of days in one month, with or without its year ("2–8 November 2026", "the week of 2–8 November").
+  for (const m of text.matchAll(new RegExp(`\\b(\\d{1,2})\\s?[–-]\\s?(\\d{1,2})\\s+(${MON})\\b(?:\\.?,?\\s+(\\d{4})\\b)?`, 'gi'))) {
+    const y = m[4] ? Number(m[4]) : undefined;
+    add({ start: m.index!, end: m.index! + m[0].length, text: m[0], days: [m[1], m[2]].map((d) => `${y ?? ''}-${monthNo(m[3])}-${pad(d)}`), ...(y ? { year: y } : {}) });
+  }
   for (const m of text.matchAll(new RegExp(`\\b(\\d{1,2})(?:st|nd|rd|th)?\\s+(?:of\\s+)?(${MON})\\.?,?\\s+(\\d{4})\\b`, 'gi'))) add({ start: m.index!, end: m.index! + m[0].length, text: m[0], day: `${m[3]}-${monthNo(m[2])}-${pad(m[1])}`, year: Number(m[3]) });
   for (const m of text.matchAll(new RegExp(`\\b(${MON})\\.?\\s+(\\d{1,2})(?:st|nd|rd|th)?,?\\s+(\\d{4})\\b`, 'gi'))) add({ start: m.index!, end: m.index! + m[0].length, text: m[0], day: `${m[3]}-${monthNo(m[1])}-${pad(m[2])}`, year: Number(m[3]) });
   for (const m of text.matchAll(new RegExp(`\\b(${MON})\\.?,?\\s+(\\d{4})\\b`, 'gi'))) add({ start: m.index!, end: m.index! + m[0].length, text: m[0], month: `${m[2]}-${monthNo(m[1])}`, year: Number(m[2]) });
@@ -289,6 +296,7 @@ function allowedFrom(f: FactsFile): AllowedSet {
     addDate(x.period);
     addDate(x.date);
     for (const d of readDates(x.statement)) {
+      for (const k of d.days ?? []) if (!k.startsWith('-')) addDate(k);
       if (d.day) addDate(d.day);
       else if (d.month) addDate(d.month);
     }
@@ -411,6 +419,13 @@ export function checkDraft(draft: string, facts: FactsFile): CheckResult {
     const say = (m: Map<string, Set<string>>, key: string | number) => { const g = m.get(String(key)); if (g) said.push(g); };
 
     for (const d of dates) {
+      if (d.days) {
+        // Without its year, a day in any year the facts give.
+        const keys = d.days.map((k) => (k.startsWith('-') ? [...allowed.days].find((a) => a.endsWith(k)) : allowed.days.has(k) ? k : undefined));
+        for (const k of keys) if (k) say(allowed.from.days, k);
+        if (keys.some((k) => !k)) push('date', d.text, `The days ${d.text} are not in the facts.`);
+        continue;
+      }
       if (d.day) say(allowed.from.days, d.day);
       else if (d.month) say(allowed.from.months, d.month);
       else if (d.decade !== undefined) said.push(new Set([...allowed.from.years].filter(([y]) => Number(y) >= d.decade! && Number(y) < d.decade! + 10).flatMap(([, g]) => [...g])));

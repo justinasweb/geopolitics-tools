@@ -78,7 +78,7 @@ Write "The week in brief" for {subject}, at the top of This week: one paragraph 
 sources in the facts in this order: disaster alerts, conflict, commodity prices, internet outages, sanctions lists.
 Give each source's main figures and the places they are about; name the source once ("GDACS", "UCDP", "the World
 Bank's Pink Sheet", "IODA", the list's name). Name the week by its dates ("in the week of 2–8 November"); never
-write "this week", since the page it sits on also shows the last 7 days. Give days in full with their year
+write "this week", since the page it sits on also shows the last 7 days. Give other days in full with their year
 ("3 November 2026"), never a day without its year. Monthly figures keep their month and year ("in October 2026").
 Where a fact says a figure is preliminary, say so next to it. Do not say why an outage happened, why a list changed
 or what a disaster caused unless a fact says so. Leave out a source the facts do not cover.
