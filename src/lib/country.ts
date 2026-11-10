@@ -12,7 +12,7 @@ import { INDICATORS, type Loaded } from '../data/indicators.ts';
 import { INDICATOR_TEXT } from '../i18n/en.ts';
 import { DEP_TEXT, RESOURCE_TEXT, SOURCE_SHORT, SUMMARY, inSentence, mineralName } from '../i18n/pages.en.ts';
 import { data, indicator, refreshed, shared, changed } from './data.ts';
-import { dependencies, depSources, leadImports, type DepRow } from './dependence.ts';
+import { depCite, dependencies, depSources, leadImports, type DepRow } from './dependence.ts';
 import { formatShare, formatValue } from './format.ts';
 import { PLACES, place, type Place } from './places.ts';
 import { defaultYear, figureFor, ranked } from './stats.ts';
@@ -179,11 +179,11 @@ function summaryFor(c: Place, figs: Figure[], minerals: MineralShare[], deps: De
   const lead = leadImports(deps);
   if (lead.length === 1) {
     const [most] = lead;
-    const src = `${SOURCE_SHORT[most.source]}, ${most.year}`;
+    const src = depCite(most);
     const noun = RESOURCE_TEXT[most.resource].noun;
     out.push(most.reliance! >= 0.995 ? SUMMARY.importsAll('It', noun, src) : SUMMARY.imports('It', formatShare(most.reliance!), noun, src));
   } else if (lead.length) {
-    out.push(SUMMARY.importsMany('It', lead.map((d) => SUMMARY.importPart(d.reliance! >= 0.995 ? null : formatShare(d.reliance!), RESOURCE_TEXT[d.resource].noun, `${SOURCE_SHORT[d.source]}, ${d.year}`))));
+    out.push(SUMMARY.importsMany('It', lead.map((d) => SUMMARY.importPart(d.reliance! >= 0.995 ? null : formatShare(d.reliance!), RESOURCE_TEXT[d.resource].noun, depCite(d)))));
   } else if (blocks.refugees?.hosted && blocks.refugees.hosted.value >= 100_000) {
     const h = blocks.refugees.hosted;
     out.push(SUMMARY.hosts(formatValue(h.value, INDICATORS.refin.format), `${SOURCE_SHORT.unhcr}, ${h.year}`));
@@ -204,7 +204,7 @@ function leadFor(c: Place, figs: Figure[], minerals: MineralShare[], deps: DepRo
     return (top.measure === 'primary' ? SUMMARY.produces : SUMMARY.mines)(subject, [SUMMARY.minePart(formatShare(top.share), name, true)], src);
   }
   if (most) {
-    const src = `${SOURCE_SHORT[most.source]}, ${most.year}`;
+    const src = depCite(most);
     const noun = RESOURCE_TEXT[most.resource].noun;
     return most.reliance! >= 0.995 ? SUMMARY.importsAll(subject, noun, src) : SUMMARY.imports(subject, formatShare(most.reliance!), noun, src);
   }

@@ -26,6 +26,7 @@ function cellOf(r: DepRow): Cell {
   if (r.noUse) return { why: 'u' };
   if (r.excess) c.why = r.excess === 'exports' ? 'x' : 'e';
   if (r.estimated) c.est = 1;
+  if (r.preliminary) c.pre = 1;
   if (r.old) c.o = 1;
   if (r.usgsProduction) c.pu = 1;
   if (r.reliance !== undefined && !r.main) c.v = share(r.reliance);

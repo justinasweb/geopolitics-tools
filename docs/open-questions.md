@@ -6,20 +6,6 @@ keeps one line per closed question.
 
 ## Launch QA
 
-### Bloc memberships on country pages (raised 10 Nov 2026)
-
-**The question.** An outside consistency review could not find which groupings a country belongs to on its country
-page, and it is not there: the page has no memberships section, and the spec and site map do not ask for one. The
-bloc pages list their members and link the three most populous members' country pages; Bloc overlap and the /blocs
-map count each country's groupings. Should country pages list them (a line or chips linking each bloc page)?
-
-### Preliminary tags on dependence shares (raised 10 Nov 2026)
-
-**The question.** EIA's latest year is now tagged Preliminary wherever its production and consumption figures appear.
-Oil and gas dependence (net imports ÷ use, the Dependencies tool and the country pages' dependencies table) is
-worked out from the same preliminary year but carries no tag. Tag those shares too, or leave the tag on EIA's own
-figures only?
-
 ### Re-check bloc memberships before launch (raised 2 Nov 2026)
 
 **The question.** The membership table (`src/data/blocs.csv`, `bloc-history.csv`) is kept by hand, and the
@@ -251,6 +237,15 @@ Explorer has no presets for most topics (its four presets are on GDP, emissions,
 its tool entry on a hub has no links under it. Topic presets would give it some.
 
 ## Decided
+
+- **Bloc memberships on country pages.** Decided 10 Nov 2026: a "Member of" line in the country page's header lists
+  the groupings the place belongs to (src/data/blocs.csv), in the blocs' order, each linked to its bloc page, dated
+  "as of" the date the bloc pages use (`BLOCS_CHECKED`). It wraps as running text on a phone. Raised by an outside
+  consistency review that could not find memberships on country pages.
+- **Preliminary tags on dependence shares.** Decided 10 Nov 2026: an oil or gas dependence share whose year is EIA's
+  preliminary latest year carries the Preliminary tag everywhere it appears: the country pages' dependencies table
+  and summary sentence ("EIA, 2024, preliminary"), the Dependencies tool's cells, its CSV (a status column per
+  resource, "estimate" or "preliminary") and the homepage gas question.
 
 - **Compare any two countries, follow-ups.** Decided 9 Nov 2026: mineral pairs keep "–" for a country USGS does not
   list (not the same as zero), explained on the page as "Not listed by USGS"; a static pair picked on /compare is

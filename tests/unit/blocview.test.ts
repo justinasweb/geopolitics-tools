@@ -87,3 +87,13 @@ describe('a bloc’s mineral sentences', () => {
   });
 });
 
+
+describe('a country page’s Member of line', () => {
+  it('lists its groupings from blocs.csv in the blocs’ order, each with a live bloc page', async () => {
+    const { BLOC_ORDER, blocs } = await import('../../src/lib/blocs.ts');
+    const cn = V.blocsOf('CHN');
+    expect(cn).toEqual(BLOC_ORDER.filter((b) => blocs().get(b)!.includes('CHN')));
+    expect(cn).toEqual(expect.arrayContaining(['brics', 'g20', 'sco', 'unsc-p5']));
+    for (const b of cn) expect(R.live(`view:blocs:${b}`)?.path, b).toBeTruthy();
+  });
+});

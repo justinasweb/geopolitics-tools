@@ -129,7 +129,7 @@ export const COUNTRY_TEXT = {
   descriptionTail: (kind: string, minerals: boolean) => `${kind} with sources: key figures, dependencies${minerals ? ', minerals' : ''} and more.`,
   updated: (d: string) => `Updated ${d}`,
   auto: 'Written automatically from the figures on this page.',
-  facts: { population: 'Population', administered: 'Administered by', status: 'Status' },
+  facts: { population: 'Population', administered: 'Administered by', status: 'Status', memberOf: 'Member of', membersAsOf: (date: string) => `as of ${date}` },
   supplyChains: 'Its supply chains',
   compare: (other: string) => `Compare with ${other}`,
   allCountries: 'All countries',

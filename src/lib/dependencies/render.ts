@@ -52,7 +52,7 @@ function cellHtml(grid: Grid, r: ResourceId, c: Cell, tag: 'td' | 'span' = 'td')
   const said = said1 && c.o ? `${said1}; ${DEP_TEXT.noRecent(Number(c.y))}${gap > 10 ? `; ${DEP_TEXT.partnersLater(Number(c.ty), gap)}` : ''}` : said1;
   const title = said ? ` title="${esc(said)}"` : quiet ? ` title="${esc(s)}"` : '';
   const sub = !s ? '' : quiet ? `<span class="gt-vh">${esc(s)}</span>` : `<span class="gt-dg__s">${esc(s)}</span>`;
-  const est = c.est ? tagHtml('estimate') : '';
+  const est = c.est ? tagHtml('estimate') : c.pre ? tagHtml('preliminary') : '';
   return `<${tag} class="gt-dg gt-dg--${bandOf(r, c)}"${title}><span class="gt-dg__v"${quiet ? ' aria-hidden="true"' : ''}>${esc(v)}</span>${sub}${est}</${tag}>`;
 }
 
@@ -166,6 +166,7 @@ export function gridCsv(s: State, grid: Grid): { csv: string; note: string } {
       cols.push({ head: T.csvReliance(r.label) + tag(r.credit), i, get: (c) => share(c.v) });
       cols.push({ head: T.csvExports(r.label) + tag(r.credit), i, get: (c) => share(c.x) });
       cols.push({ head: T.csvYear(r.label), i, get: (c) => c.y ?? '' });
+      cols.push({ head: T.csvStatus(r.label), i, get: (c) => (c.est ? 'estimate' : c.pre ? 'preliminary' : '') });
     }
     if (r.csvTop) {
       cols.push({ head: T.csvTop(r.label) + tag(r.flowCredit), i, get: (c) => (c.t ? iso(grid, c.t[0]) : '') });

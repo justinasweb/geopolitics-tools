@@ -37,6 +37,8 @@ export interface Cell {
   why?: 'p' | 'n' | 'u' | 'i' | 'e' | 'x';
   /** 1 when the source flags a figure behind the cell as its estimate: the Estimate label. */
   est?: 1;
+  /** 1 when the cell's year is EIA's latest, which EIA marks preliminary: the Preliminary label. */
+  pre?: 1;
   /** 1 when the balance is more than OLD_YEARS (src/lib/dependence.ts) before its resource's latest year: shown with
    *  its year and "no recent data", out of the sort, the phone ranking and reliance on one supplier. */
   o?: 1;

@@ -119,7 +119,7 @@ export function gasCard(id = 'HUN'): QCard | null {
         { cls: 'c', width: (1 - row.top.share) * 100, label: `${T.gas.others} ${formatShare(1 - row.top.share)}` },
       ],
     },
-    source: T.gas.source, parts: T.gas.parts(imports, row.year),
+    source: T.gas.source, parts: T.gas.parts(imports, row.year), ...(row.preliminary ? { status: 'preliminary' as const } : {}),
   };
 }
 
