@@ -113,6 +113,11 @@ export const ENERGY_TEXT = {
   pipeLabel: (year: number) => `${MARKS.pipe}, ${year}`,
   lngLabel: (year: number) => `${MARKS.lng}, ${year}`,
   flowsCaption: (n: number, year: number, what: string, mirror: string[] = []) => `The ${n} largest flows of ${what} in ${year}, exporter to importer, ${DEP_TEXT.asImporters('them', mirror, ' to UN Comtrade')}.`,
+  /** Gas flows left out for want of a reported quantity, under the gas map and the gas supply chain; null when none. */
+  notShown: (pipe: string[], lng: string[]) => {
+    const parts = [...(pipe.length ? [`${list(pipe)} pipeline gas`] : []), ...(lng.length ? [`${list(lng)} LNG`] : [])];
+    return parts.length ? `Not shown: ${parts.join('; ')}, because neither country reports a volume to UN Comtrade.` : null;
+  },
   flowTip: (from: string, to: string, v: string, year: number, kind?: string) => `${from} → ${to}: ${v}${kind ? `, ${kind}` : ''} (${year})`,
   kind: { pipe: 'pipeline', lng: 'LNG' },
   from: 'From',

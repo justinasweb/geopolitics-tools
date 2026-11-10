@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import { rawDir } from '../../src/adapters/core.ts';
-import { chipFlows, comtrade, crudeFlows, fertiliserFlows, gasBcm, gasFlows, parseComtrade, partners } from '../../src/adapters/comtrade.ts';
+import { chipFlows, comtrade, crudeFlows, fertiliserFlows, gasBcm, gasFlows, gasUnreported, parseComtrade, partners } from '../../src/adapters/comtrade.ts';
 import { gas, oil, oilPrices, parseOil } from '../../src/adapters/eia.ts';
 import { ENERGY_TEXT } from '../../src/i18n/energy.en.ts';
 
@@ -99,6 +99,21 @@ describe('UN Comtrade adapter', () => {
     expect(at('USA', 'MEX')!.mirror).toBeUndefined();
     expect(at('RUS', 'CHN')).toBeUndefined();
     expect(at('BEL', 'FRA')).toMatchObject({ amount: 2.2e9 / 0.75e9, mirror: true });
+  });
+
+  it('lists the gas flows neither side reports a quantity for, only from files that carry the second quantity', () => {
+    const row = (reporterISO: string, partnerISO: string, flowCode: string, netWgt: number, extra: Record<string, unknown> = {}) =>
+      ({ period: 2025, reporterISO, flowCode, partnerISO, cmdCode: '271121', netWgt, primaryValue: 1e9, isNetWgtEstimated: true, ...extra });
+    const rows = parseComtrade([{ data: [
+      // China gives no quantity and Russia does not report.
+      row('CHN', 'RUS', 'M', 13.8e9, { altQtyUnitCode: -1, altQty: 0 }),
+      // France gives none, but Belgium reports the flow: shown as Belgium's report, not listed.
+      row('FRA', 'BEL', 'M', 10e9, { altQtyUnitCode: 18, altQty: 0 }), row('BEL', 'FRA', 'X', 1.1e9, { isNetWgtEstimated: false }),
+      // A file from before the second quantity was kept: not known, so not listed.
+      row('CHN', 'TKM', 'M', 12.3e9),
+    ] }]);
+    expect(gasUnreported(rows).map((f) => `${f.from}>${f.to}`)).toEqual(['RUS>CHN']);
+    expect(gasUnreported(rows)[0]).toMatchObject({ kind: 'pipe', amount: 13.8e9 / 0.75e9 });
   });
 
   it('reads an LNG volume as liquid or gas by its size against the estimated weight', () => {

@@ -70,11 +70,19 @@ export const DEP_TEXT = {
   /** Deliveries from suppliers that are not a country (SIPRI: non-state actors, NATO, the UN, unknown), in a list. */
   otherSuppliers: 'Other or unknown suppliers',
   /** Flows whose amount is the exporter's report, the importer's quantity being unusable (mirror data). */
-  asReported: (flows: string[]) => `${list(flows)} as reported by the exporter`,
+  asReported: (flows: string[], marked = false) =>
+    (marked && flows.length > 3 ? `${DEP_TEXT.flowList(flows, false)} as reported by the exporter, marked in the table` : `${list(flows)} as reported by the exporter`),
+  /** Flows by name, largest first: up to three, then the rest counted, as the tables mark them. */
+  flowList: (flows: string[], marked = true) => {
+    const more = flows.length - 3;
+    return more > 0 ? `${flows.slice(0, 3).join(', ')} and ${more} smaller ${more === 1 ? 'flow' : 'flows'}${marked ? ', marked in the table' : ''}` : list(flows);
+  },
+  /** Beside a flow in a table whose amount is the exporter's report. */
+  flowMark: 'exporter’s report',
   /** How trade flows are reported, naming the shown flows that are the exporter's report, as the source line does:
    *  "as importers report them, except United States → Mexico and Spain → Morocco, as the exporter reports them". */
   asImporters: (them: 'it' | 'them', flows: string[] = [], to = '') =>
-    `as importers report ${them}${to}${flows.length ? `, except ${list(flows)}, as the exporter reports ${flows.length === 1 ? 'it' : 'them'}` : ''}`,
+    `as importers report ${them}${to}${flows.length ? `, except ${DEP_TEXT.flowList(flows)}, as the exporter reports ${flows.length === 1 ? 'it' : 'them'}` : ''}`,
   flow: (from: string, to: string) => `${from} → ${to}`,
   /** The grid's tooltip, when the main supplier's figure is the exporter's report. */
   supplierAsReported: 'main supplier as reported by the exporter',

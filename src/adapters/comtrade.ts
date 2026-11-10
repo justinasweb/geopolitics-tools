@@ -26,6 +26,9 @@ export interface TradeRow {
   /** The reporter's own volume, in cubic metres (gas), and that volume per kg of the net weight before any drop. */
   m3?: number;
   m3PerKg?: number;
+  /** No quantity of the reporter's own: the weight is Comtrade's estimate and there is no volume. Known only for rows
+   *  that carry the second quantity (files fetched from 10 Nov 2026). */
+  noQty?: true;
 }
 /** `mirror`: the amount is the exporter's report of the flow, the importer's quantity having been dropped. */
 export interface Flow { from: string; to: string; amount: number; year: number; mirror?: true }
@@ -69,7 +72,7 @@ export function parseComtrade(files: { data?: Row[] }[]): TradeRow[] {
       if (m3 !== null) {
         row.m3 = m3;
         if (row.kg) row.m3PerKg = m3 / row.kg;
-      }
+      } else if (row.kgEst && 'altQtyUnitCode' in r) row.noQty = true;
       out.push(row);
     }
   }
@@ -169,6 +172,30 @@ export const gasFlows = (rows: TradeRow[]): GasFlow[] => [
   ...flowsOf(rows, 'pipe', (r) => gasBcm(r, 'pipe')).map((f) => ({ ...f, kind: 'pipe' as const })),
   ...flowsOf(rows, 'lng', (r) => gasBcm(r, 'lng')).map((f) => ({ ...f, kind: 'lng' as const })),
 ].sort((a, b) => b.amount - a.amount);
+/**
+ * Gas flows left out because neither side reports a quantity: the importer's weight is Comtrade's estimate with no
+ * volume of its own, and the exporter has no usable report of the flow (China's pipeline gas from Russia). Amounts are
+ * the estimates, only to tell whether a flow would rank among those shown.
+ */
+export function gasUnreported(rows: TradeRow[]): GasFlow[] {
+  const out: GasFlow[] = [];
+  for (const kind of ['pipe', 'lng'] as const) {
+    const codes: readonly string[] = CODES[kind];
+    const reported = new Set(rows.filter((r) => r.flow === 'X' && codes.includes(r.cmd) && gasBcm(r, kind) !== null).map((r) => `${r.year}|${r.reporter}>${r.partner}`));
+    const by = new Map<string, GasFlow>();
+    for (const r of rows) {
+      if (r.flow !== 'M' || !codes.includes(r.cmd) || !r.noQty || !r.kg || reported.has(`${r.year}|${r.partner}>${r.reporter}`)) continue;
+      const v = kind === 'pipe' ? r.kg / KG_PER_BCM_PIPE : ((r.kg / 1000) * M3_PER_TONNE_LNG) / 1e9;
+      const k = `${r.year}|${r.partner}>${r.reporter}`;
+      const f = by.get(k);
+      if (f) f.amount += v;
+      else by.set(k, { from: r.partner, to: r.reporter, amount: v, year: r.year, kind });
+    }
+    out.push(...by.values());
+  }
+  return out.sort((a, b) => b.amount - a.amount);
+}
+
 export const fertiliserFlows = (rows: TradeRow[], c: 'potash' | 'phosphate') => flowsOf(rows, c, mt);
 /** Integrated circuits or chipmaking machines, in US dollars (weight says little for chips). */
 export const chipFlows = (rows: TradeRow[], c: 'chips' | 'equipment') => flowsOf(rows, c, (r) => r.usd);

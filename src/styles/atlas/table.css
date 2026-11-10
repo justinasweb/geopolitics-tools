@@ -39,3 +39,6 @@ th[aria-sort="ascending"] .gt-sort .up, th[aria-sort="descending"] .gt-sort .dow
 .gt-fn { margin-left: 3px; font: 600 11px/1 var(--sans); }
 .gt-fn a { color: var(--ink-muted); text-decoration: none; }
 .gt-fn a:hover, .gt-fn a:focus-visible { color: var(--brand); text-decoration: underline; }
+
+/* A flow whose amount is the exporter’s report (UN Comtrade mirror data), under the importer’s name. */
+.gt-flowmark { display: block; }

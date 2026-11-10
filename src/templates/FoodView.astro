@@ -19,6 +19,7 @@ import '../styles/atlas/tools.css';
 import { MAP_TEXT } from '../i18n/map.en';
 import { INDICATOR_TEXT } from '../i18n/en';
 import { FOOD_NOTES, FOOD_TEXT as F } from '../i18n/food.en';
+import { DEP_TEXT } from '../i18n/pages.en';
 import { COMMODITIES, FOOD_LAYERS, TOP_FLOWS, balanceOf, estimated, flowSourceOf, mtShort, commodityPages, pageMirror, foodPage, foodPages, lede, mt, netText, shareOf, sourceOf, summary, valueText, worldChange } from '../lib/food';
 import { refreshed, data } from '../lib/data';
 import { place } from '../lib/places';
@@ -248,7 +249,7 @@ const bars = (rs: FoodRow[], max: number) => rs.map((r) => ({ id: r.id, text: mt
                 {flows.map((f) => (
                   <tr>
                     <td>{nameOf(f.from)}</td>
-                    <td>{nameOf(f.to)}</td>
+                    <td>{nameOf(f.to)}{f.mirror && <span class="gt-caption gt-flowmark">{DEP_TEXT.flowMark}</span>}</td>
                     <td class="n" data-v={f.amount}>{mt(f.amount)}</td>
                   </tr>
                 ))}

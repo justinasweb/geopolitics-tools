@@ -4,7 +4,7 @@
 // like), the places that have not reported the latest year yet, and the largest flows. The page template, the map
 // layer files and the share images read this. Built on food.ts's rules, so the two read alike.
 import { gas, oil, oilPrices, type Fuel, type Oil } from '../adapters/eia.ts';
-import { comtrade, crudeFlows, gasFlows, type GasFlow } from '../adapters/comtrade.ts';
+import { comtrade, crudeFlows, gasFlows, gasUnreported, type GasFlow } from '../adapters/comtrade.ts';
 import type { Series } from '../adapters/core.ts';
 import { ENERGY_TEXT, type EnergyLayer, type FuelId, type FuelText } from '../i18n/energy.en.ts';
 import { DEP_TEXT, inSentence } from '../i18n/pages.en.ts';
@@ -22,7 +22,7 @@ export const TOP_FLOWS = 20;
 export type { EnergyLayer, FuelId };
 
 const fuels = { oil: shared(oil), gas: shared(gas) };
-const flowData = shared((raw) => { const r = comtrade(raw); return { oil: crudeFlows(r), gas: gasFlows(r) }; });
+const flowData = shared((raw) => { const r = comtrade(raw); return { oil: crudeFlows(r), gas: gasFlows(r), unreported: gasUnreported(r) }; });
 export const prices = shared(oilPrices);
 
 const n = (v: number, digits: number) => new Intl.NumberFormat('en', { maximumFractionDigits: digits, minimumFractionDigits: digits }).format(v);
@@ -73,7 +73,23 @@ const nameOf = (id: string) => place(id)?.name ?? id;
 /** The flows the map and the tables show: the largest TOP_FLOWS of a kind (pipeline or LNG; oil has none). */
 export const shownFlows = (p: EnergyPage, kind?: 'pipe' | 'lng') => p.flows.filter((f) => f.kind === kind).slice(0, TOP_FLOWS);
 /** Of those, the ones whose amount is the exporter's report, named as source lines name them ("United States → Mexico"). */
-export const mirrorNames = (flows: EnergyPage['flows']) => flows.filter((f) => 'mirror' in f && f.mirror).map((f) => DEP_TEXT.flow(nameOf(f.from), nameOf(f.to)));
+export const mirrorNames = (flows: EnergyPage['flows']) => flows.filter((f) => 'mirror' in f && f.mirror).sort((a, b) => b.amount - a.amount).map((f) => DEP_TEXT.flow(nameOf(f.from), nameOf(f.to)));
+/**
+ * Gas flows left out for want of a reported quantity (gasUnreported) that would otherwise rank among the TOP_FLOWS of
+ * their kind in `year`, by name. The gas map and the gas supply chain both say so.
+ */
+export function gasNotShown(year: number): Record<'pipe' | 'lng', string[]> {
+  const out = { pipe: [] as string[], lng: [] as string[] };
+  const d = flowData();
+  if (!d) return out;
+  const left = new Set(d.unreported);
+  for (const kind of ['pipe', 'lng'] as const) {
+    const top = [...d.gas, ...d.unreported].filter((f) => f.kind === kind && f.year === year).sort((a, b) => b.amount - a.amount).slice(0, TOP_FLOWS);
+    out[kind] = top.filter((f) => left.has(f)).map((f) => DEP_TEXT.flow(nameOf(f.from), nameOf(f.to)));
+  }
+  return out;
+}
+
 /** Every flow shown on the page that is the exporter's report. */
 export const pageMirror = (p: EnergyPage) => mirrorNames(p.fuel === 'gas' ? [...shownFlows(p, 'pipe'), ...shownFlows(p, 'lng')] : shownFlows(p));
 

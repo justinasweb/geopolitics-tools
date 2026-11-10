@@ -150,6 +150,21 @@ describe('flows from the exporter’s report', () => {
     expect(FOOD_TEXT.flowsCaption(20, 2025, true, ['Russia → Brazil'])).toBe('The 20 largest flows in 2025, exporter to importer, as importers report them to UN Comtrade, except Russia → Brazil, as the exporter reports it, in tonnes of product.');
   });
 
+  it('name the three largest and count the rest, marked in the table; gas says which flows it leaves out', async () => {
+    const { DEP_TEXT } = await import('../../src/i18n/pages.en.ts');
+    const { ENERGY_TEXT } = await import('../../src/i18n/energy.en.ts');
+    const five = ['United States → France', 'United States → Egypt', 'Kazakhstan → China', 'Belgium → France', 'Norway → France'];
+    expect(DEP_TEXT.asImporters('it', five)).toBe('as importers report it, except United States → France, United States → Egypt, Kazakhstan → China and 2 smaller flows, marked in the table, as the exporter reports them');
+    expect(DEP_TEXT.asReported(five, true)).toBe('United States → France, United States → Egypt, Kazakhstan → China and 2 smaller flows as reported by the exporter, marked in the table');
+    const c = { ...chain, places: { ...chain.places, KAZ: { n: 'Kazakhstan', c: 'KAZ' } }, src: 'comtrade', mirror: ['Kazakhstan → TUR'], notShown: ENERGY_TEXT.notShown(['Russia → China', 'Turkmenistan → China'], [])! };
+    expect(c.notShown).toBe('Not shown: Russia → China and Turkmenistan → China pipeline gas, because neither country reports a volume to UN Comtrade.');
+    expect(sankeyHtml(c, { country: '' })).toContain(c.notShown);
+    const html = tableHtml(c, { country: '' });
+    expect(html.match(/gt-flowmark/g)).toHaveLength(1);
+    expect(html).toMatch(/Kazakhstan<\/th><td>TUR<span class="gt-caption gt-flowmark">exporter’s report<\/span>/);
+    expect(ENERGY_TEXT.notShown([], [])).toBeNull();
+  });
+
   it('label a pair only when most of its amount is the exporter’s report', async () => {
     const { sumPairs } = await import('../../src/data/flows.ts');
     // A few cubic metres of pipeline gas from the exporter's report do not make a pair's LNG the exporter's.
