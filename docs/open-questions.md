@@ -6,47 +6,6 @@ keeps one line per closed question.
 
 ## Launch QA
 
-### Re-check bloc memberships before launch (raised 2 Nov 2026)
-
-**The question.** The membership table (`src/data/blocs.csv`, `bloc-history.csv`) is kept by hand, and the
-weekly Wikidata cross-check planned for phase 5a is not built yet. It was last checked in full on **21 October 2026**
-(`BLOCS_CHECKED` in `src/lib/blocs.ts`), but it missed the United Arab Emirates leaving OPEC and OPEC+ on
-1 May 2026 (announced on 28 April 2026, [WAM](https://www.wam.ae/en/article/bzxzuh7-uae-announces-decision-exit-opec-opec+)).
-That was fixed on **2 November 2026**: the UAE was removed from OPEC (now 11 members) and OPEC+ (now 21), its OPEC
-history ends in 2026, and the change is in Sources → Corrections.
-
-**Re-checked 10 Nov 2026.** Memberships re-checked; `BLOCS_CHECKED` is now 10 November 2026, the date every bloc
-page, alliance history, Bloc overlap, the bloc maps, their share images and the country pages' "Member of" line show.
-
-**Checked 5 Nov 2026 (launch review).** The member counts of ASEAN, NATO, the EU, the OECD, the CSTO and OPEC were
-confirmed. BRICS is decided (see Decided).
-
-**Still to check before launch.** The G7, the G20, the SCO and the Quad, and the 8 groupings without a history (APEC,
-AUKUS, the CIS, the EAEU, OPEC+, RCEP, the UN Security Council's permanent members and USMCA), each against its own
-member list. Then set `BLOCS_CHECKED` to that day; log a change in `src/data/corrections.csv` only if the figure was
-live on the site. Known points: the
-CSTO (Armenia's frozen participation), OPEC+ (its list of non-OPEC producers) and the G20 (the African Union is not a
-country, so not on the map).
-
-**Bloc shares count today's members: decided 2 Nov 2026.** A bloc's share or total on a map, a bloc page or a share
-image adds up its members as they are today, whatever year is shown, so OPEC's 2024 oil share leaves out the UAE,
-which was a member then. At launch every such sentence says so ("Today's OPEC members produced 30% of the world's oil
-in 2024."), built with one phrase (`todaysMembers` in `src/i18n/members.en.ts`); `tests/unit/bloc-lines.test.ts`
-fails on a bloc share line without it. Lines that state no share over a year keep plain wording: overlap between
-groupings, disaster alerts in the last days, treaty and sharing status, river disputes.
-Post-launch option: count each year's members for the 11 groupings with a history (`bloc-history.csv`), and keep
-"today's" for the other 8.
-
-**Members that are not countries, and predecessors: decided 3 Nov 2026.** Counts are of countries, and a grouping
-with other members names them in one template (`membersText` in `src/i18n/members.en.ts`): "19 countries, plus the
-European Union and, since 2023, the African Union" (G20) and "7 countries, with the European Union taking part as a
-non-enumerated member since 1977" (G7), on the bloc page, its title, panel, member table, history page, Bloc overlap
-and share images. A history that began under another name says so (`BEGAN_AS` in `src/i18n/blocs.en.ts`): the SCO
-(Shanghai Five, 1996), the EU (European Economic Community, 1958), the CSTO (Collective Security Treaty, 1992), BRICS
-(BRIC, 2009; South Africa joined in 2011) and the G7 (a summit of six countries in 1975; Canada joined in 1976).
-Confirmed by the owner on 3 Nov 2026: the EU's G7 participation **since 1977**, and calling the 1975 summit "a summit
-of six countries" rather than a named "G6". `tests/unit/bloc-members.test.ts` holds the wording.
-
 ### Withheld sources: what is left (raised 9 Nov 2026)
 
 **The question.** GDACS, IODA and CelesTrak are withheld until their licences are cleared (`WITHHELD` in
@@ -182,6 +141,19 @@ longer matches and nothing is left out; the entry can then go.
 
 ## Wave 2
 
+### Upcoming bloc changes (raised 10 Nov 2026)
+
+Real-world changes ahead, not corrections: each is an edit to `src/data/blocs.csv` (and `bloc-history.csv` for the
+groupings with a history) on the day it happens, with `BLOCS_CHECKED` moved to that day. Nothing goes in
+`src/data/corrections.csv`.
+
+- **Moldova leaves the CIS on 8 Apr 2027.** Remove it from `cis` in `blocs.csv` that day.
+- **The EAEU decides on suspending Armenia in Dec 2026.** Armenia stays a member until a decision takes effect; then
+  decide how a suspended member is shown.
+- **South Africa and the G20.** It is not attending G20 meetings during the 2026 US presidency, but is still a member:
+  no change.
+- **RCEP accession.** Hong Kong, Chile and others are in accession talks; none has joined: no change until one does.
+
 ### Multi-year supply chain flows (raised 28 Oct 2026)
 
 **The question.** Should the supply chain pages let the reader pick earlier years, to see how a flow changed (who
@@ -241,6 +213,39 @@ its tool entry on a hub has no links under it. Topic presets would give it some.
 
 ## Decided
 
+- **Re-check bloc memberships before launch** (raised 2 Nov 2026). Closed 10 Nov 2026. The membership table
+  (`src/data/blocs.csv`, `bloc-history.csv`) is kept by hand, and the weekly Wikidata cross-check planned for phase 5a
+  is not built yet. It was last checked in full on **21 October 2026** (`BLOCS_CHECKED` in `src/lib/blocs.ts`), but it
+  missed the United Arab Emirates leaving OPEC and OPEC+ on 1 May 2026 (announced on 28 April 2026,
+  [WAM](https://www.wam.ae/en/article/bzxzuh7-uae-announces-decision-exit-opec-opec+)). That was fixed on **2 November
+  2026**: the UAE was removed from OPEC (now 11 members) and OPEC+ (now 21), its OPEC history ends in 2026, and the
+  change is in Sources → Corrections.
+
+  **Re-checked 10 Nov 2026** for the G7, G20, SCO, Quad, APEC, AUKUS, CIS, EAEU, OPEC+, RCEP, UN Security Council
+  permanent members and USMCA: no membership changes. `BLOCS_CHECKED` is 10 November 2026, the date every bloc page,
+  alliance history, Bloc overlap, the bloc maps, their share images and the country pages' "Member of" line show.
+
+  **Checked 5 Nov 2026 (launch review).** The member counts of ASEAN, NATO, the EU, the OECD, the CSTO and OPEC were
+  confirmed. BRICS is decided (see Decided).
+
+  **Known points, kept as they are.** The CSTO (Armenia's frozen participation), OPEC+ (its list of non-OPEC
+  producers) and the G20 (the African Union is not a country, so not on the map).
+- **Bloc shares count today's members: decided 2 Nov 2026.** A bloc's share or total on a map, a bloc page or a share
+  image adds up its members as they are today, whatever year is shown, so OPEC's 2024 oil share leaves out the UAE,
+  which was a member then. At launch every such sentence says so ("Today's OPEC members produced 30% of the world's
+  oil in 2024."), built with one phrase (`todaysMembers` in `src/i18n/members.en.ts`); `tests/unit/bloc-lines.test.ts`
+  fails on a bloc share line without it. Lines that state no share over a year keep plain wording: overlap between
+  groupings, disaster alerts in the last days, treaty and sharing status, river disputes. Post-launch option: count
+  each year's members for the 11 groupings with a history (`bloc-history.csv`), and keep "today's" for the other 8.
+- **Members that are not countries, and predecessors: decided 3 Nov 2026.** Counts are of countries, and a grouping
+  with other members names them in one template (`membersText` in `src/i18n/members.en.ts`): "19 countries, plus the
+  European Union and, since 2023, the African Union" (G20) and "7 countries, with the European Union taking part as a
+  non-enumerated member since 1977" (G7), on the bloc page, its title, panel, member table, history page, Bloc overlap
+  and share images. A history that began under another name says so (`BEGAN_AS` in `src/i18n/blocs.en.ts`): the SCO
+  (Shanghai Five, 1996), the EU (European Economic Community, 1958), the CSTO (Collective Security Treaty, 1992),
+  BRICS (BRIC, 2009; South Africa joined in 2011) and the G7 (a summit of six countries in 1975; Canada joined in
+  1976). Confirmed by the owner on 3 Nov 2026: the EU's G7 participation **since 1977**, and calling the 1975 summit
+  "a summit of six countries" rather than a named "G6". `tests/unit/bloc-members.test.ts` holds the wording.
 - **Bloc memberships on country pages.** Decided 10 Nov 2026: a "Member of" line in the country page's header lists
   the groupings the place belongs to (src/data/blocs.csv), in the blocs' order, each linked to its bloc page, dated
   "as of" the date the bloc pages use (`BLOCS_CHECKED`). It wraps as running text on a phone. Raised by an outside
