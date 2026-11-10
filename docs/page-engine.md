@@ -307,7 +307,8 @@ the data run), words in `src/i18n/week.en.ts`. Built from data only.
   changed), newest first over 30 days (an archived week: its own days), filtered by kind; ten shown, then "Show older
   items" (`src/scripts/week.ts`). Without scripts every item shows.
 - **The week in brief.** Per closed week: shown on that week's page, and on `/this-week` for the latest closed week
-  (labelled with its week), only when the drafting pipeline's text `week:{id}` is approved and its facts unchanged
+  (its dates in the heading, "The week in brief: 2–8 November"; the live page then says its counts and cards cover
+  the last 7 days), only when the drafting pipeline's text `week:{id}` is approved and its facts unchanged
   (`src/data/ai/texts/weeks/{id}.json`, approved on Telegram: [telegram.md](telegram.md)); otherwise nothing, not an
   empty box and no notice. The label and "How this summary is made" link to Methodology's "AI drafting" section.
 - **Earlier weeks.** `/this-week` links to the latest closed week ("Previous weeks: week 44 →") once one exists, and

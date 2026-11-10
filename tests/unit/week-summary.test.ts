@@ -234,3 +234,16 @@ describe('the summary and digest runs', () => {
     expect((post.extra!.reply_markup as { inline_keyboard: { callback_data: string }[][] }).inline_keyboard[0].map((x) => x.callback_data)).toEqual(['p|2026-45', 'x|2026-45']);
   });
 });
+
+describe('the summary’s period', () => {
+  it('is in its heading and label, and drafts name the week instead of writing "this week"', async () => {
+    const { WEEK_TEXT: W, range } = await import('../../src/i18n/week.en.ts');
+    const { readFileSync } = await import('node:fs');
+    expect(W.summaryTitle(range('2026-11-02', '2026-11-08', { long: true, year: false }))).toBe('The week in brief: 2–8 November');
+    expect(W.aiLabel).toMatch(/^Drafted with AI from that week’s data/);
+    expect(W.cardsSpan('3–9 November 2026')).toBe('The figures and cards below cover the last 7 days, 3–9 November 2026.');
+    const prompt = readFileSync(new URL('../../src/data/ai/prompt.md', import.meta.url), 'utf8');
+    expect(prompt).toContain('("in the week of 2–8 November")');
+    expect(prompt).toMatch(/never\s+write "this week"/);
+  });
+});

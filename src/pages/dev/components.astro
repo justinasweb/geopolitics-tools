@@ -386,7 +386,7 @@ const typeStyles = tokens.type.groups.flatMap((g) => g.styles.map((s) => ({ ...s
         <div class="dev__phone dev__pad"><CountRow counts={wkCounts.slice(0, 1)} /></div>
       </div>
       <div class="dev__cell"><span class="dev__cap">The week in brief (only when the editor has approved a summary) and earlier weeks</span>
-        <WeekSummary id="dev-wsum" text={wkSummary} week={43} range="15–21 October 2026" approved="22 Oct 2026" method="#" status="sample" />
+        <WeekSummary id="dev-wsum" text={wkSummary} week={43} range="15–21 October 2026" short="15–21 October" approved="22 Oct 2026" method="#" status="sample" />
         <WeekNav id="dev-wk" prev={wkNav.prev} recent={[]} options={wkNav.options} />
         <WeekNav id="dev-wk2" recent={[44, 43, 42, 41].map((w) => ({ href: `#${w}`, label: `Week ${w}` }))} options={[]} />
       </div>
