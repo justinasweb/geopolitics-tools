@@ -55,7 +55,7 @@ export async function initCompare(): Promise<void> {
   const chips = document.querySelector<HTMLElement>('[data-cmp-chips]')!;
   chips.innerHTML = keyChipsHtml(c);
   chips.hidden = false;
-  out.innerHTML = compareHtml(meta, c, location.pathname);
+  out.innerHTML = compareHtml(meta, c);
   out.setAttribute('aria-busy', 'false');
   const live = document.getElementById('gt-live');
   if (live) live.textContent = T.shown(na, nb);

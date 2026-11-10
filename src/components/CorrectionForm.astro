@@ -1,6 +1,6 @@
 ---
-// The correction form (decision D10): a modal dialog that "Report a correction" (CorrectionLink) opens from any
-// source line or the footer; a bottom sheet on phones. Three fields: what is wrong (required), the page (filled in,
+// The correction form (decision D10): a modal dialog that "Report a correction" (CorrectionLink) opens from the
+// footer; a bottom sheet on phones. Three fields: what is wrong (required), the page (filled in,
 // read-only) and an optional email for a reply. It posts to the Worker (/api/correction), which forwards the report
 // to Telegram and keeps nothing. The email link under the button is the fallback, and the link itself is one when
 // scripts are off. Behaviour: src/scripts/correction.ts.

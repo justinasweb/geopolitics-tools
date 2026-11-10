@@ -3,6 +3,7 @@
 // page is indexed.
 import { INDICATORS, statusAt, type Indicator, type Loaded, type ValueStatus } from '../data/indicators.ts';
 import { indicator, licenceOf } from './data.ts';
+import { SHOWN_ONLY_INDICATORS } from '../data/licences.ts';
 import { formatValue } from './format.ts';
 import { place } from './places.ts';
 import { ANSWER, DEFAULT_VERB, INDICATOR_PAGE, inSentence } from '../i18n/pages.en.ts';
@@ -75,5 +76,6 @@ export function answerFor(m: IndicatorModel, withTag = false): string {
   return m.indicator.static ? INDICATOR_PAGE.answerStatic(inSentence(name, true), verb, value) : INDICATOR_PAGE.answer(inSentence(name), verb, value, top.year);
 }
 
-/** Whether the indicator page offers a CSV: every source behind it allows downloads (licence table). */
-export const csvAllowed = (m: IndicatorModel) => m.sources.every((s) => licenceOf(s)?.downloads === 'yes');
+/** Whether the indicator page offers a CSV: every source behind it allows downloads (licence table) and the measure is
+ *  not shown only (SHOWN_ONLY_INDICATORS: the military spending series, under SIPRI's terms). */
+export const csvAllowed = (m: IndicatorModel) => !SHOWN_ONLY_INDICATORS.includes(m.indicator.id) && m.sources.every((s) => licenceOf(s)?.downloads === 'yes');

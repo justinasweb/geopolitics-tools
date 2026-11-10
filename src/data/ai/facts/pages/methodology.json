@@ -17,10 +17,20 @@
   ],
   "names": [
     "claude-sonnet-5-5",
+    "Public domain (US government work)",
+    "Commission default for raw data: CC0 1.0 (content: CC BY 4.0)",
+    "Open Government Licence v3.0",
     "CC BY 4.0",
+    "CC BY 4.0 (the page links its data to the World Bank’s CC BY terms)",
+    "CC BY 4.0, passing on its providers’ terms",
     "CC BY 4.0, with UNHCR’s supplemental terms",
+    "ODbL 1.0",
     "CC BY-NC 4.0 (since 2 April 2025)",
     "CC BY 4.0, with FAO’s additional terms",
+    "SIPRI terms: non-commercial reuse of under 10% of a dataset, with credit",
+    "CC BY 3.0 IGO",
+    "ODC-By 1.0 (GCDF 3.0)",
+    "UN terms: reproduction needs written permission",
     "UN Comtrade terms: a free, not-for-profit visualisation may show its figures; no bulk redistribution",
     "Public domain (US government work); EIA asks to be credited",
     "CC BY-NC-SA 3.0 IGO"
@@ -34,7 +44,7 @@
       "unit": "%",
       "source": "geopolitics.tools code (src/lib/dependence.ts)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/lib/dependence.ts",
-      "date": "2026-11-06"
+      "date": "2026-11-10"
     },
     {
       "id": "imports-some",
@@ -43,7 +53,7 @@
       "unit": "%",
       "source": "geopolitics.tools code (src/lib/dependence.ts)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/lib/dependence.ts",
-      "date": "2026-11-06"
+      "date": "2026-11-10"
     },
     {
       "id": "tool-band",
@@ -52,7 +62,7 @@
       "unit": "%",
       "source": "geopolitics.tools code (src/lib/dependencies/model.ts)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/lib/dependencies/model.ts",
-      "date": "2026-11-06"
+      "date": "2026-11-10"
     },
     {
       "id": "spof",
@@ -61,7 +71,7 @@
       "unit": "%",
       "source": "geopolitics.tools code (src/lib/dependencies/model.ts)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/lib/dependencies/model.ts",
-      "date": "2026-11-06"
+      "date": "2026-11-10"
     },
     {
       "id": "hhi-moderate",
@@ -71,7 +81,7 @@
       "period": "2023",
       "source": "geopolitics.tools code (src/lib/supply-chains/model.ts)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/lib/supply-chains/model.ts",
-      "date": "2026-11-06"
+      "date": "2026-11-10"
     },
     {
       "id": "hhi-high",
@@ -80,7 +90,7 @@
       "unit": "",
       "source": "geopolitics.tools code (src/lib/supply-chains/model.ts)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/lib/supply-chains/model.ts",
-      "date": "2026-11-06"
+      "date": "2026-11-10"
     },
     {
       "id": "hhi-max",
@@ -89,7 +99,7 @@
       "unit": "",
       "source": "geopolitics.tools code (src/lib/supply-chains/model.ts)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/lib/supply-chains/model.ts",
-      "date": "2026-11-06"
+      "date": "2026-11-10"
     },
     {
       "id": "common-year",
@@ -98,7 +108,7 @@
       "unit": "%",
       "source": "geopolitics.tools code (src/lib/stats.ts)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/lib/stats.ts",
-      "date": "2026-11-06"
+      "date": "2026-11-10"
     },
     {
       "id": "latest-available",
@@ -107,7 +117,7 @@
       "unit": "years",
       "source": "geopolitics.tools code (src/lib/indicator.ts)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/lib/indicator.ts",
-      "date": "2026-11-06"
+      "date": "2026-11-10"
     },
     {
       "id": "indicator-min",
@@ -116,7 +126,7 @@
       "unit": "places",
       "source": "geopolitics.tools code (src/lib/indicator.ts)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/lib/indicator.ts",
-      "date": "2026-11-06"
+      "date": "2026-11-10"
     },
     {
       "id": "thin-profile",
@@ -125,7 +135,7 @@
       "unit": "measures",
       "source": "geopolitics.tools code (src/lib/country.ts)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/lib/country.ts",
-      "date": "2026-11-06"
+      "date": "2026-11-10"
     },
     {
       "id": "sipri-totals",
@@ -158,21 +168,21 @@
       "statement": "Texts drafted with AI are written by claude-sonnet-5-5 from a facts file, checked figure by figure, and approved by the editor before they appear.",
       "source": "geopolitics.tools code (src/lib/ai/config.ts)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/lib/ai/config.ts",
-      "date": "2026-11-06"
+      "date": "2026-11-10"
     },
     {
       "id": "ai-prompt",
       "statement": "The drafting prompt asks for plain, neutral text from a text’s own facts only: no forecasts, blame or judging adjectives; every figure with its unit and period and with thousands separators; the site’s own country names; \"rejoined\" for a second join; and nothing about its facts file, tables or itself, or about what its facts leave out.",
       "source": "geopolitics.tools code (src/data/ai/prompt.md)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/ai/prompt.md",
-      "date": "2026-11-06"
+      "date": "2026-11-10"
     },
     {
       "id": "ai-texts",
       "statement": "The texts drafted with AI are the dossier summaries, the alliance history notes, the disputed river summaries and the summary of each closed week on This week.",
       "source": "geopolitics.tools code (docs/ai-drafting.md)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/docs/ai-drafting.md",
-      "date": "2026-11-06"
+      "date": "2026-11-10"
     },
     {
       "id": "ai-attempts",
@@ -181,7 +191,7 @@
       "unit": "drafts",
       "source": "geopolitics.tools code (src/lib/ai/config.ts)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/lib/ai/config.ts",
-      "date": "2026-11-06"
+      "date": "2026-11-10"
     },
     {
       "id": "territory-worldbank-CHN",
@@ -191,7 +201,7 @@
       ],
       "source": "Territory and code table (src/data/places/notes.csv)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/places/notes.csv",
-      "date": "2026-11-06"
+      "date": "2026-11-10"
     },
     {
       "id": "territory-all-ESH",
@@ -201,7 +211,7 @@
       ],
       "source": "Territory and code table (src/data/places/notes.csv)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/places/notes.csv",
-      "date": "2026-11-06"
+      "date": "2026-11-10"
     },
     {
       "id": "territory-all-MAR-western-sahara",
@@ -211,7 +221,7 @@
       ],
       "source": "Territory and code table (src/data/places/notes.csv)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/places/notes.csv",
-      "date": "2026-11-06"
+      "date": "2026-11-10"
     },
     {
       "id": "territory-all-XKX",
@@ -221,7 +231,7 @@
       ],
       "source": "Territory and code table (src/data/places/notes.csv)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/places/notes.csv",
-      "date": "2026-11-06"
+      "date": "2026-11-10"
     },
     {
       "id": "territory-all-FLK",
@@ -231,7 +241,7 @@
       ],
       "source": "Territory and code table (src/data/places/notes.csv)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/places/notes.csv",
-      "date": "2026-11-06"
+      "date": "2026-11-10"
     },
     {
       "id": "territory-all-RUS-crimea",
@@ -241,7 +251,7 @@
       ],
       "source": "Territory and code table (src/data/places/notes.csv)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/places/notes.csv",
-      "date": "2026-11-06"
+      "date": "2026-11-10"
     },
     {
       "id": "territory-all-UKR",
@@ -251,7 +261,7 @@
       ],
       "source": "Territory and code table (src/data/places/notes.csv)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/places/notes.csv",
-      "date": "2026-11-06"
+      "date": "2026-11-10"
     },
     {
       "id": "territory-all-CYP-northern-cyprus",
@@ -261,7 +271,7 @@
       ],
       "source": "Territory and code table (src/data/places/notes.csv)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/places/notes.csv",
-      "date": "2026-11-06"
+      "date": "2026-11-10"
     },
     {
       "id": "territory-all-SOM-somaliland",
@@ -271,7 +281,7 @@
       ],
       "source": "Territory and code table (src/data/places/notes.csv)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/places/notes.csv",
-      "date": "2026-11-06"
+      "date": "2026-11-10"
     },
     {
       "id": "territory-all-GEO-abkhazia-and-south-ossetia",
@@ -281,7 +291,7 @@
       ],
       "source": "Territory and code table (src/data/places/notes.csv)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/places/notes.csv",
-      "date": "2026-11-06"
+      "date": "2026-11-10"
     },
     {
       "id": "territory-all-MDA-transnistria",
@@ -291,14 +301,14 @@
       ],
       "source": "Territory and code table (src/data/places/notes.csv)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/places/notes.csv",
-      "date": "2026-11-06"
+      "date": "2026-11-10"
     },
     {
       "id": "source-usgs-quakes",
-      "statement": "USGS earthquakes is one of the site's sources.",
+      "statement": "USGS earthquakes is one of the site's sources, under Public domain (US government work).",
       "source": "USGS earthquakes",
       "link": "https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits",
-      "date": "2026-10-24"
+      "date": "2026-11-10"
     },
     {
       "id": "source-unhcr",
@@ -316,17 +326,17 @@
     },
     {
       "id": "source-sipri",
-      "statement": "SIPRI Arms Transfers Database is one of the site's sources.",
+      "statement": "SIPRI Arms Transfers Database is one of the site's sources, under SIPRI terms: non-commercial reuse of under 10% of a dataset, with credit.",
       "source": "SIPRI Arms Transfers Database",
       "link": "https://www.sipri.org/about/terms-and-conditions",
-      "date": "2026-10-24"
+      "date": "2026-11-10"
     },
     {
       "id": "source-usgs-minerals",
-      "statement": "USGS Mineral Commodity Summaries is one of the site's sources.",
+      "statement": "USGS Mineral Commodity Summaries is one of the site's sources, under Public domain (US government work).",
       "source": "USGS Mineral Commodity Summaries",
       "link": "https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits",
-      "date": "2026-10-24"
+      "date": "2026-11-10"
     },
     {
       "id": "source-comtrade",

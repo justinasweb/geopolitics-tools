@@ -5,7 +5,6 @@
 // named next to every line and bar, so colour is never the only cue. No Node imports.
 import { COMPARE_TEXT as T } from '../../i18n/pages.en.ts';
 import { SOURCE_TEXT } from '../../i18n/en.ts';
-import { CORRECTION_TEXT, correctionMailto } from '../../i18n/correction.en.ts';
 import { formatParts, formatShare } from '../format.ts';
 import { lineChartHtml } from '../linechart.ts';
 import { tagHtml, type Status } from '../tags.ts';
@@ -23,12 +22,11 @@ export function chipHtml(side: Side, d: CountryData, opts: { colour?: boolean; l
     + `<b>${esc(d.name)}</b>${opts.colour ? `<span class="gt-cchip__col">${esc(T.colours[side])}</span>` : ''}</${tag}>`;
 }
 
-/** The source line (SourceLine component) with its Report a correction link. */
-export function sourceLineHtml(source: string, parts: string[], page: string, status?: Status): string {
+/** The source line (SourceLine component). */
+export function sourceLineHtml(source: string, parts: string[], status?: Status): string {
   const sep = '<span class="gt-source__sep" aria-hidden="true">·</span>';
   return `<p class="gt-source"><span>${esc(SOURCE_TEXT.source)} <b>${sourceLinksHtml(source)}</b></span>${parts.map((p) => `${sep}<span>${esc(p)}</span>`).join('')}`
-    + `${status ? `${sep}${tagHtml(status)}` : ''}`
-    + `<a class="gt-corrlink" href="${esc(correctionMailto(page))}" data-gt-corr data-gt-corr-source="${esc(source)}" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 20h20z"/><path d="M12 10v4.5M12 17.2v.3"/></svg>${esc(CORRECTION_TEXT.link)}</a></p>`;
+    + `${status ? `${sep}${tagHtml(status)}` : ''}</p>`;
 }
 
 /** One numbered section (CpSection component). */
@@ -78,7 +76,7 @@ export function keyHtml(meta: Meta, c: Two): string {
 
 // ---------- over time ----------
 
-export function chartsHtml(meta: Meta, c: Two, page: string, first = 2): string {
+export function chartsHtml(meta: Meta, c: Two, first = 2): string {
   const charts = compareCharts(meta, c);
   if (!charts.length) return '';
   return '<div class="gt-cmp2">' + charts.map((ch, i) => {
@@ -87,13 +85,13 @@ export function chartsHtml(meta: Meta, c: Two, page: string, first = 2): string 
       label: `${ch.m.label}, ${c[0].name} and ${c[1].name}, ${span}`, years: ch.years, format: ch.m.format, height: 280,
       lines: SIDES.map((s, k) => ({ label: c[k].name, cls: `gt-cc--${s}`, dashed: s === 'second', values: ch.values[k] })),
     });
-    return sectionHtml(first + i, `over-${ch.m.id}`, `${ch.m.label}: ${T.overTime.toLowerCase()}`, T.sameScale, svg, sourceLineHtml(ch.m.source, [span], page));
+    return sectionHtml(first + i, `over-${ch.m.id}`, `${ch.m.label}: ${T.overTime.toLowerCase()}`, T.sameScale, svg, sourceLineHtml(ch.m.source, [span]));
   }).join('') + '</div>';
 }
 
 // ---------- minerals ----------
 
-export function mineralsHtml(meta: Meta, c: Two, page: string, n: number): string {
+export function mineralsHtml(meta: Meta, c: Two, n: number): string {
   const pairs = comparePairs(meta, c);
   if (!pairs.length) return '';
   const year = pairs[0].m.year;
@@ -103,13 +101,13 @@ export function mineralsHtml(meta: Meta, c: Two, page: string, n: number): strin
     + '</ul></li>').join('');
   const note = pairs.some((x) => x.vals.includes(null)) ? `<p class="gt-caption gt-pairs__note">${esc(T.notListedNote)}</p>` : '';
   return sectionHtml(n, 'minerals', T.minerals, T.mineralsFind(year), `<ul class="gt-pairs">${items}</ul>${note}`,
-    sourceLineHtml(meta.mineralSource, [`${year}${est ? ', estimated' : ''}`], page, est ? 'estimate' : undefined));
+    sourceLineHtml(meta.mineralSource, [`${year}${est ? ', estimated' : ''}`], est ? 'estimate' : undefined));
 }
 
 /** Every section for two countries: key figures, the charts, the minerals, numbered in order. */
-export function compareHtml(meta: Meta, c: Two, page: string): string {
+export function compareHtml(meta: Meta, c: Two): string {
   const charts = compareCharts(meta, c).length;
-  return keyHtml(meta, c) + chartsHtml(meta, c, page) + mineralsHtml(meta, c, page, 2 + charts);
+  return keyHtml(meta, c) + chartsHtml(meta, c) + mineralsHtml(meta, c, 2 + charts);
 }
 
 /** The chips under the heading, linked to each country's page. */

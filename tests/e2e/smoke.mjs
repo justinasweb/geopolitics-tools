@@ -236,13 +236,7 @@ for (const [name, viewport] of [['desktop', { width: 1440, height: 900 }], ['pho
   check(await page.evaluate(() => document.activeElement?.matches('[data-gt-corr-dialog] [data-gt-corr-close]')), `${name}: Shift+Tab from the first field reaches Close`);
   await page.keyboard.press('Enter');
   check(!(await dialogOpen()), `${name}: Close closes the form from the keyboard`);
-  const sourceLink = page.locator('.gt-source .gt-corrlink').first();
-  if (await sourceLink.count()) {
-    await sourceLink.focus();
-    await page.keyboard.press('Enter');
-    check(await dialogOpen(), `${name}: a source line's Report a correction opens the form`);
-    await page.keyboard.press('Escape');
-  }
+  check(await page.locator('.gt-source .gt-corrlink').count() === 0, `${name}: Report a correction is in the footer only, not on source lines`);
   check(errors.length === 0, `${name}: the correction form has no console errors${errors.length ? ` (${errors.join('; ')})` : ''}`);
 
   // Bloc overlap: the matrix (or, on a phone, two blocs side by side) and the membership table draw, India is the

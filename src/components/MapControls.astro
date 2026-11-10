@@ -33,9 +33,11 @@ interface Props {
 const { pickerLabel, picker, pickerSelect, picker2, years, year, yearStatus = {}, blocs = true, periods, steps } = Astro.props;
 const stepWord = (v: number) => periods?.options[v] ?? steps?.labels[v] ?? v;
 const blocOptions = BLOC_ORDER.map((b) => ({ value: b, label: BLOC_TEXT[b] }));
+// A view with no pickers (conflict deaths) has no pickers block: the year starts at the left edge.
+const pickers = picker.length > 0 || !!picker2;
 ---
-<div class:list={["gt-mvctl", { "gt-mvctl--stack": periods || picker2 }]} data-gt-mapctl>
-  <div class="gt-mvctl__pickers">
+<div class:list={["gt-mvctl", { "gt-mvctl--stack": periods || picker2, "gt-mvctl--nopick": !pickers }]} data-gt-mapctl>
+  {pickers && <div class="gt-mvctl__pickers">
     {picker.length > 0 && <div class="gt-mvctl__min">
       {pickerSelect ? (
         <>
@@ -61,7 +63,7 @@ const blocOptions = BLOC_ORDER.map((b) => ({ value: b, label: BLOC_TEXT[b] }));
         </nav>
       </div>
     )}
-  </div>
+  </div>}
   <div class="gt-mvctl__row">
     {periods && (
       <PeriodControl id="mv-year" label={periods.label} value={year} note={periods.note} options={years.map((d) => ({ value: d, label: periods.options[d] }))} />

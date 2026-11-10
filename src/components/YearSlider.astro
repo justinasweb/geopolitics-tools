@@ -1,6 +1,8 @@
 ---
 // Year slider with play. Moving it fires `gt-change` with { year }. Play steps a year at a time and slows down with
-// reduced motion. Estimated years carry a small "e" on the axis and in the announced value.
+// reduced motion. Estimated years carry a small "e" on the axis and in the announced value. A year's status tag
+// ("Preliminary", "Estimate") sits on its own line under the year, kept the same height without one, so nothing moves
+// as play passes years with and without it.
 import '../styles/atlas/years.css';
 import { YEAR_TEXT } from '../i18n/en';
 import StatusTag, { type Status } from './StatusTag.astro';
@@ -16,7 +18,7 @@ interface Props {
   estimated?: number[];
   play?: boolean;
   disabled?: boolean;
-  /** A status tag shown next to the readout for these years (map views: "Estimate" on USGS's estimated years). */
+  /** A status tag shown under the readout for these years (map views: "Estimate" on USGS's estimated years). */
   tags?: Record<number, Status>;
   /** Words for the values, where they are not years (a months axis: "Mar 2026"), and the label in place of "Year". */
   labels?: Record<number, string>;
@@ -33,10 +35,10 @@ const ticks = Astro.props.ticks ?? [...new Set(Array.from({ length: k + 1 }, (_,
   {play && <button class="gt-play" type="button" aria-label={YEAR_TEXT.play} disabled={disabled}></button>}
   <div class="gt-years__head">
     <label class="gt-label" for={id}>{label}</label>
-    {tags ? (
+    {tags && Object.keys(tags).length > 0 ? (
       <span class="gt-years__nowwrap">
         <span class="gt-years__now" aria-hidden="true">{word(value)}</span>
-        {Object.entries(tags).map(([y, st]) => <span data-tag-year={y} hidden={Number(y) !== value}><StatusTag status={st} small /></span>)}
+        <span class="gt-years__tags">{Object.entries(tags).map(([y, st]) => <span data-tag-year={y} hidden={Number(y) !== value}><StatusTag status={st} small /></span>)}</span>
       </span>
     ) : <span class="gt-years__now" aria-hidden="true">{word(value)}</span>}
   </div>

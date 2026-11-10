@@ -1,9 +1,8 @@
 ---
 // The line under every figure, chart and map: source, when the site last refreshed it, an optional status tag,
-// Copy citation and Report a correction. Copying is wired by src/scripts/copy.ts; the correction link by CorrectionLink.
+// and Copy citation, wired by src/scripts/copy.ts. Report a correction is in the footer only (CorrectionLink).
 import '../styles/atlas/source.css';
 import Icon from './Icon.astro';
-import CorrectionLink from './CorrectionLink.astro';
 import StatusTag, { type Status } from './StatusTag.astro';
 import { SOURCE_TEXT } from '../i18n/en';
 import SourceText from './SourceText.astro';
@@ -32,7 +31,6 @@ const { source, updated, parts = [], status, citation, citeDisabled = false } = 
   {(citation || citeDisabled) && (
     <button class="gt-cite" type="button" data-gt-copy={citation} disabled={citeDisabled}><Icon name="copy" /><span data-label>{SOURCE_TEXT.cite}</span></button>
   )}
-  <CorrectionLink source={source} />
 </p>
 
 <script>

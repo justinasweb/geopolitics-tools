@@ -1,5 +1,5 @@
-// The correction form's behaviour (src/components/CorrectionForm.astro). Any link with data-gt-corr (CorrectionLink:
-// source lines and the footer) opens the dialog instead of the email client; with modifier keys, or on a page without
+// The correction form's behaviour (src/components/CorrectionForm.astro). Any link with data-gt-corr (CorrectionLink,
+// in the footer) opens the dialog instead of the email client; with modifier keys, or on a page without
 // the dialog, the link stays an email link. The dialog is a native modal <dialog>: focus moves into it and stays there,
 // Esc and the Close button close it, and focus goes back to the link that opened it.
 import { CORRECTION_ERRORS, CORRECTION_TEXT as T, correctionMailto } from '../i18n/correction.en';

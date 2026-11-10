@@ -58,7 +58,7 @@ under the bar, which never moves; the same button closes it. While it is open th
 does not scroll, Tab stays in the bar and the panel, Esc or a link closes it, and it closes if the header grows past
 760px (`src/scripts/header.ts`).
 
-**Correction form** (decision D10). Every `SourceLine` and the footer carry `CorrectionLink`, "Report a correction".
+**Correction form** (decision D10). The footer carries `CorrectionLink`, "Report a correction"; source lines do not.
 Without JavaScript it is an email link to data@geopolitics.tools with the page in the subject. With it,
 `src/scripts/correction.ts` opens `CorrectionForm`, a native modal `<dialog>` that the `Page` layout puts on every page
 (centred on wide screens, a sheet from the bottom under 760px): what is wrong (required), the page (filled in from the
@@ -67,7 +67,7 @@ dialog; Esc, Close or a click on the backdrop closes it and focus goes back to t
 `scrim-modal` token (ink at 55%, darker than the map sheets' `scrim`), so the dialog's surface stands 3.8:1 against the
 dimmed page; `scripts/tokens.ts` checks it stays above 3:1. On dark paper no scrim can do that, so the dialog has a border there. Errors appear in words under
 their field (with `aria-invalid`) or in an alert above the button; after sending, a confirmation points to
-Corrections on the Sources page. A link on a source line also sends that line's source name with the report. The
+Corrections on the Sources page. The
 form posts to the Worker (`worker/correction.ts`, see [deploy.md](deploy.md#correction-form)). Styles are in
 `correction.css`: the design bundle's rules (its `.gt-corrsheet` preview rule is scoped to `.gt-corrbox`, the
 /dev/components previews) plus the live dialog's placement, `.gt-input`, errors and the honeypot, which the bundle

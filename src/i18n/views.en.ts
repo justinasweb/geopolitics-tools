@@ -422,7 +422,7 @@ export const VIEW_TEXT: Record<string, FamilyText> = {
         total: (v, y) => `Countries reporting exported ${v} of ICT services in ${y}.`,
         bloc: (b, s, y) => `${todaysMembers(b, { start: true })} exported ${s} of them in ${y}.`,
         caveat: `${ictCaveat} The total is for the countries that report, which change from year to year.`,
-        description: (y) => `ICT service exports by country, ${y}: telecom, computer and information services sold abroad, on a map and in a table. Source: IMF balance of payments, via the World Bank.`,
+        description: (y) => `ICT service exports by country, ${y}: telecom, computer and information services sold abroad, on a map and in a table. Source: World Bank.`,
       },
       // No ranking words: the counts are of documented incidents (CYBER_TEXT.caveat).
       cyber: {

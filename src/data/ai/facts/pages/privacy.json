@@ -7,10 +7,20 @@
   ],
   "names": [
     "claude-sonnet-5-5",
+    "Public domain (US government work)",
+    "Commission default for raw data: CC0 1.0 (content: CC BY 4.0)",
+    "Open Government Licence v3.0",
     "CC BY 4.0",
+    "CC BY 4.0 (the page links its data to the World Bank’s CC BY terms)",
+    "CC BY 4.0, passing on its providers’ terms",
     "CC BY 4.0, with UNHCR’s supplemental terms",
+    "ODbL 1.0",
     "CC BY-NC 4.0 (since 2 April 2025)",
     "CC BY 4.0, with FAO’s additional terms",
+    "SIPRI terms: non-commercial reuse of under 10% of a dataset, with credit",
+    "CC BY 3.0 IGO",
+    "ODC-By 1.0 (GCDF 3.0)",
+    "UN terms: reproduction needs written permission",
     "UN Comtrade terms: a free, not-for-profit visualisation may show its figures; no bulk redistribution",
     "Public domain (US government work); EIA asks to be credited",
     "CC BY-NC-SA 3.0 IGO"
@@ -37,7 +47,7 @@
       "statement": "Fathom counts visits on geopolitics.tools only, never on previews.",
       "source": "geopolitics.tools code (src/lib/site.ts)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/lib/site.ts",
-      "date": "2026-11-05"
+      "date": "2026-11-10"
     },
     {
       "id": "cloudflare",
@@ -54,21 +64,21 @@
       "unit": "days",
       "source": "geopolitics.tools code (src/i18n/correction.en.ts)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/i18n/correction.en.ts",
-      "date": "2026-11-05"
+      "date": "2026-11-10"
     },
     {
       "id": "share-links",
       "statement": "The share buttons are plain links to X and Telegram; nothing loads from those sites until a reader clicks.",
       "source": "geopolitics.tools code (src/components/ShareRow.astro)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/components/ShareRow.astro",
-      "date": "2026-11-05"
+      "date": "2026-11-10"
     },
     {
       "id": "no-third-party",
       "statement": "The site sets no cookies and loads no third-party scripts besides Fathom.",
       "source": "geopolitics.tools code (docs/deploy.md)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/docs/deploy.md",
-      "date": "2026-11-05"
+      "date": "2026-11-10"
     },
     {
       "id": "controller",
@@ -78,14 +88,14 @@
       ],
       "source": "geopolitics.tools code (src/content/pages/privacy.md)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/content/pages/privacy.md",
-      "date": "2026-11-05"
+      "date": "2026-11-10"
     },
     {
       "id": "privacy-contact",
       "statement": "Privacy questions go to data@geopolitics.tools.",
       "source": "geopolitics.tools code (src/content/pages/privacy.md)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/content/pages/privacy.md",
-      "date": "2026-11-05"
+      "date": "2026-11-10"
     },
     {
       "id": "vdai",

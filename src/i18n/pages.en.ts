@@ -382,10 +382,10 @@ export const SOURCES_PAGE = {
   description: 'Every data source used on geopolitics.tools, with licence, update schedule, last refresh and corrections.',
   downloadsLine: 'Downloads are on each page, where the source allows it.',
   columns: { source: 'Source', feeds: 'Feeds', licence: 'Licence', download: 'Download', every: 'We check', last: 'Last refresh', status: 'Status' },
-  yes: 'Yes', shownOnly: 'Shown only', toConfirm: 'To confirm', permissionAsked: 'Permission asked',
-  status: { live: 'Live', delayed: 'Delayed', key: 'Key pending', manual: 'Manual import', soon: 'Wave 2' } as Record<string, string>,
+  yes: 'Yes', shownOnly: 'Shown only', toConfirm: 'To confirm',
+  status: { live: 'Live', delayed: 'Delayed', manual: 'Manual import', soon: 'Wave 2' } as Record<string, string>,
   statusWhy: {
-    live: 'Fetched on schedule', delayed: 'Past its update window', key: 'Waiting for an access key or permission; the views it feeds stay hidden',
+    live: 'Fetched on schedule', delayed: 'Past its update window',
     manual: 'Imported by hand on release', soon: 'Not live yet',
   } as Record<string, string>,
   every: (hours: number) => (hours <= 1 ? 'Hourly' : hours < 24 ? `Every ${hours} hours` : hours === 24 ? 'Daily' : hours % 24 === 0 && hours / 24 === 7 ? 'Weekly' : `Every ${Math.round(hours / 24)} days`),
@@ -408,7 +408,7 @@ export const SOURCES_PAGE = {
   lateHeading: 'When a source is late or fails',
   lateBody: [
     'If a fetch fails its checks (format, completeness, units, unusually large changes) the last good version stays on the site. A source past its update window shows as Delayed here.',
-    'A few sources need an access key or written permission before we fetch them. Until it arrives the source shows as Key pending, and the measures it feeds are listed but have no page yet.',
+    'A source is listed once a page on the site uses its data. One waiting for an access key, permission to reuse its data or its first import is not listed yet, and the views it feeds stay hidden.',
   ],
 };
 
@@ -445,6 +445,9 @@ export const SOURCE_SHORT: Record<string, string> = {
   aquastat: 'FAO AQUASTAT', gdacs: 'GDACS', 'usgs-quakes': 'USGS', treasury: 'US Treasury TIC', 'treasury-history': 'US Treasury TIC',
   eia: 'EIA', comtrade: 'UN Comtrade', ember: 'Ember', ucdp: 'UCDP', ipc: 'IPC', pinksheet: 'World Bank Pink Sheet',
 };
+
+/** Shorter still, for meta descriptions, where the source line's full name would run past 170 characters. */
+export const SOURCE_BRIEF: Record<string, string> = { aiddata: 'AidData' };
 
 /** Where an indicator's figures come from, when the publisher is not the original source. */
 /** WRI Aqueduct's credit after its name, as its terms ask: the access date, its site and its licence (links in

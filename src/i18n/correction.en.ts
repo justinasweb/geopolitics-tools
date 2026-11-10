@@ -1,5 +1,5 @@
-// English words for the correction form (src/components/CorrectionForm.astro): the "Report a correction" link on
-// source lines and in the footer, the dialog, its confirmation and the errors the Worker can return
+// English words for the correction form (src/components/CorrectionForm.astro): the "Report a correction" link in
+// the footer, the dialog, its confirmation and the errors the Worker can return
 // (worker/correction.ts sends short codes; ERRORS turns them into sentences).
 import type { CorrectionError } from '../lib/correction';
 

@@ -19,7 +19,10 @@
 .gt-years input[type=range]:disabled { cursor: not-allowed; opacity: .5; }
 .gt-years__ticks { grid-column: 2; display: flex; justify-content: space-between; font: 400 13px/18px var(--sans); color: var(--ink-muted); font-variant-numeric: tabular-nums; }
 .gt-years__ticks span[data-est]::after { content: "e"; font-size: 11px; color: var(--accent); margin-left: 1px; }
-.gt-years__nowwrap { display: inline-flex; align-items: center; gap: 6px; }
+/* The year, and under it a line for its status tag, as tall as a small tag whether or not the year has one. */
+.gt-years__nowwrap { display: inline-grid; justify-items: end; gap: 2px; }
+.gt-years__tags { display: flex; min-height: 18px; }
+.gt-years__tags > :not([hidden]) { display: flex; }
 .gt-years--two .gt-years__ticks { justify-content: space-between; }
 .gt-years--noplay { grid-template-columns: minmax(0, 1fr); }
 .gt-years--noplay .gt-years__ticks { grid-column: 1; }

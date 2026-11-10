@@ -19,16 +19,16 @@ import { breadcrumbs } from '../lib/structured';
 const GLYPH: Record<SourceState, string> = {
   live: '<circle cx="6" cy="6" r="4.5" fill="currentColor"/>',
   delayed: '<path d="M6 1.2 11 10.5H1z" fill="currentColor"/>',
-  key: '<circle cx="4" cy="6" r="2.6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M6.4 6H11M9.4 6v2.4M11 6v1.8" fill="none" stroke="currentColor" stroke-width="1.6"/>',
   manual: '<rect x="1.8" y="1.8" width="8.4" height="8.4" fill="none" stroke="currentColor" stroke-width="1.6"/>',
   soon: '<circle cx="6" cy="6" r="4.4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="2 1.6"/>',
 };
-const ORDER: SourceState[] = ['live', 'delayed', 'key', 'manual', 'soon'];
+const ORDER: SourceState[] = ['live', 'delayed', 'manual', 'soon'];
 const rows = sourceRows().sort((a, b) => ORDER.indexOf(a.state) - ORDER.indexOf(b.state) || a.name.localeCompare(b.name, 'en'));
 const count = (s: SourceState) => rows.filter((r) => r.state === s).length;
 const fixes = corrections();
 const download = (r: (typeof rows)[number]) => (!r.licence ? T.toConfirm : r.licence.downloads === 'yes' ? T.yes : T.shownOnly);
-const licence = (r: (typeof rows)[number]) => (!r.licence ? T.toConfirm : r.licence.status === 'checked' ? r.licence.licence : r.licence.status === 'permission asked' ? T.permissionAsked : T.toConfirm);
+// The licence as its record states it, whatever the check's status.
+const licence = (r: (typeof rows)[number]) => r.licence?.licence ?? T.toConfirm;
 const crumbs = [{ label: LONGREAD_TEXT.home, href: '/' }, { label: T.title }];
 const items = [{ id: 'licences', label: T.licencesHeading }, { id: 'late', label: T.lateHeading }, { id: 'corrections', label: T.corrections }];
 ---
@@ -51,11 +51,11 @@ const items = [{ id: 'licences', label: T.licencesHeading }, { id: 'late', label
             <tr>
               <th scope="row">{r.licence?.terms ? <a href={r.licence.terms} rel="noopener">{r.name}</a> : r.name}</th>
               <td>{r.feeds.slice(0, 6).join(', ')}{r.feeds.length > 6 ? ', …' : ''}</td>
-              <td title={r.licence?.licence}>{licence(r)}</td>
+              <td>{licence(r)}</td>
               <td>{download(r)}</td>
               <td>{r.every}</td>
               <td class="n">{r.last ? formatDate(r.last) : T.never}</td>
-              <td><span class:list={['gt-sdot', `gt-sdot--${r.state}`]} title={r.why}><svg viewBox="0 0 12 12" aria-hidden="true" set:html={GLYPH[r.state]} />{T.status[r.state]}</span></td>
+              <td><span class:list={['gt-sdot', `gt-sdot--${r.state}`]}><svg viewBox="0 0 12 12" aria-hidden="true" set:html={GLYPH[r.state]} />{T.status[r.state]}</span></td>
             </tr>
           ))}
         </tbody>

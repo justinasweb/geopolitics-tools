@@ -1,7 +1,7 @@
 // Each page kind's structured data, from the same models its template uses, so a unit test can check what the page
 // emits (tests/unit/structured.test.ts). The builders are in src/lib/structured.ts; Base adds the Organization.
 import { GROUP_TEXT, INDICATOR_TEXT } from '../i18n/en';
-import { COUNTRY_TEXT, DEFINITION, INDICATOR_PAGE, SOURCE_NOTE } from '../i18n/pages.en';
+import { COUNTRY_TEXT, DEFINITION, INDICATOR_PAGE, SOURCE_BRIEF } from '../i18n/pages.en';
 import { CONFLICT_TEXT } from '../i18n/conflict.en';
 import { CHAINS_TEXT, chainTitle } from '../i18n/supply-chains.en';
 import { EXPLORER_TEXT } from '../i18n/explorer.en';
@@ -21,10 +21,11 @@ export const indicatorCrumbs = (id: string): Crumb[] => [
   { label: INDICATOR_TEXT[id].label },
 ];
 
-/** The indicator page's meta description: the measure, its year and the source credit. */
+/** The indicator page's meta description: the measure, its year and the short source name (the source line on the
+ *  page gives the full credit). */
 export function indicatorDescription(id: string): string {
   const m = indicatorModel(id)!;
-  const credit = SOURCE_NOTE[id] ?? m.sources.map((s) => creditName(s)).join('; ');
+  const credit = m.sources.map((s) => SOURCE_BRIEF[s] ?? creditName(s)).join('; ');
   return INDICATOR_PAGE.description(INDICATOR_TEXT[id].label, m.indicator.static ? undefined : m.year, credit);
 }
 

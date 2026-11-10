@@ -6,7 +6,7 @@ import fas, { checkSeries, checkStatus } from '../../pipeline/sources/fas.ts';
 import { KINDS } from '../../pipeline/sources/imported.ts';
 import { prepare, readInput } from '../../pipeline/lib/importer.ts';
 import { columnsOf, parseForces, parseInventory, parseStatus, seriesMeasure, statusColumns } from '../../src/adapters/nuclear.ts';
-import { LICENCES } from '../../src/data/licences.ts';
+import { WITHHELD } from '../../src/data/licences.ts';
 import { blocs } from '../../src/lib/blocs.ts';
 import { PLACES } from '../../src/lib/places.ts';
 import { ctxFor, fakeHttp } from './pipeline/helpers.ts';
@@ -247,11 +247,25 @@ describe('nuclear layers and pages', () => {
 });
 
 describe('source count', () => {
-  it('lists one Sources page row per licence, so every count reads the licence table', async () => {
+  it('lists a source only while a built page reads it, and never a withheld one', async () => {
+    const { sourceRows, sourcesInUse } = await import('../../src/lib/sources.ts');
+    const used = sourcesInUse();
+    const ids = sourceRows().map((r) => r.id);
+    for (const id of ids) {
+      expect(used.has(id), `${id} is read by a built page`).toBe(true);
+      expect(WITHHELD).not.toContain(id);
+    }
+    // In the snapshot, but no built page reads them: the cable overlay has no view, the GEM layers and the TIC history
+    // feed nothing yet, and the treaty list waits for its check.
+    for (const id of ['cables', 'gem', 'treasury-history', 'unoda']) expect(ids).not.toContain(id);
+    // The sample build draws the disaster views, so USGS earthquakes comes back with the earthquakes page.
+    expect(ids).toContain('usgs-quakes');
+  });
+
+  it('reads a fetched source as live from the snapshot, not from an API key in the build', async () => {
     const { sourceRows } = await import('../../src/lib/sources.ts');
-    const rows = sourceRows();
-    expect(LICENCES.map((l) => l.source)).toEqual(expect.arrayContaining(['fas', 'unoda']));
-    expect(rows.map((r) => r.id).sort()).toEqual(LICENCES.map((l) => l.source).sort());
+    expect(process.env.COMTRADE_API_KEY).toBeUndefined();
+    expect(sourceRows().find((r) => r.id === 'comtrade')?.state).toBe('live');
   });
 });
 

@@ -206,8 +206,8 @@ const typeStyles = tokens.type.groups.flatMap((g) => g.styles.map((s) => ({ ...s
         <SourceLine source={USGS} updated={UPDATED} citeDisabled />
       </div>
       <div class="gt-ndemo gt-ndemo--2">
-        <section><h3 class="gt-label">Correction form · the link on every source line and in the footer (opens the live dialog)</h3>
-          <p class="gt-source"><span>Page last updated 21 Oct 2026</span><span class="gt-source__sep" aria-hidden="true">·</span><a href="/methodology">How we measure</a><span class="gt-source__sep" aria-hidden="true">·</span><CorrectionLink /></p>
+        <section><h3 class="gt-label">Correction form · the link in the footer, not on source lines (opens the live dialog)</h3>
+          <p><CorrectionLink /></p>
         </section>
         <section><h3 class="gt-label">Dialog (a sheet on phone)</h3><div class="gt-corrbox"><CorrectionForm preview="form" /></div></section>
         <section><h3 class="gt-label">After sending</h3><div class="gt-corrbox"><CorrectionForm preview="done" /></div></section>

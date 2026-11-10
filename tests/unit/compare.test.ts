@@ -78,12 +78,12 @@ describe('Compare markup', () => {
   });
 
   it('dashes the second country’s line, labels both, and numbers the sections in order', () => {
-    const charts = chartsHtml(meta, [mali, tuvalu], '/compare');
+    const charts = chartsHtml(meta, [mali, tuvalu]);
     expect(charts).toContain('gt-lc__line gt-cc--second gt-lc__line--dash');
     expect(charts).toContain('>Mali</text>');
     expect(charts).toContain('>Tuvalu</text>');
-    expect(mineralsHtml(meta, [mali, tuvalu], '/compare', 3)).toContain('<span class="gt-cpsec__n">3</span>');
-    const all = compareHtml(meta, [mali, tuvalu], '/compare');
+    expect(mineralsHtml(meta, [mali, tuvalu], 3)).toContain('<span class="gt-cpsec__n">3</span>');
+    const all = compareHtml(meta, [mali, tuvalu]);
     expect([...all.matchAll(/gt-cpsec__n">(\d+)/g)].map((m) => m[1])).toEqual(['1', '2', '3']);
   });
 
@@ -98,10 +98,16 @@ describe('Compare markup', () => {
   });
 
   it('explains a mineral share USGS does not list, rather than a bare dash', () => {
-    const html = mineralsHtml(meta, [mali, tuvalu], '/compare', 3);
+    const html = mineralsHtml(meta, [mali, tuvalu], 3);
     expect(html).toContain('<span class="gt-vh">Not listed by USGS</span>');
     expect(html).toContain('– Not listed by USGS. USGS names the largest producers');
-    expect(mineralsHtml(meta, [mali, { ...tuvalu, m: { gold: 0.03 } }], '/compare', 3)).not.toContain('Not listed');
+    expect(mineralsHtml(meta, [mali, { ...tuvalu, m: { gold: 0.03 } }], 3)).not.toContain('Not listed');
+  });
+
+  it('ends a source line on its last part: Report a correction is in the footer only', () => {
+    const html = compareHtml(meta, [mali, tuvalu]);
+    expect(html).not.toContain('gt-corrlink');
+    expect(html).not.toMatch(/gt-source__sep" aria-hidden="true">·<\/span><\/p>/);
   });
 
   it('escapes names', () => {
