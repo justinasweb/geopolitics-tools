@@ -39,6 +39,10 @@ describe('Dependencies model', () => {
     expect(cellText(grid, 'oil', { v: 0.84, t: ['RUS', 0.86] })).toEqual(['84%', 'RUS 86%']);
     expect(cellText(grid, 'oil', { v: -4, x: 0.9 })).toEqual(['Exports', '90% of output']);
     expect(cellText(grid, 'oil', { v: -0.08 })).toEqual(['−8%', 'net exporter']);
+    // 100% and the shares above it up to 110% (Martinique's oil, 101%) read as on the country pages.
+    expect(cellText(grid, 'oil', { v: 1.013, t: ['FRA', 0.9] })).toEqual(['Imports all', 'FRA 90%']);
+    expect(cellText(grid, 'oil', { v: 1 })).toEqual(['Imports all', '']);
+    expect(cellText(grid, 'oil', { v: 0.99 })).toEqual(['99%', '']);
     expect(cellText(grid, 'arms', { t: ['USA', 0.9] })).toEqual(['USA 90%', 'top supplier']);
     expect(cellText(grid, 'arms', { why: 'i' })).toEqual(['–', 'no imports']);
   });
@@ -71,7 +75,7 @@ describe('Dependencies model', () => {
     // The United Arab Emirates' wheat: a 2008 balance, partners from 2023.
     const old = { v: 1, t: ['RUS', 0.6] as [string, number], y: '2008', ty: '2023', o: 1 as const };
     const g: Grid = { ...grid, rows: [...grid.rows, { id: 'ARE', cells: cells(old, old, { why: 'i' }) }], places: { ...grid.places, ARE: { n: 'United Arab Emirates', c: 'ARE' } } };
-    expect(cellText(g, 'oil', old)).toEqual(['100%', '2008, no recent data']);
+    expect(cellText(g, 'oil', old)).toEqual(['Imports all', '2008, no recent data']);
     expect(rowsOf(parseState(new URLSearchParams(''), g), g).map((r) => r.id)).toEqual(['HUN', 'EGY', 'NOR', 'ARE']);
     expect(spofs(g.rows).map((x) => x.id)).not.toContain('ARE');
     expect(phoneHtml({ ...DEFAULTS, show: 'commodity', sort: 'oil' }, g)).not.toContain('United Arab Emirates');

@@ -7,7 +7,7 @@ import { formatShare } from '../format.ts';
 import { esc } from '../explorer/render.ts';
 import { tagHtml } from '../tags.ts';
 import {
-  CONCENTRATION, RESOURCE_IDS, SPOF_PHONE, SPOF_SHOWN, bandOf, foundRow, resIndex, rowsOf, spofs, sortValue,
+  ALL, CONCENTRATION, RESOURCE_IDS, SPOF_PHONE, SPOF_SHOWN, bandOf, foundRow, resIndex, rowsOf, spofs, sortValue,
   type Cell, type Grid, type ResourceId, type State,
 } from './model.ts';
 
@@ -18,7 +18,7 @@ const ICON = {
 };
 
 const MINUS = '−';
-const pct = (v: number) => (v < 0 ? `${MINUS}${formatShare(-v)}` : formatShare(v));
+const pct = (v: number) => (v < 0 ? `${MINUS}${formatShare(-v)}` : v >= ALL ? T.importsAll : formatShare(v));
 const iso = (grid: Grid, id: string) => grid.places[id]?.c ?? id;
 const label = (grid: Grid, r: string) => grid.resources[resIndex(r)]?.label ?? r;
 const WHY: Record<NonNullable<Cell['why']>, string> = { p: T.noData, n: T.noRow, u: T.noUse, i: T.noImports, e: T.exceedsSub, x: T.exportsExceedSub };
@@ -69,7 +69,7 @@ export function spofHtml(s: State, grid: Grid): string {
     const r = grid.resources[resIndex(x.r)];
     const supplier = grid.places[x.t[0]]?.n ?? x.t[0];
     return `<li><div class="gt-spof__h"><b>${nameHtml(grid, x.id)}</b><span class="gt-deptag gt-deptag--most">${ICON.most}${esc(r.label)}</span></div>`
-      + `<p>${esc(T.spofItem(formatShare(x.v), r.noun, supplier, formatShare(x.t[1])))}</p></li>`;
+      + `<p>${esc(T.spofItem(x.v >= ALL ? null : formatShare(x.v), r.noun, supplier, formatShare(x.t[1])))}</p></li>`;
   }).join('');
   const more = all.length > SPOF_PHONE
     ? `<button class="gt-btn gt-btn--quiet" type="button" data-d-all aria-expanded="${s.all}">${esc(s.all ? T.showFewer : T.showAll(all.length))}</button>` : '';

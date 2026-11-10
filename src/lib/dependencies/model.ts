@@ -13,6 +13,8 @@ export const SPOF = { reliance: 0.5, supplier: 0.5 };
 export const SPOF_SHOWN = 8;
 /** On a phone, the first four. */
 export const SPOF_PHONE = 4;
+/** Import reliance written as "Imports all", as on the country pages: 100% and the shares above it up to 110%. */
+export const ALL = 0.995;
 
 /** 1–6 on the diverging scale (imports most → exports most), 'c' supplier concentration only, 0 no figure. */
 export type Band = 1 | 2 | 3 | 4 | 5 | 6 | 'c' | 0;

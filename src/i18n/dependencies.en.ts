@@ -15,7 +15,8 @@ export const DEPS_TEXT = {
   // Reliance on one supplier
   spofTitle: 'Reliance on one supplier',
   spofRule: 'Countries that import at least half of what they use, with at least half of those imports from one supplier.',
-  spofItem: (share: string, noun: string, supplier: string, top: string) => `Imports ${share} of ${ofUse(noun)}; ${supplier} supplies ${top} of those imports.`,
+  /** `share` null: imports all (99.5% up to the 10% above use that still gets a share). */
+  spofItem: (share: string | null, noun: string, supplier: string, top: string) => `Imports ${share ?? 'all'} of ${ofUse(noun)}; ${supplier} supplies ${top} of those imports.`,
   spofCount: (n: number, shown: number) => (n > shown ? `${n} found in this table; ${shown} with the largest share from one supplier shown.` : `${n} found in this table.`),
   spofNone: 'None in this table.',
   showAll: (n: number) => `Show all ${n}`,
@@ -44,6 +45,8 @@ export const DEPS_TEXT = {
   tableLabel: 'Import reliance by country and commodity',
   caption: (years: string, sortedBy: string, asc: boolean) => `Latest year each country reports (${years}). Sorted by ${sortedBy}${asc ? ', lowest first' : ''}.`,
   exports: 'Exports',
+  /** A share of 99.5% or more, up to the 10% above use that still gets a share (Martinique's oil, 101%). */
+  importsAll: 'Imports all',
   ofOutput: (share: string) => `${share} of output`,
   netExporter: 'net exporter',
   topSupplier: 'top supplier',
