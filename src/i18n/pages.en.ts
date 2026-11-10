@@ -408,7 +408,7 @@ export const SOURCES_PAGE = {
   lateHeading: 'When a source is late or fails',
   lateBody: [
     'If a fetch fails its checks (format, completeness, units, unusually large changes) the last good version stays on the site. A source past its update window shows as Delayed here.',
-    'A source waiting for an access key, permission to reuse its data or its first import is not listed here, and the views it feeds stay hidden. It appears once its data is on the site.',
+    'A source is listed once a page on the site uses its data. One waiting for an access key, permission to reuse its data or its first import is not listed yet, and the views it feeds stay hidden.',
   ],
 };
 

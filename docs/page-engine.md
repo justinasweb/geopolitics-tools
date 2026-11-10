@@ -56,7 +56,7 @@ servers never see the part after `#`.
 | Compare | The three pairs of the United States, China and Russia, static and indexed with share images; and `/compare?a={slug}&b={slug}` for any two country pages (spec, D21). See "Compare" below |
 | Indicator | Every registry measure with data in the snapshot. Fewer than 20 places reporting in the common year: built, `noindex`. Measures waiting on a key or permission have no page and are listed on the index as waiting |
 | About, Methodology, Privacy | `src/content/pages/*.md`. Each shows the draft banner until its front matter says `approved: true` and its facts are unchanged since (see [ai-drafting.md](ai-drafting.md)) |
-| Sources | Generated from the source registry, the licence table and the last snapshot; corrections from `src/data/corrections.csv` |
+| Sources | Generated from the source registry, the licence table and the last snapshot; lists a source only while it has data, is not withheld and a live route reads it (`sourcesInUse` in `src/lib/sources.ts`, with each map layer's `source` and `reads`); corrections from `src/data/corrections.csv` |
 | Explorer | `/explorer` (table), `/explorer/over-time`, `/explorer/scatter`: every measure with an indicator page. See "Explorer" below |
 | Dependencies | `/dependencies`: countries against the ten commodities of each country page's dependencies table, with reliance on one supplier. See "Dependencies" below |
 | Bloc overlap | `/blocs/overlap`: shared members between blocs, bridge countries and every country's memberships, from `src/data/blocs.csv`. See "Bloc overlap" below |

@@ -67,6 +67,8 @@ export interface LayerDef {
   /** The snapshot source whose refresh date the layer's figures carry (src/lib/data.ts `refreshed`); none for the
    *  hand-checked membership lists, which carry their own date. */
   source?: string;
+  /** Other sources the view reads (the Sources page lists a source only while a built page reads it). */
+  reads?: string[];
   build: () => LayerFile;
 }
 
@@ -1212,12 +1214,12 @@ export function mapLayers(): LayerDef[] {
   defs ??= [
     ...mineralPages().map((p) => ({ id: `minerals-${p.id}`, view: `view:minerals:${p.id}`, family: 'minerals', ranks: true, source: 'usgs-minerals', build: () => mineralLayer(p) })),
     ...viewPages().map((p) => ({ id: `${p.family.id}-${p.id}`, view: `view:${p.family.id}:${p.id}`, family: p.family.id, ranks: p.layer.ranks ?? p.layer.sums, source: [p.loaded.indicator.source].flat()[0], build: () => indicatorLayer(p) })),
-    ...disasterPages().map((p) => ({ id: `disasters-${p.id}`, view: `view:disasters:${p.id}`, family: 'disasters', ranks: true, source: 'gdacs', build: () => disasterLayer(p) })),
+    ...disasterPages().map((p) => ({ id: `disasters-${p.id}`, view: `view:disasters:${p.id}`, family: 'disasters', ranks: true, source: 'gdacs', ...(p.kind === 'EQ' ? { reads: ['usgs-quakes'] } : {}), build: () => disasterLayer(p) })),
     ...foodPages().map((p) => ({ id: `food-${p.id}`, view: `view:food:${p.id}`, family: 'food', ranks: p.layer !== 'trade', source: 'faostat', build: () => foodLayer(p) })),
     ...energyPages().map((p) => ({ id: `energy-${p.id}`, view: `view:${p.fuel}:${p.layer}`, family: p.fuel, ranks: p.layer !== 'trade', source: 'eia', build: () => energyLayer(p) })),
     ...(conflictPage() ? [{ id: 'conflict', view: 'view:conflict:events', family: 'conflict', ranks: true, source: 'ucdp', build: () => conflictLayer() }] : []),
-    ...riverIds().map((id) => ({ id: `rivers-${id}`, view: `view:rivers:${id}`, family: 'rivers', ranks: false, source: 'gdw', build: () => riverLayer(id) })),
-    ...NUCLEAR_PAGES.filter((id) => nuclearLive(id, data().sample)).map((id) => ({ id: `nuclear-${id}`, view: `view:nuclear:${id}`, family: 'nuclear', ranks: id === 'warheads', ...(id === 'warheads' ? { source: 'fas' } : {}), build: () => nuclearLayer(id) })),
+    ...riverIds().map((id) => ({ id: `rivers-${id}`, view: `view:rivers:${id}`, family: 'rivers', ranks: false, source: 'gdw', reads: ['aqueduct', 'aquastat'], build: () => riverLayer(id) })),
+    ...NUCLEAR_PAGES.filter((id) => nuclearLive(id, data().sample)).map((id) => ({ id: `nuclear-${id}`, view: `view:nuclear:${id}`, family: 'nuclear', ranks: id === 'warheads', ...(id === 'warheads' ? { source: 'fas' } : id === 'treaties' ? { reads: ['unoda'] } : {}), build: () => nuclearLayer(id) })),
     ...HISTORY_BLOCS.map((id) => ({ id: `history-${id}`, view: `view:alliance-history:${id}`, family: 'alliance-history', ranks: false, build: () => historyLayer(id) })),
     ...['all', ...blocPages().map((b) => b.id)].map((id) => ({ id: `blocs-${id}`, view: `view:blocs:${id}`, family: 'blocs', ranks: false, build: () => blocLayer(id) })),
   ];

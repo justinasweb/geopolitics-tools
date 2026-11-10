@@ -1,7 +1,7 @@
-// The Sources page, generated on each build: every source whose data is on the site now (fetched or imported, in the
-// data snapshot, and not withheld for its licence), with what it feeds, its licence, how often we check it, when it was
-// last refreshed and its status. A source waiting on a key, permission or its first import is left out and comes back
-// by itself once the snapshot has its data. Corrections come from src/data/corrections.csv (date, page, what changed), newest first: only changes to
+// The Sources page, generated on each build: every source whose data is on the site now (in the data snapshot, not
+// withheld for its licence, and read by at least one built page of the route registry), with what it feeds, its licence, how often we check it, when it was
+// last refreshed and its status. A source waiting on a key, permission, its first import or a page that uses it is
+// left out and comes back by itself once it has both. Corrections come from src/data/corrections.csv (date, page, what changed), newest first: only changes to
 // figures that were live on the site, not fixes made before launch.
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -14,6 +14,14 @@ import { treatiesChecked } from './nuclear.ts';
 import { INDICATOR_TEXT } from '../i18n/en.ts';
 import { SOURCE_FEEDS, SOURCES_PAGE as T } from '../i18n/pages.en.ts';
 import { data, licenceOf } from './data.ts';
+import { countryModel } from './country.ts';
+import { dossierSources } from './dossier.ts';
+import { indicatorModel } from './indicator.ts';
+import { mapLayers } from './map/layers.ts';
+import { routes } from './routes.ts';
+import { chainOf } from './supply-chains.ts';
+import { viewPages } from './views.ts';
+import { CARD_SOURCES } from './week/model.ts';
 
 export type SourceState = 'live' | 'delayed' | 'manual' | 'soon';
 
@@ -39,7 +47,29 @@ const HAND_KEPT: Record<string, { every: string; checked: () => string | undefin
 };
 
 /**
- * One row per source with data on the site: in the snapshot (or, kept by hand, checked) and not withheld. Live or
+ * The sources the built pages read: from the live routes of the route registry (the menu's and the sitemap's list),
+ * each by the measures or sources its model reads. Hubs, the Atlas and the Explorer draw the views' layers and the
+ * indicators, so their sources come in through those routes.
+ */
+export function sourcesInUse(): Set<string> {
+  const out = new Set<string>();
+  const add = (s: string | string[] | undefined) => { for (const x of [s ?? []].flat()) out.add(x); };
+  const layers = new Map(mapLayers().map((l) => [l.view, [l.source ?? [], l.reads ?? []].flat()]));
+  const views = new Map(viewPages().map((p) => [`view:${p.family.id}:${p.id}`, p.loaded.indicator.source]));
+  for (const r of routes()) {
+    if (!r.live) continue;
+    if (r.kind === 'indicator') add(indicatorModel(r.id)?.sources);
+    else if (r.kind === 'view') { add(layers.get(r.key)); add(views.get(r.key)); }
+    else if (r.kind === 'country') { add(countryModel(r.id)?.sources.map((s) => s.source)); add(dossierSources(r.id)); }
+    else if (r.key.startsWith('tool:supply-chains:')) add(chainOf(r.key.split(':')[2]).src);
+    else if (r.kind === 'week') add(Object.values(CARD_SOURCES).flat());
+  }
+  return out;
+}
+
+/**
+ * One row per source with data on the site: in the snapshot (or, kept by hand, checked), not withheld and read by a
+ * built page (sourcesInUse). Live or
  * Delayed comes from the runner's status file, not from the keys in the build's environment. A hand import kept under
  * another source's licence (the FAS table under FAS) adds its date to that source's row.
  */
@@ -52,7 +82,8 @@ export function sourceRows(): SourceRow[] {
     const dates = imp ? Object.values(imp).map((x) => x.date).filter((x): x is string => !!x).sort() : [];
     return dates.at(-1) ?? snap[id]?.fetched;
   };
-  const onSite = (id: string) => !withheld(id) && !!snap[id];
+  const used = sourcesInUse();
+  const onSite = (id: string) => !withheld(id) && !!snap[id] && used.has(id);
   for (const s of SOURCES) {
     // A switched-off fetcher whose files are imported by hand (the IMF WEO) is listed as the import.
     if (s.enabled !== true && IMPORTED.some((x) => x.id === s.id)) continue;
@@ -71,7 +102,7 @@ export function sourceRows(): SourceRow[] {
   for (const [id, h] of Object.entries(HAND_KEPT)) {
     const l = licenceOf(id);
     const last = h.checked();
-    if (l && last) out.push({ id, name: l.name, feeds: feedsOf(id), licence: l, every: T.byHand(h.every), last, state: 'manual' });
+    if (l && last && used.has(id)) out.push({ id, name: l.name, feeds: feedsOf(id), licence: l, every: T.byHand(h.every), last, state: 'manual' });
   }
   return out;
 }

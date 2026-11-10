@@ -26,6 +26,10 @@ export function seriesOf(indId: string, placeId: string, from = 2000): SeriesVie
 
 export interface Treasuries { month: string; value: number; prevMonth: string | null; prev: number | null }
 
+/** Sources a country page reads beyond its figures, dependencies and blocks (countryModel's list): US Treasury
+ *  holdings. The Sources page counts them. */
+export const dossierSources = (id: string): string[] => (treasuriesFor(id) ? ['treasury'] : []);
+
 function treasuriesFor(id: string): Treasuries | null {
   const t = ticData();
   const h = t?.holders.find((x) => x.place === id);

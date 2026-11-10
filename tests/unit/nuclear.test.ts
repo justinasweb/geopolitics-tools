@@ -6,7 +6,7 @@ import fas, { checkSeries, checkStatus } from '../../pipeline/sources/fas.ts';
 import { KINDS } from '../../pipeline/sources/imported.ts';
 import { prepare, readInput } from '../../pipeline/lib/importer.ts';
 import { columnsOf, parseForces, parseInventory, parseStatus, seriesMeasure, statusColumns } from '../../src/adapters/nuclear.ts';
-import { LICENCES, WITHHELD } from '../../src/data/licences.ts';
+import { WITHHELD } from '../../src/data/licences.ts';
 import { blocs } from '../../src/lib/blocs.ts';
 import { PLACES } from '../../src/lib/places.ts';
 import { ctxFor, fakeHttp } from './pipeline/helpers.ts';
@@ -247,13 +247,19 @@ describe('nuclear layers and pages', () => {
 });
 
 describe('source count', () => {
-  it('lists the sources with data on the site: none withheld, none waiting for its first check', async () => {
-    const { sourceRows } = await import('../../src/lib/sources.ts');
+  it('lists a source only while a built page reads it, and never a withheld one', async () => {
+    const { sourceRows, sourcesInUse } = await import('../../src/lib/sources.ts');
+    const used = sourcesInUse();
     const ids = sourceRows().map((r) => r.id);
-    // The sample snapshot has every licensed source, so only the withheld ones, the unchecked treaty list and PeeringDB
-    // (licensed, but nothing fetches it yet) drop out.
-    const out = [...WITHHELD, 'unoda', 'peeringdb'];
-    expect(ids.sort()).toEqual(LICENCES.map((l) => l.source).filter((s) => !out.includes(s)).sort());
+    for (const id of ids) {
+      expect(used.has(id), `${id} is read by a built page`).toBe(true);
+      expect(WITHHELD).not.toContain(id);
+    }
+    // In the snapshot, but no built page reads them: the cable overlay has no view, the GEM layers and the TIC history
+    // feed nothing yet, and the treaty list waits for its check.
+    for (const id of ['cables', 'gem', 'treasury-history', 'unoda']) expect(ids).not.toContain(id);
+    // The sample build draws the disaster views, so USGS earthquakes comes back with the earthquakes page.
+    expect(ids).toContain('usgs-quakes');
   });
 
   it('reads a fetched source as live from the snapshot, not from an API key in the build', async () => {
