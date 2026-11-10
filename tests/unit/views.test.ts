@@ -125,16 +125,29 @@ describe('not reported on country pages', () => {
 });
 
 describe('map legends', () => {
-  it('give a count with a long tail upper bands, so the largest are told apart', () => {
+  it('split a long tail into upper bands, for every kind of figure', () => {
     // Refugees by origin: the top fifth runs from 83,000 to 7.6 m.
     const origins = [...Array.from({ length: 40 }, (_, i) => 10 * (i + 1)), ...Array.from({ length: 40 }, (_, i) => 1_000 * (i + 1)), ...Array.from({ length: 15 }, (_, i) => 83_000 + 10_000 * i), 600_000, 1_500_000, 2_500_000, 5_200_000, 7_640_000];
-    const plain = V.seqEdges(origins);
-    const tail = V.seqEdges(origins, true);
-    expect(plain).toHaveLength(4);
+    const tail = V.seqEdges(origins);
     expect(tail.slice(2)).toEqual([500_000, 2_000_000]);
-    expect(tail[1]).toBe(plain[3]);
+    // CO2, Mt: 85 to 12,300 in the top fifth.
+    expect(V.withTail([0.8, 6.5, 21, 85], 12_300)).toEqual([6.5, 85, 500, 2_000]);
+    // A share works the same: AI compute, 1.1% to 81%.
+    expect(V.withTail([0.00062, 0.0015, 0.0032, 0.011], 0.809)).toEqual([0.0015, 0.011, 0.05, 0.2]);
     // A short tail keeps its quintiles.
     const even = Array.from({ length: 100 }, (_, i) => i + 1);
-    expect(V.seqEdges(even, true)).toEqual(V.seqEdges(even));
+    expect(V.seqEdges(even)).toEqual([21, 41, 61, 81]);
+  });
+
+  it('merge edges that fall on one value, so no band is repeated, and spread their colours', async () => {
+    const { seqSteps } = await import('../../src/lib/map/steps.ts');
+    // AI models: most countries at 36.
+    const models = [1, 1, 1, ...Array(12).fill(36), 50, 65];
+    const e = V.seqEdges(models);
+    expect(e).toEqual([...new Set(e)]);
+    expect(e).toEqual([36]);
+    expect(seqSteps(e.length + 1)).toEqual([2, 5]);
+    expect(seqSteps(3)).toEqual([1, 3, 5]);
+    expect(seqSteps(5)).toEqual([1, 2, 3, 4, 5]);
   });
 });

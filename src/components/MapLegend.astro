@@ -3,6 +3,7 @@
 // No data / Withheld swatches. The map engine (phase 4) renders the same component in HTML, outside the canvas.
 import '../styles/atlas/legend.css';
 import { SOURCE_TEXT, LEGEND_TEXT } from '../i18n/en';
+import { seqSteps } from '../lib/map/steps';
 
 interface Props {
   title: string;
@@ -14,12 +15,14 @@ interface Props {
   withheld?: boolean;
 }
 const { title, scale, ticks, ends, nodata = true, withheld = false } = Astro.props;
-const n = scale === 'seq' ? 5 : 7;
+// A sequential scale has one band per tick (fewer than five when quantile edges merged), its steps spread (seqSteps).
+const steps = scale === 'seq' ? seqSteps(ticks.length || 5) : [1, 2, 3, 4, 5, 6, 7];
+const n = steps.length;
 const align = (i: number) => (scale === 'div' ? (i === 3 ? 'text-align:center' : i > 3 ? 'text-align:right' : undefined) : undefined);
 ---
 <div class="gt-legend">
   <span class="gt-legend__title">{title}</span>
-  <div class="gt-legend__scale" style={`--n:${n}`}>{Array.from({ length: n }, (_, i) => <i style={`background:var(--${scale}-${i + 1})`} />)}</div>
+  <div class="gt-legend__scale" style={`--n:${n}`}>{steps.map((k) => <i style={`background:var(--${scale}-${k})`} />)}</div>
   <div class:list={['gt-legend__ticks', { 'gt-legend__ticks--dense': scale === 'div' }]} style={`--n:${n}`}>{ticks.map((t, i) => <span style={align(i)}>{t}</span>)}</div>
   {ends && <div class="gt-legend__ends"><span>← {ends[0]}</span><span>{ends[1]} →</span></div>}
   {(nodata || withheld) && (

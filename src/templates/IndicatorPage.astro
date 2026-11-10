@@ -27,6 +27,7 @@ import { formatValue } from '../lib/format';
 import { place } from '../lib/places';
 import { breaks, classOf, type Row } from '../lib/stats';
 import { seqEdges } from '../lib/views';
+import { seqSteps } from '../lib/map/steps';
 import { countryHref, indicatorHref, paths } from '../lib/routes';
 import { indicatorCrumbs, indicatorDescription, indicatorLd } from '../lib/jsonld';
 
@@ -55,11 +56,14 @@ const yearText = String(m.year);
 const behind = m.latest.filter((r) => r.year < m.year).length;
 const max = Math.max(...m.latest.map((r) => Math.abs(r.value))) || 1;
 
-// The map: five quantile classes of the common year; a count with a long tail gets upper bands, as on the views.
-const q = breaks(m.common.map((r) => r.value));
-const b = fmt.kind === 'count' && q.length === 4 ? seqEdges(m.common.map((r) => r.value), true) : q;
-const classes = b.length === 4 ? Object.fromEntries(m.common.map((r) => [r.id, classOf(r.value, b)])) : null;
-const ticks = b.length === 4 ? [`under ${formatValue(b[0], fmt)}`, ...b.slice(0, 3).map((x, i) => `${formatValue(x, fmt)}–${formatValue(b[i + 1], fmt)}`), `${formatValue(b[3], fmt)}+`] : [];
+// The map: up to five quantile classes of the common year, merged where edges fall on one value (seqSteps). A figure
+// that is never negative is cut on its positive values and split at the top for a long tail, as on the views
+// (seqEdges); one that can be (a budget balance) keeps plain quantiles.
+const vals = m.common.map((r) => r.value);
+const b = vals.every((v) => v >= 0) ? seqEdges(vals) : breaks(vals);
+const steps = seqSteps(b.length + 1);
+const classes = b.length ? Object.fromEntries(m.common.map((r) => [r.id, steps[classOf(r.value, b)] - 1])) : null;
+const ticks = b.length ? [`under ${formatValue(b[0], fmt)}`, ...b.slice(0, -1).map((x, i) => `${formatValue(x, fmt)}–${formatValue(b[i + 1], fmt)}`), `${formatValue(b.at(-1)!, fmt)}+`] : [];
 
 const trend = m.trend;
 const trendLines = trend.years.length > 2 ? [
