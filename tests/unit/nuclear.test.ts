@@ -6,7 +6,7 @@ import fas, { checkSeries, checkStatus } from '../../pipeline/sources/fas.ts';
 import { KINDS } from '../../pipeline/sources/imported.ts';
 import { prepare, readInput } from '../../pipeline/lib/importer.ts';
 import { columnsOf, parseForces, parseInventory, parseStatus, seriesMeasure, statusColumns } from '../../src/adapters/nuclear.ts';
-import { LICENCES } from '../../src/data/licences.ts';
+import { LICENCES, WITHHELD } from '../../src/data/licences.ts';
 import { blocs } from '../../src/lib/blocs.ts';
 import { PLACES } from '../../src/lib/places.ts';
 import { ctxFor, fakeHttp } from './pipeline/helpers.ts';
@@ -247,11 +247,19 @@ describe('nuclear layers and pages', () => {
 });
 
 describe('source count', () => {
-  it('lists one Sources page row per licence, so every count reads the licence table', async () => {
+  it('lists the sources with data on the site: none withheld, none waiting for its first check', async () => {
     const { sourceRows } = await import('../../src/lib/sources.ts');
-    const rows = sourceRows();
-    expect(LICENCES.map((l) => l.source)).toEqual(expect.arrayContaining(['fas', 'unoda']));
-    expect(rows.map((r) => r.id).sort()).toEqual(LICENCES.map((l) => l.source).sort());
+    const ids = sourceRows().map((r) => r.id);
+    // The sample snapshot has every licensed source, so only the withheld ones, the unchecked treaty list and PeeringDB
+    // (licensed, but nothing fetches it yet) drop out.
+    const out = [...WITHHELD, 'unoda', 'peeringdb'];
+    expect(ids.sort()).toEqual(LICENCES.map((l) => l.source).filter((s) => !out.includes(s)).sort());
+  });
+
+  it('reads a fetched source as live from the snapshot, not from an API key in the build', async () => {
+    const { sourceRows } = await import('../../src/lib/sources.ts');
+    expect(process.env.COMTRADE_API_KEY).toBeUndefined();
+    expect(sourceRows().find((r) => r.id === 'comtrade')?.state).toBe('live');
   });
 });
 
