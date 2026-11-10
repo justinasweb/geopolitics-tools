@@ -1,0 +1,8 @@
+---
+// Text that names a source, with the links its terms ask for (WRI Aqueduct: its site and its licence; src/lib/source-links.ts).
+import { sourcePieces } from '../lib/source-links';
+
+interface Props { text: string }
+const { text } = Astro.props;
+---
+{sourcePieces(text).map((p) => (p.href ? <a href={p.href} rel="noopener">{p.text}</a> : p.text))}

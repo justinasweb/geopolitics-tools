@@ -5,6 +5,7 @@ import { EXPLORER_TEXT as T, PRESET_TEXT } from '../../i18n/explorer.en.ts';
 import { SOURCE_TEXT, STATUS_TEXT, YEAR_TEXT } from '../../i18n/en.ts';
 import { formatDate, formatValue } from '../format.ts';
 import { tagHtml } from '../tags.ts';
+import { sourceLinksHtml } from '../source-links.ts';
 import {
   MAX_COUNTRIES, MAX_MEASURES, PRESETS, canLog, presetMeasures, correlation, inSentence, isPreset, lastActual, queryOf, seriesOf, sharedYears, statusOf,
   ticks, valueAt, wantsLog, type MeasureData, type MeasureMeta, type Meta, type State,
@@ -70,7 +71,7 @@ export function sourceHtml(ms: MeasureMeta[], years: string): string {
   const seen = new Map<string, string | undefined>();
   for (const m of ms) if (!seen.has(m.credit)) seen.set(m.credit, m.updated);
   const dates = new Set([...seen.values()].filter(Boolean));
-  const credits = [...seen].map(([c, u]) => (dates.size > 1 && u ? `${esc(c)} <span class="gt-source__d">(${esc(SOURCE_TEXT.updated.toLowerCase())} ${esc(formatDate(u))})</span>` : esc(c))).join('; ');
+  const credits = [...seen].map(([c, u]) => (dates.size > 1 && u ? `${sourceLinksHtml(c)} <span class="gt-source__d">(${esc(SOURCE_TEXT.updated.toLowerCase())} ${esc(formatDate(u))})</span>` : sourceLinksHtml(c))).join('; ');
   const parts = [years, dates.size === 1 ? `${SOURCE_TEXT.updated} ${formatDate([...dates][0]!)}` : ''].filter(Boolean);
   return `<p class="gt-source"><span>${esc(SOURCE_TEXT.source)} <b>${credits}</b></span>${parts.map((p) => `<span class="gt-source__sep" aria-hidden="true">·</span><span>${esc(p)}</span>`).join('')}</p>`;
 }

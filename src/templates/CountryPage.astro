@@ -12,6 +12,7 @@ import CpSection from '../components/CpSection.astro';
 import CpStat from '../components/CpStat.astro';
 import DependencyTable from '../components/DependencyTable.astro';
 import DataTable from '../components/DataTable.astro';
+import SourceText from '../components/SourceText.astro';
 import LineChart from '../components/LineChart.astro';
 import Pyramid from '../components/Pyramid.astro';
 import YearSlider from '../components/YearSlider.astro';
@@ -181,8 +182,8 @@ const citation = COUNTRY_TEXT.citation(name, kind, url, Number(m.updated.slice(0
               <h2 class="gt-h3" id="few-h">{COUNTRY_TEXT.fewHeading}</h2>
               <p>{COUNTRY_TEXT.fewBody(inSentence(name), covered.length, allSources.length)}</p>
               <div class="gt-cpfew__cols">
-                <div><span class="gt-label">{COUNTRY_TEXT.fewCovered}</span><ul class="gt-cpcheck">{covered.map((s) => <li class="is-yes"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 6.5 5 9l5-6" /></svg>{sourceName(s)}</li>)}</ul></div>
-                <div><span class="gt-label">{COUNTRY_TEXT.fewNot}</span><ul class="gt-cpcheck">{notCovered.map((s) => <li class="is-no"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 3l6 6M9 3 3 9" /></svg>{sourceName(s)}</li>)}</ul></div>
+                <div><span class="gt-label">{COUNTRY_TEXT.fewCovered}</span><ul class="gt-cpcheck">{covered.map((s) => <li class="is-yes"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 6.5 5 9l5-6" /></svg><SourceText text={sourceName(s)} /></li>)}</ul></div>
+                <div><span class="gt-label">{COUNTRY_TEXT.fewNot}</span><ul class="gt-cpcheck">{notCovered.map((s) => <li class="is-no"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 3l6 6M9 3 3 9" /></svg><SourceText text={sourceName(s)} /></li>)}</ul></div>
               </div>
               <p class="gt-caption">{COUNTRY_TEXT.fewSuggest}</p>
             </div>
@@ -411,7 +412,7 @@ const citation = COUNTRY_TEXT.citation(name, kind, url, Number(m.updated.slice(0
 
         <section class="gt-cpsources" aria-labelledby="srcs">
           <h2 class="gt-h2" id="srcs">{COUNTRY_TEXT.sourcesHeading}</h2>
-          <ul class="gt-cpsources__list">{m.sources.map((s) => <li><b>{sourceName(s.source)}</b><span>{s.feeds.slice(0, 6).join(', ')}{s.feeds.length > 6 ? ', …' : ''}</span></li>)}</ul>
+          <ul class="gt-cpsources__list">{m.sources.map((s) => <li><b><SourceText text={sourceName(s.source)} /></b><span>{s.feeds.slice(0, 6).join(', ')}{s.feeds.length > 6 ? ', …' : ''}</span></li>)}</ul>
           <div class="gt-cpsources__row">
             <p class="gt-source"><span>{COUNTRY_TEXT.pageUpdated(updated)}</span><span class="gt-source__sep" aria-hidden="true">·</span><a href={paths.page('methodology')}>{COUNTRY_TEXT.howWeMeasure}</a></p>
             <button class="gt-cite" type="button" data-gt-copy={citation}><Icon name="copy" /><span data-label>{SOURCE_TEXT.cite}</span></button>

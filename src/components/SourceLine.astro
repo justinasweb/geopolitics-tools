@@ -6,7 +6,7 @@ import Icon from './Icon.astro';
 import CorrectionLink from './CorrectionLink.astro';
 import StatusTag, { type Status } from './StatusTag.astro';
 import { SOURCE_TEXT } from '../i18n/en';
-import { SOURCE_LINK } from '../i18n/pages.en';
+import SourceText from './SourceText.astro';
 import { formatDate } from '../lib/format';
 
 interface Props {
@@ -23,12 +23,9 @@ interface Props {
   citeDisabled?: boolean;
 }
 const { source, updated, parts = [], status, citation, citeDisabled = false } = Astro.props;
-// A source whose terms ask for a link with the credit: its name links there (the first one named).
-const linked = Object.keys(SOURCE_LINK).find((n) => source.includes(n));
-const [before, after] = linked ? [source.slice(0, source.indexOf(linked)), source.slice(source.indexOf(linked) + linked.length)] : [source, ''];
 ---
 <p class="gt-source">
-  <span>{SOURCE_TEXT.source} <b>{before}{linked && <a href={SOURCE_LINK[linked]} rel="noopener">{linked}</a>}{after}</b></span>
+  <span>{SOURCE_TEXT.source} <b><SourceText text={source} /></b></span>
   {parts.map((p) => <><span class="gt-source__sep" aria-hidden="true">·</span><span>{p}</span></>)}
   {updated && <><span class="gt-source__sep" aria-hidden="true">·</span><span>{SOURCE_TEXT.updated} {formatDate(updated)}</span></>}
   {status && <><span class="gt-source__sep" aria-hidden="true">·</span><StatusTag status={status} small /></>}

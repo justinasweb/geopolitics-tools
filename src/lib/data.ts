@@ -12,7 +12,7 @@ import { rawDir, type Raw } from '../adapters/core.ts';
 import { registry, INDICATORS, type Loaded } from '../data/indicators.ts';
 import { LICENCE_OF, LICENCES, withheld, type Licence } from '../data/licences.ts';
 import { weoRelease } from '../adapters/worldbank.ts';
-import { ACCESSED, SOURCE_SHORT } from '../i18n/pages.en.ts';
+import { AQUEDUCT_CREDIT, SOURCE_SHORT } from '../i18n/pages.en.ts';
 import { formatDate } from './format.ts';
 
 export interface SnapshotSource { name: string; attribution: string; licence: string; fetched: string; changed?: string; dataTo?: string; imported?: Record<string, { file?: string; date?: string }> }
@@ -158,10 +158,11 @@ export function isDelayed(source: string): boolean {
 }
 
 /** The edition a source line names, read from the source's own files: the WEO's release ("October 2026"); for WRI
- *  Aqueduct, whose terms ask for it, the day its files were downloaded ("accessed on 25 Oct 2026"). */
+ *  Aqueduct, whose terms ask for it, the day its files were downloaded with its site and licence
+ *  ("accessed on 25 Oct 2026, aqueduct.wri.org (CC BY 4.0)"). */
 const EDITIONS: Record<string, (raw: Raw) => string | undefined> = {
   'imf-weo': (raw) => weoRelease(raw)?.release,
-  aqueduct: () => { const d = data().snapshot.sources.aqueduct?.fetched; return d ? ACCESSED(formatDate(d)) : undefined; },
+  aqueduct: () => { const d = data().snapshot.sources.aqueduct?.fetched; return d ? AQUEDUCT_CREDIT(formatDate(d)) : undefined; },
 };
 export const editionOf = (source: string): string | undefined => (EDITIONS[source] ? tryLoad(EDITIONS[source]) ?? undefined : undefined);
 
@@ -172,9 +173,12 @@ export function sourceName(source: string): string {
   return edition ? `${name}, ${edition}` : name;
 }
 
-/** The licence table's credit, with the edition when the source has one ("IMF World Economic Outlook, October 2026"). */
+/** The licence table's credit, with the edition when the source has one ("IMF World Economic Outlook, October 2026").
+ *  A credit that names its own "[date]" (WRI Aqueduct's) gets the day the source's files were fetched there. */
 export function creditLine(source: string): string {
   const credit = licenceOf(source)?.credit;
+  const fetched = data().snapshot.sources[source]?.fetched;
+  if (credit?.includes('[date]') && fetched) return credit.replace('[date]', formatDate(fetched));
   const edition = editionOf(source);
   return credit ? (edition ? `${credit}, ${edition}` : credit) : sourceName(source);
 }

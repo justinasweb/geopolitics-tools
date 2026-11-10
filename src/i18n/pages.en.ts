@@ -447,11 +447,9 @@ export const SOURCE_SHORT: Record<string, string> = {
 };
 
 /** Where an indicator's figures come from, when the publisher is not the original source. */
-/** A source's access date, where its terms ask for one in the credit (WRI Aqueduct). */
-export const ACCESSED = (d: string) => `accessed on ${d}`;
-
-/** Sources whose terms ask for a link with the credit: their name in a source line links there. */
-export const SOURCE_LINK: Record<string, string> = { 'WRI Aqueduct': 'https://aqueduct.wri.org/' };
+/** WRI Aqueduct's credit after its name, as its terms ask: the access date, its site and its licence (links in
+ *  src/lib/source-links.ts). */
+export const AQUEDUCT_CREDIT = (d: string) => `accessed on ${d}, aqueduct.wri.org (CC BY 4.0)`;
 
 export const SOURCE_NOTE: Record<string, string> = {
   milpct: 'World Bank, from SIPRI data', milusd: 'World Bank, from SIPRI data',
