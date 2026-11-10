@@ -243,3 +243,14 @@ describe('the owner’s own words', () => {
     bad(`<!-- owner -->\n${words}\n<!-- /owner -->\n<!-- owner -->\nThe site shows figures.\n<!-- /owner -->`, 'owner', about);
   });
 });
+
+describe('ranges of days', () => {
+  const week = file([fact({ id: 'week', statement: 'This summary covers ISO week 45 of 2026, from 2 November 2026 to 8 November 2026.', value: 45, unit: 'week' })], { countries: [] });
+  it('take both ends from the facts, with or without the year', () => {
+    expect(readDates('in the week of 2–8 November')[0]).toMatchObject({ days: ['-11-02', '-11-08'] });
+    ok('No entries were removed in the week of 2–8 November.', week);
+    ok('No entries were removed in the week of 2–8 November 2026.', week);
+    bad('No entries were removed in the week of 2–9 November.', 'date', week);
+    bad('No entries were removed in the week of 2–8 November 2025.', 'date', week);
+  });
+});

@@ -135,6 +135,43 @@ describe('Supply chains markup', () => {
   });
 });
 
+describe('flows from the exporter’s report', () => {
+  it('are named wherever flows are said to be as importers report them', async () => {
+    const { DEP_TEXT } = await import('../../src/i18n/pages.en.ts');
+    const { ENERGY_TEXT } = await import('../../src/i18n/energy.en.ts');
+    const { FOOD_TEXT } = await import('../../src/i18n/food.en.ts');
+    const two = ['United States → Mexico', 'Spain → Morocco'];
+    const comtrade = { ...chain, src: 'comtrade', source: 'UN Comtrade', credit: 'UN Comtrade', mirror: two, mirrored: DEP_TEXT.asReported(two) };
+    expect(sankeyHtml(comtrade, { country: '' })).toContain('UN Comtrade, as importers report it, except United States → Mexico and Spain → Morocco, as the exporter reports them: the main flows only');
+    expect(sankeyHtml({ ...comtrade, mirror: undefined }, { country: '' })).toContain('UN Comtrade, as importers report it: the main flows only');
+    expect(ENERGY_TEXT.flowsCaption(20, 2025, 'pipeline gas', two.slice(0, 1))).toBe('The 20 largest flows of pipeline gas in 2025, exporter to importer, as importers report them to UN Comtrade, except United States → Mexico, as the exporter reports it.');
+    expect(ENERGY_TEXT.flowsCaption(20, 2025, 'LNG')).toBe('The 20 largest flows of LNG in 2025, exporter to importer, as importers report them to UN Comtrade.');
+    expect(ENERGY_TEXT.caveats('gas', 'trade', 2025, two).join(' ')).toContain('as importers report them to UN Comtrade, except United States → Mexico and Spain → Morocco, as the exporter reports them: pipeline gas');
+    expect(FOOD_TEXT.flowsCaption(20, 2025, true, ['Russia → Brazil'])).toBe('The 20 largest flows in 2025, exporter to importer, as importers report them to UN Comtrade, except Russia → Brazil, as the exporter reports it, in tonnes of product.');
+  });
+
+  it('name the three largest and count the rest, marked in the table; gas says which flows it leaves out', async () => {
+    const { DEP_TEXT } = await import('../../src/i18n/pages.en.ts');
+    const { ENERGY_TEXT } = await import('../../src/i18n/energy.en.ts');
+    const five = ['United States → France', 'United States → Egypt', 'Kazakhstan → China', 'Belgium → France', 'Norway → France'];
+    expect(DEP_TEXT.asImporters('it', five)).toBe('as importers report it, except United States → France, United States → Egypt, Kazakhstan → China and 2 smaller flows, marked in the table, as the exporter reports them');
+    expect(DEP_TEXT.asReported(five, true)).toBe('United States → France, United States → Egypt, Kazakhstan → China and 2 smaller flows as reported by the exporter, marked in the table');
+    const c = { ...chain, places: { ...chain.places, KAZ: { n: 'Kazakhstan', c: 'KAZ' } }, src: 'comtrade', mirror: ['Kazakhstan → TUR'], notShown: ENERGY_TEXT.notShown(['Russia → China', 'Turkmenistan → China'], [])! };
+    expect(c.notShown).toBe('Not shown: Russia → China and Turkmenistan → China pipeline gas, because neither country reports a volume to UN Comtrade.');
+    expect(sankeyHtml(c, { country: '' })).toContain(c.notShown);
+    const html = tableHtml(c, { country: '' });
+    expect(html.match(/gt-flowmark/g)).toHaveLength(1);
+    expect(html).toMatch(/Kazakhstan<\/th><td>TUR<span class="gt-caption gt-flowmark">exporter’s report<\/span>/);
+    expect(ENERGY_TEXT.notShown([], [])).toBeNull();
+  });
+
+  it('label a pair only when most of its amount is the exporter’s report', async () => {
+    const { sumPairs } = await import('../../src/data/flows.ts');
+    // A few cubic metres of pipeline gas from the exporter's report do not make a pair's LNG the exporter's.
+    expect(sumPairs([{ from: 'USA', to: 'KOR', amount: 6 }, { from: 'USA', to: 'KOR', amount: 0.001, mirror: true }], (r) => r.amount)[0].mirror).toBeUndefined();
+  });
+});
+
 describe('Supply chains from the sample files', () => {
   it('builds each live flow for one period only, with pairs and places', async () => {
     const { chainOf, liveChains } = await import('../../src/lib/supply-chains.ts');

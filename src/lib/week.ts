@@ -315,7 +315,8 @@ export interface WeekPageModel {
   /** prev: an archived week's previous week; recent: the live page's links to the last closed weeks (up to
    *  RECENT_WEEKS), once one exists. */
   nav: { prev?: { href: string; label: string; range: string }; recent: { href: string; label: string }[]; options: { value: string; label: string; selected: boolean }[] };
-  summary: (Summary & { week: number; range: string }) | null;
+  /** `range` with its year ("2–8 November 2026"), `short` without ("2–8 November"). */
+  summary: (Summary & { week: number; range: string; short: string }) | null;
 }
 
 /** How many closed weeks the live page links to by name. */
@@ -367,6 +368,6 @@ export function weekPageFor(w: WeekData, weekOf: string | null): WeekPageModel {
       recent: weekOf ? [] : archive.slice(0, RECENT_WEEKS).map((k) => ({ href: paths.week(k), label: W.weekLink(weekNumber(k), range(weekRange(k).from, weekRange(k).to, { year: false })) })),
       options: options.length > 1 ? options : [],
     },
-    summary: s && summaryId ? { ...s, week: weekNumber(summaryId), range: range(weekRange(summaryId).from, weekRange(summaryId).to, { long: true }) } : null,
+    summary: s && summaryId ? { ...s, week: weekNumber(summaryId), range: range(weekRange(summaryId).from, weekRange(summaryId).to, { long: true }), short: range(weekRange(summaryId).from, weekRange(summaryId).to, { long: true, year: false }) } : null,
   };
 }

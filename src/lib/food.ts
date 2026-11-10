@@ -6,7 +6,7 @@ import { food, type Balance, type Crop, type Flow, type Nutrient } from '../adap
 import { comtrade, fertiliserFlows } from '../adapters/comtrade.ts';
 import type { Series } from '../adapters/core.ts';
 import { FOOD_TEXT, type CommodityText } from '../i18n/food.en.ts';
-import { inSentence } from '../i18n/pages.en.ts';
+import { DEP_TEXT, inSentence } from '../i18n/pages.en.ts';
 import { shared } from './data.ts';
 import { formatValue } from './format.ts';
 import { place } from './places.ts';
@@ -63,11 +63,15 @@ export interface FoodPage {
   ticks: string[];
   /** The largest flows in the latest year, exporter → importer, as importers report them: FAOSTAT's trade matrix for
    * crops, UN Comtrade for fertilisers (in tonnes of product, unlike the nutrient tonnes of the rest of the page). */
-  flows: Flow[];
+  flows: (Flow & { mirror?: true })[];
   flowYear: number | null;
 }
 
 const nameOf = (id: string) => place(id)?.name ?? id;
+
+/** The flows the page shows whose amount is the exporter's report (fertilisers, from UN Comtrade), named as source
+ *  lines name them ("United States → Mexico"). */
+export const pageMirror = (p: FoodPage) => p.flows.slice(0, TOP_FLOWS).filter((f) => f.mirror).map((f) => DEP_TEXT.flow(nameOf(f.from), nameOf(f.to)));
 const yearsIn = (s: Series) => [...new Set(Object.values(s).flatMap((y) => Object.keys(y).map(Number)))];
 
 /** The series a layer maps: production, use, or net exports (exports − imports, where both are known). */
@@ -142,7 +146,7 @@ function buildPage(commodity: Commodity, layer: FoodLayer): FoodPage | null {
   const ticks = layer === 'trade'
     ? [...[2, 1, 0].map((i) => T.tick(edges[3 + i], i === 2 ? null : edges[4 + i])), T.balanced(edges[3]), ...[0, 1, 2].map((i) => T.tick(edges[3 + i], i === 2 ? null : edges[4 + i]))]
     : T.shareTicks;
-  let flows: Flow[] = [];
+  let flows: FoodPage['flows'] = [];
   let flowYear: number | null = null;
   const all = crop ? d.flows[commodity as Crop] ?? [] : fertFlows()?.[commodity as 'potash' | 'phosphate'] ?? [];
   if (layer === 'trade' && all.length) {
@@ -215,7 +219,7 @@ export function summary(p: FoodPage, year = p.year): string[] {
     const together = top.length === 3 ? shareOf(top.reduce((s, r) => s + r.value, 0), y.world) : null;
     first.push(T.top(top.map((r, i) => T.topPart(inSentence(nameOf(r.id), i === 0), mt(r.value), shareOf(r.value, y.world))), together));
   }
-  const second = [T.coverage(y.rows.length, year), ...(y.notYet.length ? [T.notYetSentence(y.notYet.length, year)] : []), ...T.caveats(p.commodity, p.layer, p.flowYear)];
+  const second = [T.coverage(y.rows.length, year), ...(y.notYet.length ? [T.notYetSentence(y.notYet.length, year)] : []), ...T.caveats(p.commodity, p.layer, p.flowYear, pageMirror(p))];
   return [first.join(' '), second.join(' ')];
 }
 

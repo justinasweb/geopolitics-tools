@@ -8,6 +8,8 @@
 //   chips-<y>       8542 integrated circuits, 8486 chipmaking machines
 //   crude-x-<y>, gas-x-<y>, fertiliser-x-<y>  the same goods as their exporters report them (flowCode X): mirror
 //                   data for a flow whose importer figure is unusable (src/adapters/comtrade.ts)
+// Rows keep the second quantity (altQty) and its unit: several reporters give gas in cubic metres or litres only,
+// their net weight being Comtrade's estimate. A gas file saved before these fields were kept is fetched again.
 //   imports-<y>     all goods, imports by partner (dossier trade partners)
 //   exports-<y>     all goods, exports by partner
 // Countries report a year over the following 18 months or so, so the three latest years are fetched again on each
@@ -36,7 +38,12 @@ export const GROUPS: Record<string, { codes: string[]; flows: string; minReporte
 };
 
 /** The fields kept from each row; descriptions and estimation flags the site does not use are dropped. */
-export const FIELDS = ['period', 'reporterCode', 'reporterISO', 'flowCode', 'partnerCode', 'partnerISO', 'cmdCode', 'qtyUnitAbbr', 'qty', 'netWgt', 'isNetWgtEstimated', 'primaryValue', 'isReported'] as const;
+export const FIELDS = ['period', 'reporterCode', 'reporterISO', 'flowCode', 'partnerCode', 'partnerISO', 'cmdCode', 'qtyUnitCode', 'qtyUnitAbbr', 'qty', 'isQtyEstimated',
+  'altQtyUnitCode', 'altQty', 'isAltQtyEstimated', 'netWgt', 'isNetWgtEstimated', 'primaryValue', 'isReported'] as const;
+
+/** Groups whose adapter reads the second quantity: a copy saved without it is out of date. */
+const NEEDS_ALT = new Set(['gas', 'gas-x']);
+export const outdated = (group: string, prev: string) => NEEDS_ALT.has(group) && !((JSON.parse(prev) as Answer).data ?? []).some((r) => 'altQtyUnitCode' in r);
 
 type Row = Record<string, unknown>;
 interface Answer { count?: number; data?: Row[]; error?: string }
@@ -84,7 +91,7 @@ const source: Source = {
     for (const { group, year, recent } of plan(ctx.now)) {
       const name = fileName(group, year);
       const prev = await ctx.previous(name);
-      if ((prev && !recent) || calls <= 0) {
+      if ((prev && !recent && !outdated(group, prev)) || calls <= 0) {
         if (prev) carry(name, prev);
         continue;
       }

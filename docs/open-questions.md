@@ -265,5 +265,8 @@ its tool entry on a hub has no links under it. Topic presets would give it some.
 - **Homepage, hero option C** (Treasuries card to the China dossier, Hungary's two gas shares, search as a jump list,
   the profiles and rankings rules, the left-out summary line and chokepoints question). Decided 5 Nov 2026: kept as
   built.
+- **Gas flows with only an estimated weight.** Decided 10 Nov 2026: left out, and the gas map and supply chain name
+  those that would rank among the shown flows ("Not shown: Russia → China and Turkmenistan → China pipeline gas…").
+  Exception lists name the three largest flows from the exporter's report and count the rest, marked in the table.
 - **Topic hubs: lead card and intro labels.** Decided 29 Oct 2026: the lead card is the family's main view; approved
   hub intros carry no AI label.

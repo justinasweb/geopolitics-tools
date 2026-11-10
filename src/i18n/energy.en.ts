@@ -2,7 +2,7 @@
 // EIA production, use and reserves, net trade worked out from them, and UN Comtrade's flows. Same rules as
 // pages.en.ts: templates take figures already formatted and return plain sentences, plain verbs, no adjectives that
 // judge, and a sentence whose figure is missing is left out. Another language is another file with the same keys.
-import { list } from './pages.en.ts';
+import { DEP_TEXT, list } from './pages.en.ts';
 import { todaysMembers } from './members.en.ts';
 
 export type EnergyLayer = 'production' | 'consumption' | 'trade' | 'reserves';
@@ -88,7 +88,8 @@ export const ENERGY_TEXT = {
   importers: (parts: string[]) => `The largest net importers: ${list(parts)}.`,
   coverage: (n: number, y: number) => `${n} countries and territories have a figure for ${y}.`,
   notYetSentence: (n: number, y: number) => `${n} more reported a figure for one of the two years before but not yet for ${y}; they are hatched on the map.`,
-  caveats: (fuel: FuelId, layer: EnergyLayer, flowYear: number | null): string[] => {
+  /** `mirror`: the flows shown whose amount is the exporter's report, by name. */
+  caveats: (fuel: FuelId, layer: EnergyLayer, flowYear: number | null, mirror: string[] = []): string[] => {
     const out: string[] = [];
     if (fuel === 'oil' && layer === 'production') out.push('Production is crude oil including lease condensate. Natural gas liquids and biofuels are left out here, but counted in net trade.');
     if (fuel === 'oil' && layer === 'consumption') out.push('Consumption covers all petroleum products, including those made from natural gas liquids.');
@@ -97,8 +98,8 @@ export const ENERGY_TEXT = {
     if (layer === 'reserves') out.push('Proved reserves are what can be recovered with reasonable certainty at today’s prices and technology. They are revised often and some countries report the same figure for years; they are not all the oil or gas in the ground.');
     if (layer === 'trade' && flowYear) {
       out.push(fuel === 'oil'
-        ? `Flows on the map are the largest crude oil flows in ${flowYear}, as importers report them to UN Comtrade (HS 2709), turned from tonnes into barrels a day at about 7.33 barrels a tonne.`
-        : `Flows on the map are the largest gas flows in ${flowYear}, as importers report them to UN Comtrade: pipeline gas (HS 271121, solid lines) at about 0.75 million tonnes per billion cubic metres, and liquefied natural gas (LNG), gas cooled into a liquid for shipping, shown as dashed lines (HS 271111), at about 1,360 cubic metres of gas per tonne.`);
+        ? `Flows on the map are the largest crude oil flows in ${flowYear}, ${DEP_TEXT.asImporters('them', mirror, ' to UN Comtrade (HS 2709)')}, turned from tonnes into barrels a day at about 7.33 barrels a tonne.`
+        : `Flows on the map are the largest gas flows in ${flowYear}, ${DEP_TEXT.asImporters('them', mirror, ' to UN Comtrade')}: pipeline gas (HS 271121, solid lines) at about 0.75 million tonnes per billion cubic metres, and liquefied natural gas (LNG), gas cooled into a liquid for shipping, shown as dashed lines (HS 271111), at about 1,360 cubic metres of gas per tonne. Where a country reports gas by volume only, its own cubic metres are used.`);
     }
     out.push('The latest year is preliminary: EIA revises it as countries report.');
     return out;
@@ -111,7 +112,12 @@ export const ENERGY_TEXT = {
   flowsLabel: (year: number) => `${MARKS.flows}, ${year}`,
   pipeLabel: (year: number) => `${MARKS.pipe}, ${year}`,
   lngLabel: (year: number) => `${MARKS.lng}, ${year}`,
-  flowsCaption: (n: number, year: number, what: string) => `The ${n} largest flows of ${what} in ${year}, exporter to importer, as importers report them to UN Comtrade.`,
+  flowsCaption: (n: number, year: number, what: string, mirror: string[] = []) => `The ${n} largest flows of ${what} in ${year}, exporter to importer, ${DEP_TEXT.asImporters('them', mirror, ' to UN Comtrade')}.`,
+  /** Gas flows left out for want of a reported quantity, under the gas map and the gas supply chain; null when none. */
+  notShown: (pipe: string[], lng: string[]) => {
+    const parts = [...(pipe.length ? [`${list(pipe)} pipeline gas`] : []), ...(lng.length ? [`${list(lng)} LNG`] : [])];
+    return parts.length ? `Not shown: ${parts.join('; ')}, because neither country reports a volume to UN Comtrade.` : null;
+  },
   flowTip: (from: string, to: string, v: string, year: number, kind?: string) => `${from} → ${to}: ${v}${kind ? `, ${kind}` : ''} (${year})`,
   kind: { pipe: 'pipeline', lng: 'LNG' },
   from: 'From',

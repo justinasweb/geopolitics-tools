@@ -9,12 +9,26 @@
 //   crude oil  about 7.33 barrels a tonne
 //   pipeline gas  about 0.75 million tonnes per billion cubic metres; LNG  about 1,360 m³ of gas per tonne
 //   fertilisers  million tonnes of product (not of nutrient, as FAOSTAT counts them)
+// Gas is the exception: several reporters give it by volume only (the United States and Canada in cubic metres,
+// Mexico in litres), and the net weight Comtrade estimates for them is far off (Canada → United States, 2024:
+// 12.3 Mt estimated, about 16 bcm, against 86.1 bcm reported). A gas row's own volume is used when its weight is
+// an estimate or unusable; an estimated weight alone is never used, so the flow takes the exporter's report or
+// drops out. LNG by volume is in cubic metres of liquid (about 612 m³ of gas each) or of gas; which, by its size
+// against the estimated weight.
 import { type Raw, matcher, num } from './core.ts';
 
 export interface TradeRow {
   year: number; reporter: string; partner: string; flow: 'M' | 'X'; cmd: string; kg: number | null; usd: number | null;
   /** Its quantity was dropped as not in kg (dropNonMass). */
   dropped?: true;
+  /** The net weight is Comtrade's estimate, not the reporter's. */
+  kgEst?: true;
+  /** The reporter's own volume, in cubic metres (gas), and that volume per kg of the net weight before any drop. */
+  m3?: number;
+  m3PerKg?: number;
+  /** No quantity of the reporter's own: the weight is Comtrade's estimate and there is no volume. Known only for rows
+   *  that carry the second quantity (files fetched from 10 Nov 2026). */
+  noQty?: true;
 }
 /** `mirror`: the amount is the exporter's report of the flow, the importer's quantity having been dropped. */
 export interface Flow { from: string; to: string; amount: number; year: number; mirror?: true }
@@ -25,6 +39,10 @@ type Row = Record<string, unknown>;
 export const BARRELS_PER_TONNE = 7.33;
 export const KG_PER_BCM_PIPE = 0.75e9;
 export const M3_PER_TONNE_LNG = 1360;
+/** Cubic metres of gas per cubic metre of LNG: about 0.45 t a cubic metre at 1,360 m³ a tonne. */
+export const GAS_PER_M3_LNG = 612;
+/** Comtrade's volume units (QuantityUnits.json) in cubic metres: m³, thousand m³, litres. */
+const M3_PER_UNIT: Record<string, number> = { 12: 1, 17: 1000, 7: 0.001 };
 /** HS codes per commodity the site shows. */
 export const CODES = {
   crude: ['2709'], pipe: ['271121'], lng: ['271111'], potash: ['3104'], phosphate: ['3103', '310530', '310540'],
@@ -48,11 +66,28 @@ export function parseComtrade(files: { data?: Row[] }[]): TradeRow[] {
       const reporter = id(r.reporterCode, r.reporterISO);
       const partner = id(r.partnerCode, r.partnerISO);
       if (!reporter || !partner || reporter === partner) continue;
-      out.push({ year: Number(r.period), reporter, partner, flow, cmd: String(r.cmdCode), kg: num(r.netWgt), usd: num(r.primaryValue) });
+      const row: TradeRow = { year: Number(r.period), reporter, partner, flow, cmd: String(r.cmdCode), kg: num(r.netWgt), usd: num(r.primaryValue) };
+      if (r.isNetWgtEstimated === true) row.kgEst = true;
+      const m3 = volume(r);
+      if (m3 !== null) {
+        row.m3 = m3;
+        if (row.kg) row.m3PerKg = m3 / row.kg;
+      } else if (row.kgEst && 'altQtyUnitCode' in r) row.noQty = true;
+      out.push(row);
     }
   }
   dropNonMass(out);
   return out;
+}
+
+/** The reporter's own volume in m³: the first quantity, else the second, in a volume unit and not estimated. */
+function volume(r: Row): number | null {
+  for (const [unit, qty, est] of [[r.qtyUnitCode, r.qty, r.isQtyEstimated], [r.altQtyUnitCode, r.altQty, r.isAltQtyEstimated]]) {
+    const k = M3_PER_UNIT[String(unit)];
+    const v = num(qty);
+    if (k && est !== true && v !== null && v > 0) return v * k;
+  }
+  return null;
 }
 
 /**
@@ -93,8 +128,8 @@ const imports = (rows: TradeRow[], c: Commodity) => {
 
 /**
  * Importer-reported flows of one commodity, summed per pair and year, largest first. Where the importer's quantity
- * was dropped as not in kg, the exporter's own report of the same flow is used when it passes the same check
- * (mirror data), and the flow is marked `mirror`.
+ * was dropped as not in kg, or is an estimate the amount does not use (gas), the exporter's own report of the same
+ * flow is used when it has a usable one (mirror data), and the flow is marked `mirror`.
  */
 export function flowsOf(rows: TradeRow[], c: Commodity, amount: (r: TradeRow) => number | null): Flow[] {
   const codes: readonly string[] = CODES[c];
@@ -103,7 +138,7 @@ export function flowsOf(rows: TradeRow[], c: Commodity, amount: (r: TradeRow) =>
   for (const r of imports(rows, c)) {
     let v = amount(r);
     let mirror = false;
-    if (v === null && r.dropped) {
+    if (v === null && (r.dropped || r.kgEst)) {
       const x = exported.get(`${r.year}|${r.cmd}|${r.partner}>${r.reporter}`);
       if (x && x.kg !== null) { v = amount(x); mirror = true; }
     }
@@ -119,10 +154,48 @@ export function flowsOf(rows: TradeRow[], c: Commodity, amount: (r: TradeRow) =>
 const mt = (r: TradeRow) => (r.kg === null ? null : r.kg / 1e9);
 
 export const crudeFlows = (rows: TradeRow[]) => flowsOf(rows, 'crude', (r) => (r.kg === null ? null : ((r.kg / 1000) * BARRELS_PER_TONNE) / 365 / 1000));
+/** Below this many m³ per estimated kg an LNG volume is of liquid (about 0.0022), above the next of gas (about 1.4). */
+const LNG_LIQUID_MAX = 0.02;
+const LNG_GAS_MIN = 0.3;
+
+/** A gas row in bcm: its weight when reported; else its own volume; else nothing (see the head of this file). */
+export function gasBcm(r: TradeRow, kind: 'pipe' | 'lng'): number | null {
+  if (r.kg !== null && !r.kgEst) return kind === 'pipe' ? r.kg / KG_PER_BCM_PIPE : ((r.kg / 1000) * M3_PER_TONNE_LNG) / 1e9;
+  if (r.m3 === undefined) return null;
+  if (kind === 'pipe') return r.m3 / 1e9;
+  if (r.m3PerKg === undefined) return null;
+  if (r.m3PerKg < LNG_LIQUID_MAX) return (r.m3 * GAS_PER_M3_LNG) / 1e9;
+  return r.m3PerKg > LNG_GAS_MIN ? r.m3 / 1e9 : null;
+}
+
 export const gasFlows = (rows: TradeRow[]): GasFlow[] => [
-  ...flowsOf(rows, 'pipe', (r) => (r.kg === null ? null : r.kg / KG_PER_BCM_PIPE)).map((f) => ({ ...f, kind: 'pipe' as const })),
-  ...flowsOf(rows, 'lng', (r) => (r.kg === null ? null : ((r.kg / 1000) * M3_PER_TONNE_LNG) / 1e9)).map((f) => ({ ...f, kind: 'lng' as const })),
+  ...flowsOf(rows, 'pipe', (r) => gasBcm(r, 'pipe')).map((f) => ({ ...f, kind: 'pipe' as const })),
+  ...flowsOf(rows, 'lng', (r) => gasBcm(r, 'lng')).map((f) => ({ ...f, kind: 'lng' as const })),
 ].sort((a, b) => b.amount - a.amount);
+/**
+ * Gas flows left out because neither side reports a quantity: the importer's weight is Comtrade's estimate with no
+ * volume of its own, and the exporter has no usable report of the flow (China's pipeline gas from Russia). Amounts are
+ * the estimates, only to tell whether a flow would rank among those shown.
+ */
+export function gasUnreported(rows: TradeRow[]): GasFlow[] {
+  const out: GasFlow[] = [];
+  for (const kind of ['pipe', 'lng'] as const) {
+    const codes: readonly string[] = CODES[kind];
+    const reported = new Set(rows.filter((r) => r.flow === 'X' && codes.includes(r.cmd) && gasBcm(r, kind) !== null).map((r) => `${r.year}|${r.reporter}>${r.partner}`));
+    const by = new Map<string, GasFlow>();
+    for (const r of rows) {
+      if (r.flow !== 'M' || !codes.includes(r.cmd) || !r.noQty || !r.kg || reported.has(`${r.year}|${r.partner}>${r.reporter}`)) continue;
+      const v = kind === 'pipe' ? r.kg / KG_PER_BCM_PIPE : ((r.kg / 1000) * M3_PER_TONNE_LNG) / 1e9;
+      const k = `${r.year}|${r.partner}>${r.reporter}`;
+      const f = by.get(k);
+      if (f) f.amount += v;
+      else by.set(k, { from: r.partner, to: r.reporter, amount: v, year: r.year, kind });
+    }
+    out.push(...by.values());
+  }
+  return out.sort((a, b) => b.amount - a.amount);
+}
+
 export const fertiliserFlows = (rows: TradeRow[], c: 'potash' | 'phosphate') => flowsOf(rows, c, mt);
 /** Integrated circuits or chipmaking machines, in US dollars (weight says little for chips). */
 export const chipFlows = (rows: TradeRow[], c: 'chips' | 'equipment') => flowsOf(rows, c, (r) => r.usd);

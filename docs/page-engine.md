@@ -77,7 +77,13 @@ A sample build has 129 country pages and 37 indicator pages; the real snapshot h
   listed as such. "Latest available" reaches back two years and marks the older rows.
 - **Dependence.** Net imports ÷ use: 50% or more "Imports most", 15–50% "Imports some", within ±15% "Roughly
   self-sufficient", below −15% "Exporter" (`src/lib/dependence.ts`). Arms and chips show the main supplier's share
-  only. A row whose source is not in the snapshot says "No data yet".
+  only. A row whose source is not in the snapshot says "No data yet". Potash and phosphate are a share of supply
+  (production plus net imports), not of FAOSTAT's agricultural use, which leaves out industry and transit; their rows
+  carry the Estimate label when FAOSTAT flags a figure as its estimate or imputation (E, I), as crop rows do. Net imports
+  more than 10% above use, or exports more than 10% above production plus imports (`THRESHOLDS.excess`; Morocco's
+  phosphate), give no share: the row says "Imports exceed recorded use" (no tag) or "Exports exceed recorded supply"
+  (tagged Exporter, with its buyers) with a caveat, and is left out of the tool's sort and ranking by share, reliance
+  on one supplier and a country page's lead imports.
 - **Neutral words.** Templates use plain verbs (mines, imports, hosts) and no adjectives that judge. "Higher" on
   Compare marks the larger value and says it is not a judgement. A sentence whose figure is missing is left out.
 - **Colour is never the only cue.** Dependence tags have a glyph and a word, Compare's first and second country have
@@ -304,7 +310,8 @@ the data run), words in `src/i18n/week.en.ts`. Built from data only.
   changed), newest first over 30 days (an archived week: its own days), filtered by kind; ten shown, then "Show older
   items" (`src/scripts/week.ts`). Without scripts every item shows.
 - **The week in brief.** Per closed week: shown on that week's page, and on `/this-week` for the latest closed week
-  (labelled with its week), only when the drafting pipeline's text `week:{id}` is approved and its facts unchanged
+  (its dates in the heading, "The week in brief: 2–8 November"; the live page then says its counts and cards cover
+  the last 7 days), only when the drafting pipeline's text `week:{id}` is approved and its facts unchanged
   (`src/data/ai/texts/weeks/{id}.json`, approved on Telegram: [telegram.md](telegram.md)); otherwise nothing, not an
   empty box and no notice. The label and "How this summary is made" link to Methodology's "AI drafting" section.
 - **Earlier weeks.** `/this-week` links to the latest closed week ("Previous weeks: week 44 →") once one exists, and

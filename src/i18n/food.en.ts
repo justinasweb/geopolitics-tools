@@ -2,7 +2,7 @@
 // trade of wheat, maize, rice, soybeans, potash and phosphate. Same rules as pages.en.ts: templates take figures
 // already formatted and return plain sentences, plain verbs, no adjectives that judge, and a sentence whose figure is
 // missing is left out. Another language is another file with the same keys.
-import { list } from './pages.en.ts';
+import { DEP_TEXT, list } from './pages.en.ts';
 import { todaysMembers } from './members.en.ts';
 
 export interface CommodityText {
@@ -83,16 +83,17 @@ export const FOOD_TEXT = {
   coverage: (n: number, y: number) => `${n} countries and territories have a figure for ${y}.`,
   notYetSentence: (n: number, y: number) => `${n} more reported a figure for one of the two years before but not yet for ${y}; they are hatched on the map.`,
   /** The caveats under the summary, by commodity and layer. */
-  caveats: (c: string, layer: Layer, flowYear: number | null): string[] => {
+  /** `mirror`: the fertiliser flows shown whose amount is the exporter's report, by name. */
+  caveats: (c: string, layer: Layer, flowYear: number | null, mirror: string[] = []): string[] => {
     const out: string[] = [];
     const fert = c === 'potash' || c === 'phosphate';
     if (fert) out.push('Fertilisers are counted in tonnes of nutrient: potassium oxide (K2O) for potash, phosphorus pentoxide (P2O5) for phosphate. Most fertiliser figures are FAOSTAT’s own estimates, marked e in the table.');
     if (c === 'rice') out.push('Rice is counted as milled rice: FAOSTAT’s paddy production times 0.67, and trade in milled equivalent.');
     if (layer === 'use' && !fert) out.push('Use is production plus imports minus exports. It covers food, animal feed, industrial uses, seed and waste, and leaves out changes in stocks; FAOSTAT’s food balance sheets, which split these, come two years or more later.');
     if (layer === 'use' && fert) out.push('Use is FAOSTAT’s agricultural use: what farmers apply, as countries report it.');
-    if (layer === 'trade') out.push(`Net trade is exports minus imports, as each country reports them to FAOSTAT; one country’s exports and its partners’ imports often differ.${flowYear ? ` Flows on the map are the largest in ${flowYear}, as importers report them.` : ''}`);
+    if (layer === 'trade') out.push(`Net trade is exports minus imports, as each country reports them to FAOSTAT; one country’s exports and its partners’ imports often differ.${flowYear ? ` Flows on the map are the largest in ${flowYear}, ${DEP_TEXT.asImporters('them', mirror)}.` : ''}`);
     if (layer === 'trade' && fert) out.push(flowYear
-      ? 'FAOSTAT does not publish who trades fertilisers with whom, so the flows come from UN Comtrade, as importers report them, and are in tonnes of product, not of nutrient: potash as HS 3104 (mostly potassium chloride, about 60% K2O); phosphate as HS 3103 and the phosphates DAP and MAP (HS 310530, 310540, about 46–52% P2O5).'
+      ? `FAOSTAT does not publish who trades fertilisers with whom, so the flows come from UN Comtrade, ${DEP_TEXT.asImporters('them', mirror)}, and are in tonnes of product, not of nutrient: potash as HS 3104 (mostly potassium chloride, about 60% K2O); phosphate as HS 3103 and the phosphates DAP and MAP (HS 310530, 310540, about 46–52% P2O5).`
       : 'FAOSTAT does not publish who trades fertilisers with whom, so this map has no flows.');
     return out;
   },
@@ -103,7 +104,7 @@ export const FOOD_TEXT = {
   netImporters: 'Largest net importers',
   flowsMark: FLOWS_MARK,
   flowsLabel: (year: number) => `${FLOWS_MARK}, ${year}`,
-  flowsCaption: (n: number, year: number, product = false) => `The ${n} largest flows in ${year}, exporter to importer, as importers report them${product ? ' to UN Comtrade, in tonnes of product' : ''}.`,
+  flowsCaption: (n: number, year: number, product = false, mirror: string[] = []) => `The ${n} largest flows in ${year}, exporter to importer, ${DEP_TEXT.asImporters('them', mirror, product ? ' to UN Comtrade' : '')}${product ? ', in tonnes of product' : ''}.`,
   flowTip: (from: string, to: string, v: string, year: number) => `${from} → ${to}: ${v} (${year})`,
   from: 'From',
   to: 'To',

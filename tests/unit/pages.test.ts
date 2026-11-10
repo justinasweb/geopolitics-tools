@@ -194,7 +194,7 @@ describe('titles and descriptions', () => {
       const m = countryModel(p.id);
       if (!m) continue;
       if (m.minerals.length) expect(m.lead).toMatch(/ (mines|produces) [\d.]+% of the world’s .* \(USGS, \d{4}/);
-      else if (m.deps.some((d) => d.state === 'ok' && d.tag === 'most')) expect(m.lead).toMatch(/ imports .* it uses \(.+, \d{4}\)\.$/);
+      else if (m.deps.some((d) => d.state === 'ok' && d.tag === 'most')) expect(m.lead).toMatch(/ imports .* (it uses|supply) \(.+, \d{4}\)\.$/);
       else if (m.allFigures.some((f) => f.id === 'population')) expect(m.lead).toMatch(/ has .* people \(/);
       if (m.lead) expect(m.lead).not.toMatch(/^It /);
     }

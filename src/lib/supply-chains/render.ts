@@ -4,7 +4,7 @@
 // reading the diagram.
 import { CHAIN_TEXT, CHAINS_TEXT as T, COVERAGE, SIDES, chainTitle } from '../../i18n/supply-chains.en.ts';
 import { SOURCE_TEXT } from '../../i18n/en.ts';
-import { inSentence } from '../../i18n/pages.en.ts';
+import { DEP_TEXT, inSentence } from '../../i18n/pages.en.ts';
 import { formatShare } from '../format.ts';
 import { esc } from '../explorer/render.ts';
 import {
@@ -81,7 +81,8 @@ export function sankeyHtml(c: Chain, s: State): string {
     ? `<div class="gt-blocchip"><span>${T.focused(esc(nameOf(c, s.country)))}</span><button type="button" aria-label="${esc(T.clear)}" data-sk-clear>${ICON.close}</button></div>` : '';
   return `${chip}<div class="gt-skscroll"><svg class="gt-sk" height="${sk.height}" style="--h:${sk.height}px;--l:${X.from}px;--r:${sk.width - X.to - X.node}px" role="img" aria-label="${esc(label)}">${plot}${labs.join('')}${axis}</svg></div>`
     + `<p class="gt-caption gt-skread" data-sk-read aria-hidden="true">${esc(T.readout)}</p>`
-    + `<p class="gt-caption">${esc(T.caption(SHOWN.from, SHOWN.to))} ${esc(COVERAGE[c.src] ?? '')}</p>`;
+    + `<p class="gt-caption">${esc(T.caption(SHOWN.from, SHOWN.to))} ${esc(COVERAGE[c.src]?.(c.mirror ?? []) ?? '')}</p>`
+    + (c.notShown ? `<p class="gt-caption">${esc(c.notShown)}</p>` : '');
 }
 
 // ---------- panel ----------
@@ -164,7 +165,10 @@ export function tableHtml(c: Chain, s: State): string {
     const p = c.places[id];
     return p?.h ? `<a href="${esc(p.h)}">${esc(nameOf(c, id))}</a>` : esc(nameOf(c, id));
   };
-  const body = rows.map(([f, t, v]) => `<tr><th scope="row">${cell(f)}</th><td>${cell(t)}</td><td class="n" data-v="${v}">${esc(amount(v, c))}</td></tr>`).join('');
+  // A flow that is the exporter's report says so under the importer, as the coverage line counts them.
+  const marked = new Set(c.mirror ?? []);
+  const mark = (f: string, t: string) => (marked.has(DEP_TEXT.flow(c.places[f]?.n ?? f, c.places[t]?.n ?? t)) ? `<span class="gt-caption gt-flowmark">${esc(DEP_TEXT.flowMark)}</span>` : '');
+  const body = rows.map(([f, t, v]) => `<tr><th scope="row">${cell(f)}</th><td>${cell(t)}${mark(f, t)}</td><td class="n" data-v="${v}">${esc(amount(v, c))}</td></tr>`).join('');
   return `<div class="gt-tablewrap" style="--gt-table-h:360px" tabindex="0" role="region" aria-label="${esc(T.tableLabel(c.label))}">`
     + `<table class="gt-table" data-gt-sort><caption class="gt-caption">${esc(T.tableCaption(w.unit, c.period, rows.length))}</caption>`
     + `<thead><tr>${th('from', sd.from)}${th('to', sd.to)}${th('v', c.count ? w.amount : `${w.amount}, ${w.short}`, true, true)}</tr></thead><tbody>${body}</tbody></table></div>`

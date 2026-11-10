@@ -4,7 +4,7 @@
 // approved is hidden until it is redrafted (./texts.ts).
 import { INDICATORS } from '../../data/indicators.ts';
 import { INDICATOR_TEXT } from '../../i18n/en.ts';
-import { RESOURCE_TEXT, inSentence, mineralName, possessive } from '../../i18n/pages.en.ts';
+import { RESOURCE_TEXT, inSentence, mineralName, onSupply, possessive } from '../../i18n/pages.en.ts';
 import { countryModel, DOSSIERS, type Figure } from '../country.ts';
 import { dossierFor } from '../dossier.ts';
 import { data, licenceOf, refreshed, sourceName } from '../data.ts';
@@ -84,7 +84,7 @@ export function dossierFacts(id: string, buildYear = Number(data().snapshot.crea
     const noun = RESOURCE_TEXT[r.resource].noun;
     const period = r.period ?? (r.year ? String(r.year) : undefined);
     const base = { period, places: [id], source: sourceName(r.source), link: linkOf(r.source, id), date: dateOf(r.source) };
-    if (r.reliance !== undefined && r.reliance >= 0) facts.push({ id: `imports-${r.resource}`, statement: `${theirs} net imports of ${noun} as a share of its use.`, value: round(r.reliance * 100), unit: '%', unitAliases: [`${noun} use`, `${noun} it uses`, `of its ${noun}`, `${noun} imports`], ...base });
+    if (r.reliance !== undefined && r.reliance >= 0) facts.push({ id: `imports-${r.resource}`, statement: `${theirs} net imports of ${noun} as a share of ${onSupply(noun) ? `its ${noun} supply (production plus net imports)` : 'its use'}.`, value: round(r.reliance * 100), unit: '%', unitAliases: [`${noun} use`, `${noun} it uses`, `of its ${noun}`, `${noun} imports`, ...(onSupply(noun) ? [`${noun} supply`] : [])], ...base });
     if (r.exportShare !== undefined && r.reliance !== undefined && r.reliance < 0) facts.push({ id: `exports-${r.resource}`, statement: `${theirs} net exports of ${noun} as a share of its production.`, value: round(r.exportShare * 100), unit: '%', unitAliases: [`${noun} production`, `${noun} it produces`, `of its ${noun}`, `${noun} exports`], ...base });
     const main = r.main ?? r.top;
     if (main && place(main.id)) {

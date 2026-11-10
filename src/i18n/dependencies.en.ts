@@ -1,20 +1,21 @@
 // The Dependencies tool's words (DependenciesPage and DependencyGrid designs). The page template and the browser
 // script (src/scripts/dependencies.ts) both read these, so this file imports nothing that needs Node.
+import { ofUse, onSupply } from './pages.en.ts';
 
 export const DEPS_TEXT = {
   title: 'Dependencies',
   crumb: 'Tools',
   lede: 'Import reliance and supplier concentration',
-  definition: 'Import reliance is net imports as a share of what a country uses. Supplier concentration is the main supplier’s share of those imports.',
+  definition: 'Import reliance is net imports as a share of what a country uses; for potash and phosphate, of its supply (production plus net imports). Supplier concentration is the main supplier’s share of those imports.',
   how: 'How this is measured',
-  description: (n: number) => `${n} countries against ten commodities: net imports against use for oil, gas, grain, soybeans and fertiliser, and suppliers’ shares of imports for all ten.`,
+  description: (n: number) => `${n} countries against ten commodities: net imports against use for oil, gas, grain and soybeans and against supply for fertiliser, and suppliers’ shares of imports for all ten.`,
   loading: 'Loading the figures…',
   failed: 'The figures did not load. Check your connection and reload the page.',
 
   // Reliance on one supplier
   spofTitle: 'Reliance on one supplier',
   spofRule: 'Countries that import at least half of what they use, with at least half of those imports from one supplier.',
-  spofItem: (share: string, noun: string, supplier: string, top: string) => `Imports ${share} of the ${noun} it uses; ${supplier} supplies ${top} of those imports.`,
+  spofItem: (share: string, noun: string, supplier: string, top: string) => `Imports ${share} of ${ofUse(noun)}; ${supplier} supplies ${top} of those imports.`,
   spofCount: (n: number, shown: number) => (n > shown ? `${n} found in this table; ${shown} with the largest share from one supplier shown.` : `${n} found in this table.`),
   spofNone: 'None in this table.',
   showAll: (n: number) => `Show all ${n}`,
@@ -50,12 +51,17 @@ export const DEPS_TEXT = {
   noRow: 'not reported',
   noUse: 'not used',
   noImports: 'no imports',
+  /** Net imports more than 10% above recorded use: the words in place of a share, on two lines. */
+  exceeds: 'Imports exceed',
+  exceedsSub: 'recorded use',
+  exportsExceed: 'Exports exceed',
+  exportsExceedSub: 'recorded supply',
   year: (y: string) => `Year: ${y}`,
   countryPage: (name: string) => `${name} country page`,
   rankLabel: (label: string) => `Countries ranked by ${label}`,
 
   // Download
-  csvReliance: (label: string) => `${label} net imports (share of use)`,
+  csvReliance: (label: string) => `${label} net imports (share of ${onSupply(label) ? 'supply' : 'use'})`,
   csvExports: (label: string) => `${label} net exports (share of output)`,
   csvYear: (label: string) => `${label} year`,
   csvTop: (label: string) => `${label} main supplier`,

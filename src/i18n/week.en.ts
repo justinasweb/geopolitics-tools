@@ -87,6 +87,8 @@ export const WEEK_TEXT = {
   ogKicker: 'This week',
   countsLabel: 'This week in numbers',
   cardsLabel: 'By source',
+  /** The live page, above the counts and cards, which are not the summary's closed week. */
+  cardsSpan: (r: string) => `The figures and cards below cover the last 7 days, ${r}.`,
 
   counts: {
     disaster: (x: number) => (x === 1 ? 'new disaster alert, orange or red' : 'new disaster alerts, orange and red'),
@@ -230,8 +232,9 @@ export const WEEK_TEXT = {
   newer: 'Back to this week',
 
   // The week in brief (AI summary, approved by the editor; a later task fills it)
-  summaryTitle: 'The week in brief',
-  aiLabel: 'Drafted with AI from this week’s data and reviewed by the editor',
+  /** With the summary's own week, which on the live page is the last closed one: "The week in brief: 2–8 November". */
+  summaryTitle: (r: string) => `The week in brief: ${r}`,
+  aiLabel: 'Drafted with AI from that week’s data and reviewed by the editor',
   aiShort: 'Drafted with AI, reviewed by the editor',
   summaryWeek: (x: number, r: string) => `Week ${x}, ${r}`,
   approved: (d: string) => `Approved ${d}`,

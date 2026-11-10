@@ -20,6 +20,10 @@ export interface Chain {
   /** The flows whose amount is the exporter's report, for the source line ("United States → Mexico as reported by the
    *  exporter"), when there are any. */
   mirrored?: string;
+  /** Those flows' names ("United States → Mexico"), largest first, for the coverage line and the table's marks. */
+  mirror?: string[];
+  /** Gas: the flows left out for want of a reported quantity, as a sentence under the diagram. */
+  notShown?: string;
   /** The source id, its name for the source line, its short name, and the download. */
   src: string;
   source: string;

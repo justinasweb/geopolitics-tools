@@ -2,7 +2,7 @@
 title: "Methodology"
 lede: "How each measure is worked out, what the labels mean, and what the figures cannot tell you."
 description: "How geopolitics.tools works out import reliance, supplier shares, five-year arms totals, common years and coverage, and the limits of the figures."
-updated: "2026-11-06"
+updated: "2026-11-10"
 approved: true
 author: "owner"
 drafted: "2026-11-06"
@@ -20,12 +20,15 @@ A rank says where a country falls on one measure, largest first. It is not a jud
 
 ## Import reliance
 
-Import reliance is the share of what a country uses that it buys from abroad, after taking off what it sells.
+Import reliance is the share of what a country uses that it buys from abroad, after taking off what it sells. For potash and phosphate it is the share of supply instead.
 
 | Term | How it is worked out |
 | --- | --- |
-| Import reliance | (imports − exports) ÷ use |
-| Use | production + imports − exports (FAOSTAT publishes use directly for crops and fertilisers, and we use its figure) |
+| Import reliance | (imports − exports) ÷ use, or ÷ supply for potash and phosphate |
+| Use | oil and gas: consumption, as EIA reports it; crops: production + imports − exports |
+| Supply | potash and phosphate: production + imports − exports, that is production plus net imports |
+
+FAOSTAT publishes fertiliser use, but only agricultural use: what farmers apply. Its trade figures cover every use, industry included, and goods passing through on their way elsewhere. Set against farm use alone, net imports came to more than all of a country's use in dozens of countries, the United States and France among them. Supply puts trade against figures of the same scope. FAOSTAT estimates most fertiliser trade figures itself; a row that uses one carries the **Estimate** label.
 
 A negative value means the country sells more than it buys. We then show exports as a share of production instead ("Exports 60% of what it produces").
 
@@ -38,6 +41,8 @@ A negative value means the country sells more than it buys. We then show exports
 
 A country that uses none of a resource, by its source, gets no share and the table says so.
 
+When net imports are more than 10% above recorded use, or exports more than 10% above production plus imports, we show no share: the row says "Imports exceed recorded use" or "Exports exceed recorded supply" and is left out of rankings and sorting by share and of a country page's lead imports. A row whose exports exceed supply is still labelled Exporter, with its buyers. This is usually transit trade or stock changes, which the source's figures do not separate: in FAOSTAT's figures, Morocco's phosphate exports in 2024 were 1.7 times its production plus imports.
+
 The Dependencies tool splits these further, to show where a country sits: imports 75% or more, 50% to 75%, 15% to 50%, roughly self-sufficient (±15%), and, for exporters, exports of 15% to 50% or over 50% of what it produces.
 
 ## Supplier concentration
@@ -46,7 +51,7 @@ For arms and chips the sources give trade but not use, so we cannot say how much
 
 For food, fuel and fertiliser, the Dependencies tool also shows the main supplier's share of a country's imports, from the trade flows (FAOSTAT for crops, UN Comtrade for oil, gas and fertilisers). Their year can differ from the year of the import share.
 
-We highlight a country and resource when net imports cover at least half of use and one supplier provides at least half of those imports.
+We highlight a country and resource when net imports cover at least half of use (of supply, for fertilisers) and one supplier provides at least half of those imports.
 
 ## Five-year arms totals
 
@@ -59,6 +64,8 @@ SIPRI's terms allow reuse of under 10% of its dataset, so we publish these deriv
 Each supply chain page shows one flow for one period: the latest year its source reports (for arms, the latest five-year total). We never mix years in one diagram, and flows from different sources can have different latest years, so each page says which year it shows.
 
 The flows are the main bilateral flows each source publishes, not all trade. FAOSTAT's detailed trade matrix is cut to each importer's main suppliers; UN Comtrade's flows are as importers report them; UNHCR lists smaller origin and host pairs together. Totals on these pages are totals of the flows shown.
+
+We use the importer's report because customs records of what comes in are usually the more complete side of a trade. When an importer's quantity cannot be used, we use the exporter's report of the same flow instead, and the page names those flows ("United States → France, as the exporter reports it"). That happens when the quantity cannot be in kilograms (its price per kilogram is under a tenth of the product's that year, such as litres entered as kilograms), or, for gas, when the weight is UN Comtrade's own estimate and the importer gives no volume of its own. Where a country reports gas by volume only, we use its cubic metres. If neither side's figure can be used, the flow is left out.
 
 **Concentration** is the Herfindahl–Hirschman index on suppliers' shares of the flows shown: the sum of the squared percentage shares, from near 0 (many small suppliers) to 10,000 (one supplier). As in the 2023 US merger guidelines, 1,000 to 1,800 counts as moderately concentrated and above 1,800 as highly concentrated. For a country, it is worked out on its own suppliers. Refugee flows have no concentration: countries of origin are not suppliers.
 

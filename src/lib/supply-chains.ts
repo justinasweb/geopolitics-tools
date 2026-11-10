@@ -5,6 +5,8 @@ import { FLOWS, loadFlows } from '../data/flows.ts';
 import { FLOW_TEXT } from '../i18n/en.ts';
 import { DEP_TEXT, SOURCE_SHORT } from '../i18n/pages.en.ts';
 import { CHAIN_TEXT, chainTitle } from '../i18n/supply-chains.en.ts';
+import { ENERGY_TEXT } from '../i18n/energy.en.ts';
+import { gasNotShown } from './energy.ts';
 import { licenceOf, refreshed, shared, sourceName } from './data.ts';
 import { place } from './places.ts';
 import { countryHref, paths } from './routes.ts';
@@ -52,11 +54,13 @@ export function chainOf(key: string): Chain {
   }
   const updated = refreshed(f.source);
   const mirror = f.pairs.filter((p) => p.mirror).map((p) => DEP_TEXT.flow(places[p.from].n, places[p.to].n));
+  const notShown = key === 'gas' ? ENERGY_TEXT.notShown(...Object.values(gasNotShown(Number(f.period))) as [string[], string[]]) : null;
   const chain: Chain = {
     key, label: FLOW_TEXT[key].label, kind: CHAIN_TEXT[key].kind, period: f.period,
     pairs: f.pairs.map((p) => [p.from, p.to, Number(p.amount.toPrecision(6))]),
     places, ...{ div: 1, digits: 1 }, ...SCALE[key],
-    ...(mirror.length ? { mirrored: DEP_TEXT.asReported(mirror) } : {}),
+    ...(mirror.length ? { mirrored: DEP_TEXT.asReported(mirror, true), mirror } : {}),
+    ...(key === 'gas' && notShown ? { notShown } : {}),
     src: f.source, source: sourceName(f.source), credit: SOURCE_SHORT[f.source] ?? sourceName(f.source),
     updated, retrieved: (updated ?? '').slice(0, 10), csv: licenceOf(f.source)?.downloads === 'yes',
     method: `${paths.page('methodology')}#supply-chains`,

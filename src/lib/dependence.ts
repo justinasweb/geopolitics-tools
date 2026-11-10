@@ -1,5 +1,7 @@
 // "Dependencies at a glance": one row per resource, the same ten as the Dependencies tool. Dependence is net
-// imports as a share of use (Methodology, "Import reliance"); arms and chips show supplier concentration only.
+// imports as a share of use (Methodology, "Import reliance"); for crops and fertilisers use is supply, production plus
+// net imports, as FAOSTAT's trade covers every use and its fertiliser use only farms. Arms and chips show supplier
+// concentration only.
 // Rows whose source is not in the snapshot yet (oil and gas: EIA, partners from UN Comtrade; chips: UN Comtrade) say so.
 import { food, type Balance, type Crop } from '../adapters/faostat.ts';
 import { gas, oil, type Fuel, type Oil } from '../adapters/eia.ts';
@@ -7,14 +9,16 @@ import { FLOWS, loadFlows, topSupplier, type Flows } from '../data/flows.ts';
 import { OTHER_SUPPLIER } from '../adapters/sipri.ts';
 import { shared } from './data.ts';
 import { place } from './places.ts';
-import { DEP_TEXT, SOURCE_SHORT } from '../i18n/pages.en.ts';
+import { DEP_TEXT, SOURCE_SHORT, onSupply } from '../i18n/pages.en.ts';
 
 export const RESOURCES = ['oil', 'gas', 'wheat', 'maize', 'rice', 'soy', 'potash', 'phosphate', 'arms', 'chips'] as const;
 export type Resource = (typeof RESOURCES)[number];
 export type DepTag = 'most' | 'some' | 'self' | 'exp';
 
-/** Thresholds on import reliance, written out in Methodology. */
-export const THRESHOLDS = { most: 0.5, self: 0.15 };
+/** Thresholds on import reliance, written out in Methodology. `excess`: net imports above use, or exports above
+ *  production plus imports, by more than this share give no figure (transit trade or stock changes the source does
+ *  not separate). */
+export const THRESHOLDS = { most: 0.5, self: 0.15, excess: 0.1 };
 
 export function tagFor(reliance: number): DepTag {
   if (reliance >= THRESHOLDS.most) return 'most';
@@ -44,6 +48,11 @@ export interface DepRow {
   buyers?: boolean;
   /** Use is zero, so no share. */
   noUse?: boolean;
+  /** Net imports exceed use, or exports exceed production plus imports, by more than THRESHOLDS.excess: no share, so
+   *  out of rankings by share and lead imports. 'imports' has no tag; 'exports' is tagged an exporter, with buyers. */
+  excess?: 'imports' | 'exports';
+  /** The source flags a figure the row uses as its estimate or imputation (FAOSTAT flags E and I): the Estimate label. */
+  estimated?: true;
   /** Where the partners and the main supplier come from, when it is a trade source with its own period; `mirror`:
    *  the flows shown whose amount is the exporter's report (mirror data), named ("United States → Mexico"). */
   partnersFrom?: { source: string; period: string; mirror?: string[] };
@@ -65,7 +74,7 @@ export function rowSource(r: DepRow): string | null {
   const short = (s: string) => SOURCE_SHORT[s] ?? s;
   if (r.year === undefined) return r.period ? DEP_TEXT.dated(short(r.source), r.period) : null;
   const f = r.partnersFrom;
-  const line = DEP_TEXT.dated(short(r.source), String(r.year), f && short(f.source), f?.period, r.buyers);
+  const line = DEP_TEXT.dated(short(r.source), String(r.year), f && short(f.source), f?.period, r.buyers, onSupply(r.resource) ? 'supply' : 'use');
   return f?.mirror?.length ? `${line}, ${DEP_TEXT.asReported(f.mirror)}` : line;
 }
 
@@ -77,26 +86,35 @@ const flows = (key: string) => {
   return flowsOf.get(key)!();
 };
 
-/** The latest year with production, imports and exports all reported for this place. */
-function balanceRow(b: Balance, id: string) {
+/** The latest year with production, imports and exports all reported for this place. `supply`: use is production
+ *  plus imports minus exports, not the source's own use figure (fertilisers). */
+function balanceRow(b: Balance, id: string, supply = false) {
   const ys = Object.keys(b.production[id] ?? {}).map(Number).filter((y) => b.imports[id]?.[y] !== undefined && b.exports[id]?.[y] !== undefined).sort((a, b) => b - a);
   const y = ys[0];
   if (y === undefined) return null;
   const p = b.production[id][y];
   const i = b.imports[id][y];
   const e = b.exports[id][y];
-  return { year: y, production: p, imports: i, exports: e, use: b.use[id]?.[y] ?? Math.max(0, p + i - e) };
+  const est = (['production', 'imports', 'exports', ...(supply ? [] : ['use'] as const)] as const).some((k) => b.estimated[k][id]?.[y]);
+  return { year: y, production: p, imports: i, exports: e, use: (supply ? undefined : b.use[id]?.[y]) ?? Math.max(0, p + i - e), est };
 }
 
-function fromBalance(resource: Resource, b: Balance | undefined, id: string, flowKey?: string): DepRow {
+export function fromBalance(resource: Resource, b: Balance | undefined, id: string, flowKey?: string, supply = false): DepRow {
   const base = { resource, source: 'faostat', partners: [] as string[] };
-  const r = b && balanceRow(b, id);
+  const r = b && balanceRow(b, id, supply);
   if (!r) return { ...base, state: 'none' };
   const net = r.imports - r.exports;
-  const row: DepRow = { ...base, state: 'ok', year: r.year };
-  if (r.use <= 0) {
-    if (net < 0 && r.production > 0) Object.assign(row, { reliance: -1, exportShare: -net / r.production, tag: 'exp' });
+  const row: DepRow = { ...base, state: 'ok', year: r.year, ...(r.est ? { estimated: true as const } : {}) };
+  if (supply && r.exports > (r.production + r.imports) * (1 + THRESHOLDS.excess)) {
+    // Morocco's phosphate: exports 1.7 times production plus imports (stock or re-exports the source does not split).
+    // A net exporter all the same, with no share of output.
+    Object.assign(row, { excess: 'exports', tag: 'exp' });
+  } else if (r.use <= 0) {
+    if (net < 0 && r.production > 0) Object.assign(row, { reliance: -1, exportShare: Math.min(1, -net / r.production), tag: 'exp' });
     else return { ...row, noUse: true };
+  } else if (net > r.use * (1 + THRESHOLDS.excess)) {
+    // Net imports far above use: only where use is the source's own figure, as supply cannot be smaller than them.
+    row.excess = 'imports';
   } else {
     row.reliance = net / r.use;
     row.tag = tagFor(row.reliance);
@@ -108,7 +126,7 @@ function fromBalance(resource: Resource, b: Balance | undefined, id: string, flo
     row.buyers = buyers;
     row.partnersFrom = { source: f.source, period: f.period };
     row.partners = f.pairs.filter((p) => (buyers ? p.from === id : p.to === id)).slice(0, 3).map((p) => (buyers ? p.to : p.from));
-    const t = !buyers && (row.reliance ?? 0) > 0 ? topSupplier(f, id) : null;
+    const t = !buyers && ((row.reliance ?? 0) > 0 || row.excess === 'imports') ? topSupplier(f, id) : null;
     if (t) row.top = { id: t.from, share: t.share };
     // The partners shown whose flow is the exporter's report: named in the row's source line.
     const shown = (p: { from: string; to: string }) => (buyers ? p.from === id && row.partners.includes(p.to) : p.to === id && (row.partners.includes(p.from) || row.top?.id === p.from));
@@ -163,8 +181,9 @@ export function dependencies(id: string): DepRow[] {
       case 'wheat': case 'maize': case 'rice': case 'soy':
         return fd ? fromBalance(res, fd.crops[res as Crop], id, res) : { resource: res, state: 'pending', source: 'faostat', partners: [] };
       case 'potash': case 'phosphate':
-        // The balance is FAOSTAT's; the partners come from UN Comtrade's flows, when it has them.
-        return fd ? fromBalance(res, fd.fertilisers[res], id, res) : { resource: res, state: 'pending', source: 'faostat', partners: [] };
+        // The balance is FAOSTAT's, on supply (its trade covers every use, its use only farms); the partners come
+        // from UN Comtrade's flows, when it has them.
+        return fd ? fromBalance(res, fd.fertilisers[res], id, res, true) : { resource: res, state: 'pending', source: 'faostat', partners: [] };
       default:
         return concentration(res, id);
     }

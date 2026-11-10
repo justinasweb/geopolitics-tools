@@ -8,14 +8,15 @@ import '../styles/atlas/source.css';
 import StatusTag, { type Status } from './StatusTag.astro';
 import { WEEK_TEXT as W } from '../i18n/week.en';
 
-interface Props { id: string; text: string; week: number; range: string; approved: string; method?: string; status?: Status }
-const { id, text, week, range, approved, method, status } = Astro.props;
+/** `range` in the meta line ("2–8 November 2026"), `short` in the heading ("2–8 November"). */
+interface Props { id: string; text: string; week: number; range: string; short: string; approved: string; method?: string; status?: Status }
+const { id, text, week, range, short, approved, method, status } = Astro.props;
 // The label and "How this summary is made" both go to Methodology's section on AI drafting.
 const how = method ? `${method}#ai-drafting` : undefined;
 const mark = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 .8 7.3 4.7 11.2 6 7.3 7.3 6 11.2 4.7 7.3.8 6 4.7 4.7z" fill="currentColor" /></svg>';
 ---
 <section class="gt-wsum" aria-labelledby={id}>
-  <div class="gt-wsum__head"><h2 class="gt-label" id={id}>{W.summaryTitle}</h2>{how
+  <div class="gt-wsum__head"><h2 class="gt-label" id={id}>{W.summaryTitle(short)}</h2>{how
     ? <a class="gt-ailabel" href={how}><Fragment set:html={mark} /><span>{W.aiLabel}</span></a>
     : <span class="gt-ailabel"><Fragment set:html={mark} /><span>{W.aiLabel}</span></span>}</div>
   <p class="gt-wsum__t">{text}</p>

@@ -36,6 +36,12 @@ export const MINERAL_TEXT: Record<string, string> = {
 };
 export const mineralName = (id: string, label: string) => MINERAL_TEXT[id] ?? label.toLowerCase();
 
+/** Fertilisers' dependence is a share of supply (production plus net imports), not of FAOSTAT's farm use. */
+const SUPPLY_NOUNS = new Set(['potash', 'phosphate']);
+export const onSupply = (noun: string) => SUPPLY_NOUNS.has(noun.toLowerCase());
+/** What a dependence share is of: "the wheat it uses", "its potash supply". */
+export const ofUse = (noun: string) => (onSupply(noun) ? `its ${noun} supply` : `the ${noun} it uses`);
+
 /** The ten resources of the dependencies table, as a noun inside "of the … it uses". */
 export const RESOURCE_TEXT: Record<string, { label: string; noun: string }> = {
   oil: { label: 'Oil', noun: 'oil' }, gas: { label: 'Natural gas', noun: 'gas' }, wheat: { label: 'Wheat', noun: 'wheat' },
@@ -49,25 +55,41 @@ export const DEP_TEXT = {
   tags: { most: 'Imports most', some: 'Imports some', self: 'Roughly self-sufficient', exp: 'Exporter' } as Record<string, string>,
   keyLabel: 'Dependence key',
   columns: ['Resource', 'Dependence', 'Position', 'Main partners'],
-  caption: 'Dependence is net imports as a share of use. Arms and chips show supplier concentration only: the main supplier’s share of imports (arms: five-year totals of deliveries).',
+  caption: 'Dependence is net imports as a share of use; for potash and phosphate, of supply (production plus net imports). Arms and chips show supplier concentration only: the main supplier’s share of imports (arms: five-year totals of deliveries).',
   concentrationOnly: 'Supplier concentration only',
   concentrationTitle: 'Supplier concentration only; share of use not measured',
-  imports: (share: string, noun: string) => `Imports ${share} of the ${noun} it uses`,
-  importsAll: (noun: string) => `Imports all of the ${noun} it uses`,
+  imports: (share: string, noun: string) => `Imports ${share} of ${ofUse(noun)}`,
+  importsAll: (noun: string) => `Imports all of ${ofUse(noun)}`,
   exports: (share: string) => `Exports ${share} of what it produces`,
   noUse: (noun: string) => `Uses no ${noun}, by this source`,
+  /** Net imports more than 10% above recorded use, or exports more than 10% above production plus imports: no share. */
+  exceedsUse: 'Imports exceed recorded use',
+  exceedsSupply: 'Exports exceed recorded supply',
+  exceedsNote: (source: string) => `Likely transit trade or stock changes; ${source}’s figures do not separate them`,
   mainSupplier: (name: string, share: string) => `Main supplier: ${name}, ${share} of imports`,
   noImports: (period: string) => `No major arms imports recorded, ${period}`,
   noData: 'No data yet',
   noRow: 'Not reported by this source',
   /** A row's source and year: use and trade dated apart when the partners come from another source or year
    *  (imports, or exports when the partners are buyers). */
-  dated: (source: string, year: string, flowSource?: string, flowYear?: string, buyers = false) =>
-    (!flowSource || !flowYear || (flowSource === source && flowYear === year) ? `${source}, ${year}` : `${source}, use ${year} · ${flowSource}, ${buyers ? 'exports' : 'imports'} ${flowYear}`),
+  dated: (source: string, year: string, flowSource?: string, flowYear?: string, buyers = false, of = 'use') =>
+    (!flowSource || !flowYear || (flowSource === source && flowYear === year) ? `${source}, ${year}` : `${source}, ${of} ${year} · ${flowSource}, ${buyers ? 'exports' : 'imports'} ${flowYear}`),
   /** Deliveries from suppliers that are not a country (SIPRI: non-state actors, NATO, the UN, unknown), in a list. */
   otherSuppliers: 'Other or unknown suppliers',
   /** Flows whose amount is the exporter's report, the importer's quantity being unusable (mirror data). */
-  asReported: (flows: string[]) => `${list(flows)} as reported by the exporter`,
+  asReported: (flows: string[], marked = false) =>
+    (marked && flows.length > 3 ? `${DEP_TEXT.flowList(flows, false)} as reported by the exporter, marked in the table` : `${list(flows)} as reported by the exporter`),
+  /** Flows by name, largest first: up to three, then the rest counted, as the tables mark them. */
+  flowList: (flows: string[], marked = true) => {
+    const more = flows.length - 3;
+    return more > 0 ? `${flows.slice(0, 3).join(', ')} and ${more} smaller ${more === 1 ? 'flow' : 'flows'}${marked ? ', marked in the table' : ''}` : list(flows);
+  },
+  /** Beside a flow in a table whose amount is the exporter's report. */
+  flowMark: 'exporter’s report',
+  /** How trade flows are reported, naming the shown flows that are the exporter's report, as the source line does:
+   *  "as importers report them, except United States → Mexico and Spain → Morocco, as the exporter reports them". */
+  asImporters: (them: 'it' | 'them', flows: string[] = [], to = '') =>
+    `as importers report ${them}${to}${flows.length ? `, except ${DEP_TEXT.flowList(flows)}, as the exporter reports ${flows.length === 1 ? 'it' : 'them'}` : ''}`,
   flow: (from: string, to: string) => `${from} → ${to}`,
   /** The grid's tooltip, when the main supplier's figure is the exporter's report. */
   supplierAsReported: 'main supplier as reported by the exporter',
@@ -82,7 +104,7 @@ export const DEP_TEXT = {
   find: (c: string, parts: string[]) => `${c} ${parts.join('; it ')}.`,
   /** The imports it names, under one verb: "imports all of the rice it uses and 95% of the gas it uses". */
   findImports: (parts: string[]) => `imports ${list(parts)}`,
-  findImportPart: (share: string | null, noun: string) => `${share === null ? 'all' : share} of the ${noun} it uses`,
+  findImportPart: (share: string | null, noun: string) => `${share === null ? 'all' : share} of ${ofUse(noun)}`,
   findExport: (noun: string) => `exports ${noun}`,
   findSelf: (c: string, nouns: string) => `${c} produces about as much ${nouns} as it uses.`,
   findNone: 'None of this page’s sources reports these resources for this country yet.',
@@ -147,12 +169,12 @@ export const SUMMARY = {
   estimated: 'estimated',
   people: (c: string, pop: string, popSrc: string, gdp: string | null, gdpSrc: string) =>
     gdp ? `${c} has ${pop} people (${popSrc}) and an economy of ${gdp} a year (${gdpSrc}).` : `${c} has ${pop} people (${popSrc}).`,
-  imports: (c: string, share: string, noun: string, src: string) => `${c} imports ${share} of the ${noun} it uses (${src}).`,
-  importsAll: (c: string, noun: string, src: string) => `${c} imports all of the ${noun} it uses (${src}).`,
+  imports: (c: string, share: string, noun: string, src: string) => `${c} imports ${share} of ${ofUse(noun)} (${src}).`,
+  importsAll: (c: string, noun: string, src: string) => `${c} imports all of ${ofUse(noun)} (${src}).`,
   /** Several imports in one sentence, each with its own source: "It imports all of the rice it uses (FAOSTAT, 2024) and
    *  95% of the gas it uses (EIA, 2024)." */
   importsMany: (c: string, parts: string[]) => `${c} imports ${list(parts)}.`,
-  importPart: (share: string | null, noun: string, src: string) => `${share === null ? 'all' : share} of the ${noun} it uses (${src})`,
+  importPart: (share: string | null, noun: string, src: string) => `${share === null ? 'all' : share} of ${ofUse(noun)} (${src})`,
   hosts: (n: string, src: string) => `It hosts ${n} refugees and others in need of protection (${src}).`,
   fled: (n: string, src: string) => `${n} people from it are refugees or others in need of protection abroad (${src}).`,
   none: (c: string) => `Few of this site’s sources report figures for ${c}.`,
