@@ -38,7 +38,7 @@ const crumbs = [{ label: COUNTRY_TEXT.countries, href: paths.countries() }, { la
     <ShareRow url={url} text={title} />
   </header>
 
-  <Fragment set:html={compareHtml(meta, c, path)} />
+  <Fragment set:html={compareHtml(meta, c)} />
 
   <section class="gt-cpsec" aria-labelledby="others-h">
     <header class="gt-cpsec__head"><h2 class="gt-h2" id="others-h">{T.others}</h2></header>

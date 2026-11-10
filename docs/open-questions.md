@@ -117,8 +117,6 @@ on this plan, remove the `ratelimits` entries: the Worker then falls back to a w
   To try it end to end on a Preview, the Telegram secrets would need adding to Previews (or a separate test chat).
 - **Minimum fill time** is 3 seconds and measured by the page, so a determined script can fake it; the rate limit is
   the real brake. A signed server timestamp would be stronger but needs a new secret.
-- **Source line links.** Every source line now ends with "Report a correction". On pages with many charts that is a
-  lot of repeated links; the alternative is the footer link alone plus one per section.
 
 ### Digest Post: two taps at the same instant (raised 6 Nov 2026)
 
