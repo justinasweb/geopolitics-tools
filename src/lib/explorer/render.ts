@@ -176,6 +176,7 @@ export function tableHtml(s: State, meta: Meta, data: Data): string {
 export function tableCsv(s: State, meta: Meta, data: Data): { csv: string; left: MeasureMeta[] } {
   const { ms, rows } = tableRows(s, meta, data);
   const ok = ms.map((m, i) => [m, i] as const).filter(([m]) => m.csv);
+  if (!ok.length) return { csv: '', left: ms };
   const cell = (v: string | number) => (/[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v));
   const head = ['country', 'iso3', ...ok.flatMap(([m]) => {
     const u = unitText(m) || m.unit;
@@ -189,6 +190,11 @@ export function tableCsv(s: State, meta: Meta, data: Data): { csv: string; left:
   return { csv: `${lines.join('\n')}\n`, left: ms.filter((m) => !m.csv) };
 }
 
+/** A CSV cell, quoted when it needs to be. */
+const csvCell = (v: string | number) => (/[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v));
+const csvOf = (rows: (string | number)[][]) => `${rows.map((r) => r.map(csvCell).join(',')).join('\n')}\n`;
+const csvHead = (m: MeasureMeta) => { const u = unitText(m) || m.unit; return `${m.label}${u ? ` (${u})` : ''}`; };
+
 // ---------- over time ----------
 
 function linesControls(s: State, meta: Meta, p: string, data: Data): string {
@@ -200,8 +206,26 @@ function linesControls(s: State, meta: Meta, p: string, data: Data): string {
   const add = `<div class="gt-field"><label class="gt-vh" for="${p}-addc">${esc(T.addCountry)}</label><div class="gt-select"><select id="${p}-addc" data-x-addc${s.c.length >= MAX_COUNTRIES ? ' disabled' : ''}><option value="">${esc(s.c.length >= MAX_COUNTRIES ? T.upTo(MAX_COUNTRIES) : T.addCountry)}</option>${others.map(([id, x]) => `<option value="${id}">${esc(x.n)}</option>`).join('')}</select></div></div>`;
   const ch = linesChart(s, meta, data);
   const idx = m.static ? '' : `<div class="gt-field"><label for="${p}-ix">${esc(T.indexTo)}</label><div class="gt-select"><select id="${p}-ix" data-x-set="index"><option value="">${esc(T.noIndex)}</option>${ch.years.filter((y) => !projected(m, y)).map((y) => `<option${y === s.index ? ' selected' : ''}>${y}</option>`).join('')}</select></div></div>`;
-  return `<div class="gt-expctl__row">${measureSelect(meta, `${p}-m`, T.measure, m.id, 'm')}${idx}<div class="gt-expctl__sw">${toggle(`${p}-log`, T.log, ch.log, !ch.logPossible)}</div></div>`
+  return `<div class="gt-expctl__row">${measureSelect(meta, `${p}-m`, T.measure, m.id, 'm')}${idx}<div class="gt-expctl__sw">${toggle(`${p}-log`, T.log, ch.log, !ch.logPossible)}</div>${csvButton}</div>`
     + `<div class="gt-expctl__row"><div class="gt-expctl__cols"><span class="gt-label">${esc(T.countries)}</span>${chips}${add}</div></div>`;
+}
+
+const csvButton = `<button class="gt-btn gt-btn--quiet" type="button" data-x-csv>${ICON.download}${esc(T.download)}</button>`;
+
+/** The lines shown as CSV, one row per country and year: the values as drawn (indexed when they are), each with its
+ *  tag, source and retrieval date. Empty, with the measure in `left`, when its source does not allow downloads. */
+export function linesCsv(s: State, meta: Meta, data: Data): { csv: string; left: MeasureMeta[] } {
+  const m = byId(meta).get(s.m[0])!;
+  if (!m.csv) return { csv: '', left: [m] };
+  const ch = linesChart(s, meta, data);
+  const head = ['country', 'iso3', 'year', ch.indexed ? `${m.label} (${T.csvIndex(s.index!)})` : csvHead(m), 'status', 'source', 'retrieved'];
+  const rows = ch.lines.flatMap((l) => ch.years.flatMap((yr, i) => {
+    const v = l.values[i];
+    if (v === null) return [];
+    const p = meta.places[l.id];
+    return [[p.n, p.c, yr, ch.indexed ? Number(v.toPrecision(6)) : v, statusOf(m, l.id, yr, data[m.id]) ?? '', m.credit, meta.retrieved[m.id] ?? '']];
+  }));
+  return { csv: csvOf([head, ...rows]), left: [] };
 }
 
 interface LineSet { years: number[]; lines: { id: string; values: (number | null)[] }[]; missing: string[]; log: boolean; logPossible: boolean; indexed: boolean }
@@ -309,7 +333,27 @@ function scatterControls(s: State, meta: Meta, p: string, data: Data): string {
     : '';
   return `<div class="gt-expctl__row">${measureSelect(meta, `${p}-x`, T.xAxis, s.x, 'x')}${measureSelect(meta, `${p}-y`, T.yAxis, s.y, 'y')}`
     + `${measureSelect(meta, `${p}-s`, T.size, s.size, 'size', `<option value=""${s.size ? '' : ' selected'}>${esc(T.none)}</option>`)}${blocSelect(meta, `${p}-bl`, T.highlight, T.noBloc, s.bloc)}</div>`
-    + `<div class="gt-expctl__row">${slider}<div class="gt-expctl__sw">${toggle(`${p}-log`, T.logs, sc.logx || sc.logy, !sc.logxPossible && !sc.logyPossible)}</div></div>`;
+    + `<div class="gt-expctl__row">${slider}<div class="gt-expctl__sw">${toggle(`${p}-log`, T.logs, sc.logx || sc.logy, !sc.logxPossible && !sc.logyPossible)}</div>${csvButton}</div>`;
+}
+
+/** The points shown as CSV, one row per country in the year shown: each downloadable measure's value, year, tag,
+ *  source and retrieval date. Measures whose source does not allow downloads are left out and listed in `left`. */
+export function scatterCsv(s: State, meta: Meta, data: Data): { csv: string; left: MeasureMeta[] } {
+  const sc = scatterModel(s, meta, data);
+  const ms = [sc.mx, sc.my, ...(sc.ms ? [sc.ms] : [])].filter((m, i, a) => a.indexOf(m) === i);
+  const ok = ms.filter((m) => m.csv);
+  const left = ms.filter((m) => !m.csv);
+  if (!ok.length) return { csv: '', left };
+  const head = ['country', 'iso3', ...ok.flatMap((m) => [csvHead(m), `${m.label} year`, `${m.label} status`, `${m.label} source`, `${m.label} retrieved`])];
+  const rows = sc.points.map((pt) => {
+    const p = meta.places[pt.id];
+    return [p.n, p.c, ...ok.flatMap((m): (string | number)[] => {
+      // The x and y figures are the year's own; the size may be the latest of the two years before.
+      const v = valueAt(data[m.id], m, pt.id, sc.year, m === sc.ms && m !== sc.mx && m !== sc.my ? undefined : 0);
+      return v ? [v.value, v.year, statusOf(m, pt.id, v.year, data[m.id]) ?? '', m.credit, meta.retrieved[m.id] ?? ''] : ['', '', '', m.credit, meta.retrieved[m.id] ?? ''];
+    })];
+  });
+  return { csv: csvOf([head, ...rows]), left };
 }
 
 function yearTicks(a: number, b: number): number[] {
@@ -450,6 +494,13 @@ export function outputHtml(s: State, meta: Meta, data: Data, width?: number): st
   if (s.view === 'table') return tableHtml(s, meta, data);
   if (s.view === 'lines') return linesHtml(s, meta, data, width);
   return scatterHtml(s, meta, data, width);
+}
+
+/** The view shown as CSV. */
+export function viewCsv(s: State, meta: Meta, data: Data): { csv: string; left: MeasureMeta[] } {
+  if (s.view === 'lines') return linesCsv(s, meta, data);
+  if (s.view === 'scatter') return scatterCsv(s, meta, data);
+  return tableCsv(s, meta, data);
 }
 
 /** The measures a view needs loaded. */

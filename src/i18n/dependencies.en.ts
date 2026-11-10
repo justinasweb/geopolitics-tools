@@ -59,6 +59,13 @@ export const DEPS_TEXT = {
   exceedsSub: 'recorded use',
   exportsExceed: 'Exports exceed',
   exportsExceedSub: 'recorded supply',
+  /** An old balance's value, in the past tense ("No recent data"). */
+  exported: 'Exported',
+  importedAll: 'Imported all',
+  exceeded: 'Imports exceeded',
+  exportsExceeded: 'Exports exceeded',
+  notUsedIn: (y: string) => `not used in ${y}, no recent data`,
+  netExporterIn: (y: number) => `A net exporter in ${y}`,
   year: (y: string) => `Year: ${y}`,
   /** Under an old balance's value. */
   oldData: (y: string) => `${y}, no recent data`,

@@ -32,6 +32,8 @@
 .gt-combo__list li[aria-selected="true"], .gt-combo__list li:hover { background: var(--brand-soft); }
 .gt-combo__list mark { background: transparent; color: inherit; font-weight: 700; }
 .gt-combo__empty { color: var(--ink-muted); cursor: default !important; background: transparent !important; }
+/* A grouping typed into Compare's box: one sentence, its link inline. */
+.gt-combo__list li.gt-combo__bloc { display: block; }
 .gt-chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .gt-chip { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--rule-strong); background: var(--paper-raised); color: var(--ink); font: 600 14px/20px var(--sans); cursor: pointer; }
 .gt-chip svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2.4; display: none; }

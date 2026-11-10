@@ -4,12 +4,17 @@
 import { INDICATORS, statusAt } from '../data/indicators.ts';
 import { INDICATOR_TEXT } from '../i18n/en.ts';
 import { COMPARE_TEXT, COUNTRY_TEXT, mineralName } from '../i18n/pages.en.ts';
+import { BLOC_TEXT } from '../i18n/map.en.ts';
+import { blocIn } from '../i18n/blocs.en.ts';
+import { BLOC_ORDER } from './blocs.ts';
+import { blocFullName } from './search.ts';
+import { fold } from './search-match.ts';
 import { countryModel, countryPages, figure, mineralShares, loadedIndicators } from './country.ts';
 import { seriesOf } from './dossier.ts';
-import { creditName, sourceName } from './data.ts';
+import { creditName, indicator, sourceName } from './data.ts';
 import { place } from './places.ts';
-import { COMPARE_PAIRS, countryHref, indicatorHref, paths } from './routes.ts';
-import { CHARTS, MEASURES, SERIES_FROM, type CountryData, type MeasureMeta, type Meta, type MineralMeta } from './compare/model.ts';
+import { COMPARE_PAIRS, countryHref, indicatorHref, live, paths } from './routes.ts';
+import { CHARTS, MEASURES, SERIES_FROM, type BlocNote, type CountryData, type MeasureMeta, type Meta, type MineralMeta } from './compare/model.ts';
 
 /** Where the country files are served. */
 export const COMPARE_DATA = '/compare/data/';
@@ -21,7 +26,11 @@ export function compareMeta(): Meta {
   const measures = MEASURES.filter((id) => loaded.has(id)).map((id): MeasureMeta => {
     const t = INDICATOR_TEXT[id];
     const src = INDICATORS[id].source as string;
-    return { id, label: t.label, noun: COMPARE_TEXT.nouns[id] ?? t.label, unit: t.unit, format: INDICATORS[id].format, href: indicatorHref(id), credit: creditName(src), source: sourceName(src) };
+    const latest = CHARTS.includes(id) ? latestYear(id) : undefined;
+    return {
+      id, label: t.label, noun: COMPARE_TEXT.nouns[id] ?? t.label, unit: t.unit, format: INDICATORS[id].format, href: indicatorHref(id), credit: creditName(src), source: sourceName(src),
+      ...(latest ? { latest } : {}),
+    };
   });
   const minerals = new Map<string, MineralMeta>();
   for (const m of countryPages()) {
@@ -36,6 +45,13 @@ export function compareMeta(): Meta {
   }));
   metaCache = { measures, minerals: [...minerals.values()], mineralSource: sourceName('usgs-minerals'), pairs, base: COMPARE_DATA };
   return metaCache;
+}
+
+/** The latest year any place has a figure for a measure. */
+function latestYear(id: string): number | undefined {
+  const v = indicator(id)?.values;
+  const ys = v ? Object.values(v).flatMap((x) => Object.keys(x).map(Number)) : [];
+  return ys.length ? Math.max(...ys) : undefined;
 }
 
 /** Six significant figures: more than any figure on the page shows, and a third smaller files. */
@@ -63,3 +79,15 @@ export function compareData(id: string): CountryData {
 
 /** Every country page, by slug: what the pickers offer. */
 export const compareChoices = () => countryPages().map((m) => ({ name: m.place.name, value: m.place.slug, territory: m.place.kind === 'territory' }));
+
+/** A grouping typed into a country box ("European Union", "EU", "NATO"): what the box says in place of "Try its
+ *  English name", linking the grouping's page. Only groupings with a live page. */
+export function compareBlocNotes(): BlocNote[] {
+  return BLOC_ORDER.flatMap((id): BlocNote[] => {
+    const r = live(`view:blocs:${id}`);
+    if (!r) return [];
+    const name = BLOC_TEXT[id] ?? id;
+    const keys = [id, name, blocFullName(id), ...(COMPARE_TEXT.blocAliases[id] ?? [])].filter((k): k is string => Boolean(k)).map((k) => fold(k).trim());
+    return [{ k: [...new Set(keys)], ...COMPARE_TEXT.blocNote(blocIn(id, name)), h: r.path }];
+  });
+}

@@ -3,6 +3,7 @@
 // with the option ({ name, note, value, href }) on the combobox; with href set it navigates.
 import '../styles/atlas/filters.css';
 import Icon from './Icon.astro';
+import type { BlocNote } from '../lib/compare/model';
 
 export interface CountryOption { name: string; value?: string; note?: string; href?: string }
 interface Props {
@@ -15,12 +16,14 @@ interface Props {
   disabled?: boolean;
   /** The name already picked, shown in the box. */
   value?: string;
+  /** Groupings: typed whole, the box shows the note, linking the grouping's page (Compare's boxes). */
+  notes?: BlocNote[];
 }
-const { id, label, options, placeholder = 'Find a country', emptyText = 'No country called “{q}”. Try its English name.', disabled = false, value } = Astro.props;
+const { id, label, options, placeholder = 'Find a country', emptyText = 'No country called “{q}”. Try its English name.', disabled = false, value, notes } = Astro.props;
 ---
 <div class="gt-field">
   <label for={`${id}-i`}>{label}</label>
-  <div class:list={['gt-combo', { 'is-disabled': disabled }]} id={id} data-gt-combo data-options={JSON.stringify(options)} data-empty={emptyText}>
+  <div class:list={['gt-combo', { 'is-disabled': disabled }]} id={id} data-gt-combo data-options={JSON.stringify(options)} data-empty={emptyText} data-notes={notes?.length ? JSON.stringify(notes) : undefined}>
     <div class="gt-combo__box">
       <Icon name="search" />
       <input id={`${id}-i`} role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls={`${id}-l`} placeholder={placeholder} autocomplete="off" disabled={disabled} value={value} />

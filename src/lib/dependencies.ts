@@ -23,7 +23,7 @@ function cellOf(r: DepRow): Cell {
   const c: Cell = {};
   if (r.state === 'pending') return { why: 'p' };
   if (r.state === 'none') return { why: r.resource === 'arms' && r.period ? 'i' : 'n' };
-  if (r.noUse) return { why: 'u' };
+  if (r.noUse) return r.old && r.year !== undefined ? { why: 'u', o: 1, y: String(r.year) } : { why: 'u' };
   if (r.excess) c.why = r.excess === 'exports' ? 'x' : 'e';
   if (r.estimated) c.est = 1;
   if (r.preliminary) c.pre = 1;

@@ -6,7 +6,7 @@ import { initControls } from './controls';
 import { initCopy } from './copy';
 import { EXPLORER_TEXT as T } from '../i18n/explorer.en';
 import { MAX_COUNTRIES, MAX_MEASURES, PRESETS, parseState, presetState, queryOf, type Meta, type State, type View } from '../lib/explorer/model';
-import { controlsHtml, foundRow, needed, outputHtml, presetsHtml, tableCsv, tableRows, urlbarHtml, viewSource, type Data } from '../lib/explorer/render';
+import { controlsHtml, foundRow, needed, outputHtml, presetsHtml, tableRows, urlbarHtml, viewCsv, viewSource, type Data } from '../lib/explorer/render';
 
 interface Boot { meta: Meta; paths: Record<View, string>; site: string }
 
@@ -199,12 +199,12 @@ export function initExplorer(): void {
   });
 
   function download() {
-    const { csv, left } = tableCsv(s, meta, data);
-    showNote(left.length ? (left.length === s.m.length ? T.csvNone : T.csvLeftOut(left.map((m) => m.label).join(', '))) : '');
-    if (left.length === s.m.length) return;
+    const { csv, left } = viewCsv(s, meta, data);
+    showNote(left.length ? (!csv ? T.csvNone : T.csvLeftOut(left.map((m) => m.label).join(', '))) : '');
+    if (!csv) return;
     const a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
-    a.download = `explorer-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.download = `explorer-${s.view === 'table' ? '' : `${s.view === 'lines' ? 'over-time' : 'scatter'}-`}${new Date().toISOString().slice(0, 10)}.csv`;
     document.body.append(a);
     a.click();
     a.remove();

@@ -9,7 +9,7 @@ import { formatParts, formatShare } from '../format.ts';
 import { lineChartHtml } from '../linechart.ts';
 import { tagHtml, type Status } from '../tags.ts';
 import { sourceLinksHtml } from '../source-links.ts';
-import { MARK, SIDES, compareCharts, comparePairs, compareRows, gapGroups, type CountryData, type Fig, type MeasureMeta, type Meta, type Row, type Side } from './model.ts';
+import { MARK, SIDES, chartsAndGaps, compareCharts, comparePairs, compareRows, gapGroups, type CountryData, type Fig, type MeasureMeta, type Meta, type Row, type Side } from './model.ts';
 
 export const esc = (s: string | number) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
 
@@ -54,7 +54,8 @@ const higherHtml = `<span class="gt-higher">${esc(T.higher)}</span>`;
 export function keyHtml(meta: Meta, c: Two): string {
   const { rows, gaps } = compareRows(meta, c);
   const groups = gapGroups(gaps, c);
-  const gapLine = groups.length ? `<p class="gt-caption gt-cmpgaps">${esc(T.notCompared(groups))}</p>` : '';
+  const over = chartsAndGaps(meta, c).gaps.map((g) => T.notDrawn(g.m.noun, g.lacks !== undefined ? c[g.lacks].name : null, g.ended ?? null));
+  const gapLine = groups.length || over.length ? `<p class="gt-caption gt-cmpgaps"><b>${esc(T.notBoth)}</b> ${esc(T.notCompared(groups, over))}</p>` : '';
   if (!rows.length) return sectionHtml(1, 'kf', T.keyHeading, '', gapLine);
   const head = `<th scope="col"><span class="gt-th">${esc(T.measure)}</span></th>`
     + SIDES.map((s, i) => `<th scope="col" class="n"><span class="gt-th">${chipHtml(s, c[i], { colour: true })}</span></th>`).join('')

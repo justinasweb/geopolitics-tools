@@ -87,7 +87,10 @@ A sample build has 129 country pages and 37 indicator pages; the real snapshot h
   on one supplier and a country page's lead imports. A balance more than 10 years before the latest any place has for
   its resource (`OLD_YEARS`; Martinique's oil 2010, Austria's phosphate 2001) is kept but marked old: "No recent data:
   the latest balance is from 2010" on the country page, "2010, no recent data" in the tool's cell, and left out of the
-  sort, the phone ranking, reliance on one supplier and lead imports. Partners more than 10 years newer than the
+  sort, the phone ranking, reliance on one supplier, lead imports and the section's finding. Its position is written
+  in the past tense with its year, so it never reads as current: "Imported 41% of the wheat it used in 2013",
+  "Exported 36% of what it produced in 2001" (decided 10 Nov 2026); the tool's cell says "Imported all" or "Exported"
+  and its title the same sentence. Compare shows no dependence shares. Partners more than 10 years newer than the
   balance say so ("Main partners are from 2023, 15 years after the balance").
   Potash production that is FAOSTAT's own estimate (E, I) and more than 2× from USGS's mine production in K2O for the
   same year is replaced by USGS's in `food()` itself (`usgsPotash`, `USGS_GAP` in `src/adapters/faostat.ts`;
@@ -135,8 +138,11 @@ page reads without scripts, and `src/scripts/explorer.ts` redraws with the same 
   (`log=0`) or on (`log=1`).
 - **Correlation.** Pearson's r of the points shown (of their logarithms on log axes), said in words, always with
   "A link between two measures is not proof that one causes the other."
-- **CSV.** Built in the browser from the table shown; measures whose licence does not allow downloads are left out,
-  with a note saying which.
+- **CSV.** Built in the browser from the view shown (`viewCsv`); measures whose licence does not allow downloads are
+  left out, with a note saying which, and none is downloaded when all are. Table: the rows and columns shown, each
+  measure's credit and retrieval date in its header. Over time: one row per country and year drawn (indexed values
+  when indexed, "index, 2010 = 100"), with status, source and retrieved columns. Scatter: one row per point drawn in
+  the year shown, each measure's value, year, status, source and retrieval date (decided 10 Nov 2026).
 - **Starting points.** `PRESETS` in `src/lib/explorer/model.ts`; one is offered only when all its measures are live.
 
 ## Dependencies
@@ -399,8 +405,15 @@ Any two countries side by side (spec, D21), without a page per pair.
   measure, the GDP and military-spending series from 2000, and shares of world mineral production, rounded to six
   significant figures. With the 9 November snapshot: 238 files, 193 KB in all (0.8 KB each on average, 0.4 KB compressed).
 - **Rows and charts only where both have data.** A key-figure row needs a figure for both countries; under the table
-  one line says what was not compared and why ("Not compared, no data for Mali: satellites, launches (source:
-  CelesTrak); for either: …"). A chart is drawn only when both countries have the series, over the years both cover.
+  one line, "Not available for both.", says what was not compared and why ("No data for Mali: satellites, launches
+  (source: CelesTrak); for either: …"). A chart is drawn only when both countries have figures in the years both
+  cover and the last of those is no more than 10 years before the latest any country has (`CHART_OLD_YEARS`, the
+  measure's `latest` in the meta); otherwise the same line lists it ("Not drawn over time: military spending as a share
+  of GDP (the latest year both have is 2013)", Laos and Bolivia; decided 10 Nov 2026).
+- **A grouping typed into a country box.** "EU", "European Union", "NATO" and the other groupings with a page (id,
+  name, full name, a few other names in `COMPARE_TEXT.blocAliases`) get "Compare works for two countries. See the
+  European Union's page for its members and shares", linking the grouping's page, in place of "Try its English name"
+  (`compareBlocNotes` in `src/lib/compare.ts`, shown by `src/scripts/controls.ts`; the link is reachable with Tab).
   Minerals: any mineral where either country has at least 1% of world production; the other shows "–" when USGS does
   not list it (decided 9 Nov 2026: not listed is not zero), read out as "Not listed by USGS" and explained in a note
   under the pairs.

@@ -627,8 +627,8 @@ export function initAtlas(root: HTMLElement): void {
     const row = t.closest<HTMLElement>('[data-at-row]');
     const ov = t.closest<HTMLElement>('[data-at-ov]');
     if (row && t.matches('input[type="radio"]')) {
+      // The layers sheet stays open on a phone, so the reader can try the next layer; the map shows above it.
       setLayer(searched(row, '[data-at-variant]') ?? row.dataset.atKey!);
-      if (phone) setLayersOpen(false);
     } else if (row && t.matches('[data-at-variant]')) {
       row.dataset.atKey = (t as HTMLSelectElement).value;
       setLayer(row.dataset.atKey);

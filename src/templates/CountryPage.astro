@@ -77,10 +77,11 @@ const findDeps = (() => {
   // The same imports as the summary: the largest by share of use, and the largest fuel imported mostly.
   const lead = leadImports(okDeps);
   if (lead.length) bits.push(DEP_TEXT.findImports(lead.map((d) => DEP_TEXT.findImportPart(d.reliance! >= 0.995 ? null : formatShare(d.reliance!), RESOURCE_TEXT[d.resource].noun))));
-  const exp = okDeps.find((d) => d.tag === 'exp');
+  // Old balances ("No recent data") are left out of the finding, which speaks in the present tense.
+  const exp = okDeps.find((d) => d.tag === 'exp' && !d.old);
   if (exp) bits.push(DEP_TEXT.findExport(RESOURCE_TEXT[exp.resource].noun));
   if (bits.length) return DEP_TEXT.find(subject, bits);
-  const self = okDeps.filter((d) => d.tag === 'self').map((d) => RESOURCE_TEXT[d.resource].noun);
+  const self = okDeps.filter((d) => d.tag === 'self' && !d.old).map((d) => RESOURCE_TEXT[d.resource].noun);
   return self.length ? DEP_TEXT.findSelf(subject, list(self)) : undefined;
 })();
 const depSourceNames = [...new Set(okDeps.map((d) => short(d.source)))].sort();

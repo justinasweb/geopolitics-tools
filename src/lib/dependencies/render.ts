@@ -26,14 +26,28 @@ const WHY: Record<NonNullable<Cell['why']>, string> = { p: T.noData, n: T.noRow,
 /** A cell's two lines: the value, and under it the main supplier, the share of output or why there is none. */
 export function cellText(grid: Grid, r: ResourceId, c: Cell): [string, string] {
   if (CONCENTRATION.includes(r)) return c.t ? [`${iso(grid, c.t[0])} ${formatShare(c.t[1])}`, T.topSupplier] : ['–', WHY[c.why ?? 'n']];
-  if (c.why === 'e') return [T.exceeds, T.exceedsSub];
-  if (c.why === 'x') return [T.exportsExceed, T.exportsExceedSub];
-  if (c.v === undefined) return ['–', WHY[c.why ?? 'n']];
+  // An old balance ("No recent data") in the past tense, with its year under it.
+  const old = Boolean(c.o && c.y);
+  if (c.why === 'e') return [old ? T.exceeded : T.exceeds, old ? T.oldData(c.y!) : T.exceedsSub];
+  if (c.why === 'x') return [old ? T.exportsExceeded : T.exportsExceed, old ? T.oldData(c.y!) : T.exportsExceedSub];
+  if (c.v === undefined) return ['–', old && c.why === 'u' ? T.notUsedIn(c.y!) : WHY[c.why ?? 'n']];
   const b = bandOf(r, c);
-  if (c.o && c.y) return [b === 5 || b === 6 ? T.exports : pct(c.v), T.oldData(c.y)];
+  if (old) return [b === 5 || b === 6 ? T.exported : c.v >= ALL ? T.importedAll : pct(c.v), T.oldData(c.y!)];
   if (b === 5 || b === 6) return [T.exports, c.x !== undefined ? T.ofOutput(formatShare(c.x)) : ''];
   if (c.v < 0) return [pct(c.v), T.netExporter];
   return [pct(c.v), c.t ? `${iso(grid, c.t[0])} ${formatShare(c.t[1])}` : ''];
+}
+
+/** An old balance as the country page writes it, in the past tense with its year: "Imported 41% of the wheat it
+ *  used in 2013". */
+function oldSentence(grid: Grid, r: ResourceId, c: Cell): string {
+  const noun = grid.resources[resIndex(r)]?.noun ?? r;
+  const y = Number(c.y);
+  if (c.why === 'e' || c.why === 'x') return DEP_TEXT.exceeded(c.why === 'x', y);
+  if (c.why === 'u' || c.v === undefined) return DEP_TEXT.noUse(noun, y);
+  const b = bandOf(r, c);
+  if (b === 5 || b === 6 || c.v < 0) return c.x !== undefined ? DEP_TEXT.exports(formatShare(c.x), y) : T.netExporterIn(y);
+  return c.v >= ALL ? DEP_TEXT.importsAll(noun, y) : DEP_TEXT.imports(formatShare(c.v), noun, y);
 }
 
 function cellHtml(grid: Grid, r: ResourceId, c: Cell, tag: 'td' | 'span' = 'td'): string {
@@ -49,7 +63,7 @@ function cellHtml(grid: Grid, r: ResourceId, c: Cell, tag: 'td' | 'span' = 'td')
   // An old balance says so, and that its partners are from a much later year.
   const gap = c.y && c.ty ? Number(c.ty) - Number(c.y) : 0;
   const said1 = said0 && c.pu ? `${said0}; ${DEP_TEXT.usgsProduction}` : said0;
-  const said = said1 && c.o ? `${said1}; ${DEP_TEXT.noRecent(Number(c.y))}${gap > 10 ? `; ${DEP_TEXT.partnersLater(Number(c.ty), gap)}` : ''}` : said1;
+  const said = said1 && c.o ? `${oldSentence(grid, r, c)}. ${said1}; ${DEP_TEXT.noRecent(Number(c.y))}${gap > 10 ? `; ${DEP_TEXT.partnersLater(Number(c.ty), gap)}` : ''}` : said1;
   const title = said ? ` title="${esc(said)}"` : quiet ? ` title="${esc(s)}"` : '';
   const sub = !s ? '' : quiet ? `<span class="gt-vh">${esc(s)}</span>` : `<span class="gt-dg__s">${esc(s)}</span>`;
   const est = c.est ? tagHtml('estimate') : c.pre ? tagHtml('preliminary') : '';

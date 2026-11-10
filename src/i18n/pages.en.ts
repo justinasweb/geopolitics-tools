@@ -40,7 +40,7 @@ export const mineralName = (id: string, label: string) => MINERAL_TEXT[id] ?? la
 const SUPPLY_NOUNS = new Set(['potash', 'phosphate']);
 export const onSupply = (noun: string) => SUPPLY_NOUNS.has(noun.toLowerCase());
 /** What a dependence share is of: "the wheat it uses", "its potash supply". */
-export const ofUse = (noun: string) => (onSupply(noun) ? `its ${noun} supply` : `the ${noun} it uses`);
+export const ofUse = (noun: string, past = false) => (onSupply(noun) ? `its ${noun} supply` : `the ${noun} it ${past ? 'used' : 'uses'}`);
 
 /** The ten resources of the dependencies table, as a noun inside "of the … it uses". */
 export const RESOURCE_TEXT: Record<string, { label: string; noun: string }> = {
@@ -58,13 +58,16 @@ export const DEP_TEXT = {
   caption: 'Dependence is net imports as a share of use; for potash and phosphate, of supply (production plus net imports). Arms and chips show supplier concentration only: the main supplier’s share of imports (arms: five-year totals of deliveries).',
   concentrationOnly: 'Supplier concentration only',
   concentrationTitle: 'Supplier concentration only; share of use not measured',
-  imports: (share: string, noun: string) => `Imports ${share} of ${ofUse(noun)}`,
-  importsAll: (noun: string) => `Imports all of ${ofUse(noun)}`,
-  exports: (share: string) => `Exports ${share} of what it produces`,
-  noUse: (noun: string) => `Uses no ${noun}, by this source`,
+  /** `old`: the year of a balance marked "No recent data", written in the past tense with it, so it never reads as
+   *  current ("Imported 41% of the wheat it used in 2013"). */
+  imports: (share: string, noun: string, old?: number) => (old ? `Imported ${share} of ${ofUse(noun, true)} in ${old}` : `Imports ${share} of ${ofUse(noun)}`),
+  importsAll: (noun: string, old?: number) => (old ? `Imported all of ${ofUse(noun, true)} in ${old}` : `Imports all of ${ofUse(noun)}`),
+  exports: (share: string, old?: number) => (old ? `Exported ${share} of what it produced in ${old}` : `Exports ${share} of what it produces`),
+  noUse: (noun: string, old?: number) => (old ? `Used no ${noun} in ${old}, by this source` : `Uses no ${noun}, by this source`),
   /** Net imports more than 10% above recorded use, or exports more than 10% above production plus imports: no share. */
   exceedsUse: 'Imports exceed recorded use',
   exceedsSupply: 'Exports exceed recorded supply',
+  exceeded: (exports: boolean, old: number) => `${exports ? 'Exports exceeded recorded supply' : 'Imports exceeded recorded use'} in ${old}`,
   exceedsNote: (source: string) => `Likely transit trade or stock changes; ${source}’s figures do not separate them`,
   /** A balance far older than the latest for its resource, and partners from a much later year. */
   noRecent: (year: number) => `No recent data: the latest balance is from ${year}`,
@@ -281,9 +284,17 @@ export const COMPARE_TEXT = {
   change: 'Change',
   /** The first and second country's colour, named on their chips (tokens cmp-first and cmp-second). */
   colours: { first: 'blue', second: 'orange' } as Record<string, string>,
-  /** "Not compared, no data for Mali: satellites, launches (source: CelesTrak); for either: AI computing power (source: Epoch AI)." */
-  notCompared: (groups: { name: string | null; items: string[]; sources: string[] }[]) =>
-    `Not compared, ${groups.map((g, i) => `${i ? 'for' : 'no data for'} ${g.name ?? 'either'}: ${g.items.join(', ')} (${g.sources.length > 1 ? 'sources' : 'source'}: ${g.sources.join(', ')})`).join('; ')}.`,
+  /** Before the measures not compared. */
+  notBoth: 'Not available for both.',
+  /** "No data for Mali: satellites, launches (source: CelesTrak); for either: AI computing power (source: Epoch AI).
+   *  Not drawn over time: military spending as a share of GDP (the latest year both have is 2013)." */
+  notCompared: (groups: { name: string | null; items: string[]; sources: string[] }[], over: string[] = []) => [
+    groups.length ? `${groups.map((g, i) => `${i ? 'for' : 'No data for'} ${g.name ?? 'either'}: ${g.items.join(', ')} (${g.sources.length > 1 ? 'sources' : 'source'}: ${g.sources.join(', ')})`).join('; ')}.` : '',
+    over.length ? `Not drawn over time: ${over.join('; ')}.` : '',
+  ].filter(Boolean).join(' '),
+  /** A chart measure not drawn: one country has no yearly figures, or the latest year both have is old. */
+  notDrawn: (noun: string, lacks: string | null, ended: number | null) =>
+    `${noun} (${lacks ? `no yearly figures for ${lacks}` : `the latest year both have is ${ended}`})`,
   /** Each measure as it reads inside the "Not compared" line. */
   nouns: {
     gdp: 'GDP', population: 'population', gdppc: 'GDP per person', growth: 'economic growth', inflation: 'inflation',
@@ -306,6 +317,11 @@ export const COMPARE_TEXT = {
   unknown: (slug: string) => `There is no country page called “${slug}”. Pick a country from the list.`,
   same: 'Pick two different countries.',
   pickTwo: 'Pick two countries to compare them.',
+  /** A grouping typed into a country box: "Compare works for two countries. See the European Union’s page for its
+   *  members and shares", the page linked. `name` as it reads in a sentence ("the European Union", "NATO"). */
+  blocNote: (name: string) => ({ before: 'Compare works for two countries. See ', link: `${possessive(name)} page`, after: ' for its members and shares.' }),
+  /** Other words readers type for a grouping, beside its id, name and full name. */
+  blocAliases: { 'unsc-p5': ['UN Security Council', 'UNSC', 'P5', 'Security Council'], 'opec-plus': ['OPEC plus'], eaeu: ['EEU', 'Eurasian Union'] } as Record<string, string[]>,
   shown: (a: string, b: string) => `Showing ${a} and ${b}.`,
 };
 

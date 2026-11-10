@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
-  compareCharts, compareRows, comparePairs, gapGroups, pairHref, parsePair, staticPair, type CountryData, type Meta,
+  chartsAndGaps, compareCharts, compareRows, comparePairs, gapGroups, pairHref, parsePair, staticPair, type CountryData, type Meta,
 } from '../../src/lib/compare/model.ts';
 import { chartsHtml, compareHtml, keyHtml, mineralsHtml } from '../../src/lib/compare/render.ts';
 import { COMPARE_TEXT } from '../../src/i18n/pages.en.ts';
@@ -43,7 +43,7 @@ describe('Compare model', () => {
   it('lists what could not be compared in one line, by country, with sources', () => {
     const { gaps } = compareRows(meta, [mali, tuvalu]);
     expect(COMPARE_TEXT.notCompared(gapGroups(gaps, [mali, tuvalu]))).toBe(
-      'Not compared, no data for Mali: satellites (source: CelesTrak); for Tuvalu: military spending (source: SIPRI); for either: AI computing power (source: Epoch AI).');
+      'No data for Mali: satellites (source: CelesTrak); for Tuvalu: military spending (source: SIPRI); for either: AI computing power (source: Epoch AI).');
   });
 
   it('draws a chart only when both have the series, over the years both cover', () => {
@@ -52,6 +52,28 @@ describe('Compare model', () => {
     expect(charts[0].years).toEqual([2002, 2003, 2004]);
     expect(charts[0].values).toEqual([[3, 4, 5], [1, 2, 3]]);
     expect(compareCharts(meta, [mali, { ...tuvalu, s: { gdp: [2004, [1, 2]] } }])).toEqual([]);
+  });
+
+  it('leaves out a chart only one country has figures for, or whose latest shared year is over 10 years old, and lists it', () => {
+    const mil = { ...measure('milpct', 'Military spending, % of GDP', 'military spending as a share of GDP', 'SIPRI'), latest: 2025 };
+    const m2: Meta = { ...meta, measures: [...meta.measures, mil] };
+    // Laos's series ends in 2013, Bolivia's in 2025: the chart would end in 2013.
+    const laos: CountryData = { ...mali, name: 'Laos', s: { ...mali.s, milpct: [2000, Array.from({ length: 14 }, () => 0.5)] } };
+    const bolivia: CountryData = { ...tuvalu, name: 'Bolivia', s: { ...tuvalu.s, milpct: [2000, Array.from({ length: 26 }, () => 1.5)] } };
+    const { charts, gaps } = chartsAndGaps(m2, [laos, bolivia]);
+    expect(charts.map((c) => c.m.id)).toEqual(['gdp']);
+    expect(gaps).toEqual([{ m: mil, ended: 2013 }]);
+    expect(keyHtml(m2, [laos, bolivia])).toContain('Not drawn over time: military spending as a share of GDP (the latest year both have is 2013).');
+    expect(chartsHtml(m2, [laos, bolivia])).not.toContain('over-milpct');
+    // Within ten years it is drawn.
+    const recent: CountryData = { ...laos, s: { ...laos.s, milpct: [2000, Array.from({ length: 16 }, () => 0.5)] } };
+    expect(compareCharts(m2, [recent, bolivia]).map((c) => c.m.id)).toEqual(['gdp', 'milpct']);
+    // Only one country has the series.
+    expect(chartsAndGaps(m2, [mali, bolivia]).gaps).toEqual([{ m: mil, lacks: 0 }]);
+    expect(keyHtml(m2, [mali, bolivia])).toContain('military spending as a share of GDP (no yearly figures for Mali)');
+    // One side has the series but no value in the shared years.
+    const blank: CountryData = { ...mali, s: { ...mali.s, milpct: [2018, [1, null, null, null, null, null, null]] } };
+    expect(chartsAndGaps(m2, [blank, { ...bolivia, s: { ...bolivia.s, milpct: [2022, [1, 1, 1, 1]] } }]).gaps).toEqual([{ m: mil, lacks: 0 }]);
   });
 
   it('pairs minerals where either has 1% of world production', () => {
@@ -72,7 +94,7 @@ describe('Compare markup', () => {
     expect(html).toContain('gt-cchip gt-cc--first');
     expect(html).toContain('gt-cchip gt-cc--second');
     expect(html).toContain('<span class="gt-cchip__col">blue</span>');
-    expect(html).toContain('Not compared, no data for Mali');
+    expect(html).toContain('<b>Not available for both.</b> No data for Mali');
     expect(html.match(/<tr>/g)).toHaveLength(2);
     expect(html).not.toMatch(/gt-cc--(us|cn|ru)/);
   });
@@ -126,6 +148,20 @@ describe('Compare markup', () => {
 });
 
 describe('Compare at build time', () => {
+  it('points a grouping typed into a country box to its page', async () => {
+    const { compareBlocNotes } = await import('../../src/lib/compare.ts');
+    const { paths } = await import('../../src/lib/routes.ts');
+    const notes = compareBlocNotes();
+    const eu = notes.find((n) => n.k.includes('eu'))!;
+    expect(eu.k).toContain('european union');
+    expect(`${eu.before}${eu.link}${eu.after}`).toBe('Compare works for two countries. See the European Union’s page for its members and shares.');
+    expect(eu.h).toBe(paths.blocs('eu'));
+    const nato = notes.find((n) => n.k.includes('nato'))!;
+    expect(nato.link).toBe('NATO’s page');
+    expect(nato.k).toContain('north atlantic treaty organization');
+    expect(notes.find((n) => n.k.includes('opec'))!.h).toBe(paths.blocs('opec'));
+  });
+
   it('writes each country page’s figures, and the static pairs, from the snapshot', async () => {
     const { compareData, compareMeta, compareChoices } = await import('../../src/lib/compare.ts');
     const { routes } = await import('../../src/lib/routes.ts');
