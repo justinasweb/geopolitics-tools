@@ -1,6 +1,7 @@
 // The Sources page, generated on each build: every source the runner fetches, every hand import and every source
 // still waiting on a key, with what it feeds, its licence, how often we check it, when it was last refreshed and
-// its status. Corrections come from src/data/corrections.csv (date, page, what changed), newest first.
+// its status. Corrections come from src/data/corrections.csv (date, page, what changed), newest first: only changes to
+// figures that were live on the site, not fixes made before launch.
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { SOURCES } from '../../pipeline/sources/index.ts';

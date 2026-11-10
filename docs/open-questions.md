@@ -20,7 +20,8 @@ confirmed. BRICS is decided (see Decided).
 
 **Still to check before launch.** The G7, the G20, the SCO and the Quad, and the 8 groupings without a history (APEC,
 AUKUS, the CIS, the EAEU, OPEC+, RCEP, the UN Security Council's permanent members and USMCA), each against its own
-member list. Then set `BLOCS_CHECKED` to that day and log any change in `src/data/corrections.csv`. Known points: the
+member list. Then set `BLOCS_CHECKED` to that day; log a change in `src/data/corrections.csv` only if the figure was
+live on the site. Known points: the
 CSTO (Armenia's frozen participation), OPEC+ (its list of non-OPEC producers) and the G20 (the African Union is not a
 country, so not on the map).
 
