@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { IMPORTED } from '../../pipeline/sources/imported.ts';
 import { SOURCES } from '../../pipeline/sources/index.ts';
-import { LICENCE_OF, LICENCES } from '../../src/data/licences.ts';
+import { LICENCE_OF, LICENCES, SHOWN_ONLY_INDICATORS } from '../../src/data/licences.ts';
 import { licenceTable } from '../../scripts/licence-table.ts';
 
 // The credit tests read the sample snapshot, as CI has no data pull.
@@ -20,6 +20,20 @@ describe('licence table', () => {
       expect(l.terms).toMatch(/^https:\/\//);
       if (/not stated|disclaimer|IMF|SIPRI|Comtrade|PeeringDB/i.test(l.licence)) expect(l.downloads, l.source).toBe('shown only');
     }
+  });
+
+  it('offers no CSV for the military spending series, which carry SIPRI terms though the World Bank allows downloads', async () => {
+    // The sample snapshot has no military spending, so the check runs on the measures' own records. Indicator pages,
+    // the downloads route and the Explorer all ask csvAllowed.
+    const { csvAllowed } = await import('../../src/lib/indicator.ts');
+    const { INDICATORS } = await import('../../src/data/indicators.ts');
+    const model = (id: string) => ({ indicator: INDICATORS[id], sources: [INDICATORS[id].source].flat() }) as Parameters<typeof csvAllowed>[0];
+    expect(SHOWN_ONLY_INDICATORS).toEqual(['milpct', 'milusd']);
+    for (const id of SHOWN_ONLY_INDICATORS) {
+      expect(INDICATORS[id].source).toBe('worldbank');
+      expect(csvAllowed(model(id)), id).toBe(false);
+    }
+    expect(csvAllowed(model('gdp'))).toBe(true);
   });
 
   it('fills the Aqueduct credit with the day its files were fetched', async () => {
