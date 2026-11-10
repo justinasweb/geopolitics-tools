@@ -202,8 +202,10 @@ describe('fertilisers on supply', () => {
     const { fromBalance, leadImports } = await import('../../src/lib/dependence.ts');
     // Morocco phosphate 2024: exports 1.7 times production plus imports.
     const ma = fromBalance('phosphate', balance(6.2, 0.0023, 10.5511, 1), 'X', undefined, true);
-    expect(ma).toMatchObject({ excess: 'exports' });
+    // Still a net exporter, with buyers, but no share of output.
+    expect(ma).toMatchObject({ excess: 'exports', tag: 'exp' });
     expect(ma.reliance).toBeUndefined();
+    expect(ma.exportShare).toBeUndefined();
     expect(leadImports([ma])).toEqual([]);
     // Within 10% (Canada's potash, 1.01): an exporter, at most all it produces.
     expect(fromBalance('potash', balance(13.55, 0.04, 13.75, 1), 'X', undefined, true)).toMatchObject({ tag: 'exp', exportShare: 1 });

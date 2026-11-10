@@ -48,8 +48,8 @@ export interface DepRow {
   buyers?: boolean;
   /** Use is zero, so no share. */
   noUse?: boolean;
-  /** Net imports exceed use, or exports exceed production plus imports, by more than THRESHOLDS.excess: no share,
-   *  no tag, out of rankings and lead imports. */
+  /** Net imports exceed use, or exports exceed production plus imports, by more than THRESHOLDS.excess: no share, so
+   *  out of rankings by share and lead imports. 'imports' has no tag; 'exports' is tagged an exporter, with buyers. */
   excess?: 'imports' | 'exports';
   /** The source flags a figure the row uses as its estimate or imputation (FAOSTAT flags E and I): the Estimate label. */
   estimated?: true;
@@ -107,7 +107,8 @@ export function fromBalance(resource: Resource, b: Balance | undefined, id: stri
   const row: DepRow = { ...base, state: 'ok', year: r.year, ...(r.est ? { estimated: true as const } : {}) };
   if (supply && r.exports > (r.production + r.imports) * (1 + THRESHOLDS.excess)) {
     // Morocco's phosphate: exports 1.7 times production plus imports (stock or re-exports the source does not split).
-    row.excess = 'exports';
+    // A net exporter all the same, with no share of output.
+    Object.assign(row, { excess: 'exports', tag: 'exp' });
   } else if (r.use <= 0) {
     if (net < 0 && r.production > 0) Object.assign(row, { reliance: -1, exportShare: Math.min(1, -net / r.production), tag: 'exp' });
     else return { ...row, noUse: true };
@@ -121,7 +122,7 @@ export function fromBalance(resource: Resource, b: Balance | undefined, id: stri
   }
   const f = flowKey ? flows(flowKey) : null;
   if (f) {
-    const buyers = row.tag === 'exp' || row.excess === 'exports';
+    const buyers = row.tag === 'exp';
     row.buyers = buyers;
     row.partnersFrom = { source: f.source, period: f.period };
     row.partners = f.pairs.filter((p) => (buyers ? p.from === id : p.to === id)).slice(0, 3).map((p) => (buyers ? p.to : p.from));

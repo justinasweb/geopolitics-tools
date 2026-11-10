@@ -41,7 +41,7 @@ A negative value means the country sells more than it buys. We then show exports
 
 A country that uses none of a resource, by its source, gets no share and the table says so.
 
-When net imports are more than 10% above recorded use, or exports more than 10% above production plus imports, we show no share: the row says "Imports exceed recorded use" or "Exports exceed recorded supply" and is left out of rankings, sorting and a country page's lead imports. This is usually transit trade or stock changes, which the source's figures do not separate: in FAOSTAT's figures, Morocco's phosphate exports in 2024 were 1.7 times its production plus imports.
+When net imports are more than 10% above recorded use, or exports more than 10% above production plus imports, we show no share: the row says "Imports exceed recorded use" or "Exports exceed recorded supply" and is left out of rankings and sorting by share and of a country page's lead imports. A row whose exports exceed supply is still labelled Exporter, with its buyers. This is usually transit trade or stock changes, which the source's figures do not separate: in FAOSTAT's figures, Morocco's phosphate exports in 2024 were 1.7 times its production plus imports.
 
 The Dependencies tool splits these further, to show where a country sits: imports 75% or more, 50% to 75%, 15% to 50%, roughly self-sufficient (±15%), and, for exporters, exports of 15% to 50% or over 50% of what it produces.
 
