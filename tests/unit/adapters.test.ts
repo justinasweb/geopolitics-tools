@@ -238,9 +238,10 @@ describe('indicator registry and flows', () => {
     expect(formatValue(0, { kind: 'money', millions: true })).toBe('$0');
     expect(formatValue(2_512, { kind: 'money' })).toBe('$2,512');
     // A value that rounds to zero has no sign.
-    expect(formatValue(-0.0001, { kind: 'share' })).toBe('0.0%');
+    expect(formatValue(-0.0001, { kind: 'share' })).toBe('<0.1%');
     expect(formatValue(8_123_456, { kind: 'count' })).toBe('8.1 m');
     expect(formatValue(0.053, { kind: 'share' })).toBe('5.3%');
+    expect(formatValue(0.05, { kind: 'share' })).toBe('5%');
     expect(formatValue(12.345, { kind: 'percent', digits: 1 })).toBe('12.3%');
     expect(formatValue(1234.5, { kind: 'number', unit: 'kb/d' })).toBe('1,235 kb/d');
     expect(formatValue(1234.5, { kind: 'number', unit: 'Mt', digits: 1 }, 'de')).toBe('1.234,5 Mt');

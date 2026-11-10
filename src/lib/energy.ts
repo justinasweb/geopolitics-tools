@@ -12,7 +12,8 @@ import { DEP_TEXT, inSentence } from '../i18n/pages.en.ts';
 import { shared } from './data.ts';
 import { nice } from './food.ts';
 import { place } from './places.ts';
-import { SHARE_BINS, shareClass, shareText } from './minerals.ts';
+import { SHARE_BINS, shareClass } from './minerals.ts';
+import { formatShare } from './format.ts';
 
 export const FUELS = ['oil', 'gas'] as const;
 export const ENERGY_LAYERS = ['production', 'consumption', 'trade', 'reserves'] as const;
@@ -141,7 +142,7 @@ export function classFor(p: EnergyPage, v: number, world: number | null): number
 }
 
 /** A figure's share of the world, for reading ("18%", "<0.1%"). */
-export const shareOf = (v: number, world: number | null) => (world ? shareText(v / world) : null);
+export const shareOf = (v: number, world: number | null) => (world ? formatShare(v / world) : null);
 
 function buildPage(fuel: FuelId, layer: EnergyLayer): EnergyPage | null {
   const f = fuels[fuel]();
@@ -246,7 +247,7 @@ export function summary(p: EnergyPage, year = p.year): string[] {
   const a = (v: number) => amount(p.fuel, p.layer, v);
   const first: string[] = [];
   const ch = worldChange(p, year);
-  const change = ch === null || Math.abs(ch) < 0.005 ? null : T.changeIn(shareText(Math.abs(ch)), ch > 0, year - 1);
+  const change = ch === null || Math.abs(ch) < 0.005 ? null : T.changeIn(formatShare(Math.abs(ch)), ch > 0, year - 1);
   if (y.world) first.push(T.total[p.layer](a(y.world), p.layer === 'production' ? p.text.produced : p.text.name, year, change));
   if (p.layer === 'trade') {
     const ex = y.rows.filter((r) => r.value > 0).slice(0, 3);

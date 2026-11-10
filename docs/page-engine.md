@@ -98,6 +98,11 @@ A sample build has 129 country pages and 37 indicator pages; the real snapshot h
   (`placeNotes` in `src/lib/food.ts`) and the share image's source names it; a change across a FAOSTAT and a USGS
   year is not shown (`comparable`, `worldChange`). China, 2024. Potash production is not an indicator, so Compare and
   the Explorer do not show it.
+- **One rounding for shares.** Every share on every page, tool, map and share image goes through `formatShare`
+  (`src/lib/format.ts`; `formatValue` uses it for share indicators): whole percent from 10%, one decimal below,
+  "<0.1%" for a share above zero that would read as zero. Data files keep shares to six significant figures, so a
+  share is not rounded twice (India's gas, 0.49498, read 49% on its page and 50% in Dependencies when the tool kept
+  four decimals; a test now checks every cell against the country rows).
 - **Neutral words.** Templates use plain verbs (mines, imports, hosts) and no adjectives that judge. "Higher" on
   Compare marks the larger value and says it is not a judgement. A sentence whose figure is missing is left out.
 - **Colour is never the only cue.** Dependence tags have a glyph and a word, Compare's first and second country have

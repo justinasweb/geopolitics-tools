@@ -17,7 +17,8 @@ import '../styles/atlas/keyfigure.css';
 import '../styles/atlas/table.css';
 import '../styles/atlas/tools.css';
 import { MAP_TEXT } from '../i18n/map.en';
-import { amount, concentration, lede, listed, mineralPage, mineralPages, nameOf, shareExact, shareText, summary, withheld, worldChange } from '../lib/minerals';
+import { amount, concentration, lede, listed, mineralPage, mineralPages, nameOf, shareExact, summary, withheld, worldChange } from '../lib/minerals';
+import { formatShare } from '../lib/format';
 import { refreshed, data } from '../lib/data';
 import { countryHref, paths, live, hubCrumb } from '../lib/routes';
 import { layerPath } from '../lib/map/layers';
@@ -63,7 +64,7 @@ const related = [
   ...listed(y).slice(0, 3).filter((x) => x.place && countryHref(x.place)).map((x) => ({ href: countryHref(x.place!)!, name: nameOf(x), note: T.countryPage })),
   ...all.filter((m) => m.id !== p.id && live(`view:minerals:${m.id}`)).slice(0, 2).map((m) => ({ href: paths.mineral(m.id), name: m.title, note: T.sameView })),
 ];
-const mapTop = listed(y).slice(0, 3).map((x) => `${nameOf(x)} ${shareText(x.share!)}`).join(', ');
+const mapTop = listed(y).slice(0, 3).map((x) => `${nameOf(x)} ${formatShare(x.share!)}`).join(', ');
 const yearStatus = Object.fromEntries(p.years.filter(est).map((yr) => [yr, 'estimate' as const]));
 ---
 <Page title={T.title(p.title)} description={T.description(p.name, y.year)} hub="resources" container="mv" image={paths.image('views', `minerals-${p.id}`)}
@@ -100,7 +101,7 @@ const yearStatus = Object.fromEntries(p.years.filter(est).map((yr) => [yr, 'esti
                   <span class="gt-pkf__label">{T.worldLabel}</span>
                   <span class="gt-pkf__num">{amount(Y.world)}<small>{p.unit}</small></span>
                   <span class="gt-pkf__meta">
-                    {ch !== null && Y.worldPrev && <span class="gt-kf__change"><Icon name={Math.abs(ch) < 0.005 ? 'flat' : ch > 0 ? 'up' : 'down'} />{Math.abs(ch) < 0.005 ? T.sameAs(yr - 1) : T.change(shareText(Math.abs(ch)), ch > 0, yr - 1, `${amount(Y.worldPrev)} ${p.unit}`)}</span>}
+                    {ch !== null && Y.worldPrev && <span class="gt-kf__change"><Icon name={Math.abs(ch) < 0.005 ? 'flat' : ch > 0 ? 'up' : 'down'} />{Math.abs(ch) < 0.005 ? T.sameAs(yr - 1) : T.change(formatShare(Math.abs(ch)), ch > 0, yr - 1, `${amount(Y.worldPrev)} ${p.unit}`)}</span>}
                     {Y.estimated && <StatusTag status="estimate" small />}
                   </span>
                 </div>
@@ -119,7 +120,7 @@ const yearStatus = Object.fromEntries(p.years.filter(est).map((yr) => [yr, 'esti
                     const name = x.place ? <button type="button" data-select={x.place}>{nameOf(x)}</button> : nameOf(x);
                     return x.withheld
                       ? <li class="gt-bars__withheld"><span class="gt-bars__name">{name}</span><span class="gt-bars__track"><span class="gt-sw gt-sw--withheld" style="width:16px;height:12px;display:block"></span></span><span class="gt-bars__val">{T.withheld}</span></li>
-                      : <li><span class="gt-bars__name">{name}</span><span class="gt-bars__track"><span class="gt-bars__fill" style={`width:${((100 * x.share!) / max).toFixed(1)}%`}></span></span><span class="gt-bars__val">{shareText(x.share!)}</span></li>;
+                      : <li><span class="gt-bars__name">{name}</span><span class="gt-bars__track"><span class="gt-bars__fill" style={`width:${((100 * x.share!) / max).toFixed(1)}%`}></span></span><span class="gt-bars__val">{formatShare(x.share!)}</span></li>;
                   })}
                 </ol>
               </div>

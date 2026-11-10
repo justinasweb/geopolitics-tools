@@ -14,7 +14,7 @@ import { nuclear } from '../adapters/nuclear.ts';
 import { NUCLEAR_TEXT as T, type SharingClass, type TreatyClass, type TreatyStatus } from '../i18n/nuclear.en.ts';
 import { inSentence } from '../i18n/pages.en.ts';
 import { shared } from './data.ts';
-import { formatValue } from './format.ts';
+import { formatShare, formatValue } from './format.ts';
 import { place } from './places.ts';
 
 /** The warheads CSV's name, at /downloads/<name>.csv. */
@@ -95,14 +95,13 @@ export function warheadsModel(): WarheadsModel | null {
 }
 
 const nameOf = (id: string) => place(id)?.name ?? id;
-const shareText = (v: number) => formatValue(v, { kind: 'share' });
 
 /** The warheads view's one-sentence answer: the two largest inventories and their share of the world's. */
 export function warheadsLede(m = warheadsModel()): string | null {
   const y = m?.byYear[m.year];
   if (!y || y.rows.length < 2) return null;
   const [a, b] = y.rows;
-  return T.lede(inSentence(nameOf(a.id), true), warheads(a.value), inSentence(nameOf(b.id)), warheads(b.value), shareText((a.value + b.value) / y.world), y.year);
+  return T.lede(inSentence(nameOf(a.id), true), warheads(a.value), inSentence(nameOf(b.id)), warheads(b.value), formatShare((a.value + b.value) / y.world), y.year);
 }
 
 /** The peak of a series: the largest world total and its year. */

@@ -28,8 +28,8 @@ import { place } from '../lib/places';
 import { countryHref, indicatorHref, live, route, hubCrumb } from '../lib/routes';
 import { layerPath } from '../lib/map/layers';
 import { breadcrumbs } from '../lib/structured';
-import { shareExact, shareText } from '../lib/minerals';
-import { formatDate } from '../lib/format';
+import { shareExact } from '../lib/minerals';
+import { formatDate, formatShare } from '../lib/format';
 
 interface Props { id: string }
 const p = energyPage(Astro.props.id)!;
@@ -132,7 +132,7 @@ const monthName = (d: string) => formatDate(`${d}-15`).replace(/^\d+ /, '');
                   <span class="gt-pkf__label">{L.worldLabel}</span>
                   <span class="gt-pkf__num">{a(Y.world)}</span>
                   {ch !== null && (
-                    <span class="gt-pkf__meta"><span class="gt-kf__change"><Icon name={Math.abs(ch) < 0.005 ? 'flat' : ch > 0 ? 'up' : 'down'} />{Math.abs(ch) < 0.005 ? E.sameAs(yr - 1) : E.change2(shareText(Math.abs(ch)), ch > 0, yr - 1, a(p.byYear[yr - 1].world!))}</span></span>
+                    <span class="gt-pkf__meta"><span class="gt-kf__change"><Icon name={Math.abs(ch) < 0.005 ? 'flat' : ch > 0 ? 'up' : 'down'} />{Math.abs(ch) < 0.005 ? E.sameAs(yr - 1) : E.change2(formatShare(Math.abs(ch)), ch > 0, yr - 1, a(p.byYear[yr - 1].world!))}</span></span>
                   )}
                 </div>
               )}

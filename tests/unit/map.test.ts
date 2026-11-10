@@ -2,7 +2,8 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { arc, equalEarth, fromMap, mapLatOfY, toMap, WORLD_BOUNDS, X_MAX } from '../../src/lib/map/projection.ts';
 import { parseMinerals } from '../../src/adapters/minerals.ts';
-import { concentration, shareClass, shareText } from '../../src/lib/minerals.ts';
+import { concentration, shareClass } from '../../src/lib/minerals.ts';
+import { formatShare } from '../../src/lib/format.ts';
 import { nearestYear, readState, writeState, type StateContext } from '../../src/scripts/map/state.ts';
 import { countryPanelHtml, previousHtml, tooltipHtml } from '../../src/scripts/map/panel.ts';
 import type { LayerFile } from '../../src/lib/map/types.ts';
@@ -182,9 +183,11 @@ describe('USGS minerals, real format (MCS 2026)', () => {
 describe('share classes and words', () => {
   it('bins shares as the legend says', () => {
     expect([0.005, 0.01, 0.049, 0.05, 0.2, 0.25, 0.6].map(shareClass)).toEqual([1, 2, 2, 3, 4, 5, 5]);
-    expect(shareText(0.317)).toBe('32%');
-    expect(shareText(0.043)).toBe('4.3%');
-    expect(shareText(0.0004)).toBe('<0.1%');
+    expect(formatShare(0.317)).toBe('32%');
+    expect(formatShare(0.043)).toBe('4.3%');
+    expect(formatShare(0.0004)).toBe('<0.1%');
+    // One rule for every share: whole from 10%, one decimal below (India's gas, 0.49498, is 49% everywhere).
+    expect([0.49497831, 0.0995, 0.057, 0.004, -0.12].map((s) => formatShare(s))).toEqual(['49%', '10%', '5.7%', '0.4%', '−12%']);
     expect([999, 1000, 1800, 1801].map(concentration)).toEqual(['low', 'moderate', 'moderate', 'high']);
   });
 });

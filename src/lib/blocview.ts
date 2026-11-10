@@ -7,11 +7,12 @@ import { BLOC_ORDER, blocs } from './blocs.ts';
 import { indicator } from './data.ts';
 import { defaultYear, ranking } from './stats.ts';
 import { listed, mineralPages } from './minerals.ts';
+import { formatShare } from './format.ts';
 import { place } from './places.ts';
 import { BLOCS_TEXT } from '../i18n/blocs.en.ts';
 import { BLOC_TEXT } from '../i18n/map.en.ts';
 import { inSentence } from '../i18n/pages.en.ts';
-import { shareText } from './minerals.ts';
+
 
 /** Measures that add up across countries, so a bloc's members have a share of the world. */
 export const SHARE_MEASURES = ['population', 'gdp', 'milusd', 'co2', 'wheatprod', 'maizeprod', 'riceprod', 'soyprod'];
@@ -128,5 +129,5 @@ export function blocLede(id: string): string | null {
   if (!p) return null;
   const pop = p.shares.find((s) => s.id === 'population');
   const gdp = p.shares.find((s) => s.id === 'gdp');
-  return BLOCS_TEXT.lede(id, BLOC_TEXT[id] ?? id, p.members.length, pop ? shareText(pop.share) : null, gdp ? shareText(gdp.share) : null, pop?.year ?? null);
+  return BLOCS_TEXT.lede(id, BLOC_TEXT[id] ?? id, p.members.length, pop ? formatShare(pop.share) : null, gdp ? formatShare(gdp.share) : null, pop?.year ?? null);
 }

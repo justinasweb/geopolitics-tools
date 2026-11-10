@@ -8,9 +8,9 @@ import type { Series } from '../adapters/core.ts';
 import { FOOD_NOTES, FOOD_TEXT, type CommodityText } from '../i18n/food.en.ts';
 import { DEP_TEXT, inSentence } from '../i18n/pages.en.ts';
 import { shared } from './data.ts';
-import { formatValue } from './format.ts';
+import { formatValue, formatShare } from './format.ts';
 import { place } from './places.ts';
-import { SHARE_BINS, shareClass, shareText } from './minerals.ts';
+import { SHARE_BINS, shareClass } from './minerals.ts';
 
 export const COMMODITIES = ['wheat', 'maize', 'rice', 'soy', 'potash', 'phosphate'] as const;
 export type Commodity = (typeof COMMODITIES)[number];
@@ -116,7 +116,7 @@ export function classFor(p: FoodPage, v: number, world: number | null): number {
 }
 
 /** A figure's share of the world, for reading ("18%", "<0.1%"). */
-export const shareOf = (v: number, world: number | null) => (world ? shareText(v / world) : null);
+export const shareOf = (v: number, world: number | null) => (world ? formatShare(v / world) : null);
 
 function buildPage(commodity: Commodity, layer: FoodLayer): FoodPage | null {
   const d = foodData();
@@ -231,7 +231,7 @@ export function summary(p: FoodPage, year = p.year): string[] {
   const y = p.byYear[year];
   const first: string[] = [];
   const ch = worldChange(p, year);
-  const change = ch === null || Math.abs(ch) < 0.005 ? null : T.changeIn(shareText(Math.abs(ch)), ch > 0, year - 1);
+  const change = ch === null || Math.abs(ch) < 0.005 ? null : T.changeIn(formatShare(Math.abs(ch)), ch > 0, year - 1);
   if (y.world) first.push(T.total[p.layer](mt(y.world), p.text.name, year, change, y.worldOwn));
   if (p.layer === 'trade') {
     const ex = y.rows.filter((r) => r.value > 0).slice(0, 3);

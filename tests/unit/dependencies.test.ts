@@ -318,3 +318,21 @@ describe('a fertiliser row’s source line', () => {
     expect(rowSource(row)).toBe('FAOSTAT, supply 2024 · UN Comtrade, imports 2025');
   });
 });
+
+describe('the grid and the country pages', () => {
+  it('write every share alike: the grid keeps enough digits not to round twice', async () => {
+    const { dependencyGrid } = await import('../../src/lib/dependencies.ts');
+    const { dependencies } = await import('../../src/lib/dependence.ts');
+    const { formatShare } = await import('../../src/lib/format.ts');
+    const g = dependencyGrid();
+    for (const row of g.rows) {
+      const deps = dependencies(row.id);
+      g.resources.forEach((r, i) => {
+        const d = deps.find((x) => x.resource === r.id);
+        const c = row.cells[i];
+        if (d?.reliance !== undefined && c.v !== undefined) expect(formatShare(c.v), `${row.id} ${r.id}`).toBe(formatShare(d.reliance));
+        if (d?.exportShare !== undefined && c.x !== undefined) expect(formatShare(c.x), `${row.id} ${r.id}`).toBe(formatShare(d.exportShare));
+      });
+    }
+  }, 30000);
+});

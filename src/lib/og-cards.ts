@@ -12,7 +12,7 @@ import { place } from './places';
 import { paths, routes, type Route } from './routes';
 import { siteName } from './site';
 import { MINERALS_VIEW } from '../i18n/map.en';
-import { amount, lede, listed, mineralPage, nameOf as producerName, shareText } from './minerals';
+import { amount, lede, listed, mineralPage, nameOf as producerName } from './minerals';
 import { creditOf, lede as viewLede, valueText, viewPage } from './views';
 import { VIEW_TEXT } from '../i18n/views.en';
 import { DISASTERS_TEXT, KIND_TEXT } from '../i18n/disasters.en';
@@ -120,7 +120,7 @@ export function card(r: Route | null): Card {
     return {
       kicker: MINERALS_VIEW.section, title: p.text.title(p.title), figure: y.world ? `${amount(y.world)} ${p.unit}` : undefined,
       caption: lede(p) ?? undefined, source: `${p.source}${y.estimated ? ', estimated' : ''}`,
-      bars: listed(y).slice(0, 5).map((x) => ({ label: producerName(x), value: x.share!, text: shareText(x.share!) })),
+      bars: listed(y).slice(0, 5).map((x) => ({ label: producerName(x), value: x.share!, text: formatShare(x.share!) })),
     };
   }
   if (r.kind === 'view' && r.id.startsWith('disasters:')) {

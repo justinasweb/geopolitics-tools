@@ -9,7 +9,7 @@ import { BLOCS_TEXT, HISTORY_TEXT, MEASURE_TEXT, MEMBER_NOTES } from '../../i18n
 import { HISTORY_BLOCS, STATUS_CLASS, historyPage, spanText, statusIn } from '../history.ts';
 import { PLACES, NOTES } from '../places.ts';
 import { countryHref, live } from '../routes.ts';
-import { amount, listed, mineralPages, shareClass, shareText, withheld, nameOf, type MineralPage } from '../minerals.ts';
+import { amount, listed, mineralPages, shareClass, withheld, nameOf, type MineralPage } from '../minerals.ts';
 import { list, inSentence } from '../../i18n/pages.en.ts';
 import { ICT_TEXT, OUTAGE_TEXT, PARTS_TEXT as PX, VIEW_TEXT, VIEWS_TEXT } from '../../i18n/views.en.ts';
 import { classFor, creditOf, familyPages, partsOf, placeNote, shareOf, unreportedIn, unreportedText, valueText, viewPages, type ViewPage } from '../views.ts';
@@ -17,7 +17,7 @@ import { creditName, data, indicator, shared } from '../data.ts';
 import { loadFlows } from '../../data/flows.ts';
 import { countClass, daysText, disasterPages, type DisasterPage } from '../disasters.ts';
 import { DISASTERS_TEXT, KIND_TEXT } from '../../i18n/disasters.en.ts';
-import { formatDate, formatPartialDate, formatValue } from '../format.ts';
+import { formatDate, formatPartialDate, formatValue, formatShare } from '../format.ts';
 import { TOP_FLOWS, balanceOf, estimated as foodEstimated, classFor as foodClass, foodPages, mt, netText, placeNotes, shareOf as foodShare, sourceOf, valueText as foodValue, type FoodPage } from '../food.ts';
 import { FOOD_TEXT } from '../../i18n/food.en.ts';
 import { TOP_FLOWS as ENERGY_TOP, amount as energyAmount, balanceOf as energyBalance, balanceYear, classFor as energyClass, energyPages, pageUs, shareOf as energyShare, viaEia, valueText as energyValue, type EnergyPage } from '../energy.ts';
@@ -116,7 +116,7 @@ function mineralLayer(p: MineralPage): LayerFile {
     l.forEach((x, i) => {
       if (!x.place) return;
       // A place listed twice (two source rows mapping to one id) keeps its first, larger row.
-      v[x.place] ??= [shareClass(x.share!), shareText(x.share!), `${amount(x.value!)} ${p.unit}`, x.estimated ? 'estimate' : 0, i + 1];
+      v[x.place] ??= [shareClass(x.share!), formatShare(x.share!), `${amount(x.value!)} ${p.unit}`, x.estimated ? 'estimate' : 0, i + 1];
     });
     for (const x of withheld(y)) if (x.place) v[x.place] ??= [0, MV.withheld, '', 0, 0];
     const bl: Record<string, string> = {};
@@ -125,7 +125,7 @@ function mineralLayer(p: MineralPage): LayerFile {
       const share = inBloc.reduce((s, x) => s + (x.share ?? 0), 0);
       const name = BLOC_TEXT[id] ?? id;
       const w = withheld(y).filter((x) => x.place && members.includes(x.place));
-      bl[id] = [inBloc.length ? MV.bloc(name, shareText(share), p.name, year) : MV.blocNone(name, p.name, year),
+      bl[id] = [inBloc.length ? MV.bloc(name, formatShare(share), p.name, year) : MV.blocNone(name, p.name, year),
         w.length ? MV.blocWithheld(list(w.map((x, i) => inSentence(nameOf(x), i === 0)))) : ''].filter(Boolean).join(' ');
     }
     return { year, status: y.estimated ? 'estimate' : undefined, legend: MV.legendTitle(year), v, order: l.map((x) => x.place!).filter(Boolean), blocs: bl };
@@ -165,7 +165,7 @@ function otherMinerals(p: MineralPage): Record<string, PanelBlock[]> {
     const rows = others.flatMap((m) => {
       const l = listed(m.latest);
       const i = l.findIndex((x) => x.place === id);
-      return i < 0 ? [] : [{ share: l[i].share!, row: { name: m.title, value: shareText(l[i].share!), href: live(`view:minerals:${m.id}`)?.path, note: `${PT.rankNote(i + 1, l.length)}, ${m.latest.year}` } }];
+      return i < 0 ? [] : [{ share: l[i].share!, row: { name: m.title, value: formatShare(l[i].share!), href: live(`view:minerals:${m.id}`)?.path, note: `${PT.rankNote(i + 1, l.length)}, ${m.latest.year}` } }];
     }).sort((a, b) => b.share - a.share).map((x) => x.row);
     if (rows.length) out[id] = [{ label: PT.otherMinerals, caption: PT.otherMineralsCaption, rows }];
   }
@@ -861,7 +861,7 @@ function energyMore(p: EnergyPage): Record<string, PanelBlock[]> {
         if (!mine.length) continue;
         blocks.push({
           label, caption: E.partnersCaption,
-          rows: mine.slice(0, 5).map((f) => ({ name: `${nameOf2(dir === 'to' ? f.from : f.to)}${f.kind ? ` (${E.kind[f.kind]})` : ''}`, value: energyAmount(p.fuel, 'production', f.amount), note: E.ofListed(shareText(f.amount / total)) })),
+          rows: mine.slice(0, 5).map((f) => ({ name: `${nameOf2(dir === 'to' ? f.from : f.to)}${f.kind ? ` (${E.kind[f.kind]})` : ''}`, value: energyAmount(p.fuel, 'production', f.amount), note: E.ofListed(formatShare(f.amount / total)) })),
           more: mine.length > 5 ? E.morePartners(mine.length - 5) : undefined,
         });
       }
@@ -904,7 +904,7 @@ function foodMore(p: FoodPage): Record<string, PanelBlock[]> {
         if (!mine.length) continue;
         blocks.push({
           label, caption: p.crop ? F.partnersCaption : F.partnersCaptionFert,
-          rows: mine.slice(0, 5).map((f) => ({ name: nameOf2(dir === 'to' ? f.from : f.to), value: mt(f.amount), note: F.ofListed(shareText(f.amount / total)) })),
+          rows: mine.slice(0, 5).map((f) => ({ name: nameOf2(dir === 'to' ? f.from : f.to), value: mt(f.amount), note: F.ofListed(formatShare(f.amount / total)) })),
           more: mine.length > 5 ? F.morePartners(mine.length - 5) : undefined,
         });
       }
@@ -950,9 +950,9 @@ function blocLayer(id: string): LayerFile {
     order = p.byPopulation;
     for (const m of p.members) {
       const w = weightIn('population', m, p.members);
-      v[m] = [MEMBER_CLASS, B.member, w !== null ? shareText(w) : '', 0, 0];
+      v[m] = [MEMBER_CLASS, B.member, w !== null ? formatShare(w) : '', 0, 0];
       const rows = (['population', 'gdp', 'milusd', 'co2'] as const).map((k) => [k, weightIn(k, m, p.members)] as const)
-        .filter(([, x]) => x !== null).map(([k, x]) => ({ name: MEASURE_TEXT[k], value: shareText(x!), note: String(measureYear(k)) }));
+        .filter(([, x]) => x !== null).map(([k, x]) => ({ name: MEASURE_TEXT[k], value: formatShare(x!), note: String(measureYear(k)) }));
       more[m] = [...(rows.length ? [{ label: B.weightLabel, caption: B.weightCaption, rows }] : [])];
     }
     for (const pl of PLACES) {

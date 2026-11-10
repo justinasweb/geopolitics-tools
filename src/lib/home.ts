@@ -12,11 +12,11 @@ import { countryModel } from './country.ts';
 import { creditName, data, shared } from './data.ts';
 import { dependencies } from './dependence.ts';
 import { explorerMeasures } from './explorer.ts';
-import { formatDate, formatValue } from './format.ts';
+import { formatDate, formatValue, formatShare } from './format.ts';
 import { topLine } from './hubs.ts';
 import { indicatorModel, tagOf } from './indicator.ts';
 import { menu } from './menu.ts';
-import { listed, mineralPage, nameOf as producerName, shareText } from './minerals.ts';
+import { listed, mineralPage, nameOf as producerName } from './minerals.ts';
 import { place } from './places.ts';
 import { countryHref, live, navKey, paths, routes, type Route } from './routes.ts';
 import { sourceRows } from './sources.ts';
@@ -65,7 +65,6 @@ export interface QCard {
 }
 
 const ticData = shared(treasuryHolders);
-const pct = (s: number) => `${Math.round(s * 100)}%`;
 const monthLong = (ym: string) => new Intl.DateTimeFormat('en', { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${ym}-01T00:00:00Z`));
 const month = (ym: string) => new Intl.DateTimeFormat('en', { month: 'short', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${ym}-01T00:00:00Z`));
 
@@ -77,7 +76,7 @@ function rareEarths(): QCard | null {
   const max = top[0].share!;
   return {
     q: T.rareEarths.q(p.name), href: r.path, go: T.rareEarths.go(p.name), measure: T.rareEarths.measure,
-    bars: top.map((x) => ({ name: producerName(x), value: shareText(x.share!), width: (x.share! / max) * 100 })),
+    bars: top.map((x) => ({ name: producerName(x), value: formatShare(x.share!), width: (x.share! / max) * 100 })),
     source: 'USGS', parts: [String(p.latest.year)], ...(p.latest.estimated ? { status: 'estimate' as const } : {}),
   };
 }
@@ -109,15 +108,15 @@ export function gasCard(id = 'HUN'): QCard | null {
   if (!r || !row || row.state !== 'ok' || !row.top || row.reliance === undefined || row.reliance <= 0 || row.year === undefined || !imports) return null;
   const country = nameOf(id);
   const supplier = nameOf(row.top.id);
-  const share = pct(row.top.share);
-  const net = pct(Math.min(1, row.reliance));
+  const share = formatShare(row.top.share);
+  const net = formatShare(Math.min(1, row.reliance));
   return {
     q: T.gas.q(country, supplier), href: `${r.path}?sort=gas&find=${encodeURIComponent(country)}`, go: T.gas.go, measure: T.gas.measure,
     dep: {
       num: share, lead: T.gas.lead(country, supplier), note: T.gas.net(net, row.year), label: T.gas.label(country, supplier, share, net),
       segments: [
         { cls: 'a', width: row.top.share * 100, label: `${supplier} ${share}` },
-        { cls: 'c', width: (1 - row.top.share) * 100, label: `${T.gas.others} ${pct(1 - row.top.share)}` },
+        { cls: 'c', width: (1 - row.top.share) * 100, label: `${T.gas.others} ${formatShare(1 - row.top.share)}` },
       ],
     },
     source: T.gas.source, parts: T.gas.parts(imports, row.year),
