@@ -117,6 +117,22 @@ describe('share image cards', () => {
     for (const c of cards) fitsCard(c.card, c.key);
   });
 
+  it('give every card with a figure or bars a source line that fits on one line beside the site name', () => {
+    for (const c of cards.filter((x) => x.card.figure || x.card.bars?.length)) {
+      expect(c.card.source, c.key).toBeTruthy();
+      expect(measure(`Source: ${c.card.source}`, 20) + measure('geopolitics.tools', 20, 'sans600') + 24, c.key).toBeLessThan(G.innerW);
+    }
+  });
+
+  it('date the member lists on the bloc and alliance-history cards', () => {
+    const blocs = cards.filter((c) => c.family === 'blocs');
+    const history = cards.filter((c) => c.family === 'alliance-history' || c.family === 'history');
+    expect(blocs).toHaveLength(20);
+    expect(history).toHaveLength(11);
+    for (const c of blocs) expect(c.card.source, c.key).toMatch(/^The groupings’ own member lists, as of \d{1,2} \w{3} \d{4}/);
+    for (const c of history) expect(c.card.source, c.key).toMatch(/^The groupings’ own member lists and histories, as of \d{4}$/);
+  });
+
   it('credit the dams and the water figures on every river card, on one line beside the site name', () => {
     const rivers = cards.filter((c) => c.family === 'rivers');
     expect(rivers).toHaveLength(8);

@@ -24,6 +24,7 @@ import { BLOCS_TEXT, HISTORY_TEXT, MEASURE_TEXT } from '../i18n/blocs.en';
 import { BLOC_TEXT } from '../i18n/map.en';
 import { blocPage, membershipCounts } from './blocview';
 import { historyPage } from './history';
+import { BLOCS_CHECKED } from './blocs';
 import { riverPage } from './rivers';
 import { RIVERS_TEXT } from '../i18n/water.en';
 import { estimated as foodEstimated, foodPage, lede as foodLede, mt, netText, shareOf as foodShare } from './food';
@@ -145,12 +146,16 @@ export function card(r: Route | null): Card {
     const id = r.id.split(':')[1];
     if (id === 'all') {
       const c = membershipCounts().slice(0, 5);
-      return { kicker: BLOCS_TEXT.hub, title: BLOCS_TEXT.allTitle, caption: BLOCS_TEXT.countLegend, bars: c.map((x) => ({ label: nameOf(x.id), value: x.n, text: String(x.n) })) };
+      return { kicker: BLOCS_TEXT.hub, title: BLOCS_TEXT.allTitle, caption: BLOCS_TEXT.countLegend, bars: c.map((x) => ({ label: nameOf(x.id), value: x.n, text: String(x.n) })), source: BLOCS_TEXT.imageSource(formatDate(BLOCS_CHECKED), []) };
     }
     const p = blocPage(id)!;
+    const shares = p.shares.slice(0, 5);
+    // The count is the member lists'; the shares are their measures' sources, each named once.
+    const others = [...new Set(shares.flatMap((s) => [INDICATORS[s.id].source].flat()).map(short))];
     return {
       kicker: BLOCS_TEXT.section, title: BLOC_TEXT[id] ?? id, figure: String(p.members.length), caption: BLOCS_TEXT.imageCaption(id, BLOC_TEXT[id] ?? id, p.members.length),
-      bars: p.shares.slice(0, 5).map((s) => ({ label: `${MEASURE_TEXT[s.id]}, ${s.year}`, value: s.share, text: formatShare(s.share) })),
+      bars: shares.map((s) => ({ label: `${MEASURE_TEXT[s.id]}, ${s.year}`, value: s.share, text: formatShare(s.share) })),
+      source: BLOCS_TEXT.imageSource(formatDate(BLOCS_CHECKED), others),
     };
   }
   if (r.kind === 'view' && r.id.startsWith('history:')) {
@@ -163,6 +168,7 @@ export function card(r: Route | null): Card {
     return {
       kicker: HISTORY_TEXT.section, title: HISTORY_TEXT.title(name), figure: String(p.byYear[last].members.length), caption: HISTORY_TEXT.imageCaption(id, first, last, p.byYear[last].members.length),
       bars: steps.map((y) => ({ label: String(y), value: p.byYear[y].members.length, text: String(p.byYear[y].members.length) })),
+      source: HISTORY_TEXT.imageSource(last),
     };
   }
   if (r.kind === 'view' && r.id.startsWith('rivers:')) {

@@ -75,6 +75,8 @@ export const BLOCS_TEXT = {
   description: (bloc: string) => `${bloc}: members on a map, their share of the world’s people, GDP, military spending and production, and their other groupings.`,
   allDescription: `Nineteen groupings and alliances on one map: how many each country belongs to, and each grouping’s members and share of the world.`,
   checked: (date: string) => `Members as of ${date}`,
+  /** The share image's source: the member lists and when they were checked, then the sources of the shares shown. */
+  imageSource: (date: string, others: string[]) => [`The groupings’ own member lists, as of ${date}`, ...others].join('; '),
   // The map.
   legendMember: 'Member',
   member: 'Member',
@@ -259,6 +261,8 @@ export const HISTORY_TEXT = {
   imageCaption: (id: string, from: number, to: number, n: number) => (NON_COUNTRY_MEMBERS[id] ? `${from}–${to}. In ${to}: ${membersText(id, n, to)}` : `${from}–${to}`),
   caveat: 'Countries are drawn on today’s borders. Years are those of accession or exit as the grouping records them; a year is not the exact date.',
   source: 'The groupings’ own member lists and histories',
+  /** The share image's source, as of the last year it shows. */
+  imageSource: (year: number) => `The groupings’ own member lists and histories, as of ${year}`,
   blocLine: (other: string, k: number, n: number, bloc: string, y: number) => (k ? `${k} of ${todaysMembers(other, { count: n })} were in ${bloc} in ${y}.` : `None of ${todaysMembers(other)} were in ${bloc} in ${y}.`),
   today: 'Members today',
   history: 'Membership history',
