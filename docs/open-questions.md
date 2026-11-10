@@ -130,6 +130,23 @@ honours the wildcard on a put: if it did not, every Post would be refused.
 **Options.** Leave it as it is (the gap is milliseconds wide), or confirm `If-None-Match: *` on a Preview's bucket
 and add it to the claim.
 
+### Gas flows with only an estimated weight (raised 10 Nov 2026)
+
+**The question.** Comtrade's estimated net weights for gas are far off (Canada → United States 2025: 18.7 bcm by
+the estimate, 89.8 by the US's own m³, EIA 89.2), so since 10 Nov a gas row uses its weight when reported, else its own
+volume, else the exporter's report, and never the estimate alone. China gives no quantity for its pipeline imports
+and Russia and Turkmenistan do not report, so **Russia → China and Turkmenistan → China by pipeline are not shown**
+(the estimates were 18.4 and 16.4 bcm in 2025, well under what the pipelines' operators report). Russia → France and
+Qatar → Pakistan LNG go the same way.
+
+**Options.** Keep them out (now); show them tagged Estimate with a note that the weight is UN Comtrade's; or take
+China's from another source.
+
+**Also.** The production build drops US, Canadian and Mexican pipeline flows until the Comtrade fetcher has run once
+with this change (it keeps the second quantity from then on and fetches older gas files again), and the supply-chain
+line naming the exporters' reports runs to 13 flows (18 after the fetch), most under 1 bcm; `listUpTo` could cut it to
+the largest few.
+
 ## Launch review leftovers (raised 5 Nov 2026)
 
 - **G7 and Russia (decided 5 Nov 2026).** Russia joins in 1998, as the G8, per the G7 Research Group
