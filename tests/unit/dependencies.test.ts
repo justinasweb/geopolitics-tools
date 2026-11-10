@@ -67,6 +67,22 @@ describe('Dependencies model', () => {
     expect(html).toContain('2 found in this table.');
   });
 
+  it('shows an old balance with its year, out of the sort, the phone ranking and reliance on one supplier', async () => {
+    // The United Arab Emirates' wheat: a 2008 balance, partners from 2023.
+    const old = { v: 1, t: ['RUS', 0.6] as [string, number], y: '2008', ty: '2023', o: 1 as const };
+    const g: Grid = { ...grid, rows: [...grid.rows, { id: 'ARE', cells: cells(old, old, { why: 'i' }) }], places: { ...grid.places, ARE: { n: 'United Arab Emirates', c: 'ARE' } } };
+    expect(cellText(g, 'oil', old)).toEqual(['100%', '2008, no recent data']);
+    expect(rowsOf(parseState(new URLSearchParams(''), g), g).map((r) => r.id)).toEqual(['HUN', 'EGY', 'NOR', 'ARE']);
+    expect(spofs(g.rows).map((x) => x.id)).not.toContain('ARE');
+    expect(phoneHtml({ ...DEFAULTS, show: 'commodity', sort: 'oil' }, g)).not.toContain('United Arab Emirates');
+    const html = tableHtml(DEFAULTS, g);
+    expect(html).toContain('No recent data: the latest balance is from 2008; Main partners are from 2023, 15 years after the balance');
+    const { leadImports, oldNotes } = await import('../../src/lib/dependence.ts');
+    const row = { resource: 'wheat', state: 'ok', source: 'faostat', year: 2008, reliance: 1, tag: 'most', partners: ['RUS'], partnersFrom: { source: 'faostat', period: '2023' }, old: true } as const;
+    expect(oldNotes({ ...row, partners: [...row.partners] })).toEqual(['No recent data: the latest balance is from 2008', 'Main partners are from 2023, 15 years after the balance']);
+    expect(leadImports([{ ...row, partners: [...row.partners] }])).toEqual([]);
+  });
+
   it('marks the found row and the sorted column', () => {
     const html = tableHtml({ ...DEFAULTS, find: 'nor' }, grid);
     expect(html).toContain('<tr data-id="NOR" class="is-found">');

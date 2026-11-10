@@ -57,6 +57,8 @@ export const DEPS_TEXT = {
   exportsExceed: 'Exports exceed',
   exportsExceedSub: 'recorded supply',
   year: (y: string) => `Year: ${y}`,
+  /** Under an old balance's value. */
+  oldData: (y: string) => `${y}, no recent data`,
   countryPage: (name: string) => `${name} country page`,
   rankLabel: (label: string) => `Countries ranked by ${label}`,
 

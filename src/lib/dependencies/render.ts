@@ -30,6 +30,7 @@ export function cellText(grid: Grid, r: ResourceId, c: Cell): [string, string] {
   if (c.why === 'x') return [T.exportsExceed, T.exportsExceedSub];
   if (c.v === undefined) return ['–', WHY[c.why ?? 'n']];
   const b = bandOf(r, c);
+  if (c.o && c.y) return [b === 5 || b === 6 ? T.exports : pct(c.v), T.oldData(c.y)];
   if (b === 5 || b === 6) return [T.exports, c.x !== undefined ? T.ofOutput(formatShare(c.x)) : ''];
   if (c.v < 0) return [pct(c.v), T.netExporter];
   return [pct(c.v), c.t ? `${iso(grid, c.t[0])} ${formatShare(c.t[1])}` : ''];
@@ -44,7 +45,10 @@ function cellHtml(grid: Grid, r: ResourceId, c: Cell, tag: 'td' | 'span' = 'td')
   const when = c.y && (meta ? DEP_TEXT.dated(meta.credit, c.y, c.ty && meta.flowCredit, c.ty, false, onSupply(r) ? 'supply' : 'use') : T.year(c.y));
   const crop = ['wheat', 'maize', 'rice', 'soy'].includes(r);
   const noted = when && (c.why === 'e' || c.why === 'x') && meta ? `${when}; ${(c.why === 'x' && crop ? DEP_TEXT.exportsNote : DEP_TEXT.exceedsNote)(meta.credit)}` : when;
-  const said = noted && c.tm ? `${noted}; ${DEP_TEXT.supplierAsReported}` : noted;
+  const said0 = noted && c.tm ? `${noted}; ${DEP_TEXT.supplierAsReported}` : noted;
+  // An old balance says so, and that its partners are from a much later year.
+  const gap = c.y && c.ty ? Number(c.ty) - Number(c.y) : 0;
+  const said = said0 && c.o ? `${said0}; ${DEP_TEXT.noRecent(Number(c.y))}${gap > 10 ? `; ${DEP_TEXT.partnersLater(Number(c.ty), gap)}` : ''}` : said0;
   const title = said ? ` title="${esc(said)}"` : quiet ? ` title="${esc(s)}"` : '';
   const sub = !s ? '' : quiet ? `<span class="gt-vh">${esc(s)}</span>` : `<span class="gt-dg__s">${esc(s)}</span>`;
   const est = c.est ? tagHtml('estimate') : '';
