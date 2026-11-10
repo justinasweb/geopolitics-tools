@@ -87,10 +87,9 @@ export function sankeyHtml(c: Chain, s: State): string {
     labs.push(`<text x="${left ? 0 : '100%'}" dx="${left ? -8 : 8}" y="${(n.mid + 4.5).toFixed(1)}"${left ? ' text-anchor="end"' : ''} class="gt-sk__lab${pick ? ' gt-sk__pick' : ''}"${pick}><tspan class="gt-sk__n">${esc(label)}</tspan> ${esc(amount(n.value, c))}${of}</text>`);
   }
   const plot = `<svg width="100%" height="${sk.height}" viewBox="${xs.from} 0 ${xs.to + xs.node - xs.from} ${sk.height}" preserveAspectRatio="none" overflow="visible">${bands}${rects.join('')}</svg>`;
-  const tt = TOTALS[c.kind];
-  const [axFrom, axTo] = c.full ? [T.axisFull(sides(c).froms, tt.shown), T.axisFull(sides(c).tos, tt.shown)] : [sides(c).froms, sides(c).tos];
-  const axis = `<text x="0" y="${sk.height - 8}" class="gt-sk__ax">${esc(axFrom)}</text>`
-    + `<text x="100%" y="${sk.height - 8}" text-anchor="end" class="gt-sk__ax">${esc(axTo)}</text>`;
+  // The side labels stay short (they share the drawing's width); the caption says what the totals are of.
+  const axis = `<text x="0" y="${sk.height - 8}" class="gt-sk__ax">${esc(sides(c).froms)}</text>`
+    + `<text x="100%" y="${sk.height - 8}" text-anchor="end" class="gt-sk__ax">${esc(sides(c).tos)}</text>`;
   const label = T.diagramLabel(chainTitle(c.key, c.label).full, c.period, sides(c).froms, sides(c).tos, w.unit, s.country ? nameOf(c, s.country) : undefined);
   const chip = s.country
     ? `<div class="gt-blocchip"><span>${T.focused(esc(nameOf(c, s.country)))}</span><button type="button" aria-label="${esc(T.clear)}" data-sk-clear>${ICON.close}</button></div>` : '';
@@ -112,7 +111,8 @@ function barsHtml(c: Chain, xs: [string, number][], label: string, share?: numbe
     const val = share ? formatShare(v / share) : all !== undefined ? T.ofFull(amount(v, c), amount(all, c)) : amount(v, c);
     return `<li${id === OTHERS ? ' class="gt-bars__other"' : ''}><span class="gt-bars__name">${who}</span><span class="gt-bars__track"><span class="gt-bars__fill" style="width:${((100 * v) / max).toFixed(1)}%"></span></span><span class="gt-bars__val">${esc(val)}</span></li>`;
   }).join('');
-  return `<div class="gt-cpsub"><span class="gt-label">${esc(label)}</span><ol class="gt-bars gt-bars--tight gt-bars--wide" aria-label="${esc(label)}">${items}</ol></div>`;
+  const of = side !== undefined && !share && xs.some(([id]) => fullOf(c, id, side) !== undefined);
+  return `<div class="gt-cpsub"><span class="gt-label">${esc(label)}</span><ol class="gt-bars gt-bars--tight ${of ? 'gt-bars--of' : 'gt-bars--wide'}" aria-label="${esc(label)}">${items}</ol></div>`;
 }
 
 function concHtml(h: number, note: string, method: string): string {
@@ -142,7 +142,7 @@ export function panelHtml(c: Chain, s: State): string {
     const all = sum(froms);
     const five = sum(froms.slice(0, TOP));
     const conc = c.kind === 'refugees' ? '' : concHtml(hhi(froms), T.concWorld(Math.min(TOP, froms.length), formatShare(five / all), w.noun, hhi(froms).toLocaleString('en')), c.method);
-    return head(T.world, false) + stat(c, T.total, all) + conc
+    return head(TOTALS[c.kind].world, false) + stat(c, TOTALS[c.kind].total, all) + conc
       + barsHtml(c, froms.slice(0, TOP), T.topFroms(sd.froms, w.short, reportedTo(c), shownWord), undefined, 0)
       + barsHtml(c, tos.slice(0, TOP), T.topTos(sd.tos, w.short, reportedTo(c), shownWord), undefined, 1) + sourceHtml(c);
   }

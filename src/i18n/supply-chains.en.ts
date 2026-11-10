@@ -28,10 +28,10 @@ export const SIDES: Record<ChainKind, { from: string; to: string; froms: string;
 };
 
 /** What the diagram's and the panel's totals are of, and the source's full figures beside them, by kind. */
-export const TOTALS: Record<ChainKind, { shown: string; allFrom: string; allTo: string }> = {
-  trade: { shown: 'in the flows shown', allFrom: 'All exports', allTo: 'All imports' },
-  arms: { shown: 'in the flows shown', allFrom: 'All deliveries', allTo: 'All received' },
-  refugees: { shown: 'in the pairs shown', allFrom: 'All abroad', allTo: 'All hosted' },
+export const TOTALS: Record<ChainKind, { shown: string; allFrom: string; allTo: string; world: string; total: string }> = {
+  trade: { shown: 'in the flows shown', allFrom: 'All exports', allTo: 'All imports', world: 'All flows shown', total: 'Total of the flows shown' },
+  arms: { shown: 'in the flows shown', allFrom: 'All deliveries', allTo: 'All received', world: 'All flows shown', total: 'Total of the flows shown' },
+  refugees: { shown: 'in the pairs shown', allFrom: 'All abroad', allTo: 'All hosted', world: 'All pairs shown', total: 'Total of the pairs shown' },
 };
 
 /** A page's title, the line beside it and its title on its own: "Wheat supply chain", but refugees are not a supply chain
@@ -93,8 +93,6 @@ export const CHAINS_TEXT = {
   hideDiagram: 'Hide diagram',
 
   // Panel
-  world: 'All flows shown',
-  total: 'Total of the flows shown',
   concentration: 'Concentration',
   conc: { low: 'Unconcentrated', moderate: 'Moderately concentrated', high: 'Highly concentrated' } as Record<string, string>,
   concWorld: (n: number, share: string, noun: string, hhi: string) => `The ${n} largest suppliers ship ${share} of the ${noun} in these flows. Herfindahl index ${hhi} on supplier shares; 1,000 to 1,800 counts as moderately and above 1,800 as highly concentrated.`,
@@ -105,8 +103,6 @@ export const CHAINS_TEXT = {
   topTos: (tos: string, unit: string, reportedTo?: string, shown?: string) => (reportedTo ? `Largest ${tos.toLowerCase()} in the flows reported to ${reportedTo}, ${unit}` : `Top ${tos.toLowerCase()}${shown ? ` ${shown}` : ''}, ${unit}`),
   /** A total of the flows shown beside the source's full figure: "12.0 of 17.7". */
   ofFull: (shown: string, full: string) => `${shown} of ${full}`,
-  /** The diagram's side labels when it gives full figures: "Suppliers in the flows shown". */
-  axisFull: (side: string, shown: string) => `${side} ${shown}`,
   /** Under a diagram whose labels carry full figures in brackets. */
   fullCaption: {
     trade: (credit: string) => `Beside each country: its total in the flows shown, then in brackets all its exports or imports that year, from ${credit}’s trade figures.`,

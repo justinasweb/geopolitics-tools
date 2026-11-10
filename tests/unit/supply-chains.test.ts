@@ -182,7 +182,6 @@ describe('totals beside the source’s full figures', () => {
   it('label the diagram’s totals in the flows shown, the full figure in brackets', () => {
     const html = sankeyHtml(full, { country: '' });
     expect(html).toMatch(/>Russia<\/tspan> 14\.5 <tspan class="gt-sk__all">\(17\.7\)<\/tspan>/);
-    expect(html).toContain('>Suppliers in the flows shown</text>');
     expect(html).toContain('then in brackets all its exports or imports that year, from FAOSTAT’s trade figures.');
     // Wider label gutters: no label runs off the page.
     expect(html).toContain('--l:200px');
