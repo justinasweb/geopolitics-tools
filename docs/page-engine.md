@@ -77,10 +77,13 @@ A sample build has 129 country pages and 37 indicator pages; the real snapshot h
   listed as such. "Latest available" reaches back two years and marks the older rows.
 - **Dependence.** Net imports ÷ use: 50% or more "Imports most", 15–50% "Imports some", within ±15% "Roughly
   self-sufficient", below −15% "Exporter" (`src/lib/dependence.ts`). Arms and chips show the main supplier's share
-  only. A row whose source is not in the snapshot says "No data yet". Net imports more than 10% above recorded use
-  (`THRESHOLDS.excess`; Djibouti's fertilisers, transit trade to Ethiopia) give no share and no tag: the row says
-  "Imports exceed recorded use" with a caveat, and is left out of the tool's sort and ranking, reliance on one
-  supplier and a country page's lead imports.
+  only. A row whose source is not in the snapshot says "No data yet". Potash and phosphate are a share of supply
+  (production plus net imports), not of FAOSTAT's agricultural use, which leaves out industry and transit; their rows
+  carry the Estimate label when FAOSTAT flags a figure as its estimate or imputation (E, I), as crop rows do. Net imports
+  more than 10% above use, or exports more than 10% above production plus imports (`THRESHOLDS.excess`; Morocco's
+  phosphate), give no share and no tag: the row says "Imports exceed recorded use" or "Exports exceed recorded
+  supply" with a caveat, and is left out of the tool's sort and ranking, reliance on one supplier and a country page's
+  lead imports.
 - **Neutral words.** Templates use plain verbs (mines, imports, hosts) and no adjectives that judge. "Higher" on
   Compare marks the larger value and says it is not a judgement. A sentence whose figure is missing is left out.
 - **Colour is never the only cue.** Dependence tags have a glyph and a word, Compare's first and second country have

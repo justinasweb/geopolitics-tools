@@ -158,15 +158,15 @@ describe('net imports far above recorded use', () => {
       production: one(production), imports: one(imports), exports: one(exports), use: one(use), world: { production: {} },
       estimated: { production: {}, imports: {}, exports: {}, use: {} },
     }) as never;
-    // Djibouti's potash: imports 200 times its use (transit trade to Ethiopia).
+    // On the source's own use figure: imports 200 times use (Djibouti's potash against FAOSTAT's farm use).
     const dji = fromBalance('potash', balance(0, 6011, 0, 30), 'DJI');
-    expect(dji).toMatchObject({ state: 'ok', year: 2024, excess: true });
+    expect(dji).toMatchObject({ state: 'ok', year: 2024, excess: 'imports' });
     expect(dji.reliance).toBeUndefined();
     expect(dji.tag).toBeUndefined();
     expect(leadImports([dji])).toEqual([]);
     // Within 10%: still a share, read as imports all.
     expect(fromBalance('potash', balance(0, 108, 0, 100), 'DJI')).toMatchObject({ reliance: 1.08, tag: 'most' });
-    expect(fromBalance('potash', balance(0, 111, 0, 100), 'DJI').excess).toBe(true);
+    expect(fromBalance('potash', balance(0, 111, 0, 100), 'DJI').excess).toBe('imports');
     const { DEP_TEXT } = await import('../../src/i18n/pages.en.ts');
     expect(DEP_TEXT.exceedsNote('FAOSTAT')).toBe('Likely transit trade or stock changes; FAOSTAT’s figures do not separate them');
     expect(cellText(grid, 'potash', { why: 'e', y: '2024' })).toEqual(['Imports exceed', 'recorded use']);
@@ -176,6 +176,48 @@ describe('net imports far above recorded use', () => {
     expect(tr).toMatch(/title="FAOSTAT, 2024; Likely transit trade or stock changes; FAOSTAT’s figures do not separate them"/);
     // Out of the phone's ranking.
     expect(phoneHtml({ ...DEFAULTS, show: 'commodity', sort: 'potash' }, g)).not.toContain('Hungary');
+  });
+});
+
+describe('fertilisers on supply', () => {
+  type B = Parameters<typeof import('../../src/lib/dependence.ts').fromBalance>[1];
+  const balance = (production: number, imports: number, exports: number, use: number, est: string[] = []): B => ({
+    production: { X: { 2024: production } }, imports: { X: { 2024: imports } }, exports: { X: { 2024: exports } }, use: { X: { 2024: use } },
+    world: { production: {} }, estimated: { production: {}, imports: {}, exports: {}, use: {}, ...Object.fromEntries(est.map((k) => [k, { X: { 2024: 1 } }])) },
+  }) as B;
+
+  it('divide net imports by production plus net imports, not by FAOSTAT’s farm use, and carry its estimate flags', async () => {
+    const { fromBalance } = await import('../../src/lib/dependence.ts');
+    // United States potash 2024, Mt K2O: 133% of farm use; 94% of supply.
+    const us = balance(0.339358, 8.551944, 2.873663, 4.270921, ['production', 'imports', 'exports', 'use']);
+    expect(fromBalance('potash', us, 'X').excess).toBe('imports');
+    const r = fromBalance('potash', us, 'X', undefined, true);
+    expect(r.reliance).toBeCloseTo(5.678281 / (0.339358 + 5.678281), 4);
+    expect(r).toMatchObject({ tag: 'most', estimated: true });
+    // An estimated farm use alone does not make a supply row an estimate.
+    expect(fromBalance('potash', balance(0, 5, 1, 3, ['use']), 'X', undefined, true).estimated).toBeUndefined();
+  });
+
+  it('say exports exceed recorded supply when they pass production plus imports by more than 10%', async () => {
+    const { fromBalance, leadImports } = await import('../../src/lib/dependence.ts');
+    // Morocco phosphate 2024: exports 1.7 times production plus imports.
+    const ma = fromBalance('phosphate', balance(6.2, 0.0023, 10.5511, 1), 'X', undefined, true);
+    expect(ma).toMatchObject({ excess: 'exports' });
+    expect(ma.reliance).toBeUndefined();
+    expect(leadImports([ma])).toEqual([]);
+    // Within 10% (Canada's potash, 1.01): an exporter, at most all it produces.
+    expect(fromBalance('potash', balance(13.55, 0.04, 13.75, 1), 'X', undefined, true)).toMatchObject({ tag: 'exp', exportShare: 1 });
+    expect(cellText(grid, 'phosphate', { why: 'x', y: '2024' })).toEqual(['Exports exceed', 'recorded supply']);
+    const { DEP_TEXT } = await import('../../src/i18n/pages.en.ts');
+    expect(DEP_TEXT.imports('94%', 'potash')).toBe('Imports 94% of its potash supply');
+    expect(DEP_TEXT.imports('84%', 'soybeans')).toBe('Imports 84% of the soybeans it uses');
+  });
+
+  it('label an estimated cell in the grid', () => {
+    const g: Grid = { ...grid, rows: grid.rows.map((r) => (r.id === 'HUN' ? { ...r, cells: r.cells.map((c, i) => (i === 6 ? { v: 0.94, y: '2024', est: 1 as const } : c)) } : r)) };
+    const html = tableHtml({ ...DEFAULTS, sort: 'potash' }, g);
+    const tr = html.slice(html.indexOf('Hungary'), html.indexOf('</tr>', html.indexOf('Hungary')));
+    expect(tr).toContain('gt-tag--estimate');
   });
 });
 
@@ -199,5 +241,13 @@ describe('flows from the exporter’s report (mirror data)', () => {
     expect(tr).toMatch(/title="[^"]*main supplier as reported by the exporter"/);
     // Summing a pair's rows keeps the mark.
     expect(sumPairs([{ from: 'USA', to: 'MEX', amount: 50, mirror: true }, { from: 'USA', to: 'MEX', amount: 20 }], (r) => r.amount)).toEqual([{ from: 'USA', to: 'MEX', amount: 70, mirror: true }]);
+  });
+});
+
+describe('a fertiliser row’s source line', () => {
+  it('dates supply, not use', async () => {
+    const { rowSource } = await import('../../src/lib/dependence.ts');
+    const row = { resource: 'potash', state: 'ok', source: 'faostat', year: 2024, partners: [], reliance: 0.94, tag: 'most', partnersFrom: { source: 'comtrade', period: '2025' } } as never;
+    expect(rowSource(row)).toBe('FAOSTAT, supply 2024 · UN Comtrade, imports 2025');
   });
 });

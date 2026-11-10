@@ -20,12 +20,15 @@ A rank says where a country falls on one measure, largest first. It is not a jud
 
 ## Import reliance
 
-Import reliance is the share of what a country uses that it buys from abroad, after taking off what it sells.
+Import reliance is the share of what a country uses that it buys from abroad, after taking off what it sells. For potash and phosphate it is the share of supply instead.
 
 | Term | How it is worked out |
 | --- | --- |
-| Import reliance | (imports − exports) ÷ use |
-| Use | production + imports − exports (FAOSTAT publishes use directly for crops and fertilisers, and we use its figure) |
+| Import reliance | (imports − exports) ÷ use, or ÷ supply for potash and phosphate |
+| Use | oil and gas: consumption, as EIA reports it; crops: production + imports − exports |
+| Supply | potash and phosphate: production + imports − exports, that is production plus net imports |
+
+FAOSTAT publishes fertiliser use, but only agricultural use: what farmers apply. Its trade figures cover every use, industry included, and goods passing through on their way elsewhere. Set against farm use alone, net imports came to more than all of a country's use in dozens of countries, the United States and France among them. Supply puts trade against figures of the same scope. FAOSTAT estimates most fertiliser trade figures itself; a row that uses one carries the **Estimate** label.
 
 A negative value means the country sells more than it buys. We then show exports as a share of production instead ("Exports 60% of what it produces").
 
@@ -38,7 +41,7 @@ A negative value means the country sells more than it buys. We then show exports
 
 A country that uses none of a resource, by its source, gets no share and the table says so.
 
-When net imports are more than 10% above recorded use, we show no share: the row says "Imports exceed recorded use" and is left out of rankings, sorting and a country page's lead imports. This is usually transit trade (Djibouti's fertiliser imports on their way to Ethiopia) or stock changes, which the source's figures do not separate.
+When net imports are more than 10% above recorded use, or exports more than 10% above production plus imports, we show no share: the row says "Imports exceed recorded use" or "Exports exceed recorded supply" and is left out of rankings, sorting and a country page's lead imports. This is usually transit trade or stock changes, which the source's figures do not separate: in FAOSTAT's figures, Morocco's phosphate exports in 2024 were 1.7 times its production plus imports.
 
 The Dependencies tool splits these further, to show where a country sits: imports 75% or more, 50% to 75%, 15% to 50%, roughly self-sufficient (±15%), and, for exporters, exports of 15% to 50% or over 50% of what it produces.
 
@@ -48,7 +51,7 @@ For arms and chips the sources give trade but not use, so we cannot say how much
 
 For food, fuel and fertiliser, the Dependencies tool also shows the main supplier's share of a country's imports, from the trade flows (FAOSTAT for crops, UN Comtrade for oil, gas and fertilisers). Their year can differ from the year of the import share.
 
-We highlight a country and resource when net imports cover at least half of use and one supplier provides at least half of those imports.
+We highlight a country and resource when net imports cover at least half of use (of supply, for fertilisers) and one supplier provides at least half of those imports.
 
 ## Five-year arms totals
 
