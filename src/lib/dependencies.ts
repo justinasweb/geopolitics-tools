@@ -23,6 +23,7 @@ function cellOf(r: DepRow): Cell {
   if (r.state === 'pending') return { why: 'p' };
   if (r.state === 'none') return { why: r.resource === 'arms' && r.period ? 'i' : 'n' };
   if (r.noUse) return { why: 'u' };
+  if (r.excess) c.why = 'e';
   if (r.reliance !== undefined && !r.main) c.v = share(r.reliance);
   if (r.exportShare !== undefined) c.x = share(r.exportShare);
   const t = r.main ?? r.top;

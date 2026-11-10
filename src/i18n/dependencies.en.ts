@@ -50,6 +50,9 @@ export const DEPS_TEXT = {
   noRow: 'not reported',
   noUse: 'not used',
   noImports: 'no imports',
+  /** Net imports more than 10% above recorded use: the words in place of a share, on two lines. */
+  exceeds: 'Imports exceed',
+  exceedsSub: 'recorded use',
   year: (y: string) => `Year: ${y}`,
   countryPage: (name: string) => `${name} country page`,
   rankLabel: (label: string) => `Countries ranked by ${label}`,

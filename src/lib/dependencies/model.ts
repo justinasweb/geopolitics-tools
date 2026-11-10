@@ -30,8 +30,8 @@ export interface Cell {
   ty?: string;
   /** 1 when the main supplier's figure is the exporter's report (mirror data). */
   tm?: 1;
-  /** Why there is no figure: p no data yet, n not reported, u not used, i no imports. */
-  why?: 'p' | 'n' | 'u' | 'i';
+  /** Why there is no figure: p no data yet, n not reported, u not used, i no imports, e imports exceed recorded use. */
+  why?: 'p' | 'n' | 'u' | 'i' | 'e';
 }
 
 export interface ResourceMeta {

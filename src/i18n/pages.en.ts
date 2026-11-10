@@ -56,6 +56,9 @@ export const DEP_TEXT = {
   importsAll: (noun: string) => `Imports all of the ${noun} it uses`,
   exports: (share: string) => `Exports ${share} of what it produces`,
   noUse: (noun: string) => `Uses no ${noun}, by this source`,
+  /** Net imports more than 10% above recorded use: no share. */
+  exceedsUse: 'Imports exceed recorded use',
+  exceedsNote: (source: string) => `Likely transit trade or stock changes; ${source}’s figures do not separate them`,
   mainSupplier: (name: string, share: string) => `Main supplier: ${name}, ${share} of imports`,
   noImports: (period: string) => `No major arms imports recorded, ${period}`,
   noData: 'No data yet',

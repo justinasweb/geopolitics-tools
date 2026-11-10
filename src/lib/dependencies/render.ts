@@ -20,11 +20,12 @@ const MINUS = '−';
 const pct = (v: number) => (v < 0 ? `${MINUS}${formatShare(-v)}` : formatShare(v));
 const iso = (grid: Grid, id: string) => grid.places[id]?.c ?? id;
 const label = (grid: Grid, r: string) => grid.resources[resIndex(r)]?.label ?? r;
-const WHY: Record<NonNullable<Cell['why']>, string> = { p: T.noData, n: T.noRow, u: T.noUse, i: T.noImports };
+const WHY: Record<NonNullable<Cell['why']>, string> = { p: T.noData, n: T.noRow, u: T.noUse, i: T.noImports, e: T.exceedsSub };
 
 /** A cell's two lines: the value, and under it the main supplier, the share of output or why there is none. */
 export function cellText(grid: Grid, r: ResourceId, c: Cell): [string, string] {
   if (CONCENTRATION.includes(r)) return c.t ? [`${iso(grid, c.t[0])} ${formatShare(c.t[1])}`, T.topSupplier] : ['–', WHY[c.why ?? 'n']];
+  if (c.why === 'e') return [T.exceeds, T.exceedsSub];
   if (c.v === undefined) return ['–', WHY[c.why ?? 'n']];
   const b = bandOf(r, c);
   if (b === 5 || b === 6) return [T.exports, c.x !== undefined ? T.ofOutput(formatShare(c.x)) : ''];
@@ -39,7 +40,8 @@ function cellHtml(grid: Grid, r: ResourceId, c: Cell, tag: 'td' | 'span' = 'td')
   // The year in the tooltip, with the source; the supplier's year apart when the trade source has another.
   const meta = grid.resources.find((m) => m.id === r);
   const when = c.y && (meta ? DEP_TEXT.dated(meta.credit, c.y, c.ty && meta.flowCredit, c.ty) : T.year(c.y));
-  const said = when && c.tm ? `${when}; ${DEP_TEXT.supplierAsReported}` : when;
+  const noted = when && c.why === 'e' && meta ? `${when}; ${DEP_TEXT.exceedsNote(meta.credit)}` : when;
+  const said = noted && c.tm ? `${noted}; ${DEP_TEXT.supplierAsReported}` : noted;
   const title = said ? ` title="${esc(said)}"` : quiet ? ` title="${esc(s)}"` : '';
   const sub = !s ? '' : quiet ? `<span class="gt-vh">${esc(s)}</span>` : `<span class="gt-dg__s">${esc(s)}</span>`;
   return `<${tag} class="gt-dg gt-dg--${bandOf(r, c)}"${title}><span class="gt-dg__v"${quiet ? ' aria-hidden="true"' : ''}>${esc(v)}</span>${sub}</${tag}>`;

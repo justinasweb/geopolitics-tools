@@ -13,8 +13,9 @@ export const RESOURCES = ['oil', 'gas', 'wheat', 'maize', 'rice', 'soy', 'potash
 export type Resource = (typeof RESOURCES)[number];
 export type DepTag = 'most' | 'some' | 'self' | 'exp';
 
-/** Thresholds on import reliance, written out in Methodology. */
-export const THRESHOLDS = { most: 0.5, self: 0.15 };
+/** Thresholds on import reliance, written out in Methodology. `excess`: net imports above use by more than this
+ *  share give no figure (transit trade or stock changes the source does not separate). */
+export const THRESHOLDS = { most: 0.5, self: 0.15, excess: 0.1 };
 
 export function tagFor(reliance: number): DepTag {
   if (reliance >= THRESHOLDS.most) return 'most';
@@ -44,6 +45,8 @@ export interface DepRow {
   buyers?: boolean;
   /** Use is zero, so no share. */
   noUse?: boolean;
+  /** Net imports exceed use by more than THRESHOLDS.excess: no share, no tag, out of rankings and lead imports. */
+  excess?: true;
   /** Where the partners and the main supplier come from, when it is a trade source with its own period; `mirror`:
    *  the flows shown whose amount is the exporter's report (mirror data), named ("United States → Mexico"). */
   partnersFrom?: { source: string; period: string; mirror?: string[] };
@@ -88,7 +91,7 @@ function balanceRow(b: Balance, id: string) {
   return { year: y, production: p, imports: i, exports: e, use: b.use[id]?.[y] ?? Math.max(0, p + i - e) };
 }
 
-function fromBalance(resource: Resource, b: Balance | undefined, id: string, flowKey?: string): DepRow {
+export function fromBalance(resource: Resource, b: Balance | undefined, id: string, flowKey?: string): DepRow {
   const base = { resource, source: 'faostat', partners: [] as string[] };
   const r = b && balanceRow(b, id);
   if (!r) return { ...base, state: 'none' };
@@ -97,6 +100,9 @@ function fromBalance(resource: Resource, b: Balance | undefined, id: string, flo
   if (r.use <= 0) {
     if (net < 0 && r.production > 0) Object.assign(row, { reliance: -1, exportShare: -net / r.production, tag: 'exp' });
     else return { ...row, noUse: true };
+  } else if (net > r.use * (1 + THRESHOLDS.excess)) {
+    // Djibouti's potash: net imports 200 times its recorded use, transit trade to Ethiopia.
+    row.excess = true;
   } else {
     row.reliance = net / r.use;
     row.tag = tagFor(row.reliance);
@@ -108,7 +114,7 @@ function fromBalance(resource: Resource, b: Balance | undefined, id: string, flo
     row.buyers = buyers;
     row.partnersFrom = { source: f.source, period: f.period };
     row.partners = f.pairs.filter((p) => (buyers ? p.from === id : p.to === id)).slice(0, 3).map((p) => (buyers ? p.to : p.from));
-    const t = !buyers && (row.reliance ?? 0) > 0 ? topSupplier(f, id) : null;
+    const t = !buyers && ((row.reliance ?? 0) > 0 || row.excess) ? topSupplier(f, id) : null;
     if (t) row.top = { id: t.from, share: t.share };
     // The partners shown whose flow is the exporter's report: named in the row's source line.
     const shown = (p: { from: string; to: string }) => (buyers ? p.from === id && row.partners.includes(p.to) : p.to === id && (row.partners.includes(p.from) || row.top?.id === p.from));

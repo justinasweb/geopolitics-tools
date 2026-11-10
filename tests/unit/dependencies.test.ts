@@ -150,6 +150,35 @@ describe('which imports a country page names first', () => {
   });
 });
 
+describe('net imports far above recorded use', () => {
+  it('give no share, no tag and no lead import beyond 10% over use; the grid writes the words instead', async () => {
+    const { fromBalance, leadImports } = await import('../../src/lib/dependence.ts');
+    const one = (v: number) => ({ DJI: { 2024: v } });
+    const balance = (production: number, imports: number, exports: number, use: number) => ({
+      production: one(production), imports: one(imports), exports: one(exports), use: one(use), world: { production: {} },
+      estimated: { production: {}, imports: {}, exports: {}, use: {} },
+    }) as never;
+    // Djibouti's potash: imports 200 times its use (transit trade to Ethiopia).
+    const dji = fromBalance('potash', balance(0, 6011, 0, 30), 'DJI');
+    expect(dji).toMatchObject({ state: 'ok', year: 2024, excess: true });
+    expect(dji.reliance).toBeUndefined();
+    expect(dji.tag).toBeUndefined();
+    expect(leadImports([dji])).toEqual([]);
+    // Within 10%: still a share, read as imports all.
+    expect(fromBalance('potash', balance(0, 108, 0, 100), 'DJI')).toMatchObject({ reliance: 1.08, tag: 'most' });
+    expect(fromBalance('potash', balance(0, 111, 0, 100), 'DJI').excess).toBe(true);
+    const { DEP_TEXT } = await import('../../src/i18n/pages.en.ts');
+    expect(DEP_TEXT.exceedsNote('FAOSTAT')).toBe('Likely transit trade or stock changes; FAOSTAT’s figures do not separate them');
+    expect(cellText(grid, 'potash', { why: 'e', y: '2024' })).toEqual(['Imports exceed', 'recorded use']);
+    const g: Grid = { ...grid, rows: grid.rows.map((r) => (r.id === 'HUN' ? { ...r, cells: r.cells.map((c, i) => (i === 6 ? { why: 'e' as const, y: '2024' } : c)) } : r)) };
+    const html = tableHtml({ ...DEFAULTS, sort: 'potash' }, g);
+    const tr = html.slice(html.indexOf('Hungary'), html.indexOf('</tr>', html.indexOf('Hungary')));
+    expect(tr).toMatch(/title="FAOSTAT, 2024; Likely transit trade or stock changes; FAOSTAT’s figures do not separate them"/);
+    // Out of the phone's ranking.
+    expect(phoneHtml({ ...DEFAULTS, show: 'commodity', sort: 'potash' }, g)).not.toContain('Hungary');
+  });
+});
+
 describe('the dependencies section’s finding', () => {
   it('names the lead imports under one verb, and an export after a semicolon', async () => {
     const { DEP_TEXT } = await import('../../src/i18n/pages.en.ts');

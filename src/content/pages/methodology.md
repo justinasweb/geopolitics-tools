@@ -38,6 +38,8 @@ A negative value means the country sells more than it buys. We then show exports
 
 A country that uses none of a resource, by its source, gets no share and the table says so.
 
+When net imports are more than 10% above recorded use, we show no share: the row says "Imports exceed recorded use" and is left out of rankings, sorting and a country page's lead imports. This is usually transit trade (Djibouti's fertiliser imports on their way to Ethiopia) or stock changes, which the source's figures do not separate.
+
 The Dependencies tool splits these further, to show where a country sits: imports 75% or more, 50% to 75%, 15% to 50%, roughly self-sufficient (±15%), and, for exporters, exports of 15% to 50% or over 50% of what it produces.
 
 ## Supplier concentration
