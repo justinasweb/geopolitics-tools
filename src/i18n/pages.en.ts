@@ -461,6 +461,8 @@ export const OG_TEXT = {
   source: (s: string) => `Source: ${s}`,
   /** The source as it closes the card's alt text. */
   altSource: (s: string) => `source: ${s}`,
+  /** The credit for a country card's mineral bars, beside the headline figure's. */
+  mineralSource: (credit: string) => `${credit} (mineral shares)`,
   /** og:image:alt and twitter:image:alt when a page names no share card. */
   altFallback: (title: string) => `Share card: ${title}`,
 };

@@ -101,6 +101,12 @@ describe('Compare markup', () => {
     expect(money).toContain('>US$3.60 trillion<');
   });
 
+  it('tags a figure as the country page does', () => {
+    const html = keyHtml(meta, [{ ...mali, f: { gdp: [2.6e10, 2025, 'estimate'] } }, { ...tuvalu, f: { gdp: [5.7e7, 2025] } }]);
+    expect(html.match(/gt-tag--estimate/g)).toHaveLength(2);
+    expect(html).toContain('>US$26.0 billion <span class="gt-tag gt-tag--estimate');
+  });
+
   it('explains a mineral share USGS does not list, rather than a bare dash', () => {
     const html = mineralsHtml(meta, [mali, tuvalu], 3);
     expect(html).toContain('<span class="gt-vh">Not listed by USGS</span>');

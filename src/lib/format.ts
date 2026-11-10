@@ -138,13 +138,14 @@ export function formatParts(v: number, f: Format, unit = '', locale = 'en'): { n
 
 /**
  * A share (0.32) as a percentage rounded for reading, the one rule for every share on the site: whole percent from
- * 10%, one decimal below, "<0.1%" for a share above zero that would read as zero ("32%", "9.7%", "4%", "<0.1%").
+ * 10%, one decimal below, "<0.1%" for a share above zero that would read as zero ("32%", "9.7%", "4%", "<0.1%"), and
+ * one decimal for a share under 100% that would read as 100% ("99.7%").
  * Pass the share as the source gives it: a share rounded before this (0.495 for 0.49498) can read one point apart.
  */
 export function formatShare(s: number, locale = 'en'): string {
   const p = Math.abs(s) * 100;
   if (p > 0 && p < 0.05) return '<0.1%';
-  const text = `${new Intl.NumberFormat(locale, { maximumFractionDigits: p >= 9.95 ? 0 : 1 }).format(p)}%`;
+  const text = `${new Intl.NumberFormat(locale, { maximumFractionDigits: p >= 9.95 && (p < 99.5 || p >= 100) ? 0 : 1 }).format(p)}%`;
   return s < 0 && /[1-9]/.test(text) ? `${MINUS}${text}` : text;
 }
 

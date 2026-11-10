@@ -100,7 +100,8 @@ A sample build has 129 country pages and 37 indicator pages; the real snapshot h
   the Explorer do not show it.
 - **One rounding for shares.** Every share on every page, tool, map and share image goes through `formatShare`
   (`src/lib/format.ts`; `formatValue` uses it for share indicators): whole percent from 10%, one decimal below,
-  "<0.1%" for a share above zero that would read as zero. Data files keep shares to six significant figures, so a
+  "<0.1%" for a share above zero that would read as zero, and one decimal for a share under 100% that would read
+  100% (BRICS's 99.7% of primary gallium). Data files keep shares to six significant figures, so a
   share is not rounded twice (India's gas, 0.49498, read 49% on its page and 50% in Dependencies when the tool kept
   four decimals; a test now checks every cell against the country rows).
 - **Neutral words.** Templates use plain verbs (mines, imports, hosts) and no adjectives that judge. "Higher" on
@@ -356,6 +357,11 @@ says is in `src/lib/og-cards.ts`.
 - **Rows** get the space left beside the figure column: the value column is as wide as the widest value, the label
   column up to 240px, the bar the rest. When five two-line rows would not fit under the title, the rows get tighter,
   then smaller, then one line each.
+- **Every figure has its own source and year.** Bars from a second source name it in the source line: a country
+  card's mineral bars read "Gallium (primary production), 2025", "69% (estimate)" where USGS estimates, under
+  "World Bank; USGS (mineral shares)". USGS cards give the data year, not the edition ("USGS, 2025, estimated"
+  for Mineral Commodity Summaries 2026). A figure tagged on its page (Estimate, Projection, Preliminary) carries the
+  word on the card.
 - `tests/unit/og.test.ts` checks every card the site builds, and the longest label of each view family five times
   over under its longest title, rendered with nothing in the card's margins.
 - **Alt text**: `og:image:alt` and `twitter:image:alt` say the card in one sentence (kicker, title, figure with its

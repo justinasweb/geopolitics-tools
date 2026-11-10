@@ -20,7 +20,7 @@ import { DISASTERS_TEXT, KIND_TEXT } from '../../i18n/disasters.en.ts';
 import { formatDate, formatPartialDate, formatValue, formatShare } from '../format.ts';
 import { TOP_FLOWS, balanceOf, estimated as foodEstimated, classFor as foodClass, foodPages, mt, netText, placeNotes, shareOf as foodShare, sourceOf, valueText as foodValue, type FoodPage } from '../food.ts';
 import { FOOD_TEXT } from '../../i18n/food.en.ts';
-import { TOP_FLOWS as ENERGY_TOP, amount as energyAmount, balanceOf as energyBalance, balanceYear, classFor as energyClass, energyPages, pageUs, shareOf as energyShare, viaEia, valueText as energyValue, type EnergyPage } from '../energy.ts';
+import { TOP_FLOWS as ENERGY_TOP, amount as energyAmount, balanceOf as energyBalance, balanceYear, classFor as energyClass, energyPages, isPreliminary, pageUs, shareOf as energyShare, viaEia, valueText as energyValue, type EnergyPage } from '../energy.ts';
 import { ENERGY_TEXT } from '../../i18n/energy.en.ts';
 import { arcXY, toMap } from './projection.ts';
 import { sitesIn, spaceAsOf, workingBy } from '../space.ts';
@@ -125,7 +125,7 @@ function mineralLayer(p: MineralPage): LayerFile {
       const share = inBloc.reduce((s, x) => s + (x.share ?? 0), 0);
       const name = BLOC_TEXT[id] ?? id;
       const w = withheld(y).filter((x) => x.place && members.includes(x.place));
-      bl[id] = [inBloc.length ? MV.bloc(name, formatShare(share), p.name, year) : MV.blocNone(name, p.name, year),
+      bl[id] = [inBloc.length ? MV.bloc(name, formatShare(share), p.name, year, Boolean(y.estimated || inBloc.some((x) => x.estimated))) : MV.blocNone(name, p.name, year),
         w.length ? MV.blocWithheld(list(w.map((x, i) => inSentence(nameOf(x), i === 0)))) : ''].filter(Boolean).join(' ');
     }
     return { year, status: y.estimated ? 'estimate' : undefined, legend: MV.legendTitle(year), v, order: l.map((x) => x.place!).filter(Boolean), blocs: bl };
@@ -790,8 +790,10 @@ function energyLayer(p: EnergyPage): LayerFile {
   const data: LayerYear[] = p.years.map((year) => {
     const y = p.byYear[year];
     const v: Record<string, Entry> = {};
+    // EIA's latest year is preliminary: the slider, the panel and a figure kept in the Atlas say so.
+    const pre = isPreliminary(p, year) ? 'preliminary' as const : 0;
     y.rows.forEach((r, i) => {
-      v[r.id] = trade ? [energyClass(p, r.value, y.world), energyValue(p, r.value), '', 0, i + 1] : [energyClass(p, r.value, y.world), energyShare(r.value, y.world) ?? '', a(r.value), 0, i + 1];
+      v[r.id] = trade ? [energyClass(p, r.value, y.world), energyValue(p, r.value), '', pre, i + 1] : [energyClass(p, r.value, y.world), energyShare(r.value, y.world) ?? '', a(r.value), pre, i + 1];
     });
     for (const n of y.notYet) v[n.id] = [-1, E.notYet, E.lastFigure(n.year, energyValue(p, n.value)), 0, 0];
     const bl: Record<string, string> = {};
@@ -803,7 +805,7 @@ function energyLayer(p: EnergyPage): LayerFile {
         : trade ? E.bloc.trade(name, a(Math.abs(sum)), sum >= 0, T.name, year)
         : E.bloc[p.layer as 'production' | 'consumption' | 'reserves'](name, energyShare(sum, y.world) ?? '', T.name, year);
     }
-    return { year, legend: trade ? E.layer.trade.legend(year, E.tradeUnit[p.fuel]) : L.legend(year), v, order: y.rows.map((r) => r.id), blocs: bl };
+    return { year, ...(pre ? { status: pre } : {}), legend: trade ? E.layer.trade.legend(year, E.tradeUnit[p.fuel]) : L.legend(year), v, order: y.rows.map((r) => r.id), blocs: bl };
   });
   const overlays: Overlay[] = [];
   if (p.flows.length && p.flowYear) {

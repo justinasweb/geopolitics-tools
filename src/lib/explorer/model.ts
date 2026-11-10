@@ -28,6 +28,8 @@ export interface MeasureMeta {
   projectedAfter?: number;
   /** Each place's own last actual year, when earlier ones are estimates (WEO). */
   own?: Record<string, number>;
+  /** The source's preliminary latest year (EIA). */
+  pre?: number;
   /** The common year: the latest most places have reported. */
   year: number;
   from: number;
@@ -250,8 +252,9 @@ export function sharedYears(a: MeasureData | undefined, ma: MeasureMeta, b: Meas
 
 /** The last year that is not a projection. */
 /** A value's tag, as on the indicator page (src/data/indicators.ts statusAt). */
-export const statusOf = (m: MeasureMeta, id: string, y: number, d?: MeasureData): 'estimate' | 'projection' | undefined =>
-  m.projectedAfter !== undefined && y > m.projectedAfter ? 'projection' : (m.own?.[id] !== undefined && y > m.own[id]) || d?.e?.[id]?.includes(y) ? 'estimate' : undefined;
+export const statusOf = (m: MeasureMeta, id: string, y: number, d?: MeasureData): 'estimate' | 'projection' | 'preliminary' | undefined =>
+  m.projectedAfter !== undefined && y > m.projectedAfter ? 'projection' : (m.own?.[id] !== undefined && y > m.own[id]) || d?.e?.[id]?.includes(y) ? 'estimate'
+    : m.pre !== undefined && y >= m.pre ? 'preliminary' : undefined;
 
 export const lastActual = (m: MeasureMeta) => (m.projectedAfter !== undefined ? Math.min(m.to, m.projectedAfter) : m.to);
 

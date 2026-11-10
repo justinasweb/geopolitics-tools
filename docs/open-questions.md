@@ -6,6 +6,20 @@ keeps one line per closed question.
 
 ## Launch QA
 
+### Bloc memberships on country pages (raised 10 Nov 2026)
+
+**The question.** An outside consistency review could not find which groupings a country belongs to on its country
+page, and it is not there: the page has no memberships section, and the spec and site map do not ask for one. The
+bloc pages list their members and link the three most populous members' country pages; Bloc overlap and the /blocs
+map count each country's groupings. Should country pages list them (a line or chips linking each bloc page)?
+
+### Preliminary tags on dependence shares (raised 10 Nov 2026)
+
+**The question.** EIA's latest year is now tagged Preliminary wherever its production and consumption figures appear.
+Oil and gas dependence (net imports ÷ use, the Dependencies tool and the country pages' dependencies table) is
+worked out from the same preliminary year but carries no tag. Tag those shares too, or leave the tag on EIA's own
+figures only?
+
 ### Re-check bloc memberships before launch (raised 2 Nov 2026)
 
 **The question.** The membership table (`src/data/blocs.csv`, `bloc-history.csv`) is kept by hand, and the

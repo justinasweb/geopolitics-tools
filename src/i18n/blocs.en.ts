@@ -151,7 +151,10 @@ export const BLOCS_TEXT = {
     ? `${membersText(id, n)}. Shares of the world: ${todaysMembers(bloc, { count: n })}`
     : `Shares of the world: ${todaysMembers(bloc, { count: n })}`),
   sharePart: (share: string, what: string, year: number) => `${share} of the world’s ${what} (${year})`,
-  summaryMinerals: (parts: string[]) => `Together they mine ${list(parts)}.`,
+  /** Mined minerals and those USGS counts as primary production (gallium), each with its verb, after the shares. `src`
+   *  is "USGS, 2025" or "USGS, 2025, estimated". */
+  summaryMinerals: (parts: string[], primary: boolean, first: boolean, src: string) =>
+    `${first ? 'Together they' : 'They'} ${primary ? 'produce' : 'mine'} ${list(parts)} (${src}).`,
   mineralPart: (share: string, mineral: string) => `${share} of the world’s ${mineral}`,
   summaryOverlap: (parts: string[]) => `Of its members, ${list(parts)}.`,
   overlapPart: (n: number, other: string, first: boolean) => `${n} ${first ? `${n === 1 ? 'is' : 'are'} also in` : 'in'} ${other}`,

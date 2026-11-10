@@ -11,7 +11,7 @@ import { formatShare } from './format.ts';
 import { place } from './places.ts';
 import { BLOCS_TEXT } from '../i18n/blocs.en.ts';
 import { BLOC_TEXT } from '../i18n/map.en.ts';
-import { inSentence } from '../i18n/pages.en.ts';
+import { MINERAL_TEXT, SOURCE_SHORT, SUMMARY, inSentence } from '../i18n/pages.en.ts';
 
 
 /** Measures that add up across countries, so a bloc's members have a share of the world. */
@@ -30,6 +30,8 @@ export interface BlocShare {
   of: number;
   /** A mineral share built from figures USGS marks as estimated. */
   estimated?: boolean;
+  /** A mineral's measure: mine production, or primary production (gallium), which is produced, not mined. */
+  measure?: 'mine' | 'primary';
 }
 
 export interface BlocPage {
@@ -88,7 +90,7 @@ function buildPage(id: string, members: string[], all: Map<string, string[]>): B
   const minerals = mineralPages().map((p): BlocShare | null => {
     const l = listed(p.latest).filter((x) => x.place && members.includes(x.place));
     if (!l.length) return null;
-    return { id: `mineral:${p.id}`, share: l.reduce((s, x) => s + (x.share ?? 0), 0), year: p.latest.year, have: l.length, of: members.length, estimated: Boolean(p.latest.estimated || l.some((x) => x.estimated)) };
+    return { id: `mineral:${p.id}`, share: l.reduce((s, x) => s + (x.share ?? 0), 0), year: p.latest.year, have: l.length, of: members.length, estimated: Boolean(p.latest.estimated || l.some((x) => x.estimated)), measure: p.mineral.measure };
   }).filter((s): s is BlocShare => s !== null && s.share >= 0.01).sort((a, b) => b.share - a.share);
   const overlaps = [...all].filter(([b]) => b !== id).map(([b, m]) => ({ id: b, shared: m.filter((x) => members.includes(x)) }))
     .filter((o) => o.shared.length).sort((a, b) => b.shared.length - a.shared.length || BLOC_ORDER.indexOf(a.id) - BLOC_ORDER.indexOf(b.id));
@@ -130,4 +132,17 @@ export function blocLede(id: string): string | null {
   const pop = p.shares.find((s) => s.id === 'population');
   const gdp = p.shares.find((s) => s.id === 'gdp');
   return BLOCS_TEXT.lede(id, BLOC_TEXT[id] ?? id, p.members.length, pop ? formatShare(pop.share) : null, gdp ? formatShare(gdp.share) : null, pop?.year ?? null);
+}
+
+/**
+ * The summary's mineral sentences: mined minerals, then those USGS counts as primary production (gallium), each with
+ * its own verb, year and "estimated" where USGS estimates the figures, as the country pages write them: "Together
+ * they mine 79% of the world’s tungsten (USGS, 2025, estimated). They produce 99% of the world’s primary gallium (…)."
+ */
+export function mineralSentences(ms: BlocShare[]): string[] {
+  const T = BLOCS_TEXT;
+  const name = (s: BlocShare) => `${s.measure === 'primary' ? 'primary ' : ''}${MINERAL_TEXT[s.id.slice(8)] ?? s.id.slice(8)}`;
+  const usgs = (xs: BlocShare[]) => `${SOURCE_SHORT['usgs-minerals']}, ${xs[0].year}${xs.some((x) => x.estimated) ? `, ${SUMMARY.estimated}` : ''}`;
+  const groups = [ms.filter((s) => s.measure !== 'primary'), ms.filter((s) => s.measure === 'primary')].filter((g) => g.length);
+  return groups.map((g, i) => T.summaryMinerals(g.map((s) => T.mineralPart(formatShare(s.share), name(s))), g[0].measure === 'primary', i === 0, usgs(g)));
 }

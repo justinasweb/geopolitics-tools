@@ -75,7 +75,12 @@ export interface EnergyPage {
   flowYear: number | null;
   /** UN Comtrade's latest year is not complete yet, so the flows are for the year before (completeYear). */
   flowPartial: boolean;
+  /** EIA's latest year in the series, which it marks preliminary and revises as countries report. */
+  preliminary: number;
 }
+
+/** A year's figures are EIA's preliminary ones. */
+export const isPreliminary = (p: EnergyPage, y: number) => y >= p.preliminary;
 
 const nameOf = (id: string) => place(id)?.name ?? id;
 
@@ -182,7 +187,7 @@ function buildPage(fuel: FuelId, layer: EnergyLayer): EnergyPage | null {
     flowYear = fy.year;
     flows = d[fuel].filter((x) => x.year === flowYear).sort((x, z) => z.amount - x.amount);
   }
-  return { id: `${fuel}-${layer}`, fuel, layer, text: T.fuels[fuel], data: f, years, year, byYear, edges, ticks, flows, flowYear, flowPartial: Boolean(fy?.partial) };
+  return { id: `${fuel}-${layer}`, fuel, layer, text: T.fuels[fuel], data: f, years, year, byYear, edges, ticks, flows, flowYear, flowPartial: Boolean(fy?.partial), preliminary: Math.max(...count.keys()) };
 }
 
 let cache: EnergyPage[] | null = null;

@@ -1,7 +1,7 @@
 // Compare at build time (D21): the shared Meta (measure labels, formats and credits, mineral names, the static
 // pairs) and each country page's CountryData, written to /compare/data/{slug}.json for /compare in the browser and
 // read directly by the static pairs. The model and markup are shared (src/lib/compare/model.ts, render.ts).
-import { INDICATORS } from '../data/indicators.ts';
+import { INDICATORS, statusAt } from '../data/indicators.ts';
 import { INDICATOR_TEXT } from '../i18n/en.ts';
 import { COMPARE_TEXT, COUNTRY_TEXT, mineralName } from '../i18n/pages.en.ts';
 import { countryModel, countryPages, figure, mineralShares, loadedIndicators } from './country.ts';
@@ -47,7 +47,9 @@ export function compareData(id: string): CountryData {
   const f: CountryData['f'] = {};
   for (const m of compareMeta().measures) {
     const x = figure(m.id, id);
-    if (x) f[m.id] = [sig(x.value), x.year];
+    if (!x) continue;
+    const tag = statusAt(INDICATORS[m.id], id, x.year);
+    f[m.id] = tag ? [sig(x.value), x.year, tag] : [sig(x.value), x.year];
   }
   const s: CountryData['s'] = {};
   for (const m of CHARTS) {

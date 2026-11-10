@@ -270,7 +270,7 @@ export function linesHtml(s: State, meta: Meta, data: Data, width = 900): string
   const splitMark = split > 0 ? `<g><line class="gt-lc__split" x1="${x(split - 1).toFixed(1)}" x2="${x(split - 1).toFixed(1)}" y1="${Tp}" y2="${H - B}"/><text class="gt-lc__note" x="${(x(split - 1) + 6).toFixed(1)}" y="${Tp + 10}">${esc(STATUS_TEXT.projection)}</text></g>` : '';
   const paths = ch.lines.map((l) => {
     // A stretch is dashed where either end is a tagged figure: a projection, a country's estimate after its own last
-    // actual year (WEO), or a figure the source flags itself (FAOSTAT). Solid elsewhere.
+    // actual year (WEO), a figure the source flags itself (FAOSTAT), or a preliminary latest year (EIA). Solid elsewhere.
     const tag = ch.years.map((yr) => Boolean(statusOf(m, l.id, yr, d)));
     const runs: { dashed: boolean; from: number; to: number }[] = [];
     for (let i = 0; i < last; i++) {

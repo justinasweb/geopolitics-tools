@@ -68,3 +68,22 @@ describe('a bloc’s mineral shares', () => {
     expect(seen).toBeGreaterThan(0);
   });
 });
+
+describe('a bloc’s mineral sentences', () => {
+  it('use each mineral’s own verb and keep the year and "estimated"', async () => {
+    const { mineralSentences } = await import('../../src/lib/blocview.ts');
+    const m = (id: string, share: number, measure: 'mine' | 'primary', estimated: boolean) => ({ id: `mineral:${id}`, share, year: 2025, have: 3, of: 11, estimated, measure });
+    expect(mineralSentences([m('gallium', 0.99, 'primary', true), m('tungsten', 0.79, 'mine', true), m('rare-earths', 0.72, 'mine', false)])).toEqual([
+      'Together they mine 79% of the world’s tungsten and 72% of the world’s rare earths (USGS, 2025, estimated).',
+      'They produce 99% of the world’s primary gallium (USGS, 2025, estimated).',
+    ]);
+    expect(mineralSentences([m('gallium', 0.99, 'primary', false)])).toEqual(['Together they produce 99% of the world’s primary gallium (USGS, 2025).']);
+  });
+
+  it('give every bloc’s mineral its USGS measure', async () => {
+    const { blocPage } = await import('../../src/lib/blocview.ts');
+    const { mineralPages } = await import('../../src/lib/minerals.ts');
+    for (const s of blocPage('brics')?.minerals ?? []) expect(s.measure).toBe(mineralPages().find((x) => `mineral:${x.id}` === s.id)!.mineral.measure);
+  });
+});
+
