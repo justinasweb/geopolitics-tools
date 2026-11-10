@@ -3,9 +3,9 @@
 // year's ranked countries and world figure, the colour classes (fixed across years so the slider compares like with
 // like), the places that have not reported the latest year yet, and the largest flows. The page template, the map
 // layer files and the share images read this. Built on food.ts's rules, so the two read alike.
-import { gas, oil, oilPrices, type Fuel, type Oil } from '../adapters/eia.ts';
+import { gas, oil, oilPrices, usCrude, type Fuel, type Oil } from '../adapters/eia.ts';
 import { overOutput } from '../data/flows.ts';
-import { comtrade, completeYear, crudeFlows, gasFlows, gasLeftOut, gasUnreported, type GasFlow } from '../adapters/comtrade.ts';
+import { comtrade, completeYear, crudeFlows, gasFlows, withUsImports, gasLeftOut, gasUnreported, type GasFlow } from '../adapters/comtrade.ts';
 import type { Series } from '../adapters/core.ts';
 import { ENERGY_TEXT, type EnergyLayer, type FuelId, type FuelText } from '../i18n/energy.en.ts';
 import { DEP_TEXT, inSentence } from '../i18n/pages.en.ts';
@@ -25,8 +25,9 @@ export type { EnergyLayer, FuelId };
 const fuels = { oil: shared(oil), gas: shared(gas) };
 const flowData = shared((raw) => {
   const r = comtrade(raw);
-  const oil = crudeFlows(r), gas = gasFlows(r);
-  return { oil, gas, unreported: gasUnreported(r), leftOut: gasLeftOut(r), year: { oil: completeYear(r, ['crude'], oil), gas: completeYear(r, ['pipe', 'lng'], gas) } };
+  const crude = crudeFlows(r), gas = gasFlows(r);
+  // The year is UN Comtrade's (completeYear); flows into the United States are EIA's in it.
+  return { oil: withUsImports(crude, usCrude(raw)), gas, unreported: gasUnreported(r), leftOut: gasLeftOut(r), year: { oil: completeYear(r, ['crude'], crude), gas: completeYear(r, ['pipe', 'lng'], gas) } };
 });
 export const prices = shared(oilPrices);
 
@@ -69,7 +70,7 @@ export interface EnergyPage {
   edges: number[];
   ticks: string[];
   /** Trade: the largest flows in Comtrade's latest year, exporter → importer, as importers report them. */
-  flows: (GasFlow | { from: string; to: string; amount: number; year: number; kind?: undefined })[];
+  flows: (GasFlow | { from: string; to: string; amount: number; year: number; kind?: undefined; mirror?: true; via?: 'eia' })[];
   flowYear: number | null;
   /** UN Comtrade's latest year is not complete yet, so the flows are for the year before (completeYear). */
   flowPartial: boolean;
@@ -110,6 +111,11 @@ export function gasLeftOutLines(year: number, to?: string): string[] {
   return (flowData()?.leftOut ?? []).filter((f) => f.year === year && (!to || f.to === to))
     .map((f) => ENERGY_TEXT.leftOut(inSentence(nameOf(f.to)), f.year, f.kind, inSentence(nameOf(f.from)), one(f.amount)));
 }
+
+/** Whether a flow's amount is EIA's US crude imports, not UN Comtrade's (withUsImports). */
+export const viaEia = (f: EnergyPage['flows'][number]) => 'via' in f && f.via === 'eia';
+/** Some flow the page shows is EIA's. */
+export const pageUs = (p: EnergyPage) => p.fuel === 'oil' && shownFlows(p).some(viaEia);
 
 /** Every flow shown on the page that is the exporter's report. */
 export const pageMirror = (p: EnergyPage) => mirrorNames(p.fuel === 'gas' ? [...shownFlows(p, 'pipe'), ...shownFlows(p, 'lng')] : shownFlows(p));
@@ -252,7 +258,7 @@ export function summary(p: EnergyPage, year = p.year): string[] {
     const together = top.length === 3 ? shareOf(top.reduce((s, r) => s + r.value, 0), y.world) : null;
     first.push(T.top(top.map((r, i) => T.topPart(inSentence(nameOf(r.id), i === 0), a(r.value), shareOf(r.value, y.world))), together));
   }
-  const second = [T.coverage(y.rows.length, year), ...(y.notYet.length ? [T.notYetSentence(y.notYet.length, year)] : []), ...T.caveats(p.fuel, p.layer, p.flowYear, pageMirror(p), p.flowPartial)];
+  const second = [T.coverage(y.rows.length, year), ...(y.notYet.length ? [T.notYetSentence(y.notYet.length, year)] : []), ...T.caveats(p.fuel, p.layer, p.flowYear, pageMirror(p), p.flowPartial, pageUs(p))];
   return [first.join(' '), second.join(' ')];
 }
 

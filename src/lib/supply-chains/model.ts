@@ -32,6 +32,10 @@ export interface Chain {
   full?: { from: Record<string, number>; to: Record<string, number> };
   /** Gas: the flows left out for want of a reported quantity, as a sentence under the diagram. */
   notShown?: string;
+  /** Oil: the flows whose amount is EIA's US crude imports, not UN Comtrade's ("Canada → United States"), for the
+   *  table's marks, and how the flows became barrels, as a sentence under the diagram. */
+  via?: string[];
+  notes?: string;
   /** The source id, its name for the source line, its short name, and the download. */
   src: string;
   source: string;

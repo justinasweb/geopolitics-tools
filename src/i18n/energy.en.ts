@@ -92,8 +92,9 @@ export const ENERGY_TEXT = {
   coverage: (n: number, y: number) => `${n} countries and territories have a figure for ${y}.`,
   notYetSentence: (n: number, y: number) => `${n} more reported a figure for one of the two years before but not yet for ${y}; they are hatched on the map.`,
   /** `mirror`: the flows shown whose amount is the exporter's report, by name. */
-  /** `partial`: the flows' year is shown because UN Comtrade's latest one is not complete yet. */
-  caveats: (fuel: FuelId, layer: EnergyLayer, flowYear: number | null, mirror: string[] = [], partial = false): string[] => {
+  /** `partial`: the flows' year is shown because UN Comtrade's latest one is not complete yet. `us`: oil flows into the
+   *  United States are EIA's. */
+  caveats: (fuel: FuelId, layer: EnergyLayer, flowYear: number | null, mirror: string[] = [], partial = false, us = false): string[] => {
     const out: string[] = [];
     if (fuel === 'oil' && layer === 'production') out.push('Production is crude oil including lease condensate. Natural gas liquids and biofuels are left out here, but counted in net trade.');
     if (fuel === 'oil' && layer === 'consumption') out.push('Consumption covers all petroleum products, including those made from natural gas liquids.');
@@ -102,7 +103,7 @@ export const ENERGY_TEXT = {
     if (layer === 'reserves') out.push('Proved reserves are what can be recovered with reasonable certainty at today’s prices and technology. They are revised often and some countries report the same figure for years; they are not all the oil or gas in the ground.');
     if (layer === 'trade' && flowYear) {
       out.push(fuel === 'oil'
-        ? `Flows on the map are the largest crude oil flows in ${flowYear}${partial ? `, ${DEP_TEXT.mostReported}` : ''}, ${DEP_TEXT.asImporters('them', mirror, ' to UN Comtrade (HS 2709)')}, turned from tonnes into barrels a day at about 7.33 barrels a tonne.`
+        ? `Flows on the map are the largest crude oil flows in ${flowYear}${partial ? `, ${DEP_TEXT.mostReported}` : ''}, ${DEP_TEXT.asImporters('them', mirror, ' to UN Comtrade (HS 2709)')}.${us ? ` ${ENERGY_TEXT.usImports}` : ''} ${ENERGY_TEXT.crudeTonnes}`
         : `Flows on the map are the largest gas flows in ${flowYear}${partial ? `, ${DEP_TEXT.mostReported}` : ''}, ${DEP_TEXT.asImporters('them', mirror, ' to UN Comtrade')}: pipeline gas (HS 271121, solid lines) at about 0.75 million tonnes per billion cubic metres, and liquefied natural gas (LNG), gas cooled into a liquid for shipping, shown as dashed lines (HS 271111), at about 1,360 cubic metres of gas per tonne. Where a country reports gas by volume only, its own cubic metres are used.`);
     }
     out.push('The latest year is preliminary: EIA revises it as countries report.');
@@ -116,7 +117,19 @@ export const ENERGY_TEXT = {
   flowsLabel: (year: number) => `${MARKS.flows}, ${year}`,
   pipeLabel: (year: number) => `${MARKS.pipe}, ${year}`,
   lngLabel: (year: number) => `${MARKS.lng}, ${year}`,
-  flowsCaption: (n: number, year: number, what: string, mirror: string[] = []) => `The ${n} largest flows of ${what} in ${year}, exporter to importer, ${DEP_TEXT.asImporters('them', mirror, ' to UN Comtrade')}.`,
+  flowsCaption: (n: number, year: number, what: string, mirror: string[] = [], us = false) =>
+    `The ${n} largest flows of ${what} in ${year}, exporter to importer, ${DEP_TEXT.asImporters('them', mirror, ' to UN Comtrade')}.${us ? ` ${ENERGY_TEXT.usImports}` : ''}`,
+  /** Oil flows into the United States: EIA's imports by country of origin, not UN Comtrade's tonnes (withUsImports). */
+  usImports: 'Flows into the United States are EIA’s crude oil imports by country of origin, in barrels a day.',
+  /** How the other crude flows become barrels, on the oil map, the oil supply chain and Methodology. */
+  crudeTonnes: 'Converted from tonnes at an average 7.33 barrels a tonne; heavy crudes (Canada, Venezuela) hold fewer barrels a tonne, so their flows read up to about 15% high.',
+  /** Beside a flow in a table whose amount is EIA's US crude imports. */
+  usMark: 'EIA’s figure',
+  /** After EIA's name in the oil supply chain's source line, and its credit there when some flows are EIA's. */
+  usSource: 'flows into the United States',
+  withEia: (credit: string) => `${credit} and EIA`,
+  /** In a dependency row's source line: its shown flows that are EIA's. */
+  usRow: (flows: string[]) => `${list(flows)} from EIA’s US crude oil imports`,
   /** Gas flows left out for want of a reported quantity, under the gas map and the gas supply chain; null when none. */
   notShown: (pipe: string[], lng: string[]) => {
     const parts = [...(pipe.length ? [`${list(pipe)} pipeline gas`] : []), ...(lng.length ? [`${list(lng)} LNG`] : [])];
@@ -129,7 +142,7 @@ export const ENERGY_TEXT = {
   /** A gas row left out by name (LEFT_OUT in src/adapters/comtrade.ts). */
   leftOut: (to: string, year: number, kind: 'pipe' | 'lng', from: string, amount: string) =>
     `Not shown: ${poss(to)} ${year} ${kind === 'lng' ? 'LNG' : 'pipeline gas'} imports recorded as from ${from} (${amount}), which ${poss(from)} own reports do not show; the true origin is unclear.`,
-  flowTip: (from: string, to: string, v: string, year: number, kind?: string) => `${from} → ${to}: ${v}${kind ? `, ${kind}` : ''} (${year})`,
+  flowTip: (from: string, to: string, v: string, year: number, kind?: string, eia = false) => `${from} → ${to}: ${v}${kind ? `, ${kind}` : ''} (${year}${eia ? ', EIA' : ''})`,
   kind: { pipe: 'pipeline', lng: 'LNG' },
   from: 'From',
   to: 'To',
@@ -201,5 +214,5 @@ export const ENERGY_TEXT = {
   mapLabel: (title: string, year: number, top: string) => `World map: ${title.toLowerCase()} by country, ${year}. ${top}. The same figures are in the table below.`,
   source: 'U.S. Energy Information Administration (EIA), International Energy Data',
   sourcePrices: 'U.S. Energy Information Administration (EIA), spot prices',
-  sourceFlows: (fuel: FuelId) => (fuel === 'oil' ? 'UN Comtrade, imports by partner (HS 2709)' : 'UN Comtrade, imports by partner (HS 271111, 271121)'),
+  sourceFlows: (fuel: FuelId, us = false) => (fuel === 'oil' ? `UN Comtrade, imports by partner (HS 2709)${us ? '; EIA, US crude oil imports by country of origin' : ''}` : 'UN Comtrade, imports by partner (HS 271111, 271121)'),
 };

@@ -5,6 +5,8 @@
 //                           consumption; thousand barrels a day
 //   gas_international.json  dry natural gas production and consumption (bcm)
 //   oil_spot_prices.json    Brent and WTI spot prices, monthly, dollars a barrel
+//   crude_imports_us.json   US crude oil imports by country of origin (petroleum/move/impcus), annual, thousand
+//                           barrels a day; countries only (EIA's NUS-N… areas), named by ISO3 in area-name
 // Countries only (EIA's regions and groups are left out); rows without a number ("--", "NA") are dropped.
 import { getJson } from '../lib/http.ts';
 import { type Source, DAY, check, guardShrink, json } from '../lib/source.ts';
@@ -22,6 +24,9 @@ export const SERIES = {
   oil: [['57', '1', 'TBPD'], ['53', '1', 'TBPD'], ['5', '2', 'TBPD']],
   gas: [['26', '1', 'BCM'], ['26', '2', 'BCM']],
 } as const;
+
+/** US crude oil imports by country of origin: product EPC0 (crude oil), process IM0 (imports), in MBBL/D. */
+export const US_IMPORTS = { product: 'EPC0', process: 'IM0', unit: 'MBBL/D' } as const;
 
 const hasNumber = (r: Row) => r.value !== null && r.value !== '' && Number.isFinite(Number(r.value));
 const keep = (kind: keyof typeof SERIES) => (r: Row) => SERIES[kind].some(([p, a, u]) => String(r.productId) === p && String(r.activityId) === a && r.unit === u);
@@ -102,6 +107,17 @@ const source: Source = {
     ctx.log(`oil_spot_prices.json: ${p.length} months`);
     files.push(json('oil_spot_prices.json', { response: { total: p.length, dateFormat: prices.last.response?.dateFormat, frequency: 'monthly', data: p }, request: { command: '/v2/petroleum/pri/spt/data/' }, apiVersion: prices.last.apiVersion }));
     rows += p.length;
+    const imp = await all('crude_imports_us.json', 'petroleum/move/impcus', `frequency=annual&start=${FROM}&facets[product][]=${US_IMPORTS.product}&facets[process][]=${US_IMPORTS.process}`);
+    // The same series come in thousand barrels a year too, and EIA's world and regional totals (NUS-Z00, NUS-M…) beside
+    // the countries.
+    const us = imp.rows.filter((r) => r.units === US_IMPORTS.unit && /^NUS-N/.test(String(r.duoarea ?? '')) && hasNumber(r));
+    const usLatest = us.reduce((m, r) => (String(r.period) > m ? String(r.period) : m), '');
+    const usCountries = new Set(us.filter((r) => String(r.period) === usLatest).map((r) => r.duoarea)).size;
+    check(usCountries >= 15, `crude_imports_us.json: only ${usCountries} countries in ${usLatest || 'any year'}; the format changed`);
+    guardShrink(ctx, 'crude_imports_us.json', us.length, await ctx.previous('crude_imports_us.json'), (prev) => (JSON.parse(prev) as Answer).response?.data?.length ?? 0, 0.8);
+    ctx.log(`crude_imports_us.json: ${us.length} values, ${usCountries} countries in ${usLatest}`);
+    files.push(json('crude_imports_us.json', { response: { total: us.length, dateFormat: imp.last.response?.dateFormat, frequency: 'annual', data: us }, request: { command: '/v2/petroleum/move/impcus/data/' }, apiVersion: imp.last.apiVersion }));
+    rows += us.length;
     return { files, rows, dataTo };
   },
 };

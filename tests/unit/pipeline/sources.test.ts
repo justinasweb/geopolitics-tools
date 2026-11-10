@@ -379,15 +379,40 @@ describe('eia', () => {
       return { response: { total: data.length, data }, apiVersion: '2.1.8' };
     }],
     [/pri\/spt/, () => ({ response: { total: 240, data: [...months('RBRTE'), ...months('RWTC').slice(0, lastMonth ? 120 : 100)] } })],
+    [/move\/impcus/, () => ({ response: { total: 0, data: usImports(usCountries) } })],
+  ];
+  // US crude imports: each country in thousand barrels a day and a year, and EIA's total and a regional sum beside them.
+  let usCountries = 30;
+  const usImports = (n: number) => [
+    ...Array.from({ length: n }, (_, i) => [
+      { period: '2025', duoarea: `NUS-N${iso(i).slice(0, 2)}`, 'area-name': iso(i), product: 'EPC0', process: 'IM0', series: `MCRIM${i}2`, value: '40', units: 'MBBL/D' },
+      { period: '2025', duoarea: `NUS-N${iso(i).slice(0, 2)}`, 'area-name': iso(i), product: 'EPC0', process: 'IM0', series: `MCRIM${i}1`, value: '14600', units: 'MBBL' },
+    ]).flat(),
+    { period: '2025', duoarea: 'NUS-Z00', 'area-name': 'U.S.', product: 'EPC0', process: 'IM0', series: 'MCRIMUS2', value: '6168', units: 'MBBL/D' },
+    { period: '2025', duoarea: 'NUS-MN0', 'area-name': 'NA', product: 'EPC0', process: 'IM0', series: 'MCRIMUSVV2', value: '5336', units: 'MBBL/D' },
   ];
 
   it('saves oil, gas and prices in the API format, without empty values or other series', async () => {
     const r = await eia.fetch({ ...ctxFor(fakeHttp(routes())), now: new Date('2026-02-10T00:00:00Z'), env });
-    expect(r.files.map((f) => f.name)).toEqual(['oil_international.json', 'gas_international.json', 'oil_spot_prices.json']);
+    expect(r.files.map((f) => f.name)).toEqual(['oil_international.json', 'gas_international.json', 'oil_spot_prices.json', 'crude_imports_us.json']);
     const o = JSON.parse(body(r, 'oil_international.json')).response.data;
     expect(o).toHaveLength(3 * 119);
     expect(o.some((x: { activityName: string }) => x.activityName === 'Imports')).toBe(false);
     expect(r.dataTo).toBe('2024');
+  });
+
+  it('saves US crude imports by country of origin, in thousand barrels a day, without EIA\'s totals', async () => {
+    const r = await eia.fetch({ ...ctxFor(fakeHttp(routes())), now: new Date('2026-02-10T00:00:00Z'), env });
+    const us = JSON.parse(body(r, 'crude_imports_us.json')).response.data;
+    expect(us).toHaveLength(30);
+    expect(us.every((x: { units: string; duoarea: string }) => x.units === 'MBBL/D' && x.duoarea.startsWith('NUS-N'))).toBe(true);
+  });
+
+  it('refuses US crude imports with too few countries', async () => {
+    usCountries = 5;
+    try {
+      await expect(eia.fetch({ ...ctxFor(fakeHttp(routes())), now: new Date('2026-02-10T00:00:00Z'), env })).rejects.toThrow(/crude_imports_us.json: only 5 countries in 2025/);
+    } finally { usCountries = 30; }
   });
 
   it('refuses a price series that stopped updating', async () => {

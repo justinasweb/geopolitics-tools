@@ -6,7 +6,7 @@
 //
 // Flows are as importers report them: from = the partner (exporter), to = the reporter (importer). Quantities are
 // net weight in kilograms, converted with rules of thumb that are stated on the pages:
-//   crude oil  about 7.33 barrels a tonne
+//   crude oil  about 7.33 barrels a tonne (flows into the United States are EIA's barrels instead: withUsImports)
 //   pipeline gas  about 0.75 million tonnes per billion cubic metres; LNG  about 1,360 m³ of gas per tonne
 //   fertilisers  million tonnes of product (not of nutrient, as FAOSTAT counts them)
 // Gas is the exception: several reporters give it by volume only (the United States and Canada in cubic metres,
@@ -34,8 +34,9 @@ export interface TradeRow {
   /** One of LEFT_OUT: in no flow, only named where its flow would be. */
   leftOut?: true;
 }
-/** `mirror`: the amount is the exporter's report of the flow, the importer's quantity being unusable or its row missing. */
-export interface Flow { from: string; to: string; amount: number; year: number; mirror?: true }
+/** `mirror`: the amount is the exporter's report of the flow, the importer's quantity being unusable or its row missing.
+ *  `via`: the amount is from another source, EIA's US crude imports (withUsImports). */
+export interface Flow { from: string; to: string; amount: number; year: number; mirror?: true; via?: 'eia' }
 export interface GasFlow extends Flow { kind: 'pipe' | 'lng' }
 
 type Row = Record<string, unknown>;
@@ -200,6 +201,16 @@ export function completeYear(rows: TradeRow[], cs: readonly Commodity[], flows: 
 }
 
 const mt = (r: TradeRow) => (r.kg === null ? null : r.kg / 1e9);
+
+/**
+ * Crude flows into the United States from EIA's imports by country of origin (`us`, thousand barrels a day), in each
+ * year EIA has: 7.33 barrels a tonne overstates heavy crude, Canada → United States 2025 most (4,549 kb/d against EIA's
+ * 3,910). Other years, and every other flow, stay UN Comtrade's.
+ */
+export function withUsImports(flows: Flow[], us: Flow[]): Flow[] {
+  const years = new Set(us.map((f) => f.year));
+  return [...flows.filter((f) => f.to !== 'USA' || !years.has(f.year)), ...us].sort((a, b) => b.amount - a.amount);
+}
 
 export const crudeFlows = (rows: TradeRow[]) => flowsOf(rows, 'crude', (r) => (r.kg === null ? null : ((r.kg / 1000) * BARRELS_PER_TONNE) / 365 / 1000), true);
 /** Below this many m³ per estimated kg an LNG volume is of liquid (about 0.0022), above the next of gas (about 1.4). */

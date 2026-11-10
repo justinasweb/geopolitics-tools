@@ -2,15 +2,17 @@
 // (exporter, origin), to = buyer (importer, host), amounts summed per pair. Ported from the
 // prototype's src/data/flows.js; words are in src/i18n/<lang>.ts.
 import type { Raw } from '../adapters/core.ts';
-import { chipFlows, comtrade, completeYear, crudeFlows, fertiliserFlows, gasFlows, type Commodity, type Flow, type TradeRow } from '../adapters/comtrade.ts';
+import { chipFlows, comtrade, completeYear, crudeFlows, fertiliserFlows, gasFlows, withUsImports, type Commodity, type Flow, type TradeRow } from '../adapters/comtrade.ts';
+import { usCrude } from '../adapters/eia.ts';
 import { food } from '../adapters/faostat.ts';
 import { OTHER_SUPPLIER, arms } from '../adapters/sipri.ts';
 import { displacement } from '../adapters/unhcr.ts';
 import { registry, type Format } from './indicators.ts';
 
 /** `mirror`: the amount is the exporter's report of the flow (UN Comtrade mirror data; src/adapters/comtrade.ts).
- *  `output`: oil and gas, the exporter's own production in the same year (EIA), when the flow is larger. */
-export interface Pair { from: string; to: string; amount: number; mirror?: true; output?: number }
+ *  `output`: oil and gas, the exporter's own production in the same year (EIA), when the flow is larger.
+ *  `via`: the amount is from another source than the flow's (oil: EIA's US crude imports). */
+export interface Pair { from: string; to: string; amount: number; mirror?: true; output?: number; via?: 'eia' }
 /** `partial`: UN Comtrade's latest year is not yet complete, so `period` is the year before (completeYear). */
 export interface Flows { key: string; source: string; format: Format; period: string; pairs: Pair[]; partial?: true }
 
@@ -23,7 +25,7 @@ export interface FlowDef {
 
 /** Rows summed per pair; a pair is `mirror` when most of its amount is the exporter's report (gas: a pair's pipeline
  *  and LNG rows are summed, and a few cubic metres of one should not label the other). */
-export function sumPairs<T extends { from: string; to: string; mirror?: true }>(rows: T[], amount: (r: T) => number): Pair[] {
+export function sumPairs<T extends { from: string; to: string; mirror?: true; via?: 'eia' }>(rows: T[], amount: (r: T) => number): Pair[] {
   const by = new Map<string, Pair>();
   const mirrored = new Map<string, number>();
   for (const r of rows) {
@@ -31,7 +33,7 @@ export function sumPairs<T extends { from: string; to: string; mirror?: true }>(
     const k = `${r.from}>${r.to}`;
     const p = by.get(k);
     if (p) p.amount += amount(r);
-    else by.set(k, { from: r.from, to: r.to, amount: amount(r) });
+    else by.set(k, { from: r.from, to: r.to, amount: amount(r), ...(r.via ? { via: r.via } : {}) });
     if (r.mirror) mirrored.set(k, (mirrored.get(k) ?? 0) + amount(r));
   }
   for (const [k, m] of mirrored) if (m > by.get(k)!.amount / 2) by.get(k)!.mirror = true;
@@ -41,11 +43,12 @@ export function sumPairs<T extends { from: string; to: string; mirror?: true }>(
 const maxYear = (rows: { year: number }[]) => Math.max(0, ...rows.map((r) => r.year));
 const mt: Format = { kind: 'number', unit: 'Mt', digits: 1 };
 
-/** UN Comtrade's flows for the latest complete year (completeYear), summed per pair. */
-function latestComplete(rows: TradeRow[], cs: Commodity[], f: Flow[]) {
+/** UN Comtrade's flows for the latest complete year (completeYear), summed per pair; `shown`: the flows to show for
+ *  that year, when some are from another source (oil: EIA's into the United States). */
+function latestComplete(rows: TradeRow[], cs: Commodity[], f: Flow[], shown = f) {
   const y = completeYear(rows, cs, f);
   if (!y) return { period: '0', pairs: [] };
-  return { period: String(y.year), pairs: sumPairs(f.filter((r) => r.year === y.year), (r) => r.amount), ...(y.partial ? { partial: true as const } : {}) };
+  return { period: String(y.year), pairs: sumPairs(shown.filter((r) => r.year === y.year), (r) => r.amount), ...(y.partial ? { partial: true as const } : {}) };
 }
 const fromComtrade = (format: Format, cs: Commodity[], pick: (rows: TradeRow[]) => Flow[]): FlowDef => ({
   source: 'comtrade', format, load: (raw) => { const rows = comtrade(raw); return latestComplete(rows, cs, pick(rows)); },
@@ -82,12 +85,14 @@ export function overOutput(production: Record<string, Record<number, number>>, f
 }
 
 const warned = new Set<string>();
-/** Oil and gas flows, checked against EIA production (checkFlows); warnings go to the build log, once each. */
-const checked = (label: string, production: string, format: Format, cs: Commodity[], pick: (rows: TradeRow[]) => Flow[]): FlowDef => ({
+/** Oil and gas flows, checked against EIA production (checkFlows); warnings go to the build log, once each. `swap`: the
+ *  flows shown in place of some of UN Comtrade's (oil: EIA's into the United States). */
+const checked = (label: string, production: string, format: Format, cs: Commodity[], pick: (rows: TradeRow[]) => Flow[], swap?: (raw: Raw, f: Flow[]) => Flow[]): FlowDef => ({
   source: 'comtrade', format,
   load: (raw) => {
     const rows = comtrade(raw);
-    const l = latestComplete(rows, cs, pick(rows));
+    const f = pick(rows);
+    const l = latestComplete(rows, cs, f, swap ? swap(raw, f) : f);
     let prod: Record<string, Record<number, number>> = {};
     try { prod = registry(raw).get(production); } catch { /* no EIA files in this snapshot: nothing to check against */ }
     for (const w of checkFlows(label, Number(l.period), l.pairs, prod)) if (!warned.has(w)) { warned.add(w); console.warn(`flows: ${w}`); }
@@ -102,7 +107,7 @@ const crop = (k: 'wheat' | 'maize' | 'rice' | 'soy'): FlowDef => ({
 });
 
 export const FLOWS: Record<string, FlowDef> = {
-  oil: checked('oil', 'oilprod', { kind: 'number', unit: 'kb/d' }, ['crude'], crudeFlows),
+  oil: checked('oil', 'oilprod', { kind: 'number', unit: 'kb/d' }, ['crude'], crudeFlows, (raw, f) => withUsImports(f, usCrude(raw))),
   gas: checked('gas', 'gasprod', { kind: 'number', unit: 'bcm', digits: 1 }, ['pipe', 'lng'], gasFlows),
   wheat: crop('wheat'),
   maize: crop('maize'),
