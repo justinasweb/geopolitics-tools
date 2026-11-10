@@ -9,14 +9,14 @@ import { CHAINS_TEXT as T } from '../i18n/supply-chains.en';
 import { chainLinks, chainOf } from '../lib/supply-chains';
 import { CHAIN_TEXT } from '../i18n/supply-chains.en';
 import { amount, nameOf } from '../lib/supply-chains/model';
-import { periodLabel } from '../lib/supply-chains/render';
+import { periodLabel, reportedTo } from '../lib/supply-chains/render';
 import { paths } from '../lib/routes';
 import { breadcrumbs } from '../lib/structured';
 
 const flows = chainLinks().map((f) => {
   const c = chainOf(f.key);
   const [from, to, v] = c.pairs[0];
-  return { ...f, meta: `${periodLabel(c)} · ${c.credit} · ${T.largest(nameOf(c, from), nameOf(c, to), `${amount(v, c)} ${CHAIN_TEXT[f.key].short}`)}` };
+  return { ...f, meta: `${periodLabel(c)} · ${c.credit} · ${T.largest(nameOf(c, from), nameOf(c, to), `${amount(v, c)} ${CHAIN_TEXT[f.key].short}`, reportedTo(c))}` };
 });
 const crumbs = [{ label: T.crumb }, { label: T.title }];
 ---

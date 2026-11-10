@@ -2,7 +2,7 @@ import { CHAIN_TEXT } from '../../src/i18n/supply-chains.en.ts';
 import { describe, expect, it } from 'vitest';
 import { amount, concentration, foundPlace, hhi, parseState, queryOf, sankey, totals, OTHERS, type Chain } from '../../src/lib/supply-chains/model.ts';
 import { SIDES, chainTitle } from '../../src/i18n/supply-chains.en.ts';
-import { chainCsv, ledeOf, panelHtml, periodLabel, sankeyHtml, tableHtml } from '../../src/lib/supply-chains/render.ts';
+import { chainCsv, flowListHtml, ledeOf, panelHtml, periodLabel, sankeyHtml, tableHtml } from '../../src/lib/supply-chains/render.ts';
 
 // The Supply chains tool: the focus in the address, totals and concentration, the Sankey's grouping and layout,
 // the panel and the download, on a small flow; then the flows the build makes from the sample files.
@@ -173,6 +173,17 @@ describe('flows from the exporter’s report', () => {
 });
 
 describe('UN Comtrade’s flows', () => {
+  it('rank the flows reported to it, not all trade', () => {
+    const c = { ...chain, key: 'oil', src: 'comtrade', source: 'UN Comtrade', credit: 'UN Comtrade' };
+    expect(ledeOf(c)).toBe('In the flows reported to UN Comtrade for 2023, Russia, CAN and AUS ship the most crude oil.');
+    expect(ledeOf(chain)).toBe('In the FAOSTAT flows for 2023, Russia, CAN and AUS ship the most wheat.');
+    const panel = panelHtml(c, { country: '' });
+    expect(panel).toContain('Largest suppliers in the flows reported to UN Comtrade, kb/d');
+    expect(panel).toContain('Largest buyers in the flows reported to UN Comtrade, kb/d');
+    expect(panelHtml(chain, { country: '' })).toContain('Top suppliers, Mt');
+    expect(flowListHtml(c, { country: '' })).toContain('Top 10 flows reported to UN Comtrade, kb/d');
+  });
+
   it('note a flow larger than its exporter’s own output that year', async () => {
     const { ENERGY_TEXT } = await import('../../src/i18n/energy.en.ts');
     const { overOutput } = await import('../../src/data/flows.ts');

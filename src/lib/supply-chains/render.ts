@@ -29,10 +29,13 @@ export const periodLabel = (c: Chain) => (c.period.includes('–') ? T.latestPer
 /** "A, B and C". */
 export const listOf = (xs: string[]) => (xs.length < 2 ? xs.join('') : `${xs.slice(0, -1).join(', ')} ${T.and} ${xs.at(-1)}`);
 
+/** UN Comtrade's name when the flows are those reported to it, not all trade: rankings of them say so. */
+export const reportedTo = (c: Chain) => (c.src === 'comtrade' ? c.credit : undefined);
+
 /** The page's first sentence, from the three largest suppliers. */
 export function ledeOf(c: Chain): string {
   const top = totals(c.pairs, 0).slice(0, 3).map(([id]) => inSentence(nameOf(c, id)));
-  return T.lede[c.kind](listOf(top), words(c).noun, c.period, c.credit);
+  return T.lede[c.kind](listOf(top), words(c).noun, c.period, c.credit, Boolean(reportedTo(c)));
 }
 
 const sourceHtml = (c: Chain) => `<p class="gt-source"><span>${esc(SOURCE_TEXT.source)} <b>${esc(c.source)}</b></span>`
@@ -123,7 +126,7 @@ export function panelHtml(c: Chain, s: State): string {
     const five = sum(froms.slice(0, TOP));
     const conc = c.kind === 'refugees' ? '' : concHtml(hhi(froms), T.concWorld(Math.min(TOP, froms.length), formatShare(five / all), w.noun, hhi(froms).toLocaleString('en')), c.method);
     return head(T.world, false) + stat(c, T.total, all) + conc
-      + barsHtml(c, froms.slice(0, TOP), T.topFroms(sd.froms, w.short)) + barsHtml(c, tos.slice(0, TOP), T.topTos(sd.tos, w.short)) + sourceHtml(c);
+      + barsHtml(c, froms.slice(0, TOP), T.topFroms(sd.froms, w.short, reportedTo(c))) + barsHtml(c, tos.slice(0, TOP), T.topTos(sd.tos, w.short, reportedTo(c))) + sourceHtml(c);
   }
   const id = s.country;
   const ins = totals(c.pairs.filter((p) => p[1] === id), 0);
@@ -151,7 +154,7 @@ export function flowListHtml(c: Chain, s: State): string {
   const max = top[0]?.[2] || 1;
   const items = top.map(([f, t, v]) => `<li><span class="gt-flowlist__ab"><b>${esc(nameOf(c, f))}</b> → <b>${esc(nameOf(c, t))}</b></span>`
     + `<span class="gt-bars__track"><span class="gt-bars__fill" style="width:${((100 * v) / max).toFixed(1)}%"></span></span><span class="gt-flowlist__v">${esc(amount(v, c))}</span></li>`).join('');
-  return `<h2 class="gt-h2">${esc(T.topFlows(top.length, words(c).short))}</h2><ol class="gt-flowlist">${items}</ol>${sourceHtml(c)}`;
+  return `<h2 class="gt-h2">${esc(T.topFlows(top.length, words(c).short, reportedTo(c)))}</h2><ol class="gt-flowlist">${items}</ol>${sourceHtml(c)}`;
 }
 
 // ---------- table and download ----------

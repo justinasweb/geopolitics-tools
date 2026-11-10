@@ -47,14 +47,15 @@ export const CHAINS_TEXT = {
   indexLede: (n: number) => `Trade and arms deliveries between countries, and refugees by country of origin and host country: ${n} ${n === 1 ? 'flow' : 'flows'}, each for the latest year its source reports.`,
   indexDescription: (n: number) => `Supply chains for ${n} ${n === 1 ? 'flow' : 'flows'}: trade and arms deliveries between countries, and refugees from origin to host country, in diagrams and tables, with sources.`,
   description: (full: string, period: string, froms: string, tos: string, credit: string) => `${full}, ${period}: ${froms.toLowerCase()} to ${tos.toLowerCase()} in a diagram and a table, with the largest flows, from ${credit}.`,
-  largest: (from: string, to: string, v: string) => `Largest flow: ${from} → ${to}, ${v}`,
+  /** `reportedTo`: UN Comtrade's flows are those reported to it, not all trade, and the ranking says so. */
+  largest: (from: string, to: string, v: string, reportedTo?: string) => `Largest flow${reportedTo ? ` reported to ${reportedTo}` : ''}: ${from} → ${to}, ${v}`,
 
   // Ledes, written from the figures
   lede: {
-    trade: (names: string, noun: string, period: string, credit: string) => `In the ${credit} flows for ${period}, ${names} ship the most ${noun}.`,
+    trade: (names: string, noun: string, period: string, credit: string, reported = false) => `In the ${reported ? `flows reported to ${credit}` : `${credit} flows`} for ${period}, ${names} ship the most ${noun}.`,
     arms: (names: string, _noun: string, period: string) => `In SIPRI’s totals for ${period}, ${names} delivered the most major arms.`,
     refugees: (names: string, _noun: string, period: string) => `In UNHCR’s figures for ${period}, the most refugees and others in need of protection came from ${names}.`,
-  } as Record<ChainKind, (names: string, noun: string, period: string, credit: string) => string>,
+  } as Record<ChainKind, (names: string, noun: string, period: string, credit: string, reported?: boolean) => string>,
   and: 'and',
 
   // Controls
@@ -87,12 +88,12 @@ export const CHAINS_TEXT = {
   concWorld: (n: number, share: string, noun: string, hhi: string) => `The ${n} largest suppliers ship ${share} of the ${noun} in these flows. Herfindahl index ${hhi} on supplier shares; 1,000 to 1,800 counts as moderately and above 1,800 as highly concentrated.`,
   concFocus: (top: string, share: string, name: string, hhi: string) => `${top} supplies ${share} of what ${name} imports in these flows. Herfindahl index ${hhi} on supplier shares; 1,000 to 1,800 counts as moderately and above 1,800 as highly concentrated.`,
   how: 'How we measure',
-  topFroms: (froms: string, unit: string) => `Top ${froms.toLowerCase()}, ${unit}`,
-  topTos: (tos: string, unit: string) => `Top ${tos.toLowerCase()}, ${unit}`,
+  topFroms: (froms: string, unit: string, reportedTo?: string) => (reportedTo ? `Largest ${froms.toLowerCase()} in the flows reported to ${reportedTo}, ${unit}` : `Top ${froms.toLowerCase()}, ${unit}`),
+  topTos: (tos: string, unit: string, reportedTo?: string) => (reportedTo ? `Largest ${tos.toLowerCase()} in the flows reported to ${reportedTo}, ${unit}` : `Top ${tos.toLowerCase()}, ${unit}`),
   countryPage: (name: string) => `${name} country page`,
 
   // Phone list
-  topFlows: (n: number, unit: string) => `Top ${n} flows, ${unit}`,
+  topFlows: (n: number, unit: string, reportedTo?: string) => `Top ${n} flows${reportedTo ? ` reported to ${reportedTo}` : ''}, ${unit}`,
 
   // Links to the other flows, below the table
   otherChains: 'Other supply chains',
