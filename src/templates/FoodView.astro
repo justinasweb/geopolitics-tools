@@ -18,9 +18,9 @@ import '../styles/atlas/table.css';
 import '../styles/atlas/tools.css';
 import { MAP_TEXT } from '../i18n/map.en';
 import { INDICATOR_TEXT } from '../i18n/en';
-import { FOOD_NOTES, FOOD_TEXT as F } from '../i18n/food.en';
+import { FOOD_TEXT as F } from '../i18n/food.en';
 import { DEP_TEXT } from '../i18n/pages.en';
-import { COMMODITIES, FOOD_LAYERS, TOP_FLOWS, balanceOf, estimated, flowSourceOf, mtShort, commodityPages, pageMirror, foodPage, foodPages, lede, mt, netText, shareOf, sourceOf, summary, valueText, worldChange } from '../lib/food';
+import { COMMODITIES, FOOD_LAYERS, TOP_FLOWS, balanceOf, estimated, flowSourceOf, mtShort, commodityPages, pageMirror, comparable, foodPage, foodPages, fromUsgs, lede, placeNotes, mt, netText, shareOf, sourceOf, summary, valueText, worldChange } from '../lib/food';
 import { refreshed, data } from '../lib/data';
 import { place } from '../lib/places';
 import { countryHref, indicatorHref, live, route, hubCrumb } from '../lib/routes';
@@ -63,11 +63,12 @@ const picker2 = { label: F.layerLabel, options: FOOD_LAYERS.map((l) => commodity
 // The table: every country with a figure for the default year.
 const rows = y.rows.map((r) => {
   const q = prev?.rows.find((x) => x.id === r.id);
-  const ch = !trade && q && q.value ? r.value / q.value - 1 : null;
+  const ch = !trade && q && q.value && comparable(p, r.id, p.year) ? r.value / q.value - 1 : null;
   return { r, q, ch, b: balanceOf(p, r.id, p.year), est: estimated(p, r.id, p.year) };
 });
 const anyEst = rows.some((x) => x.est);
-const notes = rows.filter((x) => FOOD_NOTES[p.id]?.[x.r.id]).map((x) => ({ id: x.r.id, text: FOOD_NOTES[p.id][x.r.id] }));
+const placeNote = placeNotes(p);
+const notes = rows.filter((x) => placeNote[x.r.id]).map((x) => ({ id: x.r.id, text: placeNote[x.r.id] }));
 const noteNo = (id: string) => notes.findIndex((n) => n.id === id) + 1;
 const balanceCols = p.layer === 'use' && p.crop;
 const flows = p.flows.slice(0, TOP_FLOWS);
@@ -192,7 +193,7 @@ const bars = (rs: FoodRow[], max: number) => rs.map((r) => ({ id: r.id, text: mt
                   </>
                 ) : (
                   <>
-                    <td class="n" data-v={r.value}>{mt(r.value)}{est && <abbr class="gt-yr" title={F.estTitle}>e</abbr>}</td>
+                    <td class="n" data-v={r.value}>{mt(r.value)}{est && <abbr class="gt-yr" title={p.layer === 'production' && fromUsgs(p, r.id, p.year) ? F.estTitleUsgs : F.estTitle}>e</abbr>}</td>
                     <td class="n" data-v={y.world ? r.value / y.world : ''}>{y.world ? shareExact(r.value / y.world) : '–'}</td>
                     {balanceCols ? (
                       <>

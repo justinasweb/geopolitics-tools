@@ -18,8 +18,8 @@ import { loadFlows } from '../../data/flows.ts';
 import { countClass, daysText, disasterPages, type DisasterPage } from '../disasters.ts';
 import { DISASTERS_TEXT, KIND_TEXT } from '../../i18n/disasters.en.ts';
 import { formatDate, formatPartialDate, formatValue } from '../format.ts';
-import { TOP_FLOWS, balanceOf, estimated as foodEstimated, classFor as foodClass, foodPages, mt, netText, shareOf as foodShare, sourceOf, valueText as foodValue, type FoodPage } from '../food.ts';
-import { FOOD_NOTES, FOOD_TEXT } from '../../i18n/food.en.ts';
+import { TOP_FLOWS, balanceOf, estimated as foodEstimated, classFor as foodClass, foodPages, mt, netText, placeNotes, shareOf as foodShare, sourceOf, valueText as foodValue, type FoodPage } from '../food.ts';
+import { FOOD_TEXT } from '../../i18n/food.en.ts';
 import { TOP_FLOWS as ENERGY_TOP, amount as energyAmount, balanceOf as energyBalance, balanceYear, classFor as energyClass, energyPages, shareOf as energyShare, valueText as energyValue, type EnergyPage } from '../energy.ts';
 import { ENERGY_TEXT } from '../../i18n/energy.en.ts';
 import { arcXY, toMap } from './projection.ts';
@@ -771,7 +771,7 @@ function foodLayer(p: FoodPage): LayerFile {
       detailLabel: trade ? undefined : L.figure, rankLabel: F.rank, rankOf: F.rankOf, statusLabel: F.status,
       trend: F.trend(L.figure), trendCaption: F.trendCaption, ranking: F.ranking,
     },
-    tags: c.tags, names: c.names, hrefs: c.hrefs, slugs: c.slugs, notes: withFoodNotes(c.notes, p.id), blocs: c.blocs, data,
+    tags: c.tags, names: c.names, hrefs: c.hrefs, slugs: c.slugs, notes: withFoodNotes(c.notes, p), blocs: c.blocs, data,
     series: seriesOf(p.years.map((year) => Object.fromEntries(p.byYear[year].rows.map((r) => [r.id, r.value])))),
     format: { kind: 'mt' }, more: foodMore(p),
     ...(overlays.length ? { overlays } : {}),
@@ -877,9 +877,9 @@ function energyMore(p: EnergyPage): Record<string, PanelBlock[]> {
   return out;
 }
 
-function withFoodNotes(notes: Record<string, string>, id: string): Record<string, string> {
+function withFoodNotes(notes: Record<string, string>, p: FoodPage): Record<string, string> {
   const out = { ...notes };
-  for (const [place, n] of Object.entries(FOOD_NOTES[id] ?? {})) out[place] = out[place] ? `${out[place]} ${n}` : n;
+  for (const [place, n] of Object.entries(placeNotes(p))) out[place] = out[place] ? `${out[place]} ${n}` : n;
   return out;
 }
 

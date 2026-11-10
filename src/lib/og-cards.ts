@@ -27,7 +27,7 @@ import { historyPage } from './history';
 import { BLOCS_CHECKED } from './blocs';
 import { riverPage } from './rivers';
 import { RIVERS_TEXT } from '../i18n/water.en';
-import { estimated as foodEstimated, foodPage, lede as foodLede, mt, netText, shareOf as foodShare } from './food';
+import { estimated as foodEstimated, foodPage, fromUsgs, lede as foodLede, mt, netText, shareOf as foodShare } from './food';
 import { amount as energyAmount, energyPage, lede as energyLede, shareOf as energyShare, valueText as energyValue } from './energy';
 import { ENERGY_TEXT } from '../i18n/energy.en';
 import { EXPLORER_TEXT } from '../i18n/explorer.en';
@@ -208,8 +208,11 @@ export function card(r: Route | null): Card {
     const y = p.byYear[p.year];
     const trade = p.layer === 'trade';
     const rows = trade ? [...y.rows.slice(0, 3), ...y.rows.slice(-2)] : y.rows.slice(0, 5);
+    // A bar whose production is USGS's (China's potash) names it in the source.
+    const usgs = p.layer === 'production' ? rows.filter((x) => fromUsgs(p, x.id, p.year)).map((x) => nameOf(x.id)) : [];
     return {
-      kicker: FOOD_TEXT.section, title: FOOD_TEXT.layer[p.layer].title(p.text.pick), caption: foodLede(p) ?? undefined, source: `${short('faostat')}, ${p.year}`,
+      kicker: FOOD_TEXT.section, title: FOOD_TEXT.layer[p.layer].title(p.text.pick), caption: foodLede(p) ?? undefined,
+      source: `${short('faostat')}, ${p.year}${usgs.length ? `; ${FOOD_TEXT.usgsSource(usgs)}` : ''}`,
       // An estimate says so after the share, in the same brackets: "12.3 Mt (15%, estimate)".
       bars: rows.map((x) => {
         const est = foodEstimated(p, x.id, p.year);

@@ -215,22 +215,25 @@ export function minerals(raw: Raw): Mineral[] {
 
 /**
  * Potash mine production per place and year, in million tonnes of K2O equivalent, from the newest edition's world
- * table: a check on FAOSTAT's own estimates of potash output (src/lib/dependence.ts). Empty when the chapter is not
- * in K2O.
+ * table, and the figures USGS marks as estimated: a check on FAOSTAT's own estimates of potash output (usgsPotash in
+ * src/adapters/faostat.ts). Empty when the chapter is not in K2O.
  */
-export function potashOutput(raw: Raw): Series {
+export function potashOutput(raw: Raw): { output: Series; estimated: Series } {
   const file = raw.list('usgs-minerals').filter((f) => /^MCS\d{4}_Commodities_Data\.csv$/.test(f)).at(-1);
   if (!file) throw new Error('usgs-minerals/MCS<year>_Commodities_Data.csv is not in the snapshot');
   const rows = normalise(csvRecords(raw.text('usgs-minerals', file))).filter((r) => /^potash$/i.test(r.Commodity ?? '') && /^mine production/i.test(r.Statistics ?? ''));
-  if (!/K2O/.test(basisOf(rows.find((r) => r['Other notes'])?.['Other notes']) ?? '')) return {};
-  const m = matcher('usgs-minerals', 'name');
   const out: Series = {};
+  const estimated: Series = {};
+  if (!/K2O/.test(basisOf(rows.find((r) => r['Other notes'])?.['Other notes']) ?? '')) return { output: out, estimated };
+  const m = matcher('usgs-minerals', 'name');
   for (const r of rows) {
     if (isAggregate(r.Country)) continue;
     const id = m.match(r.Country);
     const v = parseValue(r.Value).value;
     // Thousand metric tons.
-    if (id && v !== null && /^thousand metric tons$/i.test(r.Unit ?? '')) put(out, id, Number(r.Year), v / 1000);
+    if (!id || v === null || !/^thousand metric tons$/i.test(r.Unit ?? '')) continue;
+    put(out, id, Number(r.Year), v / 1000);
+    if (isEstimated(r)) put(estimated, id, Number(r.Year), 1);
   }
-  return out;
+  return { output: out, estimated };
 }

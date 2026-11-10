@@ -165,6 +165,12 @@ export const FOOD_TEXT = {
   notes: 'Notes',
   estNote: 'e: FAOSTAT’s own estimate or imputation.',
   estTitle: 'FAOSTAT estimate',
+  estTitleUsgs: 'USGS estimate',
+  /** A potash output that is USGS's, not FAOSTAT's (usgsPotash in src/adapters/faostat.ts); `world` on the production map. */
+  usgsNote: (years: number[], world: boolean) =>
+    `Production in ${list(years.map(String))}: USGS, as FAOSTAT’s figure is an estimate far from it${world ? '; the world total uses USGS’s figure' : ''}.`,
+  /** The share image's source when a bar's figure is USGS's. */
+  usgsSource: (names: string[]) => `${list(names)}: USGS`,
   mapLabel: (title: string, year: number, top: string) => `World map: ${title.toLowerCase()} by country, ${year}. ${top}. The same figures are in the table below.`,
   sourceCrops: 'FAOSTAT (FAO)',
   sourceFertilisers: 'FAOSTAT (FAO), fertilisers by nutrient',

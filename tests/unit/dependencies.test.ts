@@ -249,26 +249,35 @@ describe('fertilisers on supply', () => {
     expect(DEP_TEXT.exportsNote('FAOSTAT')).toBe('Exports can come from an earlier harvest or stocks; FAOSTAT’s yearly figures do not separate them');
   });
 
-  it('use USGS’s potash output where FAOSTAT’s own estimate is more than twice from it', async () => {
-    const { fromBalance, rowSource, usgsPotash } = await import('../../src/lib/dependence.ts');
+  it('use USGS’s potash output where FAOSTAT’s own estimate is more than twice from it, world total too', async () => {
+    const { fromBalance, rowSource } = await import('../../src/lib/dependence.ts');
+    const { usgsPotash } = await import('../../src/adapters/faostat.ts');
     const { potashOutput } = await import('../../src/adapters/minerals.ts');
-    // China 2024, Mt K2O: FAOSTAT estimates 1.12 produced; USGS 6.3.
-    const cn = balance(1.115391, 7.7, 0.04, 9, ['production'])!;
-    const u = usgsPotash(cn, 'X', { X: { 2024: 6.3 } })!;
+    // China 2024, Mt K2O: FAOSTAT estimates 1.12 produced; USGS 6.3, its own estimate.
+    const cn = { ...balance(1.115391, 7.7, 0.04, 9, ['production'])!, world: { production: { 2024: 44.3 } } };
+    const usgs = (v: number, y = 2024, est = true): { output: Record<string, Record<number, number>>; estimated: Record<string, Record<number, number>> } =>
+      ({ output: { X: { [y]: v } }, estimated: est ? { X: { [y]: 1 } } : {} });
+    const u = usgsPotash(cn, usgs(6.3));
     expect(u.production.X[2024]).toBe(6.3);
+    expect(u.usgs).toEqual({ X: { 2024: 1 } });
+    expect(u.world.production[2024]).toBeCloseTo(44.3 - 1.115391 + 6.3, 6);
+    expect(u.estimated.production.X[2024]).toBe(1);
+    expect(usgsPotash(cn, usgs(6.3, 2024, false)).estimated.production.X?.[2024]).toBeUndefined();
     const row = { ...fromBalance('potash', u, 'X', undefined, true), usgsProduction: true as const };
     expect(row.reliance).toBeCloseTo(7.66 / (6.3 + 7.66), 4);
     expect(rowSource(row)).toBe('FAOSTAT, 2024. Production: USGS, as FAOSTAT’s figure is an estimate far from it');
-    // Within 2×, or FAOSTAT's own figure, not an estimate: FAOSTAT's stays.
-    expect(usgsPotash(balance(1.62, 0, 1.5, 0, ['production'])!, 'X', { X: { 2024: 2.4 } })).toBeNull();
-    expect(usgsPotash(balance(1.1, 7.7, 0, 9)!, 'X', { X: { 2024: 6.3 } })).toBeNull();
-    expect(usgsPotash(cn, 'X', { X: { 2023: 6.3 } })).toBeNull();
+    // Within 2×, FAOSTAT's own figure (not an estimate), or another year: FAOSTAT's stays.
+    expect(usgsPotash(balance(1.62, 0, 1.5, 0, ['production'])!, usgs(2.4)).usgs).toEqual({});
+    expect(usgsPotash(balance(1.1, 7.7, 0, 9)!, usgs(6.3)).usgs).toEqual({});
+    expect(usgsPotash(cn, usgs(6.3, 2023)).production.X[2024]).toBe(1.115391);
     // USGS's world table, thousand tonnes of K2O equivalent.
     const csv = 'MCS chapter,Section,Commodity,Country,Statistics,Statistics_detail,Unit,Year,Value,Notes,Is critical mineral 2025,Other notes\n'
       + 'POTASH,World Mine Production and Reserves,Potash,China,Production,Mine production,thousand metric tons,2024,"6,300",Estimated.,Yes,"(Data in thousand metric tons, potassium oxide (K2O) equivalent, unless otherwise specified)"\n'
       + 'POTASH,World Mine Production and Reserves,Potash,World total,Production,Mine production,thousand metric tons,2024,"46,700",,Yes,"(Data in thousand metric tons, potassium oxide (K2O) equivalent, unless otherwise specified)"\n';
     const raw = { has: () => true, list: () => ['MCS2026_Commodities_Data.csv'], text: () => csv, json: () => ({}) } as never;
-    expect(potashOutput(raw)).toEqual({ CHN: { 2024: 6.3 } });
+    expect(potashOutput(raw)).toEqual({ output: { CHN: { 2024: 6.3 } }, estimated: { CHN: { 2024: 1 } } });
+    const { FOOD_TEXT } = await import('../../src/i18n/food.en.ts');
+    expect(FOOD_TEXT.usgsNote([2024], true)).toBe('Production in 2024: USGS, as FAOSTAT’s figure is an estimate far from it; the world total uses USGS’s figure.');
   });
 
   it('label an estimated cell in the grid', () => {

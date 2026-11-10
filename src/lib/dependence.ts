@@ -5,7 +5,6 @@
 // Rows whose source is not in the snapshot yet (oil and gas: EIA, partners from UN Comtrade; chips: UN Comtrade) say so.
 import { food, type Balance, type Crop } from '../adapters/faostat.ts';
 import { gas, oil, type Fuel, type Oil } from '../adapters/eia.ts';
-import { potashOutput } from '../adapters/minerals.ts';
 import { FLOWS, loadFlows, topSupplier, type Flows } from '../data/flows.ts';
 import { OTHER_SUPPLIER } from '../adapters/sipri.ts';
 import { shared } from './data.ts';
@@ -25,8 +24,6 @@ export const THRESHOLDS = { most: 0.5, self: 0.15, excess: 0.1 };
 /** A balance more than this many years before the latest any place has for its resource is old: shown with its year
  *  and "No recent data", out of the tool's sort and rankings and a country page's lead imports (Martinique's oil, 2010). */
 export const OLD_YEARS = 10;
-/** Potash: FAOSTAT's estimate of output gives way to USGS's for the same year when one is more than this many times the other. */
-export const USGS_GAP = 2;
 
 export function tagFor(reliance: number): DepTag {
   if (reliance >= THRESHOLDS.most) return 'most';
@@ -66,7 +63,8 @@ export interface DepRow {
   partnersFrom?: { source: string; period: string; mirror?: string[]; over?: string[]; leftOut?: string[] };
   /** The balance is more than OLD_YEARS before the latest year any place has for this resource. */
   old?: true;
-  /** Potash: production is USGS's, FAOSTAT's own estimate being more than USGS_GAP times from it (usgsPotash). */
+  /** Potash: the balance year's production is USGS's, FAOSTAT's own estimate being far from it (usgsPotash in
+   *  src/adapters/faostat.ts). */
   usgsProduction?: true;
 }
 
@@ -103,21 +101,6 @@ export function rowSource(r: DepRow): string | null {
 }
 
 const foodData = shared(food);
-const usgsOutput = shared(potashOutput);
-
-/**
- * Potash: where FAOSTAT's output for the balance year is its own estimate (flag E or I) and USGS's mine production for
- * the same year, in K2O, is more than USGS_GAP times it or less than its 1/USGS_GAP, the balance uses USGS's.
- * China, 2024: 1.1 Mt estimated by FAOSTAT, 6.3 Mt by USGS.
- */
-export function usgsPotash(b: Balance, id: string, usgs: Record<string, Record<number, number>> | null = usgsOutput()): Balance | null {
-  const y = balanceRow(b, id, true)?.year;
-  if (y === undefined) return null;
-  const p = b.production[id][y];
-  const u = usgs?.[id]?.[y];
-  if (u === undefined || !b.estimated.production[id]?.[y] || !(u > USGS_GAP * p || p > USGS_GAP * u)) return null;
-  return { ...b, production: { ...b.production, [id]: { ...b.production[id], [y]: u } } };
-}
 const fuels = { oil: shared(oil), gas: shared(gas) };
 const flowsOf = new Map<string, () => Flows | null>();
 const flows = (key: string) => {
@@ -236,6 +219,11 @@ const latestYears = shared((): Partial<Record<Resource, number>> => {
   return out;
 });
 
+/** Marks a row whose balance year's production is USGS's (potash). */
+function usgsMarked(r: DepRow, b: Balance, id: string): DepRow {
+  return r.year !== undefined && b.usgs?.[id]?.[r.year] ? { ...r, usgsProduction: true } : r;
+}
+
 /** Marks a row whose balance is more than OLD_YEARS before its resource's latest year. */
 function dated(r: DepRow): DepRow {
   const latest = latestYears()?.[r.resource];
@@ -259,11 +247,7 @@ function rows(id: string): DepRow[] {
         // The balance is FAOSTAT's, on supply (its trade covers every use, its use only farms); the partners come
         // from UN Comtrade's flows, when it has them.
         if (!fd) return { resource: res, state: 'pending', source: 'faostat', partners: [] };
-        if (res === 'potash') {
-          const u = usgsPotash(fd.fertilisers.potash, id);
-          if (u) return { ...fromBalance(res, u, id, res, true), usgsProduction: true };
-        }
-        return fromBalance(res, fd.fertilisers[res], id, res, true);
+        return usgsMarked(fromBalance(res, fd.fertilisers[res], id, res, true), fd.fertilisers[res], id);
       default:
         return concentration(res, id);
     }

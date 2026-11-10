@@ -89,9 +89,15 @@ A sample build has 129 country pages and 37 indicator pages; the real snapshot h
   the latest balance is from 2010" on the country page, "2010, no recent data" in the tool's cell, and left out of the
   sort, the phone ranking, reliance on one supplier and lead imports. Partners more than 10 years newer than the
   balance say so ("Main partners are from 2023, 15 years after the balance").
-  A potash balance whose production is FAOSTAT's own estimate (E, I) and more than 2× from USGS's mine production in K2O
-  for the same year (`usgsPotash`, `USGS_GAP`; `potashOutput` in `src/adapters/minerals.ts`) uses USGS's, and its
-  source line and grid tooltip say "Production: USGS, as FAOSTAT's figure is an estimate far from it" (China, 2024).
+  Potash production that is FAOSTAT's own estimate (E, I) and more than 2× from USGS's mine production in K2O for the
+  same year is replaced by USGS's in `food()` itself (`usgsPotash`, `USGS_GAP` in `src/adapters/faostat.ts`;
+  `potashOutput` in `src/adapters/minerals.ts`), so the balance rows, the potash maps, their world total, rankings,
+  layer files and share images all read the same figure. The cell is marked in `Balance.usgs`, keeps USGS's own
+  estimate flag ("USGS estimate" in the table), and the world total moves by the difference. Rows and the grid say
+  "Production: USGS, as FAOSTAT's figure is an estimate far from it"; the potash maps carry a place note
+  (`placeNotes` in `src/lib/food.ts`) and the share image's source names it; a change across a FAOSTAT and a USGS
+  year is not shown (`comparable`, `worldChange`). China, 2024. Potash production is not an indicator, so Compare and
+  the Explorer do not show it.
 - **Neutral words.** Templates use plain verbs (mines, imports, hosts) and no adjectives that judge. "Higher" on
   Compare marks the larger value and says it is not a judgement. A sentence whose figure is missing is left out.
 - **Colour is never the only cue.** Dependence tags have a glyph and a word, Compare's first and second country have

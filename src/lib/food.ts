@@ -5,7 +5,7 @@
 import { food, type Balance, type Crop, type Flow, type Nutrient } from '../adapters/faostat.ts';
 import { comtrade, completeYear, fertiliserFlows } from '../adapters/comtrade.ts';
 import type { Series } from '../adapters/core.ts';
-import { FOOD_TEXT, type CommodityText } from '../i18n/food.en.ts';
+import { FOOD_NOTES, FOOD_TEXT, type CommodityText } from '../i18n/food.en.ts';
 import { DEP_TEXT, inSentence } from '../i18n/pages.en.ts';
 import { shared } from './data.ts';
 import { formatValue } from './format.ts';
@@ -175,6 +175,9 @@ export const valueText = (p: FoodPage, v: number) => (p.layer === 'trade' ? netT
 
 /** The change in the world figure from the year before, as a share, when both years have one. */
 export function worldChange(p: FoodPage, y: number): number | null {
+  // Production with USGS's figures in one year and not the other (China's potash, 2024) is not compared.
+  const usgsIn = (yr: number) => Object.entries(p.balance.usgs ?? {}).filter(([, ys]) => ys[yr]).map(([id]) => id).sort().join();
+  if (p.layer === 'production' && usgsIn(y) !== usgsIn(y - 1)) return null;
   const a = p.byYear[y]?.world;
   const b = p.byYear[y - 1]?.world;
   return a && b ? a / b - 1 : null;
@@ -184,6 +187,22 @@ export function worldChange(p: FoodPage, y: number): number | null {
 export function estimated(p: FoodPage, id: string, y: number): boolean {
   const e = p.balance.estimated;
   return p.layer === 'trade' ? !!(e.imports[id]?.[y] || e.exports[id]?.[y]) : !!e[p.layer][id]?.[y];
+}
+
+/** A place's production in `y` is USGS's, FAOSTAT's own estimate being far from it (potash; usgsPotash). */
+export const fromUsgs = (p: FoodPage, id: string, y: number) => Boolean(p.balance.usgs?.[id]?.[y]);
+
+/** A place's production can be compared with the year before: both years are FAOSTAT's, or both USGS's. */
+export const comparable = (p: FoodPage, id: string, y: number) => p.layer !== 'production' || fromUsgs(p, id, y) === fromUsgs(p, id, y - 1);
+
+/** The page's notes on single places: FOOD_NOTES, and where a place's production is USGS's (China's potash, 2024). */
+export function placeNotes(p: FoodPage): Record<string, string> {
+  const out = { ...(FOOD_NOTES[p.id] ?? {}) };
+  for (const [id, ys] of Object.entries(p.balance.usgs ?? {})) {
+    const n = FOOD_TEXT.usgsNote(Object.keys(ys).map(Number).sort((a, b) => a - b), p.layer === 'production');
+    out[id] = out[id] ? `${out[id]} ${n}` : n;
+  }
+  return out;
 }
 
 /** A place's balance in a year: production, imports, exports and use, each where FAOSTAT has it. */
