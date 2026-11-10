@@ -46,6 +46,8 @@ export const EXPLORER_TEXT = {
   captionYear: (y: number) => `Every column shows ${y}. A country missing it shows its latest of the two years before, marked with its year.`,
   csvLeftOut: (labels: string) => `The download leaves out ${labels}: the source does not allow it to be passed on.`,
   csvNone: 'None of the chosen measures can be downloaded: their sources do not allow it.',
+  /** An indexed series' column in the over-time download. */
+  csvIndex: (year: number) => `index, ${year} = 100`,
   found: (name: string) => `${name} is highlighted.`,
   notFound: (q: string) => `No country matches "${q}".`,
   noRows: 'No country in this selection has any of these figures.',

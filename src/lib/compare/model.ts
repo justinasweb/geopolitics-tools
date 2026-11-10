@@ -13,6 +13,8 @@ export const CHARTS = ['gdp', 'milpct'];
 export const SERIES_FROM = 2000;
 /** A chart needs at least this many shared years after the first. */
 export const MIN_SPAN = 2;
+/** A chart whose last shared year is more than this many years before the measure's latest is not drawn. */
+export const CHART_OLD_YEARS = 10;
 /** A mineral is paired when either country has at least this share of world production. */
 export const MINERAL_MIN = 0.01;
 
@@ -48,6 +50,8 @@ export interface MeasureMeta {
   /** The short credit on a row ("World Bank"), and the source's full name on a chart's source line. */
   credit: string;
   source: string;
+  /** Chart measures: the latest year any country has. */
+  latest?: number;
 }
 export interface MineralMeta { id: string; name: string; year: number; estimated: boolean; primary: boolean }
 export interface Pair { a: string; b: string; path: string; title: string }
@@ -62,6 +66,10 @@ export interface Meta {
   /** Where the country files are: /compare/data/. */
   base: string;
 }
+
+/** A grouping's note in a country box: the words typed that name it (folded), and the note's text around the link
+ *  to its page. */
+export interface BlocNote { k: string[]; before: string; link: string; after: string; h: string }
 
 /** The static page for a pair, either way round. */
 export const staticPair = (pairs: Pair[], a: string, b: string) => pairs.find((p) => (p.a === a && p.b === b) || (p.a === b && p.b === a));
@@ -108,25 +116,36 @@ export function gapGroups(gaps: Gap[], c: [CountryData, CountryData]): { name: s
 }
 
 export interface Chart { m: MeasureMeta; years: number[]; values: [(number | null)[], (number | null)[]] }
+/** A chart measure not drawn: `lacks` is the side with no figures in the years both cover, or `ended` the last year
+ *  both have, more than CHART_OLD_YEARS before the latest (Laos and Bolivia's military spending ends in 2013). */
+export interface ChartGap { m: MeasureMeta; lacks?: 0 | 1; ended?: number }
 
-/** A chart for each chart measure both countries have a series for, over the years both cover. */
-export function compareCharts(meta: Meta, c: [CountryData, CountryData]): Chart[] {
-  const out: Chart[] = [];
+/** A chart for each chart measure both countries have a recent series for, over the years both cover, and the chart
+ *  measures one of them has that are not drawn. */
+export function chartsAndGaps(meta: Meta, c: [CountryData, CountryData]): { charts: Chart[]; gaps: ChartGap[] } {
+  const charts: Chart[] = [];
+  const gaps: ChartGap[] = [];
   for (const id of CHARTS) {
     const m = meta.measures.find((x) => x.id === id);
     const s = c.map((d) => d.s[id]);
-    if (!m || !s[0] || !s[1]) continue;
+    if (!m || (!s[0] && !s[1])) continue;
+    if (!s[0] || !s[1]) { gaps.push({ m, lacks: s[0] ? 1 : 0 }); continue; }
     const ends = s.map(([from, v]) => [from, from + v.length - 1]);
     const from = Math.max(ends[0][0], ends[1][0]);
     const to = Math.min(ends[0][1], ends[1][1]);
+    const latest = Math.max(m.latest ?? 0, ends[0][1], ends[1][1]);
+    if (to < latest - CHART_OLD_YEARS) { gaps.push({ m, ended: to }); continue; }
     if (to - from < MIN_SPAN) continue;
     const years = Array.from({ length: to - from + 1 }, (_, i) => from + i);
     const values = s.map(([f, v]) => years.map((yr) => v[yr - f] ?? null)) as Chart['values'];
-    if (values.some((v) => v.every((x) => x === null))) continue;
-    out.push({ m, years, values });
+    const empty = values.findIndex((v) => v.every((x) => x === null));
+    if (empty > -1) { gaps.push({ m, lacks: empty as 0 | 1 }); continue; }
+    charts.push({ m, years, values });
   }
-  return out;
+  return { charts, gaps };
 }
+
+export const compareCharts = (meta: Meta, c: [CountryData, CountryData]): Chart[] => chartsAndGaps(meta, c).charts;
 
 export interface MineralPair { m: MineralMeta; vals: [number | null, number | null] }
 

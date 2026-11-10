@@ -2,6 +2,8 @@
 // segmented control, chips (with optional list filtering), country search (combobox) and the year slider.
 // Each fires a bubbling CustomEvent the page's own script listens to: `gt-change` or `gt-pick`.
 import { YEAR_TEXT } from '../i18n/en';
+import { fold } from '../lib/search-match';
+import type { BlocNote } from '../lib/compare/model';
 
 const PLAY = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5v11l9-5.5z"/></svg>';
 const PAUSE = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 2.5h3v11h-3zM9.5 2.5h3v11h-3z"/></svg>';
@@ -53,6 +55,7 @@ function combo(el: HTMLElement) {
   const input = el.querySelector('input')!;
   const list = el.querySelector<HTMLUListElement>('.gt-combo__list')!;
   const opts: Option[] = JSON.parse(el.dataset.options ?? '[]');
+  const notes: BlocNote[] = JSON.parse(el.dataset.notes ?? '[]');
   let active = -1;
   let shown: Option[] = [];
   const close = () => {
@@ -64,7 +67,11 @@ function combo(el: HTMLElement) {
   const render = () => {
     const q = input.value.trim().toLowerCase();
     shown = matchOptions(opts, q);
-    list.replaceChildren(...(shown.length ? shown.map((o, i) => {
+    // A grouping typed whole ("EU", "NATO") gets its note, with a link to its page, after any countries that match.
+    const note = q ? notes.find((n) => n.k.includes(fold(q).trim())) : undefined;
+    const noteLi = note && Object.assign(document.createElement('li'), { className: 'gt-combo__empty gt-combo__bloc' });
+    if (noteLi && note) noteLi.append(note.before, Object.assign(document.createElement('a'), { href: note.h, textContent: note.link }), note.after);
+    const rows = shown.length || !noteLi ? shown.map((o, i) => {
       const li = document.createElement('li');
       li.setAttribute('role', 'option');
       li.id = `${el.id}-o${i}`;
@@ -80,10 +87,11 @@ function combo(el: HTMLElement) {
       li.append(name);
       if (o.note) li.append(Object.assign(document.createElement('span'), { className: 'gt-combo__note', textContent: o.note }));
       return li;
-    }) : [Object.assign(document.createElement('li'), {
+    }) : [];
+    list.replaceChildren(...(rows.length || noteLi ? rows : [Object.assign(document.createElement('li'), {
       className: 'gt-combo__empty',
       textContent: (el.dataset.empty ?? '').replace('{q}', input.value),
-    })]));
+    })]), ...(noteLi ? [noteLi] : []));
     list.hidden = false;
     input.setAttribute('aria-expanded', 'true');
     if (active > -1) input.setAttribute('aria-activedescendant', `${el.id}-o${active}`);
@@ -99,7 +107,8 @@ function combo(el: HTMLElement) {
   };
   input.addEventListener('input', () => { active = -1; render(); });
   input.addEventListener('focus', render);
-  input.addEventListener('blur', () => setTimeout(close, 120));
+  // Closes when focus leaves the box, not when it moves to a link in the list (a grouping's note).
+  el.addEventListener('focusout', (e) => { if (!el.contains((e as FocusEvent).relatedTarget as Node | null)) setTimeout(close, 120); });
   input.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowDown') { active = Math.min(active + 1, shown.length - 1); render(); e.preventDefault(); }
     else if (e.key === 'ArrowUp') { active = Math.max(active - 1, 0); render(); e.preventDefault(); }
@@ -108,6 +117,8 @@ function combo(el: HTMLElement) {
   });
   list.addEventListener('mousedown', (e) => {
     const li = (e.target as HTMLElement).closest('li[role=option]');
+    // A link in a note keeps the list open until its click lands.
+    if ((e.target as HTMLElement).closest('a')) { e.preventDefault(); return; }
     if (!li) return;
     e.preventDefault();
     pick([...list.children].indexOf(li));

@@ -5,7 +5,7 @@
 import CountrySearch from './CountrySearch.astro';
 import '../styles/atlas/country.css';
 import { COMPARE_TEXT as T, COUNTRIES_INDEX } from '../i18n/pages.en';
-import { compareChoices, compareMeta } from '../lib/compare';
+import { compareBlocNotes, compareChoices, compareMeta } from '../lib/compare';
 import { paths } from '../lib/routes';
 
 interface Props {
@@ -21,20 +21,21 @@ const choices = compareChoices();
 const options = choices.filter((c) => c.value !== fixed?.slug).map((c) => ({ name: c.name, value: c.value, note: c.territory ? COUNTRIES_INDEX.territory : undefined }));
 const nameOf = (slug?: string) => choices.find((c) => c.value === slug)?.name;
 const pairs = JSON.stringify(compareMeta().pairs);
+const notes = compareBlocNotes();
 ---
 <form class:list={['gt-cmppick', { 'gt-cmppick--with': fixed }]} action={paths.compareAny()} method="get" data-cmp-pick data-pairs={pairs}>
   {fixed ? (
     <>
       <input type="hidden" name="a" value={fixed.slug} />
       <input type="hidden" name="b" value="" data-cmp-side="b" />
-      <div data-cmp-for="b"><CountrySearch id={`${id}-b`} label={T.compareWith} options={options} /></div>
+      <div data-cmp-for="b"><CountrySearch id={`${id}-b`} label={T.compareWith} options={options} notes={notes} /></div>
     </>
   ) : (
     <>
       <input type="hidden" name="a" value={a ?? ''} data-cmp-side="a" />
       <input type="hidden" name="b" value={b ?? ''} data-cmp-side="b" />
-      <div data-cmp-for="a"><CountrySearch id={`${id}-a`} label={T.first} options={options} value={nameOf(a)} /></div>
-      <div data-cmp-for="b"><CountrySearch id={`${id}-b`} label={T.second} options={options} value={nameOf(b)} /></div>
+      <div data-cmp-for="a"><CountrySearch id={`${id}-a`} label={T.first} options={options} notes={notes} value={nameOf(a)} /></div>
+      <div data-cmp-for="b"><CountrySearch id={`${id}-b`} label={T.second} options={options} notes={notes} value={nameOf(b)} /></div>
       <button class="gt-btn" type="submit">{T.go}</button>
     </>
   )}

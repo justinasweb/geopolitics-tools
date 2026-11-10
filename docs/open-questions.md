@@ -154,6 +154,12 @@ groupings with a history) on the day it happens, with `BLOCS_CHECKED` moved to t
   no change.
 - **RCEP accession.** Hong Kong, Chile and others are in accession talks; none has joined: no change until one does.
 
+### Critical mineral trade from UN Comtrade (raised 10 Nov 2026)
+
+**Post-launch idea.** Critical mineral trade (lithium, cobalt, rare earths) from UN Comtrade, so readers can see who
+supplies the EU, US and others. The site shows only mine production shares for minerals now (USGS); the flows would
+come through the Comtrade adapter like the fertiliser and chip flows, by HS code, with the same 85% completeness rule.
+
 ### Multi-year supply chain flows (raised 28 Oct 2026)
 
 **The question.** Should the supply chain pages let the reader pick earlier years, to see how a flow changed (who

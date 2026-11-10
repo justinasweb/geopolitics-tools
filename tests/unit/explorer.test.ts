@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import { FALLBACK_YEARS, PRESETS, correlation, isPreset, parseState, presetState, queryOf, statusOf, ticks, valueAt, wantsLog, type MeasureMeta, type Meta } from '../../src/lib/explorer/model.ts';
-import { linesChart, linesHtml, scatterModel, tableCsv, tableHtml, tableRows, type Data } from '../../src/lib/explorer/render.ts';
+import { linesChart, linesCsv, linesHtml, scatterCsv, scatterModel, tableCsv, tableHtml, tableRows, viewCsv, type Data } from '../../src/lib/explorer/render.ts';
 
 process.env.GT_DATA = 'sample';
 
@@ -122,6 +122,36 @@ describe('Explorer views', () => {
     expect(left.map((x) => x.id)).toEqual(['b']);
     expect(csv.split('\n')[0]).toBe('country,iso3,"A (US$) [Test, retrieved 2026-10-26]",A year');
     expect(csv).toContain('Carpania,CCC,500,2022');
+  });
+
+  it('downloads the lines shown, one row per country and year, with tag, source and date', () => {
+    const s = parseState('lines', new URLSearchParams('m=a&c=AAA,BBB'), meta);
+    const { csv, left } = linesCsv(s, meta, data);
+    expect(left).toEqual([]);
+    const lines = csv.trim().split('\n');
+    expect(lines[0]).toBe('country,iso3,year,A (US$),status,source,retrieved');
+    expect(lines).toContain('Aland,AAA,2018,1,,Test,2026-10-26');
+    expect(lines).toContain('Borduria,BBB,2020,30,,Test,2026-10-26');
+    // Only the countries and years shown: Carpania is not picked, Borduria has nothing after 2020.
+    expect(csv).not.toContain('Carpania');
+    expect(lines).toHaveLength(1 + 5 + 3);
+    // Indexed lines download as drawn.
+    const ix = linesCsv({ ...s, index: 2019 }, meta, data).csv.split('\n');
+    expect(ix[0]).toBe('country,iso3,year,"A (index, 2019 = 100)",status,source,retrieved');
+    expect(ix).toContain('Aland,AAA,2019,100,,Test,2026-10-26');
+    expect(viewCsv(parseState('lines', new URLSearchParams('m=b&c=AAA'), meta), meta, data)).toEqual({ csv: '', left: [meta.measures[1]] });
+  });
+
+  it('downloads the scatter points shown, leaving out measures whose licence does not allow it', () => {
+    const s = parseState('scatter', new URLSearchParams('x=a&y=b&size='), meta);
+    const sc = scatterModel(s, meta, data);
+    const { csv, left } = scatterCsv(s, meta, data);
+    expect(left.map((x) => x.id)).toEqual(['b']);
+    const lines = csv.trim().split('\n');
+    expect(lines[0]).toBe('country,iso3,A (US$),A year,A status,A source,A retrieved');
+    expect(lines.slice(1).map((l) => l.split(',')[1])).toEqual(sc.points.map((p) => p.id));
+    expect(lines).toContain(`Carpania,CCC,500,${sc.year},,Test,2026-10-26`);
+    expect(viewCsv(parseState('scatter', new URLSearchParams('x=b&y=b'), meta), meta, data).csv).toBe('');
   });
 
   it('indexes lines to 100 and starts the log scale on a wide spread', () => {

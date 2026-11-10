@@ -28,11 +28,13 @@ function position(r: DepRow): string {
   if (r.state === 'pending') return DEP_TEXT.noData;
   if (r.state === 'none') return r.resource === 'arms' && r.period ? DEP_TEXT.noImports(r.period) : DEP_TEXT.noRow;
   if (r.main) return DEP_TEXT.mainSupplier(nameOf(r.main.id), formatShare(r.main.share));
-  if (r.noUse) return DEP_TEXT.noUse(noun);
-  if (r.excess) return r.excess === 'exports' ? DEP_TEXT.exceedsSupply : DEP_TEXT.exceedsUse;
-  if (r.tag === 'exp' || (r.reliance !== undefined && r.reliance < 0 && r.exportShare !== undefined)) return DEP_TEXT.exports(formatShare(r.exportShare ?? 0));
-  if (r.reliance !== undefined && r.reliance >= 0.995) return DEP_TEXT.importsAll(noun);
-  return DEP_TEXT.imports(formatShare(Math.max(0, r.reliance ?? 0)), noun);
+  // An old balance in the past tense, with its year.
+  const old = r.old ? r.year : undefined;
+  if (r.noUse) return DEP_TEXT.noUse(noun, old);
+  if (r.excess) return old ? DEP_TEXT.exceeded(r.excess === 'exports', old) : r.excess === 'exports' ? DEP_TEXT.exceedsSupply : DEP_TEXT.exceedsUse;
+  if (r.tag === 'exp' || (r.reliance !== undefined && r.reliance < 0 && r.exportShare !== undefined)) return DEP_TEXT.exports(formatShare(r.exportShare ?? 0), old);
+  if (r.reliance !== undefined && r.reliance >= 0.995) return DEP_TEXT.importsAll(noun, old);
+  return DEP_TEXT.imports(formatShare(Math.max(0, r.reliance ?? 0)), noun, old);
 }
 const crop = (r: DepRow) => ['wheat', 'maize', 'rice', 'soy'].includes(r.resource);
 const caveat = (r: DepRow) => (!r.excess ? null : r.excess === 'exports' && crop(r) ? DEP_TEXT.exportsNote(SOURCE_SHORT[r.source] ?? r.source) : DEP_TEXT.exceedsNote(SOURCE_SHORT[r.source] ?? r.source));

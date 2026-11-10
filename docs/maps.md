@@ -145,7 +145,8 @@ layers whose view is live, and loads their files (`/map/<id>.json`) as the views
 - **Phone (under 760px of the Atlas).** The map fills the screen under a 56px bar (back, Atlas and the layer, Share).
   The legend folds to one line (ramp, title, Show legend; the choice kept for the session). The Layers button opens
   the list as a sheet (78% high): overlays first as radio buttons, one at a time, then the shaded layers; picking a
-  layer closes it. Tapping a country opens the panel as a second sheet; closing it keeps the layer. A compact year card
+  layer keeps it open, so the reader can try the next one (the map shows above it); the close button or Escape shuts
+  it. Tapping a country opens the panel as a second sheet; closing it keeps the layer. A compact year card
   sits above the Layers button (the design shows none on a phone). The map refits around the legend line, the card and
   the sheets. The borders line is not shown under the map; its words and the "How we treat borders" link are behind
   the map's ⓘ (the engine's `setAttribution`), folded until tapped, so the phone map carries them too.

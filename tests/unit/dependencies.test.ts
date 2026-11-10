@@ -75,16 +75,35 @@ describe('Dependencies model', () => {
     // The United Arab Emirates' wheat: a 2008 balance, partners from 2023.
     const old = { v: 1, t: ['RUS', 0.6] as [string, number], y: '2008', ty: '2023', o: 1 as const };
     const g: Grid = { ...grid, rows: [...grid.rows, { id: 'ARE', cells: cells(old, old, { why: 'i' }) }], places: { ...grid.places, ARE: { n: 'United Arab Emirates', c: 'ARE' } } };
-    expect(cellText(g, 'oil', old)).toEqual(['Imports all', '2008, no recent data']);
+    expect(cellText(g, 'oil', old)).toEqual(['Imported all', '2008, no recent data']);
     expect(rowsOf(parseState(new URLSearchParams(''), g), g).map((r) => r.id)).toEqual(['HUN', 'EGY', 'NOR', 'ARE']);
     expect(spofs(g.rows).map((x) => x.id)).not.toContain('ARE');
     expect(phoneHtml({ ...DEFAULTS, show: 'commodity', sort: 'oil' }, g)).not.toContain('United Arab Emirates');
     const html = tableHtml(DEFAULTS, g);
     expect(html).toContain('No recent data: the latest balance is from 2008; Main partners are from 2023, 15 years after the balance');
+    expect(html).toContain('title="Imported all of the oil it used in 2008. ');
     const { leadImports, oldNotes } = await import('../../src/lib/dependence.ts');
     const row = { resource: 'wheat', state: 'ok', source: 'faostat', year: 2008, reliance: 1, tag: 'most', partners: ['RUS'], partnersFrom: { source: 'faostat', period: '2023' }, old: true } as const;
     expect(oldNotes({ ...row, partners: [...row.partners] })).toEqual(['No recent data: the latest balance is from 2008', 'Main partners are from 2023, 15 years after the balance']);
     expect(leadImports([{ ...row, partners: [...row.partners] }])).toEqual([]);
+  });
+
+  it('writes an old balance in the past tense with its year, never as current', async () => {
+    const { DEP_TEXT } = await import('../../src/i18n/pages.en.ts');
+    expect(DEP_TEXT.imports('41%', 'wheat', 2013)).toBe('Imported 41% of the wheat it used in 2013');
+    expect(DEP_TEXT.imports('41%', 'wheat')).toBe('Imports 41% of the wheat it uses');
+    expect(DEP_TEXT.importsAll('oil', 2010)).toBe('Imported all of the oil it used in 2010');
+    expect(DEP_TEXT.imports('60%', 'potash', 2012)).toBe('Imported 60% of its potash supply in 2012');
+    expect(DEP_TEXT.exports('30%', 2011)).toBe('Exported 30% of what it produced in 2011');
+    expect(DEP_TEXT.noUse('rice', 2009)).toBe('Used no rice in 2009, by this source');
+    expect(DEP_TEXT.exceeded(false, 2009)).toBe('Imports exceeded recorded use in 2009');
+    // The grid: the value in the past tense, the year under it; the sentence in the tooltip.
+    const wheat = { v: 0.41, y: '2013', o: 1 as const };
+    expect(cellText(grid, 'wheat', wheat)).toEqual(['41%', '2013, no recent data']);
+    expect(cellText(grid, 'wheat', { v: -0.5, x: 0.3, y: '2011', o: 1 as const })).toEqual(['Exported', '2011, no recent data']);
+    expect(cellText(grid, 'potash', { why: 'e', y: '2009', o: 1 as const })).toEqual(['Imports exceeded', '2009, no recent data']);
+    const g: Grid = { ...grid, rows: [{ id: 'ARE', cells: cells(wheat, wheat, { why: 'i' }) }], places: { ...grid.places, ARE: { n: 'United Arab Emirates', c: 'ARE' } } };
+    expect(phoneHtml({ ...DEFAULTS, show: 'country', c: 'ARE' }, g)).toContain('Imported 41% of the wheat it used in 2013.');
   });
 
   it('marks the found row and the sorted column', () => {
