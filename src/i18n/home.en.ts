@@ -32,10 +32,12 @@ export const HOME_TEXT = {
   gas: {
     q: (country: string, supplier: string) => `What share of ${country}’s gas imports comes from ${supplier}?`,
     measure: 'Gas imports by supplier, and imports against use',
-    lead: (country: string, supplier: string) => `of ${country}’s gas imports came from ${supplier}`,
+    /** Each figure with its own year, source and status: never one tag for the card. */
+    lead: (country: string, supplier: string, year: string) => `of ${country}’s gas imports came from ${supplier} in ${year} (UN Comtrade)`,
     others: 'Other suppliers',
-    net: (share: string, year: number) => `Net imports were ${share} of gas use in ${year}.`,
-    label: (country: string, supplier: string, share: string, net: string) => `${supplier} supplied ${share} of ${country}’s gas imports; net imports were ${net} of its gas use`,
+    net: (country: string, share: string, year: number, preliminary: boolean) => `${country} imported ${share} of the gas it used in ${year} (EIA${preliminary ? ', preliminary' : ''}).`,
+    label: (country: string, supplier: string, share: string, year: string, net: string, useYear: number, preliminary: boolean) =>
+      `${supplier} supplied ${share} of ${country}’s gas imports in ${year} (UN Comtrade); ${country} imported ${net} of the gas it used in ${useYear} (EIA${preliminary ? ', preliminary' : ''})`,
     source: 'UN Comtrade; EIA',
     parts: (imports: string, use: number) => [`imports ${imports}`, `use ${use}`],
     go: 'Open in the Dependencies tool',
@@ -53,7 +55,7 @@ export const HOME_TEXT = {
     technology: 'Internet use, computing power, chips and satellites.',
     climate: 'Emissions, water stress and natural disasters.',
     security: 'Conflict, refugees and the arms trade.',
-    power: 'Sanctions, lending, nuclear weapons and the blocs countries belong to.',
+    power: 'Sanctions, Chinese loans and grants, nuclear weapons and the blocs countries belong to.',
   } as Record<string, string>,
 
   startFrom: 'Questions to start from',
@@ -82,7 +84,7 @@ export const HOME_TEXT = {
 /** The six questions under "Questions to start from", each a prepared view; one whose page is not live is left out. */
 export const QUESTION_TEXT: Record<string, [string, string]> = {
   richer: ['Do richer countries emit more CO2 per person?', 'Explorer · scatter'],
-  refugees: ['Who hosts the most refugees?', 'Refugees'],
+  refugees: ['Who hosts the most refugees and others in need of protection?', 'Refugees'],
   wheat: ['Which countries rely on one supplier for wheat?', 'Dependencies'],
   chokepoints: ['Which chokepoints carry the most oil?', 'Chokepoints'],
   'china-oil': ['Where does China’s crude oil come from?', 'Supply chains · crude oil'],

@@ -1,5 +1,5 @@
 ---
-intro: "Which countries are on the US, EU and UK sanctions lists, which received loans and grants from China, which belong to 19 groupings of countries, and how 11 of those groupings grew. Each map shows one source’s own figures for each country, with the year they cover."
+intro: "Which countries are on the US, EU and UK sanctions lists, to which China committed loans and grants, which belong to 19 groupings of countries, and how 11 of those groupings grew. Each map shows one source’s own figures for each country, with the year they cover."
 facts:
   - "Sanctions: listings by country on the US, EU and UK lists (US CSL, EU sanctions list, UK Sanctions List)"
   - "Chinese lending: loans and grants committed 2000–2021 by recipient and sector (AidData)"
@@ -8,10 +8,11 @@ facts:
   - "Every figure carries its source and year (site rules)"
 updated: '2026-10-29'
 approved: true
-approvedOn: "2026-11-05"
 author: "ai"
 model: "manual (Claude chat)"
 factsHash: "sha256:bd8f97ed696cb8f27824fbb0de2b71c2"
-drafted: "2026-11-05"
+drafted: "2026-11-11"
+approvedOn: "2026-11-11"
+approvedVia: "pr"
 ---
 

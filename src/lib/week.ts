@@ -272,10 +272,8 @@ function cardView(c: Card, w: WeekData): CardView {
     case 'sanctions': {
       if (c.quiet) return { ...quiet(), source: W.source.sanctions };
       if (!c.since) return { ...base, headline: W.quietTitle.sanctions, source: W.source.sanctions, period: periodText, quiet: { title: w.week ? W.noBaselinePast : W.noBaseline, text: (w.week ? W.noBaselineTextPast : W.noBaselineText)(day(p.from, { long: true })) } };
-      const added = c.lists.reduce((s, l) => s + l.added, 0);
-      const removed = c.lists.reduce((s, l) => s + l.removed, 0);
       return {
-        ...base, headline: W.sanctionsHead(added, removed, c.lists.map((l) => W.list(l.list).short)), source: W.source.sanctions,
+        ...base, headline: W.sanctionsHead(c.lists.map((l) => ({ name: W.list(l.list).short, added: l.added, removed: l.removed }))), source: W.source.sanctions,
         period: periodText,
         body: {
           type: 'table', cols: [{ text: W.sanctionsCols.list }, { text: W.sanctionsCols.added, num: true }, { text: W.sanctionsCols.removed, num: true }],

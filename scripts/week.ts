@@ -92,7 +92,7 @@ export function digestPost(id: string, w: WeekData, summaryText: string | null, 
   if (summaryText) lines.push(summaryText, '', T.digestAi);
   else {
     const counts = weekCounts(w);
-    if (counts.length) lines.push(T.digestCountsLead, ...counts.map((c) => `• ${T.digestCounts[c.kind](c.n)}`));
+    if (counts.length) lines.push(T.digestCountsLead, ...counts.map((c) => `• ${T.digestCounts[c.kind](c.n, c.lists)}`));
   }
   lines.push('', T.digestLink(weekUrl(id, host)));
   return lines.join('\n');

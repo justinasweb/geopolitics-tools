@@ -132,6 +132,6 @@ const count = (v: number) => formatValue(v, { kind: 'count' });
 
 /** A month's answer in one sentence: the view shows it under its title and its hub card as the headline. */
 export const ledeFor = (x: ConflictMonth) => CONFLICT_TEXT.lede({
-  month: monthText(x.n, true), deaths: count(x.deaths[1] + x.deaths[2] + x.deaths[3]), deaths12: count(x.deaths12), months12: x.months12,
+  month: monthText(x.n, true), deaths: count(x.deaths[1] + x.deaths[2] + x.deaths[3]), deaths12: count(x.deaths12), months12: x.months12, preliminary: x.preliminary,
   top: x.rows[0] ? inSentence(place(x.rows[0].id)?.name ?? x.rows[0].id) : undefined, topDeaths: x.rows[0] ? count(x.rows[0].deaths) : undefined,
 });

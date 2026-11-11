@@ -1,6 +1,6 @@
 // The disputed river pages (/water/rivers/{river}, ../data/rivers.ts): the dispute's countries with their water
 // stress now and in 2050 and the share of their water from abroad (the water views' own figures), and the river's
-// large dams from Global Dam Watch.
+// large dams from Global Dam Watch, in the site's spellings (./dams.ts).
 import { RIVERS, river as riverOf, type River } from '../data/rivers.ts';
 import { water, type Dam } from '../adapters/water.ts';
 import { shared } from './data.ts';
@@ -8,13 +8,14 @@ import { valueText, viewPage } from './views.ts';
 import { RIVERS_TEXT } from '../i18n/water.en.ts';
 import { list } from '../i18n/pages.en.ts';
 import { place } from './places.ts';
+import { shownDam, type ShownDam } from './dams.ts';
 
 const waterData = shared(water);
 
 export interface RiverCountry { id: string; stress: number | null; stress2050: number | null; fromAbroad: number | null; dams: number }
-export interface RiverPage { river: River; dams: Dam[]; countries: RiverCountry[] }
+export interface RiverPage { river: River; dams: ShownDam[]; countries: RiverCountry[] }
 
-/** The river's dams in the dispute's countries, largest reservoir first. */
+/** The river's dams in the dispute's countries, largest reservoir first (matched on GDW's own names). */
 export function damsOn(r: River, all: Dam[]): Dam[] {
   return all.filter((d) => d.place && r.countries.includes(d.place) && !r.not?.includes(d.name) && (r.rivers.test(d.river) || (!!r.basin && r.basin.test(d.basin))))
     .sort((a, b) => (b.capacity ?? 0) - (a.capacity ?? 0));
@@ -29,7 +30,7 @@ export function riverPage(id: string): RiverPage | null {
   const r = riverOf(id);
   const w = waterData();
   if (!r || !w) return null;
-  const dams = damsOn(r, w.dams);
+  const dams = damsOn(r, w.dams).map(shownDam);
   const countries = r.countries.map((c) => ({
     id: c, stress: valueIn('waterstress', c), stress2050: valueIn('waterstress2050', c), fromAbroad: valueIn('waterdep', c), dams: dams.filter((d) => d.place === c).length,
   }));

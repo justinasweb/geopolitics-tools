@@ -282,7 +282,11 @@ the dam's own position, else where it meets the river). The disputed rivers page
 GDW names rivers in many spellings and gives a main basin for only a third of its dams, so a dam belongs to a river when
 it is in one of the dispute's countries and its river name matches the main stem or a large tributary, or its basin
 matches, less a short list of dams whose basin field is wrong. GDW 1.0 stops at about 2022, so the newest dams (Ethiopia's
-Renaissance dam among them) are missing, and it does not mark destroyed dams (Kakhovka); the caveat says so. Each river's
+Renaissance dam among them) are missing, and it does not mark destroyed dams. `src/data/dams.ts` does, by GRanD id:
+Kakhovka is shown as "destroyed June 2023; former reservoir capacity" beside its figure, on the river page, the water
+stress table and the map tips (the only dam on the eight river pages that no longer stands, checked 10 Nov 2026). The
+same file gives the Dnipro dams the page's spellings (Kyiv, Kremenchuk…); a note under the table names GDW's own. The
+panel's bars are labelled "National water stress (WRI Aqueduct baseline), 0–5: the basin can differ". Each river's
 summary is an AI draft for the owner to approve (D14) and comes in phase 7.
 
 ## Chinese lending (phase 5a)

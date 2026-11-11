@@ -254,3 +254,26 @@ describe('ranges of days', () => {
     bad('No entries were removed in the week of 2–8 November 2025.', 'date', week);
   });
 });
+
+describe('tagged figures', () => {
+  const tagged = file([
+    fact({ id: 'exports-oil', statement: 'The United States’ net exports of oil as a share of its production (preliminary).', value: 12.6, unit: '%', unitAliases: ['oil production'], period: '2025', places: ['USA'], status: 'preliminary' }),
+  ], { id: 'dossier:USA', kind: 'dossier', subject: 'the United States', countries: ['USA'] });
+
+  it('wants the sentence that gives a preliminary or estimated figure to say so', () => {
+    bad('In 2025, net exports were 12.6% of oil production (EIA, 2025).', 'status', tagged);
+    ok('In 2025, net exports were 12.6% of oil production (EIA, 2025, preliminary).', tagged);
+  });
+});
+
+describe('history notes', () => {
+  const nato = file([
+    fact({ id: 'join-GRC-1952', statement: 'Greece joined NATO in 1952.', period: '1952', places: ['GRC'] }),
+    fact({ id: 'members-2026', statement: 'Members of NATO in 2026.', value: 32, unit: 'members', period: '2026' }),
+  ], { id: 'history:nato', kind: 'history', subject: 'NATO', countries: ['GRC'] });
+
+  it('fail a note that restates the count the page’s answer gives', () => {
+    bad('Greece joined in 1952. NATO had 32 members in 2026.', 'repeat', nato);
+    ok('Greece joined in 1952.', nato);
+  });
+});

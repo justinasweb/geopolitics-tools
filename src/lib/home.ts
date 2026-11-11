@@ -110,16 +110,19 @@ export function gasCard(id = 'HUN'): QCard | null {
   const supplier = nameOf(row.top.id);
   const share = formatShare(row.top.share);
   const net = formatShare(Math.min(1, row.reliance));
+  // The supplier's share is from the trade flows, in their own period; the use figure is EIA's, with its own tag.
+  const flowYear = row.partnersFrom?.period ?? imports;
   return {
     q: T.gas.q(country, supplier), href: `${r.path}?sort=gas&find=${encodeURIComponent(country)}`, go: T.gas.go, measure: T.gas.measure,
     dep: {
-      num: share, lead: T.gas.lead(country, supplier), note: T.gas.net(net, row.year), label: T.gas.label(country, supplier, share, net),
+      num: share, lead: T.gas.lead(country, supplier, flowYear), note: T.gas.net(country, net, row.year, !!row.preliminary),
+      label: T.gas.label(country, supplier, share, flowYear, net, row.year, !!row.preliminary),
       segments: [
         { cls: 'a', width: row.top.share * 100, label: `${supplier} ${share}` },
         { cls: 'c', width: (1 - row.top.share) * 100, label: `${T.gas.others} ${formatShare(1 - row.top.share)}` },
       ],
     },
-    source: T.gas.source, parts: T.gas.parts(imports, row.year), ...(row.preliminary ? { status: 'preliminary' as const } : {}),
+    source: T.gas.source, parts: T.gas.parts(flowYear, row.year), ...(row.preliminary ? { status: 'preliminary' as const } : {}),
   };
 }
 

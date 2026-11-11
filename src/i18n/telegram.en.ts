@@ -52,8 +52,9 @@ export const TELEGRAM_TEXT = {
   digestCounts: {
     disaster: (x: number) => s(x, 'new orange or red disaster alert (GDACS)', 'new orange or red disaster alerts (GDACS)'),
     outage: (x: number) => s(x, 'national-scale internet outage (IODA)', 'national-scale internet outages (IODA)'),
-    sanctions: (x: number) => s(x, 'entry added to the US, EU and UK sanctions lists', 'entries added to the US, EU and UK sanctions lists'),
-  } as Record<string, (x: number) => string>,
+    /** `lists`: only the lists entries were added to, as a list ("US and UK"). */
+    sanctions: (x: number, lists = 'US, EU and UK') => s(x, `entry added to the ${lists} sanctions lists`, `entries added to the ${lists} sanctions lists`),
+  } as Record<string, (x: number, lists?: string) => string>,
   digestCountsLead: 'This week:',
   digestAi: 'Summary drafted with AI from the week’s data and reviewed by the editor.',
   digestLink: (url: string) => `The week’s maps, figures and sources: ${url}`,

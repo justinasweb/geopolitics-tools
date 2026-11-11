@@ -2,13 +2,16 @@
 // and panel words. Same rules as pages.en.ts: templates take figures already formatted and return plain sentences,
 // and a sentence whose figure is missing is left out. Bloc names are in map.en.ts (BLOC_TEXT).
 import { list } from './pages.en.ts';
-import { NON_COUNTRY_MEMBERS, mapNote, membersText, othersText, todaysMembers } from './members.en.ts';
+import { NON_COUNTRY_MEMBERS, UNCONFIRMED, countSentence, mapNote, membersText, othersText, todaysMembers, unconfirmedText } from './members.en.ts';
 
 const BLOC_COUNT = 19;
 
+/** Groupings whose members are economies, not all of them states (APEC). */
+const ECONOMIES = new Set(['apec']);
+
 /** What each grouping is, in one plain line: its full name, its kind and when it began. */
 export const BLOC_ABOUT: Record<string, string> = {
-  brics: 'A grouping of large emerging economies. Brazil, Russia, India and China held the first summit in 2009; South Africa joined in 2011, and six more countries in 2024 and 2025.',
+  brics: 'A grouping of large emerging economies. Brazil, Russia, India and China held the first summit in 2009; South Africa joined in 2011, and five more countries in 2024 and 2025. BRICS also lists Saudi Arabia as a member from 2024; Saudi Arabia has not confirmed it.',
   g7: 'The Group of Seven: a forum of seven large advanced economies, meeting since 1975. The European Union also takes part.',
   g20: 'The Group of Twenty: a forum of major economies, founded in 1999, with leaders’ summits since 2008. The European Union and the African Union are members too; the map shows the 19 countries.',
   eu: 'The European Union: a political and economic union of 27 countries, founded in 1993 on the communities set up in the 1950s.',
@@ -68,9 +71,10 @@ export const BLOCS_TEXT = {
   sub: (id: string, n: number) => membersText(id, n),
   title: (bloc: string) => bloc,
   // The answer under the title.
-  lede: (id: string, bloc: string, n: number, pop: string | null, gdp: string | null, year: number | null) => (NON_COUNTRY_MEMBERS[id]
-    ? `${bloc} members: ${membersText(id, n)}.${pop && gdp ? ` Together, ${todaysMembers(bloc)} had ${pop} of the world’s people and ${gdp} of its GDP in ${year}.` : ''}`
-    : `${bloc} has ${n} members${pop && gdp ? `; together, ${todaysMembers(bloc)} had ${pop} of the world’s people and ${gdp} of its GDP in ${year}` : ''}.`),
+  /** `have`: what the shares cover when some members have no figure ("20 of 21 member economies have figures"). */
+  lede: (id: string, bloc: string, n: number, pop: string | null, gdp: string | null, year: number | null, have?: string) => (NON_COUNTRY_MEMBERS[id]
+    ? `${bloc} members: ${membersText(id, n)}.${pop && gdp ? ` Together, ${todaysMembers(bloc)} had ${pop} of the world’s people and ${gdp} of its GDP in ${year}${have ? ` (${have})` : ''}.` : ''}`
+    : `${countSentence(id, bloc, n)}${pop && gdp ? `; together, ${todaysMembers(bloc)} had ${pop} of the world’s people and ${gdp} of its GDP in ${year}${have ? ` (${have})` : ''}` : ''}.`),
   allLede: (n: number, top: string[], k: number) => `${n} countries and territories belong to at least one of these ${BLOC_COUNT} groupings; ${list(top)} belong to the most, ${k} each.`,
   description: (bloc: string) => `${bloc}: members on a map, their share of the world’s people, GDP, military spending and production, and their other groupings.`,
   allDescription: `Nineteen groupings and alliances on one map: how many each country belongs to, and each grouping’s members and share of the world.`,
@@ -93,20 +97,21 @@ export const BLOCS_TEXT = {
   ranking: 'Most groupings',
   weightPop: (share: string) => `${share} of the members’ people`,
   weightPopLabel: 'Share of members’ people',
-  allBlocLine: (id: string, bloc: string, n: number) => (NON_COUNTRY_MEMBERS[id] ? `${bloc} members: ${membersText(id, n)}.` : `${bloc} has ${n} members.`),
+  allBlocLine: (id: string, bloc: string, n: number) => (NON_COUNTRY_MEMBERS[id] ? `${bloc} members: ${membersText(id, n)}.` : `${countSentence(id, bloc, n)}.`),
   overlapLine: (otherId: string, other: string, k: number, n: number, bloc: string) => {
     const noun = NON_COUNTRY_MEMBERS[otherId] ? ['member countries', 'member country'] : ['members', 'member'];
     return k ? `${k} of the ${n} ${other} ${noun[0]} ${k === 1 ? 'is' : 'are'} also in ${bloc}.` : `No ${other} ${noun[1]} is in ${bloc}.`;
   },
   /** The panel's count: "Members", or "Member countries" with what else belongs. */
   countLabel: (id: string) => (NON_COUNTRY_MEMBERS[id] ? 'Member countries' : 'Members'),
-  countMore: (id: string, year?: number) => othersText(id, year),
+  countMore: (id: string, year?: number) => othersText(id, year) || unconfirmedText(id, year),
   mapNote,
   sharesLabel: 'Share of the world',
   sharesCaption: (id: string) => `Combined share of today’s ${NON_COUNTRY_MEMBERS[id] ? 'member countries' : 'members'}, latest year with figures`,
   mineralsLabel: 'Share of world mine production',
   mineralsCaption: 'Minerals where members mine at least 1%, USGS',
-  have: (id: string, k: number, n: number) => `${k} of ${n} ${NON_COUNTRY_MEMBERS[id] ? 'member countries' : 'members'} have a figure`,
+  /** A share some members have no figure for (APEC: Taiwan, Chinese Taipei, is not in the World Bank's figures). */
+  have: (id: string, k: number, n: number) => `${k} of ${n} ${NON_COUNTRY_MEMBERS[id] ? 'member countries' : ECONOMIES.has(id) ? 'member economies' : 'members'} ${k === 1 ? 'has a figure' : 'have figures'}`,
   overlapsLabel: 'Members shared with other groupings',
   sharedNote: (names: string[]) => list(names),
   shareRow: (year: number) => `${year}`,
@@ -149,8 +154,9 @@ export const BLOCS_TEXT = {
   /** The share image's caption under the bloc's bars. */
   imageCaption: (id: string, bloc: string, n: number) => (NON_COUNTRY_MEMBERS[id]
     ? `${membersText(id, n)}. Shares of the world: ${todaysMembers(bloc, { count: n })}`
-    : `Shares of the world: ${todaysMembers(bloc, { count: n })}`),
-  sharePart: (share: string, what: string, year: number) => `${share} of the world’s ${what} (${year})`,
+    : UNCONFIRMED[id] ? `${countSentence(id, bloc, n)}. Shares of the world: ${todaysMembers(bloc, { count: n })}`
+      : `Shares of the world: ${todaysMembers(bloc, { count: n })}`),
+  sharePart: (share: string, what: string, year: number, have?: string) => `${share} of the world’s ${what} (${year}${have ? `; ${have}` : ''})`,
   /** Mined minerals and those USGS counts as primary production (gallium), each with its verb, after the shares. `src`
    *  is "USGS, 2025" or "USGS, 2025, estimated". */
   summaryMinerals: (parts: string[], primary: boolean, first: boolean, src: string) =>
@@ -198,7 +204,7 @@ export const HISTORY_EVENTS: Record<string, Record<number, string>> = {
   brics: {
     2009: 'Brazil, Russia, India and China held the first summit.',
     2011: 'South Africa joined, invited in December 2010.',
-    2024: 'Egypt, Ethiopia, Iran, Saudi Arabia and the United Arab Emirates joined. Saudi Arabia is listed by BRICS as a member; it has not confirmed it.',
+    2024: 'Egypt, Ethiopia, Iran and the United Arab Emirates joined. Saudi Arabia is listed by BRICS as a member from 2024; it has not confirmed it.',
     2025: 'Indonesia joined.',
   },
   sco: {
@@ -237,7 +243,8 @@ export const HISTORY_TEXT = {
     const start = b
       ? `${o.bloc} began in ${o.first} as ${b.as} (${o.founders.join(', ')}) and became ${b.became} in ${b.year}${o.became.length ? `, when ${list(o.became)} joined` : ''}.`
       : `${o.bloc} began in ${o.first} with ${membersText(o.id, o.n0, o.first)}.`;
-    return `${start} In ${o.last} it had ${membersText(o.id, o.n, o.last)}; membership changed in ${o.changes} year${o.changes === 1 ? '' : 's'}.`;
+    const now = unconfirmedText(o.id, o.last) ? countSentence(o.id, o.bloc, o.n, { year: o.last, past: true }) : `it had ${membersText(o.id, o.n, o.last)}`;
+    return `${start} In ${o.last} ${now}; membership changed in ${o.changes} year${o.changes === 1 ? '' : 's'}.`;
   },
   description: (bloc: string, from: number) => `${bloc} membership year by year since ${from}: who joined, who left, on a map with a timeline.`,
   status: { joined: 'Joined that year', member: 'Member', left: 'Left that year', former: 'Former member' } as Record<string, string>,
@@ -248,6 +255,10 @@ export const HISTORY_TEXT = {
   spans: 'Membership years',
   members: 'Members',
   joined: 'Joined',
+  /** A member the grouping lists that has not confirmed it, where the history would say it joined. */
+  listedFrom: (bloc: string, year: number) => `listed by ${bloc} as a member from ${year}; not confirmed`,
+  listedFromRow: (bloc: string, year: number) => `Listed by ${bloc} as a member from ${year}`,
+  listedThatYear: (bloc: string) => `Listed by ${bloc} as a member that year; not confirmed`,
   left: 'Left',
   note: 'Note',
   changesIn: (y: number) => `Changes in ${y}`,
@@ -261,7 +272,7 @@ export const HISTORY_TEXT = {
   count: 'Members',
   mapLabel: (bloc: string, y: number, n: number) => `World map: members of ${bloc} in ${y}, ${n} countries. The timeline below lists every change.`,
   /** The share image's caption: the period, and the count in the last year when it is not countries alone. */
-  imageCaption: (id: string, from: number, to: number, n: number) => (NON_COUNTRY_MEMBERS[id] ? `${from}–${to}. In ${to}: ${membersText(id, n, to)}` : `${from}–${to}`),
+  imageCaption: (id: string, from: number, to: number, n: number) => (NON_COUNTRY_MEMBERS[id] || unconfirmedText(id, to) ? `${from}–${to}. In ${to}: ${membersText(id, n, to)}` : `${from}–${to}`),
   caveat: 'Countries are drawn on today’s borders. Years are those of accession or exit as the grouping records them; a year is not the exact date.',
   source: 'The groupings’ own member lists and histories',
   /** The share image's source, as of the last year it shows. */

@@ -193,11 +193,18 @@ export const WEEK_TEXT = {
     } as Record<string, (d: string) => string>,
   },
   // Sanctions
-  sanctionsHead: (added: number, removed: number, lists: string[]) => {
-    const names = list(lists);
-    if (added) return `${s(added, 'entry', 'entries')} added to ${names} sanctions lists`;
-    if (removed) return `${s(removed, 'entry', 'entries')} removed from ${names} sanctions lists`;
-    return `No entries added to or removed from ${names} sanctions lists`;
+  /** Names only the lists that changed, from each list's own counts; the others are "unchanged". */
+  sanctionsHead: (lists: { name: string; added: number; removed: number }[]) => {
+    const names = (f: (l: { added: number; removed: number }) => boolean) => list(lists.filter(f).map((l) => l.name));
+    const added = lists.reduce((t, l) => t + l.added, 0);
+    const removed = lists.reduce((t, l) => t + l.removed, 0);
+    if (!added && !removed) return `No entries added to or removed from ${names(() => true)} sanctions lists`;
+    const parts = [
+      ...(added ? [`${s(added, 'entry', 'entries')} added to ${names((l) => l.added > 0)} lists`] : []),
+      ...(removed ? [`${added ? n(removed) : s(removed, 'entry', 'entries')} removed from ${names((l) => l.removed > 0)} lists`] : []),
+    ];
+    const same = lists.filter((l) => !l.added && !l.removed);
+    return `${parts.join(', ')}${same.length ? `; ${names((l) => !l.added && !l.removed)} lists unchanged` : ''}`;
   },
   sanctionsCols: { list: 'List', added: 'Added', removed: 'Removed' },
   list: (l: string) => LISTS[l] ?? { name: l, sub: '', short: l },

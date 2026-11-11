@@ -166,15 +166,16 @@ function cardFacts(c: Card, weekEnd: string, isWithheld: (source: string) => boo
   }
 }
 
-/** The three counts the digest gives when a week has no summary: new alerts, outages and sanctions entries added,
- *  each only when its card has figures. Words from src/i18n/week.en.ts. */
-export function weekCounts(w: WeekData): { kind: 'disaster' | 'outage' | 'sanctions'; n: number }[] {
-  const out: { kind: 'disaster' | 'outage' | 'sanctions'; n: number }[] = [];
+/** The three counts the digest gives when a week has no summary: new alerts, outages and sanctions entries added
+ *  (with the lists they were added to), each only when its card has figures. Words from src/i18n/week.en.ts. */
+export function weekCounts(w: WeekData): { kind: 'disaster' | 'outage' | 'sanctions'; n: number; lists?: string }[] {
+  const out: { kind: 'disaster' | 'outage' | 'sanctions'; n: number; lists?: string }[] = [];
   for (const c of w.cards) {
     if (!hasFigures(c)) continue;
     if (c.kind === 'disaster') out.push({ kind: 'disaster', n: c.alerts.length });
     if (c.kind === 'outage') out.push({ kind: 'outage', n: c.rows.length });
-    if (c.kind === 'sanctions') out.push({ kind: 'sanctions', n: c.lists.reduce((s, l) => s + l.added, 0) });
+    // Only the lists entries were added to are named ("the US and UK sanctions lists").
+    if (c.kind === 'sanctions') out.push({ kind: 'sanctions', n: c.lists.reduce((s, l) => s + l.added, 0), lists: list(c.lists.filter((l) => l.added > 0).map((l) => W.list(l.list).short)) });
   }
   const order = ['disaster', 'outage', 'sanctions'];
   return out.sort((a, b) => order.indexOf(a.kind) - order.indexOf(b.kind));

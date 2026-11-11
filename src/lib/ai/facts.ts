@@ -27,6 +27,9 @@ export interface Fact {
   link: string;
   /** When the source published or last updated what is cited (YYYY or YYYY-MM-DD), or when the site read it. */
   date: string;
+  /** The figure's tag where the site shows one (Preliminary, Estimate, Projection): a sentence that gives the figure
+   *  says so too (./check.ts). */
+  status?: 'preliminary' | 'estimated' | 'projected';
   /** True when the fact could not be checked against its source yet. Nothing is drafted from such a file. */
   unverified?: boolean;
   /** For the owner: why it is unverified, or what to check. */
@@ -79,10 +82,11 @@ export function canonical(v: unknown): string {
  *  how or when the file was generated. With `used` (the fact ids the checker matched, ./check.ts) only those facts
  *  count, so a change to a fact the text does not use leaves it approved; a used fact that is gone counts as changed.
  *  Without it, every fact counts (texts saved before `usedFacts`). A fact's date (when the source was published or
- *  last refreshed) and the owner's notes are left out, so a weekly refresh that changes no figure, or a note, never
+ *  last refreshed), the owner's notes and the status field (its words are in the statement) are left out, so a weekly refresh that changes no figure, or a note, never
  *  forces a redraft. */
 export function factsHash(f: FactsFile, used?: string[]): string {
-  const strip = (x: Fact) => ({ ...x, date: undefined, note: undefined });
+  // `status` is in the statement's words too, so a tag that changes still changes the hash.
+  const strip = (x: Fact) => ({ ...x, date: undefined, note: undefined, status: undefined });
   const base = { id: f.id, subject: f.subject, countries: f.countries ?? [], names: f.names ?? [] };
   const body = used
     ? canonical({ ...base, used: [...new Set(used)].sort().map((id) => { const x = f.facts.find((y) => y.id === id); return x ? strip(x) : { id, missing: true }; }) })

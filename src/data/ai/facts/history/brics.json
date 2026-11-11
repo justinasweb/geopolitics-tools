@@ -122,15 +122,14 @@
     },
     {
       "id": "join-SAU-2024",
-      "statement": "Saudi Arabia joined BRICS in 2024.",
+      "statement": "BRICS lists Saudi Arabia as a member from 2024; Saudi Arabia has not confirmed it.",
       "period": "2024",
       "places": [
         "SAU"
       ],
       "source": "BRICS Brasil, About BRICS",
       "link": "https://brics.br/en/about-the-brics",
-      "date": "2026-10-21",
-      "note": "Listed by BRICS as a member; Saudi Arabia has not confirmed it."
+      "date": "2026-10-21"
     },
     {
       "id": "join-IDN-2025",

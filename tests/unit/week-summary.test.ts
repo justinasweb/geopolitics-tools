@@ -115,7 +115,7 @@ describe('the week’s facts', () => {
   });
 
   it('give the digest its three counts', () => {
-    expect(weekCounts(WEEK)).toEqual([{ kind: 'disaster', n: 2 }, { kind: 'outage', n: 1 }, { kind: 'sanctions', n: 15 }]);
+    expect(weekCounts(WEEK)).toEqual([{ kind: 'disaster', n: 2 }, { kind: 'outage', n: 1 }, { kind: 'sanctions', n: 15, lists: 'US and UK' }]);
   });
 });
 
@@ -217,7 +217,7 @@ describe('the summary and digest runs', () => {
     const counts = digestPost('2026-45', WEEK, null);
     expect(counts).toContain('• 2 new orange or red disaster alerts (GDACS)');
     expect(counts).toContain('• 1 national-scale internet outage (IODA)');
-    expect(counts).toContain('• 15 entries added to the US, EU and UK sanctions lists');
+    expect(counts).toContain('• 15 entries added to the US and UK sanctions lists');
     expect(weekUrl('2026-45')).toBe('https://geopolitics.tools/this-week/2026-45');
   });
 

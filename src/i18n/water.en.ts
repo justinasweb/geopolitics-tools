@@ -8,6 +8,10 @@ export const DAMS_TEXT = {
   largestCaption: (n: number) => `The ${n} dams with the largest reservoirs in Global Dam Watch, by capacity. The map shows dams holding at least 1 km³.`,
   dam: 'Dam', river: 'River', country: 'Country', capacity: 'Reservoir', year: 'Built',
   source: 'Global Dam Watch (GRanD)',
+  /** `month`: YYYY-MM. */
+  destroyed: (month: string) => `destroyed ${new Intl.DateTimeFormat('en-GB', { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${month}-01T00:00:00Z`))}; former reservoir capacity`,
+  gdwName: (shown: string, gdw: string) => `${shown} (${gdw})`,
+  gdwNames: (dams: string[], rivers: string[]) => `Names in this site’s spellings, with Global Dam Watch’s in brackets: ${[...dams, ...rivers.map((r) => `river ${r}`)].join(', ')}.`,
 };
 
 export const LENDING_TEXT = {
@@ -41,18 +45,20 @@ export const RIVERS_TEXT = {
   countries: 'Countries in the dispute',
   countriesCaption: (river: string) => `Each country’s water stress now and projected for 2050 (WRI Aqueduct), the share of its renewable water that flows in from other countries (FAO AQUASTAT), and its large dams on the ${river} and main tributaries (Global Dam Watch). Listed roughly upstream first.`,
   /** Each column names its own dataset's period or year: the three come from different datasets. */
+  /** The panel's bars: a national figure, so it says so. */
+  stressBars: 'National water stress (WRI Aqueduct baseline), 0–5: the basin can differ',
   country: 'Country', stress: (period: string) => `Water stress, ${period}`, stress2050: (year: number) => `Projected water stress, ${year}`,
   fromAbroad: (year: number) => `Renewable water from abroad, ${year}`, damsCol: 'Dams on the river',
   /** Aqueduct's source line: the baseline period and the projection's year. */
   stressPeriods: (period: string, year: number) => `baseline ${period}; projection ${year}`,
-  damsTitle: 'Large dams on the river',
+  damsTitle: 'Dams in Global Dam Watch',
   damsCaption: (river: string, n: number) => `The ${n} dams in Global Dam Watch on the ${river} and its main tributaries in these countries, largest reservoir first.`,
   noDams: 'Global Dam Watch lists no large dams on the river in these countries.',
   onRiver: (river: string) => `On the ${river}`,
   damsHere: 'Large dams on the river',
   damsHereCaption: 'Largest reservoirs first.',
   mapLabel: (river: string, countries: string) => `Map of ${countries}, the countries that dispute the ${river}, shaded by water stress, with the river’s large dams.`,
-  caveat: 'Dams are those in Global Dam Watch (version 1.0) on the river and its main tributaries, matched by the river names it records. It lists large dams built by about 2022, so the newest are missing, and it does not mark dams that have since been destroyed. Water stress is a national average; the river’s own basin can differ.',
+  caveat: 'Dams are those in Global Dam Watch (version 1.0) on the river and its main tributaries, matched by the river names it records. It lists large dams built by about 2022, so the newest are missing. It does not mark dams that have since been destroyed; this site marks those it knows of beside their former reservoir capacity. Water stress is a national average; the river’s own basin can differ.',
   /** `countries`: at most three named, then "and n more" (listUpTo). */
   description: (river: string, countries: string) => `${river} dispute: water stress, water from abroad and dams in ${countries}. Sources: Aqueduct, AQUASTAT, Global Dam Watch.`,
   blocLine: (bloc: string, k: number, n: number) => (k ? `${k} of the ${n} ${bloc} members are in this dispute.` : `No ${bloc} member is in this dispute.`),
