@@ -30,7 +30,7 @@ import { constellations, sitesIn, spaceAsOf } from '../lib/space';
 import { SPACE_TEXT as SP } from '../i18n/space.en';
 import { CHIP_LAYERS, chipFlowsFor, clustersAt } from '../lib/ai';
 import { AI_TEXT as AX } from '../i18n/ai.en';
-import { largeDams } from '../lib/dams';
+import { capacityText, gdwNamesNote, largeDams } from '../lib/dams';
 import { largestProjects } from '../lib/lending';
 import { DAMS_TEXT as DX, LENDING_TEXT as LX, RIVERS_TEXT as RV } from '../i18n/water.en';
 import { riverIds } from '../lib/rivers';
@@ -340,9 +340,10 @@ const bars = (rs: Row[], max: number) => rs.map((r) => ({ id: r.id, text: valueT
                 <th scope="col"><span class="gt-th">{DX.dam}</span></th><th scope="col"><span class="gt-th">{DX.river}</span></th><th scope="col"><span class="gt-th">{DX.country}</span></th>
                 <th scope="col" class="n"><span class="gt-th">{DX.capacity}</span></th><th scope="col" class="n"><span class="gt-th">{DX.year}</span></th>
               </tr></thead>
-              <tbody>{dams.map((d) => <tr><th scope="row">{d.name}</th><td>{d.river}</td><td>{d.place ? nameOf(d.place) : ''}</td><td class="n">{DX.km3(d.capacity ?? 0)}</td><td class="n">{d.year ?? '–'}</td></tr>)}</tbody>
+              <tbody>{dams.map((d) => <tr><th scope="row">{d.name}</th><td>{d.river}</td><td>{d.place ? nameOf(d.place) : ''}</td><td class="n">{capacityText(d)}</td><td class="n">{d.year ?? '–'}</td></tr>)}</tbody>
             </table>
           </div>
+          {gdwNamesNote(dams) && <p class="gt-caption">{gdwNamesNote(dams)}</p>}
           <SourceLine source={DX.source} parts={[]} />
         </>
       )}

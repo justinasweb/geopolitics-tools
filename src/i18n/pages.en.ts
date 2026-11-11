@@ -135,6 +135,8 @@ export const COUNTRY_TEXT = {
   facts: { population: 'Population', administered: 'Administered by', status: 'Status', memberOf: 'Member of', membersAsOf: (date: string) => `as of ${date}` },
   /** A grouping's name in the "Member of" line, where the bloc's own name reads as a list of members. */
   memberName: { 'unsc-p5': 'UN Security Council (permanent member)' } as Record<string, string>,
+  /** The name for one place, where it takes part under another name (Taiwan in APEC, as Chinese Taipei). */
+  memberNameOf: { 'apec:TWN': 'APEC (member economy, as Chinese Taipei)' } as Record<string, string>,
   supplyChains: 'Its supply chains',
   compare: (other: string) => `Compare with ${other}`,
   allCountries: 'All countries',
@@ -210,14 +212,14 @@ export const BLOCK_TEXT = {
   co2pc: (year: number, rank: string, of: number) => `CO2 per person, ${year}, ${rank} of ${of}`,
   emissionsLink: 'Emissions map',
   sanctions: 'Sanctions',
-  listings: (parts: string[]) => `listings on the US, EU and UK lists name it as country of address or nationality${parts.length ? `: ${list(parts)}` : ''}`,
+  listings: (parts: string[]) => `entries on the US, EU and UK lists give it as an address or nationality${parts.length ? `: ${list(parts)}` : ''}`,
   listPart: (list: string, n: string) => `${list} ${n}`,
-  noListings: 'No listing on the US, EU or UK lists names it as country of address or nationality.',
-  sanctionsNote: 'Counts measure how many people, companies, ships and aircraft a list names, not how severe the measures are.',
+  noListings: 'No entry on the US, EU or UK lists gives it as an address or nationality.',
+  sanctionsNote: 'Counts entries (people, companies, ships and aircraft), not how strict the measures are.',
   sanctionsLink: 'Sanctions map',
-  lending: 'Chinese lending',
+  lending: 'Chinese loans and grants',
   lent: (from: number, to: number) => `committed by Chinese state lenders, ${from}–${to}`,
-  lendingLink: 'Chinese lending map',
+  lendingLink: 'Chinese loans and grants map',
   arms: 'Arms',
   armsImp: (period: string) => `arms imports, ${period}, TIV millions`,
   armsLink: 'Arms transfers map',
@@ -251,7 +253,7 @@ export const DOSSIER_TEXT = {
   tech: 'Technology and space', techMenu: 'Technology',
   techFind: (c: string, n: string, year: number) => `Satellites owned in ${c} numbered ${n} at the end of ${year}.`,
   satellites: 'Satellites in orbit', launches: 'Orbital launches', compute: 'Share of AI computing power', models: 'Notable AI models',
-  links: 'Sanctions, lending and trade', linksMenu: 'Sanctions and lending',
+  links: 'Sanctions, Chinese loans and grants, and trade', linksMenu: 'Sanctions, loans and grants',
   climate: 'Climate and hazards', climateMenu: 'Climate',
   climateFind: (c: string, co2: string, year: number) => `${c} emitted ${co2} of CO2 in ${year}.`,
   co2: 'CO2 emissions', co2pc: 'CO2 per person', co2cum: 'CO2 since 1750', waterstress: 'Water stress',
@@ -375,7 +377,9 @@ export const INDICATOR_PAGE = {
 };
 
 /** Each indicator's answer verb ("had the largest economy") and caveats. Indicators without one use the default. */
-export const ANSWER: Record<string, { verb: string; caveats?: string[] }> = {
+/** `sentence`, when given, replaces the "{top} {verb}: {value}" form; it gets the place as named mid-sentence (`top`)
+ *  and at a sentence's start (`start`). */
+export const ANSWER: Record<string, { verb: string; caveats?: string[]; sentence?: (top: string, value: string, start: string, year?: number) => string }> = {
   gdp: { verb: 'had the largest economy', caveats: ['GDP in current US$ moves with exchange rates as well as output.', 'Compare economies over time with economic growth, which removes price changes.'] },
   gdppc: { verb: 'had the highest GDP per person', caveats: ['GDP per person is an average; it says nothing about how income is shared.'] },
   growth: { verb: 'had the fastest economic growth' },
@@ -391,7 +395,9 @@ export const ANSWER: Record<string, { verb: string; caveats?: string[] }> = {
   median: { verb: 'had the highest median age' },
   lex: { verb: 'had the highest life expectancy' },
   refout: { verb: 'was the origin of the most refugees', caveats: ['Palestinian refugees under UNRWA’s mandate are not in UNHCR’s figures.'] },
-  refin: { verb: 'hosted the most refugees', caveats: ['Counts refugees, asylum seekers and other people in need of international protection, as UNHCR reports them.'] },
+  refin: {
+    sentence: (top, value, _start, year) => `In ${year}, UNHCR counts ${value} people in these groups in ${top}, the most of any country.`,
+    verb: 'hosted the most refugees and others in need of protection', caveats: ['Counts refugees, asylum seekers and other people in need of international protection, as UNHCR reports them.'] },
   refinpc: { verb: 'hosted the most refugees for its population', caveats: ['Divides UNHCR’s count by World Bank population.'] },
   idps: { verb: 'had the most people displaced inside the country' },
   wheatprod: { verb: 'produced the most wheat' }, wheatimp: { verb: 'imported the most wheat' },
@@ -415,12 +421,21 @@ export const ANSWER: Record<string, { verb: string; caveats?: string[] }> = {
   lowcarbon: { verb: 'had the highest low-carbon share of electricity', caveats: ['Low-carbon counts nuclear, hydro, wind, solar, bioenergy and other renewables. A small system can reach a high share with one large dam.'] },
   coalpower: { verb: 'had the highest share of electricity from coal' },
   windsolar: { verb: 'had the highest share of electricity from wind and solar' },
-  aicompute: { verb: 'had the largest share of AI computing power', caveats: ['Counts known GPU clusters in operation; many private clusters are not public.'] },
+  aicompute: {
+    verb: 'had the largest share of AI computing power', caveats: [
+      'Counts only the AI supercomputers Epoch AI has documented in operation; many private systems are not included.',
+      'Computing power is counted in H100-equivalents: how many of Nvidia’s H100 chips, a common chip for training AI, would do the same work.',
+    ],
+    sentence: (_top, value, start) => `${start} had ${value} of the computing power of AI supercomputers documented by Epoch AI, the largest share (many private systems are not included).`,
+  },
   netuser: { verb: 'had the largest share of people using the internet', caveats: ['People who used the internet in the last three months, from national surveys and statistics that ITU gathers; how well countries measure it varies.'] },
   ictexp: { verb: 'exported the most ICT services', caveats: ['ICT services are telecom, computer and information services sold to buyers abroad, from balance-of-payments data. They don’t include goods such as phones or chips.'] },
   ictshare: { verb: 'had the largest share of ICT in its service exports', caveats: ['ICT services are telecom, computer and information services sold to buyers abroad, from balance-of-payments data. They don’t include goods such as phones or chips.'] },
-  sanctions: { verb: 'was named in the most sanctions listings', caveats: ['Counts measure how many targets a list names, not how severe the measures are.'] },
-  chinaloans: { verb: 'received the most Chinese loans and grants', caveats: ['Commitments, not disbursements: what was agreed, not what was paid out.'] },
+  sanctions: {
+    verb: 'had the most sanctions list entries', caveats: ['The counts are of entries, not of how strict the measures are.'],
+    sentence: (top, value) => `${value} list entries give ${top} as an address or nationality, the most of any country (counts entries, not how strict the measures are).`,
+  },
+  chinaloans: { verb: 'was the country China committed the most loans and grants to', caveats: ['Commitments, not disbursements: what was agreed, not what was paid out.'] },
 };
 export const DEFAULT_VERB = 'had the highest value';
 
@@ -588,11 +603,11 @@ export const DEFINITION: Record<string, string> = {
   hungershare: 'The share of the analysed population in IPC Phase 3 (crisis) or worse.',
   satellites: 'Payloads in orbit at the end of the year, counted by owning country, whether working or not.',
   launches: 'Orbital launches in the year that put at least one satellite in orbit, counted for the country of the launch site.',
-  aicompute: 'The country’s share of the computing power of known AI supercomputers in operation, in H100-equivalents.',
+  aicompute: 'The country’s share of the computing power of AI supercomputers documented by Epoch AI in operation, in H100-equivalents (how many Nvidia H100 chips would do the same work).',
   netuser: 'Share of the population who used the internet in the last three months, from any place and on any device: computer, phone, games machine or TV.',
   ictexp: 'Exports of telecom, computer and information services, in current US dollars, as each country reports them in its balance of payments.',
   ictshare: 'ICT service exports as a share of all the country’s service exports, from its balance of payments.',
-  sanctions: 'Listings on the US Consolidated Screening List, the EU financial sanctions list and the UK Sanctions List that give the country as an address or nationality.',
+  sanctions: 'Entries on the US Consolidated Screening List, the EU financial sanctions list and the UK Sanctions List that give the country as an address or nationality.',
   chinaloans: 'Loans and grants committed by Chinese government and state-owned lenders, in constant 2021 US dollars.',
 };
 
@@ -615,7 +630,7 @@ export const SOURCE_FEEDS: Record<string, string[]> = {
   celestrak: ['Space'], csl: ['Sanctions'], 'eu-sanctions': ['Sanctions'], 'uk-sanctions': ['Sanctions'], pinksheet: ['Commodity prices'],
   treasury: ['US Treasury holdings'], 'treasury-history': ['US Treasury holdings'], epoch: ['AI models'], cables: ['Submarine cables'],
   faostat: ['Dependencies at a glance', 'Food trade'], sipri: ['Arms transfers'], gem: ['Power plants and pipelines'], gdw: ['Dams'],
-  aiddata: ['Chinese lending'], 'usgs-minerals': ['Critical minerals'], comtrade: ['Oil, gas, fertiliser and chip trade'], peeringdb: ['Internet exchange points'],
+  aiddata: ['Chinese loans and grants'], 'usgs-minerals': ['Critical minerals'], comtrade: ['Oil, gas, fertiliser and chip trade'], peeringdb: ['Internet exchange points'],
   eia: ['Oil and gas'], ember: ['Electricity'], ucdp: ['Conflict'], ipc: ['Food crises'],
   fas: ['Nuclear weapons'], unoda: ['Nuclear treaties'], eurepoc: ['Cyber incidents'],
 };

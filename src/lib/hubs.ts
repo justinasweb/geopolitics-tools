@@ -159,7 +159,7 @@ function cardOf(family: string, lead: boolean): HubCard | null {
   const f = layerFile(def.id);
   const i = Math.max(0, f.years.indexOf(f.year));
   const y = f.data[i];
-  const kicker = NAV_TEXT.views[family]?.[0] ?? family;
+  const kicker = H.cardKicker[family] ?? NAV_TEXT.views[family]?.[0] ?? family;
   const map = worldMap(lead ? 600 : 400);
   const period = y.label ?? String(y.year);
   const pattern = `th-${family}`;

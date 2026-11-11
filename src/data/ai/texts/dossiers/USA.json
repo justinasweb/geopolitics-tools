@@ -1,9 +1,9 @@
 {
   "id": "dossier:USA",
   "author": "ai",
-  "text": "In 2025, the United States' net exports of oil were 12.6% of its production (U.S. Energy Information Administration, 2025), and in 2024 its net exports of wheat were 36% of production (FAOSTAT, 2024). Canada supplied 88% of its potash imports (FAOSTAT, 2024). The United Kingdom supplied 17% of its major arms imports (SIPRI, 2021–2025). It has 341.8 million people and a GDP of US$30.8 trillion, ranked first of 186 places (World Bank, 2025).",
-  "model": "claude-sonnet-5-5",
-  "factsHash": "sha256:d42b5372c9451c819e74aa2bcfbdd7bc",
+  "text": "In 2025, the United States' net exports of oil were 12.6% of its production (U.S. Energy Information Administration, 2025, preliminary), and in 2024 its net exports of wheat were 36% of production (FAOSTAT, 2024). Canada supplied 88% of its potash imports (FAOSTAT, 2024). The United Kingdom supplied 17% of its major arms imports (SIPRI, 2021–2025). It has 341.8 million people and a GDP of US$30.8 trillion, ranked first of 186 places (World Bank, 2025).",
+  "model": "manual (Claude chat)",
+  "factsHash": "sha256:1f765c625b36528f8243d736414f0d0a",
   "usedFacts": [
     "exports-oil",
     "exports-wheat",
@@ -14,9 +14,8 @@
     "main-supplier-potash",
     "population"
   ],
-  "drafted": "2026-11-06",
-  "approved": true,
-  "edited": "2026-11-06",
-  "approvedOn": "2026-11-09",
-  "approvedVia": "cli"
+  "drafted": "2026-11-11",
+  "approved": false,
+  "approvedOn": null,
+  "approvedVia": null
 }

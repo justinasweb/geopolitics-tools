@@ -73,6 +73,8 @@ export function answerFor(m: IndicatorModel, withTag = false): string {
   const name = place(top.id)?.name ?? top.id;
   const verb = ANSWER[m.indicator.id]?.verb ?? DEFAULT_VERB;
   const value = tagged(formatValue(top.value, m.indicator.format), withTag ? tagOf(m, top.id, top.year) : undefined);
+  const sentence = ANSWER[m.indicator.id]?.sentence;
+  if (sentence) return sentence(inSentence(name), value, inSentence(name, true), m.indicator.static ? undefined : top.year);
   return m.indicator.static ? INDICATOR_PAGE.answerStatic(inSentence(name, true), verb, value) : INDICATOR_PAGE.answer(inSentence(name), verb, value, top.year);
 }
 

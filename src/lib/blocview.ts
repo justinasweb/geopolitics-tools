@@ -131,7 +131,10 @@ export function blocLede(id: string): string | null {
   if (!p) return null;
   const pop = p.shares.find((s) => s.id === 'population');
   const gdp = p.shares.find((s) => s.id === 'gdp');
-  return BLOCS_TEXT.lede(id, BLOC_TEXT[id] ?? id, p.members.length, pop ? formatShare(pop.share) : null, gdp ? formatShare(gdp.share) : null, pop?.year ?? null);
+  // Members without a figure: the fewest either share covers, said beside the shares.
+  const low = [pop, gdp].filter((s): s is BlocShare => !!s && s.have < s.of).sort((a, b) => a.have - b.have)[0];
+  return BLOCS_TEXT.lede(id, BLOC_TEXT[id] ?? id, p.members.length, pop ? formatShare(pop.share) : null, gdp ? formatShare(gdp.share) : null, pop?.year ?? null,
+    low ? BLOCS_TEXT.have(id, low.have, low.of) : undefined);
 }
 
 /**

@@ -28,8 +28,9 @@ export const CONFLICT_TEXT = {
   deathsOne: (n: number, v: string) => (n === 1 ? '1 death' : `${v} deaths`),
   in12: (month: string) => `in the 12 months to ${month}`,
   in12Short: '12 months',
-  lede: (p: { month: string; deaths: string; deaths12: string; top?: string; topDeaths?: string; months12: number }) =>
-    `UCDP recorded ${p.deaths} deaths in organised violence in ${p.month}, and ${p.deaths12} in the ${p.months12 === 12 ? '12 months' : `${p.months12} months`} to then`
+  /** A month from UCDP's Candidate release says it is preliminary in the sentence itself, as its tag does. */
+  lede: (p: { month: string; deaths: string; deaths12: string; top?: string; topDeaths?: string; months12: number; preliminary?: boolean }) =>
+    `${p.preliminary ? `UCDP’s preliminary count: ${p.deaths} deaths in organised violence in ${p.month}` : `UCDP recorded ${p.deaths} deaths in organised violence in ${p.month}`}, and ${p.deaths12} in the ${p.months12 === 12 ? '12 months' : `${p.months12} months`} to then`
     + `${p.top ? `; the most in ${p.top} (${p.topDeaths})` : ''}.`,
   monthKey: (month: string) => `Deaths in ${month}`,
   key12: 'Deaths over 12 months',

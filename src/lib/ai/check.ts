@@ -20,7 +20,7 @@
 import type { Fact, FactsFile } from './facts.ts';
 import { countryNames, NOT_COUNTRIES, stripAccents } from './names.ts';
 
-export type ProblemKind = 'number' | 'date' | 'country' | 'comparison' | 'style' | 'owner';
+export type ProblemKind = 'number' | 'date' | 'country' | 'comparison' | 'style' | 'owner' | 'status';
 export interface Problem { kind: ProblemKind; text: string; sentence: string; message: string }
 /** `used`: the ids of the facts the text draws on (./facts.ts factsHash hashes only these for a stored text). */
 export interface CheckResult { ok: boolean; problems: Problem[]; used: string[] }
@@ -485,6 +485,12 @@ export function checkDraft(draft: string, facts: FactsFile): CheckResult {
     }
     for (const w of STYLE) if (new RegExp(`(^|[^a-z])${escape(w)}([^a-z]|$)`).test(lower)) push('style', w, `"${w}" is not used on the site (forecasts, blame and judging words are left out).`);
     for (const w of SELF_REFERENCE) if (new RegExp(`(^|[^a-z])${escape(w)}([^a-z]|$)`).test(lower)) push('style', w, `"${w}" talks about the drafting material, not the subject; leave it out.`);
+    // A figure the site tags (Preliminary, Estimate, Projection) is tagged in the sentence too: never stated as final.
+    for (const id of figures) {
+      const f = facts.facts.find((x) => x.id === id);
+      const word = f?.status && { preliminary: 'preliminary', estimated: 'estimat', projected: 'project' }[f.status];
+      if (word && !lower.includes(word)) push('status', f!.status!, `"${id}" is ${f!.status}; the sentence must say so ("${f!.status}").`);
+    }
     for (const id of figures) used.add(id);
     for (const g of said) if (![...g].some((id) => figures.has(id))) for (const id of g) used.add(id);
   }

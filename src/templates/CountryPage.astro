@@ -125,7 +125,7 @@ const compareLinks = m.dossier ? DOSSIERS.filter((o) => o !== p.id).map((o) => {
 const links = [...compareLinks, { href: paths.countries(), label: COUNTRY_TEXT.allCountries }];
 // The groupings it belongs to (src/data/blocs.csv), in the blocs' order, each linked to its page when live, dated as the
 // bloc pages date their member lists.
-const memberOf = blocsOf(p.id).map((b) => ({ name: COUNTRY_TEXT.memberName[b] ?? BLOC_TEXT[b] ?? b, href: live(`view:blocs:${b}`)?.path }));
+const memberOf = blocsOf(p.id).map((b) => ({ name: COUNTRY_TEXT.memberNameOf[`${b}:${p.id}`] ?? COUNTRY_TEXT.memberName[b] ?? BLOC_TEXT[b] ?? b, href: live(`view:blocs:${b}`)?.path }));
 
 // The few-sources box: which of the sources country pages use have something for this place.
 const allSources = countrySources();

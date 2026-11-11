@@ -27,6 +27,7 @@ import { countryHref, live, route, hubCrumb } from '../lib/routes';
 import { layerPath } from '../lib/map/layers';
 import { breadcrumbs } from '../lib/structured';
 import { publishedText } from '../lib/ai/texts';
+import { capacityText, gdwNamesNote } from '../lib/dams';
 
 interface Props { id: string }
 const { id } = Astro.props;
@@ -53,6 +54,7 @@ const related = [
   ...p.river.countries.filter((c) => countryHref(c)).slice(0, 3).map((c) => ({ href: countryHref(c)!, name: nameOf(c), note: MAP_TEXT.countryPage })),
 ];
 const largest = p.dams[0];
+const gdwNames = gdwNamesNote(p.dams);
 ---
 <Page title={title} description={R.description(name, listUpTo(p.river.countries.map(nameOf), 3))} hub="climate" container="mv" image={route(key(id))!.image}
   jsonld={[breadcrumbs(crumbs.map((c) => ({ label: c.label, href: c.href })))]}>
@@ -76,11 +78,11 @@ const largest = p.dams[0];
         <div class="gt-pkf">
           <span class="gt-pkf__label">{R.damsTitle}</span>
           <span class="gt-pkf__num">{p.dams.length}</span>
-          {largest && <span class="gt-pkf__meta">{largest.name}, {largest.capacity ? DX.km3(largest.capacity) : ''}</span>}
+          {largest && <span class="gt-pkf__meta">{largest.name}, {capacityText(largest)}</span>}
         </div>
         <div class="gt-pblock gt-pgroup">
-          <div class="gt-pblock__head"><span class="gt-label">{R.countries}</span><span class="gt-caption">{R.stress}, {ws.text.measure}</span></div>
-          <ol class="gt-bars gt-bars--tight" aria-label={`${R.countries}, ${R.stress(AQUEDUCT_BASELINE).toLowerCase()}`}>
+          <div class="gt-pblock__head"><span class="gt-label">{R.countries}</span><span class="gt-caption">{R.stressBars}</span></div>
+          <ol class="gt-bars gt-bars--tight" aria-label={`${R.countries}, ${R.stressBars.charAt(0).toLowerCase()}${R.stressBars.slice(1)}`}>
             {p.countries.map((x) => (
               <li><span class="gt-bars__name"><button type="button" data-select={x.id}>{nameOf(x.id)}</button></span><span class="gt-bars__track"><span class="gt-bars__fill" style={`width:${(((x.stress ?? 0) / 5) * 100).toFixed(1)}%`}></span></span><span class="gt-bars__val">{cell(ws, x.stress)}</span></li>
             ))}
@@ -137,10 +139,11 @@ const largest = p.dams[0];
               <th scope="col" class="n" data-key="v" data-type="num" aria-sort="descending"><button type="button">{DX.capacity}</button></th>
               <th scope="col" class="n" data-key="y" data-type="num"><button type="button">{DX.year}</button></th>
             </tr></thead>
-            <tbody>{p.dams.map((d) => <tr><th scope="row">{d.name}</th><td>{d.river}</td><td>{d.place ? nameOf(d.place) : ''}</td><td class="n" data-v={d.capacity ?? ''}>{d.capacity ? DX.km3(d.capacity) : '–'}</td><td class="n" data-v={d.year ?? ''}>{d.year ?? '–'}</td></tr>)}</tbody>
+            <tbody>{p.dams.map((d) => <tr><th scope="row">{d.name}</th><td>{d.river}</td><td>{d.place ? nameOf(d.place) : ''}</td><td class="n" data-v={d.capacity ?? ''}>{d.capacity ? DX.km3(d.capacity) : '–'}{d.destroyed && <><br /><span class="gt-caption">{DX.destroyed(d.destroyed)}</span></>}</td><td class="n" data-v={d.year ?? ''}>{d.year ?? '–'}</td></tr>)}</tbody>
           </table>
         </div>
       )}
+      {gdwNames && <p class="gt-caption">{gdwNames}</p>}
       <SourceLine source={DX.source} parts={[]} updated={updated} />
     </div>
     <aside class="gt-mvbelow__side">

@@ -52,7 +52,7 @@ describe('the pages', () => {
     expect(B.BLOCS_TEXT.sub('g20', 19)).toBe(G20);
     expect(B.BLOCS_TEXT.countLabel('g20')).toBe('Member countries');
     expect(B.BLOCS_TEXT.countMore('g20')).toBe('plus the European Union and, since 2023, the African Union');
-    expect(B.BLOCS_TEXT.have('g20', 18, 19)).toBe('18 of 19 member countries have a figure');
+    expect(B.BLOCS_TEXT.have('g20', 18, 19)).toBe('18 of 19 member countries have figures');
     expect(B.BLOCS_TEXT.sharesCaption('g20')).toBe('Combined share of today’s member countries, latest year with figures');
     expect(L.blocLede('g7')).toMatch(new RegExp(`^G7 members: ${G7}\\.`));
     expect(L.blocLede('opec')).toMatch(/^OPEC has 11 members; together/);

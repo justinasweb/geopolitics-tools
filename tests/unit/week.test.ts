@@ -221,7 +221,12 @@ describe('This week words', () => {
     expect(W.alertsHead(2, 2)).toBe('2 new red alerts');
     expect(W.conflictHead('Ukraine', ['Sudan', 'Syria'], 'August', 'September 2026')).toBe('Most events in Ukraine; Sudan and Syria up on August');
     expect(W.pricesHead({ name: 'Gold', c: 0.05 }, { name: 'Natural gas, Europe', c: -0.03 }, 'September 2026')).toBe('Gold up 5% on the month, natural gas, Europe down 3%');
-    expect(W.sanctionsHead(61, 7, ['US', 'EU', 'UK'])).toBe('61 entries added to US, EU and UK sanctions lists');
+    const lists = (...counts: [number, number][]) => ['US', 'EU', 'UK'].map((name, i) => ({ name, added: counts[i][0], removed: counts[i][1] }));
+    expect(W.sanctionsHead(lists([79, 0], [0, 0], [0, 0]))).toBe('79 entries added to US lists; EU and UK lists unchanged');
+    expect(W.sanctionsHead(lists([61, 7], [3, 0], [0, 0]))).toBe('64 entries added to US and EU lists, 7 removed from US lists; UK lists unchanged');
+    expect(W.sanctionsHead(lists([0, 1], [0, 0], [0, 0]))).toBe('1 entry removed from US lists; EU and UK lists unchanged');
+    expect(W.sanctionsHead(lists([2, 0], [1, 0], [4, 0]))).toBe('7 entries added to US, EU and UK lists');
+    expect(W.sanctionsHead(lists([0, 0], [0, 0], [0, 0]))).toBe('No entries added to or removed from US, EU and UK sanctions lists');
     expect(W.outagesHead(1)).toBe('1 national-scale internet outage');
     const all = JSON.stringify(Object.values(W).map(String)).toLowerCase();
     expect(all).not.toMatch(/famine|dominant|vulnerable|cause:/);

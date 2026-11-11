@@ -6,6 +6,7 @@ import { tagHtml } from '../tags.ts';
 import { BLOCS_CHECKED, blocs } from '../blocs.ts';
 import { blocPage, blocPages, blocsOf, countClass as blocCountClass, measureYear, membershipCounts, weightIn } from '../blocview.ts';
 import { BLOCS_TEXT, HISTORY_TEXT, MEASURE_TEXT, MEMBER_NOTES } from '../../i18n/blocs.en.ts';
+import { UNCONFIRMED } from '../../i18n/members.en.ts';
 import { HISTORY_BLOCS, STATUS_CLASS, historyPage, spanText, statusIn } from '../history.ts';
 import { PLACES, NOTES } from '../places.ts';
 import { countryHref, live } from '../routes.ts';
@@ -30,7 +31,7 @@ import { AI_TEXT } from '../../i18n/ai.en.ts';
 import { LISTS, sanctions } from '../../adapters/sanctions.ts';
 import { SANCTIONS_TEXT } from '../../i18n/sanctions.en.ts';
 import { type Outage, outages } from '../../adapters/digital.ts';
-import { largeDams } from '../dams.ts';
+import { capacityText, largeDams } from '../dams.ts';
 import { lendingOf } from '../lending.ts';
 import { DAMS_TEXT, LENDING_TEXT, RIVERS_TEXT } from '../../i18n/water.en.ts';
 import { riverIds, riverPage } from '../rivers.ts';
@@ -446,7 +447,7 @@ function damMarks(): Overlay {
   const D = DAMS_TEXT;
   const items: Point[] = largeDams(1000).map((d) => ({
     at: toMap(d.lon!, d.lat!), r: Math.min(12, 2 + Math.sqrt((d.capacity ?? 0) / 1000) * 0.9),
-    tip: D.tip(d.name, d.river, d.place ? nameOf2(d.place) : '', d.year ? String(d.year) : '', D.km3(d.capacity ?? 0)),
+    tip: D.tip(d.name, d.river, d.place ? nameOf2(d.place) : '', d.year ? String(d.year) : '', capacityText(d)),
   }));
   return { id: 'dams', kind: 'points', label: D.mark, symbol: 'triangle', items };
 }
@@ -997,7 +998,9 @@ function historyLayer(id: string): LayerFile {
     const v: Record<string, Entry> = {};
     for (const pl of p.ever) {
       const st = statusIn(p.spans, pl, year);
-      if (st) v[pl] = [STATUS_CLASS[st], H.status[st], H.since(spanText(p.spans, pl)), 0, 0];
+      // A member the grouping lists that has not confirmed it is "listed", not "joined" (Saudi Arabia, BRICS).
+      const listed = st === 'joined' && UNCONFIRMED[id]?.some((m) => m.id === pl);
+      if (st) v[pl] = [STATUS_CLASS[st], listed ? H.listedThatYear(name) : H.status[st], H.since(spanText(p.spans, pl)), 0, 0];
     }
     const members = p.byYear[year].members;
     const bl: Record<string, string> = {};
@@ -1006,7 +1009,7 @@ function historyLayer(id: string): LayerFile {
   });
   const more: Record<string, PanelBlock[]> = {};
   for (const pl of p.ever) {
-    more[pl] = [{ label: H.spans, rows: p.spans.filter((s) => s.place === pl).map((s) => ({ name: `${H.joined} ${s.from}`, value: s.to === null ? H.status.member : `${H.left} ${s.to}` })) }];
+    more[pl] = [{ label: H.spans, rows: p.spans.filter((s) => s.place === pl).map((s) => ({ name: UNCONFIRMED[id]?.some((m) => m.id === pl) ? H.listedFromRow(BLOC_TEXT[id] ?? id, s.from) : `${H.joined} ${s.from}`, value: s.to === null ? H.status.member : `${H.left} ${s.to}` })) }];
   }
   return {
     id: `history-${id}`, name, scale: 'seq', years: p.years, year: p.years.at(-1)!, ticks: [],
@@ -1048,14 +1051,14 @@ function riverLayer(id: string): LayerFile {
       },
       ...(dams.length ? [{
         label: R.damsHere, caption: R.damsHereCaption,
-        rows: dams.slice(0, 5).map((d) => ({ name: d.name, value: d.capacity ? DAMS_TEXT.km3(d.capacity) : '–', note: [d.river, d.year].filter(Boolean).join(', ') })),
+        rows: dams.slice(0, 5).map((d) => ({ name: d.name, value: d.capacity ? DAMS_TEXT.km3(d.capacity) : '–', note: [d.river, d.year, d.destroyed && DAMS_TEXT.destroyed(d.destroyed)].filter(Boolean).join(', ') })),
         more: dams.length > 5 ? PT.morePartners(dams.length - 5) : undefined,
       }] : []),
     ];
   }
   const items: Point[] = p.dams.filter((d) => d.lon !== null && d.lat !== null).map((d) => ({
     at: toMap(d.lon!, d.lat!), r: Math.min(12, 3 + Math.sqrt((d.capacity ?? 0) / 1000) * 0.9),
-    tip: DAMS_TEXT.tip(d.name, d.river, d.place ? nameOf2(d.place) : '', d.year ? String(d.year) : '', DAMS_TEXT.km3(d.capacity ?? 0)),
+    tip: DAMS_TEXT.tip(d.name, d.river, d.place ? nameOf2(d.place) : '', d.year ? String(d.year) : '', capacityText(d)),
   }));
   // The map starts on the dispute: its dams and its countries, but not the whole of a country as wide as China or Russia.
   const pts = items.map((x) => x.at);

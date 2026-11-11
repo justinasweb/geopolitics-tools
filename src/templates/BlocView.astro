@@ -18,7 +18,7 @@ import '../styles/atlas/keyfigure.css';
 import '../styles/atlas/table.css';
 import '../styles/atlas/tools.css';
 import { MAP_TEXT, BLOC_TEXT } from '../i18n/map.en';
-import { NON_COUNTRY_MEMBERS } from '../i18n/members.en';
+import { COUNT_NOTED } from '../i18n/members.en';
 import { BLOC_ABOUT, BLOC_SHORT, blocIn, BLOCS_TEXT as B, MEASURE_IN, MEASURE_TEXT, MEMBER_NOTES } from '../i18n/blocs.en';
 import { COUNTRY_TEXT, MINERAL_TEXT } from '../i18n/pages.en';
 import { BLOCS_CHECKED, BLOC_ORDER, blocs } from '../lib/blocs';
@@ -57,7 +57,7 @@ const counts = all ? membershipCounts() : [];
 const answer = blocLede(id);
 const summary = all ? [B.allSummary(BLOC_ORDER.length), B.scope] : [
   BLOC_ABOUT[id],
-  [p!.shares.length ? B.summaryShares(name, p!.shares.slice(0, 4).map((s) => B.sharePart(formatShare(s.share), MEASURE_IN[s.id], s.year))) : '',
+  [p!.shares.length ? B.summaryShares(name, p!.shares.slice(0, 4).map((s) => B.sharePart(formatShare(s.share), MEASURE_IN[s.id], s.year, s.have < s.of ? B.have(id, s.have, s.of) : undefined))) : '',
     ...mineralSentences(p!.minerals.slice(0, 3)),
     p!.overlaps.length ? B.summaryOverlap(p!.overlaps.slice(0, 4).map((o, i) => B.overlapPart(o.shared.length, blocIn(o.id, BLOC_TEXT[o.id] ?? o.id), i === 0))) : ''].filter(Boolean).join(' '),
   B.scope,
@@ -177,7 +177,7 @@ const shareBars = (ss: BlocShare[]) => ss.map((s) => ({ label: label(s), text: f
               </tbody>
             </table>
           </div>
-          <p class="gt-caption">{B.allTableNote(Object.keys(NON_COUNTRY_MEMBERS).filter((b) => memberships.has(b)).map((b) => ({ bloc: BLOC_TEXT[b] ?? b, text: B.sub(b, memberships.get(b)!.length) })))}</p>
+          <p class="gt-caption">{B.allTableNote(COUNT_NOTED.filter((b) => memberships.has(b)).map((b) => ({ bloc: BLOC_TEXT[b] ?? b, text: B.sub(b, memberships.get(b)!.length) })))}</p>
           {/* The shares are World Bank figures: their source and year, as on each bloc's page. */}
           <SourceLine source={`${B.source}; World Bank`} parts={[B.checked(checked), shareYears].filter(Boolean)} />
           <h2 class="gt-h2" id="countries">{B.countryTable}</h2>

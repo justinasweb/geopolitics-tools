@@ -32,7 +32,7 @@ export const INDICATOR_TEXT: Record<string, IndicatorText> = {
   median: { label: 'Median age', unit: 'years' },
   lex: { label: 'Life expectancy', unit: 'years' },
   refout: { label: 'Refugees from the country', short: 'Refugees from', unit: 'people', note: 'Refugees, asylum seekers and others in need of protection abroad.' },
-  refin: { label: 'Refugees hosted', unit: 'people' },
+  refin: { label: 'Refugees and others in need of protection hosted', short: 'Refugees hosted', unit: 'people' },
   refinpc: { label: 'Refugees hosted per 1,000 people', short: 'Refugees per 1,000', unit: 'per 1,000' },
   idps: { label: 'People displaced inside the country', short: 'Internally displaced', unit: 'people' },
   oilprod: { label: 'Crude oil production', short: 'Oil output', unit: 'kb/d' },
@@ -68,12 +68,12 @@ export const INDICATOR_TEXT: Record<string, IndicatorText> = {
   hungershare: { label: 'Share in food crisis or worse', rate: '% of people analysed', short: 'Food crisis share', unit: 'share' },
   satellites: { label: 'Satellites in orbit', unit: 'satellites' },
   launches: { label: 'Orbital launches', unit: 'launches' },
-  aicompute: { label: 'Share of AI computing power', short: 'AI compute share', unit: 'share' },
+  aicompute: { label: 'Share of documented AI supercomputer power', short: 'AI compute share', unit: 'share' },
   netuser: { label: 'People using the internet', short: 'Internet users', rate: '% of population', unit: 'share', note: 'Used the internet in the last three months, from any place and device.' },
   ictexp: { label: 'ICT service exports', short: 'ICT exports', unit: 'US$', note: 'Telecom, computer and information services sold abroad.' },
   ictshare: { label: 'ICT service exports, share of service exports', short: 'ICT, % of services', unit: 'share' },
-  sanctions: { label: 'Sanctions listings (US, EU, UK)', short: 'Sanctions listings', unit: 'listings' },
-  chinaloans: { label: 'Chinese loans and grants received', short: 'Chinese lending', unit: 'US$ (2021)', note: 'Commitments: what China agreed to lend or give, not what was paid out.' },
+  sanctions: { label: 'Sanctions list entries (US, EU, UK)', short: 'Sanctions list entries', unit: 'entries' },
+  chinaloans: { label: 'Chinese loans and grants committed', short: 'Chinese loans and grants', unit: 'US$ (2021)', note: 'Commitments: what China agreed to lend or give, not what was paid out.' },
 };
 
 export const FLOW_TEXT: Record<string, { label: string; verbs: [string, string] }> = {
@@ -116,7 +116,7 @@ export const NAV_TEXT = {
     'food-crises': ['Food crises', 'Who faces acute hunger'],
     arms: ['Arms transfers', 'Exporters and importers'],
     sanctions: ['Sanctions', 'US, EU and UK lists'],
-    'chinese-lending': ['Chinese lending', 'By sector'],
+    'chinese-lending': ['Chinese loans and grants', 'By sector'],
     nuclear: ['Nuclear weapons', 'Warheads, treaties, sharing'],
     blocs: ['Blocs', '19 groupings'],
     'alliance-history': ['Alliance history', 'How blocs grew'],

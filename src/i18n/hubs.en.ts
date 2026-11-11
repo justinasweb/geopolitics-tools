@@ -8,13 +8,16 @@ export const inLine = (s: string) => (/^(Chinese|European|American|British|Russi
 
 export const HUB_TEXT = {
   kicker: 'Topic',
+  /** A card's name where the menu's short one would claim more than the figures measure (UNHCR's count includes
+   *  asylum seekers and others in need of protection). */
+  cardKicker: { refugees: 'Refugees and others in need of protection' } as Record<string, string>,
   /** The page title (SEO plan: "{Hub}: maps and data"). */
   title: (hub: string) => `${hub}: maps and data`,
   description: (hub: string, views: string[]) => `${hub}: ${views.join(', ')}. Maps and figures by country, each with its source and date.`,
   maps: 'Maps in this topic',
   mapsSub: (n: number) => `${n} map ${n === 1 ? 'view' : 'views'}. Each opens on its main layer; the links on each card go straight to a layer.`,
   layers: 'Main layers',
-  /** "Open critical minerals", "Open AI and chips", "Open Chinese lending". */
+  /** "Open critical minerals", "Open AI and chips", "Open Chinese loans and grants". */
   open: (name: string) => `Open ${inLine(name)}`,
   estimated: (period: string) => `${period}, estimated`,
   thumb: (name: string) => `Map: ${name}`,

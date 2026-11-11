@@ -100,6 +100,9 @@ and compares it with the facts file. It is strict on purpose; its tests are in `
 - **Ranges** give their scale and % to both ends (`15–20%`, `1.2 to 3.4 million`, `between 1,000 and 1,800`), and
   each end is checked.
 - **Dates**: a day must be a day in the facts, a month a month, a year a year; a decade needs a fact in it.
+- **Status.** A fact with `status` (`preliminary`, `estimated`, `projected`: the tag the site shows beside the figure)
+  must be given in a sentence that says so ("preliminary", "estimated", "projected"). Dossier facts take it from the
+  row or figure's tag; the word is in the statement too, so the hash (which leaves the field out) still changes with it.
 - **Countries** by name, short name, ISO name, alias (`US`, `Turkey`, `Burma`) or demonym (`Chinese`), longest first
   (`South Sudan` before `Sudan`), with case (`Turkey` is a country, `turkey` is not). `Congo` and `Korea` alone fail:
   write the full name. Region and organisation names (`South America`, `European Union`) are skipped.

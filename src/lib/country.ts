@@ -240,7 +240,7 @@ export function countryModel(id: string): CountryModel | null {
       if (minerals.length) add('usgs-minerals', 'Minerals');
       if (blocks.disasters) add('gdacs', 'Disasters');
       if (blocks.sanctions) for (const s of ['csl', 'eu-sanctions', 'uk-sanctions']) add(s, 'Sanctions');
-      if (blocks.lending) add('aiddata', 'Chinese lending');
+      if (blocks.lending) add('aiddata', 'Chinese loans and grants');
       if (blocks.nuclear) add('fas', 'Nuclear weapons');
       if (blocks.cyber) add('eurepoc', 'Cyber incidents');
       const sources = [...feeds].map(([source, f]) => ({ source, feeds: [...f] }));
