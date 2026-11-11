@@ -1,8 +1,8 @@
 {
   "id": "history:g7",
   "author": "ai",
-  "text": "Six members founded the G7 in 1975: France, Germany, Italy, Japan, the United Kingdom and the United States. Canada joined in 1976. Russia joined in 1998, and the group became the G8. The other members suspended their participation in the G8 in March 2014, and the group met as the G7 again from 2014. The G7 had 7 members in 2026.",
-  "model": "claude-sonnet-5-5",
+  "text": "Canada joined in 1976. Russia joined in 1998, and the group became the G8. The other members suspended their participation in the G8 in March 2014, and the group met as the G7 again from 2014.",
+  "model": "manual (Claude chat)",
   "factsHash": "sha256:e1e8c64fd26f72548ad3ce659bc1dbc7",
   "usedFacts": [
     "founding-members",
@@ -19,8 +19,8 @@
     "note-1998",
     "note-2014"
   ],
-  "drafted": "2026-11-06",
-  "approved": true,
-  "approvedOn": "2026-11-06",
-  "approvedVia": "telegram"
+  "drafted": "2026-11-11",
+  "approved": false,
+  "approvedOn": null,
+  "approvedVia": null
 }

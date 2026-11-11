@@ -1,21 +1,19 @@
 {
   "id": "history:asean",
   "author": "ai",
-  "text": "ASEAN was founded in 1967 with five members: Indonesia, Malaysia, the Philippines, Singapore and Thailand. Brunei joined in 1984. Vietnam joined in 1995, Laos and Myanmar in 1997, and Cambodia in 1999. Timor-Leste joined in 2025. ASEAN had 11 members in 2026.",
-  "model": "claude-sonnet-5-5",
-  "factsHash": "sha256:0fd9dddeee59a42ae06225d07de5a1c7",
+  "text": "Brunei joined in 1984. Vietnam joined in 1995, Laos and Myanmar in 1997, and Cambodia in 1999. Timor-Leste joined in 2025.",
+  "model": "manual (Claude chat)",
+  "factsHash": "sha256:ac99ecf0ad0ce744f2993bdca1086ba0",
   "usedFacts": [
-    "founding-members",
     "join-BRN-1984",
     "join-KHM-1999",
     "join-LAO-1997",
     "join-MMR-1997",
     "join-TLS-2025",
-    "join-VNM-1995",
-    "members-2026"
+    "join-VNM-1995"
   ],
-  "drafted": "2026-11-06",
-  "approved": true,
-  "approvedOn": "2026-11-06",
-  "approvedVia": "telegram"
+  "drafted": "2026-11-11",
+  "approved": false,
+  "approvedOn": null,
+  "approvedVia": null
 }

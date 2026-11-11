@@ -136,7 +136,9 @@ longer matches and nothing is left out; the entry can then go.
   and wait for approval, so they are hidden until then: `history:brics` (Saudi Arabia "listed by BRICS as a member
   from 2024", not "joined"), `dossier:USA` (oil export share "preliminary") and `dossier:RUS` (potash export share
   "estimated"), and `hub:power` ("to which China committed loans and grants", not "which received loans and grants
-  from China"), saved through `ai:paste` on 11 Nov. About (approved) still says "sanctions and lending connect countries",
+  from China"), saved through `ai:paste` on 11 Nov. All nine history notes with texts were redrafted on 11 Nov to start with the first
+  change, without the founding year, founders or today's count (the new prompt rule), and wait for approval; SCO and
+  Quad have no text, their facts being unverified. About (approved) still says "sanctions and lending connect countries",
   and the holding page "Sanctions, lending and the blocs…": left, as they name no figure.
 - - **Crimea's note** is on Russia's shape, which contains Crimea on this map, and not on Ukraine's.
 - **Methodology** was written before the checker and fails it on 27 points ("1:50m", "top", "first", "Sonnet 5.5",

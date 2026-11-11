@@ -1,11 +1,10 @@
 {
   "id": "history:oecd",
   "author": "ai",
-  "text": "The OECD replaced the Organisation for European Economic Co-operation in 1961, with 19 members at its founding. Italy became a member in 1962, followed by Japan (1964), Finland (1969), Australia (1971) and New Zealand (1973). Mexico joined in 1994, Czechia in 1995, Hungary, Poland and South Korea in 1996, and Slovakia in 2000. Chile, Slovenia, Israel and Estonia joined in 2010, then Latvia (2016), Lithuania (2018), Colombia (2020) and Costa Rica (2021). The OECD had 38 members in 2026.",
-  "model": "claude-sonnet-5-5",
-  "factsHash": "sha256:323bfdbd43ed2da98af98a6e6bb9d7f2",
+  "text": "Italy became a member in 1962, followed by Japan (1964), Finland (1969), Australia (1971) and New Zealand (1973). Mexico joined in 1994, Czechia in 1995, Hungary, Poland and South Korea in 1996, and Slovakia in 2000. Chile, Slovenia, Israel and Estonia joined in 2010, then Latvia (2016), Lithuania (2018), Colombia (2020) and Costa Rica (2021).",
+  "model": "manual (Claude chat)",
+  "factsHash": "sha256:9aac68ca365b6d70210d596cda514667",
   "usedFacts": [
-    "founding-members",
     "join-AUS-1971",
     "join-CHL-2010",
     "join-COL-2020",
@@ -24,12 +23,10 @@
     "join-NZL-1973",
     "join-POL-1996",
     "join-SVK-2000",
-    "join-SVN-2010",
-    "members-2026",
-    "note-1961"
+    "join-SVN-2010"
   ],
-  "drafted": "2026-11-06",
-  "approved": true,
-  "approvedOn": "2026-11-06",
-  "approvedVia": "telegram"
+  "drafted": "2026-11-11",
+  "approved": false,
+  "approvedOn": null,
+  "approvedVia": null
 }

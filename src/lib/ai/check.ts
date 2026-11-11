@@ -20,7 +20,7 @@
 import type { Fact, FactsFile } from './facts.ts';
 import { countryNames, NOT_COUNTRIES, stripAccents } from './names.ts';
 
-export type ProblemKind = 'number' | 'date' | 'country' | 'comparison' | 'style' | 'owner' | 'status';
+export type ProblemKind = 'number' | 'date' | 'country' | 'comparison' | 'style' | 'owner' | 'status' | 'repeat';
 export interface Problem { kind: ProblemKind; text: string; sentence: string; message: string }
 /** `used`: the ids of the facts the text draws on (./facts.ts factsHash hashes only these for a stored text). */
 export interface CheckResult { ok: boolean; problems: Problem[]; used: string[] }
@@ -404,6 +404,9 @@ export function checkDraft(draft: string, facts: FactsFile): CheckResult {
   // without one of its figures' facts giving it, every fact that gives it. The owner's own words count too.
   const used = new Set<string>(facts.facts.filter((x) => x.owner).map((x) => x.id));
   const text = stripAccents(plainText(draft.replace(OWNER_BLOCK, '\n'))).replace(/[’‘]/g, "'");
+  // A history note sits under its page's answer, which gives today's count (historyLede): the note does not say it again.
+  const latest = facts.kind === 'history' ? Math.max(0, ...facts.facts.flatMap((x) => /^(members|countries)-\d{4}$/.test(x.id) ? [Number(x.id.slice(-4))] : [])) : 0;
+  const answerCount = new Set(facts.facts.filter((x) => latest && new RegExp(`^(members|countries)-${latest}$`).test(x.id)).map((x) => x.id));
   for (const s of sentences(text)) {
     const st = s.text;
     const dates = readDates(st);
@@ -485,6 +488,7 @@ export function checkDraft(draft: string, facts: FactsFile): CheckResult {
     }
     for (const w of STYLE) if (new RegExp(`(^|[^a-z])${escape(w)}([^a-z]|$)`).test(lower)) push('style', w, `"${w}" is not used on the site (forecasts, blame and judging words are left out).`);
     for (const w of SELF_REFERENCE) if (new RegExp(`(^|[^a-z])${escape(w)}([^a-z]|$)`).test(lower)) push('style', w, `"${w}" talks about the drafting material, not the subject; leave it out.`);
+    for (const id of figures) if (answerCount.has(id)) push('repeat', id, `"${id}" is the count the page's answer already gives; leave it out of the note.`);
     // A figure the site tags (Preliminary, Estimate, Projection) is tagged in the sentence too: never stated as final.
     for (const id of figures) {
       const f = facts.facts.find((x) => x.id === id);

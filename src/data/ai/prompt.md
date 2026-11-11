@@ -47,9 +47,11 @@ year, as "(World Bank, 2023)".
 ## Task: history
 
 Write a note on how the membership of {subject} changed over time, for its alliance history page: three to five
-sentences, at most 100 words. Give the founding, then the main waves of joining and every departure or suspension in
-the facts, with their years; if the facts give none, say nothing about departures. Do not explain why countries
-joined or left unless a fact says so.
+sentences, at most 100 words. The answer above the note already gives the founding year, the founders and today's
+member count: do not restate any of them. Start with the first change after the founding, then give the main waves of
+joining and every departure or suspension in the facts, with their years; if the facts give none, say nothing about
+departures. Do not explain why countries joined or left unless a fact says so. If the facts give only a few changes,
+write fewer sentences.
 
 ## Task: river
 

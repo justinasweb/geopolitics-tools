@@ -265,3 +265,15 @@ describe('tagged figures', () => {
     ok('In 2025, net exports were 12.6% of oil production (EIA, 2025, preliminary).', tagged);
   });
 });
+
+describe('history notes', () => {
+  const nato = file([
+    fact({ id: 'join-GRC-1952', statement: 'Greece joined NATO in 1952.', period: '1952', places: ['GRC'] }),
+    fact({ id: 'members-2026', statement: 'Members of NATO in 2026.', value: 32, unit: 'members', period: '2026' }),
+  ], { id: 'history:nato', kind: 'history', subject: 'NATO', countries: ['GRC'] });
+
+  it('fail a note that restates the count the page’s answer gives', () => {
+    bad('Greece joined in 1952. NATO had 32 members in 2026.', 'repeat', nato);
+    ok('Greece joined in 1952.', nato);
+  });
+});

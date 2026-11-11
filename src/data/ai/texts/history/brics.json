@@ -1,7 +1,7 @@
 {
   "id": "history:brics",
   "author": "ai",
-  "text": "BRICS was founded in 2009 with four members: Brazil, Russia, India and China. South Africa joined in 2011. Egypt, Ethiopia, Iran and the United Arab Emirates joined in 2024, and Indonesia joined in 2025. Saudi Arabia is listed by BRICS as a member from 2024; Saudi Arabia has not confirmed it. BRICS lists 11 members in 2026, including Saudi Arabia.",
+  "text": "South Africa joined in 2011. Egypt, Ethiopia, Iran and the United Arab Emirates joined in 2024, and Indonesia joined in 2025. Saudi Arabia is listed by BRICS as a member from 2024; Saudi Arabia has not confirmed it.",
   "model": "manual (Claude chat)",
   "factsHash": "sha256:65c2b3b5f55d8c7392b057f9b4718192",
   "usedFacts": [
@@ -21,7 +21,7 @@
     "note-saudi"
   ],
   "drafted": "2026-11-11",
-  "approved": true,
-  "approvedOn": "2026-11-11",
-  "approvedVia": "cli"
+  "approved": false,
+  "approvedOn": null,
+  "approvedVia": null
 }
