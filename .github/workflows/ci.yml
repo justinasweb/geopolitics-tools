@@ -233,4 +233,10 @@ jobs:
       - uses: actions/setup-node@v7
         with: { node-version-file: .nvmrc, cache: npm }
       - run: npm ci
-      - run: npx wrangler preview delete --name "pr-${{ github.event.pull_request.number }}" --skip-confirmation
+      # A PR merged before its Preview was deployed has none to delete (code 10025): that is not a failure.
+      - run: |
+          if ! out=$(npx wrangler preview delete --name "pr-${{ github.event.pull_request.number }}" --skip-confirmation 2>&1); then
+            echo "$out"
+            grep -q "code: 10025" <<<"$out" || exit 1
+            echo "No Preview to delete."
+          fi
