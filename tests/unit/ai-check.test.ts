@@ -266,6 +266,32 @@ describe('tagged figures', () => {
   });
 });
 
+describe('shares', () => {
+  const shares = file([
+    fact({ id: 'exports-wheat', statement: 'Russia’s net exports of wheat as a share of its production.', value: 39.6234, unit: '%', unitAliases: ['wheat it produces'], period: '2024', places: ['RUS'], share: true }),
+    fact({ id: 'mineral-gallium', statement: 'China’s share of world primary production of gallium.', value: 9.71, unit: '%', unitAliases: ['gallium'], period: '2025', places: ['CHN'], share: true }),
+    fact({ id: 'imports-gas', statement: 'Japan’s net imports of gas as a share of its use.', value: 99.68, unit: '%', unitAliases: ['gas it uses'], period: '2024', places: ['JPN'], share: true }),
+    fact({ id: 'growth', statement: 'GDP growth of Russia.', value: 4.31, unit: '%', unitAliases: ['growth'], period: '2024', places: ['RUS'] }),
+  ], { id: 'dossier:RUS', kind: 'dossier', subject: 'Russia', countries: ['RUS', 'CHN', 'JPN'] });
+
+  it('wants a share written as the site writes it: whole from 10%, one decimal below and near 100%', () => {
+    ok('Russia exports 40% of the wheat it produces (FAOSTAT, 2024).', shares);
+    ok('China produced 9.7% of world primary gallium (USGS, 2025).', shares);
+    ok('Japan imports 99.7% of the gas it uses (EIA, 2024).', shares);
+  });
+  it('fails a share written more precisely, or less, than the site writes it', () => {
+    bad('Russia exports 39.6% of the wheat it produces (FAOSTAT, 2024).', 'number', shares);
+    expect(checkDraft('Russia exports 39.6% of the wheat it produces (FAOSTAT, 2024).', shares).problems[0].message).toContain('"40%"');
+    bad('China produced 9.71% of world primary gallium (USGS, 2025).', 'number', shares);
+    bad('China produced 10% of world primary gallium (USGS, 2025).', 'number', shares);
+    bad('Japan imports 100% of the gas it uses (EIA, 2024).', 'number', shares);
+  });
+  it('leaves other percentages to the usual rounding', () => {
+    ok('Russia’s growth was 4.31% (World Bank, 2024).', shares);
+    ok('Russia’s growth was 4.3% (World Bank, 2024).', shares);
+  });
+});
+
 describe('history notes', () => {
   const nato = file([
     fact({ id: 'join-GRC-1952', statement: 'Greece joined NATO in 1952.', period: '1952', places: ['GRC'] }),

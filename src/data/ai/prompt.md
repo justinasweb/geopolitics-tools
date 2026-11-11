@@ -23,6 +23,9 @@ Rules:
   significant figures ("1.2 million" for 1,234,567). Do not write figures as fractions ("half", "a third") or turn
   them into comparisons ("doubled", "twice as much") unless a fact says so. Write numbers of 1,000 and over with
   thousands separators: "5,150", "1,234,567".
+- Round shares (a part of a whole in %, such as imports as a share of use or a share of world production) as the site
+  does: whole numbers from 10% ("40%", not "39.6%"), one decimal below 10% ("9.7%"), and one decimal for a share under
+  100% that would round to 100% ("99.7%").
 - Describe changes as directions with figures ("up 3% on 2022"), not as good or bad news.
 - Name countries by the site's display names, as the facts write them: "Türkiye", not "Turkey"; "Czechia", not
   "Czech Republic". Do not mention a country, organisation, person or place that is not in the facts.

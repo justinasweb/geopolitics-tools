@@ -583,6 +583,7 @@
       "statement": "Share of documented AI supercomputer power of China.",
       "value": 6.93924,
       "unit": "%",
+      "share": true,
       "period": "2025",
       "places": [
         "CHN"
@@ -751,6 +752,7 @@
       "statement": "China’s net imports of oil as a share of its use.",
       "value": 67.415,
       "unit": "%",
+      "share": true,
       "unitAliases": [
         "oil use",
         "oil it uses",
@@ -770,6 +772,7 @@
       "statement": "Russia is the main supplier of China’s oil imports.",
       "value": 17.4162,
       "unit": "%",
+      "share": true,
       "unitAliases": [
         "oil imports",
         "imports of oil"
@@ -788,6 +791,7 @@
       "statement": "China’s net imports of gas as a share of its use (preliminary).",
       "value": 39.1737,
       "unit": "%",
+      "share": true,
       "unitAliases": [
         "gas use",
         "gas it uses",
@@ -808,6 +812,7 @@
       "statement": "Australia is the main supplier of China’s gas imports.",
       "value": 28.2381,
       "unit": "%",
+      "share": true,
       "unitAliases": [
         "gas imports",
         "imports of gas"
@@ -826,6 +831,7 @@
       "statement": "China’s net imports of wheat as a share of its use (estimated).",
       "value": 7.28237,
       "unit": "%",
+      "share": true,
       "unitAliases": [
         "wheat use",
         "wheat it uses",
@@ -846,6 +852,7 @@
       "statement": "Australia is the main supplier of China’s wheat imports.",
       "value": 61.8001,
       "unit": "%",
+      "share": true,
       "unitAliases": [
         "wheat imports",
         "imports of wheat"
@@ -864,6 +871,7 @@
       "statement": "China’s net imports of maize as a share of its use.",
       "value": 4.41805,
       "unit": "%",
+      "share": true,
       "unitAliases": [
         "maize use",
         "maize it uses",
@@ -883,6 +891,7 @@
       "statement": "Brazil is the main supplier of China’s maize imports.",
       "value": 48.4931,
       "unit": "%",
+      "share": true,
       "unitAliases": [
         "maize imports",
         "imports of maize"
@@ -901,6 +910,7 @@
       "statement": "China’s net imports of rice as a share of its use.",
       "value": 0.363909,
       "unit": "%",
+      "share": true,
       "unitAliases": [
         "rice use",
         "rice it uses",
@@ -920,6 +930,7 @@
       "statement": "Vietnam is the main supplier of China’s rice imports.",
       "value": 39.1307,
       "unit": "%",
+      "share": true,
       "unitAliases": [
         "rice imports",
         "imports of rice"
@@ -938,6 +949,7 @@
       "statement": "China’s net imports of soybeans as a share of its use.",
       "value": 83.5611,
       "unit": "%",
+      "share": true,
       "unitAliases": [
         "soybeans use",
         "soybeans it uses",
@@ -957,6 +969,7 @@
       "statement": "Brazil is the main supplier of China’s soybeans imports.",
       "value": 72.9798,
       "unit": "%",
+      "share": true,
       "unitAliases": [
         "soybeans imports",
         "imports of soybeans"
@@ -975,6 +988,7 @@
       "statement": "China’s net imports of potash as a share of its potash supply (production plus net imports) (estimated).",
       "value": 54.784,
       "unit": "%",
+      "share": true,
       "unitAliases": [
         "potash use",
         "potash it uses",
@@ -996,6 +1010,7 @@
       "statement": "Russia is the main supplier of China’s potash imports.",
       "value": 36.1403,
       "unit": "%",
+      "share": true,
       "unitAliases": [
         "potash imports",
         "imports of potash"
@@ -1014,6 +1029,7 @@
       "statement": "China’s net exports of phosphate as a share of its production (estimated).",
       "value": 30.1146,
       "unit": "%",
+      "share": true,
       "unitAliases": [
         "phosphate production",
         "phosphate it produces",
@@ -1034,6 +1050,7 @@
       "statement": "Russia is the main supplier of China’s major arms imports.",
       "value": 66.1757,
       "unit": "%",
+      "share": true,
       "unitAliases": [
         "major arms imports",
         "imports of major arms"
@@ -1052,6 +1069,7 @@
       "statement": "Taiwan is the main supplier of China’s chips imports.",
       "value": 41.4022,
       "unit": "%",
+      "share": true,
       "unitAliases": [
         "chips imports",
         "imports of chips"
@@ -1070,6 +1088,7 @@
       "statement": "China’s share of world primary production of gallium (estimated).",
       "value": 99.0099,
       "unit": "%",
+      "share": true,
       "unitAliases": [
         "gallium"
       ],
@@ -1100,6 +1119,7 @@
       "statement": "China’s share of world mine production of tungsten (estimated).",
       "value": 78.6939,
       "unit": "%",
+      "share": true,
       "unitAliases": [
         "tungsten"
       ],
@@ -1130,6 +1150,7 @@
       "statement": "China’s share of world mine production of natural graphite (estimated).",
       "value": 77.7778,
       "unit": "%",
+      "share": true,
       "unitAliases": [
         "natural graphite"
       ],
@@ -1160,6 +1181,7 @@
       "statement": "China’s share of world mine production of rare earths (estimated).",
       "value": 69.2308,
       "unit": "%",
+      "share": true,
       "unitAliases": [
         "rare earths"
       ],
@@ -1190,6 +1212,7 @@
       "statement": "China’s share of world mine production of lithium (estimated).",
       "value": 21.3793,
       "unit": "%",
+      "share": true,
       "unitAliases": [
         "lithium"
       ],

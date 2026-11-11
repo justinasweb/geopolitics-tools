@@ -582,6 +582,7 @@
       "statement": "Share of documented AI supercomputer power of the United States.",
       "value": 80.9335,
       "unit": "%",
+      "share": true,
       "period": "2025",
       "places": [
         "USA"
@@ -750,6 +751,7 @@
       "statement": "The United States’ net exports of oil as a share of its production (preliminary).",
       "value": 12.6185,
       "unit": "%",
+      "share": true,
       "unitAliases": [
         "oil production",
         "oil it produces",
@@ -770,6 +772,7 @@
       "statement": "The United States’ net exports of gas as a share of its production (preliminary).",
       "value": 12.4022,
       "unit": "%",
+      "share": true,
       "unitAliases": [
         "gas production",
         "gas it produces",
@@ -790,6 +793,7 @@
       "statement": "The United States’ net exports of wheat as a share of its production.",
       "value": 36.113,
       "unit": "%",
+      "share": true,
       "unitAliases": [
         "wheat production",
         "wheat it produces",
@@ -809,6 +813,7 @@
       "statement": "The United States’ net exports of maize as a share of its production.",
       "value": 16.4078,
       "unit": "%",
+      "share": true,
       "unitAliases": [
         "maize production",
         "maize it produces",
@@ -828,6 +833,7 @@
       "statement": "The United States’ net exports of rice as a share of its production.",
       "value": 25.3285,
       "unit": "%",
+      "share": true,
       "unitAliases": [
         "rice production",
         "rice it produces",
@@ -847,6 +853,7 @@
       "statement": "The United States’ net exports of soybeans as a share of its production.",
       "value": 43.4776,
       "unit": "%",
+      "share": true,
       "unitAliases": [
         "soybeans production",
         "soybeans it produces",
@@ -866,6 +873,7 @@
       "statement": "The United States’ net imports of potash as a share of its potash supply (production plus net imports) (estimated).",
       "value": 94.3606,
       "unit": "%",
+      "share": true,
       "unitAliases": [
         "potash use",
         "potash it uses",
@@ -887,6 +895,7 @@
       "statement": "Canada is the main supplier of the United States’ potash imports.",
       "value": 87.5106,
       "unit": "%",
+      "share": true,
       "unitAliases": [
         "potash imports",
         "imports of potash"
@@ -905,6 +914,7 @@
       "statement": "The United States’ net imports of phosphate as a share of its phosphate supply (production plus net imports) (estimated).",
       "value": 0.973053,
       "unit": "%",
+      "share": true,
       "unitAliases": [
         "phosphate use",
         "phosphate it uses",
@@ -926,6 +936,7 @@
       "statement": "Saudi Arabia is the main supplier of the United States’ phosphate imports.",
       "value": 28.97,
       "unit": "%",
+      "share": true,
       "unitAliases": [
         "phosphate imports",
         "imports of phosphate"
@@ -944,6 +955,7 @@
       "statement": "United Kingdom is the main supplier of the United States’ major arms imports.",
       "value": 16.6293,
       "unit": "%",
+      "share": true,
       "unitAliases": [
         "major arms imports",
         "imports of major arms"
@@ -962,6 +974,7 @@
       "statement": "Taiwan is the main supplier of the United States’ chips imports.",
       "value": 30.6235,
       "unit": "%",
+      "share": true,
       "unitAliases": [
         "chips imports",
         "imports of chips"
@@ -980,6 +993,7 @@
       "statement": "The United States’ share of world mine production of rare earths (estimated).",
       "value": 13.0769,
       "unit": "%",
+      "share": true,
       "unitAliases": [
         "rare earths"
       ],

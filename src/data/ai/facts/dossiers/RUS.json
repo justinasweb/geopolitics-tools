@@ -579,6 +579,7 @@
       "statement": "Share of documented AI supercomputer power of Russia.",
       "value": 0.115781,
       "unit": "%",
+      "share": true,
       "period": "2025",
       "places": [
         "RUS"
@@ -747,6 +748,7 @@
       "statement": "Russia’s net exports of oil as a share of its production.",
       "value": 63.9061,
       "unit": "%",
+      "share": true,
       "unitAliases": [
         "oil production",
         "oil it produces",
@@ -766,6 +768,7 @@
       "statement": "Russia’s net exports of gas as a share of its production (preliminary).",
       "value": 22.1518,
       "unit": "%",
+      "share": true,
       "unitAliases": [
         "gas production",
         "gas it produces",
@@ -786,6 +789,7 @@
       "statement": "Russia’s net exports of wheat as a share of its production.",
       "value": 39.5555,
       "unit": "%",
+      "share": true,
       "unitAliases": [
         "wheat production",
         "wheat it produces",
@@ -805,6 +809,7 @@
       "statement": "Russia’s net exports of maize as a share of its production.",
       "value": 16.5291,
       "unit": "%",
+      "share": true,
       "unitAliases": [
         "maize production",
         "maize it produces",
@@ -824,6 +829,7 @@
       "statement": "Russia’s net imports of rice as a share of its use (estimated).",
       "value": 16.6982,
       "unit": "%",
+      "share": true,
       "unitAliases": [
         "rice use",
         "rice it uses",
@@ -844,6 +850,7 @@
       "statement": "Russia’s net imports of soybeans as a share of its use.",
       "value": 8.40498,
       "unit": "%",
+      "share": true,
       "unitAliases": [
         "soybeans use",
         "soybeans it uses",
@@ -863,6 +870,7 @@
       "statement": "Russia’s net exports of potash as a share of its production (estimated).",
       "value": 92.8195,
       "unit": "%",
+      "share": true,
       "unitAliases": [
         "potash production",
         "potash it produces",
@@ -883,6 +891,7 @@
       "statement": "Russia’s net exports of phosphate as a share of its production (estimated).",
       "value": 73.8369,
       "unit": "%",
+      "share": true,
       "unitAliases": [
         "phosphate production",
         "phosphate it produces",
@@ -903,6 +912,7 @@
       "statement": "Iran is the main supplier of Russia’s major arms imports.",
       "value": 50.8562,
       "unit": "%",
+      "share": true,
       "unitAliases": [
         "major arms imports",
         "imports of major arms"
@@ -921,6 +931,7 @@
       "statement": "Russia’s share of world mine production of palladium (estimated).",
       "value": 43.2767,
       "unit": "%",
+      "share": true,
       "unitAliases": [
         "palladium"
       ],
