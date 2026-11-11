@@ -400,8 +400,8 @@ Global Dataset of Cyber Incidents, the version pinned in pipeline/sources/eurepo
 ## Exchange points (Internet)
 
 `/internet/exchanges` (layer `internet-exchanges`, src/adapters/peeringdb.ts, src/lib/exchanges.ts, words in
-`EXCHANGE_TEXT` in src/i18n/views.en.ts): internet exchange points as PeeringDB lists them, from its daily bootstrap
-files (`ix`, `fac`, `ixfac`; pipeline/sources/peeringdb.ts).
+`EXCHANGE_TEXT` in src/i18n/views.en.ts): internet exchange points as PeeringDB lists them, from its bootstrap files
+(`ix`, `fac`, `ixfac`; pipeline/sources/peeringdb.ts), fetched weekly.
 
 - **Measure.** Exchange points listed with each country (PeeringDB's ISO alpha-2 `country`), a view measure dated by
   the fetch, like outages (`static`). One year only: PeeringDB gives no history and none is built from old fetches.

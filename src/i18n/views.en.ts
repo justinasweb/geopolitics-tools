@@ -71,13 +71,13 @@ const armsCaveat = `Figures are in SIPRI’s trend-indicator value (TIV): ${TIV_
 export const EXCHANGE_TEXT = {
   caveat: 'An internet exchange point is a place where networks connect to swap traffic directly. The list is PeeringDB’s, kept up by the exchanges and networks themselves, so an exchange that is not listed is missing and a listing can be out of date. Networks are those PeeringDB counts as connected; a network at several exchanges counts at each.',
   mark: 'Exchange point, sized by networks connected',
-  tip: (name: string, city: string, n: string) => `${name}${city ? `, ${city}` : ''}: ${n} networks connected`,
+  tip: (name: string, city: string, n: number, value: string) => `${name}${city ? `, ${city}` : ''}: ${value} ${n === 1 ? 'network' : 'networks'} connected`,
   block: 'Exchange points by networks connected',
   blockCaption: 'As listed in PeeringDB.',
   more: (n: number) => `and ${n} more`,
   largest: 'Exchange points with the most networks connected',
   largestCaption: (n: number, unplaced: number) => `The ${n} listed exchange points with the most connected networks. A network at several exchanges counts at each. Marks stand at each exchange’s first listed facility; ${unplaced} exchanges list no facility with a location and have no mark.`,
-  exchange: 'Exchange point', city: 'City', country: 'Country', networks: 'Networks connected',
+  exchange: 'Exchange point', country: 'Country', networks: 'Networks',
 };
 
 export const VIEW_TEXT: Record<string, FamilyText> = {

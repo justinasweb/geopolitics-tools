@@ -127,20 +127,11 @@ joined (founding included); 1990 is not one of them. The lede reads "Membership 
 AidData "West Bank and Gaza Strip", EIA "Palestinian Territories") is a coverage note: on Palestine's country page and
 in the map tooltip and panel, not beside each figure.
 
-### Exchange points: open points (raised 11 Nov 2026)
+### Exchange points on country pages (raised 11 Nov 2026)
 
-**Atlas overlay.** The exchange marks stay on their own view; the Atlas lists only the overlays the design names.
-**Options:** add "Exchange points" to the Atlas overlays, or leave it.
-
-**Exchanges with no mark.** 417 of 1,327 list no facility with coordinates (11 Nov 2026), so a third of the
-exchanges have no mark; they are counted for their country and the table caption says so. **Options:** place them at
-their city (would need a geocoder or a city table), or leave it.
-
-**Hub intro and country pages.** The Technology hub intro (AI-drafted, approved) does not mention exchange points,
-and country pages have no exchange figure. **Options:** add a line to the hub facts and redraft, and/or a row in the
-country page's technology section, or leave both.
-
-**Spec schedule.** The spec's source table says weekly for PeeringDB; the fetcher runs daily, as asked on 11 Nov 2026.
+Country pages have no exchange points figure. **Options:** a row in the country page's technology section (exchanges
+listed, and the one with most networks), or leave it. The Technology hub intro was redrafted with exchange points on
+11 Nov 2026 and waits for approval (`hub:technology`).
 
 ## Launch review leftovers (raised 5 Nov 2026)
 
@@ -263,6 +254,11 @@ its tool entry on a hub has no links under it. Topic presets would give it some.
 
 ## Decided
 
+- **Exchange points in the Atlas** (raised 11 Nov 2026). Decided 11 Nov 2026: not now. The exchange marks stay on
+  `/internet/exchanges`; the Atlas overlays are unchanged.
+- **Exchanges with no mark** (raised 11 Nov 2026). Decided 11 Nov 2026: no, unmarked exchanges stay unmarked. 417 of
+  1,327 list no facility with coordinates (11 Nov 2026); they count for their country and the table caption says how
+  many have no mark. They are not placed at their city.
 - **Re-check bloc memberships before launch** (raised 2 Nov 2026). Closed 10 Nov 2026. The membership table
   (`src/data/blocs.csv`, `bloc-history.csv`) is kept by hand, and the weekly Wikidata cross-check planned for phase 5a
   is not built yet. It was last checked in full on **21 October 2026** (`BLOCS_CHECKED` in `src/lib/blocs.ts`), but it

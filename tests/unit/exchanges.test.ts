@@ -2,6 +2,7 @@ import { beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { matchReports, resetMatchers } from '../../src/adapters/core.ts';
 import { EXAMPLE_ORG, parsePeeringDb } from '../../src/adapters/peeringdb.ts';
 import { formatDate } from '../../src/lib/format.ts';
+import { EXCHANGE_TEXT } from '../../src/i18n/views.en.ts';
 
 // The exchange points view, built from the sample PeeringDB files (tests/fixtures/prototype/peeringdb).
 process.env.GT_DATA = 'sample';
@@ -99,6 +100,11 @@ describe('exchange points view', () => {
     const block = f.more![id][0];
     expect(block.rows[0].name).toBe(X.exchangesIn(id)[0].name);
     expect(block.rows.length).toBe(Math.min(5, X.exchangesIn(id).length));
+  });
+
+  it('says "1 network", not "1 networks", in a mark’s tip', () => {
+    expect(EXCHANGE_TEXT.tip('Tiny IX', 'Dili', 1, '1')).toBe('Tiny IX, Dili: 1 network connected');
+    expect(EXCHANGE_TEXT.tip('Big IX', '', 1868, '1,868')).toBe('Big IX: 1,868 networks connected');
   });
 
   it('credits PeeringDB with a link and the fetch date, and offers no download', () => {

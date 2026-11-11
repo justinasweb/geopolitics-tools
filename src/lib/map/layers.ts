@@ -553,7 +553,7 @@ function exchangeMarks(): Overlay {
   const X = EXCHANGE_TEXT;
   const items: Point[] = exchangeList().filter((x) => x.at).map((x) => ({
     at: toMap(x.at!.lon, x.at!.lat), r: Math.min(14, 2 + Math.sqrt(x.networks) / 3),
-    tip: X.tip(x.name, x.city, formatValue(x.networks, { kind: 'count' })),
+    tip: X.tip(x.name, x.city, x.networks, formatValue(x.networks, { kind: 'count' })),
   }));
   return { id: 'exchanges', kind: 'points', label: X.mark, symbol: 'hollow', items };
 }

@@ -62,7 +62,7 @@ const prev = prevYear ? p.byYear[prevYear] : null;
 const answer = lede(p);
 const nameOf = (id: string) => place(id)?.name ?? (id === OTHER_SUPPLIER ? DEP_TEXT.otherSuppliers : id);
 const when = T.period ? T.period(p.year) : String(p.year);
-const yearsText = p.layer.span ? `${p.years[0] - p.layer.span + 1}–${p.year}` : p.years.length > 1 ? `${p.years[0]}–${p.years.at(-1)}` : String(p.year);
+const yearsText = p.layer.span ? `${p.years[0] - p.layer.span + 1}–${p.year}` : p.years.length > 1 ? `${p.years[0]}–${p.years.at(-1)}` : when;
 const crumbs: { label: string; href?: string }[] = [hubCrumb(p.family.hub), { label: fam.section, href: viewHref(p.family.id) }, { label: T.title }];
 const div = p.layer.scale === 'div';
 const pct = (ch: number) => changeText(p, ch);
@@ -389,10 +389,10 @@ const bars = (rs: Row[], max: number) => rs.map((r) => ({ id: r.id, text: valueT
             <table class="gt-table">
               <caption class="gt-caption">{EX.largestCaption(ixps.length, unplaced())}</caption>
               <thead><tr>
-                <th scope="col"><span class="gt-th">{EX.exchange}</span></th><th scope="col"><span class="gt-th">{EX.city}</span></th>
-                <th scope="col"><span class="gt-th">{EX.country}</span></th><th scope="col" class="n"><span class="gt-th">{EX.networks}</span></th>
+                <th scope="col"><span class="gt-th">{EX.exchange}</span></th><th scope="col"><span class="gt-th">{EX.country}</span></th>
+                <th scope="col" class="n"><span class="gt-th">{EX.networks}</span></th>
               </tr></thead>
-              <tbody>{ixps.map((x) => <tr><th scope="row">{x.name}</th><td>{x.city}</td><td>{nameOf(x.place)}</td><td class="n">{count(x.networks)}</td></tr>)}</tbody>
+              <tbody>{ixps.map((x) => <tr><th scope="row">{x.name}{x.city && <small class="gt-caption" style="display:block">{x.city}</small>}</th><td>{nameOf(x.place)}</td><td class="n">{count(x.networks)}</td></tr>)}</tbody>
             </table>
           </div>
           <SourceLine source={source} parts={[when]} updated={updated} />

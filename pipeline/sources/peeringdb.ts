@@ -1,6 +1,6 @@
 // PeeringDB → peeringdb/ix.json, fac.json, ixfac.json: exchange points, facilities and which facilities each exchange
 // is in, from the daily bootstrap files PeeringDB publishes for mirrors (docs.peeringdb.com/howto/mirror), one file per
-// object type. Anonymous, once a day, one request per file a few seconds apart, never retried: the query limits allow
+// object type. Anonymous, once a week (the spec's schedule), one request per file a few seconds apart, never retried: the query limits allow
 // 20 anonymous requests a minute and one repeat of the same large request an hour, so any error stops the run and the
 // last good files stay. The network type field (net.info_type) is self-reported and goes in API v3: no net file is
 // fetched. Kept in PeeringDB's own shape ({ meta, data }) with only the fields the adapter reads.
@@ -29,8 +29,8 @@ interface Bootstrap { meta?: { generated?: number }; data?: Record<string, unkno
 const source: Source = {
   id: 'peeringdb',
   name: 'PeeringDB',
-  every: 1 * DAY,
-  staleAfter: 4 * DAY,
+  every: 7 * DAY,
+  staleAfter: 21 * DAY,
   enabled: true,
   attribution: 'PeeringDB',
   licence: 'PeeringDB acceptable use policy (use confirmed by email, 11 Nov 2026)',

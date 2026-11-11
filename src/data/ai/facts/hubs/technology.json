@@ -27,6 +27,13 @@
       "date": "2026-11-11"
     },
     {
+      "id": "exchanges",
+      "statement": "Internet exchange points listed by country, with the networks connected to each, from PeeringDB.",
+      "source": "geopolitics.tools code (src/data/views.ts)",
+      "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/views.ts",
+      "date": "2026-11-11"
+    },
+    {
       "id": "internet-use",
       "statement": "The share of people using the internet, from ITU via the World Bank.",
       "source": "geopolitics.tools code (src/data/views.ts)",

@@ -32,7 +32,7 @@ describe('peeringdb', () => {
     expect(r.files.map((f) => f.name)).toEqual(['ix.json', 'fac.json', 'ixfac.json']);
     expect(r.rows).toBe(MIN.ix + 10);
     expect(r.dataTo).toBe('2026-11-11');
-    expect(peeringdb.every).toBe(24);
+    expect(peeringdb.every).toBe(7 * 24);
   });
 
   it('keeps PeeringDB’s shape with only the fields the adapter reads', async () => {
