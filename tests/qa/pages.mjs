@@ -24,6 +24,7 @@ export const PAGES = [
   { name: 'Map: AI', path: '/ai', map: true },
   { name: 'Map: sanctions', path: '/sanctions', map: true },
   { name: 'Map: internet', path: '/internet/outages', map: true },
+  { name: 'Map: exchange points', path: '/internet/exchanges', map: true },
   { name: 'Map: Chinese lending', path: '/chinese-lending', map: true },
   { name: 'Map: arms', path: '/arms', map: true },
   { name: 'Map: nuclear', path: '/nuclear', map: true },

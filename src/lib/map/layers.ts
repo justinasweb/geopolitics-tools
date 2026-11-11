@@ -12,7 +12,7 @@ import { PLACES, NOTES } from '../places.ts';
 import { countryHref, live } from '../routes.ts';
 import { amount, listed, mineralPages, shareClass, withheld, nameOf, type MineralPage } from '../minerals.ts';
 import { list, inSentence } from '../../i18n/pages.en.ts';
-import { ICT_TEXT, OUTAGE_TEXT, PARTS_TEXT as PX, VIEW_TEXT, VIEWS_TEXT } from '../../i18n/views.en.ts';
+import { EXCHANGE_TEXT, ICT_TEXT, OUTAGE_TEXT, PARTS_TEXT as PX, VIEW_TEXT, VIEWS_TEXT } from '../../i18n/views.en.ts';
 import { classFor, creditOf, familyPages, partsOf, placeNote, shareOf, unreportedIn, unreportedText, valueText, viewPages, type ViewPage } from '../views.ts';
 import { creditName, data, indicator, shared } from '../data.ts';
 import { loadFlows } from '../../data/flows.ts';
@@ -31,6 +31,7 @@ import { AI_TEXT } from '../../i18n/ai.en.ts';
 import { LISTS, sanctions } from '../../adapters/sanctions.ts';
 import { SANCTIONS_TEXT } from '../../i18n/sanctions.en.ts';
 import { type Outage, outages } from '../../adapters/digital.ts';
+import { exchangeList, exchangesIn } from '../exchanges.ts';
 import { capacityText, largeDams } from '../dams.ts';
 import { lendingOf } from '../lending.ts';
 import { DAMS_TEXT, LENDING_TEXT, RIVERS_TEXT } from '../../i18n/water.en.ts';
@@ -246,8 +247,8 @@ function indicatorLayer(p: ViewPage): LayerFile {
     },
     tags: c.tags, names: c.names, hrefs: c.hrefs, slugs: c.slugs, notes, blocs: c.blocs, data,
     series: seriesOf(p.years.map((year) => Object.fromEntries(p.byYear[year].rows.map((r) => [r.id, r.value])))),
-    format: p.format, more: p.family.id === 'space' ? withSpace(viewMore(p)) : p.family.id === 'sanctions' ? withSanctions(viewMore(p), p.id) : p.id === 'outages' ? withOutages(viewMore(p)) : p.family.id === 'chinese-lending' ? withLending(viewMore(p), p.id) : p.family.id === 'electricity' ? withMix(viewMore(p), p) : p.family.id === 'food-crises' ? withPhases(viewMore(p)) : CHIP_LAYERS[p.id] ? withSuppliers(viewMore(p), p) : viewMore(p),
-    ...(p.id === 'launches' ? { overlays: [launchSites(p)] } : p.id === 'aicompute' ? { overlays: [aiClusters(p)] } : p.id === 'waterstress' ? { overlays: [damMarks()] } : p.family.id === 'arms' ? { overlays: [armsArcs(p)] } : p.id === 'cyber' ? { overlays: [cyberArcs(p)] } : CHIP_LAYERS[p.id] ? { overlays: [chipArcs(p)] } : {}),
+    format: p.format, more: p.family.id === 'space' ? withSpace(viewMore(p)) : p.family.id === 'sanctions' ? withSanctions(viewMore(p), p.id) : p.id === 'outages' ? withOutages(viewMore(p)) : p.id === 'exchanges' ? withExchanges(viewMore(p)) : p.family.id === 'chinese-lending' ? withLending(viewMore(p), p.id) : p.family.id === 'electricity' ? withMix(viewMore(p), p) : p.family.id === 'food-crises' ? withPhases(viewMore(p)) : CHIP_LAYERS[p.id] ? withSuppliers(viewMore(p), p) : viewMore(p),
+    ...(p.id === 'launches' ? { overlays: [launchSites(p)] } : p.id === 'exchanges' ? { overlays: [exchangeMarks()] } : p.id === 'aicompute' ? { overlays: [aiClusters(p)] } : p.id === 'waterstress' ? { overlays: [damMarks()] } : p.family.id === 'arms' ? { overlays: [armsArcs(p)] } : p.id === 'cyber' ? { overlays: [cyberArcs(p)] } : CHIP_LAYERS[p.id] ? { overlays: [chipArcs(p)] } : {}),
   };
 }
 
@@ -545,6 +546,31 @@ function launchSites(p: ViewPage): Overlay {
     tip: S.siteTip(x.name, formatValue(x.n, { kind: 'count' }), year),
   })));
   return { id: 'sites', kind: 'points', label: S.sitesMark, symbol: 'hollow', items };
+}
+
+/** Exchange points: a mark at each exchange's first listed facility with a location, sized by networks connected. */
+function exchangeMarks(): Overlay {
+  const X = EXCHANGE_TEXT;
+  const items: Point[] = exchangeList().filter((x) => x.at).map((x) => ({
+    at: toMap(x.at!.lon, x.at!.lat), r: Math.min(14, 2 + Math.sqrt(x.networks) / 3),
+    tip: X.tip(x.name, x.city, x.networks, formatValue(x.networks, { kind: 'count' })),
+  }));
+  return { id: 'exchanges', kind: 'points', label: X.mark, symbol: 'hollow', items };
+}
+
+/** Exchange points: a country's exchanges by networks connected, before its other blocks. */
+function withExchanges(more: Record<string, PanelBlock[]>): Record<string, PanelBlock[]> {
+  const X = EXCHANGE_TEXT;
+  const out = { ...more };
+  for (const id of new Set(exchangeList().map((x) => x.place))) {
+    const xs = exchangesIn(id);
+    out[id] = [{
+      label: X.block, caption: X.blockCaption,
+      rows: xs.slice(0, 5).map((x) => ({ name: x.name, value: formatValue(x.networks, { kind: 'count' }), note: x.city || undefined })),
+      more: xs.length > 5 ? X.more(xs.length - 5) : undefined,
+    }, ...(out[id] ?? [])];
+  }
+  return out;
 }
 
 /** For each place on a registry view: its figures on the family's other layers, and for refugees its main partners. */

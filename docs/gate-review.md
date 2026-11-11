@@ -23,7 +23,8 @@ Replies of 10 and 11 November: WRI confirmed the Aqueduct credit by email (no ne
 may be downloaded without registering). CelesTrak's Dr T.S. Kelso gave permission by email for derived figures with the
 credit "Orbital data from CelesTrak" and a link, so CelesTrak is out of `WITHHELD` and Space is live again (below); the
 CSV download is not yet confirmed, so satellites and launches stay shown only. PeeringDB confirmed our use is within its
-AUP (checked 11 Nov); no view uses it yet.
+AUP (checked 11 Nov); the exchange points view (`/internet/exchanges`) uses it, shown only, credited "PeeringDB,
+fetched on {date}" with a link.
 
 **The gates** (spec, "Launch waves"): a live fetcher checked against the spec, licence and terms cleared, freshness
 checks in place, a working phone layout. This review also checked the data, source lines, neutral wording, and the

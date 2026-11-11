@@ -17,7 +17,7 @@ import '../styles/atlas/keyfigure.css';
 import '../styles/atlas/table.css';
 import '../styles/atlas/tools.css';
 import { MAP_TEXT } from '../i18n/map.en';
-import { PARTS_TEXT as PX, VIEW_TEXT, VIEWS_TEXT as W } from '../i18n/views.en';
+import { EXCHANGE_TEXT as EX, PARTS_TEXT as PX, VIEW_TEXT, VIEWS_TEXT as W } from '../i18n/views.en';
 import { changeSize, changeText, diffText, flat, placeChange, creditOf, familyPages, lede, partsOf, placeNote, shareOf, summary, unreportedIn, unreportedText, valueText, viewPage, worldChange, indicatorLabel, prevOf, yearText } from '../lib/views';
 import { refreshed } from '../lib/data';
 import { formatValue } from '../lib/format';
@@ -27,6 +27,7 @@ import { layerPath } from '../lib/map/layers';
 import { breadcrumbs } from '../lib/structured';
 import type { Row } from '../lib/stats';
 import { constellations, sitesIn, spaceAsOf } from '../lib/space';
+import { exchangeList, unplaced } from '../lib/exchanges';
 import { SPACE_TEXT as SP } from '../i18n/space.en';
 import { CHIP_LAYERS, chipFlowsFor, clustersAt } from '../lib/ai';
 import { AI_TEXT as AX } from '../i18n/ai.en';
@@ -61,7 +62,7 @@ const prev = prevYear ? p.byYear[prevYear] : null;
 const answer = lede(p);
 const nameOf = (id: string) => place(id)?.name ?? (id === OTHER_SUPPLIER ? DEP_TEXT.otherSuppliers : id);
 const when = T.period ? T.period(p.year) : String(p.year);
-const yearsText = p.layer.span ? `${p.years[0] - p.layer.span + 1}–${p.year}` : p.years.length > 1 ? `${p.years[0]}–${p.years.at(-1)}` : String(p.year);
+const yearsText = p.layer.span ? `${p.years[0] - p.layer.span + 1}–${p.year}` : p.years.length > 1 ? `${p.years[0]}–${p.years.at(-1)}` : when;
 const crumbs: { label: string; href?: string }[] = [hubCrumb(p.family.hub), { label: fam.section, href: viewHref(p.family.id) }, { label: T.title }];
 const div = p.layer.scale === 'div';
 const pct = (ch: number) => changeText(p, ch);
@@ -104,6 +105,8 @@ const cat = p.family.id === 'food-crises' ? catastrophe() : [];
 const chipFlows = CHIP_LAYERS[p.id] ? chipFlowsFor(p.id, p.year).slice(0, 20) : [];
 const twh = (v: number) => formatValue(v, { kind: 'number', digits: v < 10 ? 1 : 0 });
 const sites = p.id === 'launches' ? sitesIn(p.year) : [];
+// Exchange points: the exchanges with the most networks connected.
+const ixps = p.id === 'exchanges' ? exchangeList().slice(0, 20) : [];
 const clusters = p.id === 'aicompute' ? clustersAt(p.year).slice(0, 20) : [];
 const dams = p.id === 'waterstress' ? largeDams().slice(0, 20) : [];
 const projects = p.family.id === 'chinese-lending' ? largestProjects(20, p.id === 'lendall' ? null : p.id.slice(4)) : [];
@@ -140,7 +143,7 @@ const bars = (rs: Row[], max: number) => rs.map((r) => ({ id: r.id, text: valueT
     periods={p.layer.span ? { label: W.periodLabel(p.layer.span), options: Object.fromEntries(p.years.map((yr) => [yr, yearText(p, yr)])) } : undefined} />
 
   <MapStage layer={layerPath(`${p.family.id}-${p.id}`)} label={`${T.legend(p.year)}. ${mapTop}. ${W.caption(p.year, null)}`} title={T.title}
-    legend={{ title: T.legend(p.year), scale: p.layer.scale, ticks: p.ticks, ends: T.ends, none: T.none ?? fam.none ?? W.noData, ...(unreported.length ? { withheld: unreportedLabel } : {}), ...(p.id === 'launches' ? { marks: [{ symbol: 'hollow', label: SP.sitesMark }] } : p.id === 'aicompute' ? { marks: [{ symbol: 'hollow', label: AX.mark }] } : p.id === 'waterstress' ? { marks: [{ symbol: 'triangle', label: DX.mark }] } : CHIP_LAYERS[p.id] ? { marks: [{ symbol: 'arc', label: AX.arcs }] } : p.id === 'cyber' ? { marks: [{ symbol: 'arc', label: CX.arcs }] } : {}) }}>
+    legend={{ title: T.legend(p.year), scale: p.layer.scale, ticks: p.ticks, ends: T.ends, none: T.none ?? fam.none ?? W.noData, ...(unreported.length ? { withheld: unreportedLabel } : {}), ...(p.id === 'launches' ? { marks: [{ symbol: 'hollow', label: SP.sitesMark }] } : p.id === 'exchanges' ? { marks: [{ symbol: 'hollow', label: EX.mark }] } : p.id === 'aicompute' ? { marks: [{ symbol: 'hollow', label: AX.mark }] } : p.id === 'waterstress' ? { marks: [{ symbol: 'triangle', label: DX.mark }] } : CHIP_LAYERS[p.id] ? { marks: [{ symbol: 'arc', label: AX.arcs }] } : p.id === 'cyber' ? { marks: [{ symbol: 'arc', label: CX.arcs }] } : {}) }}>
     <div data-panel="world" slot="panel">
       <div class="gt-panel__head">
         <div class="gt-panel__title"><span class="gt-kicker">{T.title} · <span data-year-text>{when}</span></span><h2 class="gt-h3">{MAP_TEXT.world}</h2></div>
@@ -377,6 +380,22 @@ const bars = (rs: Row[], max: number) => rs.map((r) => ({ id: r.id, text: valueT
             </table>
           </div>
           <SourceLine source={source} parts={[armsPeriod(p.year)]} updated={updated} />
+        </>
+      )}
+      {ixps.length > 0 && (
+        <>
+          <h2 class="gt-h2" id="exchanges">{EX.largest}</h2>
+          <div class="gt-tablewrap" style="--gt-table-h:560px" tabindex="0" role="region" aria-label={EX.largest}>
+            <table class="gt-table">
+              <caption class="gt-caption">{EX.largestCaption(ixps.length, unplaced())}</caption>
+              <thead><tr>
+                <th scope="col"><span class="gt-th">{EX.exchange}</span></th><th scope="col"><span class="gt-th">{EX.country}</span></th>
+                <th scope="col" class="n"><span class="gt-th">{EX.networks}</span></th>
+              </tr></thead>
+              <tbody>{ixps.map((x) => <tr><th scope="row">{x.name}{x.city && <small class="gt-caption" style="display:block">{x.city}</small>}</th><td>{nameOf(x.place)}</td><td class="n">{count(x.networks)}</td></tr>)}</tbody>
+            </table>
+          </div>
+          <SourceLine source={source} parts={[when]} updated={updated} />
         </>
       )}
       {sites.length > 0 && (

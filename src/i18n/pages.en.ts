@@ -528,6 +528,8 @@ export const SOURCE_BRIEF: Record<string, string> = { aiddata: 'AidData' };
 /** Where an indicator's figures come from, when the publisher is not the original source. */
 /** WRI Aqueduct's credit after its name, as its terms ask: the access date, its site and its licence (links in
  *  src/lib/source-links.ts). */
+/** PeeringDB's credit after its name: the day its files were fetched (link in src/lib/source-links.ts). */
+export const PEERINGDB_CREDIT = (d: string) => `fetched on ${d}`;
 export const AQUEDUCT_CREDIT = (d: string) => `accessed on ${d}, aqueduct.wri.org (CC BY 4.0)`;
 
 export const SOURCE_NOTE: Record<string, string> = {

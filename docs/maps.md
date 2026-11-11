@@ -397,6 +397,26 @@ Global Dataset of Cyber Incidents, the version pinned in pipeline/sources/eurepo
 - **Country pages.** A "Cyber incidents" block under More figures on every country page: incidents affecting it since
   2000, or "No publicly known incidents", the caveat's last sentence and a link to the map with the country selected.
 
+## Exchange points (Internet)
+
+`/internet/exchanges` (layer `internet-exchanges`, src/adapters/peeringdb.ts, src/lib/exchanges.ts, words in
+`EXCHANGE_TEXT` in src/i18n/views.en.ts): internet exchange points as PeeringDB lists them, from its bootstrap files
+(`ix`, `fac`, `ixfac`; pipeline/sources/peeringdb.ts), fetched weekly.
+
+- **Measure.** Exchange points listed with each country (PeeringDB's ISO alpha-2 `country`), a view measure dated by
+  the fetch, like outages (`static`). One year only: PeeringDB gives no history and none is built from old fetches.
+  PeeringDB's own "PeeringDB Example IX" (organisation 25554, in Antarctica, "provided for documentation purposes")
+  is left out. 11 Nov 2026: 1,327 exchanges in 169 countries and territories, the United States first with 214.
+- **Marks.** One hollow mark per exchange at its first listed facility (the lowest `ixfac` id) that has coordinates,
+  sized by PeeringDB's `net_count`, the networks connected (radius 2 + √n / 3, at most 14). An exchange whose
+  facilities have no coordinates, or that lists none (417 on 11 Nov), counts for its country and has no mark; the
+  table caption says how many. A network at several exchanges counts at each, so networks are never added up.
+- **Panel and page.** A country's panel starts with its exchanges by networks connected (five, then "and N more");
+  under the country table, the 20 exchanges with the most networks.
+- **Not used.** The network type field (`info_type`, self-reported and going in API v3): no network file is fetched.
+- **Credit.** "PeeringDB, fetched on {date}", PeeringDB linked to peeringdb.com (`EDITIONS` in src/lib/data.ts,
+  src/lib/source-links.ts). Shown only: no CSV.
+
 ## Nuclear weapons (phase 5a)
 
 `/nuclear` (warheads), `/nuclear/treaties` and `/nuclear/sharing` (src/lib/nuclear.ts, src/templates/NuclearView.astro,

@@ -127,6 +127,12 @@ joined (founding included); 1990 is not one of them. The lede reads "Membership 
 AidData "West Bank and Gaza Strip", EIA "Palestinian Territories") is a coverage note: on Palestine's country page and
 in the map tooltip and panel, not beside each figure.
 
+### Exchange points on country pages (raised 11 Nov 2026)
+
+Country pages have no exchange points figure. **Options:** a row in the country page's technology section (exchanges
+listed, and the one with most networks), or leave it. The Technology hub intro was redrafted with exchange points on
+11 Nov 2026 and waits for approval (`hub:technology`).
+
 ## Launch review leftovers (raised 5 Nov 2026)
 
 - **G7 and Russia (decided 5 Nov 2026).** Russia joins in 1998, as the G8, per the G7 Research Group
@@ -248,6 +254,11 @@ its tool entry on a hub has no links under it. Topic presets would give it some.
 
 ## Decided
 
+- **Exchange points in the Atlas** (raised 11 Nov 2026). Decided 11 Nov 2026: not now. The exchange marks stay on
+  `/internet/exchanges`; the Atlas overlays are unchanged.
+- **Exchanges with no mark** (raised 11 Nov 2026). Decided 11 Nov 2026: no, unmarked exchanges stay unmarked. 417 of
+  1,327 list no facility with coordinates (11 Nov 2026); they count for their country and the table caption says how
+  many have no mark. They are not placed at their city.
 - **Re-check bloc memberships before launch** (raised 2 Nov 2026). Closed 10 Nov 2026. The membership table
   (`src/data/blocs.csv`, `bloc-history.csv`) is kept by hand, and the weekly Wikidata cross-check planned for phase 5a
   is not built yet. It was last checked in full on **21 October 2026** (`BLOCS_CHECKED` in `src/lib/blocs.ts`), but it
@@ -304,7 +315,8 @@ its tool entry on a hub has no links under it. Topic presets would give it some.
   and landings fits); `/internet` keeps waiting and outages stay live.
 - **Sources waiting on replies.** Decided 5 Nov 2026: no follow-ups; IPC and PortWatch are treated as no answer and
   their views stay hidden, and WEO is imported by hand (import kind `imf-weo`, docs/data-pipeline.md). PeeringDB agreed
-  by email on 11 Nov 2026 that our use is within its AUP (`src/data/licences.ts`); exchange points are not built yet.
+  by email on 11 Nov 2026 that our use is within its AUP (`src/data/licences.ts`); exchange points are at
+  `/internet/exchanges` (docs/maps.md).
 - **Refugees hosted in Russia.** Decided 5 Nov 2026: from 2024 Russia is marked "Not reported since 2023" on the
   refugees-hosted maps and its country page (`src/data/not-reported.ts`).
 - **This week: the page refreshes on deploys.** Decided 5 Nov 2026: the data run starts a production rebuild at most
