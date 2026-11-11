@@ -4,6 +4,8 @@
 // the same keys.
 import { todaysMembers } from './members.en.ts';
 import { CYBER_TEXT } from './cyber.en.ts';
+import { TIV_NOTE } from './arms.en.ts';
+import { AQUEDUCT_BASELINE } from '../adapters/water.ts';
 
 export interface LayerText {
   /** The layer's name in the picker ("Per person"). */
@@ -55,13 +57,15 @@ export interface FamilyText {
 }
 
 const fossil = 'from fossil fuels and cement';
+/** Aqueduct's top category, said in full wherever a count of countries in it is given. */
+const highestStress = 'in WRI Aqueduct’s highest water-stress category (withdrawals above 80% of renewable supply)';
 const hungerCaveat = 'IPC and Cadre Harmonisé analyses cover the countries and areas that ask for them, often part of a country, for a few months; each country’s figure is its latest analysis starting in the year. A country with no analysis is shown as such: that does not mean no one there is hungry.';
 const chipsCaveat = (what: string) => `Imports of ${what} as the importing countries report them to UN Comtrade, at their value in US dollars. Chips cross borders several times as they are made, tested and packaged, so imports count some chips more than once. Taiwan does not report to Comtrade; its sales show in its partners’ imports.`;
 const power5 = ['Under 20%', '20–40%', '40–60%', '60–80%', '80% or more'];
 const powerCaveat = 'Shares of the electricity generated inside each country, before trade in electricity. A small system can reach a high share with one large plant. Changes are in percentage points.';
 const armsPeriod = (y: number) => `${y - 4}–${y}`;
 const ictCaveat = 'ICT services are telecom, computer and information services sold to buyers abroad, from balance-of-payments data. They don’t include goods such as phones or chips.';
-const armsCaveat = 'SIPRI’s trend-indicator value measures the military capability of major weapons delivered, not the price paid, so it is not money. Deliveries are lumpy, so figures are five-year totals. Small arms, ammunition and transfers to or from groups that are not states are left out.';
+const armsCaveat = `Figures are in SIPRI’s trend-indicator value (TIV): ${TIV_NOTE}. It is not money. Deliveries are lumpy, so figures are five-year totals. Small arms, ammunition and transfers to or from groups that are not states are left out.`;
 
 export const VIEW_TEXT: Record<string, FamilyText> = {
   'food-crises': {
@@ -142,15 +146,15 @@ export const VIEW_TEXT: Record<string, FamilyText> = {
         legend: (y) => `CO2 emissions, million tonnes, ${y}`, worldLabel: 'World CO2 emissions',
         lede: ({ top, share, top3, year }) => `${top} emitted ${share} of the world’s CO2 ${fossil} in ${year}${top3 ? `; the top three countries emitted ${top3}` : ''}.`,
         total: (v, y, ch) => `The world emitted ${v} of CO2 ${fossil} in ${y}${ch ? `, ${ch}` : ''}.`,
-        bloc: (b, s, y) => `${todaysMembers(b, { start: true })} emitted ${s} of the world’s CO2 in ${y}.`,
+        bloc: (b, s, y) => `${todaysMembers(b, { start: true })} emitted ${s} of the world’s CO2 ${fossil} in ${y}.`,
         caveat: 'CO2 from fossil fuels and cement inside each country’s borders. Land use, other greenhouse gases, and international flights and shipping (in the world total only) are not given to any country.',
         description: (y) => `CO2 emissions from fossil fuels and cement by country, 1990–${y}: each country’s total and share of the world, on a map. Source: Global Carbon Budget.`,
       },
       co2pc: {
         pick: 'Per person', title: 'CO2 emissions per person', sub: 'by country', measure: 'per person', figureLabel: 'CO2 per person',
         legend: (y) => `Tonnes of CO2 per person, ${y}`, worldLabel: 'World average',
-        lede: ({ topIn, value, world, year }) => `In ${year}, ${topIn} emitted the most CO2 per person: ${value}${world ? `, against ${world} for the world as a whole` : ''}.`,
-        total: (v, y, ch) => `The world as a whole emitted ${v} of CO2 per person in ${y}${ch ? `, ${ch}` : ''}.`,
+        lede: ({ topIn, value, world, year }) => `In ${year}, ${topIn} emitted the most CO2 ${fossil} per person: ${value}${world ? `, against ${world} for the world as a whole` : ''}.`,
+        total: (v, y, ch) => `The world as a whole emitted ${v} of CO2 ${fossil} per person in ${y}${ch ? `, ${ch}` : ''}.`,
         caveat: 'A country’s CO2 from fossil fuels and cement divided by its population: an average, not what any one person emits.',
         description: (y) => `CO2 emissions per person by country, 1990–${y}, on a map and in a table. Source: Global Carbon Budget.`,
       },
@@ -159,7 +163,7 @@ export const VIEW_TEXT: Record<string, FamilyText> = {
         legend: (y) => `CO2 emitted 1750–${y}, million tonnes`, worldLabel: 'World, since 1750',
         lede: ({ topIn, share, top3, year }) => `Between 1750 and ${year}, ${topIn} emitted ${share} of the world’s CO2 ${fossil}${top3 ? `; the top three countries ${top3}` : ''}.`,
         total: (v, y) => `From 1750 to ${y}, the world emitted ${v} of CO2 ${fossil}.`,
-        bloc: (b, s, y) => `${todaysMembers(b, { start: true })} emitted ${s} of the world’s CO2 between 1750 and ${y}.`,
+        bloc: (b, s, y) => `${todaysMembers(b, { start: true })} emitted ${s} of the world’s CO2 ${fossil} between 1750 and ${y}.`,
         caveat: 'Each country’s emissions inside its present borders, added up from 1750. Emissions of former states are given to the countries that now cover them.',
         description: (y) => `CO2 emitted since 1750 by country, up to ${y}: each country’s total and share of the world, on a map and in a table. Source: Global Carbon Budget.`,
       },
@@ -289,16 +293,16 @@ export const VIEW_TEXT: Record<string, FamilyText> = {
     pickerLabel: 'Measure',
     layers: {
       waterstress: {
-        pick: 'Water stress today', title: 'Water stress', sub: 'by country', measure: 'out of 5', figureLabel: 'Water stress score',
+        pick: `Baseline, ${AQUEDUCT_BASELINE}`, title: 'Water stress', sub: 'by country', measure: 'out of 5', figureLabel: 'Water stress score',
         legend: () => 'Water stress: share of available water withdrawn each year (low to extremely high)', ticks: ['Under 10%', '10–20%', '20–40%', '40–80%', 'Over 80%'],
-        lede: ({ up, of }) => `${up} of ${of} countries face extremely high water stress: each year they use more than 80% of the water available to them.`,
-        caveat: 'WRI Aqueduct’s baseline water stress: the share of renewable surface and ground water withdrawn each year, as a score from 0 to 5 (low, under 10%, to extremely high, over 80%). A country’s score averages its river basins, which can differ a great deal. Dots are large dams.',
+        lede: ({ up, of }) => `${up} of ${of} countries are ${highestStress}, on its baseline for ${AQUEDUCT_BASELINE}.`,
+        caveat: `WRI Aqueduct’s baseline water stress for ${AQUEDUCT_BASELINE}: the share of renewable surface and ground water withdrawn each year, as a score from 0 to 5 (low, under 10%, to extremely high, over 80%). A country’s score averages its river basins, which can differ a great deal. Dots are large dams.`,
         description: () => 'Water stress by country, with large dams: how much of the available water each country withdraws, on a map. Sources: WRI Aqueduct, Global Dam Watch.',
       },
       waterstress2050: {
         pick: 'In 2050', title: 'Water stress in 2050', sub: 'projected, by country', measure: 'out of 5', figureLabel: 'Water stress score, 2050',
         legend: () => 'Water stress projected for 2050: share of available water withdrawn each year', ticks: ['Under 10%', '10–20%', '20–40%', '40–80%', 'Over 80%'],
-        lede: ({ up, of }) => `On current trends, ${up} of ${of} countries would face extremely high water stress in 2050.`,
+        lede: ({ up, of }) => `On current trends, ${up} of ${of} countries would be ${highestStress} in 2050.`,
         caveat: 'WRI Aqueduct’s projection for 2050 under its business-as-usual scenario, in which emissions and water demand keep growing on current trends. It is a projection, not a forecast.',
         description: () => 'Water stress by country projected for 2050, on a map and in a table. Source: WRI Aqueduct.',
       },
@@ -379,7 +383,7 @@ export const VIEW_TEXT: Record<string, FamilyText> = {
         pick: 'Exporters', title: 'Arms exports', sub: 'by supplier, five-year totals', period: armsPeriod, measure: 'exported', figureLabel: 'Major arms exported',
         legend: (y) => `Major arms exported, ${armsPeriod(y)}, SIPRI trend-indicator value (millions)`, worldLabel: 'Total, all suppliers',
         lede: ({ top, share, top3, year }) => `${top} supplied ${share} of the major arms delivered between ${year - 4} and ${year}${top3 ? `; the top three exporters supplied ${top3}` : ''}.`,
-        total: (v, y) => `Countries delivered major arms worth ${v} in SIPRI’s trend-indicator value between ${y - 4} and ${y}.`,
+        total: (v, y) => `Countries delivered major arms worth ${v} in SIPRI’s trend-indicator value (TIV) between ${y - 4} and ${y}; TIV is ${TIV_NOTE}.`,
         bloc: (b, s, y) => `${todaysMembers(b, { start: true })} supplied ${s} of them, ${armsPeriod(y)}.`,
         caveat: armsCaveat,
         description: (y) => `Arms exports by country, ${armsPeriod(y)}: five-year totals of major weapons delivered, on a map and in a table, with the largest flows. Source: SIPRI.`,
@@ -388,7 +392,7 @@ export const VIEW_TEXT: Record<string, FamilyText> = {
         pick: 'Importers', title: 'Arms imports', sub: 'by recipient, five-year totals', period: armsPeriod, measure: 'imported', figureLabel: 'Major arms imported',
         legend: (y) => `Major arms imported, ${armsPeriod(y)}, SIPRI trend-indicator value (millions)`, worldLabel: 'Total, all recipients',
         lede: ({ top, share, top3, year }) => `${top} received ${share} of the major arms delivered between ${year - 4} and ${year}${top3 ? `; the top three importers received ${top3}` : ''}.`,
-        total: (v, y) => `Countries received major arms worth ${v} in SIPRI’s trend-indicator value between ${y - 4} and ${y}.`,
+        total: (v, y) => `Countries received major arms worth ${v} in SIPRI’s trend-indicator value (TIV) between ${y - 4} and ${y}; TIV is ${TIV_NOTE}.`,
         bloc: (b, s, y) => `${todaysMembers(b, { start: true })} received ${s} of them, ${armsPeriod(y)}.`,
         caveat: armsCaveat,
         description: (y) => `Arms imports by country, ${armsPeriod(y)}: five-year totals of major weapons received, with each country’s main suppliers, on a map and in a table. Source: SIPRI.`,
@@ -535,8 +539,9 @@ PLACE_NOTES.launches = {
 /** Words every registry map view shares. */
 export const VIEWS_TEXT = {
   summary: 'Summary',
-  all: 'All countries',
-  tableLabel: (title: string) => `${title}, every country`,
+  /** The heading over every indicator table: its rows include territories, and only places with a figure. */
+  table: 'Countries and territories with data',
+  tableLabel: (title: string) => `${title}, every country and territory with data`,
   caption: (y: number, prev: number | null) => `Every country and territory with a figure for ${y}${prev ? `, with ${prev} for comparison` : ''}.`,
   country: 'Country',
   share: 'Share of world',

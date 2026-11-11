@@ -11,7 +11,7 @@ const dam = (id: string, name: string, river: string, capacity = 18180): Dam =>
 describe('river pages', () => {
   it('label the panel’s bars as national water stress, never a function’s text', async () => {
     const { RIVERS_TEXT } = await import('../../src/i18n/water.en.ts');
-    expect(RIVERS_TEXT.stressBars).toBe('National water stress (WRI Aqueduct baseline), 0–5: the basin can differ');
+    expect(RIVERS_TEXT.stressBars).toBe('National water stress (WRI Aqueduct baseline, 1979–2019), 0–5: the basin can differ');
     expect(RIVERS_TEXT.damsTitle).toBe('Dams in Global Dam Watch');
     expect(readFileSync('src/templates/RiverView.astro', 'utf8')).not.toMatch(/\{R\.stress\}/);
   });
@@ -63,7 +63,7 @@ describe('BRICS and Saudi Arabia', () => {
     expect(BLOCS_TEXT.lede('brics', 'BRICS', 11, '45%', '28%', 2025)).toMatch(/^BRICS lists 11 members, including Saudi Arabia, which has not confirmed it; together/);
     expect(BLOCS_TEXT.imageCaption('brics', 'BRICS', 11)).toMatch(/^BRICS lists 11 members, including Saudi Arabia/);
     expect(HISTORY_TEXT.lede({ id: 'brics', bloc: 'BRICS', first: 2009, n0: 4, founders: [], became: [], n: 11, last: 2026, changes: 4 }))
-      .toMatch(/In 2026 BRICS listed 11 members, including Saudi Arabia, which has not confirmed it;/);
+      .toMatch(/In 2026 BRICS listed 11 members, including Saudi Arabia, which has not confirmed it\./);
     expect(HISTORY_EVENTS.brics[2024]).toMatch(/listed by BRICS as a member from 2024/);
     expect(HISTORY_EVENTS.brics[2024]).not.toMatch(/Saudi Arabia(,| and)[^.]* joined/);
   });
@@ -80,7 +80,7 @@ describe('leads carry their figure’s status', () => {
   it('keep Hungary’s two figures apart, each with its year, source and status', async () => {
     const { HOME_TEXT: T } = await import('../../src/i18n/home.en.ts');
     expect(`73% ${T.gas.lead('Hungary', 'Russia', '2025')}`).toBe('73% of Hungary’s gas imports came from Russia in 2025 (UN Comtrade)');
-    expect(T.gas.net('Hungary', '80%', 2024, true)).toBe('Hungary imported 80% of the gas it used in 2024 (EIA, preliminary).');
+    expect(T.gas.net('Hungary', '80%', 2024, true)).toBe('Hungary imported 80% of the gas it used in 2024 (EIA, preliminary). Net imports: imports minus exports, as a share of what the country uses.');
   });
 });
 

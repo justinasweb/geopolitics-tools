@@ -6,6 +6,8 @@
 // Plain verbs only (mines, imports, exports, hosts, has), no adjectives that judge ("dominant", "vulnerable"),
 // and a figure that is missing leaves its sentence out rather than being guessed.
 
+import { TIV_NOTE } from './arms.en.ts';
+
 /** "1st", "2nd", "23rd". */
 export function ordinal(n: number): string {
   const r = new Intl.PluralRules('en', { type: 'ordinal' }).select(n);
@@ -52,10 +54,10 @@ export const RESOURCE_TEXT: Record<string, { label: string; noun: string }> = {
 
 export const DEP_TEXT = {
   heading: 'Dependencies at a glance',
-  tags: { most: 'Imports most', some: 'Imports some', self: 'Roughly self-sufficient', exp: 'Exporter' } as Record<string, string>,
+  tags: { most: 'Imports most', some: 'Imports some', self: 'Low net trade', exp: 'Exporter' } as Record<string, string>,
   keyLabel: 'Dependence key',
   columns: ['Resource', 'Dependence', 'Position', 'Main partners'],
-  caption: 'Dependence is net imports as a share of use; for potash and phosphate, of supply (production plus net imports). Arms and chips show supplier concentration only: the main supplier’s share of imports (arms: five-year totals of deliveries).',
+  caption: 'Dependence is net imports: imports minus exports, as a share of what the country uses; for potash and phosphate, of its supply (production plus net imports). Arms and chips show supplier concentration only: the main supplier’s share of imports (arms: five-year totals of deliveries in SIPRI’s trend-indicator value, ' + TIV_NOTE + ').',
   concentrationOnly: 'Supplier concentration only',
   concentrationTitle: 'Supplier concentration only; share of use not measured',
   /** `old`: the year of a balance marked "No recent data", written in the past tense with it, so it never reads as
@@ -68,7 +70,7 @@ export const DEP_TEXT = {
   exceedsUse: 'Imports exceed recorded use',
   exceedsSupply: 'Exports exceed recorded supply',
   exceeded: (exports: boolean, old: number) => `${exports ? 'Exports exceeded recorded supply' : 'Imports exceeded recorded use'} in ${old}`,
-  exceedsNote: (source: string) => `Likely transit trade or stock changes; ${source}’s figures do not separate them`,
+  exceedsNote: (source: string) => `Goods passing through, or changes in stocks, can cause this; ${source}’s figures do not show which`,
   /** A balance far older than the latest for its resource, and partners from a much later year. */
   noRecent: (year: number) => `No recent data: the latest balance is from ${year}`,
   partnersLater: (year: number, gap: number) => `Main partners are from ${year}, ${gap} years after the balance`,
@@ -255,7 +257,7 @@ export const DOSSIER_TEXT = {
   satellites: 'Satellites in orbit', launches: 'Orbital launches', compute: 'Share of AI computing power', models: 'Notable AI models',
   links: 'Sanctions, Chinese loans and grants, and trade', linksMenu: 'Sanctions, loans and grants',
   climate: 'Climate and hazards', climateMenu: 'Climate',
-  climateFind: (c: string, co2: string, year: number) => `${c} emitted ${co2} of CO2 in ${year}.`,
+  climateFind: (c: string, co2: string, year: number) => `${c} emitted ${co2} of CO2 from fossil fuels and cement in ${year}.`,
   co2: 'CO2 emissions', co2pc: 'CO2 per person', co2cum: 'CO2 since 1750', waterstress: 'Water stress',
   co2Chart: (c: string) => `${possessive(c)} CO2 emissions, million tonnes`,
   projection: 'Projection',
@@ -270,6 +272,11 @@ export const COMPARE_TEXT = {
   sourceYear: (credit: string, years: { name: string; year: number }[]) => (new Set(years.map((y) => y.year)).size === 1
     ? `${credit}, ${years[0].year}`
     : `${years.map((y) => `${y.name}: ${y.year}`).join('; ')} · ${credit}`),
+  /** A line beside a row's source where its unit needs saying (SIPRI's TIV; military spending's dollars). */
+  measureNote: {
+    armsimp: `Trend-indicator value (TIV): ${TIV_NOTE}.`, armsexp: `Trend-indicator value (TIV): ${TIV_NOTE}.`,
+    milusd: 'In US dollars of each year, not adjusted for inflation.',
+  } as Record<string, string>,
   keyHeading: 'Key figures',
   measure: 'Measure',
   higher: 'Higher',
@@ -340,7 +347,7 @@ export const INDICATOR_PAGE = {
   notInSnapshot: 'Not in this data release',
   definition: 'Definition.',
   methodology: 'How we measure',
-  ranked: 'All countries, ranked',
+  ranked: 'Countries and territories with data, ranked',
   yearShown: 'Year shown',
   forAll: (y: number) => `${y} for all`,
   latestAvailable: 'Latest available',
@@ -405,16 +412,19 @@ export const ANSWER: Record<string, { verb: string; caveats?: string[]; sentence
   riceprod: { verb: 'produced the most rice', caveats: ['Paddy rice is converted to milled rice at 67%.'] }, riceimp: { verb: 'imported the most rice' },
   soyprod: { verb: 'produced the most soybeans' }, soyimp: { verb: 'imported the most soybeans' },
   fertpotash: { verb: 'used the most potash fertiliser' }, fertphosphate: { verb: 'used the most phosphate fertiliser' },
-  co2: { verb: 'emitted the most CO2', caveats: ['Fossil fuels and cement only; land use and other greenhouse gases are not included.'] },
-  co2pc: { verb: 'emitted the most CO2 per person' },
-  co2cum: { verb: 'has emitted the most CO2 since 1750' },
+  co2: { verb: 'emitted the most CO2 from fossil fuels and cement', caveats: ['Fossil fuels and cement only; land use and other greenhouse gases are not included.'] },
+  co2pc: { verb: 'emitted the most CO2 from fossil fuels and cement per person' },
+  co2cum: { verb: 'has emitted the most CO2 from fossil fuels and cement since 1750' },
   co2trade: { verb: 'had the largest net CO2 imports through trade, relative to emissions inside its borders', caveats: ['Consumption-based figures end earlier than the others and cover fewer countries.'] },
   waterstress: { verb: 'had the highest water stress', caveats: ['A country score averages basins that can differ a great deal.'] },
   waterdep: { verb: 'got the largest share of its water from abroad' },
   milpct: { verb: 'spent the largest share of its GDP on its military', caveats: ['Figures for countries at war, or with large off-budget spending, are SIPRI estimates and carry the most uncertainty.', 'A rising share can mean more spending or a smaller economy.'] },
-  milusd: { verb: 'spent the most on its military' },
-  armsimp: { verb: 'imported the most major arms', caveats: ['SIPRI’s trend-indicator value measures the military capability delivered, not the price paid.', 'Deliveries are lumpy; compare five-year totals, as SIPRI does.'] },
-  armsexp: { verb: 'exported the most major arms', caveats: ['SIPRI’s trend-indicator value measures the military capability delivered, not the price paid.'] },
+  milusd: {
+    // "Current US dollars" reads as today's dollars: each year's figure is in that year's dollars, not adjusted.
+    sentence: (top, value, _start, year) => `In ${year}, among places with a ${year} figure, ${top} spent the most on its military: ${value}, in ${year} US dollars, not adjusted for inflation.`,
+    verb: 'spent the most on its military', caveats: ['Each year’s figure is in that year’s US dollars, not adjusted for inflation, so years are not directly comparable.'] },
+  armsimp: { verb: 'imported the most major arms', caveats: [`Trend-indicator value (TIV): ${TIV_NOTE}.`, 'Deliveries are lumpy; compare five-year totals, as SIPRI does.'] },
+  armsexp: { verb: 'exported the most major arms', caveats: [`Trend-indicator value (TIV): ${TIV_NOTE}.`] },
   satellites: { verb: 'owned the most satellites in orbit', caveats: ['Counts payloads in orbit by owner, working or not.'] },
   launches: { verb: 'made the most orbital launches', caveats: ['Launches count for the state of the launch site.'] },
   power: { verb: 'generated the most electricity', caveats: ['Generation inside the country, before trade in electricity and losses in the grid.'] },
@@ -595,10 +605,10 @@ export const DEFINITION: Record<string, string> = {
   waterstress: 'How much of the available surface and ground water is withdrawn each year, as a score from 0 (low) to 5 (extremely high).',
   waterdep: 'The share of a country’s renewable water that flows in from other countries.',
   milpct: 'Military expenditure as a share of GDP, using SIPRI’s definition: spending on armed forces, defence ministries, paramilitary forces and military space activities.',
-  milusd: 'Military expenditure in current US dollars, using SIPRI’s definition.',
+  milusd: 'Military expenditure in US dollars of each year (2025 figures in 2025 US dollars), not adjusted for inflation, using SIPRI’s definition.',
   conflictdeaths: 'Deaths in state-based conflict, non-state conflict and one-sided violence against civilians, UCDP best estimate.',
-  armsimp: 'Deliveries of major conventional weapons received, in SIPRI trend-indicator values (millions).',
-  armsexp: 'Deliveries of major conventional weapons supplied, in SIPRI trend-indicator values (millions).',
+  armsimp: `Deliveries of major conventional weapons received, in millions of SIPRI trend-indicator values (TIV): ${TIV_NOTE}.`,
+  armsexp: `Deliveries of major conventional weapons supplied, in millions of SIPRI trend-indicator values (TIV): ${TIV_NOTE}.`,
   hunger: 'People in IPC Phase 3 (crisis) or worse in the latest analysis.',
   hungershare: 'The share of the analysed population in IPC Phase 3 (crisis) or worse.',
   satellites: 'Payloads in orbit at the end of the year, counted by owning country, whether working or not.',

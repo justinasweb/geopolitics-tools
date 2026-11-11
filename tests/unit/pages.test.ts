@@ -130,13 +130,14 @@ describe('common year and rankings', () => {
 });
 
 describe('dependence and sentences', () => {
-  it('labels import reliance at 50% and ±15%', () => {
+  it('labels import reliance at 50% and ±15%, each band from its lower edge', () => {
     expect(tagFor(0.5)).toBe('most');
     expect(tagFor(0.49)).toBe('some');
     expect(tagFor(0.15)).toBe('some');
     expect(tagFor(0.1)).toBe('self');
     expect(tagFor(-0.1)).toBe('self');
-    expect(tagFor(-0.15)).toBe('exp');
+    expect(tagFor(-0.15)).toBe('self');
+    expect(tagFor(-0.151)).toBe('exp');
   });
 
   it('writes place names, ordinals and labels as they read in a sentence', () => {

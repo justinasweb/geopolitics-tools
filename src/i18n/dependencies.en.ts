@@ -1,12 +1,13 @@
 // The Dependencies tool's words (DependenciesPage and DependencyGrid designs). The page template and the browser
 // script (src/scripts/dependencies.ts) both read these, so this file imports nothing that needs Node.
 import { ofUse, onSupply } from './pages.en.ts';
+import { TIV_NOTE } from './arms.en.ts';
 
 export const DEPS_TEXT = {
   title: 'Dependencies',
   crumb: 'Tools',
   lede: 'Import reliance and supplier concentration',
-  definition: 'Import reliance is net imports as a share of what a country uses; for potash and phosphate, of its supply (production plus net imports). Supplier concentration is the main supplier’s share of those imports.',
+  definition: 'Import reliance is net imports: imports minus exports, as a share of what the country uses; for potash and phosphate, of its supply (production plus net imports). Supplier concentration is the main supplier’s share of those imports.',
   how: 'How this is measured',
   description: (n: number) => `${n} countries against ten commodities: net imports against use for oil, gas, grain and soybeans and against supply for fertiliser, and suppliers’ shares of imports for all ten.`,
   loading: 'Loading the figures…',
@@ -39,9 +40,10 @@ export const DEPS_TEXT = {
 
   // Legend and grid
   legendTitle: 'Import reliance: net imports as a share of what the country uses',
-  bands: ['Imports 75% or more', 'Imports 50–75%', 'Imports 15–50%', 'Roughly self-sufficient (±15%)', 'Exports 15–50% of output', 'Exports over 50% of output'],
+  /** Cut-offs that do not overlap: each band includes its lower edge. The exporter bands are on exports' share of output. */
+  bands: ['Imports 75% or more', 'Imports 50% to under 75%', 'Imports 15% to under 50%', 'Low net trade (−15% to under 15%)', 'Exports up to 50% of output', 'Exports over 50% of output'],
   concentration: 'Supplier concentration only',
-  legendNote: 'Under each value: the main supplier and its share of imports (ISO code, e.g. RUS 48%). Arms and chips show supplier concentration only.',
+  legendNote: `Under each value: the main supplier and its share of imports (ISO code, e.g. RUS 48%). Arms and chips show supplier concentration only; arms shares are of five-year totals in SIPRI’s trend-indicator value, ${TIV_NOTE}.`,
   tableLabel: 'Import reliance by country and commodity',
   caption: (years: string, sortedBy: string, asc: boolean) => `Latest year each country reports (${years}). Sorted by ${sortedBy}${asc ? ', lowest first' : ''}.`,
   exports: 'Exports',

@@ -2,7 +2,7 @@
 title: "About"
 lede: "Maps and figures on resources, technology, climate, security and power, from official and research sources, each with its source and date."
 description: "What geopolitics.tools is, where its figures come from, and how to get in touch."
-updated: "2026-11-10"
+updated: "2026-11-11"
 approved: true
 author: "ai"
 model: "manual (Claude chat)"
@@ -14,7 +14,7 @@ approvedVia: "pr"
 
 ## What the site is
 
-geopolitics.tools shows how countries depend on one another: who produces and buys oil, gas, food, minerals and arms, who has AI computing power, where people are displaced, and how sanctions and lending connect countries. Every number on the site shows its source and the date we last refreshed it.
+geopolitics.tools shows how countries depend on one another: who produces and buys oil, gas, food, minerals and arms, who has AI computing power, where people are displaced, and how sanctions and lending connect countries. Every figure shows its source, the period it covers and when we last updated it, beside the figure or on its card or table.
 
 It is free to use, has no accounts, no comments, no ads and no cookies.
 

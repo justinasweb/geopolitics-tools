@@ -106,6 +106,27 @@ longer matches and nothing is left out; the entry can then go.
 **Options.** Keep it left out, or ask UN Comtrade or Colombia's DANE about the partner code. Separately, Russia → Türkiye cannot be shown at all: Türkiye reports no gas imports to UN Comtrade for
 2023–2025 and Russia no exports since 2022, so neither side's report is there to use.
 
+### Wording review of 11 Nov: what was not done as asked (raised 11 Nov 2026)
+
+**Crimea in each source.** Country pages now word Crimea the same on Russia and Ukraine (`src/data/places/notes.csv`).
+Only UCDP is noted as placing Crimea: its event records put events in Crimea and Sevastopol in Ukraine. The World
+Bank's country metadata and the UN WPP files say nothing on it that could be found, and the other sources (FAOSTAT,
+EIA, Global Carbon Budget, UNHCR, SIPRI) were not checked. **Options:** find each source's own statement and add a
+row per source, or leave it as the general "Figures follow each source".
+
+**Helmand: "which the treaty calls a goodwill provision".** Not used: the facts file says only "as goodwill", and the
+treaty's own wording was not checked. The approved summary is unchanged.
+
+**NATO: "11 years with changes, including German reunification in 1990".** The 11 years are the years a country
+joined (founding included); 1990 is not one of them. The lede reads "Membership changed in 11 years, including the
+1949 founding; German reunification in 1990 also brought in the former East Germany."
+
+**Compare and dependence shares.** Compare pages show no dependence share, so nothing was added there.
+
+**Palestine beside its figures.** The note on which unit each source names (World Bank and IMF "West Bank and Gaza",
+AidData "West Bank and Gaza Strip", EIA "Palestinian Territories") is a coverage note: on Palestine's country page and
+in the map tooltip and panel, not beside each figure.
+
 ## Launch review leftovers (raised 5 Nov 2026)
 
 - **G7 and Russia (decided 5 Nov 2026).** Russia joins in 1998, as the G8, per the G7 Research Group

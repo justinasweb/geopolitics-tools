@@ -1,8 +1,8 @@
 {
   "id": "river:tigris-euphrates",
   "author": "ai",
-  "text": "The Tigris and Euphrates dispute involves Türkiye, Iran, Syria and Iraq. Under a 1987 protocol, Türkiye undertook to release an average flow of 500 cubic metres per second (1987) of the Euphrates at its border with Syria. Türkiye began filling the reservoir of the Atatürk Dam on the Euphrates in January 1990. Under a 1990 agreement, Syria and Iraq share the Euphrates water entering Syria from Türkiye, and Iraq's share is 58% (1990). Türkiye began filling the Ilısu Dam reservoir on the Tigris in July 2019, and Türkiye and Iraq signed the Framework Agreement on Cooperation in the Field of Water Policy on 22 April 2024.",
-  "model": "claude-sonnet-5-5",
+  "text": "The Tigris and Euphrates dispute involves Türkiye, Iran, Syria and Iraq. Under a 1987 protocol, Türkiye undertook to release an average flow of 500 cubic metres per second (1987) of the Euphrates at its border with Syria. Türkiye began filling the reservoir of the Atatürk Dam on the Euphrates in January 1990. The 1990 agreement between Syria and Iraq allocates Iraq 58% (1990) of the Euphrates water entering Syria from Türkiye. Türkiye began filling the Ilısu Dam reservoir on the Tigris in July 2019, and Türkiye and Iraq signed the Framework Agreement on Cooperation in the Field of Water Policy on 22 April 2024.",
+  "model": "manual (Claude chat)",
   "factsHash": "sha256:7521aebb954de1a9cb5ab7e7805d5e8a",
   "usedFacts": [
     "ataturk-1990",
@@ -11,8 +11,8 @@
     "protocol-1987",
     "syria-iraq-1990"
   ],
-  "drafted": "2026-11-06",
+  "drafted": "2026-11-11",
   "approved": true,
-  "approvedOn": "2026-11-06",
-  "approvedVia": "telegram"
+  "approvedOn": "2026-11-11",
+  "approvedVia": "cli"
 }

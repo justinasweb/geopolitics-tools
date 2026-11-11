@@ -2,6 +2,7 @@
 // script (src/scripts/supply-chains.ts) both read these, so this file imports nothing that needs Node.
 
 import { DEP_TEXT } from './pages.en.ts';
+import { TIV_NOTE } from './arms.en.ts';
 
 export type ChainKind = 'trade' | 'arms' | 'refugees';
 
@@ -46,7 +47,7 @@ export function chainTitle(key: string, label: string): { title: string; sub: st
 export const COVERAGE: Record<string, (mirror: string[]) => string> = {
   faostat: () => 'FAOSTAT’s detailed trade matrix, as importers report it, cut to each importer’s main suppliers, so the totals are of the flows shown, not of all trade.',
   comtrade: (mirror) => `UN Comtrade, ${DEP_TEXT.asImporters('it', mirror)}: the main flows only, so the totals are of the flows shown, not of all trade. Potash and phosphate are in tonnes of product, not of nutrient.`,
-  sipri: () => 'SIPRI five-year totals of major arms delivered, in trend-indicator values (TIV): a measure of military capability, not of price.',
+  sipri: () => `SIPRI five-year totals of major arms delivered, in trend-indicator values (TIV): ${TIV_NOTE}.`,
   unhcr: () => 'Refugees, asylum seekers and others in need of international protection, by country of origin and country of asylum, as UNHCR counts them. Smaller pairs are not listed.',
 };
 

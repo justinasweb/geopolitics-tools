@@ -5,6 +5,7 @@
 // ai:status` says when the committed files no longer match what the code says.
 import { LICENCES, withheld } from '../../data/licences.ts';
 import { RIVERS } from '../../data/rivers.ts';
+import { MINERALS } from '../../adapters/minerals.ts';
 import { HISTORY_BLOCS } from '../history.ts';
 import { BLOC_ORDER } from '../blocs.ts';
 import { THRESHOLDS } from '../dependence.ts';
@@ -67,7 +68,7 @@ function methodologyFacts(on: string): Fact[] {
   const ai = code('src/lib/ai/config.ts', on);
   return [
     { id: 'imports-most', statement: 'Import reliance of 50% or more is labelled "Imports most".', value: THRESHOLDS.most * 100, unit: '%', ...dep },
-    { id: 'imports-some', statement: 'Import reliance from 15% up to the "Imports most" line is labelled "Imports some"; within 15% either way, "Roughly self-sufficient"; below minus that, "Exporter".', value: THRESHOLDS.self * 100, unit: '%', ...dep },
+    { id: 'imports-some', statement: 'Import reliance from 15% to under the "Imports most" line is labelled "Imports some"; from −15% to under 15%, "Low net trade"; below −15%, "Exporter".', value: THRESHOLDS.self * 100, unit: '%', ...dep },
     { id: 'tool-band', statement: 'The Dependencies tool also marks imports of 75% or more.', value: 75, unit: '%', ...code('src/lib/dependencies/model.ts', on) },
     { id: 'spof', statement: 'Reliance on one supplier: imports at least 50% of use, with at least 50% of those imports from one supplier.', value: 50, unit: '%', ...code('src/lib/dependencies/model.ts', on) },
     { id: 'hhi-moderate', statement: 'Supplier concentration (Herfindahl–Hirschman index) from 1,000 counts as moderately concentrated, as in the 2023 US merger guidelines.', value: HHI.moderate, unit: '', period: '2023', ...sc },
@@ -81,7 +82,7 @@ function methodologyFacts(on: string): Fact[] {
     { id: 'sipri-reuse', statement: 'SIPRI’s terms allow fair use of less than 10% of a published data set; commercial use, including on sites with ads, needs a licence. The site publishes derived totals only.', value: 10, unit: '%', unitAliases: ['data set', 'dataset'], source: 'SIPRI, Terms and conditions for databases', link: 'https://www.sipri.org/databases/terms', date: '2026-11-05' },
     { id: 'ai-model', statement: `Texts drafted with AI are written by ${AI_MODEL} from a facts file, checked figure by figure, and approved by the editor before they appear.`, ...ai },
     { id: 'ai-prompt', statement: 'The drafting prompt asks for plain, neutral text from a text’s own facts only: no forecasts, blame or judging adjectives; every figure with its unit and period and with thousands separators; the site’s own country names; "rejoined" for a second join; and nothing about its facts file, tables or itself, or about what its facts leave out.', ...code('src/data/ai/prompt.md', on) },
-    { id: 'ai-texts', statement: 'The texts drafted with AI are the dossier summaries, the alliance history notes, the disputed river summaries and the summary of each closed week on This week.', ...code('docs/ai-drafting.md', on) },
+    { id: 'ai-texts', statement: 'The texts drafted with AI are the dossier summaries, the membership history notes, the disputed river summaries and the summary of each closed week on This week.', ...code('docs/ai-drafting.md', on) },
     { id: 'ai-attempts', statement: 'A draft that fails the check is redrafted once with the checker’s findings, then dropped.', value: AI_ATTEMPTS, unit: 'drafts', ...ai },
     // Only notes checked against their source are facts, as with licences above; the others are still drafts.
     ...NOTES.filter((n) => n.checked).map((n) => ({
@@ -100,7 +101,7 @@ export function territoryStatement(n: { place: string; area: string; note: strin
 
 const HUB_FACTS: Record<string, (on: string) => Fact[]> = {
   resources: (on) => [
-    { id: 'minerals', statement: 'Mine production of critical minerals by country, from the USGS Mineral Commodity Summaries.', ...code('src/data/views.ts', on) },
+    { id: 'minerals', statement: 'Mine production by country of minerals on the EU and US critical minerals lists, from the USGS Mineral Commodity Summaries.', value: MINERALS.length, unit: 'minerals', ...code('src/data/views.ts', on) },
     { id: 'energy', statement: 'Oil and natural gas production, use, net trade and trade flows, from EIA and UN Comtrade.', ...code('src/data/views.ts', on) },
     { id: 'electricity', statement: 'Electricity generation by source as a share of each country’s own generation, from Ember.', ...code('src/data/views.ts', on) },
     { id: 'food', statement: 'Production, use, net trade and flows of food and fertiliser, from FAOSTAT and UN Comtrade.', ...code('src/data/views.ts', on) },
@@ -144,7 +145,7 @@ const PAGE_FACTS: Record<string, { subject: string; facts: (on: string) => Fact[
   methodology: { subject: 'Methodology', facts: (on) => [...methodologyFacts(on), ...sourcesFacts(on).filter((f) => /sipri|unhcr|faostat|comtrade|usgs/.test(f.id))] },
 };
 /** Terms a hub intro may use whose words the checker would otherwise read as judging ("critical"). */
-const HUB_NAMES: Record<string, string[]> = { resources: ['critical minerals'] };
+const HUB_NAMES: Record<string, string[]> = { resources: ['critical minerals', 'EU', 'US'] };
 const HUB_SUBJECT: Record<string, string> = { resources: 'Resources', technology: 'Technology', climate: 'Climate', security: 'Security', power: 'Power' };
 
 export const PAGE_IDS = Object.keys(PAGE_FACTS);

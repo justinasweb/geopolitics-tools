@@ -10,7 +10,7 @@ const EDIT_HEAD = '✏️ Corrected text wanted';
 
 export const TELEGRAM_TEXT = {
   /** What each kind of text is, in the review message's title. */
-  kind: { dossier: 'Dossier summary', history: 'Alliance history note', river: 'River summary', week: 'This week’s summary' } as Record<string, string>,
+  kind: { dossier: 'Dossier summary', history: 'Membership history note', river: 'River summary', week: 'This week’s summary' } as Record<string, string>,
   reviewTitle: (kind: string, subject: string) => `For review: ${kind}, ${subject}`,
   reviewMeta: (o: { id: string; drafted?: string; model?: string; edited?: string; hash: string }) =>
     [o.id, o.edited ? `your correction of ${o.edited}` : o.drafted ? `drafted ${o.drafted}${o.model ? ` with ${o.model}` : ''}` : '', 'passed the number and fact check', `draft ${o.hash}`].filter(Boolean).join(' · '),

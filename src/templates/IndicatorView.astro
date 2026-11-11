@@ -191,7 +191,7 @@ const bars = (rs: Row[], max: number) => rs.map((r) => ({ id: r.id, text: valueT
       <h2 class="gt-h2" id="mv-sum">{W.summary}</h2>
       <div class="gt-prose">{summary(p).map((s) => <p>{s}</p>)}</div>
       <SourceLine source={source} parts={[when]} updated={updated} />
-      <h2 class="gt-h2" id="table">{W.all}</h2>
+      <h2 class="gt-h2" id="table">{W.table}</h2>
       <div class="gt-tablewrap" style="--gt-table-h:560px" tabindex="0" role="region" aria-label={W.tableLabel(T.title)}>
         <table class="gt-table" data-gt-sort>
           <caption class="gt-caption">{W.caption(p.year, prev?.year ?? null)}</caption>

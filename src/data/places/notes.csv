@@ -4,9 +4,12 @@ worldbank,CHN,,"Unless noted otherwise, this source's figures for China exclude 
 *,MAR,Western Sahara,Status disputed; mostly administered by Morocco; claimed by the Polisario Front,yes
 *,XKX,,"Declared independence in 2008; recognised by some states, not by Serbia",yes
 *,FLK,,Administered by the United Kingdom; claimed by Argentina,yes
-*,RUS,Crimea,Under Russian control since 2014; within Ukraine's internationally recognised borders. Figures follow each source.,yes
-*,UKR,,Partly under Russian control since 2022. Figures follow each source.,yes
+*,RUS,Crimea,"under Russian control since 2014, within Ukraine's internationally recognised borders; other areas of Ukraine under Russian control since 2022. Figures follow each source.",yes
+*,UKR,,"Crimea: under Russian control since 2014, within Ukraine's internationally recognised borders; other areas of Ukraine under Russian control since 2022. Figures follow each source.",yes
+ucdp,UKR,,"UCDP's event records place events in Crimea and Sevastopol in Ukraine",yes
+ucdp,RUS,,"UCDP's event records place events in Crimea and Sevastopol in Ukraine, not Russia",yes
 *,CYP,Northern Cyprus,Administered separately from Cyprus; not recognised as a state by most countries,yes
 *,SOM,Somaliland,Administered separately from Somalia; not recognised as a state by most countries,yes
 *,GEO,Abkhazia and South Ossetia,Administered separately from Georgia; not recognised as states by most countries,yes
 *,MDA,Transnistria,Administered separately from Moldova; not recognised as a state by most countries,yes
+*,PSE,,"World Bank figures are for 'West Bank and Gaza', as are the IMF's; AidData's are for 'West Bank and Gaza Strip' and EIA's for 'Palestinian Territories'",yes

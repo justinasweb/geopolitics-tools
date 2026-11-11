@@ -18,7 +18,7 @@ export type Resource = (typeof RESOURCES)[number];
 export type DepTag = 'most' | 'some' | 'self' | 'exp';
 
 /** Thresholds on import reliance, written out in Methodology. `excess`: net imports above use by more than this share
- *  give no figure (transit trade or stock changes the source does not separate). Exports above production plus
+ *  give no figure (goods passing through or changes in stocks, which the data do not tell apart). Exports above production plus
  *  imports give none at any margin: the balance would put use, or supply, at zero. */
 export const THRESHOLDS = { most: 0.5, self: 0.15, excess: 0.1 };
 /** A balance more than this many years before the latest any place has for its resource is old: shown with its year
@@ -28,7 +28,7 @@ export const OLD_YEARS = 10;
 export function tagFor(reliance: number): DepTag {
   if (reliance >= THRESHOLDS.most) return 'most';
   if (reliance >= THRESHOLDS.self) return 'some';
-  if (reliance > -THRESHOLDS.self) return 'self';
+  if (reliance >= -THRESHOLDS.self) return 'self';
   return 'exp';
 }
 

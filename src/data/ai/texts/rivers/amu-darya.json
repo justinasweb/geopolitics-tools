@@ -1,8 +1,8 @@
 {
   "id": "river:amu-darya",
   "author": "ai",
-  "text": "The Amu Darya involves Afghanistan, Tajikistan, Uzbekistan and Turkmenistan. On 18 February 1992, Kazakhstan, Kyrgyzstan, Tajikistan, Turkmenistan and Uzbekistan agreed in Almaty to keep the water allocations already in force and set up the Interstate Commission for Water Coordination. Afghanistan is not a party to that agreement. In November 2018, Tajikistan started the first unit of the Rogun hydropower plant on the Vakhsh. In March 2022, Afghanistan's authorities began building the Qosh Tepa canal from the Amu Darya, with a planned length of 285 kilometres (2022).",
-  "model": "claude-sonnet-5-5",
+  "text": "The Amu Darya involves Afghanistan, Tajikistan, Uzbekistan and Turkmenistan. On 18 February 1992, Kazakhstan, Kyrgyzstan, Tajikistan, Turkmenistan and Uzbekistan agreed in Almaty to keep the water allocations already in force and set up the Interstate Commission for Water Coordination. Afghanistan is not a party to that agreement. In November 2018, Tajikistan started the first generating unit of the Rogun hydropower plant on the Vakhsh, a tributary of the Amu Darya. In March 2022, Afghanistan's authorities began building the Qosh Tepa canal from the Amu Darya, with a planned length of 285 kilometres (2022).",
+  "model": "manual (Claude chat)",
   "factsHash": "sha256:c36d785e289f6d7ff81a073477fe0b37",
   "usedFacts": [
     "almaty-1992",
@@ -10,8 +10,8 @@
     "qosh-tepa-length",
     "rogun-2018"
   ],
-  "drafted": "2026-11-06",
+  "drafted": "2026-11-11",
   "approved": true,
-  "approvedOn": "2026-11-06",
-  "approvedVia": "telegram"
+  "approvedOn": "2026-11-11",
+  "approvedVia": "cli"
 }

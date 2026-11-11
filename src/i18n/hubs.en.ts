@@ -9,8 +9,8 @@ export const inLine = (s: string) => (/^(Chinese|European|American|British|Russi
 export const HUB_TEXT = {
   kicker: 'Topic',
   /** A card's name where the menu's short one would claim more than the figures measure (UNHCR's count includes
-   *  asylum seekers and others in need of protection). */
-  cardKicker: { refugees: 'Refugees and others in need of protection' } as Record<string, string>,
+   *  asylum seekers and others in need of protection; "critical" names whose lists the minerals are on). */
+  cardKicker: { refugees: 'Refugees and others in need of protection', minerals: 'Critical minerals (EU and US lists)' } as Record<string, string>,
   /** The page title (SEO plan: "{Hub}: maps and data"). */
   title: (hub: string) => `${hub}: maps and data`,
   description: (hub: string, views: string[]) => `${hub}: ${views.join(', ')}. Maps and figures by country, each with its source and date.`,

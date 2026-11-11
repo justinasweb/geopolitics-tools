@@ -75,8 +75,8 @@ A sample build has 129 country pages and 37 indicator pages; the real snapshot h
 - **Common year.** Indicator pages compare everyone on the latest year that at least 80% as many places have reported
   as in the best of the five years before (`defaultYear` in `src/lib/stats.ts`). Later years are preliminary and
   listed as such. "Latest available" reaches back two years and marks the older rows.
-- **Dependence.** Net imports ÷ use: 50% or more "Imports most", 15–50% "Imports some", within ±15% "Roughly
-  self-sufficient", below −15% "Exporter" (`src/lib/dependence.ts`). Arms and chips show the main supplier's share
+- **Dependence.** Net imports ÷ use: 50% or more "Imports most", 15% to under 50% "Imports some", −15% to under
+  15% "Low net trade", below −15% "Exporter" (`src/lib/dependence.ts`). Arms and chips show the main supplier's share
   only. A row whose source is not in the snapshot says "No data yet". Potash and phosphate are a share of supply
   (production plus net imports), not of FAOSTAT's agricultural use, which leaves out industry and transit; their rows
   carry the Estimate label when FAOSTAT flags a figure as its estimate or imputation (E, I), as crop rows do. Net imports

@@ -35,7 +35,8 @@ export const HOME_TEXT = {
     /** Each figure with its own year, source and status: never one tag for the card. */
     lead: (country: string, supplier: string, year: string) => `of ${country}’s gas imports came from ${supplier} in ${year} (UN Comtrade)`,
     others: 'Other suppliers',
-    net: (country: string, share: string, year: number, preliminary: boolean) => `${country} imported ${share} of the gas it used in ${year} (EIA${preliminary ? ', preliminary' : ''}).`,
+    /** The dependence share with its definition beside it, as on the country page's table. */
+    net: (country: string, share: string, year: number, preliminary: boolean) => `${country} imported ${share} of the gas it used in ${year} (EIA${preliminary ? ', preliminary' : ''}). Net imports: imports minus exports, as a share of what the country uses.`,
     label: (country: string, supplier: string, share: string, year: string, net: string, useYear: number, preliminary: boolean) =>
       `${supplier} supplied ${share} of ${country}’s gas imports in ${year} (UN Comtrade); ${country} imported ${net} of the gas it used in ${useYear} (EIA${preliminary ? ', preliminary' : ''})`,
     source: 'UN Comtrade; EIA',

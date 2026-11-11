@@ -17,7 +17,7 @@ import '../styles/atlas/keyfigure.css';
 import '../styles/atlas/table.css';
 import '../styles/atlas/tools.css';
 import { MAP_TEXT, BLOC_TEXT } from '../i18n/map.en';
-import { BLOCS_TEXT, HISTORY_EVENTS, HISTORY_TEXT as H } from '../i18n/blocs.en';
+import { BLOCS_TEXT, HISTORY_EVENTS, HISTORY_TEXT as H, THEN_NAMES } from '../i18n/blocs.en';
 import { UNCONFIRMED } from '../i18n/members.en';
 import { list } from '../i18n/pages.en';
 import { BLOCS_CHECKED } from '../lib/blocs';
@@ -50,7 +50,9 @@ const timelineYears = [...new Set([...p.changes, ...Object.keys(events).map(Numb
 const names = (ids: string[]) => list(ids.map(nameOf));
 // A member the grouping lists that has not confirmed it is not said to have joined (Saudi Arabia, BRICS).
 const listed = (x: string) => (UNCONFIRMED[id] ?? []).find((m) => m.id === x);
-const joinedNames = (ids: string[]) => list(ids.map((x) => (listed(x) ? `${nameOf(x)} (${H.listedFrom(name, listed(x)!.from)})` : nameOf(x))));
+// A country joining under its name of the time: West Germany in 1955 and 1958, not Germany.
+const nameIn = (x: string, y: number) => (THEN_NAMES[x] && y < THEN_NAMES[x].before ? THEN_NAMES[x].name : nameOf(x));
+const joinedNames = (ids: string[], y: number) => list(ids.map((x) => (listed(x) ? `${nameIn(x, y)} (${H.listedFrom(name, listed(x)!.from)})` : nameIn(x, y))));
 const source = `${H.source}, ${formatDate(BLOCS_CHECKED)}`;
 const related = [
   ...(live(`view:blocs:${id}`) ? [{ href: live(`view:blocs:${id}`)!.path, name, note: H.today }] : []),
@@ -93,7 +95,7 @@ const others = picker.filter((o) => !o.current).map((o) => ({ href: o.href, name
                 <div class="gt-pblock__head"><span class="gt-label">{H.changesIn(yr)}</span></div>
                 {Y.joined.length === 0 && Y.left.length === 0 && !events[yr] && <p class="gt-caption">{H.noChange}</p>}
                 <ul class="gt-prows">
-                  {Y.joined.length > 0 && <li><span class="gt-prow__n">{H.joined}</span><span class="gt-prow__v">{joinedNames(Y.joined)}</span></li>}
+                  {Y.joined.length > 0 && <li><span class="gt-prow__n">{H.joined}</span><span class="gt-prow__v">{joinedNames(Y.joined, yr)}</span></li>}
                   {Y.left.length > 0 && <li><span class="gt-prow__n">{H.left}</span><span class="gt-prow__v">{names(Y.left)}</span></li>}
                 </ul>
                 {events[yr] && <p class="gt-caption gt-pblock__cap">{events[yr]}</p>}
@@ -127,7 +129,7 @@ const others = picker.filter((o) => !o.current).map((o) => ({ href: o.href, name
             {timelineYears.map((y) => (
               <tr>
                 <th scope="row" class="n" data-v={y}>{y}</th>
-                <td>{p.byYear[y].joined.length ? joinedNames(p.byYear[y].joined) : '–'}</td>
+                <td>{p.byYear[y].joined.length ? joinedNames(p.byYear[y].joined, y) : '–'}</td>
                 <td>{p.byYear[y].left.length ? names(p.byYear[y].left) : '–'}</td>
                 <td class="n" data-v={p.byYear[y].members.length}>{p.byYear[y].members.length}</td>
                 <td>{events[y] ?? ''}</td>

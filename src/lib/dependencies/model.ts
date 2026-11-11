@@ -94,7 +94,7 @@ export function bandOf(r: ResourceId, cell: Cell): Band {
   if (v >= 0.75) return 1;
   if (v >= 0.5) return 2;
   if (v >= 0.15) return 3;
-  if (v > -0.15) return 4;
+  if (v >= -0.15) return 4;
   return (cell.x ?? 0) > 0.5 ? 6 : 5;
 }
 

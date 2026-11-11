@@ -4,44 +4,48 @@
   "subject": "Resources",
   "countries": [],
   "names": [
-    "critical minerals"
+    "critical minerals",
+    "EU",
+    "US"
   ],
   "generated": "src/lib/ai/page-facts.ts",
   "facts": [
     {
       "id": "minerals",
-      "statement": "Mine production of critical minerals by country, from the USGS Mineral Commodity Summaries.",
+      "statement": "Mine production by country of minerals on the EU and US critical minerals lists, from the USGS Mineral Commodity Summaries.",
+      "value": 8,
+      "unit": "minerals",
       "source": "geopolitics.tools code (src/data/views.ts)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/views.ts",
-      "date": "2026-11-05"
+      "date": "2026-11-11"
     },
     {
       "id": "energy",
       "statement": "Oil and natural gas production, use, net trade and trade flows, from EIA and UN Comtrade.",
       "source": "geopolitics.tools code (src/data/views.ts)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/views.ts",
-      "date": "2026-11-05"
+      "date": "2026-11-11"
     },
     {
       "id": "electricity",
       "statement": "Electricity generation by source as a share of each country’s own generation, from Ember.",
       "source": "geopolitics.tools code (src/data/views.ts)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/views.ts",
-      "date": "2026-11-05"
+      "date": "2026-11-11"
     },
     {
       "id": "food",
       "statement": "Production, use, net trade and flows of food and fertiliser, from FAOSTAT and UN Comtrade.",
       "source": "geopolitics.tools code (src/data/views.ts)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/views.ts",
-      "date": "2026-11-05"
+      "date": "2026-11-11"
     },
     {
       "id": "rule",
       "statement": "Each map shows one source’s own figures for each country, with the year it covers.",
       "source": "geopolitics.tools code (docs/page-engine.md)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/docs/page-engine.md",
-      "date": "2026-11-05"
+      "date": "2026-11-11"
     }
   ]
 }

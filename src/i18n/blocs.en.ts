@@ -119,7 +119,7 @@ export const BLOCS_TEXT = {
   itsBlocs: 'Its groupings',
   weightLabel: 'Its share of the grouping',
   weightCaption: 'Of the members’ combined total',
-  /** The link to the grouping's alliance history: named for what it shows, for readers and search engines. */
+  /** The link to the grouping's membership history: named for what it shows, for readers and search engines. */
   historyLink: (bloc: string) => `${bloc} membership year by year`,
   historyNote: 'Who joined and left, and when',
   // The tables.
@@ -179,9 +179,9 @@ export const MEASURE_IN: Record<string, string> = {
 export const HISTORY_EVENTS: Record<string, Record<number, string>> = {
   nato: {
     1955: 'West Germany joined. Countries are drawn on today’s borders, so it appears as Germany.',
-    1966: 'France left NATO’s integrated military command; it stayed a member of the alliance.',
+    1966: 'France left NATO’s integrated military command, the joint command of the members’ forces; it stayed a member of the alliance.',
     1990: 'Germany reunified, and the former East Germany became part of NATO with it.',
-    2009: 'France returned to the integrated military command.',
+    2009: 'France returned to NATO’s integrated military command.',
   },
   eu: {
     1958: 'The European Economic Community began. The European Union was founded on it in 1993.',
@@ -231,8 +231,14 @@ export const HISTORY_EVENTS: Record<string, Record<number, string>> = {
   oecd: { 1961: 'The OECD replaced the Organisation for European Economic Co-operation.' },
 };
 
+/** A change in a grouping's history that is not a year a member joined or left, named after the count of those years. */
+const CHANGES_TOO: Record<string, string> = { nato: 'German reunification in 1990 also brought in the former East Germany' };
+
+/** A founding member's name as it was before a year (the maps draw today's borders): West Germany until reunification. */
+export const THEN_NAMES: Record<string, { before: number; name: string }> = { DEU: { before: 1990, name: 'West Germany' } };
+
 export const HISTORY_TEXT = {
-  section: 'Alliance history',
+  section: 'Membership history',
   pickerLabel: 'Grouping',
   title: (bloc: string) => `${bloc}: membership history`,
   sub: (from: number, to: number) => `${from}–${to}`,
@@ -244,7 +250,8 @@ export const HISTORY_TEXT = {
       ? `${o.bloc} began in ${o.first} as ${b.as} (${o.founders.join(', ')}) and became ${b.became} in ${b.year}${o.became.length ? `, when ${list(o.became)} joined` : ''}.`
       : `${o.bloc} began in ${o.first} with ${membersText(o.id, o.n0, o.first)}.`;
     const now = unconfirmedText(o.id, o.last) ? countSentence(o.id, o.bloc, o.n, { year: o.last, past: true }) : `it had ${membersText(o.id, o.n, o.last)}`;
-    return `${start} In ${o.last} ${now}; membership changed in ${o.changes} year${o.changes === 1 ? '' : 's'}.`;
+    // The founding year counts as a year with changes; a change that moved no country in or out is named after it.
+    return `${start} In ${o.last} ${now}. Membership changed in ${o.changes} year${o.changes === 1 ? '' : 's'}, including the ${o.first} founding${CHANGES_TOO[o.id] ? `; ${CHANGES_TOO[o.id]}` : ''}.`;
   },
   description: (bloc: string, from: number) => `${bloc} membership year by year since ${from}: who joined, who left, on a map with a timeline.`,
   status: { joined: 'Joined that year', member: 'Member', left: 'Left that year', former: 'Former member' } as Record<string, string>,
@@ -280,5 +287,5 @@ export const HISTORY_TEXT = {
   blocLine: (other: string, k: number, n: number, bloc: string, y: number) => (k ? `${k} of ${todaysMembers(other, { count: n })} were in ${bloc} in ${y}.` : `None of ${todaysMembers(other)} were in ${bloc} in ${y}.`),
   today: 'Members today',
   history: 'Membership history',
-  others: 'Other alliance histories',
+  others: 'Other membership histories',
 };

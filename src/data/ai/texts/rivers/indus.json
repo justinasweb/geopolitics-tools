@@ -1,8 +1,8 @@
 {
   "id": "river:indus",
   "author": "ai",
-  "text": "The dispute over the Indus involves India and Pakistan. India and Pakistan signed the Indus Waters Treaty on 19 September 1960, with the World Bank as a signatory. Under the treaty, the eastern rivers (Ravi, Beas and Sutlej) are for India's use and the western rivers (Indus, Jhelum and Chenab) for Pakistan's, with some uses allowed to India. India said on 23 April 2025 that it would hold the treaty in abeyance. Pakistan's National Security Committee said on 24 April 2025 that it rejected India's step and that one side could not suspend the treaty.",
-  "model": "claude-sonnet-5-5",
+  "text": "The Indus Waters Treaty dispute is between India and Pakistan. India and Pakistan signed the Indus Waters Treaty on 19 September 1960, with the World Bank as a signatory. Under the treaty, the eastern rivers (Ravi, Beas and Sutlej) are for India's use and the western rivers (Indus, Jhelum and Chenab) for Pakistan's, with some uses allowed to India. India said on 23 April 2025 that it would hold the treaty in abeyance, that is, suspend it for the time being. Pakistan's National Security Committee said on 24 April 2025 that it rejected India's step and that one side could not suspend the treaty.",
+  "model": "manual (Claude chat)",
   "factsHash": "sha256:cf1784a3f3c596b0fa4d14f24038a2ab",
   "usedFacts": [
     "abeyance-2025",
@@ -10,8 +10,8 @@
     "treaty-1960",
     "treaty-rivers"
   ],
-  "drafted": "2026-11-06",
+  "drafted": "2026-11-11",
   "approved": true,
-  "approvedOn": "2026-11-06",
-  "approvedVia": "telegram"
+  "approvedOn": "2026-11-11",
+  "approvedVia": "cli"
 }

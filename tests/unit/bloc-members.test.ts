@@ -69,16 +69,17 @@ describe('the pages', () => {
   });
 
   it('give the G20 history its other members, by year', () => {
-    expect(L.historyLede('g20')).toBe(`G20 began in 1999 with 19 countries, plus the European Union. In 2026 it had ${G20}; membership changed in 2 years.`);
+    expect(L.historyLede('g20')).toBe(`G20 began in 1999 with 19 countries, plus the European Union. In 2026 it had ${G20}. Membership changed in 2 years, including the 1999 founding.`);
     expect(card(route('view:alliance-history:g20')!).caption).toBe(`1999–2026. In 2026: ${G20}`);
   });
 
   it('name the predecessor a grouping began as', () => {
-    expect(L.historyLede('sco')).toBe('SCO began in 1996 as the Shanghai Five (China, Kazakhstan, Kyrgyzstan, Russia, Tajikistan) and became the Shanghai Cooperation Organisation in 2001, when Uzbekistan joined. In 2026 it had 10 members; membership changed in 5 years.');
-    expect(L.historyLede('eu')).toMatch(/^European Union began in 1958 as the European Economic Community \(Belgium, France, West Germany, Italy, Luxembourg, the Netherlands\) and became the European Union in 1993\. In 2026 it had 27 members;/);
-    expect(L.historyLede('csto')).toMatch(/^CSTO began in 1992 as the Collective Security Treaty \(Armenia, Kazakhstan, Kyrgyzstan, Russia, Tajikistan, Uzbekistan\) and became the Collective Security Treaty Organization in 2002\. In 2026 it had 6 members;/);
+    expect(L.historyLede('sco')).toBe('SCO began in 1996 as the Shanghai Five (China, Kazakhstan, Kyrgyzstan, Russia, Tajikistan) and became the Shanghai Cooperation Organisation in 2001, when Uzbekistan joined. In 2026 it had 10 members. Membership changed in 5 years, including the 1996 founding.');
+    expect(L.historyLede('eu')).toMatch(/^European Union began in 1958 as the European Economic Community \(Belgium, France, West Germany, Italy, Luxembourg, the Netherlands\) and became the European Union in 1993\. In 2026 it had 27 members\./);
+    expect(L.historyLede('csto')).toMatch(/^CSTO began in 1992 as the Collective Security Treaty \(Armenia, Kazakhstan, Kyrgyzstan, Russia, Tajikistan, Uzbekistan\) and became the Collective Security Treaty Organization in 2002\. In 2026 it had 6 members\./);
+    expect(L.historyLede('nato')).toBe('NATO began in 1949 with 12 members. In 2026 it had 32 members. Membership changed in 11 years, including the 1949 founding; German reunification in 1990 also brought in the former East Germany.');
     expect(L.historyLede('brics')).toMatch(/^BRICS began in 2009 as BRIC \(Brazil, China, India, Russia\) and became BRICS in 2011, when South Africa joined\./);
-    expect(L.historyLede('g7')).toMatch(/^G7 began in 1975 as a summit of six countries \(France, West Germany, Italy, Japan, the United Kingdom, the United States\) and became the G7 in 1976, when Canada joined\. In 2026 it had 7 countries, with the European Union taking part as a non-enumerated member since 1977;/);
-    expect(L.historyLede('nato')).toMatch(/^NATO began in 1949 with 12 members\. In 2026 it had 32 members;/);
+    expect(L.historyLede('g7')).toMatch(/^G7 began in 1975 as a summit of six countries \(France, West Germany, Italy, Japan, the United Kingdom, the United States\) and became the G7 in 1976, when Canada joined\. In 2026 it had 7 countries, with the European Union taking part as a non-enumerated member since 1977\./);
+    expect(L.historyLede('nato')).toMatch(/^NATO began in 1949 with 12 members\. In 2026 it had 32 members\./);
   });
 });

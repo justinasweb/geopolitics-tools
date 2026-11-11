@@ -1,8 +1,8 @@
 {
   "id": "river:brahmaputra",
   "author": "ai",
-  "text": "The Brahmaputra is a river at the centre of a dispute involving China, India and Bangladesh. China and India signed a memorandum of understanding in 2002 under which China provides hydrological data on the Brahmaputra in the flood season. The Zangmu hydropower station on the Yarlung Tsangpo began full operation in October 2015. China approved a hydropower project on the lower reaches of the Yarlung Tsangpo in December 2024. India said in January 2025 that it had conveyed its concerns about the project to China. Construction of the project began on 19 July 2025.",
-  "model": "claude-sonnet-5-5",
+  "text": "The Brahmaputra is a river at the centre of a dispute involving China, India and Bangladesh. China and India signed a memorandum of understanding in 2002 under which China provides river measurements on the Brahmaputra in the flood season. The Zangmu hydropower station on the Yarlung Tsangpo, the upper Brahmaputra, began full operation in October 2015. China approved a hydropower project on the lower reaches of the Yarlung Tsangpo in December 2024. India said in January 2025 that it had conveyed its concerns about the project to China. Construction of the project began on 19 July 2025.",
+  "model": "manual (Claude chat)",
   "factsHash": "sha256:359912a500f08bcad9a36d92a5664a31",
   "usedFacts": [
     "approval-2024",
@@ -11,8 +11,8 @@
     "mou-2002",
     "zangmu-2015"
   ],
-  "drafted": "2026-11-06",
+  "drafted": "2026-11-11",
   "approved": true,
-  "approvedOn": "2026-11-06",
-  "approvedVia": "telegram"
+  "approvedOn": "2026-11-11",
+  "approvedVia": "cli"
 }

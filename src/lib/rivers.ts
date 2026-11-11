@@ -48,5 +48,5 @@ export function riverLede(id: string): string | null {
   if (!p || !dep) return null;
   const nameOf = (x: string) => place(x)?.name ?? x;
   const most = [...p.countries].filter((x) => x.fromAbroad !== null).sort((a, b) => b.fromAbroad! - a.fromAbroad!)[0];
-  return most ? RIVERS_TEXT.lede(RIVERS_TEXT.name[id] ?? id, list(p.river.countries.map(nameOf)), p.dams.length, nameOf(most.id), valueText(dep, most.fromAbroad!)) : null;
+  return most ? RIVERS_TEXT.lede(id, RIVERS_TEXT.name[id] ?? id, list(p.river.countries.map(nameOf)), p.dams.length, nameOf(most.id), valueText(dep, most.fromAbroad!), dep.year) : null;
 }

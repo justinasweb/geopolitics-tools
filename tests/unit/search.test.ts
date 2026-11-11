@@ -19,7 +19,7 @@ const wire: WireIndex = {
     ['Military spending', 2, 'Indicator ranking', '/indicators/military-spending', 'defence|defense', '', ''],
     ['Nile', 3, 'Disputed river', '/water/rivers/nile', 'river', '', ''],
     ['NATO', 4, 'North Atlantic Treaty Organization', '/blocs/nato', 'North Atlantic Treaty Organization', 'nato', 'DEU TUR USA LTU'],
-    ['NATO', 4, 'Alliance history', '/blocs/nato/history', 'history|Alliance history', '', ''],
+    ['NATO', 4, 'Membership history', '/blocs/nato/history', 'history|Membership history', '', ''],
     ['European Union', 4, 'Grouping', '/blocs/eu', '', 'eu', 'DEU LTU'],
   ],
   t: [['Germany', '/countries/germany'], ['lithium', '/minerals/lithium']],

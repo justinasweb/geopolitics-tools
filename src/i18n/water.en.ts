@@ -1,5 +1,7 @@
 // English words for the extras on the water and Chinese lending views. Same rules as views.en.ts.
 
+import { AQUEDUCT_BASELINE } from '../adapters/water.ts';
+
 export const DAMS_TEXT = {
   mark: 'Large dam (size: reservoir capacity)',
   tip: (name: string, river: string, place: string, year: string, cap: string) => `${name || 'Unnamed dam'}${river ? `, ${river}` : ''} (${place}): reservoir ${cap}${year ? `, built ${year}` : ''}`,
@@ -28,6 +30,11 @@ export const LENDING_TEXT = {
   project: 'Project', country: 'Recipient', amount: 'Amount', year: 'Year',
 };
 
+/** A river page's first sentence where its countries are the basin's, not only the dispute's. */
+const RIVER_INTRO: Record<string, string> = {
+  indus: 'This page shows the basin in China, India, Afghanistan and Pakistan; the Indus Waters Treaty dispute is between India and Pakistan.',
+};
+
 /** The disputed river pages (/water/rivers/{river}). */
 export const RIVERS_TEXT = {
   section: 'Disputed rivers',
@@ -38,15 +45,17 @@ export const RIVERS_TEXT = {
   } as Record<string, string>,
   title: (river: string) => `The ${river}: water and dams`,
   sub: 'in the countries that dispute it',
-  lede: (river: string, countries: string, dams: number, top: string, topShare: string) =>
-    `The countries in the dispute over the ${river} are ${countries}. ${top} gets ${topShare} of its renewable water from other countries${dams ? `; Global Dam Watch lists ${dams} large dams on the river and its main tributaries in these countries` : ''}.`,
+  /** Each figure with its own source beside it. A river whose page shows more of the basin than the dispute says so
+   *  (`intro`). */
+  lede: (id: string, river: string, countries: string, dams: number, top: string, topShare: string, year: number) =>
+    `${RIVER_INTRO[id] ?? `The countries in the dispute over the ${river} are ${countries}.`} Across ${top}, ${topShare} of renewable water comes from other countries (FAO AQUASTAT, ${year})${dams ? `; Global Dam Watch lists ${dams} large dams on the river and its main tributaries in these countries` : ''}.`,
   legend: 'Water stress in the countries that dispute the river',
   notInDispute: 'Not in this dispute',
   countries: 'Countries in the dispute',
-  countriesCaption: (river: string) => `Each country’s water stress now and projected for 2050 (WRI Aqueduct), the share of its renewable water that flows in from other countries (FAO AQUASTAT), and its large dams on the ${river} and main tributaries (Global Dam Watch). Listed roughly upstream first.`,
+  countriesCaption: (river: string) => `Each country’s water stress on WRI Aqueduct’s ${AQUEDUCT_BASELINE} baseline and projected for 2050, the share of its renewable water that flows in from other countries (FAO AQUASTAT), and its large dams on the ${river} and main tributaries (Global Dam Watch). Listed roughly upstream first.`,
   /** Each column names its own dataset's period or year: the three come from different datasets. */
   /** The panel's bars: a national figure, so it says so. */
-  stressBars: 'National water stress (WRI Aqueduct baseline), 0–5: the basin can differ',
+  stressBars: `National water stress (WRI Aqueduct baseline, ${AQUEDUCT_BASELINE}), 0–5: the basin can differ`,
   country: 'Country', stress: (period: string) => `Water stress, ${period}`, stress2050: (year: number) => `Projected water stress, ${year}`,
   fromAbroad: (year: number) => `Renewable water from abroad, ${year}`, damsCol: 'Dams on the river',
   /** Aqueduct's source line: the baseline period and the projection's year. */
