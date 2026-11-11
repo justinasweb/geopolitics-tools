@@ -41,15 +41,16 @@ for (const width of [390, 360, 1440]) {
       for (const el of document.querySelectorAll('input[type="search"], input[type="text"], input:not([type])')) {
         if (visible(el) && el.getBoundingClientRect().width < 120) clipped.push(`${label(el)} only ${Math.round(el.getBoundingClientRect().width)} px wide (${el.placeholder})`);
       }
-      // Overlapping controls: two visible controls whose boxes cross by more than a few pixels.
+      // Overlapping controls: two visible controls whose boxes cross by more than a few pixels. Each line box counts on
+      // its own (getClientRects), so a link that wraps doesn't "cover" the one after it.
       const ctl = [...document.querySelectorAll('a[href], button, input, select, textarea, [role="button"]')].filter((el) => visible(el) && !el.closest('.gt-tablewrap, svg, .maplibregl-map'));
-      const boxes = ctl.map((el) => ({ el, r: el.getBoundingClientRect() }));
+      const boxes = ctl.map((el) => ({ el, rs: [...el.getClientRects()] }));
+      const cross = (p, q) => Math.min(p.right, q.right) - Math.max(p.left, q.left) > 4 && Math.min(p.bottom, q.bottom) - Math.max(p.top, q.top) > 4;
       const overlaps = [];
       for (let i = 0; i < boxes.length && overlaps.length < 5; i++) for (let j = i + 1; j < boxes.length; j++) {
         const a = boxes[i], b = boxes[j];
         if (a.el.contains(b.el) || b.el.contains(a.el)) continue;
-        const x = Math.min(a.r.right, b.r.right) - Math.max(a.r.left, b.r.left), y = Math.min(a.r.bottom, b.r.bottom) - Math.max(a.r.top, b.r.top);
-        if (x > 4 && y > 4) { overlaps.push(`${label(a.el)} × ${label(b.el)}`); break; }
+        if (a.rs.some((p) => b.rs.some((q) => cross(p, q)))) { overlaps.push(`${label(a.el)} × ${label(b.el)}`); break; }
       }
       // Past the footer: the page scrolls on below the site footer, and what lies down there.
       const foot = document.querySelector('.gt-footer');
