@@ -115,6 +115,7 @@ describe('the refugees indicator', () => {
     const { ANSWER } = await import('../../src/i18n/pages.en.ts');
     expect(ANSWER.refin.sentence!('the United States', '4.2 m', 'The United States', 2025)).toBe('In 2025, UNHCR counts 4.2 m people in these groups in the United States, the most of any country.');
     const { INDICATOR_TEXT } = await import('../../src/i18n/en.ts');
+    expect(INDICATOR_TEXT.refin.label).toBe('Refugees and others needing protection, by host');
     expect(`Countries by ${INDICATOR_TEXT.refin.label.toLowerCase()}`.length).toBeLessThanOrEqual(65);
   });
 });

@@ -135,8 +135,8 @@ longer matches and nothing is left out; the entry can then go.
 - **Outside review wording (10 Nov 2026), for the owner to check.** Three AI texts were redrafted through `ai:paste`
   and wait for approval, so they are hidden until then: `history:brics` (Saudi Arabia "listed by BRICS as a member
   from 2024", not "joined"), `dossier:USA` (oil export share "preliminary") and `dossier:RUS` (potash export share
-  "estimated"). The Power hub intro's "which received loans and grants from China" became "to which China committed
-  loans and grants" in place, keeping its approval. About (approved) still says "sanctions and lending connect countries",
+  "estimated"), and `hub:power` ("to which China committed loans and grants", not "which received loans and grants
+  from China"), saved through `ai:paste` on 11 Nov. About (approved) still says "sanctions and lending connect countries",
   and the holding page "Sanctions, lending and the blocs…": left, as they name no figure.
 - - **Crimea's note** is on Russia's shape, which contains Crimea on this map, and not on Ukraine's.
 - **Methodology** was written before the checker and fails it on 27 points ("1:50m", "top", "first", "Sonnet 5.5",

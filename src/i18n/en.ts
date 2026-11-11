@@ -32,7 +32,7 @@ export const INDICATOR_TEXT: Record<string, IndicatorText> = {
   median: { label: 'Median age', unit: 'years' },
   lex: { label: 'Life expectancy', unit: 'years' },
   refout: { label: 'Refugees from the country', short: 'Refugees from', unit: 'people', note: 'Refugees, asylum seekers and others in need of protection abroad.' },
-  refin: { label: 'Refugees and others in need of protection hosted', short: 'Refugees hosted', unit: 'people' },
+  refin: { label: 'Refugees and others needing protection, by host', short: 'Refugees hosted', unit: 'people' },
   refinpc: { label: 'Refugees hosted per 1,000 people', short: 'Refugees per 1,000', unit: 'per 1,000' },
   idps: { label: 'People displaced inside the country', short: 'Internally displaced', unit: 'people' },
   oilprod: { label: 'Crude oil production', short: 'Oil output', unit: 'kb/d' },
