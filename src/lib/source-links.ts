@@ -1,8 +1,10 @@
 // Sources whose terms ask for links in the credit: the words that link, and where, within that source's part of a
 // source line (parts are separated by "; "). WRI Aqueduct: "accessed on [date], aqueduct.wri.org (CC BY 4.0)", its
-// site and its licence linked. Pure and small, so the map panels use it in the browser too.
+// site and its licence linked. CelesTrak: "Orbital data from CelesTrak" with a link, as its permission of 10 Nov 2026
+// asks. Pure and small, so the map panels use it in the browser too.
 export const SOURCE_LINKS: Record<string, [words: string, href: string][]> = {
   'WRI Aqueduct': [['aqueduct.wri.org', 'https://aqueduct.wri.org/'], ['CC BY 4.0', 'https://creativecommons.org/licenses/by/4.0/']],
+  CelesTrak: [['CelesTrak', 'https://celestrak.org']],
 };
 
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);

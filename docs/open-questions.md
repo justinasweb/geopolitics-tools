@@ -302,8 +302,9 @@ its tool entry on a hub has no links under it. Topic presets would give it some.
   month (Japan in Aug 2026) and states its holding and month.
 - **Submarine cables.** Decided 5 Nov 2026: dropped (TeleGeography asked USD 25,000 a year; no open source of routes
   and landings fits); `/internet` keeps waiting and outages stay live.
-- **Sources waiting on replies.** Decided 5 Nov 2026: no follow-ups; IPC, PeeringDB and PortWatch are treated as no
-  answer and their views stay hidden, and WEO is imported by hand (import kind `imf-weo`, docs/data-pipeline.md).
+- **Sources waiting on replies.** Decided 5 Nov 2026: no follow-ups; IPC and PortWatch are treated as no answer and
+  their views stay hidden, and WEO is imported by hand (import kind `imf-weo`, docs/data-pipeline.md). PeeringDB agreed
+  by email on 11 Nov 2026 that our use is within its AUP (`src/data/licences.ts`); exchange points are not built yet.
 - **Refugees hosted in Russia.** Decided 5 Nov 2026: from 2024 Russia is marked "Not reported since 2023" on the
   refugees-hosted maps and its country page (`src/data/not-reported.ts`).
 - **This week: the page refreshes on deploys.** Decided 5 Nov 2026: the data run starts a production rebuild at most

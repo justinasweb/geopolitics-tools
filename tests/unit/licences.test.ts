@@ -56,6 +56,9 @@ describe('licence table', () => {
     expect(sourcePieces(`${name}; FAO AQUASTAT`).map((p) => p.text).join('')).toBe(`${name}; FAO AQUASTAT`);
     expect(sourceLinksHtml('Global Carbon Budget, via Our World in Data (CC BY 4.0)')).toBe('Global Carbon Budget, via Our World in Data (CC BY 4.0)');
     expect(sourceLinksHtml('A & B')).toBe('A &amp; B');
+    const { creditName } = await import('../../src/lib/data.ts');
+    expect(creditName('celestrak')).toBe('Orbital data from CelesTrak');
+    expect(sourceLinksHtml('Orbital data from CelesTrak')).toBe('Orbital data from <a href="https://celestrak.org" rel="noopener">CelesTrak</a>');
   });
 
   it('matches docs/licences.md (regenerate with node scripts/licence-table.ts > docs/licences.md)', () => {

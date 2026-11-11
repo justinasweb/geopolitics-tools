@@ -19,6 +19,12 @@ GDACS, IODA and CelesTrak are now "permission asked" (asked 10 Nov; IODA at dain
 bounced). AidData stays checked (ODC-By 1.0 for GCDF 3.0, 10 Nov); AidData was asked to confirm and for CLG-Global 1.0's
 licence.
 
+Replies of 10 and 11 November: WRI confirmed the Aqueduct credit by email (no need to cite the technical note; the data
+may be downloaded without registering). CelesTrak's Dr T.S. Kelso gave permission by email for derived figures with the
+credit "Orbital data from CelesTrak" and a link, so CelesTrak is out of `WITHHELD` and Space is live again (below); the
+CSV download is not yet confirmed, so satellites and launches stay shown only. PeeringDB confirmed our use is within its
+AUP (checked 11 Nov); no view uses it yet.
+
 **The gates** (spec, "Launch waves"): a live fetcher checked against the spec, licence and terms cleared, freshness
 checks in place, a working phone layout. This review also checked the data, source lines, neutral wording, and the
 empty and withheld states. How each gate was read:
@@ -53,7 +59,7 @@ empty and withheld states. How each gate was read:
 | Internet: users, ICT exports | /internet/users, /internet/ict-exports | World Bank | Pass | CC BY 4.0 per series metadata. /internet/users is now the family's first page | |
 | Internet: cyber operations | /internet/cyber-operations | EuRepoC 1.3.2 | Pass | CC BY-NC 4.0, checked; "attributed to" names who attributed | |
 | AI and chips | /ai and 4 layers | Epoch AI, US CSL, UN Comtrade | Pass | | |
-| Space | /space, /space/launches | CelesTrak SATCAT | **Fail** (withheld) | Licence: CelesTrak states no terms for redistribution; its usage policy covers only query rates. The site would not load for this review | CelesTrak's written permission or terms for showing SATCAT counts. Asked 10 Nov |
+| Space | /space, /space/launches | CelesTrak SATCAT | Pass (live again, 11 Nov) | Licence: permission by email from Dr T.S. Kelso, 10 Nov, for derived figures with the credit "Orbital data from CelesTrak" and a link to celestrak.org, which every source line carries. No CSV until downloads are confirmed. The daily fetch keeps within the usage policy | |
 | Conflict | /conflict | UCDP GED and Candidate | Pass | CC BY 4.0, checked; Candidate months labelled preliminary | |
 | Refugees | /refugees and 3 layers | UNHCR | Pass | Russia shown as "Not reported since 2023" from 2024 | |
 | Arms transfers | /arms, /arms/importers | SIPRI (import) | Pass | Derived five-year totals only, no download, as the terms allow | |
@@ -67,7 +73,7 @@ empty and withheld states. How each gate was read:
 | Chokepoints | /chokepoints | IMF PortWatch | **Fail** (already hidden) | Licence: the IMF's permission for scheduled downloads not given | The IMF's permission |
 | Ports | /ports | IMF PortWatch | **Fail** (already hidden) | As chokepoints | As chokepoints |
 | Food crises | /food-crises | IPC | **Fail** (already hidden) | Fetcher: no API key | `IPC_API_KEY` |
-| Explorer | /explorer, /over-time, /scatter | Every registry measure | Pass | Satellites and launches are left out while CelesTrak is withheld | |
+| Explorer | /explorer, /over-time, /scatter | Every registry measure | Pass | Satellites and launches are back since CelesTrak's permission (11 Nov) | |
 | Dependencies | /dependencies | FAOSTAT, EIA, UN Comtrade, SIPRI | Pass | | |
 | Supply chains | /supply-chains and 11 flows | FAOSTAT, UN Comtrade, SIPRI, UNHCR | Pass | Latest year only, labelled | |
 | Bloc overlap | /blocs/overlap | Member lists | Pass | As Blocs | |
@@ -77,21 +83,20 @@ empty and withheld states. How each gate was read:
 
 ## Licence removals
 
-`WITHHELD` in `src/data/licences.ts` holds GDACS, IODA and CelesTrak. WRI Aqueduct and AidData were on it from the
-second pass until the third, when their licences were confirmed (above). Removed from the build:
+`WITHHELD` in `src/data/licences.ts` holds GDACS and IODA. WRI Aqueduct and AidData were on it from the second pass
+until the third, when their licences were confirmed (above); CelesTrak was on it until 11 Nov, when its permission was
+recorded, so space, satellites and launches are back everywhere below. Removed from the build:
 
 | Where | Removed |
 |---|---|
-| Map views | Disasters (7 pages), internet outages, space (2); their share images and map layer files |
-| Indicator pages and downloads | Satellites in orbit and orbital launches (pages, CSVs, rankings). The indicators index still lists them by name and source, with no figure, as it lists measures not in the data release |
-| Explorer | The same two measures |
-| Country pages and Compare | Disaster alerts, satellites and launches |
+| Map views | Disasters (7 pages), internet outages; their share images and map layer files |
+| Country pages and Compare | Disaster alerts |
 | Homepage | The This week strip (its one count was GDACS's alerts); it shows again when there is a count from a cleared source |
 | Atlas | The layers of the views above and the disaster-alert overlay |
 | Hubs and search | The views and indicator pages above |
 | This week | The disaster and outage cards list up to 7 events by kind, country and date, each linking to GDACS's report or IODA's country page, with no alert levels, counts, lengths, table or map link. The "in numbers" count and the feed's disaster and outage items are gone. The share image leads with another card |
 
-Kept on purpose: the Sources page lists the three sources with their licence status, and Methodology and About
+Kept on purpose: the Sources page lists the withheld sources with their licence status, and Methodology and About
 describe them in words. USGS earthquakes (public domain) were shown only on the disasters pages, so they are off too.
 The water adapter loads AQUASTAT and Global Dam Watch even without Aqueduct, so a withheld Aqueduct would not take
 Water from abroad with it.
