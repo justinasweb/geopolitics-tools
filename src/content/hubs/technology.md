@@ -1,5 +1,5 @@
 ---
-intro: "Which countries have documented AI supercomputer computing power and notable AI models, import chips and chipmaking machines, own satellites in orbit and host orbital launch sites, how many internet exchange points are listed in each and how many networks connect to them, how many of their people use the internet, which sell ICT services abroad, and which publicly known cyber incidents affected each, with who they were attributed to. Each map shows one source’s own figures for each country, with the year or period they cover."
+intro: "Which countries have documented AI supercomputer computing power and notable AI models, import chips and chipmaking machines, own satellites in orbit and host orbital launch sites, how many internet exchange points each has, how many of their people use the internet, which sell ICT services abroad, and which publicly known cyber incidents affected each, with who they were attributed to. Each map shows one source’s own figures for each country, with the year or period they cover."
 facts:
   - "AI and chips: share of known AI supercomputer power and notable models by country (Epoch AI); chip and chipmaking-machine imports (UN Comtrade); US Entity List entries (US Consolidated Screening List)"
   - "Space: satellites in orbit by owning country and orbital launches by launch site country (CelesTrak)"
