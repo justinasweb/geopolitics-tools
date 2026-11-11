@@ -118,10 +118,10 @@ describe('share image cards', () => {
     for (const c of cards) fitsCard(c.card, c.key);
   });
 
-  it('give every card with a figure or bars a source line that fits on one line beside the site name', () => {
+  it('give every card with a figure or bars a source line that fits on one line beside the lockup', () => {
     for (const c of cards.filter((x) => x.card.figure || x.card.bars?.length)) {
       expect(c.card.source, c.key).toBeTruthy();
-      expect(measure(`Source: ${c.card.source}`, 20) + measure('geopolitics.tools', 20, 'sans600') + 24, c.key).toBeLessThan(G.innerW);
+      expect(measure(`Source: ${c.card.source}`, 20) + G.logoGap + G.logoW, c.key).toBeLessThanOrEqual(G.innerW);
     }
   });
 
@@ -130,7 +130,7 @@ describe('share image cards', () => {
     const history = cards.filter((c) => c.family === 'alliance-history' || c.family === 'history');
     expect(blocs).toHaveLength(20);
     expect(history).toHaveLength(11);
-    for (const c of blocs) expect(c.card.source, c.key).toMatch(/^The groupings’ own member lists, as of \d{1,2} \w{3} \d{4}/);
+    for (const c of blocs) expect(c.card.source, c.key).toMatch(/^Groupings’ own lists, as of \d{1,2} \w{3} \d{4}/);
     for (const c of history) expect(c.card.source, c.key).toMatch(/^The groupings’ own member lists and histories, as of \d{4}$/);
   });
 
@@ -160,13 +160,13 @@ describe('share image cards', () => {
     }
   });
 
-  it('credit the dams and the water figures on every river card, on one line beside the site name', () => {
+  it('credit the dams and the water figures on every river card, on one line beside the lockup', () => {
     const rivers = cards.filter((c) => c.family === 'rivers');
     expect(rivers).toHaveLength(8);
     for (const c of rivers) {
       expect(c.card.source, c.key).toMatch(/^Lehner et al\. \(2024\), Global Dam Watch database version 1\.0 \(CC BY 4\.0\)/);
       if (c.card.bars?.length) expect(c.card.source, c.key).toContain('FAO AQUASTAT');
-      expect(measure(`Source: ${c.card.source}`, 20) + measure('geopolitics.tools', 20, 'sans600') + 40, c.key).toBeLessThan(G.innerW);
+      expect(measure(`Source: ${c.card.source}`, 20) + G.logoGap + G.logoW, c.key).toBeLessThanOrEqual(G.innerW);
     }
   });
 
