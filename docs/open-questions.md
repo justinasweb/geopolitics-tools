@@ -127,6 +127,21 @@ joined (founding included); 1990 is not one of them. The lede reads "Membership 
 AidData "West Bank and Gaza Strip", EIA "Palestinian Territories") is a coverage note: on Palestine's country page and
 in the map tooltip and panel, not beside each figure.
 
+### Exchange points: open points (raised 11 Nov 2026)
+
+**Atlas overlay.** The exchange marks stay on their own view; the Atlas lists only the overlays the design names.
+**Options:** add "Exchange points" to the Atlas overlays, or leave it.
+
+**Exchanges with no mark.** 417 of 1,327 list no facility with coordinates (11 Nov 2026), so a third of the
+exchanges have no mark; they are counted for their country and the table caption says so. **Options:** place them at
+their city (would need a geocoder or a city table), or leave it.
+
+**Hub intro and country pages.** The Technology hub intro (AI-drafted, approved) does not mention exchange points,
+and country pages have no exchange figure. **Options:** add a line to the hub facts and redraft, and/or a row in the
+country page's technology section, or leave both.
+
+**Spec schedule.** The spec's source table says weekly for PeeringDB; the fetcher runs daily, as asked on 11 Nov 2026.
+
 ## Launch review leftovers (raised 5 Nov 2026)
 
 - **G7 and Russia (decided 5 Nov 2026).** Russia joins in 1998, as the G8, per the G7 Research Group
@@ -304,7 +319,8 @@ its tool entry on a hub has no links under it. Topic presets would give it some.
   and landings fits); `/internet` keeps waiting and outages stay live.
 - **Sources waiting on replies.** Decided 5 Nov 2026: no follow-ups; IPC and PortWatch are treated as no answer and
   their views stay hidden, and WEO is imported by hand (import kind `imf-weo`, docs/data-pipeline.md). PeeringDB agreed
-  by email on 11 Nov 2026 that our use is within its AUP (`src/data/licences.ts`); exchange points are not built yet.
+  by email on 11 Nov 2026 that our use is within its AUP (`src/data/licences.ts`); exchange points are at
+  `/internet/exchanges` (docs/maps.md).
 - **Refugees hosted in Russia.** Decided 5 Nov 2026: from 2024 Russia is marked "Not reported since 2023" on the
   refugees-hosted maps and its country page (`src/data/not-reported.ts`).
 - **This week: the page refreshes on deploys.** Decided 5 Nov 2026: the data run starts a production rebuild at most

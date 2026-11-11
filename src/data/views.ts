@@ -120,6 +120,8 @@ export const VIEW_FAMILIES: ViewFamily[] = [
   {
     // Cables, at /internet, wait on a source with fuller coverage than OpenStreetMap's.
     id: 'internet', hub: 'technology', rootWaits: true, layers: [
+      // Exchange points as PeeringDB lists them now (../lib/exchanges.ts); marks sized by networks connected.
+      { indicator: 'exchanges', scale: 'seq', sums: true },
       { indicator: 'outages', scale: 'seq', sums: true },
       { indicator: 'netuser', scale: 'seq', sums: false, points: true, edges: [0.2, 0.4, 0.6, 0.8] },
       // Exports as each country reports them in its balance of payments; the total is of countries reporting.

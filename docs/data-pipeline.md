@@ -111,6 +111,7 @@ as the rest of the pipeline does. Week files are a few kilobytes and are never r
 | USGS earthquakes | 1 hour | 3 days | Magnitude 5.5+ for 365 days |
 | IODA internet outages | 1 hour | 3 days | Country outage events for 365 days (each hour asks for the last 30 days and keeps the rest; the 00 UTC run asks for the year) |
 | CelesTrak SATCAT | 1 day | 10 days | The whole satellite catalogue |
+| PeeringDB | 1 day | 4 days | The `ix`, `fac` and `ixfac` bootstrap files from public.peeringdb.com (docs.peeringdb.com/howto/mirror), anonymously, one request each 3 s apart and never retried, so any error (a 429 included) stops the run and the last good files stay. Kept as `{ meta, data }` with the fields the adapter reads; refused when a file is over 4 days old by its `meta.generated`, lacks a field, or has too few records. No network file: its type field is not used |
 | US Consolidated Screening List | 1 day | 10 days | All records, trimmed to list, programmes, country, dates |
 | EU sanctions list | 1 day | 10 days | Entity rows: type, programme, dates, countries |
 | World Bank Indicators | 7 days | 45 days | 17 indicators since 2000, aggregates dropped |

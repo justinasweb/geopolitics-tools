@@ -67,6 +67,19 @@ const armsPeriod = (y: number) => `${y - 4}–${y}`;
 const ictCaveat = 'ICT services are telecom, computer and information services sold to buyers abroad, from balance-of-payments data. They don’t include goods such as phones or chips.';
 const armsCaveat = `Figures are in SIPRI’s trend-indicator value (TIV): ${TIV_NOTE}. It is not money. Deliveries are lumpy, so figures are five-year totals. Small arms, ammunition and transfers to or from groups that are not states are left out.`;
 
+/** The exchange points view: where networks meet to swap traffic, as PeeringDB lists them. */
+export const EXCHANGE_TEXT = {
+  caveat: 'An internet exchange point is a place where networks connect to swap traffic directly. The list is PeeringDB’s, kept up by the exchanges and networks themselves, so an exchange that is not listed is missing and a listing can be out of date. Networks are those PeeringDB counts as connected; a network at several exchanges counts at each.',
+  mark: 'Exchange point, sized by networks connected',
+  tip: (name: string, city: string, n: string) => `${name}${city ? `, ${city}` : ''}: ${n} networks connected`,
+  block: 'Exchange points by networks connected',
+  blockCaption: 'As listed in PeeringDB.',
+  more: (n: number) => `and ${n} more`,
+  largest: 'Exchange points with the most networks connected',
+  largestCaption: (n: number, unplaced: number) => `The ${n} listed exchange points with the most connected networks. A network at several exchanges counts at each. Marks stand at each exchange’s first listed facility; ${unplaced} exchanges list no facility with a location and have no mark.`,
+  exchange: 'Exchange point', city: 'City', country: 'Country', networks: 'Networks connected',
+};
+
 export const VIEW_TEXT: Record<string, FamilyText> = {
   'food-crises': {
     section: 'Food crises',
@@ -403,6 +416,15 @@ export const VIEW_TEXT: Record<string, FamilyText> = {
     section: 'Internet',
     pickerLabel: 'Measure',
     layers: {
+      exchanges: {
+        pick: 'Exchange points', period: () => 'current listings', title: 'Internet exchange points', sub: 'by country', measure: 'exchange points', figureLabel: 'Exchange points listed',
+        legend: () => 'Internet exchange points listed in PeeringDB', worldLabel: 'Total, all countries',
+        lede: ({ top, value, share }) => `${top} has ${value} internet exchange points listed in PeeringDB, the most of any country and ${share} of those listed.`,
+        total: (v) => `PeeringDB lists ${v} internet exchange points with a country.`,
+        bloc: (b, s) => `${s} of the listed exchange points are in ${todaysMembers(b)}.`,
+        caveat: EXCHANGE_TEXT.caveat,
+        description: () => 'Internet exchange points by country, on a map and in a table, with each country’s exchanges by networks connected. Source: PeeringDB.',
+      },
       outages: {
         pick: 'Outages', period: () => 'last 12 months', title: 'Internet outages', sub: 'by country, last 12 months', measure: 'outages', figureLabel: 'Outages, last 12 months',
         legend: () => 'Internet outages detected in the last 12 months', worldLabel: 'Total, all countries',

@@ -73,6 +73,7 @@ export const SEARCH_ALIASES: Record<string, string[]> = {
   'view:conflict': ['war', 'fighting'],
   'view:space': ['rockets'],
   'view:internet': ['cyber'],
+  'view:internet:exchanges': ['ixp', 'internet exchange', 'peering'],
   'view:nuclear': ['atomic weapons', 'nukes'],
   'view:minerals:rare-earths': ['ree'],
   'view:chinese-lending': ['belt and road', 'bri', 'debt'],

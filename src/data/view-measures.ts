@@ -1,11 +1,12 @@
 // Measures that only the map views show (no indicator page, profile row or Compare column): the AI and chips
 // view's notable models, US Entity List counts and chip imports, each sanctions list on its own,
-// internet outages, cyber incidents, electricity from gas and nuclear, water stress in 2050, Chinese lending by sector and five-year arms totals. Same shape as the registry (./indicators.ts); `load` also gets
+// internet outages, exchange points, cyber incidents, electricity from gas and nuclear, water stress in 2050, Chinese lending by sector and five-year arms totals. Same shape as the registry (./indicators.ts); `load` also gets
 // the year the source was fetched, for lists that hold only what is current.
 import type { Raw, Series } from '../adapters/core.ts';
 import { put } from '../adapters/core.ts';
 import { ai } from '../adapters/epoch.ts';
 import { outages } from '../adapters/digital.ts';
+import { exchanges } from '../adapters/peeringdb.ts';
 import { water } from '../adapters/water.ts';
 import { lending } from '../adapters/aiddata.ts';
 import { type List, sanctions } from '../adapters/sanctions.ts';
@@ -72,6 +73,15 @@ export const VIEW_MEASURES: Record<string, ViewMeasure> = {
     load: (raw, fetched) => {
       const out: Series = {};
       for (const o of outages(raw)) put(out, o.place, fetched, 1, true);
+      return out;
+    },
+  },
+  // PeeringDB lists exchange points as they are now: the count by country, dated by the fetch.
+  exchanges: {
+    id: 'exchanges', group: 'tech', source: 'peeringdb', format: { kind: 'count' }, scale: 'log', static: true,
+    load: (raw, fetched) => {
+      const out: Series = {};
+      for (const x of exchanges(raw).list) put(out, x.place, fetched, 1, true);
       return out;
     },
   },

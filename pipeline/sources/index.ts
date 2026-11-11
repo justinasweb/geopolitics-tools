@@ -4,6 +4,7 @@ import gdacs from './gdacs.ts';
 import usgsQuakes from './usgs-quakes.ts';
 import ioda from './ioda.ts';
 import celestrak from './celestrak.ts';
+import peeringdb from './peeringdb.ts';
 import csl from './csl.ts';
 import euSanctions from './eu-sanctions.ts';
 import worldbank from './worldbank.ts';
@@ -26,6 +27,6 @@ import ipc from './ipc.ts';
 import eurepoc from './eurepoc.ts';
 
 export const SOURCES: Source[] = [
-  gdacs, usgsQuakes, ioda, portwatch, celestrak, csl, euSanctions, ukSanctions, worldbank, pinksheet, treasury, epoch,
+  gdacs, usgsQuakes, ioda, portwatch, celestrak, peeringdb, csl, euSanctions, ukSanctions, worldbank, pinksheet, treasury, epoch,
   owid, fas, eurepoc, unhcr, imfWeo, cables, faostat, eia, comtrade, ember, ucdp, ipc,
 ];
