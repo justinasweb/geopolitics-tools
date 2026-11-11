@@ -516,7 +516,7 @@ export const DRAFT_BANNER = 'Draft, waiting for the editor’s approval. This te
 /** Short source names for brackets and key figures: "(World Bank, 2024)". */
 export const SOURCE_SHORT: Record<string, string> = {
   worldbank: 'World Bank', 'imf-weo': 'IMF WEO', owid: 'Global Carbon Budget', faostat: 'FAOSTAT', 'usgs-minerals': 'USGS',
-  unhcr: 'UNHCR', sipri: 'SIPRI', wpp: 'UN WPP 2024', celestrak: 'CelesTrak', epoch: 'Epoch AI', csl: 'US CSL',
+  unhcr: 'UNHCR', sipri: 'SIPRI', wpp: 'UN WPP 2024', celestrak: 'Orbital data from CelesTrak', epoch: 'Epoch AI', csl: 'US CSL',
   'eu-sanctions': 'EU sanctions list', 'uk-sanctions': 'UK Sanctions List', aiddata: 'AidData, Global Chinese Development Finance Dataset 3.0', aqueduct: 'WRI Aqueduct',
   aquastat: 'FAO AQUASTAT', gdacs: 'GDACS', 'usgs-quakes': 'USGS', treasury: 'US Treasury TIC', 'treasury-history': 'US Treasury TIC',
   eia: 'EIA', comtrade: 'UN Comtrade', ember: 'Ember', ucdp: 'UCDP', ipc: 'IPC', pinksheet: 'World Bank Pink Sheet',
