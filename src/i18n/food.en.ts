@@ -144,7 +144,7 @@ export const FOOD_TEXT = {
   blocNone: (b: string, y: number) => `None of ${todaysMembers(b)} has a figure for ${y}.`,
   // The tables.
   summary: 'Summary',
-  all: 'All countries',
+  all: 'Countries and territories with data',
   tableLabel: (title: string) => `${title}, every country`,
   caption: (layer: Layer, basis: string, y: number, prev: number | null) => ({
     production: `Production in million tonnes (Mt) or tonnes (t), ${basis === 'tonnes' ? 'as FAOSTAT reports it' : `as ${basis}`}, for every country with a figure for ${y}${prev ? `, with ${prev} for comparison` : ''}.`,

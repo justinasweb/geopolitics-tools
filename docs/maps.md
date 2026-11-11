@@ -235,7 +235,10 @@ How the adapter (`src/adapters/minerals.ts`) reads them:
 
 /blocs maps how many of the 19 groupings each country belongs to; /blocs/{bloc} maps one grouping's members (src/lib/blocview.ts, src/templates/BlocView.astro). Members come from src/data/blocs.csv, as of the date it was last checked; the layer has one "year" and no slider. A grouping's share of the world adds up its members' figures (population, GDP, military spending, CO2, the four crops, and each mineral's mine production, or primary production for gallium, where members have at least 1%) against the sum for every country with a figure, a year back where the latest is missing. "Outline a bloc" on a grouping's page shows its overlap with a second one. A line on what each grouping is, and notes on single memberships (Armenia in the CSTO), are in src/i18n/blocs.en.ts. The summary's mineral sentences (`mineralSentences`) use each mineral's own verb, as the country pages do, with USGS's year and "estimated" in brackets: "Together they mine 79% of the world’s tungsten (USGS, 2025, estimated). They produce 99% of the world’s primary gallium (USGS, 2025, estimated)." Country pages list the groupings a country belongs to in a "Member of" line in their header, linked to these pages. Alliance history (/blocs/{bloc}/history) is not built yet.
 
-## Alliance history (phase 5a)
+## Membership history (phase 5a)
+
+Called "Membership history" on the site since 11 Nov 2026 (the route key stays `view:alliance-history`). Joins
+before 1990 name Germany as West Germany (`THEN_NAMES` in `src/i18n/blocs.en.ts`).
 
 `/blocs/{bloc}/history` for 11 groupings (NATO, EU, G7, G20, BRICS, SCO, ASEAN, OPEC, CSTO, Quad, OECD). Spans come from
 `src/data/bloc-history.csv` (`bloc,place,from,to`, years only, one row per membership; `to` is the year the country left), compiled

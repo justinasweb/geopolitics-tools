@@ -207,12 +207,12 @@ describe('net imports far above recorded use', () => {
     expect(fromBalance('potash', balance(0, 108, 0, 100), 'DJI')).toMatchObject({ reliance: 1.08, tag: 'most' });
     expect(fromBalance('potash', balance(0, 111, 0, 100), 'DJI').excess).toBe('imports');
     const { DEP_TEXT } = await import('../../src/i18n/pages.en.ts');
-    expect(DEP_TEXT.exceedsNote('FAOSTAT')).toBe('Likely transit trade or stock changes; FAOSTAT’s figures do not separate them');
+    expect(DEP_TEXT.exceedsNote('FAOSTAT')).toBe('Goods passing through, or changes in stocks, can cause this; FAOSTAT’s figures do not show which');
     expect(cellText(grid, 'potash', { why: 'e', y: '2024' })).toEqual(['Imports exceed', 'recorded use']);
     const g: Grid = { ...grid, rows: grid.rows.map((r) => (r.id === 'HUN' ? { ...r, cells: r.cells.map((c, i) => (i === 6 ? { why: 'e' as const, y: '2024' } : c)) } : r)) };
     const html = tableHtml({ ...DEFAULTS, sort: 'potash' }, g);
     const tr = html.slice(html.indexOf('Hungary'), html.indexOf('</tr>', html.indexOf('Hungary')));
-    expect(tr).toMatch(/title="FAOSTAT, 2024; Likely transit trade or stock changes; FAOSTAT’s figures do not separate them"/);
+    expect(tr).toMatch(/title="FAOSTAT, 2024; Goods passing through, or changes in stocks, can cause this; FAOSTAT’s figures do not show which"/);
     // Out of the phone's ranking.
     expect(phoneHtml({ ...DEFAULTS, show: 'commodity', sort: 'potash' }, g)).not.toContain('Hungary');
   });

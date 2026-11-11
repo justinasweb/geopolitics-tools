@@ -1,8 +1,8 @@
 {
   "id": "river:mekong",
   "author": "ai",
-  "text": "The Mekong involves China, Myanmar, Laos, Thailand, Cambodia and Vietnam. Cambodia, Laos, Thailand and Vietnam signed the Agreement on the Cooperation for the Sustainable Development of the Mekong River Basin on 5 April 1995, setting up the Mekong River Commission. China and Myanmar became dialogue partners of the Commission in 1996. The Xayaburi dam on the Mekong main stem in Laos began commercial operation in October 2019. In October 2020, China agreed to share year-round hydrological data from the Lancang with the Commission.",
-  "model": "claude-sonnet-5-5",
+  "text": "The Mekong involves China, Myanmar, Laos, Thailand, Cambodia and Vietnam. Cambodia, Laos, Thailand and Vietnam signed the Agreement on the Cooperation for the Sustainable Development of the Mekong River Basin on 5 April 1995, setting up the Mekong River Commission. China and Myanmar became dialogue partners of the Commission in 1996. The Xayaburi dam on the Mekong main stem in Laos began commercial operation in October 2019. In October 2020, China agreed to share year-round river measurements from the Lancang, the upper Mekong in China, with the Commission.",
+  "model": "manual (Claude chat)",
   "factsHash": "sha256:2ee3f57e8c2e1197ada452bd5db4074a",
   "usedFacts": [
     "agreement-1995",
@@ -10,8 +10,8 @@
     "dialogue-1996",
     "xayaburi-2019"
   ],
-  "drafted": "2026-11-06",
-  "approved": true,
-  "approvedOn": "2026-11-06",
-  "approvedVia": "telegram"
+  "drafted": "2026-11-11",
+  "approved": false,
+  "approvedOn": null,
+  "approvedVia": null
 }

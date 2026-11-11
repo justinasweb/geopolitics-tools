@@ -82,8 +82,17 @@ describe('Matcher', () => {
   it('gives a source’s coverage notes', () => {
     expect(notesFor('worldbank', 'MAR').map((n) => n.note)).toEqual(['Western Sahara: Status disputed; mostly administered by Morocco; claimed by the Polisario Front']);
     // A note on an area inside a place's shape names the area.
-    expect(notesFor('owid', 'RUS').map((n) => n.note)).toEqual(["Crimea: Under Russian control since 2014; within Ukraine's internationally recognised borders. Figures follow each source."]);
+    expect(notesFor('owid', 'RUS').map((n) => n.note)).toEqual(["Crimea: under Russian control since 2014, within Ukraine's internationally recognised borders; other areas of Ukraine under Russian control since 2022. Figures follow each source."]);
     expect(notesFor('owid', 'MAR')).toHaveLength(1);
     expect(notesFor('owid', 'XKX')).toHaveLength(1);
+  });
+
+  it('words Crimea the same on Russia and Ukraine, and names the units sources use for Palestine', () => {
+    const ukr = notesFor('owid', 'UKR').map((n) => n.note);
+    expect(ukr).toEqual(notesFor('owid', 'RUS').map((n) => n.note));
+    expect(ukr[0]).toMatch(/^Crimea: under Russian control since 2014, within Ukraine's internationally recognised borders; other areas of Ukraine under Russian control since 2022/);
+    // UCDP's own event records place Crimea in Ukraine; said on both pages.
+    expect(notesFor('ucdp', 'RUS').map((n) => n.note)).toContain("UCDP's event records place events in Crimea and Sevastopol in Ukraine, not Russia");
+    expect(notesFor('worldbank', 'PSE').map((n) => n.note)[0]).toMatch(/^World Bank figures are for 'West Bank and Gaza'/);
   });
 });

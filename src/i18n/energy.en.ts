@@ -183,7 +183,7 @@ export const ENERGY_TEXT = {
   blocNone: (b: string, y: number) => `None of ${todaysMembers(b)} has a figure for ${y}.`,
   // The tables.
   summary: 'Summary',
-  all: 'All countries',
+  all: 'Countries and territories with data',
   tableLabel: (title: string) => `${title}, every country`,
   caption: (layer: EnergyLayer, unit: string, y: number, prev: number | null) => ({
     production: `Production in ${unit}, for every country with a figure for ${y}${prev ? `, with ${prev} for comparison` : ''}.`,

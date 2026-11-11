@@ -36,7 +36,7 @@ export const SEARCH_TEXT = {
   compare: 'Compare',
   ranking: 'Indicator ranking',
   river: 'Disputed river',
-  history: 'Alliance history',
+  history: 'Membership history',
   bloc: 'Grouping',
   member: (country: string) => `${country} is a member`,
   topic: 'Topic',

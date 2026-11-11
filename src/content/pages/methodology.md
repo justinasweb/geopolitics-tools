@@ -2,7 +2,7 @@
 title: "Methodology"
 lede: "How each measure is worked out, what the labels mean, and what the figures cannot tell you."
 description: "How geopolitics.tools works out import reliance, supplier shares, five-year arms totals, common years and coverage, and the limits of the figures."
-updated: "2026-11-10"
+updated: "2026-11-11"
 approved: true
 author: "owner"
 drafted: "2026-11-06"
@@ -35,15 +35,15 @@ A negative value means the country sells more than it buys. We then show exports
 | Import reliance | Label |
 | --- | --- |
 | 50% or more | Imports most |
-| 15% to 50% | Imports some |
-| Between −15% and 15% | Roughly self-sufficient |
+| 15% to under 50% | Imports some |
+| −15% to under 15% | Low net trade |
 | Below −15% | Exporter |
 
 A country that uses none of a resource, by its source, gets no share and the table says so.
 
-When net imports are more than 10% above recorded use, or exports are above production plus imports, we show no share: the row says "Imports exceed recorded use" or "Exports exceed recorded supply" and is left out of rankings and sorting by share and of a country page's lead imports. A row whose exports exceed supply is still labelled Exporter, with its buyers. This is usually transit trade or stock changes, which the source's figures do not separate: in FAOSTAT's figures, Morocco's phosphate exports in 2024 were 1.7 times its production plus imports. For crops, exports can also come from an earlier harvest: Ukraine shipped 29.6 million tonnes of maize in 2024 from 26.9 million tonnes grown and imported. Such a crop has no use figure for that year on the maps. A balance more than 10 years older than the latest any country has for that resource is shown with its year and "No recent data", and is left out of rankings and sorting and of a country page's lead imports. For potash, where FAOSTAT's production figure is its own estimate and the USGS Mineral Commodity Summaries give the same year's mine production, in potassium oxide (K2O), more than twice or less than half of it, we use USGS's production everywhere that figure appears (the balance, the potash maps, the world total and rankings) and say so: in 2024, FAOSTAT estimated China's output at 1.1 million tonnes and USGS at 6.3 million tonnes. A change from a year with FAOSTAT's figure to one with USGS's is not shown.
+When net imports are more than 10% above recorded use, or exports are above production plus imports, we show no share: the row says "Imports exceed recorded use" or "Exports exceed recorded supply" and is left out of rankings and sorting by share and of a country page's lead imports. A row whose exports exceed supply is still labelled Exporter, with its buyers. Goods passing through, or changes in stocks, can cause this; the data do not show which. In FAOSTAT's figures, Morocco's phosphate exports in 2024 were 1.7 times its production plus imports. For crops, exports can also come from an earlier harvest: Ukraine shipped 29.6 million tonnes of maize in 2024 from 26.9 million tonnes grown and imported. Such a crop has no use figure for that year on the maps. A balance more than 10 years older than the latest any country has for that resource is shown with its year and "No recent data", and is left out of rankings and sorting and of a country page's lead imports. For potash, where FAOSTAT's production figure is its own estimate and the USGS Mineral Commodity Summaries give the same year's mine production, in potassium oxide (K2O), more than twice or less than half of it, we use USGS's production everywhere that figure appears (the balance, the potash maps, the world total and rankings) and say so: in 2024, FAOSTAT estimated China's output at 1.1 million tonnes and USGS at 6.3 million tonnes. A change from a year with FAOSTAT's figure to one with USGS's is not shown.
 
-The Dependencies tool splits these further, to show where a country sits: imports 75% or more, 50% to 75%, 15% to 50%, roughly self-sufficient (±15%), and, for exporters, exports of 15% to 50% or over 50% of what it produces.
+The Dependencies tool splits these further, to show where a country sits: imports 75% or more, 50% to under 75%, 15% to under 50%, low net trade (−15% to under 15%), and, for exporters, exports of up to 50% or over 50% of what it produces.
 
 ## Supplier concentration
 
@@ -55,7 +55,7 @@ We highlight a country and resource when net imports cover at least half of use 
 
 ## Five-year arms totals
 
-SIPRI measures arms deliveries in trend-indicator values (TIV): a common unit based on the military capability of what is delivered, not its price. Yearly figures jump with single large orders, and SIPRI advises using them to show trends over periods of time, so we show totals over five years.
+SIPRI measures arms deliveries in trend-indicator values (TIV): SIPRI's measure of military capability delivered, not price or number of weapons. Yearly figures jump with single large orders, and SIPRI advises using them to show trends over periods of time, so we show totals over five years.
 
 SIPRI's terms allow reuse of under 10% of its dataset, so we publish these derived totals only and offer no download of the underlying records.
 
@@ -89,7 +89,7 @@ Some texts are drafted with AI and approved by the editor. The next section says
 
 ## AI drafting
 
-These texts are drafted with AI: the summaries on the United States, China and Russia dossier pages, the notes on the alliance history pages and the summaries on the disputed river pages, and the summary of each closed week on This week. The first drafts of About, Privacy, Methodology and the introductions to the five topic sections were made the same way. Dossier, history and river texts carry the label "Drafted with AI from cited sources and reviewed by the editor", which links here.
+These texts are drafted with AI: the summaries on the United States, China and Russia dossier pages, the notes on the membership history pages and the summaries on the disputed river pages, and the summary of each closed week on This week. The first drafts of About, Privacy, Methodology and the introductions to the five topic sections were made the same way. Dossier, history and river texts carry the label "Drafted with AI from cited sources and reviewed by the editor", which links here.
 
 **Facts first.** Each text has a facts file kept with the site's code. Every fact in it has its value, unit and period, the name of its source, a link to it and a date. A dossier's facts are the figures its page already shows; a history's are the dated joins and departures of the grouping, each with a citation such as a treaty or an official announcement; a river's are its treaties, dam milestones and official statements, each dated and cited. A fact that has not yet been checked against its source is marked as unverified, and nothing is drafted from a file that has one.
 

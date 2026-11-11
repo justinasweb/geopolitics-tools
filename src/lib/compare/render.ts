@@ -45,7 +45,7 @@ const shown = (r: Row, v: number) => {
   const own = formatParts(v, r.m.format, r.m.unit);
   return scaled(r) && own.unit ? `${own.num} ${own.unit}` : own.num;
 };
-const srcYear = (r: Row, c: Two) => T.sourceYear(r.m.credit, r.f.map((x, i) => ({ name: c[i].name, year: x[1] })));
+const srcYear = (r: Row, c: Two) => T.sourceYear(r.m.credit, r.f.map((x, i) => ({ name: c[i].name, year: x[1] }))) + (T.measureNote[r.m.id] ? `. ${T.measureNote[r.m.id]}` : '');
 const label = (m: MeasureMeta) => (m.href ? `<a href="${esc(m.href)}">${esc(m.label)}</a>` : esc(m.label));
 /** A figure's tag, as the country page shows it beside the year. */
 const tagOf = (f: Fig) => (f[2] ? ` ${tagHtml(f[2])}` : '');

@@ -13,7 +13,8 @@
     "CYP",
     "SOM",
     "GEO",
-    "MDA"
+    "MDA",
+    "PSE"
   ],
   "names": [
     "claude-sonnet-5-5",
@@ -44,16 +45,16 @@
       "unit": "%",
       "source": "geopolitics.tools code (src/lib/dependence.ts)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/lib/dependence.ts",
-      "date": "2026-11-10"
+      "date": "2026-11-11"
     },
     {
       "id": "imports-some",
-      "statement": "Import reliance from 15% up to the \"Imports most\" line is labelled \"Imports some\"; within 15% either way, \"Roughly self-sufficient\"; below minus that, \"Exporter\".",
+      "statement": "Import reliance from 15% to under the \"Imports most\" line is labelled \"Imports some\"; from −15% to under 15%, \"Low net trade\"; below −15%, \"Exporter\".",
       "value": 15,
       "unit": "%",
       "source": "geopolitics.tools code (src/lib/dependence.ts)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/lib/dependence.ts",
-      "date": "2026-11-10"
+      "date": "2026-11-11"
     },
     {
       "id": "tool-band",
@@ -62,7 +63,7 @@
       "unit": "%",
       "source": "geopolitics.tools code (src/lib/dependencies/model.ts)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/lib/dependencies/model.ts",
-      "date": "2026-11-10"
+      "date": "2026-11-11"
     },
     {
       "id": "spof",
@@ -71,7 +72,7 @@
       "unit": "%",
       "source": "geopolitics.tools code (src/lib/dependencies/model.ts)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/lib/dependencies/model.ts",
-      "date": "2026-11-10"
+      "date": "2026-11-11"
     },
     {
       "id": "hhi-moderate",
@@ -81,7 +82,7 @@
       "period": "2023",
       "source": "geopolitics.tools code (src/lib/supply-chains/model.ts)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/lib/supply-chains/model.ts",
-      "date": "2026-11-10"
+      "date": "2026-11-11"
     },
     {
       "id": "hhi-high",
@@ -90,7 +91,7 @@
       "unit": "",
       "source": "geopolitics.tools code (src/lib/supply-chains/model.ts)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/lib/supply-chains/model.ts",
-      "date": "2026-11-10"
+      "date": "2026-11-11"
     },
     {
       "id": "hhi-max",
@@ -99,7 +100,7 @@
       "unit": "",
       "source": "geopolitics.tools code (src/lib/supply-chains/model.ts)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/lib/supply-chains/model.ts",
-      "date": "2026-11-10"
+      "date": "2026-11-11"
     },
     {
       "id": "common-year",
@@ -108,7 +109,7 @@
       "unit": "%",
       "source": "geopolitics.tools code (src/lib/stats.ts)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/lib/stats.ts",
-      "date": "2026-11-10"
+      "date": "2026-11-11"
     },
     {
       "id": "latest-available",
@@ -117,7 +118,7 @@
       "unit": "years",
       "source": "geopolitics.tools code (src/lib/indicator.ts)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/lib/indicator.ts",
-      "date": "2026-11-10"
+      "date": "2026-11-11"
     },
     {
       "id": "indicator-min",
@@ -126,7 +127,7 @@
       "unit": "places",
       "source": "geopolitics.tools code (src/lib/indicator.ts)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/lib/indicator.ts",
-      "date": "2026-11-10"
+      "date": "2026-11-11"
     },
     {
       "id": "thin-profile",
@@ -135,7 +136,7 @@
       "unit": "measures",
       "source": "geopolitics.tools code (src/lib/country.ts)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/lib/country.ts",
-      "date": "2026-11-10"
+      "date": "2026-11-11"
     },
     {
       "id": "sipri-totals",
@@ -168,21 +169,21 @@
       "statement": "Texts drafted with AI are written by claude-sonnet-5-5 from a facts file, checked figure by figure, and approved by the editor before they appear.",
       "source": "geopolitics.tools code (src/lib/ai/config.ts)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/lib/ai/config.ts",
-      "date": "2026-11-10"
+      "date": "2026-11-11"
     },
     {
       "id": "ai-prompt",
       "statement": "The drafting prompt asks for plain, neutral text from a text’s own facts only: no forecasts, blame or judging adjectives; every figure with its unit and period and with thousands separators; the site’s own country names; \"rejoined\" for a second join; and nothing about its facts file, tables or itself, or about what its facts leave out.",
       "source": "geopolitics.tools code (src/data/ai/prompt.md)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/ai/prompt.md",
-      "date": "2026-11-10"
+      "date": "2026-11-11"
     },
     {
       "id": "ai-texts",
-      "statement": "The texts drafted with AI are the dossier summaries, the alliance history notes, the disputed river summaries and the summary of each closed week on This week.",
+      "statement": "The texts drafted with AI are the dossier summaries, the membership history notes, the disputed river summaries and the summary of each closed week on This week.",
       "source": "geopolitics.tools code (docs/ai-drafting.md)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/docs/ai-drafting.md",
-      "date": "2026-11-10"
+      "date": "2026-11-11"
     },
     {
       "id": "ai-attempts",
@@ -191,7 +192,7 @@
       "unit": "drafts",
       "source": "geopolitics.tools code (src/lib/ai/config.ts)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/lib/ai/config.ts",
-      "date": "2026-11-10"
+      "date": "2026-11-11"
     },
     {
       "id": "territory-worldbank-CHN",
@@ -201,7 +202,7 @@
       ],
       "source": "Territory and code table (src/data/places/notes.csv)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/places/notes.csv",
-      "date": "2026-11-10"
+      "date": "2026-11-11"
     },
     {
       "id": "territory-all-ESH",
@@ -211,7 +212,7 @@
       ],
       "source": "Territory and code table (src/data/places/notes.csv)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/places/notes.csv",
-      "date": "2026-11-10"
+      "date": "2026-11-11"
     },
     {
       "id": "territory-all-MAR-western-sahara",
@@ -221,7 +222,7 @@
       ],
       "source": "Territory and code table (src/data/places/notes.csv)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/places/notes.csv",
-      "date": "2026-11-10"
+      "date": "2026-11-11"
     },
     {
       "id": "territory-all-XKX",
@@ -231,7 +232,7 @@
       ],
       "source": "Territory and code table (src/data/places/notes.csv)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/places/notes.csv",
-      "date": "2026-11-10"
+      "date": "2026-11-11"
     },
     {
       "id": "territory-all-FLK",
@@ -241,27 +242,47 @@
       ],
       "source": "Territory and code table (src/data/places/notes.csv)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/places/notes.csv",
-      "date": "2026-11-10"
+      "date": "2026-11-11"
     },
     {
       "id": "territory-all-RUS-crimea",
-      "statement": "Crimea: Under Russian control since 2014; within Ukraine's internationally recognised borders. Figures follow each source.",
+      "statement": "Crimea: under Russian control since 2014, within Ukraine's internationally recognised borders; other areas of Ukraine under Russian control since 2022. Figures follow each source.",
       "places": [
         "RUS"
       ],
       "source": "Territory and code table (src/data/places/notes.csv)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/places/notes.csv",
-      "date": "2026-11-10"
+      "date": "2026-11-11"
     },
     {
       "id": "territory-all-UKR",
-      "statement": "Ukraine: Partly under Russian control since 2022. Figures follow each source.",
+      "statement": "Crimea: under Russian control since 2014, within Ukraine's internationally recognised borders; other areas of Ukraine under Russian control since 2022. Figures follow each source.",
       "places": [
         "UKR"
       ],
       "source": "Territory and code table (src/data/places/notes.csv)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/places/notes.csv",
-      "date": "2026-11-10"
+      "date": "2026-11-11"
+    },
+    {
+      "id": "territory-ucdp-UKR",
+      "statement": "UCDP's event records place events in Crimea and Sevastopol in Ukraine",
+      "places": [
+        "UKR"
+      ],
+      "source": "Territory and code table (src/data/places/notes.csv)",
+      "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/places/notes.csv",
+      "date": "2026-11-11"
+    },
+    {
+      "id": "territory-ucdp-RUS",
+      "statement": "UCDP's event records place events in Crimea and Sevastopol in Ukraine, not Russia",
+      "places": [
+        "RUS"
+      ],
+      "source": "Territory and code table (src/data/places/notes.csv)",
+      "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/places/notes.csv",
+      "date": "2026-11-11"
     },
     {
       "id": "territory-all-CYP-northern-cyprus",
@@ -271,7 +292,7 @@
       ],
       "source": "Territory and code table (src/data/places/notes.csv)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/places/notes.csv",
-      "date": "2026-11-10"
+      "date": "2026-11-11"
     },
     {
       "id": "territory-all-SOM-somaliland",
@@ -281,7 +302,7 @@
       ],
       "source": "Territory and code table (src/data/places/notes.csv)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/places/notes.csv",
-      "date": "2026-11-10"
+      "date": "2026-11-11"
     },
     {
       "id": "territory-all-GEO-abkhazia-and-south-ossetia",
@@ -291,7 +312,7 @@
       ],
       "source": "Territory and code table (src/data/places/notes.csv)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/places/notes.csv",
-      "date": "2026-11-10"
+      "date": "2026-11-11"
     },
     {
       "id": "territory-all-MDA-transnistria",
@@ -301,7 +322,17 @@
       ],
       "source": "Territory and code table (src/data/places/notes.csv)",
       "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/places/notes.csv",
-      "date": "2026-11-10"
+      "date": "2026-11-11"
+    },
+    {
+      "id": "territory-all-PSE",
+      "statement": "Palestine: World Bank figures are for 'West Bank and Gaza', as are the IMF's; AidData's are for 'West Bank and Gaza Strip' and EIA's for 'Palestinian Territories'",
+      "places": [
+        "PSE"
+      ],
+      "source": "Territory and code table (src/data/places/notes.csv)",
+      "link": "https://github.com/justinasweb/geopolitics-tools/blob/main/src/data/places/notes.csv",
+      "date": "2026-11-11"
     },
     {
       "id": "source-usgs-quakes",
