@@ -42,7 +42,9 @@ Reply with the text only: no preamble, no notes, no sources list.
 Write a summary of {subject} for the top of its country page: three or four sentences, at most 90 words. Start with
 the figures that say most about how {subject} depends on other countries and how others depend on it (trade in energy,
 food, minerals and arms), then size (people, economy). Name the source of each figure in brackets after it with its
-year, as "(World Bank, 2023)".
+year, as "(World Bank, 2023)". Write dependence shares as the country page does: "China imports 67% of the oil it
+uses", "Russia exports 39.6% of the wheat it produces", not "net imports were 67% of China's oil use". On first use,
+write "potash (a potassium fertiliser)".
 
 ## Task: history
 
@@ -82,8 +84,10 @@ Give each source's main figures and the places they are about; name the source o
 Bank's Pink Sheet", "IODA", the list's name). Name the week by its dates ("in the week of 2–8 November"); never
 write "this week", since the page it sits on also shows the last 7 days. Give other days in full with their year
 ("3 November 2026"), never a day without its year. Monthly figures keep their month and year ("in October 2026").
-Where a fact says a figure is preliminary, say so next to it. Do not say why an outage happened, why a list changed
-or what a disaster caused unless a fact says so. Leave out a source the facts do not cover.
+Explain units, grades and list names on first use: "US$28.50 per million British thermal units (MMBtu)",
+"Thai rice with 5% broken grains", "the US Specially Designated Nationals (SDN) sanctions list and the US Entity List
+for export controls". Where a fact says a figure is preliminary, say so next to it. Do not say why an outage happened,
+why a list changed or what a disaster caused unless a fact says so. Leave out a source the facts do not cover.
 
 ## Redraft
 

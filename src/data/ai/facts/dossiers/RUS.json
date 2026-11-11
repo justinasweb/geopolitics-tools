@@ -6,7 +6,7 @@
     "RUS",
     "IRN"
   ],
-  "generated": "src/lib/ai/dossier-facts.ts from snapshot 2026-11-09T1526Z",
+  "generated": "src/lib/ai/dossier-facts.ts from snapshot 2026-11-10T1329Z",
   "facts": [
     {
       "id": "gdp",
@@ -576,7 +576,7 @@
     },
     {
       "id": "aicompute",
-      "statement": "Share of AI computing power of Russia.",
+      "statement": "Share of documented AI supercomputer power of Russia.",
       "value": 0.115781,
       "unit": "%",
       "period": "2025",
@@ -589,7 +589,7 @@
     },
     {
       "id": "aicompute-rank",
-      "statement": "Russia’s place on share of AI computing power, largest first.",
+      "statement": "Russia’s place on share of documented AI supercomputer power, largest first.",
       "value": 21,
       "unit": "rank",
       "period": "2025",
@@ -602,7 +602,7 @@
     },
     {
       "id": "aicompute-of",
-      "statement": "Places ranked on share of AI computing power.",
+      "statement": "Places ranked on share of documented AI supercomputer power.",
       "value": 36,
       "unit": "places",
       "unitAliases": [
@@ -759,11 +759,11 @@
       ],
       "source": "U.S. Energy Information Administration",
       "link": "https://www.eia.gov/international/data/world",
-      "date": "2026-11-02"
+      "date": "2026-11-09"
     },
     {
       "id": "exports-gas",
-      "statement": "Russia’s net exports of gas as a share of its production.",
+      "statement": "Russia’s net exports of gas as a share of its production (preliminary).",
       "value": 22.1518,
       "unit": "%",
       "unitAliases": [
@@ -778,7 +778,8 @@
       ],
       "source": "U.S. Energy Information Administration",
       "link": "https://www.eia.gov/international/data/world",
-      "date": "2026-11-02"
+      "date": "2026-11-09",
+      "status": "preliminary"
     },
     {
       "id": "exports-wheat",
@@ -820,7 +821,7 @@
     },
     {
       "id": "imports-rice",
-      "statement": "Russia’s net imports of rice as a share of its use.",
+      "statement": "Russia’s net imports of rice as a share of its use (estimated).",
       "value": 16.6982,
       "unit": "%",
       "unitAliases": [
@@ -835,7 +836,8 @@
       ],
       "source": "FAOSTAT",
       "link": "https://www.fao.org/faostat/en/#data",
-      "date": "2026-10-24"
+      "date": "2026-10-24",
+      "status": "estimated"
     },
     {
       "id": "imports-soy",
@@ -858,7 +860,7 @@
     },
     {
       "id": "exports-potash",
-      "statement": "Russia’s net exports of potash as a share of its production.",
+      "statement": "Russia’s net exports of potash as a share of its production (estimated).",
       "value": 92.8195,
       "unit": "%",
       "unitAliases": [
@@ -873,11 +875,12 @@
       ],
       "source": "FAOSTAT",
       "link": "https://www.fao.org/faostat/en/#data",
-      "date": "2026-10-24"
+      "date": "2026-10-24",
+      "status": "estimated"
     },
     {
       "id": "exports-phosphate",
-      "statement": "Russia’s net exports of phosphate as a share of its production.",
+      "statement": "Russia’s net exports of phosphate as a share of its production (estimated).",
       "value": 73.8369,
       "unit": "%",
       "unitAliases": [
@@ -892,7 +895,8 @@
       ],
       "source": "FAOSTAT",
       "link": "https://www.fao.org/faostat/en/#data",
-      "date": "2026-10-24"
+      "date": "2026-10-24",
+      "status": "estimated"
     },
     {
       "id": "main-supplier-arms",
@@ -926,7 +930,8 @@
       ],
       "source": "USGS Mineral Commodity Summaries",
       "link": "https://www.usgs.gov/centers/national-minerals-information-center/mineral-commodity-summaries",
-      "date": "2026-10-25"
+      "date": "2026-10-25",
+      "status": "estimated"
     },
     {
       "id": "mineral-palladium-rank",

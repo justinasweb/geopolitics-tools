@@ -9,7 +9,7 @@
     "GBR",
     "TWN"
   ],
-  "generated": "src/lib/ai/dossier-facts.ts from snapshot 2026-11-09T1526Z",
+  "generated": "src/lib/ai/dossier-facts.ts from snapshot 2026-11-10T1329Z",
   "facts": [
     {
       "id": "gdp",
@@ -579,7 +579,7 @@
     },
     {
       "id": "aicompute",
-      "statement": "Share of AI computing power of the United States.",
+      "statement": "Share of documented AI supercomputer power of the United States.",
       "value": 80.9335,
       "unit": "%",
       "period": "2025",
@@ -592,7 +592,7 @@
     },
     {
       "id": "aicompute-rank",
-      "statement": "The United States’ place on share of AI computing power, largest first.",
+      "statement": "The United States’ place on share of documented AI supercomputer power, largest first.",
       "value": 1,
       "unit": "rank",
       "period": "2025",
@@ -605,7 +605,7 @@
     },
     {
       "id": "aicompute-of",
-      "statement": "Places ranked on share of AI computing power.",
+      "statement": "Places ranked on share of documented AI supercomputer power.",
       "value": 36,
       "unit": "places",
       "unitAliases": [
@@ -747,7 +747,7 @@
     },
     {
       "id": "exports-oil",
-      "statement": "The United States’ net exports of oil as a share of its production.",
+      "statement": "The United States’ net exports of oil as a share of its production (preliminary).",
       "value": 12.6185,
       "unit": "%",
       "unitAliases": [
@@ -762,11 +762,12 @@
       ],
       "source": "U.S. Energy Information Administration",
       "link": "https://www.eia.gov/international/data/world",
-      "date": "2026-11-02"
+      "date": "2026-11-09",
+      "status": "preliminary"
     },
     {
       "id": "exports-gas",
-      "statement": "The United States’ net exports of gas as a share of its production.",
+      "statement": "The United States’ net exports of gas as a share of its production (preliminary).",
       "value": 12.4022,
       "unit": "%",
       "unitAliases": [
@@ -781,7 +782,8 @@
       ],
       "source": "U.S. Energy Information Administration",
       "link": "https://www.eia.gov/international/data/world",
-      "date": "2026-11-02"
+      "date": "2026-11-09",
+      "status": "preliminary"
     },
     {
       "id": "exports-wheat",
@@ -861,14 +863,15 @@
     },
     {
       "id": "imports-potash",
-      "statement": "The United States’ net imports of potash as a share of its use.",
-      "value": 132.952,
+      "statement": "The United States’ net imports of potash as a share of its potash supply (production plus net imports) (estimated).",
+      "value": 94.3606,
       "unit": "%",
       "unitAliases": [
         "potash use",
         "potash it uses",
         "of its potash",
-        "potash imports"
+        "potash imports",
+        "potash supply"
       ],
       "period": "2024",
       "places": [
@@ -876,7 +879,8 @@
       ],
       "source": "FAOSTAT",
       "link": "https://www.fao.org/faostat/en/#data",
-      "date": "2026-10-24"
+      "date": "2026-10-24",
+      "status": "estimated"
     },
     {
       "id": "main-supplier-potash",
@@ -898,14 +902,15 @@
     },
     {
       "id": "imports-phosphate",
-      "statement": "The United States’ net imports of phosphate as a share of its use.",
-      "value": 1.35439,
+      "statement": "The United States’ net imports of phosphate as a share of its phosphate supply (production plus net imports) (estimated).",
+      "value": 0.973053,
       "unit": "%",
       "unitAliases": [
         "phosphate use",
         "phosphate it uses",
         "of its phosphate",
-        "phosphate imports"
+        "phosphate imports",
+        "phosphate supply"
       ],
       "period": "2024",
       "places": [
@@ -913,7 +918,8 @@
       ],
       "source": "FAOSTAT",
       "link": "https://www.fao.org/faostat/en/#data",
-      "date": "2026-10-24"
+      "date": "2026-10-24",
+      "status": "estimated"
     },
     {
       "id": "main-supplier-phosphate",
@@ -967,7 +973,7 @@
       ],
       "source": "UN Comtrade",
       "link": "https://comtradeplus.un.org/",
-      "date": "2026-11-09"
+      "date": "2026-11-10"
     },
     {
       "id": "mineral-rare-earths",
@@ -983,7 +989,8 @@
       ],
       "source": "USGS Mineral Commodity Summaries",
       "link": "https://www.usgs.gov/centers/national-minerals-information-center/mineral-commodity-summaries",
-      "date": "2026-10-25"
+      "date": "2026-10-25",
+      "status": "estimated"
     },
     {
       "id": "mineral-rare-earths-rank",
@@ -1000,7 +1007,7 @@
     },
     {
       "id": "refin",
-      "statement": "Refugees hosted of the United States.",
+      "statement": "Refugees and others needing protection, by host of the United States.",
       "value": 4176590,
       "unit": "people",
       "unitAliases": [
@@ -1017,7 +1024,7 @@
     },
     {
       "id": "refin-rank",
-      "statement": "The United States’ place on refugees hosted, largest first.",
+      "statement": "The United States’ place on refugees and others needing protection, by host, largest first.",
       "value": 1,
       "unit": "rank",
       "period": "2025",
@@ -1030,7 +1037,7 @@
     },
     {
       "id": "refin-of",
-      "statement": "Places ranked on refugees hosted.",
+      "statement": "Places ranked on refugees and others needing protection, by host.",
       "value": 176,
       "unit": "places",
       "unitAliases": [

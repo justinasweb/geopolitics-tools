@@ -14,7 +14,10 @@
     "Consolidated Screening List",
     "Rice, Thai 5%",
     "Thai 5%",
-    "US hard red winter"
+    "Thai rice with 5% broken grains",
+    "US hard red winter",
+    "million British thermal units",
+    "Specially Designated Nationals"
   ],
   "generated": "scripts/week.ts, from the frozen week 2026-45 (data/raw/weeks/2026-45.json, made 2026-11-09T00:41:28.431Z)",
   "facts": [

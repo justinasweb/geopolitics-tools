@@ -1,9 +1,9 @@
 {
   "id": "week:2026-45",
   "author": "ai",
-  "text": "In the World Bank's Pink Sheet, natural gas in Europe averaged $28.5 per MMBtu in October 2026, up 12.1% on September 2026 and up 161.7% on October 2025. US hard red winter wheat averaged $317 per tonne in October 2026, down 8.6% on September 2026 and up 37.3% on October 2025. Maize averaged $226.5 per tonne in October 2026, down 5.5% on September 2026, and Thai 5% rice $489 per tonne, up 1.5%. Copper averaged $14,508 per tonne in October 2026, up 0.2% on the month, and gold $4,105 per troy oz, down 5%. On the United States SDN list and Entity List, 79 entries were added and none removed in the week of 2–8 November; added entries most often give an address or nationality in Cambodia, India and Canada. The UK Sanctions List and the EU Financial sanctions file had no entries added or removed.",
+  "text": "In the World Bank's Pink Sheet, natural gas in Europe averaged US$28.50 per million British thermal units (MMBtu) in October 2026, up 12.1% on the month and up 161.7% on October 2025. US hard red winter wheat averaged $317 per tonne in October 2026, down 8.6% on the month and up 37.3% on October 2025. In October 2026, maize averaged $226.5 per tonne (down 5.5% on the month), Thai rice with 5% broken grains $489 per tonne (up 1.5%), copper $14,508 per tonne (up 0.2%) and gold $4,105 per troy oz (down 5%). On the US Specially Designated Nationals (SDN) sanctions list and the US Entity List for export controls, 79 entries were added and none removed in the week of 2–8 November; added entries most often give an address or nationality in Cambodia, India and Canada. The UK Sanctions List and the EU Financial sanctions file had no changes.",
   "model": "manual (Claude chat)",
-  "factsHash": "sha256:15e0ba74413932605771584309cfaea7",
+  "factsHash": "sha256:b5fe8093ace56ccab5d149cf2a0fa3c6",
   "usedFacts": [
     "price-copper",
     "price-copper-month",
@@ -21,10 +21,11 @@
     "price-wheat-us-hrw-year",
     "sanctions-places",
     "sanctions-uk-none",
-    "sanctions-us-added"
+    "sanctions-us-added",
+    "sanctions-us-removed"
   ],
-  "drafted": "2026-11-10",
-  "approved": true,
-  "approvedOn": "2026-11-10",
-  "approvedVia": "telegram"
+  "drafted": "2026-11-11",
+  "approved": false,
+  "approvedOn": null,
+  "approvedVia": null
 }

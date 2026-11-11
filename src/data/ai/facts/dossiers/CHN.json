@@ -10,7 +10,7 @@
     "VNM",
     "TWN"
   ],
-  "generated": "src/lib/ai/dossier-facts.ts from snapshot 2026-11-09T1526Z",
+  "generated": "src/lib/ai/dossier-facts.ts from snapshot 2026-11-10T1329Z",
   "facts": [
     {
       "id": "gdp",
@@ -580,7 +580,7 @@
     },
     {
       "id": "aicompute",
-      "statement": "Share of AI computing power of China.",
+      "statement": "Share of documented AI supercomputer power of China.",
       "value": 6.93924,
       "unit": "%",
       "period": "2025",
@@ -593,7 +593,7 @@
     },
     {
       "id": "aicompute-rank",
-      "statement": "China’s place on share of AI computing power, largest first.",
+      "statement": "China’s place on share of documented AI supercomputer power, largest first.",
       "value": 2,
       "unit": "rank",
       "period": "2025",
@@ -606,7 +606,7 @@
     },
     {
       "id": "aicompute-of",
-      "statement": "Places ranked on share of AI computing power.",
+      "statement": "Places ranked on share of documented AI supercomputer power.",
       "value": 36,
       "unit": "places",
       "unitAliases": [
@@ -763,12 +763,12 @@
       ],
       "source": "U.S. Energy Information Administration",
       "link": "https://www.eia.gov/international/data/world",
-      "date": "2026-11-02"
+      "date": "2026-11-09"
     },
     {
       "id": "main-supplier-oil",
       "statement": "Russia is the main supplier of China’s oil imports.",
-      "value": 17.4193,
+      "value": 17.4162,
       "unit": "%",
       "unitAliases": [
         "oil imports",
@@ -781,11 +781,11 @@
       ],
       "source": "U.S. Energy Information Administration",
       "link": "https://www.eia.gov/international/data/world",
-      "date": "2026-11-02"
+      "date": "2026-11-09"
     },
     {
       "id": "imports-gas",
-      "statement": "China’s net imports of gas as a share of its use.",
+      "statement": "China’s net imports of gas as a share of its use (preliminary).",
       "value": 39.1737,
       "unit": "%",
       "unitAliases": [
@@ -800,12 +800,13 @@
       ],
       "source": "U.S. Energy Information Administration",
       "link": "https://www.eia.gov/international/data/world",
-      "date": "2026-11-02"
+      "date": "2026-11-09",
+      "status": "preliminary"
     },
     {
       "id": "main-supplier-gas",
-      "statement": "Russia is the main supplier of China’s gas imports.",
-      "value": 23.5842,
+      "statement": "Australia is the main supplier of China’s gas imports.",
+      "value": 28.2381,
       "unit": "%",
       "unitAliases": [
         "gas imports",
@@ -814,15 +815,15 @@
       "period": "2024",
       "places": [
         "CHN",
-        "RUS"
+        "AUS"
       ],
       "source": "U.S. Energy Information Administration",
       "link": "https://www.eia.gov/international/data/world",
-      "date": "2026-11-02"
+      "date": "2026-11-09"
     },
     {
       "id": "imports-wheat",
-      "statement": "China’s net imports of wheat as a share of its use.",
+      "statement": "China’s net imports of wheat as a share of its use (estimated).",
       "value": 7.28237,
       "unit": "%",
       "unitAliases": [
@@ -837,7 +838,8 @@
       ],
       "source": "FAOSTAT",
       "link": "https://www.fao.org/faostat/en/#data",
-      "date": "2026-10-24"
+      "date": "2026-10-24",
+      "status": "estimated"
     },
     {
       "id": "main-supplier-wheat",
@@ -970,14 +972,15 @@
     },
     {
       "id": "imports-potash",
-      "statement": "China’s net imports of potash as a share of its use.",
-      "value": 87.2505,
+      "statement": "China’s net imports of potash as a share of its potash supply (production plus net imports) (estimated).",
+      "value": 54.784,
       "unit": "%",
       "unitAliases": [
         "potash use",
         "potash it uses",
         "of its potash",
-        "potash imports"
+        "potash imports",
+        "potash supply"
       ],
       "period": "2024",
       "places": [
@@ -985,7 +988,8 @@
       ],
       "source": "FAOSTAT",
       "link": "https://www.fao.org/faostat/en/#data",
-      "date": "2026-10-24"
+      "date": "2026-10-24",
+      "status": "estimated"
     },
     {
       "id": "main-supplier-potash",
@@ -1007,7 +1011,7 @@
     },
     {
       "id": "exports-phosphate",
-      "statement": "China’s net exports of phosphate as a share of its production.",
+      "statement": "China’s net exports of phosphate as a share of its production (estimated).",
       "value": 30.1146,
       "unit": "%",
       "unitAliases": [
@@ -1022,7 +1026,8 @@
       ],
       "source": "FAOSTAT",
       "link": "https://www.fao.org/faostat/en/#data",
-      "date": "2026-10-24"
+      "date": "2026-10-24",
+      "status": "estimated"
     },
     {
       "id": "main-supplier-arms",
@@ -1058,7 +1063,7 @@
       ],
       "source": "UN Comtrade",
       "link": "https://comtradeplus.un.org/",
-      "date": "2026-11-09"
+      "date": "2026-11-10"
     },
     {
       "id": "mineral-gallium",
@@ -1074,7 +1079,8 @@
       ],
       "source": "USGS Mineral Commodity Summaries",
       "link": "https://www.usgs.gov/centers/national-minerals-information-center/mineral-commodity-summaries",
-      "date": "2026-10-25"
+      "date": "2026-10-25",
+      "status": "estimated"
     },
     {
       "id": "mineral-gallium-rank",
@@ -1103,7 +1109,8 @@
       ],
       "source": "USGS Mineral Commodity Summaries",
       "link": "https://www.usgs.gov/centers/national-minerals-information-center/mineral-commodity-summaries",
-      "date": "2026-10-25"
+      "date": "2026-10-25",
+      "status": "estimated"
     },
     {
       "id": "mineral-tungsten-rank",
@@ -1132,7 +1139,8 @@
       ],
       "source": "USGS Mineral Commodity Summaries",
       "link": "https://www.usgs.gov/centers/national-minerals-information-center/mineral-commodity-summaries",
-      "date": "2026-10-25"
+      "date": "2026-10-25",
+      "status": "estimated"
     },
     {
       "id": "mineral-graphite-rank",
@@ -1161,7 +1169,8 @@
       ],
       "source": "USGS Mineral Commodity Summaries",
       "link": "https://www.usgs.gov/centers/national-minerals-information-center/mineral-commodity-summaries",
-      "date": "2026-10-25"
+      "date": "2026-10-25",
+      "status": "estimated"
     },
     {
       "id": "mineral-rare-earths-rank",
@@ -1190,7 +1199,8 @@
       ],
       "source": "USGS Mineral Commodity Summaries",
       "link": "https://www.usgs.gov/centers/national-minerals-information-center/mineral-commodity-summaries",
-      "date": "2026-10-25"
+      "date": "2026-10-25",
+      "status": "estimated"
     },
     {
       "id": "mineral-lithium-rank",
@@ -1207,7 +1217,7 @@
     },
     {
       "id": "refin",
-      "statement": "Refugees hosted of China.",
+      "statement": "Refugees and others needing protection, by host of China.",
       "value": 712,
       "unit": "people",
       "unitAliases": [
@@ -1224,7 +1234,7 @@
     },
     {
       "id": "refin-rank",
-      "statement": "China’s place on refugees hosted, largest first.",
+      "statement": "China’s place on refugees and others needing protection, by host, largest first.",
       "value": 140,
       "unit": "rank",
       "period": "2025",
@@ -1237,7 +1247,7 @@
     },
     {
       "id": "refin-of",
-      "statement": "Places ranked on refugees hosted.",
+      "statement": "Places ranked on refugees and others needing protection, by host.",
       "value": 176,
       "unit": "places",
       "unitAliases": [
