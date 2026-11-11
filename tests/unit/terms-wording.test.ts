@@ -39,7 +39,7 @@ describe('SIPRI and military spending', () => {
     const { ANSWER, COMPARE_TEXT, DEP_TEXT } = await import('../../src/i18n/pages.en.ts');
     expect(TIV_NOTE).toBe('SIPRI’s measure of military capability delivered, not price or number of weapons');
     for (const s of [ARMS_TEXT.partnersCaption(false), ARMS_TEXT.largestCaption(20, '2021–2025'), VIEW_TEXT.arms.layers.armsimp5.caveat!,
-      VIEW_TEXT.arms.layers.armsexp5.total!('1,000', 2025), ANSWER.armsexp.caveats![0], COMPARE_TEXT.measureNote.armsimp, DEP_TEXT.caption]) expect(s).toContain(TIV_NOTE);
+      VIEW_TEXT.arms.layers.armsexp5.total!('1,000', 2025, ''), ANSWER.armsexp.caveats![0], COMPARE_TEXT.measureNote.armsimp, DEP_TEXT.caption]) expect(s).toContain(TIV_NOTE);
     expect(methodology).toContain('not price or number of weapons');
   });
 
