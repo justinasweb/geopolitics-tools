@@ -118,8 +118,8 @@ row per source, or leave it as the general "Figures follow each source".
 treaty's own wording was not checked. The approved summary is unchanged.
 
 **NATO: "11 years with changes, including German reunification in 1990".** The 11 years are the years a country
-joined (founding included); 1990 is not one of them. The lede reads "There were 11 years with changes, counting its
-founding, and German reunification in 1990 brought in the former East Germany."
+joined (founding included); 1990 is not one of them. The lede reads "Membership changed in 11 years, including the
+1949 founding; German reunification in 1990 also brought in the former East Germany."
 
 **Compare and dependence shares.** Compare pages show no dependence share, so nothing was added there.
 

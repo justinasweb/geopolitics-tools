@@ -232,7 +232,7 @@ export const HISTORY_EVENTS: Record<string, Record<number, string>> = {
 };
 
 /** A change in a grouping's history that is not a year a member joined or left, named after the count of those years. */
-const CHANGES_TOO: Record<string, string> = { nato: 'German reunification in 1990 brought in the former East Germany' };
+const CHANGES_TOO: Record<string, string> = { nato: 'German reunification in 1990 also brought in the former East Germany' };
 
 /** A founding member's name as it was before a year (the maps draw today's borders): West Germany until reunification. */
 export const THEN_NAMES: Record<string, { before: number; name: string }> = { DEU: { before: 1990, name: 'West Germany' } };
@@ -251,7 +251,7 @@ export const HISTORY_TEXT = {
       : `${o.bloc} began in ${o.first} with ${membersText(o.id, o.n0, o.first)}.`;
     const now = unconfirmedText(o.id, o.last) ? countSentence(o.id, o.bloc, o.n, { year: o.last, past: true }) : `it had ${membersText(o.id, o.n, o.last)}`;
     // The founding year counts as a year with changes; a change that moved no country in or out is named after it.
-    return `${start} In ${o.last} ${now}. There ${o.changes === 1 ? 'was 1 year' : `were ${o.changes} years`} with changes, counting its founding${CHANGES_TOO[o.id] ? `, and ${CHANGES_TOO[o.id]}` : ''}.`;
+    return `${start} In ${o.last} ${now}. Membership changed in ${o.changes} year${o.changes === 1 ? '' : 's'}, including the ${o.first} founding${CHANGES_TOO[o.id] ? `; ${CHANGES_TOO[o.id]}` : ''}.`;
   },
   description: (bloc: string, from: number) => `${bloc} membership year by year since ${from}: who joined, who left, on a map with a timeline.`,
   status: { joined: 'Joined that year', member: 'Member', left: 'Left that year', former: 'Former member' } as Record<string, string>,
