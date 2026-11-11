@@ -506,6 +506,17 @@ export const OG_TEXT = {
   altSource: (s: string) => `source: ${s}`,
   /** The credit for a country card's mineral bars, beside the headline figure's. */
   mineralSource: (credit: string) => `${credit} (mineral shares)`,
+  /** The fallback cards' line under the title, before the address: the site default and the pages with no figure. */
+  siteTitle: 'Maps and figures on resources, technology, climate, security and power',
+  siteLine: 'Every number with its source and date.',
+  pageLine: {
+    countries: 'Key figures for every country and territory',
+    indicators: 'Every measure, with the countries ranked',
+    about: 'What the site is and where its figures come from',
+    methodology: 'How each measure is worked out',
+    privacy: 'What is recorded when you visit',
+    sources: 'Every data source, with its licence and last refresh',
+  } as Record<string, string>,
   /** og:image:alt and twitter:image:alt when a page names no share card. */
   altFallback: (title: string) => `Share card: ${title}`,
 };

@@ -1,5 +1,7 @@
 // Share images (1200 × 630), rendered at build time: Satori lays the card out as SVG, resvg turns it into PNG.
-// One layout for every page: kicker, title, a headline figure with its caption, up to five bars, and the source.
+// One layout for every page: kicker, title, a headline figure with its caption, up to five bars, and the source. The
+// site default and the pages with no figure of their own take the design's fallback card instead: the lockup, the title
+// and one line with the page's address, centred, under the same double rule (`fallbackSvg`).
 // Colours are the light theme's tokens (src/styles/tokens.css); fonts are the site's, as static WOFF files. The lockup is
 // the header's (src/components/LogoSprite.astro), its token colours resolved, drawn as an SVG image: outlines, no font.
 //
@@ -17,11 +19,13 @@ const file = (p: string) => readFileSync(join(process.cwd(), p));
 const FONT_FILES = {
   serif600: 'node_modules/@fontsource/newsreader/files/newsreader-latin-600-normal.woff',
   sans400: 'node_modules/@fontsource/source-sans-3/files/source-sans-3-latin-400-normal.woff',
+  sans500: 'node_modules/@fontsource/source-sans-3/files/source-sans-3-latin-500-normal.woff',
   sans600: 'node_modules/@fontsource/source-sans-3/files/source-sans-3-latin-600-normal.woff',
 };
 const fonts = [
   { name: 'Newsreader', data: file(FONT_FILES.serif600), weight: 600 as const, style: 'normal' as const },
   { name: 'Source Sans 3', data: file(FONT_FILES.sans400), weight: 400 as const, style: 'normal' as const },
+  { name: 'Source Sans 3', data: file(FONT_FILES.sans500), weight: 500 as const, style: 'normal' as const },
   { name: 'Source Sans 3', data: file(FONT_FILES.sans600), weight: 600 as const, style: 'normal' as const },
 ];
 
@@ -72,9 +76,11 @@ export interface Card {
   caption?: string;
   source?: string;
   bars?: { label: string; value: number; text: string }[];
-  /** The lockup in place of the kicker: the site default and pages with no figure of their own. The kicker still
-   *  goes into the alt text. */
-  logo?: boolean;
+  /** The fallback card: the site default and pages with no figure of their own. The lockup in place of the kicker,
+   *  the caption (without its full stop) and `address` on one line under the title. The kicker still goes into the
+   *  alt text. */
+  fallback?: boolean;
+  address?: string;
 }
 
 // The card's geometry, in pixels.
@@ -88,7 +94,10 @@ export const G = {
   titleGap: 18, titleLine: 1.1,
   /** Footer: margin, rule, padding and the lockup's height. */
   footer: 28 + 1 + 12 + 30,
-  footPad: 12, logoH: 30, logoTopH: 56,
+  footPad: 12, logoH: 30,
+  /** The fallback card (ShareImages "fallback"): padding, lockup height, the gaps between lockup, title and line, the
+   *  title's sizes from the design's 96/100 px down, and the line's size and height. */
+  fb: { pad: 64, logoH: 72, gap: 28, titleSizes: [[96, 100], [84, 88], [72, 78], [64, 70], [56, 62]] as const, line: 26, lineH: 32 },
   /** The lockup's width in the footer, and the least space between it and the source line. */
   get logoW() { return Math.ceil(this.logoH * LOCKUP_RATIO); },
   logoGap: 24,
@@ -167,13 +176,12 @@ export interface BarLayout {
 
 /** How many lines a title takes across the card. */
 export const titleSize = (title: string) => (title.length > 48 ? 50 : 60);
-function titleLines(title: string): number {
-  const size = titleSize(title);
+export function titleLines(title: string, size = titleSize(title), width = G.innerW): number {
   let lines = 1;
   let line = '';
   for (const w of title.split(/\s+/)) {
     const next = line ? `${line} ${w}` : w;
-    if (line && measure(next, size, 'serif600') > G.innerW) { lines++; line = w; } else line = next;
+    if (line && measure(next, size, 'serif600') > width) { lines++; line = w; } else line = next;
   }
   return lines;
 }
@@ -206,15 +214,39 @@ export function barLayout(o: Pick<Card, 'title' | 'bars'>): BarLayout | null {
   return out;
 }
 
+/** The fallback card's title size and line height: the design's 96/100 px, or the first smaller step at which the
+ *  title fits on two lines (the smallest when none does). */
+export function fallbackTitle(title: string): { size: number; lineH: number } {
+  const steps = G.fb.titleSizes;
+  const fit = steps.find(([size]) => titleLines(title, size, G.width - 2 * G.fb.pad) <= 2) ?? steps.at(-1)!;
+  return { size: fit[0], lineH: fit[1] };
+}
+
+/** The fallback card as SVG: one centred group (lockup, title, line) on the card, under the other cards' double rule. */
+function fallbackSvg(o: Card): Promise<string> {
+  const t = fallbackTitle(o.title);
+  const line = [o.caption?.replace(/\.$/, ''), o.address].filter(Boolean).join(' · ');
+  const tree = h('div', { width: G.width, height: G.height, display: 'flex', alignItems: 'center', justifyContent: 'center', background: C.paper, fontFamily: 'Source Sans 3', color: C.ink, position: 'relative' }, [
+    h('div', { position: 'absolute', top: G.padTop, left: G.padX, width: G.innerW, borderTop: `6px double ${C.ink}` }),
+    h('div', { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: G.fb.gap, padding: G.fb.pad, maxWidth: G.width, textAlign: 'center' }, [
+      lockup(G.fb.logoH),
+      h('div', { display: 'flex', justifyContent: 'center', fontFamily: 'Newsreader', fontWeight: 600, fontSize: t.size, lineHeight: `${t.lineH}px`, maxWidth: G.width - 2 * G.fb.pad }, o.title),
+      ...(line ? [h('div', { display: 'flex', fontSize: G.fb.line, fontWeight: 500, lineHeight: `${G.fb.lineH}px`, color: C.muted }, line)] : []),
+    ]),
+  ]);
+  return satori(tree as unknown as Parameters<typeof satori>[0], { width: G.width, height: G.height, fonts });
+}
+
 /** The card as SVG (Satori); `shareImage` turns it into PNG. */
 export async function shareSvg(o: Card): Promise<string> {
+  if (o.fallback) return fallbackSvg(o);
   const bars = (o.bars ?? []).slice(0, 5);
   const top = Math.max(...bars.map((b) => Math.abs(b.value)), 0) || 1;
   const L = barLayout(o);
   // Satori sizes the box without its padding, so the content box is the card minus the padding.
   const tree = h('div', { width: G.innerW, height: G.innerH, display: 'flex', flexDirection: 'column', background: C.paper, padding: `${G.padTop}px ${G.padX}px ${G.padBottom}px`, fontFamily: 'Source Sans 3', color: C.ink }, [
     h('div', { display: 'flex', flexShrink: 0, borderTop: `6px double ${C.ink}`, paddingTop: 20, fontSize: 22, fontWeight: 600, letterSpacing: 2, textTransform: 'uppercase', color: C.accent },
-      o.logo ? [lockup(G.logoTopH)] : o.kicker),
+      o.kicker),
     h('div', { display: 'flex', fontFamily: 'Newsreader', fontWeight: 600, fontSize: titleSize(o.title), lineHeight: G.titleLine, marginTop: G.titleGap, maxWidth: G.innerW }, o.title),
     h('div', { display: 'flex', flex: 1, minHeight: 0, alignItems: 'flex-end', gap: G.columnsGap }, [
       h('div', { display: 'flex', flexDirection: 'column', ...(L ? { width: G.leftW, flexShrink: 0 } : { maxWidth: G.innerW }) }, [
