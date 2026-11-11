@@ -358,9 +358,14 @@ says is in `src/lib/og-cards.ts`.
 
 - **The lockup** is the header's artwork (`src/components/LogoSprite.astro`), its token colours resolved to the light
   theme and drawn as an SVG image (outlines, no font): 30px high at the right of the footer, beside the source line,
-  on every card. The site default and pages with no figure of their own (About, Methodology…; `logo: true` in
-  `og-cards.ts`) show it 56px high in place of the kicker. Its clear space, the lowest band's height (7px in the
-  footer), is kept on every side. Source lines must fit on one line beside it: about 805px at 20px (a test checks).
+  on every card with a figure. Its clear space, the lowest band's height (7px in the footer), is kept on every side.
+  Source lines must fit on one line beside it: about 805px at 20px (a test checks).
+- **Fallback cards**: the site default and the six pages with no figure of their own (Countries, Indicators, About,
+  Methodology, Privacy, Sources; `fallback: true` in `og-cards.ts`) follow ShareImages "fallback" in the design
+  system: one centred group of the lockup (72px), the title (Newsreader 600, 96/100px, stepped down only when it
+  would not fit on two lines; the site default's long title takes a smaller step) and one muted line, Source Sans 500
+  at 26px: a short description and the page's address (`OG_TEXT.pageLine`, "How each measure is worked out ·
+  geopolitics.tools/methodology"). No kicker or footer; the top double rule stays, as on the other cards.
 
 - **Bar labels** are measured in the font Satori draws them with (its own opentype.js, pinned in `package.json`) and
   fitted first: wrapped to two lines at spaces, or cut after a whole word with "…", keeping a trailing year or

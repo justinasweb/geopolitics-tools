@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import { Resvg } from '@resvg/resvg-js';
-import { barLayout, fitLabel, G, measure, shareSvg, type Card } from '../../src/lib/og.ts';
+import { barLayout, fallbackTitle, fitLabel, G, measure, shareSvg, titleLines, type Card } from '../../src/lib/og.ts';
 import { formatShare } from '../../src/lib/format.ts';
 
 // Share images (src/lib/og.ts): bar labels wrap to two lines or are cut after a whole word, never mid-word, and every
@@ -123,6 +123,22 @@ describe('share image cards', () => {
       expect(c.card.source, c.key).toBeTruthy();
       expect(measure(`Source: ${c.card.source}`, 20) + G.logoGap + G.logoW, c.key).toBeLessThanOrEqual(G.innerW);
     }
+  });
+
+  it('draw the site default and the six pages with no figure as the design\'s fallback card: title on two lines, one line with the address', async () => {
+    const { card } = await import('../../src/lib/og-cards.ts');
+    const fb = [{ key: 'default', card: card(null) }, ...cards.filter((c) => c.card.fallback)];
+    expect(fb.map((c) => c.key).sort()).toEqual(['countries', 'default', 'indicators', 'page:about', 'page:methodology', 'page:privacy', 'page:sources']);
+    for (const c of fb) {
+      const t = fallbackTitle(c.card.title);
+      expect(titleLines(c.card.title, t.size, G.width - 2 * G.fb.pad), c.key).toBeLessThanOrEqual(2);
+      expect(c.card.caption, c.key).toBeTruthy();
+      expect(c.card.address, c.key).toMatch(/^geopolitics\.tools(\/[a-z-]+)?$/);
+      expect(measure(`${c.card.caption!.replace(/\.$/, '')} · ${c.card.address}`, G.fb.line, 'sans500'), c.key).toBeLessThanOrEqual(G.width - 2 * G.fb.pad);
+    }
+    // One-word page titles keep the design's size; the site default steps down to fit two lines.
+    expect(fallbackTitle('Methodology').size).toBe(96);
+    expect(fallbackTitle(fb[0].card.title).size).toBeLessThan(96);
   });
 
   it('date the member lists on the bloc and alliance-history cards', () => {
