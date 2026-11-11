@@ -6,7 +6,8 @@ facts:
   - "Disputed rivers: the countries of eight disputed rivers and their large dams (Global Dam Watch)"
   - "Every figure carries its source and year (site rules)"
 updated: '2026-10-29'
-approved: false
+approved: true
+approvedOn: "2026-11-11"
 author: "ai"
 model: "manual (Claude chat)"
 factsHash: "sha256:9f256d618bb864304b36f8620fbe06ea"

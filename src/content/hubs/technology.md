@@ -5,7 +5,8 @@ facts:
   - "Internet: share of people using the internet (ITU, via World Bank); ICT service exports (IMF balance of payments, via World Bank); publicly known cyber incidents by country affected since 2000, with who they were attributed to and by whom (EuRepoC)"
   - "Every figure carries its source and year (site rules)"
 updated: '2026-11-03'
-approved: false
+approved: true
+approvedOn: "2026-11-11"
 author: "ai"
 model: "manual (Claude chat)"
 factsHash: "sha256:7fd0f6fb803a967ccb939379a2cf5303"

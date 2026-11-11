@@ -25,7 +25,7 @@
     "sanctions-us-removed"
   ],
   "drafted": "2026-11-11",
-  "approved": false,
-  "approvedOn": null,
-  "approvedVia": null
+  "approved": true,
+  "approvedOn": "2026-11-11",
+  "approvedVia": "cli"
 }

@@ -6,7 +6,8 @@ facts:
   - "Arms transfers: major arms exported and imported, five-year totals (SIPRI)"
   - "Every figure carries its source and year (site rules)"
 updated: '2026-10-29'
-approved: false
+approved: true
+approvedOn: "2026-11-11"
 author: "ai"
 model: "manual (Claude chat)"
 factsHash: "sha256:f065223bb47ee6cd577d0a68d63af5f1"
