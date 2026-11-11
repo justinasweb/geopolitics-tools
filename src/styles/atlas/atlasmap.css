@@ -172,6 +172,9 @@ html:has(.gt-atlas), html:has(.gt-atlas) body { height: 100%; overflow: hidden; 
 /* The phone legend line: hidden on desktop */
 .gt-atlegm__b { display: none; }
 
+/* The phone Layers dock: hidden on desktop */
+.gt-atdock { display: none; }
+
 /* The panel: the world, or the selected country */
 .gt-atpanel { border-left: 1px solid var(--rule); min-height: 0; overflow: hidden; display: flex; flex-direction: column; }
 .gt-atpanel .gt-panel__body { flex: 1; min-height: 0; overflow: auto; align-content: start; }
@@ -260,7 +263,7 @@ html:has(.gt-atlas), html:has(.gt-atlas) body { height: 100%; overflow: hidden; 
   .gt-atlas .gt-atleg { z-index: 3; }
   .gt-atlas .gt-atyear { left: 12px; right: 12px; bottom: 80px; width: auto; padding: 8px 12px; }
   .gt-atlas .gt-atyear .gt-years__ticks { display: none; }
-  .gt-atlas .gt-atdock { position: absolute; left: 12px; right: 12px; bottom: 16px; z-index: 3; }
+  .gt-atlas .gt-atdock { display: block; position: absolute; left: 12px; right: 12px; bottom: 16px; z-index: 3; }
   .gt-atlas .gt-atdock__l { width: 100%; justify-content: flex-start; gap: 10px; min-height: 52px; background: var(--paper-raised); color: var(--ink); border: 1px solid var(--ink); box-shadow: var(--shadow-pop); }
   .gt-atlas .gt-atdock__l .gt-ico { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.6; }
   .gt-atlas .gt-atdock__l span { margin-left: auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 400; color: var(--ink-muted); }
