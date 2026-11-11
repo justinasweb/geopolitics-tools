@@ -30,7 +30,7 @@ export const WEEK_LINKS: Record<string, string> = {
 const LIST_PLACE: Record<string, string | undefined> = { US: 'USA', UK: 'GBR' };
 /** Names the summary may use that the checker would otherwise read as a figure or a country ("Thai 5%", "US hard red
  *  winter"): the sources, the lists and the price series. */
-const NAMES = ['GDACS', 'UCDP', 'IODA', 'Pink Sheet', 'SDN', 'Entity List', 'UK Sanctions List', 'Consolidated Screening List', 'Rice, Thai 5%', 'Thai 5%', 'US hard red winter'];
+const NAMES = ['GDACS', 'UCDP', 'IODA', 'Pink Sheet', 'SDN', 'Entity List', 'UK Sanctions List', 'Consolidated Screening List', 'Rice, Thai 5%', 'Thai 5%', 'Thai rice with 5% broken grains', 'US hard red winter', 'million British thermal units', 'Specially Designated Nationals'];
 /** At most this many alerts and outages are listed one by one; the counts cover them all. */
 export const WEEK_ITEMS = 8;
 

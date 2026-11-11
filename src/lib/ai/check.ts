@@ -7,7 +7,8 @@
 //   Ranges ("15–20%", "1.2 to 3.4 million", "between 1,000 and 1,800") give their scale or % to both ends.
 // - Rounding: a figure may be rounded the way it is written, to at least two significant figures, so
 //   "1.2 million" and "1.23 million" match 1,234,567 but "1.3 million" and "1 million" do not. "50%" does not match
-//   47.3%. Signs are ignored, so "down 3%" matches −3.
+//   47.3%. Signs are ignored, so "down 3%" matches −3. A share (a fact with `share`) is written as the site writes it
+//   (formatShare): "40%" for 39.6%, and "39.6%" fails, as more precise than the site.
 // - A percentage only matches a fact in % (and money only a fact in dollars), and the fact's unit and period must
 //   be in the same sentence: "55.5 billion cubic metres a year (1959)".
 // - Dates: "6 June 2023", "June 2023", "2023-06-06", years, decades ("the 1990s"), ranges of years and ranges of days
@@ -17,6 +18,7 @@
 // - Words that state a comparison ("doubled", "twice") must be in a fact; words the site never uses (forecasts,
 //   blame, judging adjectives) fail the draft (STYLE), and so do words about the drafting material ("the facts",
 //   "this summary": SELF_REFERENCE).
+import { formatShare } from '../format.ts';
 import type { Fact, FactsFile } from './facts.ts';
 import { countryNames, NOT_COUNTRIES, stripAccents } from './names.ts';
 
@@ -238,6 +240,8 @@ interface Allowed {
   percent: boolean;
   money: boolean;
   ordinal: boolean;
+  /** The fact's value is a share (Fact.share): written only as formatShare writes it. */
+  share?: boolean;
   /** Words of the unit that must be in the sentence; empty for none. */
   unit: string[][];
   /** Years of the period that must be in the sentence. */
@@ -304,7 +308,7 @@ function allowedFrom(f: FactsFile): AllowedSet {
     const unit = unitGroups[0].length || (x.unitAliases ?? []).length ? unitGroups : [];
     const period = periodYears(x.period);
     if (x.value !== undefined && x.value !== null) {
-      set.numbers.push({ value: x.value, percent: isPercentUnit(x.unit), money: isMoneyUnit(x.unit), ordinal: false, unit, period, fact: x });
+      set.numbers.push({ value: x.value, percent: isPercentUnit(x.unit), money: isMoneyUnit(x.unit), ordinal: false, ...(x.share ? { share: true } : {}), unit, period, fact: x });
       if ((x.unit ?? '').toLowerCase() === 'rank') set.numbers.push({ value: x.value, percent: false, money: false, ordinal: true, unit: [], period, fact: x });
     }
     // Numbers said in the statement itself: years and dates count as dates; a number in words ("the four countries")
@@ -337,6 +341,20 @@ export function strayNumbers(x: Fact, names: string[] = []): string[] {
 
 // ---------------------------------------------------------------------------------------------------------------
 // Matching
+
+/** A share (in %) as the site writes it, without the % or sign: "40" for 39.6, "9.7", "99.7"; null for "<0.1%". */
+export const siteShare = (pct: number): string | null => {
+  const t = formatShare(pct / 100);
+  return t.startsWith('<') ? null : t.replace(/[^\d.]/g, '');
+};
+
+/** Whether a percentage as written is a share's value as the site writes it ("40%" for 39.6, not "39.6%"). */
+export function sameShare(q: Pick<Quantity, 'text' | 'value' | 'step' | 'sig' | 'words'>, factValue: number): boolean {
+  const want = siteShare(factValue);
+  if (want === null) return sameFigure(q, factValue);
+  const written = q.words ? null : q.text.match(/\d[\d,]*(?:\.\d+)?/)?.[0].replace(/,/g, '');
+  return written === want;
+}
 
 /** Whether a figure as written is the fact's value, exactly or rounded the way it is written. */
 export function sameFigure(q: Pick<Quantity, 'value' | 'step' | 'sig'>, factValue: number): boolean {
@@ -442,9 +460,12 @@ export function checkDraft(draft: string, facts: FactsFile): CheckResult {
       if (dates.some((d) => q.start >= d.start && q.end <= d.end)) continue;
       if (q.yearLike && allowed.years.has(q.value)) { say(allowed.from.years, q.value); continue; }
       const kind = (a: Allowed) => a.percent === q.percent && a.money === q.money && a.ordinal === q.ordinal;
-      const same = allowed.numbers.filter((a) => kind(a) && (sameFigure(q, a.value) || (q.scale > 1 && unitStartsWithScale(a.fact.unit, q.scaleWord) && sameFigure({ value: q.bare, step: q.step / q.scale, sig: q.sig }, a.value))));
+      const same = allowed.numbers.filter((a) => kind(a) && (a.share ? sameShare(q, a.value) : sameFigure(q, a.value) || (q.scale > 1 && unitStartsWithScale(a.fact.unit, q.scaleWord) && sameFigure({ value: q.bare, step: q.step / q.scale, sig: q.sig }, a.value))));
       if (!same.length) {
         if (q.yearLike) { push('date', q.text, `The year ${q.text} is not in the facts.`); continue; }
+        // A share written more or less precisely than the site writes it ("39.6%" where the page says "40%").
+        const share = allowed.numbers.find((a) => kind(a) && a.share && sameFigure({ ...q, sig: 9 }, a.value) && siteShare(a.value) !== null);
+        if (share) { push('number', q.text, `"${q.text}" is fact "${share.fact.id}", a share: write it as the site does, "${formatShare(share.value / 100)}".`); continue; }
         const near = allowed.numbers.filter((a) => sameFigure(q, a.value) || sameFigure({ ...q, step: q.step, sig: 9 }, a.value));
         const why = near.length ? ` It matches "${near[0].fact.id}" only as a ${near[0].percent ? 'percentage' : near[0].money ? 'money figure' : 'plain number'}.` : '';
         const oneFigure = !q.ordinal && q.sig < 2 && allowed.numbers.some((a) => kind(a) && sameFigure({ ...q, sig: 2 }, a.value));

@@ -95,6 +95,9 @@ and compares it with the facts file. It is strict on purpose; its tests are in `
   (`CC BY 4.0`) or a code (`G20`, `CO2`) is not a figure.
 - **Rounding.** A figure may be rounded the way it is written, to at least two significant figures: `1.2 million`
   matches 1,234,567, `1.3 million` and `1 million` do not; `50%` does not match 47.3%. Signs are ignored ("down 3%").
+- **Shares.** A fact with `share: true` (dossier import and export shares, main suppliers' shares, shares of world
+  production) is written only as the site writes it (`formatShare`): whole from 10%, one decimal below and near 100%.
+  `40%` matches 39.6%; `39.6%` fails, with a message giving `40%`.
 - **Kind, unit and period.** A percentage matches only a fact in %, money only a fact in dollars, an ordinal only a
   rank. The fact's unit (or an alias) and every year of its period must be in the same sentence.
 - **Ranges** give their scale and % to both ends (`15–20%`, `1.2 to 3.4 million`, `between 1,000 and 1,800`), and

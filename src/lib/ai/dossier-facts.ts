@@ -56,7 +56,7 @@ function figureFact(f: Figure, placeId: string, id = f.id): Fact[] {
   const out: Fact[] = [{
     // The indicator's note goes in only when it has no figures of its own (the checker wants one figure a fact).
     id, statement: `${t.label} of ${of}${t.note && !/\d/.test(t.note) ? ` (${t.note.replace(/\.$/, '')})` : ''}${status ? ` (${status})` : ''}.`, value, unit,
-    ...(status ? { status } : {}),
+    ...(status ? { status } : {}), ...(share ? { share } : {}),
     unitAliases: unit === 'US$' ? ['$', 'dollars'] : unit === 'people' ? ['residents', 'inhabitants'] : undefined,
     period: String(f.year), places: [placeId], source: sourceName(f.source), link: linkOf(f.source, placeId), date: dateOf(f.source),
   }];
@@ -94,18 +94,18 @@ export function dossierFacts(id: string, buildYear = Number(data().snapshot.crea
     // The tag is the balance's (its production or use figure): it goes with the import and export shares, not the supplier's share.
     const tagged = { ...base, ...(status ? { status } : {}) };
     const st = status ? ` (${status})` : '';
-    if (r.reliance !== undefined && r.reliance >= 0) facts.push({ id: `imports-${r.resource}`, statement: `${theirs} net imports of ${noun} as a share of ${onSupply(noun) ? `its ${noun} supply (production plus net imports)` : 'its use'}${st}.`, value: round(r.reliance * 100), unit: '%', unitAliases: [`${noun} use`, `${noun} it uses`, `of its ${noun}`, `${noun} imports`, ...(onSupply(noun) ? [`${noun} supply`] : [])], ...tagged });
-    if (r.exportShare !== undefined && r.reliance !== undefined && r.reliance < 0) facts.push({ id: `exports-${r.resource}`, statement: `${theirs} net exports of ${noun} as a share of its production${st}.`, value: round(r.exportShare * 100), unit: '%', unitAliases: [`${noun} production`, `${noun} it produces`, `of its ${noun}`, `${noun} exports`], ...tagged });
+    if (r.reliance !== undefined && r.reliance >= 0) facts.push({ id: `imports-${r.resource}`, statement: `${theirs} net imports of ${noun} as a share of ${onSupply(noun) ? `its ${noun} supply (production plus net imports)` : 'its use'}${st}.`, value: round(r.reliance * 100), unit: '%', share: true, unitAliases: [`${noun} use`, `${noun} it uses`, `of its ${noun}`, `${noun} imports`, ...(onSupply(noun) ? [`${noun} supply`] : [])], ...tagged });
+    if (r.exportShare !== undefined && r.reliance !== undefined && r.reliance < 0) facts.push({ id: `exports-${r.resource}`, statement: `${theirs} net exports of ${noun} as a share of its production${st}.`, value: round(r.exportShare * 100), unit: '%', share: true, unitAliases: [`${noun} production`, `${noun} it produces`, `of its ${noun}`, `${noun} exports`], ...tagged });
     const main = r.main ?? r.top;
     if (main && place(main.id)) {
       countries.add(main.id);
-      facts.push({ id: `main-supplier-${r.resource}`, statement: `${place(main.id)!.name} is the main supplier of ${possessive(of)} ${noun} imports.`, value: round(main.share * 100), unit: '%', unitAliases: [`${noun} imports`, `imports of ${noun}`], ...base, places: [id, main.id] });
+      facts.push({ id: `main-supplier-${r.resource}`, statement: `${place(main.id)!.name} is the main supplier of ${possessive(of)} ${noun} imports.`, value: round(main.share * 100), unit: '%', share: true, unitAliases: [`${noun} imports`, `imports of ${noun}`], ...base, places: [id, main.id] });
     }
   }
   for (const x of m.minerals) {
     const usgs = { source: sourceName('usgs-minerals'), link: linkOf('usgs-minerals', id), date: dateOf('usgs-minerals') };
     const what = `${x.measure === 'primary' ? 'primary production' : 'mine production'} of ${mineralName(x.id, x.label)}`;
-    facts.push({ id: `mineral-${x.id}`, statement: `${theirs} share of world ${what}${x.estimated ? ' (estimated)' : ''}.`, value: round(x.share * 100), unit: '%', unitAliases: [mineralName(x.id, x.label)], period: String(x.year), places: [id], ...usgs, ...(x.estimated ? { status: 'estimated' as const } : {}) });
+    facts.push({ id: `mineral-${x.id}`, statement: `${theirs} share of world ${what}${x.estimated ? ' (estimated)' : ''}.`, value: round(x.share * 100), unit: '%', share: true, unitAliases: [mineralName(x.id, x.label)], period: String(x.year), places: [id], ...usgs, ...(x.estimated ? { status: 'estimated' as const } : {}) });
     facts.push({ id: `mineral-${x.id}-rank`, statement: `${theirs} place among producers of ${mineralName(x.id, x.label)}, largest first.`, value: x.rank, unit: 'rank', period: String(x.year), places: [id], ...usgs });
   }
   const b = m.blocks;

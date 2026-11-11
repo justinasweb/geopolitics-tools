@@ -30,6 +30,8 @@ export interface Fact {
   /** The figure's tag where the site shows one (Preliminary, Estimate, Projection): a sentence that gives the figure
    *  says so too (./check.ts). */
   status?: 'preliminary' | 'estimated' | 'projected';
+  /** A share of a whole, in %: a text writes it as the site does (formatShare, src/lib/format.ts), "40%" for 39.6. */
+  share?: boolean;
   /** True when the fact could not be checked against its source yet. Nothing is drafted from such a file. */
   unverified?: boolean;
   /** For the owner: why it is unverified, or what to check. */

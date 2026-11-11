@@ -1,9 +1,9 @@
 {
   "id": "dossier:RUS",
   "author": "ai",
-  "text": "Russia's net exports of wheat are 39.6% of its production (FAOSTAT, 2024), and of potash an estimated 92.8% of its production (FAOSTAT, 2024, estimated). Its mines produce an estimated 43% of the world's palladium (USGS, 2025). Iran is the main supplier of Russia's major arms imports, at 51% (SIPRI, 2021–2025). Russia has 143.5 million people and a GDP of $2.56 trillion (World Bank, 2025).",
+  "text": "Russia exports 40% of the wheat it produces (FAOSTAT, 2024) and an estimated 93% of the potash (a potassium fertiliser) it produces (FAOSTAT, 2024, estimated). Its mines produce an estimated 43% of the world's palladium (USGS, 2025). Iran is the main supplier of Russia's major arms imports, at 51% (SIPRI, 2021–2025). Russia has 143.5 million people and a GDP of $2.56 trillion (World Bank, 2025).",
   "model": "manual (Claude chat)",
-  "factsHash": "sha256:9bb87f153f4da9b61db8da099041f2d3",
+  "factsHash": "sha256:2f0c245ba447080b5a1eb07186dbd94f",
   "usedFacts": [
     "exports-potash",
     "exports-wheat",
