@@ -356,6 +356,12 @@ its AI summary is approved. See [ai-drafting.md](ai-drafting.md).
 theme colours: kicker, title, the headline figure or answer, up to five bars, and the source. What each page's card
 says is in `src/lib/og-cards.ts`.
 
+- **The lockup** is the header's artwork (`src/components/LogoSprite.astro`), its token colours resolved to the light
+  theme and drawn as an SVG image (outlines, no font): 30px high at the right of the footer, beside the source line,
+  on every card. The site default and pages with no figure of their own (About, Methodology…; `logo: true` in
+  `og-cards.ts`) show it 56px high in place of the kicker. Its clear space, the lowest band's height (7px in the
+  footer), is kept on every side. Source lines must fit on one line beside it: about 805px at 20px (a test checks).
+
 - **Bar labels** are measured in the font Satori draws them with (its own opentype.js, pinned in `package.json`) and
   fitted first: wrapped to two lines at spaces, or cut after a whole word with "…", keeping a trailing year or
   bracketed short name ("Treaty on the Non-Proliferation… (NPT)"). A word is never split, and a year never stands

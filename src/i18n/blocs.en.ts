@@ -80,7 +80,8 @@ export const BLOCS_TEXT = {
   allDescription: `Nineteen groupings and alliances on one map: how many each country belongs to, and each grouping’s members and share of the world.`,
   checked: (date: string) => `Members as of ${date}`,
   /** The share image's source: the member lists and when they were checked, then the sources of the shares shown. */
-  imageSource: (date: string, others: string[]) => [`The groupings’ own member lists, as of ${date}`, ...others].join('; '),
+  // Short enough to sit on one line beside the lockup with three other sources.
+  imageSource: (date: string, others: string[]) => [`Groupings’ own lists, as of ${date}`, ...others].join('; '),
   // The map.
   legendMember: 'Member',
   member: 'Member',

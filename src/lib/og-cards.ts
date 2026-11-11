@@ -82,7 +82,7 @@ export function shareAlt(image: string | undefined): string | undefined {
 
 /** The card for one page, from its route; null gives the site default. */
 export function card(r: Route | null): Card {
-  if (!r) return { kicker: siteName, title: 'Maps and figures on resources, technology, climate, security and power', caption: 'Every number with its source and date.' };
+  if (!r) return { kicker: siteName, logo: true, title: 'Maps and figures on resources, technology, climate, security and power', caption: 'Every number with its source and date.' };
   if (r.kind === 'country') {
     const m = countryModel(r.id)!;
     const f = m.figures[0];
@@ -284,5 +284,5 @@ export function card(r: Route | null): Card {
       }),
     };
   }
-  return { kicker: OG_TEXT.pageKicker, title: TITLES[r.id || r.kind] ?? r.id };
+  return { kicker: OG_TEXT.pageKicker, logo: true, title: TITLES[r.id || r.kind] ?? r.id };
 }

@@ -1,6 +1,7 @@
 // Share images (1200 × 630), rendered at build time: Satori lays the card out as SVG, resvg turns it into PNG.
 // One layout for every page: kicker, title, a headline figure with its caption, up to five bars, and the source.
-// Colours are the light theme's tokens (src/styles/tokens.css); fonts are the site's, as static WOFF files.
+// Colours are the light theme's tokens (src/styles/tokens.css); fonts are the site's, as static WOFF files. The lockup is
+// the header's (src/components/LogoSprite.astro), its token colours resolved, drawn as an SVG image: outlines, no font.
 //
 // Bar labels are measured with the font Satori draws them in (the same opentype.js), and fitted before Satori sees
 // them (`fitLabel`): wrapped to two lines at spaces, or cut after a whole word with "…", keeping a trailing year or
@@ -41,6 +42,24 @@ const tokens = (() => {
   for (const m of file('src/styles/tokens.css').toString().matchAll(/--([a-z0-9-]+):\s*(#[0-9a-f]{3,8})/gi)) out[m[1]] ??= m[2];
   return out;
 })();
+/** The lockup as an SVG data URI, from the header's artwork with each token fill resolved to its light-theme colour. */
+const LOCKUP = (() => {
+  const art = file('src/components/LogoSprite.astro').toString().match(/<symbol id="gt-lockup-art" viewBox="([^"]+)">([\s\S]*?)<\/symbol>/);
+  if (!art) throw new Error('og: no lockup artwork in LogoSprite.astro');
+  const body = art[2].replace(/style="fill:var\(--([a-z0-9-]+)\)"/g, (_, t: string) => {
+    if (!tokens[t]) throw new Error(`og: no light-theme colour for --${t}`);
+    return `fill="${tokens[t]}"`;
+  });
+  if (body.includes('var(')) throw new Error('og: lockup colour left unresolved');
+  return `data:image/svg+xml;base64,${Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="${art[1]}">${body}</svg>`).toString('base64')}`;
+})();
+/** The lockup's width per pixel of height (its viewBox, 809.1 × 100), and its lowest band's height per pixel of height,
+ *  which is its clear space on every side. */
+const LOCKUP_RATIO = 8.091;
+export const LOCKUP_CLEAR = 0.2315;
+const lockup = (height: number, style: Record<string, unknown> = {}) =>
+  ({ type: 'img', props: { src: LOCKUP, width: height * LOCKUP_RATIO, height, style: { flexShrink: 0, ...style } } });
+
 const C = { paper: tokens.paper, ink: tokens.ink, muted: tokens['ink-muted'], accent: tokens.accent, bar: tokens['seq-4'], track: tokens['seq-1'] };
 
 type Node = { type: string; props: { style: Record<string, unknown>; children?: unknown } };
@@ -53,6 +72,9 @@ export interface Card {
   caption?: string;
   source?: string;
   bars?: { label: string; value: number; text: string }[];
+  /** The lockup in place of the kicker: the site default and pages with no figure of their own. The kicker still
+   *  goes into the alt text. */
+  logo?: boolean;
 }
 
 // The card's geometry, in pixels.
@@ -64,8 +86,12 @@ export const G = {
   /** Kicker: the double rule, its padding and one line. */
   kicker: 6 + 20 + 28,
   titleGap: 18, titleLine: 1.1,
-  /** Footer: margin, rule, padding and one line. */
-  footer: 28 + 1 + 14 + 25,
+  /** Footer: margin, rule, padding and the lockup's height. */
+  footer: 28 + 1 + 12 + 30,
+  footPad: 12, logoH: 30, logoTopH: 56,
+  /** The lockup's width in the footer, and the least space between it and the source line. */
+  get logoW() { return Math.ceil(this.logoH * LOCKUP_RATIO); },
+  logoGap: 24,
   /** The figure and caption column beside the bars, and the gap between them. */
   leftW: 480, columnsGap: 56,
   rowGap: 12, cellGap: 12, barH: 22, labelLine: 1.15, valueLine: 1.25,
@@ -187,7 +213,8 @@ export async function shareSvg(o: Card): Promise<string> {
   const L = barLayout(o);
   // Satori sizes the box without its padding, so the content box is the card minus the padding.
   const tree = h('div', { width: G.innerW, height: G.innerH, display: 'flex', flexDirection: 'column', background: C.paper, padding: `${G.padTop}px ${G.padX}px ${G.padBottom}px`, fontFamily: 'Source Sans 3', color: C.ink }, [
-    h('div', { display: 'flex', flexShrink: 0, borderTop: `6px double ${C.ink}`, paddingTop: 20, fontSize: 22, fontWeight: 600, letterSpacing: 2, textTransform: 'uppercase', color: C.accent }, o.kicker),
+    h('div', { display: 'flex', flexShrink: 0, borderTop: `6px double ${C.ink}`, paddingTop: 20, fontSize: 22, fontWeight: 600, letterSpacing: 2, textTransform: 'uppercase', color: C.accent },
+      o.logo ? [lockup(G.logoTopH)] : o.kicker),
     h('div', { display: 'flex', fontFamily: 'Newsreader', fontWeight: 600, fontSize: titleSize(o.title), lineHeight: G.titleLine, marginTop: G.titleGap, maxWidth: G.innerW }, o.title),
     h('div', { display: 'flex', flex: 1, minHeight: 0, alignItems: 'flex-end', gap: G.columnsGap }, [
       h('div', { display: 'flex', flexDirection: 'column', ...(L ? { width: G.leftW, flexShrink: 0 } : { maxWidth: G.innerW }) }, [
@@ -201,9 +228,10 @@ export async function shareSvg(o: Card): Promise<string> {
           h('div', { display: 'flex', width: L.valueW, flexShrink: 0, fontWeight: 600, whiteSpace: 'nowrap' }, b.text),
         ])))] : []),
     ]),
-    h('div', { display: 'flex', flexShrink: 0, justifyContent: 'space-between', borderTop: `1px solid ${C.ink}`, marginTop: 28, paddingTop: 14, fontSize: 20, color: C.muted }, [
+    // The footer's padding and the gap beside the source keep the lockup's clear space (its lowest band, 7px at 30px).
+    h('div', { display: 'flex', flexShrink: 0, alignItems: 'center', justifyContent: 'space-between', gap: G.logoGap, borderTop: `1px solid ${C.ink}`, marginTop: 28, paddingTop: G.footPad, fontSize: 20, color: C.muted }, [
       h('div', { display: 'flex' }, o.source ? `Source: ${o.source}` : ''),
-      h('div', { display: 'flex', fontWeight: 600, color: C.ink }, 'geopolitics.tools'),
+      lockup(G.logoH),
     ]),
   ]);
   return satori(tree as unknown as Parameters<typeof satori>[0], { width: G.width, height: G.height, fonts });
