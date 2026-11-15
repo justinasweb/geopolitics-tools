@@ -45,6 +45,8 @@ const shown = (r: Row, v: number) => {
   const own = formatParts(v, r.m.format, r.m.unit);
   return scaled(r) && own.unit ? `${own.num} ${own.unit}` : own.num;
 };
+/** The side marked Higher: none when both sides read the same ("under 0.1" and "under 0.1"), whatever the raw numbers. */
+export const higherOf = (r: Row): -1 | 0 | 1 => (shown(r, r.f[0][0]) === shown(r, r.f[1][0]) ? -1 : r.higher);
 const yearOf = (r: Row, y: number) => (r.m.asOf?.[0] === y ? `as of ${r.m.asOf[1]}` : String(y));
 const srcYear = (r: Row, c: Two) => T.sourceYear(r.m.credit, r.f.map((x, i) => ({ name: c[i].name, year: yearOf(r, x[1]) }))) + (T.measureNote[r.m.id] ? `. ${T.measureNote[r.m.id]}` : '');
 const label = (m: MeasureMeta) => (m.href ? `<a href="${esc(m.href)}">${esc(m.label)}</a>` : esc(m.label));
@@ -64,13 +66,13 @@ export function keyHtml(meta: Meta, c: Two): string {
   const body = rows.map((r) => {
     const unit = unitOf(r);
     return `<tr><th scope="row">${label(r.m)}${unit ? `<small>${esc(unit)}</small>` : ''}</th>`
-      + r.f.map((f, i) => `<td class="n${r.higher === i ? ' is-high' : ''}">${esc(shown(r, f[0]))}${tagOf(f)}${r.higher === i ? higherHtml : ''}</td>`).join('')
+      + r.f.map((f, i) => `<td class="n${higherOf(r) === i ? ' is-high' : ''}">${esc(shown(r, f[0]))}${tagOf(f)}${higherOf(r) === i ? higherHtml : ''}</td>`).join('')
       + `<td class="gt-cmptbl__s">${esc(srcYear(r, c))}</td></tr>`;
   }).join('');
   const table = `<div class="gt-tablewrap gt-cmptblwrap" style="--gt-table-h:none" tabindex="0" role="region" aria-label="${esc(T.keyHeading)}">`
     + `<table class="gt-table gt-cmptbl"><caption class="gt-caption">${esc(T.higherNote)}</caption><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
   const phone = `<ul class="gt-cmprows" aria-label="${esc(T.keyHeading)}">` + rows.map((r) => `<li><div class="gt-cmprows__h"><b>${esc(r.m.label)}</b><span class="gt-caption">${esc(unitOf(r))}</span></div>`
-    + `<ul>${r.f.map((f, i) => `<li class="gt-cc--${SIDES[i]}"><span class="gt-cmprows__n">${chipHtml(SIDES[i], c[i])}</span><span class="gt-cmprows__v">${esc(shown(r, f[0]))}${tagOf(f)}</span>${r.higher === i ? higherHtml : ''}</li>`).join('')}</ul>`
+    + `<ul>${r.f.map((f, i) => `<li class="gt-cc--${SIDES[i]}"><span class="gt-cmprows__n">${chipHtml(SIDES[i], c[i])}</span><span class="gt-cmprows__v">${esc(shown(r, f[0]))}${tagOf(f)}</span>${higherOf(r) === i ? higherHtml : ''}</li>`).join('')}</ul>`
     + `<span class="gt-caption">${esc(srcYear(r, c))}</span></li>`).join('') + '</ul>';
   return sectionHtml(1, 'kf', T.keyHeading, '', table + phone + gapLine);
 }

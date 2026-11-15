@@ -4,6 +4,7 @@
 import { EXPLORER_TEXT as T, PRESET_TEXT } from '../../i18n/explorer.en.ts';
 import { SOURCE_TEXT, STATUS_TEXT, YEAR_TEXT } from '../../i18n/en.ts';
 import { axisTexts, formatDate, formatValue } from '../format.ts';
+import { wholeSteps } from '../chart.ts';
 import { tagHtml } from '../tags.ts';
 import { sourceLinksHtml } from '../source-links.ts';
 import {
@@ -259,7 +260,7 @@ export function linesHtml(s: State, meta: Meta, data: Data, width = 900): string
   const phone = W < 560;
   const L = phone ? 52 : 70, R = phone ? 96 : 150, Tp = 16, B = 30;
   const vals = ch.lines.flatMap((l) => l.values.filter((v): v is number => v !== null));
-  const t = ticks(ch.log ? Math.min(...vals) : Math.min(0, ...vals), Math.max(...vals), ch.log, phone ? 4 : 5);
+  const t = ticks(ch.log ? Math.min(...vals) : Math.min(0, ...vals), Math.max(...vals), ch.log, phone ? 4 : 5, ch.indexed || !wholeSteps(m.format));
   const tr = (v: number) => (ch.log ? Math.log10(v) : v);
   const x = (i: number) => L + (i / (ch.years.length - 1)) * (W - L - R);
   const y = (v: number) => Tp + (1 - (tr(v) - tr(t.lo)) / (tr(t.hi) - tr(t.lo))) * (H - Tp - B);
@@ -406,8 +407,8 @@ export function scatterHtml(s: State, meta: Meta, data: Data, width = 900): stri
   const phone = W < 560;
   const L = phone ? 56 : 76, R = phone ? 12 : 24, Tp = 14, B = 46;
   const xs = points.map((p) => p.x), ys = points.map((p) => p.y);
-  const tx = ticks(sc.logx ? Math.min(...xs) : Math.min(0, ...xs), Math.max(...xs), sc.logx, phone ? 3 : 6);
-  const ty = ticks(sc.logy ? Math.min(...ys) : Math.min(0, ...ys), Math.max(...ys), sc.logy, phone ? 4 : 5);
+  const tx = ticks(sc.logx ? Math.min(...xs) : Math.min(0, ...xs), Math.max(...xs), sc.logx, phone ? 3 : 6, !wholeSteps(mx.format));
+  const ty = ticks(sc.logy ? Math.min(...ys) : Math.min(0, ...ys), Math.max(...ys), sc.logy, phone ? 4 : 5, !wholeSteps(my.format));
   const tr = (v: number, log: boolean) => (log ? Math.log10(v) : v);
   const X = (v: number) => L + ((tr(v, sc.logx) - tr(tx.lo, sc.logx)) / (tr(tx.hi, sc.logx) - tr(tx.lo, sc.logx))) * (W - L - R);
   const Y = (v: number) => Tp + (1 - (tr(v, sc.logy) - tr(ty.lo, sc.logy)) / (tr(ty.hi, sc.logy) - tr(ty.lo, sc.logy))) * (H - Tp - B);

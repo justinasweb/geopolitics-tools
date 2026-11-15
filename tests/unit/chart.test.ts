@@ -32,3 +32,15 @@ describe('labels', () => {
     expect(textWidth('2025', 13, true)).toBeGreaterThan(textWidth('2025', 12));
   });
 });
+
+describe('axis ticks', () => {
+  it('steps by 1, 2, 2.5 or 5 × 10ⁿ, and never by 2.5 for money and counts (12.5 bn would read "$13 bn")', async () => {
+    const { ticks, wholeSteps } = await import('../../src/lib/chart.ts');
+    // The Fiji panel chart: 0 to 0.049 in about three steps.
+    expect(ticks(0, 0.049, false, 3).ticks).toEqual([0, 0.02, 0.04, 0.06]);
+    // A span a 2.5 step fits: shares keep it, money does not.
+    expect(ticks(0, 12e9, false, 5).ticks).toEqual([0, 2.5e9, 5e9, 7.5e9, 10e9, 12.5e9]);
+    expect(ticks(0, 12e9, false, 5, !wholeSteps({ kind: 'money' })).ticks).toEqual([0, 5e9, 10e9, 15e9]);
+    expect(wholeSteps({ kind: 'share' })).toBe(false);
+  });
+});

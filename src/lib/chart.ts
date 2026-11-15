@@ -32,3 +32,31 @@ export function yearTickIndexes(count: number, plotW: number, gap = 48): number[
 
 /** Shortens a label to `n` characters with an ellipsis. */
 export const clip = (s: string, n: number) => (s.length > n ? `${s.slice(0, n - 1).trimEnd()}…` : s);
+
+/** Formats whose axis labels drop decimals from 10 of a unit, so they take no 2.5 step (ticks' `halves`). */
+export const wholeSteps = (f: { kind: string }) => f.kind === 'money' || f.kind === 'count';
+
+/** Tidy axis ticks: a linear step of 1, 2, 2.5 or 5 × 10ⁿ, or powers of ten (with 2 and 5 between, when few). Without
+ *  `halves` no 2.5 step: money and counts are written without decimals from 10 of a unit ("$13 bn" for 12.5 bn). */
+export function ticks(lo: number, hi: number, log: boolean, count = 5, halves = true): { lo: number; hi: number; ticks: number[] } {
+  if (log) {
+    const a = Math.floor(Math.log10(lo));
+    const b = Math.ceil(Math.log10(hi));
+    const out: number[] = [];
+    for (let e = a; e <= b; e++) {
+      out.push(10 ** e);
+      if (b - a <= 2 && e < b) out.push(2 * 10 ** e, 5 * 10 ** e);
+    }
+    const step = Math.max(1, Math.ceil((b - a + 1) / 7));
+    return { lo: 10 ** a, hi: 10 ** b, ticks: b - a <= 2 ? out : out.filter((_, i) => i % step === 0) };
+  }
+  if (!(hi > lo)) hi = lo + 1;
+  const span = hi - lo;
+  const mag = 10 ** Math.floor(Math.log10(span / count));
+  const step = (halves ? [1, 2, 2.5, 5, 10] : [1, 2, 5, 10]).map((k) => k * mag).find((s) => span / s <= count) ?? mag * 10;
+  const l = Math.floor(lo / step) * step;
+  const h = Math.ceil(hi / step) * step;
+  const out: number[] = [];
+  for (let v = l; v <= h + step / 2; v += step) out.push(Number(v.toPrecision(12)));
+  return { lo: l, hi: h, ticks: out };
+}

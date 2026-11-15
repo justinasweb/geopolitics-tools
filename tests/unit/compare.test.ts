@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   chartsAndGaps, compareCharts, compareRows, comparePairs, gapGroups, pairHref, parsePair, staticPair, type CountryData, type Meta,
 } from '../../src/lib/compare/model.ts';
-import { chartsHtml, compareHtml, keyHtml, mineralsHtml } from '../../src/lib/compare/render.ts';
+import { chartsHtml, compareHtml, higherOf, keyHtml, mineralsHtml } from '../../src/lib/compare/render.ts';
 import { COMPARE_TEXT } from '../../src/i18n/pages.en.ts';
 
 // Compare (D21): the rows both countries have, what could not be compared, the charts both have a series for, the
@@ -89,6 +89,19 @@ describe('Compare model', () => {
     expect(comparePairs(meta, [us, tuvalu])).toEqual([]);
     // Survives the JSON the page loads.
     expect(JSON.parse(JSON.stringify(us)).m).toEqual({ lithium: null });
+  });
+
+  it('marks no side Higher when both read the same, whatever the raw numbers', () => {
+    const ai = { ...meta.measures[0], id: 'aicompute', label: 'Share of documented AI supercomputer power', format: { kind: 'share' as const }, unit: '%' };
+    const m2 = { ...meta, measures: [ai] };
+    const vn: CountryData = { ...mali, name: 'Vietnam', f: { aicompute: [0.000033, 2025] } };
+    const au: CountryData = { ...tuvalu, name: 'Australia', f: { aicompute: [0.00042, 2025] } };
+    const row = compareRows(m2, [vn, au]).rows[0];
+    expect(row.higher).toBe(1);
+    expect(higherOf(row)).toBe(-1);
+    expect(keyHtml(m2, [vn, au])).not.toContain('gt-higher');
+    const big: CountryData = { ...au, f: { aicompute: [0.012, 2025] } };
+    expect(keyHtml(m2, [vn, big])).toContain('gt-higher');
   });
 
   it('finds a static pair either way round and reads the address', () => {

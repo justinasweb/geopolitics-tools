@@ -3,7 +3,7 @@
 // functions, so they are tested without a browser.
 import type { LayerFile, LayerYear, PanelBlock } from '../../lib/map/types';
 import { axisTexts, formatValue } from '../../lib/format';
-import { CHART_TICK_PX, textWidth } from '../../lib/chart';
+import { CHART_TICK_PX, textWidth, ticks, wholeSteps } from '../../lib/chart';
 import { esc, fill } from './text';
 import { sourceLinksHtml } from '../../lib/source-links';
 
@@ -45,12 +45,13 @@ export function sparkHtml(f: LayerFile, id: string, label: string): string {
   const have = pts.filter((p): p is { x: number; v: number; year: number | string } => p !== null);
   if (have.length < 3) return '';
   const fmt = (v: number) => (v === 0 ? '0' : formatValue(v, f.format!));
-  const lo = Math.min(0, ...have.map((p) => p.v));
-  const hi = Math.max(...have.map((p) => p.v));
+  // Gridlines on round steps (1, 2, 2.5 or 5 × 10ⁿ) from zero, three or four of them, as the other charts' axes.
+  const t = ticks(Math.min(0, ...have.map((p) => p.v)), Math.max(...have.map((p) => p.v)), false, 3, !wholeSteps(f.format!));
+  const lo = t.lo, hi = t.hi;
   // No viewBox: the SVG fills the panel and is H pixels tall, so its text stays 12px. The line is drawn in a
   // nested SVG stretched over the plot (0–1000 across); text and the end dot are placed in percent.
   const H = 96, T = 10, B = 76, PW = 1000;
-  const grid = [lo, (lo + hi) / 2, hi];
+  const grid = t.ticks;
   // Gridline labels are positions: never "under …" (axisTexts).
   const gridText = axisTexts(grid, f.format!);
   const L = Math.max(...grid.map((g) => textWidth(gridText[grid.indexOf(g)], CHART_TICK_PX) + 8));

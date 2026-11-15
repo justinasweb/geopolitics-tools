@@ -263,26 +263,5 @@ export const lastActual = (m: MeasureMeta) => (m.projectedAfter !== undefined ? 
 /** "GDP per person" stays as it is inside a sentence; "Population" becomes "population". */
 export const inSentence = (label: string) => (/^[A-Z][a-z]/.test(label) ? label[0].toLowerCase() + label.slice(1) : label);
 
-/** Tidy axis ticks: a linear step of 1, 2, 2.5 or 5 × 10ⁿ, or powers of ten (with 2 and 5 between, when few). */
-export function ticks(lo: number, hi: number, log: boolean, count = 5): { lo: number; hi: number; ticks: number[] } {
-  if (log) {
-    const a = Math.floor(Math.log10(lo));
-    const b = Math.ceil(Math.log10(hi));
-    const out: number[] = [];
-    for (let e = a; e <= b; e++) {
-      out.push(10 ** e);
-      if (b - a <= 2 && e < b) out.push(2 * 10 ** e, 5 * 10 ** e);
-    }
-    const step = Math.max(1, Math.ceil((b - a + 1) / 7));
-    return { lo: 10 ** a, hi: 10 ** b, ticks: b - a <= 2 ? out : out.filter((_, i) => i % step === 0) };
-  }
-  if (!(hi > lo)) hi = lo + 1;
-  const span = hi - lo;
-  const mag = 10 ** Math.floor(Math.log10(span / count));
-  const step = [1, 2, 2.5, 5, 10].map((k) => k * mag).find((s) => span / s <= count) ?? mag * 10;
-  const l = Math.floor(lo / step) * step;
-  const h = Math.ceil(hi / step) * step;
-  const out: number[] = [];
-  for (let v = l; v <= h + step / 2; v += step) out.push(Number(v.toPrecision(12)));
-  return { lo: l, hi: h, ticks: out };
-}
+/** Tidy axis ticks (../chart.ts), here for the Explorer's charts. */
+export { ticks } from '../chart.ts';
