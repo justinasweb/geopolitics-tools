@@ -75,7 +75,7 @@ const yearStatus = Object.fromEntries(p.years.filter(est).map((yr) => [yr, 'esti
   <div class="gt-mvhead">
     <Breadcrumbs items={crumbs} />
     <h1 class="gt-title gt-mvhead__t">{p.title} <span class="gt-mvhead__sub">{T.sub}</span></h1>
-    <p class="gt-lede gt-mvhead__a" data-by-year={byYear(p.years, (yr) => lede(p, p.byYear[yr]))} hidden={!answer}>{answer}</p>
+    <p class="gt-lede gt-mvhead__a" data-headline data-by-year={byYear(p.years, (yr) => lede(p, p.byYear[yr]))} hidden={!answer}>{answer}</p>
     <SourceLine source={p.source} years={sourceYears} year={y.year} updated={updated} citation={citation} />
   </div>
 

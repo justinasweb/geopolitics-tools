@@ -58,6 +58,11 @@ before and without the map script.
   an earlier year's is in the past tense and names its year ("Australia mined 37% … in 2024"): minerals' answer and
   "followed with"/"also mined", the refugees-hosted and sanctions answers (`past` in a view's `lede`), and the
   warheads answer, which names each state as it was then (the Soviet Union to 1991).
+- **Sharing the view shown.** The share row (`ShareRow`: `data-share`, `data-share-copy`, `data-share-x`,
+  `data-share-tg`) and any Copy citation that names the page follow the view: the map script gives them the page's
+  address with its `year`/`month`, `country` and `bloc` (as `writeState` writes them, no other parameters) and the
+  headline shown for the year (`data-headline`), else the build's text. Without the script they keep the page's own
+  address and the latest year's headline. og:image, og:description and the meta tags stay on the latest year.
 - **URL state.** `?year=2024&country=australia&bloc=brics` (`src/scripts/map/state.ts`), kept with
   `history.replaceState`; defaults are left out and the canonical stays the bare path. A year a source does not
   cover moves to the nearest one it has, and the page says so. Switching mineral keeps the query.

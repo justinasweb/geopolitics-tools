@@ -111,7 +111,7 @@ const monthName = (d: string) => formatDate(`${d}-15`).replace(/^\d+ /, '');
   <div class="gt-mvhead">
     <Breadcrumbs items={crumbs} />
     <h1 class="gt-title gt-mvhead__t">{title} <span class="gt-mvhead__sub">{sub}</span></h1>
-    <p class="gt-lede gt-mvhead__a" data-by-year={byYear(p.years, (yr) => lede(p, yr))} hidden={!answer}>{answer}</p>
+    <p class="gt-lede gt-mvhead__a" data-headline data-by-year={byYear(p.years, (yr) => lede(p, yr))} hidden={!answer}>{answer}</p>
     <SourceLine source={source} years={sourceYears} year={p.year} updated={updated} />
   </div>
 

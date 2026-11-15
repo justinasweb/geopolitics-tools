@@ -96,7 +96,7 @@ const legend = id === 'warheads'
   <div class="gt-mvhead">
     <Breadcrumbs items={crumbs} />
     <h1 class="gt-title gt-mvhead__t">{title}{m && <span class="gt-mvhead__sub"> {m.years[0]}–{lastYear}</span>}</h1>
-    {m ? <p class="gt-lede gt-mvhead__a" data-by-year={byYear(m.years, (yr) => warheadsLede(m, yr))} hidden={!answer}>{answer}</p> : answer && <p class="gt-lede gt-mvhead__a">{answer}</p>}
+    {m ? <p class="gt-lede gt-mvhead__a" data-headline data-by-year={byYear(m.years, (yr) => warheadsLede(m, yr))} hidden={!answer}>{answer}</p> : answer && <p class="gt-lede gt-mvhead__a">{answer}</p>}
     {m ? <SourceLine source={N.source} updated={updated} years={sourceYears} year={lastYear} /> : <SourceLine source={factsSource} />}
   </div>
 

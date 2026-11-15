@@ -80,7 +80,7 @@ const recent = [...p.months].reverse();
   <div class="gt-mvhead">
     <Breadcrumbs items={crumbs} />
     <h1 class="gt-title gt-mvhead__t">{C.title} <span class="gt-mvhead__sub">{C.sub}</span></h1>
-    <p class="gt-lede gt-mvhead__a" data-by-year={byYear(months, (n) => ledeFor(p.byMonth[n]))}>{answer}</p>
+    <p class="gt-lede gt-mvhead__a" data-headline data-by-year={byYear(months, (n) => ledeFor(p.byMonth[n]))}>{answer}</p>
     <SourceLine source={C.source} parts={[`${monthText(p.months[0].n)} – ${label(m)}`]} updated={updated} />
   </div>
 
