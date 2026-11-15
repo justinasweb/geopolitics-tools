@@ -8,7 +8,9 @@ export const MONEY_SMALL = 'under $1 m';
 
 export function formatValue(v: number | null | undefined, f: Format, locale = 'en'): string {
   if (v === null || v === undefined || !Number.isFinite(v)) return '–';
-  const n = (x: number, digits: number) => new Intl.NumberFormat(locale, { maximumFractionDigits: digits, minimumFractionDigits: digits }).format(x);
+  // A true zero is "0", never "0.0": decimals would read as a small amount rounded down. A tiny value keeps its format.
+  const zero = v === 0;
+  const n = (x: number, digits: number) => new Intl.NumberFormat(locale, { maximumFractionDigits: zero ? 0 : digits, minimumFractionDigits: zero ? 0 : digits }).format(x);
   const a = Math.abs(v);
   // A small negative total (a net outflow) keeps its sign, in tenths of a million.
   const text = f.kind === 'money' && f.millions && v < 0 && a < 1e6 ? (a < 5e4 ? '$0' : `$${n(a / 1e6, 1)} m`) : formatAbs(a, f, n, locale);

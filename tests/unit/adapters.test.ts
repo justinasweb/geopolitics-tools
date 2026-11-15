@@ -227,6 +227,11 @@ describe('indicator registry and flows', () => {
   });
 
   it('formats values the registry way', () => {
+    // A true zero has no decimals (EIA: Costa Rica produced exactly 0 bcm of gas in 2024); a tiny value keeps them.
+    expect(formatValue(0, { kind: 'number', unit: 'bcm', digits: 1 })).toBe('0 bcm');
+    expect(formatValue(0, { kind: 'percent', digits: 1 })).toBe('0%');
+    expect(formatValue(0.02, { kind: 'number', unit: 'bcm', digits: 1 })).toBe('0.0 bcm');
+    expect(formatValue(-0, { kind: 'number', unit: 'bcm', digits: 1 })).toBe('0 bcm');
     expect(formatValue(2.345e12, { kind: 'money' })).toBe('$2.35 tn');
     expect(formatValue(-4.2e9, { kind: 'money' })).toBe('−$4.2 bn');
     // Units are picked after rounding; sums under a million are not written to the dollar.
