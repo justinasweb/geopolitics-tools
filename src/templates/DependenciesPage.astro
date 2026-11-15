@@ -37,10 +37,10 @@ const json = JSON.stringify({ grid }).replace(/</g, '\\u003c');
     <SourceLine source={grid.credits} parts={grid.years ? [grid.years] : []} updated={grid.updated} />
   </header>
   <section class:list={['gt-spof', { 'is-all': state.all }]} aria-labelledby="one-supplier-h" data-d-spof set:html={spofHtml(state, grid)} />
-  <div class="gt-expctl gt-dgctl" data-d-ctl set:html={controlsHtml(state, grid)} />
+  <div class="gt-expctl gt-dgctl" id="grid" data-d-ctl set:html={controlsHtml(state, grid)} />
   <div class="gt-legend gt-dglegend" set:html={legendHtml()} />
   <div class="gt-dgdesk" data-d-out set:html={tableHtml(state, grid)} />
-  <div class="gt-dgphone" data-d-phone set:html={phoneHtml(state, grid)} />
+  <div class="gt-dgphone" id="grid-phone" data-d-phone set:html={phoneHtml(state, grid)} />
   <p class="gt-caption" data-d-note hidden></p>
   <script type="application/json" id="d-grid" set:html={json} />
 </Page>

@@ -113,7 +113,7 @@ export function gasCard(id = 'HUN'): QCard | null {
   // The supplier's share is from the trade flows, in their own period; the use figure is EIA's, with its own tag.
   const flowYear = row.partnersFrom?.period ?? imports;
   return {
-    q: T.gas.q(country, supplier), href: `${r.path}?sort=gas&find=${encodeURIComponent(country)}`, go: T.gas.go, measure: T.gas.measure,
+    q: T.gas.q(country, supplier), href: `${r.path}?sort=gas&find=${encodeURIComponent(country)}#grid`, go: T.gas.go, measure: T.gas.measure,
     dep: {
       num: share, lead: T.gas.lead(country, supplier, flowYear), note: T.gas.net(country, net, row.year, !!row.preliminary),
       label: T.gas.label(country, supplier, share, flowYear, net, row.year, !!row.preliminary),
