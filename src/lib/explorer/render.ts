@@ -451,15 +451,17 @@ export function scatterHtml(s: State, meta: Meta, data: Data, width = 900): stri
     boxes.push(box);
     labs.push(`<text class="gt-sc__lab${pinned ? ' gt-sc__lab--pin' : ''}" x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" text-anchor="${anchor}">${esc(text)}</text>`);
   }
+  // Axis labels are positions: never "under …" (axisTexts).
+  const xText = axisTexts(tx.ticks, mx.format), yText = axisTexts(ty.ticks, my.format);
   // X labels that would touch the one before are left off (their grid line stays).
   let right = -Infinity;
   const gx = tx.ticks.filter((v) => v >= tx.lo && v <= tx.hi).map((v) => {
-    const text = fmt(mx, v), half = text.length * 3.4, at = X(v);
+    const text = xText[tx.ticks.indexOf(v)], half = text.length * 3.4, at = X(v);
     const show = at - half > right + 6;
     if (show) right = at + half;
     return `<g><line class="gt-lc__grid" x1="${at.toFixed(1)}" x2="${at.toFixed(1)}" y1="${Tp}" y2="${H - B}"/>${show ? `<text x="${at.toFixed(1)}" y="${H - B + 16}" text-anchor="middle">${esc(text)}</text>` : ''}</g>`;
   }).join('');
-  const gy = ty.ticks.filter((v) => v >= ty.lo && v <= ty.hi).map((v) => `<g><line class="gt-lc__grid" x1="${L}" x2="${W - R}" y1="${Y(v).toFixed(1)}" y2="${Y(v).toFixed(1)}"/><text x="${L - 8}" y="${(Y(v) + 4).toFixed(1)}" text-anchor="end">${esc(fmt(my, v))}</text></g>`).join('');
+  const gy = ty.ticks.filter((v) => v >= ty.lo && v <= ty.hi).map((v) => `<g><line class="gt-lc__grid" x1="${L}" x2="${W - R}" y1="${Y(v).toFixed(1)}" y2="${Y(v).toFixed(1)}"/><text x="${L - 8}" y="${(Y(v) + 4).toFixed(1)}" text-anchor="end">${esc(yText[ty.ticks.indexOf(v)])}</text></g>`).join('');
   const axTitle = (m: MeasureMeta, log: boolean) => `${m.label}${unitText(m) ? ` (${unitText(m)})` : ''}${log ? `, ${T.logNote}` : ''}`;
   const axes = `<text class="gt-sc__ax" x="${W - R}" y="${H - 6}" text-anchor="end">${esc(axTitle(mx, sc.logx))} →</text>`
     + `<text class="gt-sc__ax" x="${-Tp}" y="14" transform="rotate(-90)" text-anchor="end">${esc(axTitle(my, sc.logy))} →</text>`;

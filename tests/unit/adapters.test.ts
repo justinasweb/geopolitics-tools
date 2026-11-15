@@ -14,7 +14,7 @@ import { worldBank, weo } from '../../src/adapters/worldbank.ts';
 import { INDICATORS, latestYear, registry, statusAt, valueAt } from '../../src/data/indicators.ts';
 import { FLOWS, checkFlows, loadFlows, topSupplier } from '../../src/data/flows.ts';
 import { INDICATOR_TEXT, FLOW_TEXT } from '../../src/i18n/en.ts';
-import { formatParts, formatValue } from '../../src/lib/format.ts';
+import { axisTexts, formatParts, formatValue } from '../../src/lib/format.ts';
 
 const FIXTURES = new URL('../fixtures/prototype/', import.meta.url).pathname;
 
@@ -240,6 +240,11 @@ describe('indicator registry and flows', () => {
     expect(formatValue(-0.02, { kind: 'number', unit: 'bcm', digits: 1 })).toBe('0.0 bcm');
     expect(formatParts(-0.02, { kind: 'number', unit: 'bcm', digits: 1 }, 'bcm')).toEqual({ num: '0.0', unit: 'bcm' });
     expect(formatParts(0.02, { kind: 'number', unit: 'bcm', digits: 1 }, 'bcm')).toEqual({ num: 'under 0.1', unit: 'bcm' });
+    // Axis labels are positions: never "under", each written to tell the lines apart.
+    const axis = axisTexts([0, 0.04, 0.08], { kind: 'number', unit: '', digits: 1 });
+    expect(axis.some((t) => t.startsWith('under'))).toBe(false);
+    expect(new Set(axis).size).toBe(3);
+    expect(axisTexts([0, 50, 100], { kind: 'number', unit: '', digits: 0 })).toEqual(['0', '50', '100']);
     expect(formatValue(-0, { kind: 'number', unit: 'bcm', digits: 1 })).toBe('0 bcm');
     expect(formatValue(2.345e12, { kind: 'money' })).toBe('$2.35 tn');
     expect(formatValue(-4.2e9, { kind: 'money' })).toBe('−$4.2 bn');
