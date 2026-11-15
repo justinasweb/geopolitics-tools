@@ -404,6 +404,10 @@ Global Dataset of Cyber Incidents, the version pinned in pipeline/sources/eurepo
   Other non-state groups and individuals count by their kind (hacktivists, criminal groups), never by their country;
   an attribution naming none of these has its own row, and "Not attributed" is its own row. An incident with several
   attributions counts in each row.
+- **The summary's split.** The year's incidents in five parts that add up to its total (`yearSplit`): to a state, only
+  to state-affiliated groups, only to other non-state groups, to an initiator whose state or kind EuRepoC does not give
+  (its category "Unknown" or "Other", even with a country, or a state-affiliated group whose state is "Unknown": 30 of
+  2024's 700), and not attributed. The sentence says every part above 0.
 - **Own state.** A state attributed with incidents in its own country (Serbia → Serbia) is labelled "(own state)" in
   the panel and left out of the arcs and the pairs table.
 - **Panel.** For the year shown: the incidents affecting the country by who they were attributed to; the incidents
