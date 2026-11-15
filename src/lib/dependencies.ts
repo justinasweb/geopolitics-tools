@@ -75,7 +75,7 @@ export function dependencyGrid(): Grid {
     const src = BALANCE[id] ?? 'faostat';
     const flow = FLOWS[id].source;
     return {
-      id, label: RESOURCE_TEXT[id].label, noun: RESOURCE_TEXT[id].noun, credit: short(src), flowCredit: short(flow),
+      id, label: RESOURCE_TEXT[id].label, noun: RESOURCE_TEXT[id].noun, ...(RESOURCE_TEXT[id].importsOf ? { importsOf: RESOURCE_TEXT[id].importsOf } : {}), credit: short(src), flowCredit: short(flow),
       csv: downloads(src), csvTop: downloads(flow),
     };
   });

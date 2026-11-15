@@ -35,7 +35,9 @@ export function cellText(grid: Grid, r: ResourceId, c: Cell): [string, string] {
   if (old) return [b === 5 || b === 6 ? T.exported : c.v >= ALL ? T.importedAll : pct(c.v), T.oldData(c.y!)];
   if (b === 5 || b === 6) return [T.exports, c.x !== undefined ? T.ofOutput(formatShare(c.x)) : ''];
   if (c.v < 0) return [pct(c.v), T.netExporter];
-  return [pct(c.v), c.t ? `${iso(grid, c.t[0])} ${formatShare(c.t[1])}` : ''];
+  // Supplier shares of narrower imports than the reliance say so (oil: "RUS 60% of crude").
+  const of = T.scope[r] ? ` ${T.scope[r].short}` : '';
+  return [pct(c.v), c.t ? `${iso(grid, c.t[0])} ${formatShare(c.t[1])}${of}` : ''];
 }
 
 /** An old balance as the country page writes it, in the past tense with its year: "Imported 41% of the wheat it
@@ -56,14 +58,15 @@ function cellHtml(grid: Grid, r: ResourceId, c: Cell, tag: 'td' | 'span' = 'td')
   const quiet = v === '–' && (c.why ?? 'n') === 'n';
   // The year in the tooltip, with the source; the supplier's year apart when the trade source has another.
   const meta = grid.resources.find((m) => m.id === r);
-  const when = c.y && (meta ? DEP_TEXT.dated(meta.credit, c.y, c.ty && meta.flowCredit, c.ty, false, onSupply(r) ? 'supply' : 'use') : T.year(c.y));
+  const when = c.y && (meta ? DEP_TEXT.dated(meta.credit, c.y, c.ty && meta.flowCredit, c.ty, false, onSupply(r) ? 'supply' : 'use', meta.importsOf) : T.year(c.y));
   const crop = ['wheat', 'maize', 'rice', 'soy'].includes(r);
   const noted = when && (c.why === 'e' || c.why === 'x') && meta ? `${when}; ${(c.why === 'x' && crop ? DEP_TEXT.exportsNote : DEP_TEXT.exceedsNote)(meta.credit)}` : when;
   const said0 = noted && c.tm ? `${noted}; ${DEP_TEXT.supplierAsReported}` : noted;
   // An old balance says so, and that its partners are from a much later year.
   const gap = c.y && c.ty ? Number(c.ty) - Number(c.y) : 0;
   const said1 = said0 && c.pu ? `${said0}; ${DEP_TEXT.usgsProduction}` : said0;
-  const said = said1 && c.o ? `${oldSentence(grid, r, c)}. ${said1}; ${DEP_TEXT.noRecent(Number(c.y))}${gap > 10 ? `; ${DEP_TEXT.partnersLater(Number(c.ty), gap)}` : ''}` : said1;
+  const said2 = said1 && meta?.importsOf && c.t && c.v !== undefined && c.v >= 0 && !c.o ? `${said1}; ${T.supplierOf(grid.places[c.t[0]]?.n ?? c.t[0], formatShare(c.t[1]), meta.importsOf)}` : said1;
+  const said = said2 && c.o ? `${oldSentence(grid, r, c)}. ${said1}; ${DEP_TEXT.noRecent(Number(c.y))}${gap > 10 ? `; ${DEP_TEXT.partnersLater(Number(c.ty), gap)}` : ''}` : said2;
   const title = said ? ` title="${esc(said)}"` : quiet ? ` title="${esc(s)}"` : '';
   const sub = !s ? '' : quiet ? `<span class="gt-vh">${esc(s)}</span>` : `<span class="gt-dg__s">${esc(s)}</span>`;
   const est = c.est ? tagHtml('estimate') : c.pre ? tagHtml('preliminary') : '';
@@ -84,7 +87,7 @@ export function spofHtml(s: State, grid: Grid): string {
     const r = grid.resources[resIndex(x.r)];
     const supplier = grid.places[x.t[0]]?.n ?? x.t[0];
     return `<li><div class="gt-spof__h"><b>${nameHtml(grid, x.id)}</b><span class="gt-deptag gt-deptag--most">${ICON.most}${esc(r.label)}</span></div>`
-      + `<p>${esc(T.spofItem(x.v >= ALL ? null : formatShare(x.v), r.noun, supplier, formatShare(x.t[1])))}</p></li>`;
+      + `<p>${esc(T.spofItem(x.v >= ALL ? null : formatShare(x.v), r.noun, supplier, formatShare(x.t[1]), r.importsOf))}</p></li>`;
   }).join('');
   const more = all.length > SPOF_PHONE
     ? `<button class="gt-btn gt-btn--quiet" type="button" data-d-all aria-expanded="${s.all}">${esc(s.all ? T.showFewer : T.showAll(all.length))}</button>` : '';
@@ -121,18 +124,21 @@ export function legendHtml(): string {
 
 // ---------- the grid ----------
 
+/** The line on what each column's supplier shares are of, where narrower than its reliance (oil). */
+const scopeNotes = (grid: Grid, only?: ResourceId) => grid.resources.filter((r) => T.scope[r.id] && (!only || r.id === only)).map((r) => T.scope[r.id].note).join(' ');
+
 export function tableHtml(s: State, grid: Grid): string {
   const rows = rowsOf(s, grid);
   if (!rows.length) return `<p class="gt-notice">${esc(T.noRows)}</p>`;
   const found = foundRow(grid, rows.map((r) => r.id), s.find);
   const sortAttr = (k: string) => (s.sort === k ? ` aria-sort="${s.dir === 'asc' ? 'ascending' : 'descending'}"` : '');
   const head = `<th scope="col"${sortAttr('country')}><button type="button" data-d-sort="country">${esc(T.country)}${ICON.sort}</button></th>`
-    + grid.resources.map((r) => `<th scope="col"${sortAttr(r.id)}><button type="button" data-d-sort="${r.id}">${esc(r.label)}${ICON.sort}</button></th>`).join('');
+    + grid.resources.map((r) => `<th scope="col"${sortAttr(r.id)}><button type="button" data-d-sort="${r.id}">${esc(r.label)}${ICON.sort}</button>${T.scope[r.id] ? `<small class="gt-dgtbl__sub">${esc(T.scope[r.id].head)}</small>` : ''}</th>`).join('');
   const body = rows.map((row) => `<tr data-id="${row.id}"${row.id === found ? ' class="is-found"' : ''}><th scope="row">${nameHtml(grid, row.id)}</th>`
     + RESOURCE_IDS.map((r, i) => cellHtml(grid, r, row.cells[i])).join('') + '</tr>').join('');
   const caption = T.caption(grid.years, s.sort === 'country' ? T.country.toLowerCase() : label(grid, s.sort).toLowerCase(), s.dir === 'asc' && s.sort !== 'country');
   return `<div class="gt-tablewrap gt-dgwrap" style="--gt-table-h:720px" tabindex="0" role="region" aria-label="${esc(T.tableLabel)}">`
-    + `<table class="gt-table gt-dgtbl"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div><p class="gt-caption">${esc(caption)}</p>`;
+    + `<table class="gt-table gt-dgtbl"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div><p class="gt-caption">${esc([caption, scopeNotes(grid)].filter(Boolean).join(' '))}</p>`;
 }
 
 // ---------- phone ----------
@@ -155,14 +161,16 @@ export function phoneHtml(s: State, grid: Grid): string {
     const pick = select('dp-c', T.country, 'c', byName.map((r): [string, string] => [r.id, grid.places[r.id]?.n ?? r.id]), id, true);
     const list = RESOURCE_IDS.map((r, i) => `<li class="gt-dgcard__r"><span class="gt-dgcard__c">${esc(grid.resources[i].label)}</span>${cellHtml(grid, r, row.cells[i], 'span')}</li>`).join('');
     const link = p?.h ? `<a class="gt-cpsec__link" href="${esc(p.h)}">${esc(T.countryPage(p.n))} <span aria-hidden="true">→</span></a>` : '';
-    return `${seg}${bloc}${pick}<article class="gt-dgcard"><h3 class="gt-h3">${esc(p?.n ?? id)}</h3><ul>${list}</ul>${link}</article>`;
+    const note = scopeNotes(grid) ? `<p class="gt-caption">${esc(scopeNotes(grid))}</p>` : '';
+    return `${seg}${bloc}${pick}<article class="gt-dgcard"><h3 class="gt-h3">${esc(p?.n ?? id)}</h3><ul>${list}</ul>${note}${link}</article>`;
   }
   const r = phoneRes(s, grid);
   const i = resIndex(r);
   const pick = select('dp-r', T.commodity, 'sort', resOpts(grid), r, true);
   const ranked = rowsOf({ ...s, sort: r }, grid).filter((row) => sortValue(r, row.cells[i]) !== undefined);
   const items = ranked.map((row, n) => `<li><span class="gt-dgrank__n">${n + 1}</span><span class="gt-dgrank__c">${nameHtml(grid, row.id)}</span>${cellHtml(grid, r, row.cells[i], 'span')}</li>`).join('');
-  return `${seg}${bloc}${pick}<ol class="gt-dgrank" aria-label="${esc(T.rankLabel(label(grid, r).toLowerCase()))}">${items}</ol>`;
+  const note = scopeNotes(grid, r) ? `<p class="gt-caption">${esc(scopeNotes(grid, r))}</p>` : '';
+  return `${seg}${bloc}${pick}${note}<ol class="gt-dgrank" aria-label="${esc(T.rankLabel(label(grid, r).toLowerCase()))}">${items}</ol>`;
 }
 
 // ---------- download ----------
@@ -184,7 +192,7 @@ export function gridCsv(s: State, grid: Grid): { csv: string; note: string } {
     }
     if (r.csvTop) {
       cols.push({ head: T.csvTop(r.label) + tag(r.flowCredit), i, get: (c) => (c.t ? iso(grid, c.t[0]) : '') });
-      cols.push({ head: T.csvTopShare(r.label) + tag(r.flowCredit), i, get: (c) => share(c.t?.[1]) });
+      cols.push({ head: T.csvTopShare(r.label, r.importsOf) + tag(r.flowCredit), i, get: (c) => share(c.t?.[1]) });
       if (conc) cols.push({ head: T.csvYear(r.label), i, get: (c) => c.y ?? '' });
     } else left.push(conc ? `${r.label.toLowerCase()} (${r.flowCredit})` : T.csvTopOf(r.label.toLowerCase(), r.flowCredit));
   });

@@ -50,6 +50,8 @@ export interface ResourceMeta {
   id: ResourceId;
   label: string;
   noun: string;
+  /** What the supplier shares are of, where narrower than the reliance (oil: "crude-oil imports"). */
+  importsOf?: string;
   /** Short name of the share-of-use source and of the supplier source. */
   credit: string;
   flowCredit: string;

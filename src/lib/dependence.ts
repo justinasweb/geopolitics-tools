@@ -9,7 +9,7 @@ import { FLOWS, loadFlows, topSupplier, type Flows } from '../data/flows.ts';
 import { OTHER_SUPPLIER } from '../adapters/sipri.ts';
 import { shared } from './data.ts';
 import { place } from './places.ts';
-import { DEP_TEXT, SOURCE_SHORT, inSentence, onSupply } from '../i18n/pages.en.ts';
+import { DEP_TEXT, RESOURCE_TEXT, SOURCE_SHORT, inSentence, onSupply } from '../i18n/pages.en.ts';
 import { ENERGY_TEXT } from '../i18n/energy.en.ts';
 import { amount as energyAmount, gasLeftOutLines } from './energy.ts';
 
@@ -95,7 +95,7 @@ export function rowSource(r: DepRow): string | null {
   const short = (s: string) => SOURCE_SHORT[s] ?? s;
   if (r.year === undefined) return r.period ? DEP_TEXT.dated(short(r.source), r.period) : null;
   const f = r.partnersFrom;
-  const line = DEP_TEXT.dated(short(r.source), String(r.year), f && short(f.source), f?.period, r.buyers, onSupply(r.resource) ? 'supply' : 'use');
+  const line = DEP_TEXT.dated(short(r.source), String(r.year), f && short(f.source), f?.period, r.buyers, onSupply(r.resource) ? 'supply' : 'use', RESOURCE_TEXT[r.resource]?.importsOf);
   const reported = f?.mirror?.length ? `${line}, ${DEP_TEXT.asReported(f.mirror)}` : line;
   const out0 = f?.via?.length ? `${reported}; ${ENERGY_TEXT.usRow(f.via)}` : reported;
   const out = r.usgsProduction ? `${out0}. ${DEP_TEXT.usgsProduction}` : out0;

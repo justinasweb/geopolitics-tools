@@ -10,7 +10,7 @@ const empty = { why: 'n' as const };
 const cells = (oil: object, wheat: object, arms: object) => [oil, empty, wheat, empty, empty, empty, empty, empty, arms, empty];
 const grid: Grid = {
   resources: ['oil', 'gas', 'wheat', 'maize', 'rice', 'soy', 'potash', 'phosphate', 'arms', 'chips'].map((id) => ({
-    id: id as never, label: id[0].toUpperCase() + id.slice(1), noun: id, credit: id === 'arms' ? 'SIPRI' : 'FAOSTAT',
+    id: id as never, label: id[0].toUpperCase() + id.slice(1), noun: id, ...(id === 'oil' ? { importsOf: 'crude-oil imports' } : {}), credit: id === 'arms' ? 'SIPRI' : 'FAOSTAT',
     flowCredit: ['wheat'].includes(id) ? 'FAOSTAT' : id === 'arms' ? 'SIPRI' : 'UN Comtrade', csv: id !== 'arms' && id !== 'chips', csvTop: id === 'wheat',
   })),
   rows: [
@@ -36,11 +36,11 @@ describe('Dependencies model', () => {
   });
 
   it('writes every value: share and supplier, exports, net exporter, top supplier', () => {
-    expect(cellText(grid, 'oil', { v: 0.84, t: ['RUS', 0.86] })).toEqual(['84%', 'RUS 86%']);
+    expect(cellText(grid, 'oil', { v: 0.84, t: ['RUS', 0.86] })).toEqual(['84%', 'RUS 86% of crude']);
     expect(cellText(grid, 'oil', { v: -4, x: 0.9 })).toEqual(['Exports', '90% of output']);
     expect(cellText(grid, 'oil', { v: -0.08 })).toEqual(['−8%', 'net exporter']);
     // 100% and the shares above it up to 110% (Martinique's oil, 101%) read as on the country pages.
-    expect(cellText(grid, 'oil', { v: 1.013, t: ['FRA', 0.9] })).toEqual(['Imports all', 'FRA 90%']);
+    expect(cellText(grid, 'oil', { v: 1.013, t: ['FRA', 0.9] })).toEqual(['Imports all', 'FRA 90% of crude']);
     expect(cellText(grid, 'oil', { v: 1 })).toEqual(['Imports all', '']);
     expect(cellText(grid, 'oil', { v: 0.99 })).toEqual(['99%', '']);
     expect(cellText(grid, 'arms', { t: ['USA', 0.9] })).toEqual(['USA 90%', 'top supplier']);
@@ -67,7 +67,7 @@ describe('Dependencies model', () => {
   it('finds reliance on one supplier: half of use imported, half of that from one supplier', () => {
     expect(spofs(grid.rows).map((x) => `${x.id} ${x.r}`)).toEqual(['HUN oil', 'EGY wheat']);
     const html = spofHtml(DEFAULTS, grid);
-    expect(html).toContain('Imports 84% of the oil it uses; Russia supplies 86% of those imports.');
+    expect(html).toContain('Imports 84% of the oil it uses; Russia supplies 86% of its crude-oil imports.');
     expect(html).toContain('2 found in this table.');
   });
 
@@ -111,6 +111,18 @@ describe('Dependencies model', () => {
     expect(html).toContain('<tr data-id="NOR" class="is-found">');
     expect(html).toMatch(/aria-sort="descending"><button type="button" data-d-sort="oil">/);
     expect(html).toContain('Sorted by oil.');
+  });
+
+  it('says oil\'s supplier shares are of crude-oil imports: cell, tooltip, list, column, caption, phone and CSV', () => {
+    expect(cellText(grid, 'wheat', { v: 0.6, t: ['RUS', 0.7] })).toEqual(['60%', 'RUS 70%']);
+    const html = tableHtml(DEFAULTS, grid);
+    expect(html).toContain('<small class="gt-dgtbl__sub">suppliers: crude oil</small>');
+    expect(html).toContain('For oil, reliance counts all oil liquids (EIA); suppliers are shares of crude-oil imports.');
+    expect(html).toMatch(/title="[^"]*Russia supplies 86% of its crude-oil imports"/);
+    expect(spofHtml(DEFAULTS, grid)).toContain('Russia supplies 86% of its crude-oil imports.');
+    expect(phoneHtml({ ...DEFAULTS, show: 'country', c: 'HUN' }, grid)).toContain('suppliers are shares of crude-oil imports');
+    const g = { ...grid, resources: grid.resources.map((r) => (r.id === 'oil' ? { ...r, csvTop: true } : r)) };
+    expect(gridCsv(DEFAULTS, g).csv.split('\n')[0]).toContain('Oil main supplier share of crude-oil imports [UN Comtrade');
   });
 
   it('downloads only what the sources allow, and says what it left out', () => {

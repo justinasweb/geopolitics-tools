@@ -17,7 +17,7 @@ export const DEPS_TEXT = {
   spofTitle: 'Reliance on one supplier',
   spofRule: 'Countries that import at least half of what they use, with at least half of those imports from one supplier.',
   /** `share` null: imports all (99.5% up to the 10% above use that still gets a share). */
-  spofItem: (share: string | null, noun: string, supplier: string, top: string) => `Imports ${share ?? 'all'} of ${ofUse(noun)}; ${supplier} supplies ${top} of those imports.`,
+  spofItem: (share: string | null, noun: string, supplier: string, top: string, importsOf?: string) => `Imports ${share ?? 'all'} of ${ofUse(noun)}; ${supplier} supplies ${top} of ${importsOf ? `its ${importsOf}` : 'those imports'}.`,
   spofCount: (n: number, shown: number) => (n > shown ? `${n} found in this table; ${shown} with the largest share from one supplier shown.` : `${n} found in this table.`),
   spofNone: 'None in this table.',
   showAll: (n: number) => `Show all ${n}`,
@@ -52,6 +52,12 @@ export const DEPS_TEXT = {
   ofOutput: (share: string) => `${share} of output`,
   netExporter: 'net exporter',
   topSupplier: 'top supplier',
+  /** Where the supplier shares are of narrower imports than the reliance counts (RESOURCE_TEXT importsOf): the cell's
+   *  short words after the share, the column's sub-label, the cell's tooltip and the line under the table. */
+  scope: {
+    oil: { short: 'of crude', head: 'suppliers: crude oil', note: 'For oil, reliance counts all oil liquids (EIA); suppliers are shares of crude-oil imports.' },
+  } as Record<string, { short: string; head: string; note: string }>,
+  supplierOf: (name: string, share: string, importsOf: string) => `${name} supplies ${share} of its ${importsOf}`,
   noData: 'no data yet',
   noRow: 'not reported',
   noUse: 'not used',
@@ -81,7 +87,7 @@ export const DEPS_TEXT = {
   /** "estimate" (FAOSTAT's own) or "preliminary" (EIA's latest year), as the indicator CSVs' status column. */
   csvStatus: (label: string) => `${label} status`,
   csvTop: (label: string) => `${label} main supplier`,
-  csvTopShare: (label: string) => `${label} main supplier share of imports`,
+  csvTopShare: (label: string, importsOf?: string) => `${label} main supplier share of ${importsOf ?? 'imports'}`,
   csvTopOf: (label: string, credit: string) => `the main ${label} supplier (${credit})`,
   csvLeftOut: (parts: string) => `The download leaves out ${parts}: their sources do not allow them to be passed on.`,
 };

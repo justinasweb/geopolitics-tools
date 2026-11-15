@@ -45,8 +45,11 @@ export const onSupply = (noun: string) => SUPPLY_NOUNS.has(noun.toLowerCase());
 export const ofUse = (noun: string, past = false) => (onSupply(noun) ? `its ${noun} supply` : `the ${noun} it ${past ? 'used' : 'uses'}`);
 
 /** The ten resources of the dependencies table, as a noun inside "of the … it uses". */
-export const RESOURCE_TEXT: Record<string, { label: string; noun: string }> = {
-  oil: { label: 'Oil', noun: 'oil' }, gas: { label: 'Natural gas', noun: 'gas' }, wheat: { label: 'Wheat', noun: 'wheat' },
+/** `importsOf`: what the supplier shares are of, where it is narrower than what the reliance counts (oil: reliance is
+ *  EIA's net imports of all oil liquids; suppliers are shares of crude-oil imports, UN Comtrade HS 2709 and EIA's US
+ *  crude imports). Gas has none: both sides are natural gas (EIA dry gas; HS 271111 LNG and 271121 pipeline gas). */
+export const RESOURCE_TEXT: Record<string, { label: string; noun: string; importsOf?: string }> = {
+  oil: { label: 'Oil', noun: 'oil', importsOf: 'crude-oil imports' }, gas: { label: 'Natural gas', noun: 'gas' }, wheat: { label: 'Wheat', noun: 'wheat' },
   maize: { label: 'Maize', noun: 'maize' }, rice: { label: 'Rice', noun: 'rice' }, soy: { label: 'Soybeans', noun: 'soybeans' },
   potash: { label: 'Potash', noun: 'potash' }, phosphate: { label: 'Phosphate', noun: 'phosphate' },
   arms: { label: 'Arms', noun: 'major arms' }, chips: { label: 'Chips', noun: 'chips' },
@@ -78,14 +81,16 @@ export const DEP_TEXT = {
   usgsProduction: 'Production: USGS, as FAOSTAT’s figure is an estimate far from it',
   /** Crops whose exports exceed production plus imports. */
   exportsNote: (source: string) => `Exports can come from an earlier harvest or stocks; ${source}’s yearly figures do not separate them`,
-  mainSupplier: (name: string, share: string) => `Main supplier: ${name}, ${share} of imports`,
+  mainSupplier: (name: string, share: string, of = 'imports') => `Main supplier: ${name}, ${share} of ${of}`,
   noImports: (period: string) => `No major arms imports recorded, ${period}`,
   noData: 'No data yet',
   noRow: 'Not reported by this source',
   /** A row's source and year: use and trade dated apart when the partners come from another source or year
    *  (imports, or exports when the partners are buyers). */
-  dated: (source: string, year: string, flowSource?: string, flowYear?: string, buyers = false, of = 'use') =>
-    (!flowSource || !flowYear || (flowSource === source && flowYear === year) ? `${source}, ${year}` : `${source}, ${of} ${year} · ${flowSource}, ${buyers ? 'exports' : 'imports'} ${flowYear}`),
+  /** `importsOf`: what the flows are of, where narrower than the balance (oil: "crude-oil imports", "crude-oil exports"). */
+  dated: (source: string, year: string, flowSource?: string, flowYear?: string, buyers = false, of = 'use', importsOf?: string) =>
+    (!flowSource || !flowYear || (flowSource === source && flowYear === year) ? `${source}, ${year}`
+      : `${source}, ${of} ${year} · ${flowSource}, ${importsOf ? (buyers ? importsOf.replace(/imports$/, 'exports') : importsOf) : buyers ? 'exports' : 'imports'} ${flowYear}`),
   /** Deliveries from suppliers that are not a country (SIPRI: non-state actors, NATO, the UN, unknown), in a list. */
   otherSuppliers: 'Other or unknown suppliers',
   /** Flows whose amount is the exporter's report, the importer's quantity being unusable (mirror data). */
