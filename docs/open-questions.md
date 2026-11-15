@@ -133,6 +133,16 @@ Country pages have no exchange points figure. **Options:** a row in the country 
 listed, and the one with most networks), or leave it. The Technology hub intro was redrafted with exchange points on
 11 Nov 2026 and waits for approval (`hub:technology`).
 
+### Warheads: India's split and the total inventory line (raised 15 Nov 2026)
+
+The warheads series is FAS's military stockpile (9,745 in early 2026, FAS's table total). Under the key figure the
+latest year now says "Total inventory, including retired warheads awaiting dismantlement: about 12,175", the sum of
+the split's own rows. FAS's table gives 12,187. The 12 is India: OWID's split ("nuclear warhead inventories") has
+178 in reserve, while its stockpile series (and FAS's table total) has 190, so India's table row also reads 190 with
+a split of 0 + 178 + 0. Nothing is moved between the two files. **Options:** import FAS's early-2026 table into
+`fas-forces` (it then wins over OWID's split and the line reads FAS's own figures), or wait for OWID to correct its
+split.
+
 ## Launch review leftovers (raised 5 Nov 2026)
 
 - **G7 and Russia (decided 5 Nov 2026).** Russia joins in 1998, as the G8, per the G7 Research Group

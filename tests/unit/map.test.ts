@@ -289,6 +289,6 @@ describe('per-year answers', () => {
     expect(MINERALS_VIEW.withheldSentence('the United States', 'lithium', false, 2024)).toMatch(/^the United States also mined lithium in 2024, but USGS withholds/);
     const { inSentence } = await import('../../src/i18n/pages.en.ts');
     expect(inSentence('Soviet Union', true)).toBe('The Soviet Union');
-    expect(NUCLEAR_TEXT.lede('Russia', '5,580', 'the United States', '5,044', '87%', 2015, true)).toBe('Russia had the most estimated warheads, 5,580, then the United States with 5,044; together they held 87% of the world’s estimated total in early 2015.');
+    expect(NUCLEAR_TEXT.lede('Russia', '5,580', 'the United States', '5,044', '87%', 2015, 'stockpile', true)).toBe('Russia had the most estimated warheads, 5,580, then the United States with 5,044; together they held 87% of the world’s estimated military stockpile in early 2015.');
   });
 });

@@ -77,8 +77,9 @@ export interface Blocks {
   emissions?: Figure;
   sanctions?: { listings: PlaceListings | null };
   lending?: { total: number; from: number; to: number };
-  /** The nine states with nuclear weapons: FAS's latest estimate of the total inventory. */
-  nuclear?: { value: number; year: number };
+  /** The nine states with nuclear weapons: FAS's latest estimate, in the measure its series counts (the military
+   *  stockpile, or the total inventory with retired warheads). */
+  nuclear?: { value: number; year: number; measure: 'stockpile' | 'inventory' };
   /** Publicly known cyber incidents affecting it from `from` to the dataset's last year (EuRepoC); 0 is shown too. */
   cyber?: { count: number; from: number; to: number };
 }
@@ -125,7 +126,7 @@ function blocksFor(id: string): Blocks {
   }
   const w = warheadsModel();
   const mine = w?.byYear[w.year].rows.find((r) => r.id === id);
-  if (w && mine) out.nuclear = { value: mine.value, year: w.year };
+  if (w && mine) out.nuclear = { value: mine.value, year: w.year, measure: w.measure };
   const c = cyberData();
   if (c) out.cyber = { count: since(c, id, CYBER_FROM), from: CYBER_FROM, to: Math.max(...c.incidents.map((i) => i.year ?? 0)) };
   return out;

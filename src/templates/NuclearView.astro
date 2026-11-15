@@ -59,6 +59,8 @@ const chartYears = m ? m.years : [];
 // Short names (US, UK), as the other charts use, so the end labels fit the panel.
 const shortOf = (x: string) => place(x)?.short ?? nameOf(x);
 const sideBySide = !!(m?.splitIsLatest && forces);
+// The other of FAS's totals beside the latest year's key figure, from the split's own figures (never the series').
+const otherTotal = m && sideBySide ? Object.values(forces!.rows).reduce((t, x) => t + x[m.measure === 'stockpile' ? 'inventory' : 'stockpile'], 0) : null;
 const valueIn = (s: string, y: number) => m!.byYear[y].rows.find((r) => r.id === s)?.value ?? null;
 // A former state's years are their own line (the Soviet Union to 1991, then Russia), in the same colour; no figure moves.
 const chartLines = m ? m.states.flatMap((s, i) => {
@@ -84,11 +86,11 @@ const sharingSorted = [...sharing].sort((a, b) => nameOf(a.place).localeCompare(
 const factsDate = formatDate((id === 'treaties' ? TREATIES_CHECKED : '') || SHARING_CHECKED);
 const factsSource = id === 'treaties' ? `${N.treatySource}, ${TREATIES_CHECKED ? N.checked(factsDate) : N.unchecked}` : `${N.sharingSources}, ${N.factsAsOf(factsDate)}`;
 // Warheads: the headline, the map's label and the source lines follow the year control; the table stays on the latest year.
-const mapLabel = (yr: number) => N.mapLabel(yr, m!.byYear[yr].rows.length);
+const mapLabel = (yr: number) => N.mapLabel(yr, m!.byYear[yr].rows.length, m!.measure);
 const label = id === 'warheads' ? mapLabel(lastYear) : id === 'treaties' ? N.treatyLabel : N.sharingLabel;
 const sourceYears = m ? m.years.map((yr) => ({ year: yr, parts: [yr === lastYear ? N.estimate(yr) : N.historical(yr)], status: 'estimate' as const })) : [];
 const legend = id === 'warheads'
-  ? { title: N.legend(lastYear), scale: 'seq' as const, ticks: N.ticks, none: N.none }
+  ? { title: N.legend(lastYear, m!.measure), scale: 'seq' as const, ticks: N.ticks, none: N.none }
   : { title: file.data[0].legend, scale: 'seq' as const, ticks: [], none: file.missing.none, categories: file.categories, palette: 'cat' as const, hatch: file.hatch };
 ---
 <Page title={title} description={N.description[id]} hub="power" container="mv" image={route(key(id))!.image}
@@ -120,14 +122,15 @@ const legend = id === 'warheads'
           return (
             <div class="gt-pyear" data-year={yr} hidden={yr !== lastYear}>
               <div class="gt-pkf">
-                <span class="gt-pkf__label">{N.worldTotal}</span>
+                <span class="gt-pkf__label">{N.worldTotal(m.measure)}</span>
                 <span class="gt-pkf__num">{N.about(warheads(Y.world))}</span>
                 <span class="gt-pkf__meta"><StatusTag status="estimate" small /> {yr === m.current ? N.estimate(yr) : N.historical(yr)} · {N.states(Y.rows.length)}</span>
                 {change && <span class="gt-pkf__meta">{change}</span>}
+                {yr === lastYear && otherTotal !== null && <span class="gt-caption">{N.otherTotal(m.measure, N.about(warheads(otherTotal)))}</span>}
               </div>
               <div class="gt-pgroup">
-                <span class="gt-label">{N.legend(yr)}</span>
-                <ol class="gt-bars gt-bars--tight" aria-label={N.legend(yr)}>
+                <span class="gt-label">{N.legend(yr, m.measure)}</span>
+                <ol class="gt-bars gt-bars--tight" aria-label={N.legend(yr, m.measure)}>
                   {Y.rows.map((r) => (
                     <li><span class="gt-bars__name"><button type="button" data-select={r.id}>{nameIn(r.id, yr)}</button></span><span class="gt-bars__track"><span class="gt-bars__fill" style={`width:${((100 * r.value) / Y.rows[0].value).toFixed(1)}%`}></span></span><span class="gt-bars__val">{warheads(r.value)}</span></li>
                   ))}
@@ -138,9 +141,9 @@ const legend = id === 'warheads'
         })}
         {m && (
           <div class="gt-pblock">
-            <div class="gt-pblock__head"><span class="gt-label">{N.chart(m.years[0], lastYear)}</span></div>
-            <LineChart label={N.chart(m.years[0], lastYear)} years={chartYears} lines={chartLines.slice(0, 4)} format={{ kind: 'count' }} height={180} />
-            <p class="gt-caption">{N.chartCaption} {peak && N.peak(N.about(warheads(peak.world)), peak.year)}. {formerCaption}</p>
+            <div class="gt-pblock__head"><span class="gt-label">{N.chart(m.years[0], lastYear, m.measure)}</span></div>
+            <LineChart label={N.chart(m.years[0], lastYear, m.measure)} years={chartYears} lines={chartLines.slice(0, 4)} format={{ kind: 'count' }} height={180} />
+            <p class="gt-caption">{N.chartCaption(m.measure)} {peak && N.peak(N.about(warheads(peak.world)), peak.year, m.measure)}. {formerCaption}</p>
           </div>
         )}
         {forces && (
@@ -179,7 +182,7 @@ const legend = id === 'warheads'
           <h2 class="gt-h2" id="table">{N.table}</h2>
           <div class="gt-tablewrap" style="--gt-table-h:none" tabindex="0" role="region" aria-label={N.table}>
             <table class="gt-table" data-gt-sort>
-              <caption class="gt-caption">{N.tableCaption(lastYear)}</caption>
+              <caption class="gt-caption">{N.tableCaption(lastYear, m.measure)}</caption>
               <thead><tr>
                 <th scope="col" data-key="n"><button type="button">{N.country}</button></th>
                 <th scope="col" class="n" data-key="v" data-type="num" aria-sort="descending"><button type="button">{N.figureLabel}</button></th>
@@ -235,9 +238,9 @@ const legend = id === 'warheads'
             </>
           )}
           {csvHref && <p><a class="gt-btn gt-btn--quiet" href={csvHref} download>{N.csv}</a></p>}
-          <h2 class="gt-h2">{N.chart(m.years[0], lastYear)}</h2>
-          <LineChart label={N.chart(m.years[0], lastYear)} years={chartYears} lines={chartLines} format={{ kind: 'count' }} />
-          <p class="gt-caption">{N.chartCaption} {formerCaption}</p>
+          <h2 class="gt-h2">{N.chart(m.years[0], lastYear, m.measure)}</h2>
+          <LineChart label={N.chart(m.years[0], lastYear, m.measure)} years={chartYears} lines={chartLines} format={{ kind: 'count' }} />
+          <p class="gt-caption">{N.chartCaption(m.measure)} {formerCaption}</p>
         </>
       )}
       {t && (

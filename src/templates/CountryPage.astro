@@ -377,7 +377,7 @@ const citation = COUNTRY_TEXT.citation(name, kind, url, Number(m.updated.slice(0
               {blocks.nuclear && (
                 <article class="gt-cpblock">
                   <h3 class="gt-h3">{NUCLEAR_TEXT.block}</h3>
-                  <CpStat num={warheads(blocks.nuclear.value)} caption={NUCLEAR_TEXT.blockCaption(blocks.nuclear.year)} />
+                  <CpStat num={warheads(blocks.nuclear.value)} caption={NUCLEAR_TEXT.blockCaption(blocks.nuclear.year, blocks.nuclear.measure)} />
                   {live('view:nuclear:warheads') && <p class="gt-caption"><a href={`${live('view:nuclear:warheads')!.path}?country=${m.place.slug}`}>{NUCLEAR_TEXT.blockLink}</a></p>}
                   <SourceLine source={sourceName('fas')} parts={[NUCLEAR_TEXT.estimate(blocks.nuclear.year)]} status="estimate" />
                 </article>

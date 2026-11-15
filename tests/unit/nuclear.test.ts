@@ -308,6 +308,22 @@ describe('nuclear follow-ups', () => {
     expect(T.changeAbs('down', 1, 1990)).toBe('Down 1 warhead from 1990');
   });
 
+  it('names the measure the series counts in every warheads label, never a bare "world total"', async () => {
+    const { NUCLEAR_TEXT: T } = await import('../../src/i18n/nuclear.en.ts');
+    expect(T.worldTotal('stockpile')).toBe('Military stockpile, all states');
+    expect(T.worldTotal('inventory')).toBe('Total inventory, all states');
+    expect(T.lede('Russia', '4,400', 'the United States', '3,700', '83%', 2026, 'stockpile')).toBe('Russia has the most estimated warheads, 4,400, then the United States with 3,700; together they hold 83% of the world’s estimated military stockpile in early 2026.');
+    expect(T.otherTotal('stockpile', 'about 12,187')).toBe('Total inventory, including retired warheads awaiting dismantlement: about 12,187');
+    expect(T.dossierFact('Russia’s', 'stockpile')).toBe('Russia’s estimated military stockpile of nuclear warheads.');
+    expect(T.blockCaption(2026, 'inventory')).toBe('estimated warheads in its total inventory, early 2026');
+    // The layer file's words follow the model's measure.
+    const m = N.warheadsModel()!;
+    const f = L.layerFile('nuclear-warheads');
+    const words = m.measure === 'stockpile' ? 'military stockpiles' : 'total inventories';
+    expect(f.data.at(-1)!.legend).toContain(words);
+    for (const y of f.data) for (const line of Object.values(y.blocs)) expect(line).not.toMatch(/world total|estimated total/);
+  });
+
   it('stacks each arrangement in the sharing panel, saying "reported by FAS" once', async () => {
     const { blockHtml, countryPanelHtml } = await import('../../src/scripts/map/panel.ts');
     const s = L.layerFile('nuclear-sharing');

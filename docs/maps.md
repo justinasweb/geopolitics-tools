@@ -452,6 +452,13 @@ words in src/i18n/nuclear.en.ts), in the Power and alliances hub after Chinese l
   current figures. The split sits beside the totals (panel and table columns) only when it is for the same year;
   otherwise it has its own table labelled with its year and date. The panel's chart names states by their short
   names (US, UK). The "Peak" line under it reads the highest world total in the series (the mid-1980s).
+- **Naming the measure.** Every warheads label takes the measure from the model (`WarheadsModel.measure`, words in
+  `MEASURE` in src/i18n/nuclear.en.ts): today the series is FAS's military stockpile, so the key figure is "Military
+  stockpile, all states", the answer says "of the world's estimated military stockpile", and the legend, map label,
+  chart, peak, table caption, bloc lines, the country page block and the dossier fact say the same; nothing says
+  "world total". In the split's year only, a muted line under the key figure gives the other total from the split's
+  own rows ("Total inventory, including retired warheads awaiting dismantlement: about 12,175"). The share card's
+  figure is "about 9,745", its caption the answer.
 - **The Soviet Union.** OWID files the Soviet Union's warheads under Russia's code through 1991. The figures stay on
   Russia's shape (the basemap has no Soviet Union) and nothing moves between countries, but every place that shows a
   year says "Soviet Union" for 1949–1991 (`FORMER` in src/lib/nuclear.ts; `names` per year in the layer file): the

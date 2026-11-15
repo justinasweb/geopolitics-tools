@@ -1146,9 +1146,9 @@ function nuclearLayer(id: NuclearPage): LayerFile {
       const bl: Record<string, string> = {};
       for (const [b, members] of memberships) {
         const inBloc = y.rows.filter((r) => members.includes(r.id));
-        bl[b] = N.blocLine(BLOC_TEXT[b] ?? b, inBloc.length, warheads(inBloc.reduce((t, r) => t + r.value, 0)), year);
+        bl[b] = N.blocLine(BLOC_TEXT[b] ?? b, inBloc.length, warheads(inBloc.reduce((t, r) => t + r.value, 0)), year, m.measure);
       }
-      return { year, status: 'estimate', legend: N.legend(year), v, order: y.rows.map((r) => r.id), blocs: bl, ...(Object.keys(names).length ? { names } : {}) };
+      return { year, status: 'estimate', legend: N.legend(year, m.measure), v, order: y.rows.map((r) => r.id), blocs: bl, ...(Object.keys(names).length ? { names } : {}) };
     });
     const notes = { ...c.notes };
     for (const [id, f] of Object.entries(FORMER)) {
