@@ -20,14 +20,22 @@ interface Props {
   citation?: string;
   /** Show the button disabled (data still loading). */
   citeDisabled?: boolean;
+  /** On a map view with a year control: each year's parts and status, in place of `parts` and `status`. `year`'s
+   *  are shown; the map script shows another year's when the reader picks it (src/scripts/map/by-year.ts). */
+  years?: { year: number; parts: string[]; status?: Status }[];
+  year?: number;
 }
-const { source, updated, parts = [], status, citation, citeDisabled = false } = Astro.props;
+const { source, updated, parts = [], status, citation, citeDisabled = false, years, year } = Astro.props;
 ---
 <p class="gt-source">
   <span>{SOURCE_TEXT.source} <b><SourceText text={source} /></b></span>
-  {parts.map((p) => <><span class="gt-source__sep" aria-hidden="true">·</span><span>{p}</span></>)}
+  {years
+    ? years.map((e) => <span class="gt-source__yr" data-for-year={e.year} hidden={e.year !== year}>{e.parts.map((p) => <><span class="gt-source__sep" aria-hidden="true">·</span><span>{p}</span></>)}</span>)
+    : parts.map((p) => <><span class="gt-source__sep" aria-hidden="true">·</span><span>{p}</span></>)}
   {updated && <><span class="gt-source__sep" aria-hidden="true">·</span><span>{SOURCE_TEXT.updated} {formatDate(updated)}</span></>}
-  {status && <><span class="gt-source__sep" aria-hidden="true">·</span><StatusTag status={status} small /></>}
+  {years
+    ? years.filter((e) => e.status).map((e) => <span class="gt-source__yr" data-for-year={e.year} hidden={e.year !== year}><span class="gt-source__sep" aria-hidden="true">·</span><StatusTag status={e.status!} small /></span>)
+    : status && <><span class="gt-source__sep" aria-hidden="true">·</span><StatusTag status={status} small /></>}
   {(citation || citeDisabled) && (
     <button class="gt-cite" type="button" data-gt-copy={citation} disabled={citeDisabled}><Icon name="copy" /><span data-label>{SOURCE_TEXT.cite}</span></button>
   )}

@@ -7,6 +7,7 @@
 import type { LayerFile } from '../../lib/map/types';
 import type { Hit, MapController } from './engine';
 import { countryPanelHtml, tooltipHtml } from './panel';
+import { showYear } from './by-year';
 import { readState, writeState, type StateContext } from './state';
 import { esc, fill } from './text';
 
@@ -92,6 +93,7 @@ export function initMapView(root: HTMLElement): void {
     year = y;
     for (const b of root.querySelectorAll<HTMLElement>('.gt-pyear[data-year]')) b.hidden = Number(b.dataset.year) !== y;
     for (const t of root.querySelectorAll('[data-year-text]')) t.textContent = yearText(y);
+    showYear(y);
     if (file) for (const t of root.querySelectorAll('[data-legend-title]')) t.textContent = file.data[yi()].legend;
     if (slider && from !== 'slider' && slider.value !== String(y)) {
       slider.value = String(y);

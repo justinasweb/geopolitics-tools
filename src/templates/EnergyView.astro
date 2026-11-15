@@ -28,6 +28,7 @@ import { place } from '../lib/places';
 import { countryHref, indicatorHref, live, route, hubCrumb } from '../lib/routes';
 import { layerPath } from '../lib/map/layers';
 import { breadcrumbs } from '../lib/structured';
+import { byYear } from '../lib/map/by-year';
 import { shareExact } from '../lib/minerals';
 import { formatDate, formatShare } from '../lib/format';
 
@@ -85,7 +86,13 @@ const related = [
   ...(indicatorId && indicatorHref(indicatorId) ? [{ href: indicatorHref(indicatorId)!, name: INDICATOR_TEXT[indicatorId]?.label ?? title, note: E.indicatorPage }] : []),
   ...top.filter((r) => countryHref(r.id)).map((r) => ({ href: countryHref(r.id)!, name: nameOf(r.id), note: E.countryPage })),
 ];
-const mapTop = top.map((r) => `${nameOf(r.id)} ${trade ? valueText(p, r.value) : shareOf(r.value, y.world)}`).join(', ');
+// The headline, the map's label, the summary and their source lines follow the year control; the table stays on the default year.
+const mapLabel = (yr: number) => {
+  const Y = p.byYear[yr];
+  const t = trade ? [Y.rows[0], Y.rows.at(-1)!] : Y.rows.slice(0, 3);
+  return E.mapLabel(title, yr, t.map((r) => `${nameOf(r.id)} ${trade ? valueText(p, r.value) : shareOf(r.value, Y.world)}`).join(', '));
+};
+const sourceYears = p.years.map((yr) => ({ year: yr, parts: [String(yr)], status: isPreliminary(p, yr) ? 'preliminary' as const : undefined }));
 const bars = (rs: EnergyRow[], max: number) => rs.map((r) => ({ id: r.id, text: amountShort(p.fuel, p.layer, Math.abs(r.value)), w: max ? (100 * Math.abs(r.value)) / max : 0 }));
 
 // Oil prices, on oil's own pages: yearly averages as a chart, the last twelve months in a table.
@@ -104,13 +111,13 @@ const monthName = (d: string) => formatDate(`${d}-15`).replace(/^\d+ /, '');
   <div class="gt-mvhead">
     <Breadcrumbs items={crumbs} />
     <h1 class="gt-title gt-mvhead__t">{title} <span class="gt-mvhead__sub">{sub}</span></h1>
-    {answer && <p class="gt-lede gt-mvhead__a">{answer}</p>}
-    <SourceLine source={source} parts={[String(p.year)]} updated={updated} status={pre} />
+    <p class="gt-lede gt-mvhead__a" data-by-year={byYear(p.years, (yr) => lede(p, yr))} hidden={!answer}>{answer}</p>
+    <SourceLine source={source} years={sourceYears} year={p.year} updated={updated} />
   </div>
 
   <MapControls pickerLabel={E.fuelLabel} picker={picker} picker2={picker2} years={p.years} year={p.year} />
 
-  <MapStage layer={layerPath(`energy-${p.id}`)} label={E.mapLabel(title, p.year, mapTop)} title={title}
+  <MapStage layer={layerPath(`energy-${p.id}`)} label={mapLabel(p.year)} labels={byYear(p.years, mapLabel)} title={title}
     legend={{
       title: trade ? E.layer.trade.legend(p.year, E.tradeUnit[p.fuel]) : L.legend(p.year), scale: trade ? 'div' : 'seq', ticks: p.ticks, ends: trade ? E.ends : undefined, none: E.none,
       notyet: y.notYet.length ? E.notYetLegend : undefined, marks: marks.length ? marks : undefined,
@@ -164,8 +171,8 @@ const monthName = (d: string) => formatDate(`${d}-15`).replace(/^\d+ /, '');
   <section class="gt-mvbelow" aria-labelledby="mv-sum">
     <div class="gt-mvbelow__main">
       <h2 class="gt-h2" id="mv-sum">{E.summary}</h2>
-      <div class="gt-prose">{summary(p).map((s) => <p>{s}</p>)}</div>
-      <SourceLine source={source} parts={[String(p.year)]} updated={updated} status={pre} />
+      <div class="gt-prose" data-by-year={byYear(p.years, (yr) => summary(p, yr))}>{summary(p).map((s) => <p>{s}</p>)}</div>
+      <SourceLine source={source} years={sourceYears} year={p.year} updated={updated} />
       <h2 class="gt-h2" id="table">{E.all}</h2>
       <div class="gt-tablewrap" style="--gt-table-h:560px" tabindex="0" role="region" aria-label={E.tableLabel(title)}>
         <table class="gt-table" data-gt-sort>

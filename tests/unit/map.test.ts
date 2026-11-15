@@ -7,6 +7,7 @@ import { formatShare } from '../../src/lib/format.ts';
 import { nearestYear, readState, writeState, type StateContext } from '../../src/scripts/map/state.ts';
 import { countryPanelHtml, previousHtml, tooltipHtml } from '../../src/scripts/map/panel.ts';
 import type { LayerFile } from '../../src/lib/map/types.ts';
+import { byYear } from '../../src/lib/map/by-year.ts';
 
 // The page engine reads the sample files here (the prototype's fixtures), never a live snapshot.
 process.env.GT_DATA = 'sample';
@@ -266,5 +267,13 @@ describe('view state in the URL', () => {
     const u = new URL('https://geopolitics.tools/minerals/lithium?utm=x');
     expect(writeState(u, { year: 2025 }, ctx).search).toBe('?utm=x');
     expect(writeState(u, { year: 2023, country: 'AUS', bloc: 'brics' }, ctx).search).toBe('?utm=x&year=2023&country=australia&bloc=brics');
+  });
+});
+
+describe('text that follows the year control', () => {
+  it('writes each year’s text or paragraphs, leaving out years with none', () => {
+    const json = byYear([2023, 2024, 2025], (y) => (y === 2023 ? null : y === 2024 ? 'Australia mines 37%' : ['One.', 'Two.']));
+    expect(JSON.parse(json)).toEqual({ 2024: 'Australia mines 37%', 2025: ['One.', 'Two.'] });
+    expect(byYear([2024], () => [])).toBe('{}');
   });
 });

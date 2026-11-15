@@ -27,6 +27,7 @@ import { place } from '../lib/places';
 import { countryHref, indicatorHref, live, route } from '../lib/routes';
 import { layerPath } from '../lib/map/layers';
 import { CONFLICT_KEY, conflictCrumbs, conflictLd } from '../lib/jsonld';
+import { byYear } from '../lib/map/by-year';
 
 const p = conflictPage()!;
 const key = CONFLICT_KEY;
@@ -46,11 +47,15 @@ const answer = ledeFor(m);
 const firstPrelim = p.months.find((x) => x.preliminary);
 const status = Object.fromEntries(p.months.filter((x) => x.preliminary).map((x) => [x.n, 'preliminary' as const]));
 
-const summary = [
-  [answer, C.byKind(VIOLENCE.map((k) => C.kindPart(C.kind[k], count(m.deaths[k])))), m.civilians12 && m.deaths12 ? `${C.civilians(share(m.civilians12 / m.deaths12)).replace(/^./, (c) => c.toUpperCase())} over the 12 months.` : ''].filter(Boolean).join(' '),
+// The headline, the summary, the map's label and the summary's source line follow the month slider; the tables stay
+// on the latest month.
+const summaryOf = (m: ConflictMonth) => [
+  [ledeFor(m), C.byKind(VIOLENCE.map((k) => C.kindPart(C.kind[k], count(m.deaths[k])))), m.civilians12 && m.deaths12 ? `${C.civilians(share(m.civilians12 / m.deaths12)).replace(/^./, (c) => c.toUpperCase())} over the 12 months.` : ''].filter(Boolean).join(' '),
   [C.countries(m.rows.length, label(m)), m.conflicts.length ? `${C.deadliest.replace(', 12 months', '')}: ${list(m.conflicts.slice(0, 3).map((k) => `${k.name} (${count(k.deaths)})`))}.` : ''].filter(Boolean).join(' '),
   [C.caveat, firstPrelim ? C.candidateNote(monthText(firstPrelim.n, true)) : ''].filter(Boolean).join(' '),
 ];
+const summary = summaryOf(m);
+const months = p.months.map((x) => x.n);
 
 const crumbs = conflictCrumbs();
 const marks = VIOLENCE.map((k) => ({ symbol: symbols[k], label: C.mark(k) }));
@@ -64,7 +69,10 @@ const related = [
   ...m.rows.slice(0, 3).filter((r) => countryHref(r.id)).map((r) => ({ href: countryHref(r.id)!, name: nameOf(r.id), note: C.countryPage })),
   ...(live('view:refugees:refout') ? [{ href: live('view:refugees:refout')!.path, name: C.refugees, note: '' }] : []),
 ];
-const mapTop = m.rows.slice(0, 3).map((r) => `${nameOf(r.id)} ${count(r.deaths)}`).join(', ');
+const mapLabel = (n: number) => {
+  const x = p.byMonth[n];
+  return `${C.legend(label(x))}. ${x.rows.slice(0, 3).map((r) => `${nameOf(r.id)} ${count(r.deaths)}`).join(', ')}.`;
+};
 const recent = [...p.months].reverse();
 ---
 <Page title={C.title} description={C.description(monthText(p.month, true))} hub="security" container="mv" image={route(key)!.image}
@@ -72,14 +80,14 @@ const recent = [...p.months].reverse();
   <div class="gt-mvhead">
     <Breadcrumbs items={crumbs} />
     <h1 class="gt-title gt-mvhead__t">{C.title} <span class="gt-mvhead__sub">{C.sub}</span></h1>
-    <p class="gt-lede gt-mvhead__a">{answer}</p>
+    <p class="gt-lede gt-mvhead__a" data-by-year={byYear(months, (n) => ledeFor(p.byMonth[n]))}>{answer}</p>
     <SourceLine source={C.source} parts={[`${monthText(p.months[0].n)} – ${label(m)}`]} updated={updated} />
   </div>
 
   <MapControls pickerLabel="" picker={[]} years={p.months.map((x) => x.n)} year={p.month} yearStatus={status}
     steps={{ label: C.monthLabel, labels: Object.fromEntries(p.months.map((x) => [x.n, label(x)])), statusWord: C.preliminary }} />
 
-  <MapStage layer={layerPath('conflict')} label={`${C.legend(label(m))}. ${mapTop}.`} title={C.title}
+  <MapStage layer={layerPath('conflict')} label={mapLabel(p.month)} labels={byYear(months, mapLabel)} title={C.title}
     legend={{ title: C.legend(label(m)), scale: 'seq', ticks: C.ticks, none: C.noneIn.replace('{year}', label(m)), marks }}>
     <div data-panel="world" slot="panel">
       <div class="gt-panel__head">
@@ -138,8 +146,8 @@ const recent = [...p.months].reverse();
   <section class="gt-mvbelow" aria-labelledby="mv-sum">
     <div class="gt-mvbelow__main">
       <h2 class="gt-h2" id="mv-sum">{C.summary}</h2>
-      <div class="gt-prose">{summary.map((s) => <p>{s}</p>)}</div>
-      <SourceLine source={C.source} parts={[label(m)]} updated={updated} />
+      <div class="gt-prose" data-by-year={byYear(months, (n) => summaryOf(p.byMonth[n]))}>{summary.map((s) => <p>{s}</p>)}</div>
+      <SourceLine source={C.source} years={p.months.map((x) => ({ year: x.n, parts: [label(x)] }))} year={p.month} updated={updated} />
 
       <h2 class="gt-h2" id="table">{C.all}</h2>
       <div class="gt-tablewrap" style="--gt-table-h:560px" tabindex="0" role="region" aria-label={C.tableLabel}>

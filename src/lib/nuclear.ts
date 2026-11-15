@@ -97,8 +97,8 @@ export function warheadsModel(): WarheadsModel | null {
 const nameOf = (id: string) => place(id)?.name ?? id;
 
 /** The warheads view's one-sentence answer: the two largest inventories and their share of the world's. */
-export function warheadsLede(m = warheadsModel()): string | null {
-  const y = m?.byYear[m.year];
+export function warheadsLede(m = warheadsModel(), year = m?.year): string | null {
+  const y = year === undefined ? undefined : m?.byYear[year];
   if (!y || y.rows.length < 2) return null;
   const [a, b] = y.rows;
   return T.lede(inSentence(nameOf(a.id), true), warheads(a.value), inSentence(nameOf(b.id)), warheads(b.value), formatShare((a.value + b.value) / y.world), y.year);

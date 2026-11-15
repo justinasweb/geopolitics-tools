@@ -47,6 +47,14 @@ before and without the map script.
   every year shown, said with `todaysMembers` in `src/i18n/members.en.ts`; "produced" for gallium, USGS's primary
   production, and ", according to USGS estimates" where the members' figures are estimated). On a phone, year and bloc sit in a
   Filters sheet.
+- **Text that follows the year.** The answer, the summary, the map's aria-label and the year (and Estimate or
+  Preliminary tag) on the source lines change with the year control, on every view with one (minerals, indicator
+  views, energy, food, conflict, disasters, nuclear warheads; the history views' map label). The build writes each
+  year's words into the page (`byYear` in `src/lib/map/by-year.ts`: `data-by-year` for text, `data-label-by-year`
+  for the map's label, `SourceLine`'s `years` for parts and tags) and `showYear` (`src/scripts/map/by-year.ts`)
+  swaps them on a year change and on a `?year=` in the address. The latest year's words are the HTML's own, so the
+  page reads the same without the script. The title, description, share image and the table stay on the latest year
+  (the table's headings name its years).
 - **URL state.** `?year=2024&country=australia&bloc=brics` (`src/scripts/map/state.ts`), kept with
   `history.replaceState`; defaults are left out and the canonical stays the bare path. A year a source does not
   cover moves to the nearest one it has, and the page says so. Switching mineral keeps the query.

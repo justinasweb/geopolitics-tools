@@ -5,6 +5,8 @@
 .gt-source { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; font: 400 13px/18px var(--sans); color: var(--ink-muted); }
 .gt-source b { font-weight: 600; color: var(--ink); }
 .gt-source__sep { color: var(--rule-strong); }
+/* One year's parts or status on a map view's source line (SourceLine `years`): laid out as if not wrapped. */
+.gt-source__yr:not([hidden]) { display: contents; }
 /* On narrow lines the items wrap and a separator would dangle at a line end, so drop them there. */
 .gt-source { container-type: inline-size; }
 @container (max-width: 479px) { .gt-source__sep { display: none; } }

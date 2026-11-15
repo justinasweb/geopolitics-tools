@@ -26,6 +26,7 @@ import { place } from '../lib/places';
 import { countryHref, indicatorHref, live, route, hubCrumb } from '../lib/routes';
 import { layerPath } from '../lib/map/layers';
 import { breadcrumbs } from '../lib/structured';
+import { byYear } from '../lib/map/by-year';
 import { shareExact } from '../lib/minerals';
 import { formatShare } from '../lib/format';
 import type { FoodRow } from '../lib/food';
@@ -80,7 +81,13 @@ const related = [
   ...(indicatorId && indicatorHref(indicatorId) ? [{ href: indicatorHref(indicatorId)!, name: INDICATOR_TEXT[indicatorId]?.label ?? title, note: F.indicatorPage }] : []),
   ...top.filter((r) => countryHref(r.id)).map((r) => ({ href: countryHref(r.id)!, name: nameOf(r.id), note: F.countryPage })),
 ];
-const mapTop = top.map((r) => `${nameOf(r.id)} ${trade ? netText(r.value) : shareOf(r.value, y.world)}`).join(', ');
+// The headline, the map's label, the summary and their source lines follow the year control; the table stays on the default year.
+const mapLabel = (yr: number) => {
+  const Y = p.byYear[yr];
+  const t = trade ? [Y.rows[0], Y.rows.at(-1)!] : Y.rows.slice(0, 3);
+  return F.mapLabel(title, yr, t.map((r) => `${nameOf(r.id)} ${trade ? netText(r.value) : shareOf(r.value, Y.world)}`).join(', '));
+};
+const sourceYears = p.years.map((yr) => ({ year: yr, parts: [String(yr)] }));
 const bars = (rs: FoodRow[], max: number) => rs.map((r) => ({ id: r.id, text: mtShort(Math.abs(r.value)), w: max ? (100 * Math.abs(r.value)) / max : 0 }));
 ---
 <Page title={title} description={F.description(p.layer, T.name, p.year, p.crop)} hub="resources" container="mv" image={route(key(p.id))!.image}
@@ -88,13 +95,13 @@ const bars = (rs: FoodRow[], max: number) => rs.map((r) => ({ id: r.id, text: mt
   <div class="gt-mvhead">
     <Breadcrumbs items={crumbs} />
     <h1 class="gt-title gt-mvhead__t">{title} <span class="gt-mvhead__sub">{sub}</span></h1>
-    {answer && <p class="gt-lede gt-mvhead__a">{answer}</p>}
-    <SourceLine source={source} parts={[String(p.year)]} updated={updated} citation={citation} />
+    <p class="gt-lede gt-mvhead__a" data-by-year={byYear(p.years, (yr) => lede(p, yr))} hidden={!answer}>{answer}</p>
+    <SourceLine source={source} years={sourceYears} year={p.year} updated={updated} citation={citation} />
   </div>
 
   <MapControls pickerLabel={F.commodityLabel} picker={picker} picker2={picker2} years={p.years} year={p.year} />
 
-  <MapStage layer={layerPath(`food-${p.id}`)} label={F.mapLabel(title, p.year, mapTop)} title={title}
+  <MapStage layer={layerPath(`food-${p.id}`)} label={mapLabel(p.year)} labels={byYear(p.years, mapLabel)} title={title}
     legend={{
       title: L.legend(p.year), scale: trade ? 'div' : 'seq', ticks: p.ticks, ends: trade ? F.ends : undefined, none: F.none,
       notyet: y.notYet.length ? F.notYetLegend : undefined, marks: flows.length ? [{ symbol: 'arc', label: F.flowsLabel(p.flowYear!) }] : undefined,
@@ -147,8 +154,8 @@ const bars = (rs: FoodRow[], max: number) => rs.map((r) => ({ id: r.id, text: mt
   <section class="gt-mvbelow" aria-labelledby="mv-sum">
     <div class="gt-mvbelow__main">
       <h2 class="gt-h2" id="mv-sum">{F.summary}</h2>
-      <div class="gt-prose">{summary(p).map((s) => <p>{s}</p>)}</div>
-      <SourceLine source={source} parts={[String(p.year)]} updated={updated} citation={citation} />
+      <div class="gt-prose" data-by-year={byYear(p.years, (yr) => summary(p, yr))}>{summary(p).map((s) => <p>{s}</p>)}</div>
+      <SourceLine source={source} years={sourceYears} year={p.year} updated={updated} citation={citation} />
       <h2 class="gt-h2" id="table">{F.all}</h2>
       <div class="gt-tablewrap" style="--gt-table-h:560px" tabindex="0" role="region" aria-label={F.tableLabel(title)}>
         <table class="gt-table" data-gt-sort>
