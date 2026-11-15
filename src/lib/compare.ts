@@ -9,7 +9,7 @@ import { blocIn } from '../i18n/blocs.en.ts';
 import { BLOC_ORDER } from './blocs.ts';
 import { blocFullName } from './search.ts';
 import { fold } from './search-match.ts';
-import { countryModel, countryPages, figure, mineralShares, loadedIndicators } from './country.ts';
+import { countryModel, countryPages, figure, mineralShares, mineralsWithheld, loadedIndicators } from './country.ts';
 import { seriesOf } from './dossier.ts';
 import { creditName, indicator, sourceName } from './data.ts';
 import { place } from './places.ts';
@@ -74,6 +74,8 @@ export function compareData(id: string): CountryData {
   }
   const m: CountryData['m'] = {};
   for (const x of mineralShares(id, 0)) if (x.share > 0) m[x.id] = sig(x.share);
+  // Listed by USGS with the figure withheld, as on the mineral pages: null, not a missing key (not listed).
+  for (const x of mineralsWithheld(id)) m[x] = null;
   return { id, slug: p.slug, name: p.name, ...(countryHref(id) ? { href: countryHref(id) } : {}), f, s, m };
 }
 

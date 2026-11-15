@@ -5,6 +5,7 @@
 import { aggregate, sanctions as loadSanctions, type PlaceListings } from '../adapters/sanctions.ts';
 import { lending as loadLending } from '../adapters/aiddata.ts';
 import { minerals as loadMinerals, type Mineral } from '../adapters/minerals.ts';
+import { withheld } from './minerals.ts';
 import { alertsIn, firstDay, lastDay } from './disasters.ts';
 import { warheadsModel } from './nuclear.ts';
 import { cyberData, since } from './cyber.ts';
@@ -67,6 +68,12 @@ export function mineralShares(placeId: string, min = MINERAL_SHARE): MineralShar
     out.push({ id: m.id, label: m.label, share: producers[i].share!, year: m.year, estimated: m.estimated, rank, of: producers.length, measure: m.measure });
   }
   return out.sort((a, b) => b.share - a.share);
+}
+
+/** The minerals USGS lists the place as a producer of but withholds the figure for, in its latest year (the mineral
+ *  pages' `withheld`). */
+export function mineralsWithheld(placeId: string): string[] {
+  return ((mineralsData() ?? []) as Mineral[]).filter((m) => withheld(m).some((p) => p.place === placeId)).map((m) => m.id);
 }
 
 export interface Blocks {

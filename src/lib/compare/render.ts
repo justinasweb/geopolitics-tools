@@ -9,7 +9,7 @@ import { formatParts, formatShare } from '../format.ts';
 import { lineChartHtml } from '../linechart.ts';
 import { tagHtml, type Status } from '../tags.ts';
 import { sourceLinksHtml } from '../source-links.ts';
-import { MARK, SIDES, chartsAndGaps, compareCharts, comparePairs, compareRows, gapGroups, type CountryData, type Fig, type MeasureMeta, type Meta, type Row, type Side } from './model.ts';
+import { MARK, SIDES, chartsAndGaps, compareCharts, comparePairs, compareRows, gapGroups, type CountryData, type Fig, type MeasureMeta, type Meta, type MineralValue, type Row, type Side } from './model.ts';
 
 export const esc = (s: string | number) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
 
@@ -91,15 +91,22 @@ export function chartsHtml(meta: Meta, c: Two, first = 2): string {
 
 // ---------- minerals ----------
 
+/** A mineral value: the share; "Withheld" (USGS lists the country but not its figure); or "–" (not listed). */
+const valueHtml = (v: MineralValue) => (v === 'withheld'
+  ? `<span aria-hidden="true" title="${esc(T.withheldLong)}">${esc(T.withheld)}</span><span class="gt-vh">${esc(T.withheldLong)}</span>`
+  : v === null ? `<span aria-hidden="true" title="${esc(T.notListed)}">–</span><span class="gt-vh">${esc(T.notListed)}</span>` : esc(formatShare(v)));
+
 export function mineralsHtml(meta: Meta, c: Two, n: number): string {
   const pairs = comparePairs(meta, c);
   if (!pairs.length) return '';
   const year = pairs[0].m.year;
   const est = pairs.some((x) => x.m.estimated);
   const items = pairs.map((x) => `<li><span class="gt-pairs__m">${esc(x.m.name)}</span><ul>`
-    + x.vals.map((v, i) => `<li class="gt-cc--${SIDES[i]}"><span class="gt-pairs__n">${esc(c[i].name)}</span><span class="gt-pairs__t"><span class="gt-pairs__f" style="width:${((v ?? 0) * 100).toFixed(1)}%"></span></span><span class="gt-pairs__v">${v === null ? `<span aria-hidden="true" title="${esc(T.notListed)}">–</span><span class="gt-vh">${esc(T.notListed)}</span>` : esc(formatShare(v))}</span></li>`).join('')
+    + x.vals.map((v, i) => `<li class="gt-cc--${SIDES[i]}"><span class="gt-pairs__n">${esc(c[i].name)}</span><span class="gt-pairs__t">${typeof v === 'number' ? `<span class="gt-pairs__f" style="width:${(v * 100).toFixed(1)}%"></span>` : ''}</span><span class="gt-pairs__v">${valueHtml(v)}</span></li>`).join('')
     + '</ul></li>').join('');
-  const note = pairs.some((x) => x.vals.includes(null)) ? `<p class="gt-caption gt-pairs__note">${esc(T.notListedNote)}</p>` : '';
+  // Each note only when a value needs it: withheld (listed, figure not published) is not the same as not listed.
+  const note = [pairs.some((x) => x.vals.includes('withheld')) && T.withheldNote, pairs.some((x) => x.vals.includes(null)) && T.notListedNote]
+    .filter((t): t is string => Boolean(t)).map((t) => `<p class="gt-caption gt-pairs__note">${esc(t)}</p>`).join('');
   return sectionHtml(n, 'minerals', T.minerals, T.mineralsFind(year), `<ul class="gt-pairs">${items}</ul>${note}`,
     sourceLineHtml(meta.mineralSource, [`${year}${est ? ', estimated' : ''}`], est ? 'estimate' : undefined));
 }

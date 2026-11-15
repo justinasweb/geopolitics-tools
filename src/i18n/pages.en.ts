@@ -289,6 +289,10 @@ export const COMPARE_TEXT = {
   /** The mineral pairs' "–": USGS names the largest producers only, so a country it does not list is not a zero. */
   notListed: 'Not listed by USGS',
   notListedNote: '– Not listed by USGS. USGS names the largest producers of each mineral, so a country it does not list has no published share, which is not the same as zero.',
+  /** A producer USGS lists with its figure withheld: the value (short on screen, full for screen readers) and the note. */
+  withheld: 'Withheld',
+  withheldLong: 'Withheld by USGS',
+  withheldNote: 'Withheld by USGS: USGS lists this country as a producer but withholds the figure to protect company data.',
   others: 'Other comparisons',
   change: 'Change',
   /** The first and second country's colour, named on their chips (tokens cmp-first and cmp-second). */
