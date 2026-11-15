@@ -30,6 +30,27 @@ describe('space views', () => {
     expect(p.years.at(-1)).toBe(p.year);
   });
 
+  it('says the running year\'s satellites "as of" the day the catalogue was read, a finished year "at the end of"', async () => {
+    const { asOfDate, yearOrAsOf } = await import('../../src/lib/as-of.ts');
+    const { formatDate } = await import('../../src/lib/format.ts');
+    const { DOSSIER_TEXT } = await import('../../src/i18n/pages.en.ts');
+    const asOf = S.spaceAsOf()!;
+    const y = Number(asOf.slice(0, 4));
+    expect(asOfDate('satellites', y)).toBe(formatDate(asOf));
+    expect(asOfDate('satellites', y - 1)).toBeNull();
+    expect(asOfDate('launches', y)).toBeNull();
+    expect(yearOrAsOf('satellites', y)).toBe(`as of ${formatDate(asOf)}`);
+    expect(DOSSIER_TEXT.techFind('Germany', '105', 2026, '11 Nov 2026')).toBe('Satellites owned in Germany numbered 105 as of 11 Nov 2026.');
+    expect(DOSSIER_TEXT.techFind('Germany', '98', 2025)).toBe('Satellites owned in Germany numbered 98 at the end of 2025.');
+    const p = V.viewPage('satellites')!;
+    if (p.year === y) {
+      expect(V.legendOf(p, y)).toBe(`Satellites in orbit, working or not, as of ${formatDate(asOf)}`);
+      expect(V.lede(p, y)).toContain(`of the satellites in orbit as of ${formatDate(asOf)}`);
+    }
+    expect(V.legendOf(p, p.years[0])).toBe(`Satellites in orbit, working or not, ${p.years[0]}`);
+    expect(V.lede(p, p.years[0])).toContain(`owned`);
+  });
+
   it('marks each launch site in the years it launched, and the site counts match the country counts', () => {
     const p = V.viewPage('launches')!;
     const f = L.layerFile('space-launches');

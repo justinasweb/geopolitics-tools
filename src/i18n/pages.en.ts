@@ -253,7 +253,8 @@ export const DOSSIER_TEXT = {
   /** The 65-and-over share's caption: a year after the UN's last estimate year is its medium-variant projection. */
   aged65Caption: (year: number, lastEstimate: number, source: string) => `${year}${year > lastEstimate ? ', Projection, medium variant' : ''} · ${source}`,
   tech: 'Technology and space', techMenu: 'Technology',
-  techFind: (c: string, n: string, year: number) => `Satellites owned in ${c} numbered ${n} at the end of ${year}.`,
+  /** `asOf`: the day a still-running year was counted (src/lib/as-of.ts); a finished year is its end. */
+  techFind: (c: string, n: string, year: number, asOf?: string | null) => `Satellites owned in ${c} numbered ${n} ${asOf ? `as of ${asOf}` : `at the end of ${year}`}.`,
   satellites: 'Satellites in orbit', launches: 'Orbital launches', compute: 'Share of AI computing power', models: 'Notable AI models',
   links: 'Sanctions, Chinese loans and grants, and trade', linksMenu: 'Sanctions, loans and grants',
   climate: 'Climate and hazards', climateMenu: 'Climate',
@@ -269,7 +270,7 @@ export const COMPARE_TEXT = {
   lede: (a: string, b: string) => `${a} and ${b} side by side on the same measures, each figure with its source and year.`,
   description: (a: string, b: string) => `${a} and ${b} side by side: economy, people, military spending, emissions, minerals and more, with sources.`,
   /** A row's source and year: one year when both figures share it, else each country's own ("United States: 2024; China: 2023 · World Bank"). */
-  sourceYear: (credit: string, years: { name: string; year: number }[]) => (new Set(years.map((y) => y.year)).size === 1
+  sourceYear: (credit: string, years: { name: string; year: number | string }[]) => (new Set(years.map((y) => y.year)).size === 1
     ? `${credit}, ${years[0].year}`
     : `${years.map((y) => `${y.name}: ${y.year}`).join('; ')} · ${credit}`),
   /** A line beside a row's source where its unit needs saying (SIPRI's TIV; military spending's dollars). */
@@ -628,7 +629,7 @@ export const DEFINITION: Record<string, string> = {
   armsexp: `Deliveries of major conventional weapons supplied, in millions of SIPRI trend-indicator values (TIV): ${TIV_NOTE}.`,
   hunger: 'People in IPC Phase 3 (crisis) or worse in the latest analysis.',
   hungershare: 'The share of the analysed population in IPC Phase 3 (crisis) or worse.',
-  satellites: 'Payloads in orbit at the end of the year, counted by owning country, whether working or not.',
+  satellites: 'Payloads in orbit at the end of the year, counted by owning country, whether working or not. The latest year counts what was in orbit on the day CelesTrak’s catalogue was read.',
   launches: 'Orbital launches in the year that put at least one satellite in orbit, counted for the country of the launch site.',
   aicompute: 'The country’s share of the computing power of AI supercomputers documented by Epoch AI in operation, in H100-equivalents (how many Nvidia H100 chips would do the same work).',
   netuser: 'Share of the population who used the internet in the last three months, from any place and on any device: computer, phone, games machine or TV.',

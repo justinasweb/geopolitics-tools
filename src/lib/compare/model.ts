@@ -53,6 +53,8 @@ export interface MeasureMeta {
   source: string;
   /** Chart measures: the latest year any country has. */
   latest?: number;
+  /** A still-running latest year counted on one day (satellites): [year, "7 Nov 2026"], said "as of" (src/lib/as-of.ts). */
+  asOf?: [number, string];
 }
 export interface MineralMeta { id: string; name: string; year: number; estimated: boolean; primary: boolean }
 export interface Pair { a: string; b: string; path: string; title: string }

@@ -13,7 +13,7 @@ import { countryHref, live } from '../routes.ts';
 import { amount, listed, mineralPages, shareClass, withheld, nameOf, type MineralPage } from '../minerals.ts';
 import { list, inSentence } from '../../i18n/pages.en.ts';
 import { EXCHANGE_TEXT, ICT_TEXT, OUTAGE_TEXT, PARTS_TEXT as PX, VIEW_TEXT, VIEWS_TEXT } from '../../i18n/views.en.ts';
-import { classFor, creditOf, familyPages, partsOf, placeNote, shareOf, unreportedIn, unreportedText, valueText, viewPages, type ViewPage } from '../views.ts';
+import { classFor, creditOf, familyPages, legendOf, partsOf, placeNote, shareOf, unreportedIn, unreportedText, valueText, viewPages, type ViewPage } from '../views.ts';
 import { creditName, data, indicator, shared } from '../data.ts';
 import { loadFlows } from '../../data/flows.ts';
 import { countClass, daysText, disasterPages, type DisasterPage } from '../disasters.ts';
@@ -226,7 +226,7 @@ function indicatorLayer(p: ViewPage): LayerFile {
     if (p.family.id === 'arms') Object.assign(more, armsBlocks(p.id === 'armsexp5', year, y.rows.map((r) => r.id)));
     if (p.id === 'ictexp') Object.assign(more, ictShares(year, y.rows.map((r) => r.id)));
     if (p.id === 'cyber') Object.assign(more, cyberBlocks(year));
-    return { year, ...(p.text.period ? { label: p.text.period(year) } : {}), legend: p.text.legend(year), v, order: y.rows.map((r) => r.id), blocs: bl, ...(Object.keys(more).length ? { more } : {}) };
+    return { year, ...(p.text.period ? { label: p.text.period(year) } : {}), legend: legendOf(p, year), v, order: y.rows.map((r) => r.id), blocs: bl, ...(Object.keys(more).length ? { more } : {}) };
   });
   const notes = { ...c.notes };
   for (const id of new Set(p.years.flatMap((yr) => p.byYear[yr].rows.map((r) => r.id)))) {

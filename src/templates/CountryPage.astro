@@ -42,6 +42,7 @@ import { blocsOf } from '../lib/blocview';
 import { BLOCS_CHECKED } from '../lib/blocs';
 import { BLOC_TEXT } from '../i18n/map.en';
 import { countryCrumbs, countryLd } from '../lib/jsonld';
+import { asOfDate, yearOrAsOf } from '../lib/as-of';
 import { NUCLEAR_TEXT } from '../i18n/nuclear.en';
 import { warheads } from '../lib/nuclear';
 import { CYBER_TEXT } from '../i18n/cyber.en';
@@ -67,7 +68,8 @@ const tagOf = (f: Figure) => statusAt(INDICATORS[f.id], p.id, f.year);
 // Climate's sentence writes CO2 in tonnes below one million ("Tuvalu emitted 11,000 t"); figures stay in Mt.
 const MT: Format = { kind: 'mt' };
 const short = (s: string) => creditName(s);
-const statCaption = (f: Figure, rank = true) => [String(f.year), rank && f.of > 1 ? `${ordinal(f.rank)} of ${f.of}` : '', short(f.source)].filter(Boolean).join(' · ');
+// A still-running year counted on one day (satellites) reads "as of {date}", not its year (src/lib/as-of.ts).
+const statCaption = (f: Figure, rank = true) => [yearOrAsOf(f.id, f.year), rank && f.of > 1 ? `${ordinal(f.rank)} of ${f.of}` : '', short(f.source)].filter(Boolean).join(' · ');
 const nameOf = (id: string) => place(id)?.name ?? id;
 
 // Dependencies: the finding names the most telling rows.
@@ -178,7 +180,7 @@ const citation = COUNTRY_TEXT.citation(name, kind, url, Number(m.updated.slice(0
             <span class="gt-cpkf__label">{indicatorHref(f.id) ? <a href={indicatorHref(f.id)}>{label(f.id)}</a> : label(f.id)}</span>
             <span class="gt-cpkf__num">{parts(f).num}<small>{parts(f).unit}</small></span>
             {f.of > 1 && <span class="gt-rank"><b>{ordinal(f.rank)}</b> of {f.of}</span>}
-            <span class="gt-cpkf__src">{short(f.source)} · {f.year}{tagOf(f) && <StatusTag status={tagOf(f)!} small />}</span>
+            <span class="gt-cpkf__src">{short(f.source)} · {yearOrAsOf(f.id, f.year)}{tagOf(f) && <StatusTag status={tagOf(f)!} small />}</span>
           </li>
         ))}
       </ul>
@@ -298,7 +300,7 @@ const citation = COUNTRY_TEXT.citation(name, kind, url, Number(m.updated.slice(0
 
         {d.tech && (
           <CpSection n={nTech} id="tech" heading={DOSSIER_TEXT.tech}
-            find={d.tech.stats.find((f) => f.id === 'satellites') ? DOSSIER_TEXT.techFind(inSentence(name), formatValue(d.tech.stats.find((f) => f.id === 'satellites')!.value, INDICATORS.satellites.format), d.tech.stats.find((f) => f.id === 'satellites')!.year) : undefined}>
+            find={d.tech.stats.find((f) => f.id === 'satellites') ? DOSSIER_TEXT.techFind(inSentence(name), formatValue(d.tech.stats.find((f) => f.id === 'satellites')!.value, INDICATORS.satellites.format), d.tech.stats.find((f) => f.id === 'satellites')!.year, asOfDate('satellites', d.tech.stats.find((f) => f.id === 'satellites')!.year)) : undefined}>
             <div class="gt-cpstats">
               {d.tech.stats.map((f) => <CpStat label={label(f.id)} num={parts(f).num} unit={parts(f).unit} caption={statCaption(f)} />)}
               {d.tech.models && <CpStat label={DOSSIER_TEXT.models} num={String(d.tech.models.value)} caption={`${d.tech.models.year} · ${short('epoch')}`} />}
@@ -409,7 +411,7 @@ const citation = COUNTRY_TEXT.citation(name, kind, url, Number(m.updated.slice(0
               rows={m.allFigures.map((f) => [
                 { v: INDICATOR_TEXT[f.id].label, href: indicatorHref(f.id) },
                 { v: f.value, text: formatValue(f.value, INDICATORS[f.id].format), status: tagOf(f) },
-                { v: f.year, text: String(f.year) },
+                { v: f.year, text: yearOrAsOf(f.id, f.year) },
                 f.of > 1 ? { v: f.rank, text: `${ordinal(f.rank)} of ${f.of}` } : null,
                 short(f.source),
               ])} />

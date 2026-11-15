@@ -12,6 +12,7 @@ import { fold } from './search-match.ts';
 import { countryModel, countryPages, figure, mineralShares, mineralsWithheld, loadedIndicators } from './country.ts';
 import { seriesOf } from './dossier.ts';
 import { creditName, indicator, sourceName } from './data.ts';
+import { asOfDate } from './as-of.ts';
 import { place } from './places.ts';
 import { COMPARE_PAIRS, countryHref, indicatorHref, live, paths } from './routes.ts';
 import { CHARTS, MEASURES, SERIES_FROM, type BlocNote, type CountryData, type MeasureMeta, type Meta, type MineralMeta } from './compare/model.ts';
@@ -30,6 +31,7 @@ export function compareMeta(): Meta {
     return {
       id, label: t.label, noun: COMPARE_TEXT.nouns[id] ?? t.label, unit: t.unit, format: INDICATORS[id].format, href: indicatorHref(id), credit: creditName(src), source: sourceName(src),
       ...(latest ? { latest } : {}),
+      ...(latestAsOf(id) ? { asOf: latestAsOf(id)! } : {}),
     };
   });
   const minerals = new Map<string, MineralMeta>();
@@ -52,6 +54,13 @@ function latestYear(id: string): number | undefined {
   const v = indicator(id)?.values;
   const ys = v ? Object.values(v).flatMap((x) => Object.keys(x).map(Number)) : [];
   return ys.length ? Math.max(...ys) : undefined;
+}
+
+/** A measure's still-running latest year and the day it was counted, when it has one (satellites). */
+function latestAsOf(id: string): [number, string] | undefined {
+  const y = latestYear(id);
+  const d = y ? asOfDate(id, y) : null;
+  return y && d ? [y, d] : undefined;
 }
 
 /** Six significant figures: more than any figure on the page shows, and a third smaller files. */

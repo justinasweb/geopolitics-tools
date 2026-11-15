@@ -18,7 +18,7 @@ import '../styles/atlas/table.css';
 import '../styles/atlas/tools.css';
 import { MAP_TEXT } from '../i18n/map.en';
 import { EXCHANGE_TEXT as EX, PARTS_TEXT as PX, VIEW_TEXT, VIEWS_TEXT as W } from '../i18n/views.en';
-import { changeSize, changeText, diffText, flat, placeChange, creditOf, familyPages, lede, partsOf, placeNote, shareOf, summary, unreportedIn, unreportedText, valueText, viewPage, worldChange, indicatorLabel, prevOf, yearText } from '../lib/views';
+import { changeSize, changeText, diffText, flat, placeChange, creditOf, familyPages, legendOf, lede, partsOf, placeNote, shareOf, summary, unreportedIn, unreportedText, valueText, viewPage, worldChange, indicatorLabel, prevOf, yearText } from '../lib/views';
 import { refreshed } from '../lib/data';
 import { formatValue } from '../lib/format';
 import { place } from '../lib/places';
@@ -26,6 +26,7 @@ import { countryHref, indicatorHref, live, route, hubCrumb, viewHref } from '../
 import { layerPath } from '../lib/map/layers';
 import { breadcrumbs } from '../lib/structured';
 import { byYear } from '../lib/map/by-year';
+import { asOfDate } from '../lib/as-of';
 import type { Row } from '../lib/stats';
 import { constellations, sitesIn, spaceAsOf } from '../lib/space';
 import { exchangeList, unplaced } from '../lib/exchanges';
@@ -99,9 +100,10 @@ const related = [
 const mapLabel = (yr: number) => {
   const rs = p.byYear[yr].rows;
   const top = (div ? [...rs.slice(0, 2), ...rs.slice(-2)] : rs.slice(0, 3)).map((r) => `${nameOf(r.id)} ${valueText(p, r.value)}`).join(', ');
-  return `${T.legend(yr)}. ${top}. ${W.caption(yr, null)}`;
+  return `${legendOf(p, yr)}. ${top}. ${W.caption(yr, null)}`;
 };
-const sourceYears = p.years.map((yr) => ({ year: yr, parts: [yearText(p, yr)] }));
+// A still-running year counted on one day (satellites) says "as of {date}" (src/lib/as-of.ts).
+const sourceYears = p.years.map((yr) => ({ year: yr, parts: [asOfDate(p.loaded.indicator.id, yr) ? `as of ${asOfDate(p.loaded.indicator.id, yr)}` : yearText(p, yr)] }));
 // Space: the largest constellations (satellites) or the launch sites (launches), under the country table.
 const cons = p.id === 'satellites' ? constellations() : [];
 // Electricity: the world's power mix in the default year, under the country table.
@@ -150,7 +152,7 @@ const bars = (rs: Row[], max: number) => rs.map((r) => ({ id: r.id, text: valueT
     periods={p.layer.span ? { label: W.periodLabel(p.layer.span), options: Object.fromEntries(p.years.map((yr) => [yr, yearText(p, yr)])) } : undefined} />
 
   <MapStage layer={layerPath(`${p.family.id}-${p.id}`)} label={mapLabel(p.year)} labels={byYear(p.years, mapLabel)} title={T.title}
-    legend={{ title: T.legend(p.year), scale: p.layer.scale, ticks: p.ticks, ends: T.ends, none: T.none ?? fam.none ?? W.noData, ...(unreported.length ? { withheld: unreportedLabel } : {}), ...(p.id === 'launches' ? { marks: [{ symbol: 'hollow', label: SP.sitesMark }] } : p.id === 'exchanges' ? { marks: [{ symbol: 'hollow', label: EX.mark }] } : p.id === 'aicompute' ? { marks: [{ symbol: 'hollow', label: AX.mark }] } : p.id === 'waterstress' ? { marks: [{ symbol: 'triangle', label: DX.mark }] } : CHIP_LAYERS[p.id] ? { marks: [{ symbol: 'arc', label: AX.arcs }] } : p.id === 'cyber' ? { marks: [{ symbol: 'arc', label: CX.arcs }] } : {}) }}>
+    legend={{ title: legendOf(p, p.year), scale: p.layer.scale, ticks: p.ticks, ends: T.ends, none: T.none ?? fam.none ?? W.noData, ...(unreported.length ? { withheld: unreportedLabel } : {}), ...(p.id === 'launches' ? { marks: [{ symbol: 'hollow', label: SP.sitesMark }] } : p.id === 'exchanges' ? { marks: [{ symbol: 'hollow', label: EX.mark }] } : p.id === 'aicompute' ? { marks: [{ symbol: 'hollow', label: AX.mark }] } : p.id === 'waterstress' ? { marks: [{ symbol: 'triangle', label: DX.mark }] } : CHIP_LAYERS[p.id] ? { marks: [{ symbol: 'arc', label: AX.arcs }] } : p.id === 'cyber' ? { marks: [{ symbol: 'arc', label: CX.arcs }] } : {}) }}>
     <div data-panel="world" slot="panel">
       <div class="gt-panel__head">
         <div class="gt-panel__title"><span class="gt-kicker">{T.title} · <span data-year-text>{when}</span></span><h2 class="gt-h3">{MAP_TEXT.world}</h2></div>

@@ -152,7 +152,7 @@ export function tableHtml(s: State, meta: Meta, data: Data): string {
   const sortAttr = (k: string) => (s.sort === k ? ` aria-sort="${s.dir === 'asc' ? 'ascending' : 'descending'}"` : '');
   const head = `<th scope="col"${sortAttr('country')}><button type="button" data-x-sort="country">${esc(T.country)}${ICON.sort}</button></th>`
     + ms.map((m, i) => {
-      const sub = [unitText(m), String(years[i])].filter(Boolean).join(' · ');
+      const sub = [unitText(m), m.asOf?.[0] === years[i] ? `as of ${m.asOf[1]}` : String(years[i])].filter(Boolean).join(' · ');
       return `<th scope="col" class="n"${sortAttr(m.id)}><button type="button" data-x-sort="${m.id}">${esc(m.short ?? m.label)}${ICON.sort}</button><small>${esc(sub)}</small></th>`;
     }).join('');
   const body = rows.map((r) => {

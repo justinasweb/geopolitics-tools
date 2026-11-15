@@ -30,6 +30,8 @@ export interface MeasureMeta {
   own?: Record<string, number>;
   /** The source's preliminary latest year (EIA). */
   pre?: number;
+  /** A still-running latest year counted on one day (satellites): [year, "7 Nov 2026"], said "as of" (src/lib/as-of.ts). */
+  asOf?: [number, string];
   /** The common year: the latest most places have reported. */
   year: number;
   from: number;

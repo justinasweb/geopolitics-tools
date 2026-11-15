@@ -11,6 +11,7 @@ import { NOT_REPORTED, type NotReported } from '../data/not-reported.ts';
 import { INDICATOR_TEXT } from '../i18n/en.ts';
 import { ANSWER, SOURCE_NOTE, inSentence } from '../i18n/pages.en.ts';
 import { creditName, indicator, refreshed, shared, tryLoad } from './data.ts';
+import { asOfDate } from './as-of.ts';
 import { VIEW_MEASURES } from '../data/view-measures.ts';
 import { yearsOf } from '../adapters/core.ts';
 import { worldShare } from './electricity.ts';
@@ -183,6 +184,9 @@ export const prevOf = (p: ViewPage, y: number) => y - (p.layer.span ?? 1);
 /** A year as the layer names it ("2021–2025" for a five-year total). */
 export const yearText = (p: ViewPage, y: number) => (p.text.period ? p.text.period(y) : String(y));
 
+/** The legend title for a year: "as of {date}" when the year is still running (src/lib/as-of.ts). */
+export const legendOf = (p: ViewPage, y: number) => p.text.legend(y, asOfDate(p.loaded.indicator.id, y));
+
 /** The change in the world figure from the year (or period) before, as a share (in points for share layers), when both have one. */
 export function worldChange(p: ViewPage, y: number): number | null {
   if (p.layer.noTotalChange) return null;
@@ -238,7 +242,7 @@ export function lede(p: ViewPage, year = p.year): string | null {
   if (p.layer.scale === 'div') return p.text.lede({ top: '', topIn: '', value: '', year, past: year < p.year, ...divCounts(y) });
   const top3 = p.layer.sums && y.rows.length > 3 ? shareOf(y.rows.slice(0, 3).reduce((s, r) => s + r.value, 0), y.world) ?? undefined : undefined;
   return p.text.lede({
-    top: inSentence(nameOf(top.id), true), topIn: inSentence(nameOf(top.id)), value: valueText(p, top.value), share: shareOf(top.value, y.world) ?? undefined, top3, year, past: year < p.year,
+    top: inSentence(nameOf(top.id), true), topIn: inSentence(nameOf(top.id)), value: valueText(p, top.value), share: shareOf(top.value, y.world) ?? undefined, top3, year, past: year < p.year, asOf: asOfDate(p.loaded.indicator.id, year),
     world: y.world !== null && !p.layer.sums ? valueText(p, y.world) : undefined,
     // Banded layers: how many places are in the top band, of how many.
     ...(p.layer.edges ? { up: y.rows.filter((r) => r.value >= p.edges[3]).length, of: y.rows.length } : {}),
@@ -252,7 +256,7 @@ export function summary(p: ViewPage, year = p.year): string[] {
   const ch = worldChange(p, year);
   if (y.world !== null && p.text.total) {
     const change = ch === null || p.id === 'co2cum' ? null : flat(p, ch) ? null : W.changeIn(changeSize(p, ch, true), ch > 0, yearText(p, prevOf(p, year)));
-    first.push(p.text.total(valueText(p, y.world), year, change));
+    first.push(p.text.total(valueText(p, y.world), year, change, asOfDate(p.loaded.indicator.id, year)));
   }
   if (p.layer.scale === 'div') {
     const ends = [...y.rows.slice(0, 2), ...y.rows.slice(-2).reverse()];
