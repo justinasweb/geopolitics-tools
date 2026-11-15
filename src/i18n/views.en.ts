@@ -237,12 +237,12 @@ export const VIEW_TEXT: Record<string, FamilyText> = {
     layers: {
       satellites: {
         pick: 'Satellites', title: 'Satellites in orbit', sub: 'by owning country', measure: 'in orbit', figureLabel: 'Satellites in orbit',
-        // The latest year counts what was in orbit on the day the catalogue was read: "as of {date}", not the year.
+        // The latest year counts what was in orbit on the date of the catalogue's newest entry: "as of {date}", not the year.
         legend: (y, asOf) => `Satellites in orbit, working or not, ${asOf ? `as of ${asOf}` : y}`, worldLabel: 'Total, all countries',
         lede: ({ top, value, share, top3, year, asOf }) => `${top} ${asOf ? 'owns' : 'owned'} ${value} of the satellites in orbit ${asOf ? `as of ${asOf}` : `in ${year}`}, ${share} of those owned by a single country${top3 ? `; the top three countries ${asOf ? 'own' : 'owned'} ${top3}` : ''}.`,
         total: (v, y, ch, asOf) => `Countries ${asOf ? `own ${v} satellites in orbit as of ${asOf}` : `owned ${v} satellites in orbit in ${y}`}${ch ? `, ${ch}` : ''}.`,
         bloc: (b, s, y) => `${todaysMembers(b, { start: true })} owned ${s} of them in ${y}.`,
-        caveat: 'Satellites in orbit, working or not, by owning country, as CelesTrak’s catalogue records them. Satellites of international bodies and operators, such as ESA and Intelsat, are not given to any country. The latest year counts what was in orbit on the day the catalogue was read.',
+        caveat: 'Satellites in orbit, working or not, by owning country, as CelesTrak’s catalogue records them. Satellites of international bodies and operators, such as ESA and Intelsat, are not given to any country. The latest year counts what was in orbit on the date of the catalogue’s newest entry.',
         description: (y) => `Satellites in orbit by owning country, up to ${y}: each country’s count and share, on a map and in a table. Source: CelesTrak.`,
       },
       launches: {

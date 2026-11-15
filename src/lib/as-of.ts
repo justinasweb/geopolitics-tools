@@ -1,5 +1,5 @@
 // A figure counted on one day rather than over a finished year: the latest year of CelesTrak's satellites in orbit
-// counts what was in orbit on the day the catalogue was read (its latest launch date, `asOf` in
+// counts what was in orbit on the date of the catalogue's newest entry (its latest launch date, `asOf` in
 // src/adapters/celestrak.ts). Such a figure is "as of {date}", never "at the end of {year}". Other snapshot measures
 // (Epoch AI's computing power, UNHCR's refugees hosted) end at a finished year, so they keep their year.
 import { formatDate } from './format.ts';

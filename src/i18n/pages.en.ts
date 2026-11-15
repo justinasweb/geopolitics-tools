@@ -629,7 +629,7 @@ export const DEFINITION: Record<string, string> = {
   armsexp: `Deliveries of major conventional weapons supplied, in millions of SIPRI trend-indicator values (TIV): ${TIV_NOTE}.`,
   hunger: 'People in IPC Phase 3 (crisis) or worse in the latest analysis.',
   hungershare: 'The share of the analysed population in IPC Phase 3 (crisis) or worse.',
-  satellites: 'Payloads in orbit at the end of the year, counted by owning country, whether working or not. The latest year counts what was in orbit on the day CelesTrak’s catalogue was read.',
+  satellites: 'Payloads in orbit at the end of the year, counted by owning country, whether working or not. The latest year counts what was in orbit on the date of the catalogue’s newest entry.',
   launches: 'Orbital launches in the year that put at least one satellite in orbit, counted for the country of the launch site.',
   aicompute: 'The country’s share of the computing power of AI supercomputers documented by Epoch AI in operation, in H100-equivalents (how many Nvidia H100 chips would do the same work).',
   netuser: 'Share of the population who used the internet in the last three months, from any place and on any device: computer, phone, games machine or TV.',

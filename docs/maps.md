@@ -270,7 +270,7 @@ site), both registry views (`src/data/views.ts`) on CelesTrak's catalogue. Launc
 is left out until it ends. Extras from `src/lib/space.ts`: each country's working satellites by orbit and constellation in
 the panel, the largest constellations under the satellites table, and a mark per launch site per year (sized by launches)
 with a sites table on the launches page. Satellites of international owners (ESA, Intelsat) count for no country.
-Satellites in the running year count what was in orbit on the day the catalogue was read (its latest launch date,
+Satellites in the running year count what was in orbit on the date of the catalogue's newest entry (its latest launch date,
 `asOf`), so that year is said "as of 7 Nov 2026", never "at the end of 2026": the view's answer, summary, legend and
 source line, the country page's finding, captions and all-figures table, Compare's source line, the Explorer's
 column and the dossier fact's statement all use `asOfDate` (`src/lib/as-of.ts`). A finished year keeps "at the end of".

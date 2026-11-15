@@ -58,7 +58,7 @@ function figureFact(f: Figure, placeId: string, id = f.id): Fact[] {
   const out: Fact[] = [{
     // The indicator's note goes in only when it has no figures of its own (the checker wants one figure a fact).
     // A still-running year counted on one day (satellites) says so, without the date: a statement's only number is its value.
-    id, statement: `${t.label} of ${of}${t.note && !/\d/.test(t.note) ? ` (${t.note.replace(/\.$/, '')})` : ''}${status ? ` (${status})` : ''}${asOfDate(f.id, f.year) ? ' (counted on the day the source was read, not at the end of the year)' : ''}.`, value, unit,
+    id, statement: `${t.label} of ${of}${t.note && !/\d/.test(t.note) ? ` (${t.note.replace(/\.$/, '')})` : ''}${status ? ` (${status})` : ''}${asOfDate(f.id, f.year) ? ' (counted to the date of the source’s newest entry, not to the end of the year)' : ''}.`, value, unit,
     ...(status ? { status } : {}), ...(share ? { share } : {}),
     unitAliases: unit === 'US$' ? ['$', 'dollars'] : unit === 'people' ? ['residents', 'inhabitants'] : undefined,
     period: String(f.year), places: [placeId], source: sourceName(f.source), link: linkOf(f.source, placeId), date: dateOf(f.source),

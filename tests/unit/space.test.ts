@@ -30,7 +30,7 @@ describe('space views', () => {
     expect(p.years.at(-1)).toBe(p.year);
   });
 
-  it('says the running year\'s satellites "as of" the day the catalogue was read, a finished year "at the end of"', async () => {
+  it('says the running year\'s satellites "as of" the date of the catalogue\'s newest entry, a finished year "at the end of"', async () => {
     const { asOfDate, yearOrAsOf } = await import('../../src/lib/as-of.ts');
     const { formatDate } = await import('../../src/lib/format.ts');
     const { DOSSIER_TEXT } = await import('../../src/i18n/pages.en.ts');
