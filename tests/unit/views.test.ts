@@ -47,8 +47,8 @@ describe('registry map views', () => {
     expect(V.valueText(p, 0.12)).toBe('+12%');
   });
 
-  it('gives shares only for layers that add up, and writes small ones as <0.1%', () => {
-    expect(V.shareOf(1, 10000)).toBe('<0.1%');
+  it('gives shares only for layers that add up, and writes small ones as under 0.1%', () => {
+    expect(V.shareOf(1, 10000)).toBe('under 0.1%');
     expect(V.shareOf(25, 100)).toBe('25%');
     expect(V.shareOf(5, null)).toBeNull();
     const pc = V.viewPage('co2pc')!;

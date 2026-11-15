@@ -3,7 +3,7 @@
 // scatter with its key and correlation, the source line and the link to the view. No Node imports.
 import { EXPLORER_TEXT as T, PRESET_TEXT } from '../../i18n/explorer.en.ts';
 import { SOURCE_TEXT, STATUS_TEXT, YEAR_TEXT } from '../../i18n/en.ts';
-import { formatDate, formatValue } from '../format.ts';
+import { axisTexts, formatDate, formatValue } from '../format.ts';
 import { tagHtml } from '../tags.ts';
 import { sourceLinksHtml } from '../source-links.ts';
 import {
@@ -263,7 +263,9 @@ export function linesHtml(s: State, meta: Meta, data: Data, width = 900): string
   const tr = (v: number) => (ch.log ? Math.log10(v) : v);
   const x = (i: number) => L + (i / (ch.years.length - 1)) * (W - L - R);
   const y = (v: number) => Tp + (1 - (tr(v) - tr(t.lo)) / (tr(t.hi) - tr(t.lo))) * (H - Tp - B);
-  const tick = (v: number) => (ch.indexed ? formatValue(v, { kind: 'number' }) : fmt(m, v));
+  // Axis labels are positions: never "under …" (axisTexts).
+  const tickTexts = axisTexts(t.ticks, ch.indexed ? { kind: 'number' } : m.format);
+  const tick = (v: number) => tickTexts[t.ticks.indexOf(v)] ?? fmt(m, v);
   const split = m.projectedAfter === undefined ? -1 : ch.years.findIndex((yr) => yr > m.projectedAfter!);
   const last = ch.years.length - 1;
   const seg = (vals: (number | null)[], a: number, b: number) => {

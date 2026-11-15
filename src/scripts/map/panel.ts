@@ -2,7 +2,7 @@
 // and figure is already in the file; this only arranges them in the MapTooltip and CountryPanel designs. Pure
 // functions, so they are tested without a browser.
 import type { LayerFile, LayerYear, PanelBlock } from '../../lib/map/types';
-import { formatValue } from '../../lib/format';
+import { axisTexts, formatValue } from '../../lib/format';
 import { CHART_TICK_PX, textWidth } from '../../lib/chart';
 import { esc, fill } from './text';
 import { sourceLinksHtml } from '../../lib/source-links';
@@ -51,11 +51,13 @@ export function sparkHtml(f: LayerFile, id: string, label: string): string {
   // nested SVG stretched over the plot (0–1000 across); text and the end dot are placed in percent.
   const H = 96, T = 10, B = 76, PW = 1000;
   const grid = [lo, (lo + hi) / 2, hi];
-  const L = Math.max(...grid.map((g) => textWidth(fmt(g), CHART_TICK_PX) + 8));
+  // Gridline labels are positions: never "under …" (axisTexts).
+  const gridText = axisTexts(grid, f.format!);
+  const L = Math.max(...grid.map((g) => textWidth(gridText[grid.indexOf(g)], CHART_TICK_PX) + 8));
   const share = (i: number) => i / Math.max(1, vals.length - 1);
   const pct = (i: number) => `${(share(i) * 100).toFixed(2)}%`;
   const Y = (v: number) => (hi === lo ? B : B - ((B - T) * (v - lo)) / (hi - lo));
-  const lines = grid.map((g) => `<line x1="0" x2="100%" y1="${Y(g).toFixed(1)}" y2="${Y(g).toFixed(1)}" class="gt-spark__grid"/><text x="-6" y="${(Y(g) + 4).toFixed(1)}" text-anchor="end">${esc(fmt(g))}</text>`).join('');
+  const lines = grid.map((g) => `<line x1="0" x2="100%" y1="${Y(g).toFixed(1)}" y2="${Y(g).toFixed(1)}" class="gt-spark__grid"/><text x="-6" y="${(Y(g) + 4).toFixed(1)}" text-anchor="end">${esc(gridText[grid.indexOf(g)])}</text>`).join('');
   // Gaps (years without a figure) break the line.
   let d = '';
   pts.forEach((p, i) => { if (p) d += `${d && pts[i - 1] ? 'L' : 'M'}${(share(p.x) * PW).toFixed(1)},${Y(p.v).toFixed(1)}`; });

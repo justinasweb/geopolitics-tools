@@ -115,7 +115,7 @@ export function classFor(p: FoodPage, v: number, world: number | null): number {
   return world ? shareClass(v / world) : 1;
 }
 
-/** A figure's share of the world, for reading ("18%", "<0.1%"). */
+/** A figure's share of the world, for reading ("18%", "under 0.1%"). */
 export const shareOf = (v: number, world: number | null) => (world ? formatShare(v / world) : null);
 
 function buildPage(commodity: Commodity, layer: FoodLayer): FoodPage | null {

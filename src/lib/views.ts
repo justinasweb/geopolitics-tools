@@ -17,7 +17,7 @@ import { yearsOf } from '../adapters/core.ts';
 import { operatorNote, worldShare } from './electricity.ts';
 import { cyberData, undated, yearSplit, yearTotal } from './cyber.ts';
 import { CYBER_TEXT } from '../i18n/cyber.en.ts';
-import { edgeTexts, formatValue } from './format.ts';
+import { edgeTexts, formatValue, SHARE_SMALL } from './format.ts';
 import { seqSteps } from './map/steps.ts';
 import { place } from './places.ts';
 import { breaks, classOf, counts, defaultYear, ranking, type Row } from './stats.ts';
@@ -54,8 +54,8 @@ export interface ViewPage {
 
 const nameOf = (id: string) => place(id)?.name ?? id;
 
-/** A share of the world figure, for reading: "31%", "4.2%", "<0.1%". */
-export const shareOf = (v: number, world: number | null) => (!world ? null : v > 0 && v / world < 0.0005 ? '<0.1%' : formatValue(v / world, { kind: 'share' }));
+/** A share of the world figure, for reading: "31%", "4.2%", "under 0.1%". */
+export const shareOf = (v: number, world: number | null) => (!world ? null : v > 0 && v / world < 0.0005 ? SHARE_SMALL : formatValue(v / world, { kind: 'share' }));
 
 /** A value as the layer writes it; diverging values carry their sign ("+12%", "−8%"). */
 export function valueText(p: ViewPage, v: number): string {

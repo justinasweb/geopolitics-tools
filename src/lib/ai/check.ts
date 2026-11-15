@@ -342,10 +342,10 @@ export function strayNumbers(x: Fact, names: string[] = []): string[] {
 // ---------------------------------------------------------------------------------------------------------------
 // Matching
 
-/** A share (in %) as the site writes it, without the % or sign: "40" for 39.6, "9.7", "99.7"; null for "<0.1%". */
+/** A share (in %) as the site writes it, without the % or sign: "40" for 39.6, "9.7", "99.7"; null for "under 0.1%". */
 export const siteShare = (pct: number): string | null => {
   const t = formatShare(pct / 100);
-  return t.startsWith('<') ? null : t.replace(/[^\d.]/g, '');
+  return t.startsWith('under') ? null : t.replace(/[^\d.]/g, '');
 };
 
 /** Whether a percentage as written is a share's value as the site writes it ("40%" for 39.6, not "39.6%"). */

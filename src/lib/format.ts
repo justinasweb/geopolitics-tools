@@ -5,6 +5,22 @@ import type { Format } from '../data/indicators.ts';
 const MINUS = '−';
 /** Any total under a million dollars, for money formats with `millions`. */
 export const MONEY_SMALL = 'under $1 m';
+/** A share above zero that would read as zero. */
+export const SHARE_SMALL = 'under 0.1%';
+
+/**
+ * A positive value its format writes as zero ("0.0 bcm", "0.00 Mt", "$0", "0k b/d") says what it is under instead: the
+ * format's smallest step in the same place ("under 0.1 bcm", "under 0.01 Mt", "under $1", "under 1k b/d"). Any other
+ * text is returned as it is: a true zero, a value with a non-zero digit, and a negative value (no format has a sign
+ * word for "a little below zero", so those keep their own text).
+ */
+export function underIfZero(v: number, text: string): string {
+  if (!(v > 0) || /[1-9]/.test(text)) return text;
+  const m = /0(?:\.(0+))?/.exec(text);
+  if (!m) return text;
+  const step = m[1] ? `0.${'0'.repeat(m[1].length - 1)}1` : '1';
+  return `under ${text.slice(0, m.index)}${step}${text.slice(m.index + m[0].length)}`;
+}
 
 export function formatValue(v: number | null | undefined, f: Format, locale = 'en'): string {
   if (v === null || v === undefined || !Number.isFinite(v)) return '–';
@@ -14,8 +30,8 @@ export function formatValue(v: number | null | undefined, f: Format, locale = 'e
   const a = Math.abs(v);
   // A small negative total (a net outflow) keeps its sign, in tenths of a million.
   const text = f.kind === 'money' && f.millions && v < 0 && a < 1e6 ? (a < 5e4 ? '$0' : `$${n(a / 1e6, 1)} m`) : formatAbs(a, f, n, locale);
-  // A value that rounds to zero has no sign ("0%", not "−0%"; "<0.1%").
-  return v < 0 && /[1-9]/.test(text) && !text.startsWith('<') ? `${MINUS}${text}` : text;
+  // A value that rounds to zero has no sign ("0%", not "−0%"; "under 0.1%"); a positive one says what it is under.
+  return v < 0 && /[1-9]/.test(text) && !text.startsWith('under') ? `${MINUS}${text}` : underIfZero(v, text);
 }
 
 /** A plain number's decimals: its own, or for a `small` one below 1, those two significant figures need. */
@@ -97,6 +113,13 @@ export function edgeTexts(edges: number[], f: Format, locale = 'en'): string[] {
   return edges.map((v) => text(v, 6));
 }
 
+/** Axis labels are positions, not values, so never "under …": as formatValue writes them, or, where one would read
+ *  as "under", every label to two significant figures (edgeTexts). */
+export function axisTexts(ticks: number[], f: Format, locale = 'en'): string[] {
+  const t = ticks.map((v) => formatValue(v, f, locale));
+  return t.some((x) => x.startsWith('under')) ? edgeTexts(ticks, f, locale) : t;
+}
+
 /** "21 Oct 2026": the date style of source lines and key figures, read in UTC so a build anywhere gives the same
  *  text. Day, short month, year in that order; en-US month names, because en-GB now writes "Sept". */
 export function formatDate(d: string | Date, locale = 'en-US'): string {
@@ -119,7 +142,16 @@ export function formatPartialDate(d: string, locale = 'en-US'): string {
  * `unit` is the indicator's unit text for percentages and plain numbers. Each value picks its own scale.
  */
 export function formatParts(v: number, f: Format, unit = '', locale = 'en'): { num: string; unit: string } {
-  const n = (x: number, digits: number) => new Intl.NumberFormat(locale, { maximumFractionDigits: digits, minimumFractionDigits: digits }).format(x);
+  const p = formatPartsRaw(v, f, unit, locale);
+  if (p.num.startsWith('under')) return p;
+  // As formatValue: a value that rounds to zero has no sign, and a positive one says what it is under ("under 0.1" "bcm").
+  const num = /[1-9]/.test(p.num) ? p.num : p.num.replace(MINUS, '');
+  return { ...p, num: underIfZero(v, num) };
+}
+
+function formatPartsRaw(v: number, f: Format, unit: string, locale: string): { num: string; unit: string } {
+  // A true zero is "0", never "0.0" (formatValue).
+  const n = (x: number, digits: number) => new Intl.NumberFormat(locale, { maximumFractionDigits: v === 0 ? 0 : digits, minimumFractionDigits: v === 0 ? 0 : digits }).format(x);
   const sign = v < 0 ? MINUS : '';
   const a = Math.abs(v);
   const scaled = (prefix: string) => {
@@ -140,13 +172,13 @@ export function formatParts(v: number, f: Format, unit = '', locale = 'en'): { n
 
 /**
  * A share (0.32) as a percentage rounded for reading, the one rule for every share on the site: whole percent from
- * 10%, one decimal below, "<0.1%" for a share above zero that would read as zero ("32%", "9.7%", "4%", "<0.1%"), and
+ * 10%, one decimal below, "under 0.1%" for a share above zero that would read as zero ("32%", "9.7%", "4%", "under 0.1%"), and
  * one decimal for a share under 100% that would read as 100% ("99.7%").
  * Pass the share as the source gives it: a share rounded before this (0.495 for 0.49498) can read one point apart.
  */
 export function formatShare(s: number, locale = 'en'): string {
   const p = Math.abs(s) * 100;
-  if (p > 0 && p < 0.05) return '<0.1%';
+  if (p > 0 && p < 0.05) return SHARE_SMALL;
   const text = `${new Intl.NumberFormat(locale, { maximumFractionDigits: p >= 9.95 && (p < 99.5 || p >= 100) ? 0 : 1 }).format(p)}%`;
   return s < 0 && /[1-9]/.test(text) ? `${MINUS}${text}` : text;
 }

@@ -188,7 +188,7 @@ describe('share classes and words', () => {
     expect([0.005, 0.01, 0.049, 0.05, 0.2, 0.25, 0.6].map(shareClass)).toEqual([1, 2, 2, 3, 4, 5, 5]);
     expect(formatShare(0.317)).toBe('32%');
     expect(formatShare(0.043)).toBe('4.3%');
-    expect(formatShare(0.0004)).toBe('<0.1%');
+    expect(formatShare(0.0004)).toBe('under 0.1%');
     // One rule for every share: whole from 10%, one decimal below (India's gas, 0.49498, is 49% everywhere).
     expect([0.49497831, 0.0995, 0.057, 0.004, -0.12].map((s) => formatShare(s))).toEqual(['49%', '10%', '5.7%', '0.4%', '−12%']);
     expect([0.997, 0.9996, 1, 1.04].map((s) => formatShare(s))).toEqual(['99.7%', '100%', '100%', '104%']);
