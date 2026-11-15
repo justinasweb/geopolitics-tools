@@ -350,6 +350,10 @@ each source as a share of the country's own generation, on fixed bands. Ember's 
 the mix (gas with other fossil, bioenergy with other renewables); the gas layer maps gas alone. The world figure is
 Ember's own World total, and changes are in percentage points (`points` in src/data/views.ts). A country's panel shows
 its mix in the default year only (every year would make the layer file several megabytes); the page has the world mix.
+Where a country's grid operator reports far more of a kind of plant than Ember does, a note for that year only sits
+beside Ember's figure (layer years' `notes`: panel, tooltip and table row; the country page's all-figures table):
+`src/data/operator-reports.csv` (Costa Rica 2024, ICE: 10.6% thermal), `operatorNote` in src/lib/electricity.ts. The
+note drops once Ember's own other-fossil share for that country and year is above 5% (`OPERATOR_NOTE_UNTIL`).
 
 ## Conflict (phase 5b)
 

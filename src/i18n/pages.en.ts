@@ -164,6 +164,8 @@ export const COUNTRY_TEXT = {
   allMenu: 'All figures',
   allFind: (c: string, n: number) => (n === 1 ? `1 measure on this site has a recent figure for ${c}.` : `${n} measures on this site have a recent figure for ${c}.`),
   allColumns: { measure: 'Measure', value: 'Value', year: 'Year', rank: 'Rank', source: 'Source' },
+  /** Notes beside single figures in the table (a grid operator's own figure beside Ember's). */
+  allNotes: 'Notes', allNote: (n: number) => `Note ${n}`,
   allLabel: (c: string) => `All figures for ${c}`,
   coverage: 'Coverage notes',
   sourcesHeading: 'Sources for this page',

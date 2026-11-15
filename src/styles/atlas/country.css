@@ -161,6 +161,9 @@
 .gt-cmptbl td.is-high { font-weight: 700; }
 .gt-higher { display: inline-flex; margin-left: 8px; padding: 1px 6px; border: 1px solid var(--ink); font: 600 11px/16px var(--sans); letter-spacing: .04em; text-transform: uppercase; color: var(--ink); vertical-align: 2px; }
 .gt-cmptbl__s { font: 400 13px/18px var(--sans); color: var(--ink-muted); }
+/* Notes beside single figures in the all-figures table. */
+.gt-cpnotes { margin-top: 12px; }
+.gt-cpnotes ol { margin: 4px 0 0; padding-left: 20px; }
 .gt-pairs { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
 .gt-pairs > li { display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--rule); }
 .gt-pairs__m { font: 600 15px/22px var(--sans); }

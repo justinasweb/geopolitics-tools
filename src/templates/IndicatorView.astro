@@ -18,7 +18,7 @@ import '../styles/atlas/table.css';
 import '../styles/atlas/tools.css';
 import { MAP_TEXT } from '../i18n/map.en';
 import { EXCHANGE_TEXT as EX, PARTS_TEXT as PX, VIEW_TEXT, VIEWS_TEXT as W } from '../i18n/views.en';
-import { changeSize, changeText, diffText, flat, placeChange, creditOf, familyPages, legendOf, lede, partsOf, placeNote, shareOf, summary, unreportedIn, unreportedText, valueText, viewPage, worldChange, indicatorLabel, prevOf, yearText } from '../lib/views';
+import { changeSize, changeText, diffText, flat, placeChange, creditOf, familyPages, legendOf, lede, partsOf, placeNote, shareOf, summary, yearNote, unreportedIn, unreportedText, valueText, viewPage, worldChange, indicatorLabel, prevOf, yearText } from '../lib/views';
 import { refreshed } from '../lib/data';
 import { formatValue } from '../lib/format';
 import { place } from '../lib/places';
@@ -81,7 +81,8 @@ const rows = y.rows.map((r) => {
 // Refugees: the three groups UNHCR adds together, as columns; notes on single countries, numbered under the table.
 const hasParts = p.layer.sums && rows.some((x) => x.parts);
 const count = (v: number) => formatValue(v, { kind: 'count' });
-const notes = rows.map((x) => ({ id: x.r.id, text: placeNote(p, x.r.id, !hasParts) })).filter((n): n is { id: string; text: string } => !!n.text);
+// A place's own note, then any for the table's year only (a grid operator's figure beside Ember's).
+const notes = rows.map((x) => ({ id: x.r.id, text: [placeNote(p, x.r.id, !hasParts), yearNote(p, x.r.id, p.year)].filter(Boolean).join(' ') })).filter((n) => !!n.text);
 // Places not reported this year (src/data/not-reported.ts): a row after the others, with the words and no figure.
 const unreported = unreportedIn(p, p.year).map((n) => n.place);
 const unreportedLabel = unreportedText(p)?.label;

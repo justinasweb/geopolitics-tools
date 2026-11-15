@@ -30,7 +30,8 @@ export function tooltipHtml(f: LayerFile, y: LayerYear, id: string | null, fallb
     if (e[2]) parts.push(`<span class="tnum">${esc(e[2])}${e[2] === String(when(y)) ? '' : ` · ${when(y)}`}</span>`);
     if (e[3]) parts.push(f.tags[e[3]]);
   }
-  if (id && f.notes[id]) parts.push(`<span class="gt-tip__note">${INFO}${esc(f.notes[id])}</span>`);
+  // The place's note, then this year's own (y.notes).
+  for (const n of id ? [f.notes[id], y.notes?.[id]] : []) if (n) parts.push(`<span class="gt-tip__note">${INFO}${esc(n)}</span>`);
   parts.push(`<span class="gt-tip__src">${esc(f.source)}</span>`);
   if (id) parts.push(`<span class="gt-tip__hint">${esc(touch ? f.text.tapHint : f.text.hint)}</span>`);
   return parts.join('');
@@ -155,7 +156,7 @@ export function countryPanelHtml(f: LayerFile, yearIndex: number, id: string, op
   if (e && e[0] > 0 && f.series && !f.unranked) body.push(rankingHtml(f, yearIndex, id, fill(f.text.ranking ?? '', { year: when(y) })));
   for (const b of y.more?.[id] ?? []) body.push(blockHtml(b));
   for (const b of f.more?.[id] ?? []) body.push(blockHtml(b));
-  if (f.notes[id]) body.push(`<div class="gt-notice gt-notice--inline" role="note">${INFO}<div class="gt-notice__body"><p>${esc(f.notes[id])}</p></div></div>`);
+  for (const n of [f.notes[id], y.notes?.[id]]) if (n) body.push(`<div class="gt-notice gt-notice--inline" role="note">${INFO}<div class="gt-notice__body"><p>${esc(n)}</p></div></div>`);
   if (f.caveat) body.splice(o.after ? 2 : 1, 0, `<div class="gt-notice gt-notice--inline" role="note">${INFO}<div class="gt-notice__body"><p>${esc(f.caveat)}</p></div></div>`);
   body.push(`<p class="gt-source"><span>${sourceLinksHtml(f.source)}</span></p>`);
   const links: string[] = [];

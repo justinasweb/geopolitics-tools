@@ -36,6 +36,8 @@ export interface LayerYear {
   names?: Record<string, string>;
   /** Blocks for a selected place that change with the year (a period's alerts). */
   more?: Record<string, PanelBlock[]>;
+  /** Notes for this year only, by place id, after the layer's own notes (a grid operator's figure beside Ember's). */
+  notes?: Record<string, string>;
 }
 
 /** A short block in a selected place's panel: a label, optional caption, rows of name and value, a source line. */

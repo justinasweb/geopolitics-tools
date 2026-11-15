@@ -14,7 +14,7 @@ import { creditName, indicator, refreshed, shared, tryLoad } from './data.ts';
 import { asOfDate } from './as-of.ts';
 import { VIEW_MEASURES } from '../data/view-measures.ts';
 import { yearsOf } from '../adapters/core.ts';
-import { worldShare } from './electricity.ts';
+import { operatorNote, worldShare } from './electricity.ts';
 import { cyberData, undated, yearSplit, yearTotal } from './cyber.ts';
 import { CYBER_TEXT } from '../i18n/cyber.en.ts';
 import { edgeTexts, formatValue } from './format.ts';
@@ -325,6 +325,9 @@ const NOTE_FROM = 100_000;
  * A place's note on a view: the fixed notes (what the source leaves out), then, with `worked`, one worked out from the
  * latest year's groups when most of a large figure is asylum seekers or others in need of protection.
  */
+/** A place's note for one year only: a grid operator's own figure beside Ember's on the electricity views. */
+export const yearNote = (p: ViewPage, id: string, year: number): string | null => (p.family.id === 'electricity' ? operatorNote(id, year) : null);
+
 export function placeNote(p: ViewPage, id: string, worked = true): string | null {
   const notes: string[] = [];
   const fixed = PLACE_NOTES[p.id]?.[id];

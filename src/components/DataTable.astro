@@ -19,6 +19,8 @@ export interface Cell {
   /** Smaller muted text instead of a value (status column notes). */
   note?: string;
   href?: string;
+  /** A footnote marker after the value, linking its note under the table. */
+  fn?: { n: number; href: string; label: string };
 }
 export type CellInput = Cell | string | number | null;
 
@@ -73,6 +75,7 @@ const SortIcon = '<path class="up" d="M5 0 9 5H1z"/><path class="down" d="M5 12 
                   : c.href ? <a href={c.href}>{shown(c, num)}</a>
                   : num ? shown(c, num) : <SourceText text={String(shown(c, num))} />}
                 {c.year && <abbr class="gt-yr" title={c.year.title}>{c.year.year}</abbr>}
+                {c.fn && <sup class="gt-fn"><a href={c.fn.href} aria-label={c.fn.label}>{c.fn.n}</a></sup>}
               </td>
             );
           })}
