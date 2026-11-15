@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import { Resvg } from '@resvg/resvg-js';
-import { barLayout, fallbackTitle, fitLabel, G, measure, shareSvg, titleLines, type Card } from '../../src/lib/og.ts';
+import { barLayout, fallbackTitle, figureLayout, fitLabel, G, measure, shareSvg, titleLines, titleSize, type Card } from '../../src/lib/og.ts';
 import { formatShare } from '../../src/lib/format.ts';
 
 // Share images (src/lib/og.ts): bar labels wrap to two lines or are cut after a whole word, never mid-word, and every
@@ -201,4 +201,22 @@ describe('share image cards', () => {
       expect(await marginsClear(worst), `${f}: nothing drawn in the card's right and bottom margins`).toBe(true);
     }
   }, 300_000);
+});
+
+describe('the figure and caption beside the bars', () => {
+  const room = (c: Card) => G.innerH - G.kicker - G.titleGap - titleLines(c.title) * titleSize(c.title) * G.titleLine - G.footer;
+  const height = (c: Card) => { const F = figureLayout(c); return (c.figure ? F.figureSize : 0) + (F.caption.length ? 10 : 0) + F.caption.length * F.captionSize * 1.3; };
+  const bars = [1, 2, 3].map((v) => ({ label: `Place ${v}`, value: v, text: String(v) }));
+  it('keeps a long figure on one line inside its column, and never reaches up into the title', () => {
+    const c: Card = { kicker: 'Nuclear weapons', title: 'Nuclear warheads', figure: 'about 9,745 warheads', caption: 'Russia has the most estimated warheads, 4,400, then the United States with 3,700; together they hold 83% of the world’s estimated military stockpile in early 2026.', bars };
+    const F = figureLayout(c);
+    expect(measure(c.figure!, F.figureSize, 'serif600')).toBeLessThanOrEqual(G.leftW);
+    expect(F.figureSize).toBeLessThan(88);
+    expect(height(c)).toBeLessThanOrEqual(room(c));
+    // A long title and a long caption: the caption shrinks or is cut, still under the title.
+    const long: Card = { ...c, title: 'Refugees and others in need of international protection, by host country', caption: c.caption!.repeat(3) };
+    expect(height(long)).toBeLessThanOrEqual(room(long));
+    // A short figure keeps the design's 88px.
+    expect(figureLayout({ ...c, figure: '9,745' }).figureSize).toBe(88);
+  });
 });

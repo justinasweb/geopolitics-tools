@@ -237,12 +237,34 @@ function fallbackSvg(o: Card): Promise<string> {
   return satori(tree as unknown as Parameters<typeof satori>[0], { width: G.width, height: G.height, fonts });
 }
 
+/** The figure and caption beside the bars (or alone): the figure on one line, from 88px down until it fits the column;
+ *  the caption from 26px down, cut after a whole word if it still does not fit, so together they never reach up into
+ *  the title above them. */
+export function figureLayout(o: Pick<Card, 'title' | 'figure' | 'caption' | 'bars'>): { figureSize: number; captionSize: number; caption: string[] } {
+  const colW = (o.bars ?? []).length ? G.leftW : G.innerW;
+  const room = G.innerH - G.kicker - G.titleGap - titleLines(o.title) * titleSize(o.title) * G.titleLine - G.footer - 8;
+  let figureSize = 88;
+  while (o.figure && figureSize > 48 && measure(o.figure, figureSize, 'serif600') > colW) figureSize -= 4;
+  const figH = o.figure ? figureSize : 0;
+  for (const size of [26, 24, 22, 20]) {
+    const lineH = size * 1.3;
+    const fit = o.caption ? fitLabel(o.caption, colW, size, 99, true) : { lines: [] as string[], cut: false };
+    if (!fit) continue;
+    if (figH + (fit.lines.length ? 10 : 0) + fit.lines.length * lineH <= room) return { figureSize, captionSize: size, caption: fit.lines };
+  }
+  // Still too tall: the smallest caption, cut to the lines that fit.
+  const lineH = 20 * 1.3;
+  const max = Math.max(1, Math.floor((room - figH - 10) / lineH));
+  return { figureSize, captionSize: 20, caption: o.caption ? fitLabel(o.caption, colW, 20, max, true)!.lines : [] };
+}
+
 /** The card as SVG (Satori); `shareImage` turns it into PNG. */
 export async function shareSvg(o: Card): Promise<string> {
   if (o.fallback) return fallbackSvg(o);
   const bars = (o.bars ?? []).slice(0, 5);
   const top = Math.max(...bars.map((b) => Math.abs(b.value)), 0) || 1;
   const L = barLayout(o);
+  const F = figureLayout(o);
   // Satori sizes the box without its padding, so the content box is the card minus the padding.
   const tree = h('div', { width: G.innerW, height: G.innerH, display: 'flex', flexDirection: 'column', background: C.paper, padding: `${G.padTop}px ${G.padX}px ${G.padBottom}px`, fontFamily: 'Source Sans 3', color: C.ink }, [
     h('div', { display: 'flex', flexShrink: 0, borderTop: `6px double ${C.ink}`, paddingTop: 20, fontSize: 22, fontWeight: 600, letterSpacing: 2, textTransform: 'uppercase', color: C.accent },
@@ -250,8 +272,8 @@ export async function shareSvg(o: Card): Promise<string> {
     h('div', { display: 'flex', fontFamily: 'Newsreader', fontWeight: 600, fontSize: titleSize(o.title), lineHeight: G.titleLine, marginTop: G.titleGap, maxWidth: G.innerW }, o.title),
     h('div', { display: 'flex', flex: 1, minHeight: 0, alignItems: 'flex-end', gap: G.columnsGap }, [
       h('div', { display: 'flex', flexDirection: 'column', ...(L ? { width: G.leftW, flexShrink: 0 } : { maxWidth: G.innerW }) }, [
-        ...(o.figure ? [h('div', { display: 'flex', fontFamily: 'Newsreader', fontWeight: 600, fontSize: 88, lineHeight: 1 }, o.figure)] : []),
-        ...(o.caption ? [h('div', { display: 'flex', fontSize: 26, lineHeight: 1.3, color: C.muted, marginTop: 10 }, o.caption)] : []),
+        ...(o.figure ? [h('div', { display: 'flex', fontFamily: 'Newsreader', fontWeight: 600, fontSize: F.figureSize, lineHeight: 1, whiteSpace: 'nowrap' }, o.figure)] : []),
+        ...(F.caption.length ? [h('div', { display: 'flex', flexDirection: 'column', fontSize: F.captionSize, lineHeight: 1.3, color: C.muted, marginTop: o.figure ? 10 : 0 }, F.caption.map((line) => h('div', { display: 'flex', whiteSpace: 'nowrap' }, line)))] : []),
       ]),
       ...(L ? [h('div', { display: 'flex', flexDirection: 'column', gap: L.rowGap, flex: 1 }, bars.map((b, i) =>
         h('div', { display: 'flex', alignItems: 'center', gap: G.cellGap, fontSize: L.labelSize }, [

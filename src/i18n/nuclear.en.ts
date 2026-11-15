@@ -60,7 +60,8 @@ export const NUCLEAR_TEXT = {
   otherTotal: (m: WarheadMeasure, v: string) => (m === 'stockpile'
     ? `Total inventory, including retired warheads awaiting dismantlement: ${v}`
     : `Military stockpile, without retired warheads awaiting dismantlement: ${v}`),
-  /** FAS rounds nothing smaller than its own figures; the total is their sum, said as about. */
+  /** In running text only (captions, sentences): FAS's figures are estimates, so their sum is said as about. Key figures
+   *  carry the Estimate tag instead. */
   about: (v: string) => `about ${v}`,
   states: (k: number) => `${k} ${k === 1 ? 'state' : 'states'} with nuclear weapons`,
   peak: (v: string, year: number, m: WarheadMeasure) => `Peak ${MEASURE[m].noun}, all states: ${v} in ${year}`,
@@ -175,7 +176,8 @@ export const NUCLEAR_TEXT = {
   /** The AI dossier's fact on a state's warheads. */
   dossierFact: (theirs: string, m: WarheadMeasure) => `${theirs} estimated ${MEASURE[m].noun} of nuclear warheads.`,
   blockLink: 'Nuclear weapons map',
-  /** The share card's figure; the caption under it says what it counts. */
-  ogFigure: (v: string) => `about ${v}`,
+  /** The share card's figure, a plain number: "FAS estimate, as of early {year}" is its source line; the caption under
+   *  it says what it counts. */
+  ogFigure: (v: string) => v,
   ogStates: (k: number) => `${n(k)} states`,
 };

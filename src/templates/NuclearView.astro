@@ -125,7 +125,7 @@ const legend = id === 'warheads'
             <div class="gt-pyear" data-year={yr} hidden={yr !== lastYear}>
               <div class="gt-pkf">
                 <span class="gt-pkf__label">{N.worldTotal(m.measure)}</span>
-                <span class="gt-pkf__num">{N.about(warheads(Y.world))}</span>
+                <span class="gt-pkf__num">{warheads(Y.world)}</span>
                 <span class="gt-pkf__meta"><StatusTag status="estimate" small /> {yr === m.current ? N.estimate(yr) : N.historical(yr)} · {N.states(Y.rows.length)}</span>
                 {change && <span class="gt-pkf__meta">{change}</span>}
                 {yr === lastYear && otherTotal !== null && <span class="gt-caption">{N.otherTotal(m.measure, N.about(warheads(otherTotal)))}</span>}
@@ -154,7 +154,7 @@ const legend = id === 'warheads'
             <ul class="gt-prows">
               {(['deployed', 'reserve', 'retired'] as const).map((k) => {
                 const v = Object.values(forces.rows).reduce((s, x) => s + x[k], 0);
-                return <li><span class="gt-prow__n">{N[k]}</span><span class="gt-prow__v">{N.about(warheads(v))}</span></li>;
+                return <li><span class="gt-prow__n">{N[k]}</span><span class="gt-prow__v">{warheads(v)}</span></li>;
               })}
             </ul>
             <p class="gt-caption gt-pblock__cap">{N.splitCaption} {unassigned}</p>
