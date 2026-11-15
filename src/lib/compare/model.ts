@@ -35,8 +35,9 @@ export interface CountryData {
   f: Record<string, Fig>;
   /** Yearly series of the chart measures from SERIES_FROM: [first year, values]. */
   s: Record<string, [number, (number | null)[]]>;
-  /** Share of world production, by mineral (any share above zero). */
-  m: Record<string, number>;
+  /** Share of world production, by mineral, in USGS's latest year: any share above zero, or null where USGS lists the
+   *  country as a producer but withholds the figure. A mineral USGS does not list the country for has no key. */
+  m: Record<string, number | null>;
 }
 
 export interface MeasureMeta {
@@ -52,6 +53,8 @@ export interface MeasureMeta {
   source: string;
   /** Chart measures: the latest year any country has. */
   latest?: number;
+  /** A still-running latest year counted on one day (satellites): [year, "7 Nov 2026"], said "as of" (src/lib/as-of.ts). */
+  asOf?: [number, string];
 }
 export interface MineralMeta { id: string; name: string; year: number; estimated: boolean; primary: boolean }
 export interface Pair { a: string; b: string; path: string; title: string }
@@ -147,12 +150,20 @@ export function chartsAndGaps(meta: Meta, c: [CountryData, CountryData]): { char
 
 export const compareCharts = (meta: Meta, c: [CountryData, CountryData]): Chart[] => chartsAndGaps(meta, c).charts;
 
-export interface MineralPair { m: MineralMeta; vals: [number | null, number | null] }
+/** One country's value for a mineral: its share, 'withheld' (listed by USGS, figure withheld), or null (not listed). */
+export type MineralValue = number | 'withheld' | null;
+export interface MineralPair { m: MineralMeta; vals: [MineralValue, MineralValue] }
 
-/** Minerals where either has at least MINERAL_MIN of world production, largest first; the other's share however small. */
+const valueOf = (d: CountryData, id: string): MineralValue => (id in d.m ? d.m[id] ?? 'withheld' : null);
+const shareOf = (v: MineralValue) => (typeof v === 'number' ? v : null);
+
+/** Minerals where either has at least MINERAL_MIN of world production, or one is withheld and the other has a share;
+ *  the other's share however small. Largest known share first: a withheld figure is present but unknown, so it never
+ *  sorts as a share. */
 export function comparePairs(meta: Meta, c: [CountryData, CountryData]): MineralPair[] {
+  const known = (x: MineralPair) => Math.max(0, ...x.vals.map(shareOf).filter((v): v is number => v !== null));
   return meta.minerals
-    .filter((m) => c.some((d) => (d.m[m.id] ?? 0) >= MINERAL_MIN))
-    .map((m): MineralPair => ({ m, vals: [c[0].m[m.id] ?? null, c[1].m[m.id] ?? null] }))
-    .sort((x, y) => Math.max(...y.vals.map((v) => v ?? 0)) - Math.max(...x.vals.map((v) => v ?? 0)));
+    .map((m): MineralPair => ({ m, vals: [valueOf(c[0], m.id), valueOf(c[1], m.id)] }))
+    .filter((x) => x.vals.some((v) => (shareOf(v) ?? 0) >= MINERAL_MIN) || (x.vals.includes('withheld') && x.vals.some((v) => shareOf(v) !== null)))
+    .sort((x, y) => known(y) - known(x));
 }

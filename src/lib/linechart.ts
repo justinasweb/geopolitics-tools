@@ -9,8 +9,8 @@
 // value ticks and end labels are padding around the SVG, sized from the labels. Under 440px the chart shows
 // fewer year labels and shorter end labels (a container query in country.css). No Node imports.
 import type { Format } from '../data/indicators.ts';
-import { formatValue } from './format.ts';
-import { CHART_LABEL_PX, CHART_TICK_PX, NARROWEST, NARROW_BELOW, clip, textWidth, yearTickIndexes } from './chart.ts';
+import { axisTexts, formatValue } from './format.ts';
+import { CHART_LABEL_PX, CHART_TICK_PX, NARROWEST, NARROW_BELOW, clip, textWidth, wholeSteps, yearTickIndexes } from './chart.ts';
 import { DOSSIER_TEXT } from '../i18n/pages.en.ts';
 
 export interface Line {
@@ -49,7 +49,8 @@ export function lineChartHtml({ label, years, lines, format, projectedAfter, ban
   // Round the axis to tidy steps.
   const span = hi - lo;
   const mag = 10 ** Math.floor(Math.log10(span / 4));
-  const step = [1, 2, 2.5, 5, 10].map((m) => m * mag).find((s) => span / s <= 5) ?? mag * 10;
+  // No 2.5 step for money and counts: they drop decimals from 10 of a unit, so 12.5 bn would read "$13 bn".
+  const step = (wholeSteps(format) ? [1, 2, 5, 10] : [1, 2, 2.5, 5, 10]).map((m) => m * mag).find((s) => span / s <= 5) ?? mag * 10;
   lo = Math.floor(lo / step) * step;
   hi = Math.ceil(hi / step) * step;
   const ticks: number[] = [];
@@ -61,7 +62,8 @@ export function lineChartHtml({ label, years, lines, format, projectedAfter, ban
   while (tickFormat.kind === 'number' && (tickFormat.digits ?? 0) < 4 && rounds(tickFormat.digits ?? 0)) {
     tickFormat = { ...tickFormat, digits: (tickFormat.digits ?? 0) + 1 };
   }
-  const short = (v: number) => formatValue(v, v === 0 ? format : tickFormat);
+  const tickTexts = axisTexts(ticks, tickFormat);
+  const short = (v: number) => (v === 0 ? formatValue(v, format) : tickTexts[ticks.indexOf(v)] ?? formatValue(v, tickFormat));
   // x: the plot's width, as a share (for text, in %) or in the nested SVG's 0–1000 units (for paths).
   const share = (i: number) => (years.length > 1 ? i / (years.length - 1) : 0);
   const pct = (i: number) => `${(share(i) * 100).toFixed(2)}%`;

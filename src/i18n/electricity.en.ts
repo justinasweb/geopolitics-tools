@@ -12,4 +12,7 @@ export const POWER_TEXT = {
   twh: 'TWh',
   share: 'Share',
   twhValue: (v: string) => `${v} TWh`,
+  /** A grid operator's own figure where Ember's shows almost none of a kind of plant (src/data/operator-reports.csv). */
+  operatorNote: (theirs: string, operator: string, share: string, year: number, plants: string, ember: string) =>
+    `${theirs} grid operator, ${operator}, reports ${share} of ${year} generation from ${plants} plants; Ember’s figures show ${ember}.`,
 };

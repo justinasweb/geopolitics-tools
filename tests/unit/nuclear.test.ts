@@ -99,11 +99,30 @@ describe('FAS adapter', () => {
     expect(() => parseForces(FORCES.replace('Russia,1718,0,2591,4309,5459', 'Russia,1718,0,2591,6000,5459'))).toThrow(/add up/);
   });
 
+  it('reads FAS’s early-2026 table as published: its rows add up to FAS’s totals, India’s reserve stays 178 of 190', async () => {
+    const text = readFileSync(new URL('../fixtures/live/fas-forces/status-world-nuclear-forces.csv', import.meta.url), 'utf8');
+    const f = parseForces(text);
+    const rows = Object.values(f.rows);
+    expect(f.year).toBe(2026);
+    expect(rows).toHaveLength(9);
+    expect(rows.reduce((t, x) => t + x.stockpile, 0)).toBe(9745);
+    expect(rows.reduce((t, x) => t + x.inventory, 0)).toBe(12187);
+    expect(f.rows.IND).toMatchObject({ deployed: 0, reserve: 178, stockpile: 190, unassigned: 12, retired: 0, inventory: 190 });
+    expect(f.rows.RUS).toMatchObject({ deployedStrategic: 1796, deployedNonstrategic: 0, reserve: 2604, stockpile: 4400, unassigned: 0, retired: 1020, inventory: 5420 });
+    expect(f.rows.USA).toMatchObject({ deployedStrategic: 1670, deployedNonstrategic: 100, reserve: 1930, stockpile: 3700, unassigned: 0, retired: 1342, inventory: 5042 });
+    expect(N.unassignedNote(f)).toBe('FAS’s figures for India do not assign 12 of its 190 warheads to a status.');
+    expect(N.unassignedNote(f, 'RUS')).toBe('');
+    const read = await readInput('status-world-nuclear-forces.csv', new TextEncoder().encode(text));
+    expect(prepare(KINDS['fas-forces'], read, now).rows).toBe(10);
+  });
+
   it('imports the FAS table only when it is whole, adds up and links to FAS', async () => {
     const kind = KINDS['fas-forces'];
     const read = (t: string) => readInput('status-world-nuclear-forces.csv', new TextEncoder().encode(t));
     expect(prepare(kind, await read(FORCES), now).rows).toBe(10);
-    await expect(read(FORCES.replace('Russia,1718,0,2591', 'Russia,1718,0,2500')).then((i) => prepare(kind, i, now))).rejects.toThrow(/do not add up/);
+    await expect(read(FORCES.replace('Russia,1718,0,2591', 'Russia,1718,0,3000')).then((i) => prepare(kind, i, now))).rejects.toThrow(/more than the military stockpile/);
+    // FAS leaves some warheads without a status: deployed and reserve may fall short of the stockpile.
+    expect(prepare(kind, await read(FORCES.replace('Russia,1718,0,2591', 'Russia,1718,0,2500')), now).rows).toBe(10);
     await expect(read(FORCES.replace(/\nTotal,.*\n/, '\n')).then((i) => prepare(kind, i, now))).rejects.toThrow(/Total/);
     await expect(read(FORCES.replace('https://fas.org/initiative', 'https://example.org/initiative')).then((i) => prepare(kind, i, now))).rejects.toThrow(/fas\.org/);
   });
@@ -306,6 +325,22 @@ describe('nuclear follow-ups', () => {
     const { NUCLEAR_TEXT: T } = await import('../../src/i18n/nuclear.en.ts');
     expect(T.changeAbs('up', 59, 1949)).toBe('Up 59 warheads from 1949');
     expect(T.changeAbs('down', 1, 1990)).toBe('Down 1 warhead from 1990');
+  });
+
+  it('names the measure the series counts in every warheads label, never a bare "world total"', async () => {
+    const { NUCLEAR_TEXT: T } = await import('../../src/i18n/nuclear.en.ts');
+    expect(T.worldTotal('stockpile')).toBe('Military stockpile, all states');
+    expect(T.worldTotal('inventory')).toBe('Total inventory, all states');
+    expect(T.lede('Russia', '4,400', 'the United States', '3,700', '83%', 2026, 'stockpile')).toBe('Russia has the most estimated warheads, 4,400, then the United States with 3,700; together they hold 83% of the world’s estimated military stockpile in early 2026.');
+    expect(T.otherTotal('stockpile', 'about 12,187')).toBe('Total inventory, including retired warheads awaiting dismantlement: about 12,187');
+    expect(T.dossierFact('Russia’s', 'stockpile')).toBe('Russia’s estimated military stockpile of nuclear warheads.');
+    expect(T.blockCaption(2026, 'inventory')).toBe('estimated warheads in its total inventory, early 2026');
+    // The layer file's words follow the model's measure.
+    const m = N.warheadsModel()!;
+    const f = L.layerFile('nuclear-warheads');
+    const words = m.measure === 'stockpile' ? 'military stockpiles' : 'total inventories';
+    expect(f.data.at(-1)!.legend).toContain(words);
+    for (const y of f.data) for (const line of Object.values(y.blocs)) expect(line).not.toMatch(/world total|estimated total/);
   });
 
   it('stacks each arrangement in the sharing panel, saying "reported by FAS" once', async () => {

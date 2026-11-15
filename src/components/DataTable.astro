@@ -13,12 +13,15 @@ export interface Cell {
   text?: string;
   /** Missing value: "withheld" by the source or "none" reported. */
   missing?: 'withheld' | 'none';
+  /** A tag (Estimate, Projection, Preliminary): beside the value when the cell has one, else the cell itself. */
   status?: Status;
   /** Year marker when the row's period differs from the column's. */
   year?: { year: string; title: string };
   /** Smaller muted text instead of a value (status column notes). */
   note?: string;
   href?: string;
+  /** A footnote marker after the value, linking its note under the table. */
+  fn?: { n: number; href: string; label: string };
 }
 export type CellInput = Cell | string | number | null;
 
@@ -38,6 +41,9 @@ interface Props {
 const { label, columns, rows, foot, sorted, caption, height, compact = false, missingText = { withheld: 'Withheld', none: '–' } } = Astro.props;
 const cell = (c: CellInput): Cell => (c !== null && typeof c === 'object' ? c : c === null ? { v: null, missing: 'none' } : { v: c });
 const shown = (c: Cell, num: boolean) => c.text ?? (typeof c.v === 'number' && num ? new Intl.NumberFormat('en').format(c.v) : c.v ?? '');
+/** A cell with a figure of its own (a number, or its text): its tag goes beside it. A status column's cell has none, so the
+ *  tag is the cell. */
+const valued = (c: Cell) => c.text !== undefined || typeof c.v === 'number';
 const sortValue = (c: Cell) => (c.missing ? '' : c.v === null || c.v === undefined ? (c.status ?? c.note ?? '') : String(c.v));
 const SortIcon = '<path class="up" d="M5 0 9 5H1z"/><path class="down" d="M5 12 1 7h8z"/>';
 ---
@@ -68,11 +74,13 @@ const SortIcon = '<path class="up" d="M5 0 9 5H1z"/><path class="down" d="M5 12 
             return (
               <td class={num ? 'n' : undefined} data-v={sortValue(c)}>
                 {c.missing ? <span class="gt-na">{missingText[c.missing]}</span>
-                  : c.status ? <StatusTag status={c.status} small />
+                  : c.status && !valued(c) ? <StatusTag status={c.status} small />
                   : c.note ? <span class="gt-caption">{c.note}</span>
                   : c.href ? <a href={c.href}>{shown(c, num)}</a>
                   : num ? shown(c, num) : <SourceText text={String(shown(c, num))} />}
+                {c.status && valued(c) && <>{' '}<StatusTag status={c.status} small /></>}
                 {c.year && <abbr class="gt-yr" title={c.year.title}>{c.year.year}</abbr>}
+                {c.fn && <sup class="gt-fn"><a href={c.fn.href} aria-label={c.fn.label}>{c.fn.n}</a></sup>}
               </td>
             );
           })}

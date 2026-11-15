@@ -427,7 +427,10 @@ Any two countries side by side (spec, D21), without a page per pair.
   (`compareBlocNotes` in `src/lib/compare.ts`, shown by `src/scripts/controls.ts`; the link is reachable with Tab).
   Minerals: any mineral where either country has at least 1% of world production; the other shows "–" when USGS does
   not list it (decided 9 Nov 2026: not listed is not zero), read out as "Not listed by USGS" and explained in a note
-  under the pairs.
+  under the pairs. A country USGS lists with its figure withheld (the United States for lithium) shows "Withheld", no
+  bar, read out as "Withheld by USGS", with its own note; a mineral is also paired when one is withheld and the other
+  has a share, and a withheld figure never sorts as a share. In the data files (`CountryData.m`) a share is a number,
+  withheld is null and not listed has no key (`mineralsWithheld` in src/lib/country.ts, the mineral pages' `withheld`).
 - **Each figure in its own scale.** Money and counts carry their own unit, as on the country page ("342 million"
   beside "1.41 billion", "US$427 billion" beside "US$3.60 trillion"); units that do not scale ("% of GDP", "years")
   stay under the row's label (decided 10 Nov 2026, replacing one scale per row, which wrote "0.34 billion").

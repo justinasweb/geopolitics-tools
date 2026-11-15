@@ -38,6 +38,9 @@
 .gt-dglegend__k { background: var(--dgt); box-shadow: inset 5px 0 0 var(--dgc); padding: 6px 10px 6px 14px; font: 600 13px/18px var(--sans); color: var(--ink); }
 
 .gt-dgphone { display: none; }
+/* A column's note on what its supplier shares are of (oil: crude-oil imports). */
+.gt-dgtbl__sub { display: block; font: 400 11px/14px var(--sans); letter-spacing: 0; text-transform: none; color: var(--ink-muted); }
+.gt-dgctl, .gt-dgphone { scroll-margin-top: 16px; }
 .gt-dgcard { border: 1px solid var(--rule-strong); background: var(--paper-raised); padding: 14px; display: grid; gap: 10px; }
 .gt-dgcard .gt-h3 { margin: 0; }
 .gt-dgcard ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }

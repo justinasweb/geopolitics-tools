@@ -27,6 +27,8 @@ const BASIS: Record<string, Basis> = {
 export type Kind = 'state' | 'affiliated' | 'group' | 'individual' | 'unknown' | 'none';
 const KIND: Record<string, Kind> = {
   State: 'state', 'State affiliated actor': 'affiliated', 'Non-state-group': 'group', 'Individual hacker(s)': 'individual',
+  // Attributed, but EuRepoC does not say what kind of actor (even when it gives a country): never counted for a state.
+  Unknown: 'unknown', Other: 'unknown',
   'Not attributed': 'none',
 };
 

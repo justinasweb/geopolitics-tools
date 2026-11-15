@@ -14,7 +14,7 @@ import { worldBank, weo } from '../../src/adapters/worldbank.ts';
 import { INDICATORS, latestYear, registry, statusAt, valueAt } from '../../src/data/indicators.ts';
 import { FLOWS, checkFlows, loadFlows, topSupplier } from '../../src/data/flows.ts';
 import { INDICATOR_TEXT, FLOW_TEXT } from '../../src/i18n/en.ts';
-import { formatValue } from '../../src/lib/format.ts';
+import { axisTexts, formatParts, formatValue } from '../../src/lib/format.ts';
 
 const FIXTURES = new URL('../fixtures/prototype/', import.meta.url).pathname;
 
@@ -227,6 +227,25 @@ describe('indicator registry and flows', () => {
   });
 
   it('formats values the registry way', () => {
+    // A true zero has no decimals (EIA: Costa Rica produced exactly 0 bcm of gas in 2024); a tiny value keeps them.
+    expect(formatValue(0, { kind: 'number', unit: 'bcm', digits: 1 })).toBe('0 bcm');
+    expect(formatValue(0, { kind: 'percent', digits: 1 })).toBe('0%');
+    // A positive value its format writes as zero says what it is under, in the format's own step and unit.
+    expect(formatValue(0.02, { kind: 'number', unit: 'bcm', digits: 1 })).toBe('under 0.1 bcm');
+    expect(formatValue(0.002, { kind: 'number', unit: 'Mt', digits: 2 })).toBe('under 0.01 Mt');
+    expect(formatValue(0.0004, { kind: 'percent', digits: 1 })).toBe('under 0.1%');
+    expect(formatValue(0.3, { kind: 'money' })).toBe('under $1');
+    expect(formatValue(1e-8, { kind: 'mt' })).toBe('under 1 t');
+    // Negative: no sign word, so its own text, never "−0".
+    expect(formatValue(-0.02, { kind: 'number', unit: 'bcm', digits: 1 })).toBe('0.0 bcm');
+    expect(formatParts(-0.02, { kind: 'number', unit: 'bcm', digits: 1 }, 'bcm')).toEqual({ num: '0.0', unit: 'bcm' });
+    expect(formatParts(0.02, { kind: 'number', unit: 'bcm', digits: 1 }, 'bcm')).toEqual({ num: 'under 0.1', unit: 'bcm' });
+    // Axis labels are positions: never "under", each written to tell the lines apart.
+    const axis = axisTexts([0, 0.04, 0.08], { kind: 'number', unit: '', digits: 1 });
+    expect(axis.some((t) => t.startsWith('under'))).toBe(false);
+    expect(new Set(axis).size).toBe(3);
+    expect(axisTexts([0, 50, 100], { kind: 'number', unit: '', digits: 0 })).toEqual(['0', '50', '100']);
+    expect(formatValue(-0, { kind: 'number', unit: 'bcm', digits: 1 })).toBe('0 bcm');
     expect(formatValue(2.345e12, { kind: 'money' })).toBe('$2.35 tn');
     expect(formatValue(-4.2e9, { kind: 'money' })).toBe('−$4.2 bn');
     // Units are picked after rounding; sums under a million are not written to the dollar.
@@ -238,7 +257,7 @@ describe('indicator registry and flows', () => {
     expect(formatValue(0, { kind: 'money', millions: true })).toBe('$0');
     expect(formatValue(2_512, { kind: 'money' })).toBe('$2,512');
     // A value that rounds to zero has no sign.
-    expect(formatValue(-0.0001, { kind: 'share' })).toBe('<0.1%');
+    expect(formatValue(-0.0001, { kind: 'share' })).toBe('under 0.1%');
     expect(formatValue(8_123_456, { kind: 'count' })).toBe('8.1 m');
     expect(formatValue(0.053, { kind: 'share' })).toBe('5.3%');
     expect(formatValue(0.05, { kind: 'share' })).toBe('5%');

@@ -47,6 +47,22 @@ before and without the map script.
   every year shown, said with `todaysMembers` in `src/i18n/members.en.ts`; "produced" for gallium, USGS's primary
   production, and ", according to USGS estimates" where the members' figures are estimated). On a phone, year and bloc sit in a
   Filters sheet.
+- **Text that follows the year.** The answer, the summary, the map's aria-label and the year (and Estimate or
+  Preliminary tag) on the source lines change with the year control, on every view with one (minerals, indicator
+  views, energy, food, conflict, disasters, nuclear warheads; the history views' map label). The build writes each
+  year's words into the page (`byYear` in `src/lib/map/by-year.ts`: `data-by-year` for text, `data-label-by-year`
+  for the map's label, `SourceLine`'s `years` for parts and tags) and `showYear` (`src/scripts/map/by-year.ts`)
+  swaps them on a year change and on a `?year=` in the address. The latest year's words are the HTML's own, so the
+  page reads the same without the script. The title, description, share image and the table stay on the latest year
+  (the table's headings name its years). The latest year's answer keeps the present tense ("Australia mines 32%");
+  an earlier year's is in the past tense and names its year ("Australia mined 37% … in 2024"): minerals' answer and
+  "followed with"/"also mined", the refugees-hosted and sanctions answers (`past` in a view's `lede`), and the
+  warheads answer, which names each state as it was then (the Soviet Union to 1991).
+- **Sharing the view shown.** The share row (`ShareRow`: `data-share`, `data-share-copy`, `data-share-x`,
+  `data-share-tg`) and any Copy citation that names the page follow the view: the map script gives them the page's
+  address with its `year`/`month`, `country` and `bloc` (as `writeState` writes them, no other parameters) and the
+  headline shown for the year (`data-headline`), else the build's text. Without the script they keep the page's own
+  address and the latest year's headline. og:image, og:description and the meta tags stay on the latest year.
 - **URL state.** `?year=2024&country=australia&bloc=brics` (`src/scripts/map/state.ts`), kept with
   `history.replaceState`; defaults are left out and the canonical stays the bare path. A year a source does not
   cover moves to the nearest one it has, and the page says so. Switching mineral keeps the query.
@@ -254,6 +270,11 @@ site), both registry views (`src/data/views.ts`) on CelesTrak's catalogue. Launc
 is left out until it ends. Extras from `src/lib/space.ts`: each country's working satellites by orbit and constellation in
 the panel, the largest constellations under the satellites table, and a mark per launch site per year (sized by launches)
 with a sites table on the launches page. Satellites of international owners (ESA, Intelsat) count for no country.
+Satellites in the running year count what was in orbit on the date of the catalogue's newest entry (its latest launch date,
+`asOf`), so that year is said "as of 7 Nov 2026", never "at the end of 2026": the view's answer, summary, legend and
+source line, the country page's finding, captions and all-figures table, Compare's source line, the Explorer's
+column and the dossier fact's statement all use `asOfDate` (`src/lib/as-of.ts`). A finished year keeps "at the end of".
+Epoch AI's computing power and UNHCR's refugees hosted also say "end of", but their latest year (2025) is finished.
 
 ## AI and chips (phase 5a)
 
@@ -329,6 +350,10 @@ each source as a share of the country's own generation, on fixed bands. Ember's 
 the mix (gas with other fossil, bioenergy with other renewables); the gas layer maps gas alone. The world figure is
 Ember's own World total, and changes are in percentage points (`points` in src/data/views.ts). A country's panel shows
 its mix in the default year only (every year would make the layer file several megabytes); the page has the world mix.
+Where a country's grid operator reports far more of a kind of plant than Ember does, a note for that year only sits
+beside Ember's figure (layer years' `notes`: panel, tooltip and table row; the country page's all-figures table):
+`src/data/operator-reports.csv` (Costa Rica 2024, ICE: 10.6% thermal), `operatorNote` in src/lib/electricity.ts. The
+note drops once Ember's own other-fossil share for that country and year is above 5% (`OPERATOR_NOTE_UNTIL`).
 
 ## Conflict (phase 5b)
 
@@ -388,6 +413,10 @@ Global Dataset of Cyber Incidents, the version pinned in pipeline/sources/eurepo
   Other non-state groups and individuals count by their kind (hacktivists, criminal groups), never by their country;
   an attribution naming none of these has its own row, and "Not attributed" is its own row. An incident with several
   attributions counts in each row.
+- **The summary's split.** The year's incidents in five parts that add up to its total (`yearSplit`): to a state, only
+  to state-affiliated groups, only to other non-state groups, to an initiator whose state or kind EuRepoC does not give
+  (its category "Unknown" or "Other", even with a country, or a state-affiliated group whose state is "Unknown": 30 of
+  2024's 700), and not attributed. The sentence says every part above 0.
 - **Own state.** A state attributed with incidents in its own country (Serbia → Serbia) is labelled "(own state)" in
   the panel and left out of the arcs and the pairs table.
 - **Panel.** For the year shown: the incidents affecting the country by who they were attributed to; the incidents
@@ -436,6 +465,14 @@ words in src/i18n/nuclear.en.ts), in the Power and alliances hub after Chinese l
   current figures. The split sits beside the totals (panel and table columns) only when it is for the same year;
   otherwise it has its own table labelled with its year and date. The panel's chart names states by their short
   names (US, UK). The "Peak" line under it reads the highest world total in the series (the mid-1980s).
+- **Naming the measure.** Every warheads label takes the measure from the model (`WarheadsModel.measure`, words in
+  `MEASURE` in src/i18n/nuclear.en.ts): today the series is FAS's military stockpile, so the key figure is "Military
+  stockpile, all states", the answer says "of the world's estimated military stockpile", and the legend, map label,
+  chart, peak, table caption, bloc lines, the country page block and the dossier fact say the same; nothing says
+  "world total". In the split's year only, a muted line under the key figure gives the other total from the split's
+  own rows ("Total inventory, including retired warheads awaiting dismantlement: about 12,187"). A state whose
+  deployed and reserve warheads fall short of its stockpile in FAS's table gets a sentence in the split's captions
+  (`unassignedNote`: India, 12 of 190). The share card's figure is "about 9,745", its caption the answer.
 - **The Soviet Union.** OWID files the Soviet Union's warheads under Russia's code through 1991. The figures stay on
   Russia's shape (the basemap has no Soviet Union) and nothing moves between countries, but every place that shows a
   year says "Soviet Union" for 1949–1991 (`FORMER` in src/lib/nuclear.ts; `names` per year in the layer file): the

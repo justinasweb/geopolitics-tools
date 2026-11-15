@@ -4,6 +4,7 @@
 // approved is hidden until it is redrafted (./texts.ts).
 import { INDICATORS, statusAt } from '../../data/indicators.ts';
 import { INDICATOR_TEXT } from '../../i18n/en.ts';
+import { NUCLEAR_TEXT } from '../../i18n/nuclear.en.ts';
 import { RESOURCE_TEXT, inSentence, mineralName, onSupply, possessive } from '../../i18n/pages.en.ts';
 import { countryModel, DOSSIERS, type Figure } from '../country.ts';
 import { depStatus } from '../dependence.ts';
@@ -11,6 +12,7 @@ import { dossierFor } from '../dossier.ts';
 import { data, licenceOf, refreshed, sourceName } from '../data.ts';
 import { place } from '../places.ts';
 import type { Fact, FactsFile } from './facts.ts';
+import { asOfDate } from '../as-of.ts';
 
 /** Where each source's figures can be checked: its own data page, or its terms page when it has no other. */
 const DATA_LINK: Record<string, (iso2: string, iso3: string) => string> = {
@@ -55,7 +57,8 @@ function figureFact(f: Figure, placeId: string, id = f.id): Fact[] {
   const status = tag === 'estimate' ? 'estimated' as const : tag === 'projection' ? 'projected' as const : tag;
   const out: Fact[] = [{
     // The indicator's note goes in only when it has no figures of its own (the checker wants one figure a fact).
-    id, statement: `${t.label} of ${of}${t.note && !/\d/.test(t.note) ? ` (${t.note.replace(/\.$/, '')})` : ''}${status ? ` (${status})` : ''}.`, value, unit,
+    // A still-running year counted on one day (satellites) says so, without the date: a statement's only number is its value.
+    id, statement: `${t.label} of ${of}${t.note && !/\d/.test(t.note) ? ` (${t.note.replace(/\.$/, '')})` : ''}${status ? ` (${status})` : ''}${asOfDate(f.id, f.year) ? ' (counted to the date of the source’s newest entry, not to the end of the year)' : ''}.`, value, unit,
     ...(status ? { status } : {}), ...(share ? { share } : {}),
     unitAliases: unit === 'US$' ? ['$', 'dollars'] : unit === 'people' ? ['residents', 'inhabitants'] : undefined,
     period: String(f.year), places: [placeId], source: sourceName(f.source), link: linkOf(f.source, placeId), date: dateOf(f.source),
@@ -111,7 +114,7 @@ export function dossierFacts(id: string, buildYear = Number(data().snapshot.crea
   const b = m.blocks;
   if (b.refugees?.hosted) addFig(b.refugees.hosted);
   if (b.refugees?.from) addFig(b.refugees.from);
-  if (b.nuclear) facts.push({ id: 'nuclear-warheads', statement: `${theirs} estimated total inventory of nuclear warheads.`, value: b.nuclear.value, unit: 'warheads', period: String(b.nuclear.year), places: [id], source: sourceName('fas'), link: linkOf('fas', id), date: dateOf('fas') });
+  if (b.nuclear) facts.push({ id: 'nuclear-warheads', statement: NUCLEAR_TEXT.dossierFact(theirs, b.nuclear.measure), value: b.nuclear.value, unit: 'warheads', period: String(b.nuclear.year), places: [id], source: sourceName('fas'), link: linkOf('fas', id), date: dateOf('fas') });
   if (b.lending) facts.push({ id: 'chinese-lending', statement: `Loans and grants committed by China to ${of}.`, value: round(b.lending.total), unit: 'US$', unitAliases: ['$', 'dollars'], period: `${b.lending.from}–${b.lending.to}`, places: [id, 'CHN'], source: sourceName('aiddata'), link: linkOf('aiddata', id), date: dateOf('aiddata') });
   if (d.money?.treasuries) {
     const t = d.money.treasuries;

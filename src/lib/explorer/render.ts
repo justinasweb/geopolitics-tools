@@ -3,7 +3,8 @@
 // scatter with its key and correlation, the source line and the link to the view. No Node imports.
 import { EXPLORER_TEXT as T, PRESET_TEXT } from '../../i18n/explorer.en.ts';
 import { SOURCE_TEXT, STATUS_TEXT, YEAR_TEXT } from '../../i18n/en.ts';
-import { formatDate, formatValue } from '../format.ts';
+import { axisTexts, formatDate, formatValue } from '../format.ts';
+import { wholeSteps } from '../chart.ts';
 import { tagHtml } from '../tags.ts';
 import { sourceLinksHtml } from '../source-links.ts';
 import {
@@ -152,7 +153,7 @@ export function tableHtml(s: State, meta: Meta, data: Data): string {
   const sortAttr = (k: string) => (s.sort === k ? ` aria-sort="${s.dir === 'asc' ? 'ascending' : 'descending'}"` : '');
   const head = `<th scope="col"${sortAttr('country')}><button type="button" data-x-sort="country">${esc(T.country)}${ICON.sort}</button></th>`
     + ms.map((m, i) => {
-      const sub = [unitText(m), String(years[i])].filter(Boolean).join(' · ');
+      const sub = [unitText(m), m.asOf?.[0] === years[i] ? `as of ${m.asOf[1]}` : String(years[i])].filter(Boolean).join(' · ');
       return `<th scope="col" class="n"${sortAttr(m.id)}><button type="button" data-x-sort="${m.id}">${esc(m.short ?? m.label)}${ICON.sort}</button><small>${esc(sub)}</small></th>`;
     }).join('');
   const body = rows.map((r) => {
@@ -259,11 +260,13 @@ export function linesHtml(s: State, meta: Meta, data: Data, width = 900): string
   const phone = W < 560;
   const L = phone ? 52 : 70, R = phone ? 96 : 150, Tp = 16, B = 30;
   const vals = ch.lines.flatMap((l) => l.values.filter((v): v is number => v !== null));
-  const t = ticks(ch.log ? Math.min(...vals) : Math.min(0, ...vals), Math.max(...vals), ch.log, phone ? 4 : 5);
+  const t = ticks(ch.log ? Math.min(...vals) : Math.min(0, ...vals), Math.max(...vals), ch.log, phone ? 4 : 5, ch.indexed || !wholeSteps(m.format));
   const tr = (v: number) => (ch.log ? Math.log10(v) : v);
   const x = (i: number) => L + (i / (ch.years.length - 1)) * (W - L - R);
   const y = (v: number) => Tp + (1 - (tr(v) - tr(t.lo)) / (tr(t.hi) - tr(t.lo))) * (H - Tp - B);
-  const tick = (v: number) => (ch.indexed ? formatValue(v, { kind: 'number' }) : fmt(m, v));
+  // Axis labels are positions: never "under …" (axisTexts).
+  const tickTexts = axisTexts(t.ticks, ch.indexed ? { kind: 'number' } : m.format);
+  const tick = (v: number) => tickTexts[t.ticks.indexOf(v)] ?? fmt(m, v);
   const split = m.projectedAfter === undefined ? -1 : ch.years.findIndex((yr) => yr > m.projectedAfter!);
   const last = ch.years.length - 1;
   const seg = (vals: (number | null)[], a: number, b: number) => {
@@ -404,8 +407,8 @@ export function scatterHtml(s: State, meta: Meta, data: Data, width = 900): stri
   const phone = W < 560;
   const L = phone ? 56 : 76, R = phone ? 12 : 24, Tp = 14, B = 46;
   const xs = points.map((p) => p.x), ys = points.map((p) => p.y);
-  const tx = ticks(sc.logx ? Math.min(...xs) : Math.min(0, ...xs), Math.max(...xs), sc.logx, phone ? 3 : 6);
-  const ty = ticks(sc.logy ? Math.min(...ys) : Math.min(0, ...ys), Math.max(...ys), sc.logy, phone ? 4 : 5);
+  const tx = ticks(sc.logx ? Math.min(...xs) : Math.min(0, ...xs), Math.max(...xs), sc.logx, phone ? 3 : 6, !wholeSteps(mx.format));
+  const ty = ticks(sc.logy ? Math.min(...ys) : Math.min(0, ...ys), Math.max(...ys), sc.logy, phone ? 4 : 5, !wholeSteps(my.format));
   const tr = (v: number, log: boolean) => (log ? Math.log10(v) : v);
   const X = (v: number) => L + ((tr(v, sc.logx) - tr(tx.lo, sc.logx)) / (tr(tx.hi, sc.logx) - tr(tx.lo, sc.logx))) * (W - L - R);
   const Y = (v: number) => Tp + (1 - (tr(v, sc.logy) - tr(ty.lo, sc.logy)) / (tr(ty.hi, sc.logy) - tr(ty.lo, sc.logy))) * (H - Tp - B);
@@ -449,15 +452,17 @@ export function scatterHtml(s: State, meta: Meta, data: Data, width = 900): stri
     boxes.push(box);
     labs.push(`<text class="gt-sc__lab${pinned ? ' gt-sc__lab--pin' : ''}" x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" text-anchor="${anchor}">${esc(text)}</text>`);
   }
+  // Axis labels are positions: never "under …" (axisTexts).
+  const xText = axisTexts(tx.ticks, mx.format), yText = axisTexts(ty.ticks, my.format);
   // X labels that would touch the one before are left off (their grid line stays).
   let right = -Infinity;
   const gx = tx.ticks.filter((v) => v >= tx.lo && v <= tx.hi).map((v) => {
-    const text = fmt(mx, v), half = text.length * 3.4, at = X(v);
+    const text = xText[tx.ticks.indexOf(v)], half = text.length * 3.4, at = X(v);
     const show = at - half > right + 6;
     if (show) right = at + half;
     return `<g><line class="gt-lc__grid" x1="${at.toFixed(1)}" x2="${at.toFixed(1)}" y1="${Tp}" y2="${H - B}"/>${show ? `<text x="${at.toFixed(1)}" y="${H - B + 16}" text-anchor="middle">${esc(text)}</text>` : ''}</g>`;
   }).join('');
-  const gy = ty.ticks.filter((v) => v >= ty.lo && v <= ty.hi).map((v) => `<g><line class="gt-lc__grid" x1="${L}" x2="${W - R}" y1="${Y(v).toFixed(1)}" y2="${Y(v).toFixed(1)}"/><text x="${L - 8}" y="${(Y(v) + 4).toFixed(1)}" text-anchor="end">${esc(fmt(my, v))}</text></g>`).join('');
+  const gy = ty.ticks.filter((v) => v >= ty.lo && v <= ty.hi).map((v) => `<g><line class="gt-lc__grid" x1="${L}" x2="${W - R}" y1="${Y(v).toFixed(1)}" y2="${Y(v).toFixed(1)}"/><text x="${L - 8}" y="${(Y(v) + 4).toFixed(1)}" text-anchor="end">${esc(yText[ty.ticks.indexOf(v)])}</text></g>`).join('');
   const axTitle = (m: MeasureMeta, log: boolean) => `${m.label}${unitText(m) ? ` (${unitText(m)})` : ''}${log ? `, ${T.logNote}` : ''}`;
   const axes = `<text class="gt-sc__ax" x="${W - R}" y="${H - 6}" text-anchor="end">${esc(axTitle(mx, sc.logx))} →</text>`
     + `<text class="gt-sc__ax" x="${-Tp}" y="14" transform="rotate(-90)" text-anchor="end">${esc(axTitle(my, sc.logy))} →</text>`;

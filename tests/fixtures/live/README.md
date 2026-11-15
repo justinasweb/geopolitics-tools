@@ -18,3 +18,7 @@ request live check, which runs the adapters on the files it fetches (`pipeline/a
 Mineral Commodity Summaries 2026 (the lithium and gallium rows), kept to
 test the real format: per-row "Estimated." notes, withheld figures and the "Excludes U.S. production."
 world total. Figures in it are USGS's own.
+
+`fas-forces/status-world-nuclear-forces.csv` is FAS's own table, Status of World Nuclear Forces 2026 (page updated
+9 Jun 2026), copied whole with its Total row as the `fas-forces` import takes it; "n.a." cells are left empty. India's
+deployed and reserve warheads (178) fall short of its military stockpile (190), as FAS gives them.

@@ -11,12 +11,13 @@ import { NOT_REPORTED, type NotReported } from '../data/not-reported.ts';
 import { INDICATOR_TEXT } from '../i18n/en.ts';
 import { ANSWER, SOURCE_NOTE, inSentence } from '../i18n/pages.en.ts';
 import { creditName, indicator, refreshed, shared, tryLoad } from './data.ts';
+import { asOfDate } from './as-of.ts';
 import { VIEW_MEASURES } from '../data/view-measures.ts';
 import { yearsOf } from '../adapters/core.ts';
-import { worldShare } from './electricity.ts';
+import { operatorNote, worldShare } from './electricity.ts';
 import { cyberData, undated, yearSplit, yearTotal } from './cyber.ts';
 import { CYBER_TEXT } from '../i18n/cyber.en.ts';
-import { edgeTexts, formatValue } from './format.ts';
+import { edgeTexts, formatValue, SHARE_SMALL } from './format.ts';
 import { seqSteps } from './map/steps.ts';
 import { place } from './places.ts';
 import { breaks, classOf, counts, defaultYear, ranking, type Row } from './stats.ts';
@@ -53,8 +54,8 @@ export interface ViewPage {
 
 const nameOf = (id: string) => place(id)?.name ?? id;
 
-/** A share of the world figure, for reading: "31%", "4.2%", "<0.1%". */
-export const shareOf = (v: number, world: number | null) => (!world ? null : v > 0 && v / world < 0.0005 ? '<0.1%' : formatValue(v / world, { kind: 'share' }));
+/** A share of the world figure, for reading: "31%", "4.2%", "under 0.1%". */
+export const shareOf = (v: number, world: number | null) => (!world ? null : v > 0 && v / world < 0.0005 ? SHARE_SMALL : formatValue(v / world, { kind: 'share' }));
 
 /** A value as the layer writes it; diverging values carry their sign ("+12%", "−8%"). */
 export function valueText(p: ViewPage, v: number): string {
@@ -183,6 +184,9 @@ export const prevOf = (p: ViewPage, y: number) => y - (p.layer.span ?? 1);
 /** A year as the layer names it ("2021–2025" for a five-year total). */
 export const yearText = (p: ViewPage, y: number) => (p.text.period ? p.text.period(y) : String(y));
 
+/** The legend title for a year: "as of {date}" when the year is still running (src/lib/as-of.ts). */
+export const legendOf = (p: ViewPage, y: number) => p.text.legend(y, asOfDate(p.loaded.indicator.id, y));
+
 /** The change in the world figure from the year (or period) before, as a share (in points for share layers), when both have one. */
 export function worldChange(p: ViewPage, y: number): number | null {
   if (p.layer.noTotalChange) return null;
@@ -235,10 +239,10 @@ export function lede(p: ViewPage, year = p.year): string | null {
   const y = p.byYear[year];
   const top = y?.rows[0];
   if (!top) return null;
-  if (p.layer.scale === 'div') return p.text.lede({ top: '', topIn: '', value: '', year, ...divCounts(y) });
+  if (p.layer.scale === 'div') return p.text.lede({ top: '', topIn: '', value: '', year, past: year < p.year, ...divCounts(y) });
   const top3 = p.layer.sums && y.rows.length > 3 ? shareOf(y.rows.slice(0, 3).reduce((s, r) => s + r.value, 0), y.world) ?? undefined : undefined;
   return p.text.lede({
-    top: inSentence(nameOf(top.id), true), topIn: inSentence(nameOf(top.id)), value: valueText(p, top.value), share: shareOf(top.value, y.world) ?? undefined, top3, year,
+    top: inSentence(nameOf(top.id), true), topIn: inSentence(nameOf(top.id)), value: valueText(p, top.value), share: shareOf(top.value, y.world) ?? undefined, top3, year, past: year < p.year, asOf: asOfDate(p.loaded.indicator.id, year),
     world: y.world !== null && !p.layer.sums ? valueText(p, y.world) : undefined,
     // Banded layers: how many places are in the top band, of how many.
     ...(p.layer.edges ? { up: y.rows.filter((r) => r.value >= p.edges[3]).length, of: y.rows.length } : {}),
@@ -252,7 +256,7 @@ export function summary(p: ViewPage, year = p.year): string[] {
   const ch = worldChange(p, year);
   if (y.world !== null && p.text.total) {
     const change = ch === null || p.id === 'co2cum' ? null : flat(p, ch) ? null : W.changeIn(changeSize(p, ch, true), ch > 0, yearText(p, prevOf(p, year)));
-    first.push(p.text.total(valueText(p, y.world), year, change));
+    first.push(p.text.total(valueText(p, y.world), year, change, asOfDate(p.loaded.indicator.id, year)));
   }
   if (p.layer.scale === 'div') {
     const ends = [...y.rows.slice(0, 2), ...y.rows.slice(-2).reverse()];
@@ -321,6 +325,9 @@ const NOTE_FROM = 100_000;
  * A place's note on a view: the fixed notes (what the source leaves out), then, with `worked`, one worked out from the
  * latest year's groups when most of a large figure is asylum seekers or others in need of protection.
  */
+/** A place's note for one year only: a grid operator's own figure beside Ember's on the electricity views. */
+export const yearNote = (p: ViewPage, id: string, year: number): string | null => (p.family.id === 'electricity' ? operatorNote(id, year) : null);
+
 export function placeNote(p: ViewPage, id: string, worked = true): string | null {
   const notes: string[] = [];
   const fixed = PLACE_NOTES[p.id]?.[id];

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   chartsAndGaps, compareCharts, compareRows, comparePairs, gapGroups, pairHref, parsePair, staticPair, type CountryData, type Meta,
 } from '../../src/lib/compare/model.ts';
-import { chartsHtml, compareHtml, keyHtml, mineralsHtml } from '../../src/lib/compare/render.ts';
+import { chartsHtml, compareHtml, higherOf, keyHtml, mineralsHtml } from '../../src/lib/compare/render.ts';
 import { COMPARE_TEXT } from '../../src/i18n/pages.en.ts';
 
 // Compare (D21): the rows both countries have, what could not be compared, the charts both have a series for, the
@@ -80,6 +80,30 @@ describe('Compare model', () => {
     expect(comparePairs(meta, [mali, tuvalu])).toEqual([{ m: meta.minerals[0], vals: [0.02, null] }]);
   });
 
+  it('keeps a withheld figure as its own state: in a pair when the other has a share, never sorted as a share', () => {
+    const us: CountryData = { ...tuvalu, name: 'United States', m: { lithium: null } };
+    const cn: CountryData = { ...mali, name: 'China', m: { gold: 0.1, lithium: 0.004 } };
+    // Lithium: the US withheld, China under 1%, still paired; ordered by China's known shares (gold first).
+    expect(comparePairs(meta, [us, cn]).map((x) => [x.m.id, x.vals])).toEqual([['gold', [null, 0.1]], ['lithium', ['withheld', 0.004]]]);
+    // Withheld against nothing listed: nothing to compare.
+    expect(comparePairs(meta, [us, tuvalu])).toEqual([]);
+    // Survives the JSON the page loads.
+    expect(JSON.parse(JSON.stringify(us)).m).toEqual({ lithium: null });
+  });
+
+  it('marks no side Higher when both read the same, whatever the raw numbers', () => {
+    const ai = { ...meta.measures[0], id: 'aicompute', label: 'Share of documented AI supercomputer power', format: { kind: 'share' as const }, unit: '%' };
+    const m2 = { ...meta, measures: [ai] };
+    const vn: CountryData = { ...mali, name: 'Vietnam', f: { aicompute: [0.000033, 2025] } };
+    const au: CountryData = { ...tuvalu, name: 'Australia', f: { aicompute: [0.00042, 2025] } };
+    const row = compareRows(m2, [vn, au]).rows[0];
+    expect(row.higher).toBe(1);
+    expect(higherOf(row)).toBe(-1);
+    expect(keyHtml(m2, [vn, au])).not.toContain('gt-higher');
+    const big: CountryData = { ...au, f: { aicompute: [0.012, 2025] } };
+    expect(keyHtml(m2, [vn, big])).toContain('gt-higher');
+  });
+
   it('finds a static pair either way round and reads the address', () => {
     expect(staticPair(meta.pairs, 'china', 'united-states')?.path).toBe('/compare/united-states-vs-china');
     expect(pairHref(meta.pairs, '/compare', 'united-states', 'china')).toBe('/compare/united-states-vs-china');
@@ -134,6 +158,17 @@ describe('Compare markup', () => {
     expect(html).toContain('<span class="gt-vh">Not listed by USGS</span>');
     expect(html).toContain('– Not listed by USGS. USGS names the largest producers');
     expect(mineralsHtml(meta, [mali, { ...tuvalu, m: { gold: 0.03 } }], 3)).not.toContain('Not listed');
+  });
+
+  it('says "Withheld by USGS" with its own note, and the not-listed note only for a value really absent', () => {
+    const us: CountryData = { ...tuvalu, name: 'United States', m: { lithium: null, gold: 0.05 } };
+    const html = mineralsHtml(meta, [us, mali], 3);
+    expect(html).toContain('<span aria-hidden="true" title="Withheld by USGS">Withheld</span><span class="gt-vh">Withheld by USGS</span>');
+    expect(html).toContain('Withheld by USGS: USGS lists this country as a producer but withholds the figure to protect company data.');
+    expect(html).not.toContain('Not listed');
+    const both = mineralsHtml(meta, [{ ...us, m: { lithium: null } }, { ...mali, m: { gold: 0.02, lithium: 0.004 } }], 3);
+    expect(both).toContain('Withheld by USGS: USGS lists');
+    expect(both).toContain('– Not listed by USGS. USGS names');
   });
 
   it('ends a source line on its last part: Report a correction is in the footer only', () => {

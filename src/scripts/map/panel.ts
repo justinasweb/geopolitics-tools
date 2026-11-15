@@ -2,8 +2,8 @@
 // and figure is already in the file; this only arranges them in the MapTooltip and CountryPanel designs. Pure
 // functions, so they are tested without a browser.
 import type { LayerFile, LayerYear, PanelBlock } from '../../lib/map/types';
-import { formatValue } from '../../lib/format';
-import { CHART_TICK_PX, textWidth } from '../../lib/chart';
+import { axisTexts, formatValue } from '../../lib/format';
+import { CHART_TICK_PX, textWidth, ticks, wholeSteps } from '../../lib/chart';
 import { esc, fill } from './text';
 import { sourceLinksHtml } from '../../lib/source-links';
 
@@ -30,7 +30,8 @@ export function tooltipHtml(f: LayerFile, y: LayerYear, id: string | null, fallb
     if (e[2]) parts.push(`<span class="tnum">${esc(e[2])}${e[2] === String(when(y)) ? '' : ` · ${when(y)}`}</span>`);
     if (e[3]) parts.push(f.tags[e[3]]);
   }
-  if (id && f.notes[id]) parts.push(`<span class="gt-tip__note">${INFO}${esc(f.notes[id])}</span>`);
+  // The place's note, then this year's own (y.notes).
+  for (const n of id ? [f.notes[id], y.notes?.[id]] : []) if (n) parts.push(`<span class="gt-tip__note">${INFO}${esc(n)}</span>`);
   parts.push(`<span class="gt-tip__src">${esc(f.source)}</span>`);
   if (id) parts.push(`<span class="gt-tip__hint">${esc(touch ? f.text.tapHint : f.text.hint)}</span>`);
   return parts.join('');
@@ -44,17 +45,20 @@ export function sparkHtml(f: LayerFile, id: string, label: string): string {
   const have = pts.filter((p): p is { x: number; v: number; year: number | string } => p !== null);
   if (have.length < 3) return '';
   const fmt = (v: number) => (v === 0 ? '0' : formatValue(v, f.format!));
-  const lo = Math.min(0, ...have.map((p) => p.v));
-  const hi = Math.max(...have.map((p) => p.v));
+  // Gridlines on round steps (1, 2, 2.5 or 5 × 10ⁿ) from zero, three or four of them, as the other charts' axes.
+  const t = ticks(Math.min(0, ...have.map((p) => p.v)), Math.max(...have.map((p) => p.v)), false, 3, !wholeSteps(f.format!));
+  const lo = t.lo, hi = t.hi;
   // No viewBox: the SVG fills the panel and is H pixels tall, so its text stays 12px. The line is drawn in a
   // nested SVG stretched over the plot (0–1000 across); text and the end dot are placed in percent.
   const H = 96, T = 10, B = 76, PW = 1000;
-  const grid = [lo, (lo + hi) / 2, hi];
-  const L = Math.max(...grid.map((g) => textWidth(fmt(g), CHART_TICK_PX) + 8));
+  const grid = t.ticks;
+  // Gridline labels are positions: never "under …" (axisTexts).
+  const gridText = axisTexts(grid, f.format!);
+  const L = Math.max(...grid.map((g) => textWidth(gridText[grid.indexOf(g)], CHART_TICK_PX) + 8));
   const share = (i: number) => i / Math.max(1, vals.length - 1);
   const pct = (i: number) => `${(share(i) * 100).toFixed(2)}%`;
   const Y = (v: number) => (hi === lo ? B : B - ((B - T) * (v - lo)) / (hi - lo));
-  const lines = grid.map((g) => `<line x1="0" x2="100%" y1="${Y(g).toFixed(1)}" y2="${Y(g).toFixed(1)}" class="gt-spark__grid"/><text x="-6" y="${(Y(g) + 4).toFixed(1)}" text-anchor="end">${esc(fmt(g))}</text>`).join('');
+  const lines = grid.map((g) => `<line x1="0" x2="100%" y1="${Y(g).toFixed(1)}" y2="${Y(g).toFixed(1)}" class="gt-spark__grid"/><text x="-6" y="${(Y(g) + 4).toFixed(1)}" text-anchor="end">${esc(gridText[grid.indexOf(g)])}</text>`).join('');
   // Gaps (years without a figure) break the line.
   let d = '';
   pts.forEach((p, i) => { if (p) d += `${d && pts[i - 1] ? 'L' : 'M'}${(share(p.x) * PW).toFixed(1)},${Y(p.v).toFixed(1)}`; });
@@ -155,7 +159,7 @@ export function countryPanelHtml(f: LayerFile, yearIndex: number, id: string, op
   if (e && e[0] > 0 && f.series && !f.unranked) body.push(rankingHtml(f, yearIndex, id, fill(f.text.ranking ?? '', { year: when(y) })));
   for (const b of y.more?.[id] ?? []) body.push(blockHtml(b));
   for (const b of f.more?.[id] ?? []) body.push(blockHtml(b));
-  if (f.notes[id]) body.push(`<div class="gt-notice gt-notice--inline" role="note">${INFO}<div class="gt-notice__body"><p>${esc(f.notes[id])}</p></div></div>`);
+  for (const n of [f.notes[id], y.notes?.[id]]) if (n) body.push(`<div class="gt-notice gt-notice--inline" role="note">${INFO}<div class="gt-notice__body"><p>${esc(n)}</p></div></div>`);
   if (f.caveat) body.splice(o.after ? 2 : 1, 0, `<div class="gt-notice gt-notice--inline" role="note">${INFO}<div class="gt-notice__body"><p>${esc(f.caveat)}</p></div></div>`);
   body.push(`<p class="gt-source"><span>${sourceLinksHtml(f.source)}</span></p>`);
   const links: string[] = [];

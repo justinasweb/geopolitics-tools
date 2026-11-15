@@ -133,6 +133,24 @@ Country pages have no exchange points figure. **Options:** a row in the country 
 listed, and the one with most networks), or leave it. The Technology hub intro was redrafted with exchange points on
 11 Nov 2026 and waits for approval (`hub:technology`).
 
+### Warheads: India's split and the total inventory line (raised 15 Nov 2026, closed 15 Nov 2026)
+
+**Closed.** FAS's early-2026 table (page updated 9 Jun 2026) is imported as `fas-forces` and replaces OWID's split:
+its rows add up to FAS's totals, 9,745 military stockpile and 12,187 total inventory, the figure under the key
+figure. FAS gives India 178 reserve of 190; the adapter keeps FAS's reserve, and the split says "FAS's figures for
+India do not assign 12 of its 190 warheads to a status." (FAS's Total row gives about 3,912 deployed strategic,
+12 more than its rows; the site adds up the rows.)
+
+### Costa Rica 2024: Ember against ICE's thermal generation (raised 15 Nov 2026)
+
+Ember gives Costa Rica 0.01 TWh of other fossil out of 11.0 TWh in 2024, so the electricity views show 99.9%
+low-carbon. Costa Rica's grid operator ICE (CENCE) reports 12,566.6 GWh generated, 1,331.0 GWh (10.59%) of it thermal
+([Informe de generación renovable 2024](https://apps.grupoice.com/CenceWeb/documentos/3/3008/23/INFORME%20GENERACION%20RENOVABLE%202024.pdf)).
+The site keeps Ember's figure and adds a 2024 note on the five electricity maps (panel, tooltip, table row) and beside
+Costa Rica's electricity shares on its country page. ICE's figures are in `src/data/operator-reports.csv`; the note
+drops by itself once Ember's own other-fossil share for Costa Rica 2024 is above 5% (`OPERATOR_NOTE_UNTIL`).
+**Reported to Ember?** Not yet: owner to send.
+
 ## Launch review leftovers (raised 5 Nov 2026)
 
 - **G7 and Russia (decided 5 Nov 2026).** Russia joins in 1998, as the G8, per the G7 Research Group

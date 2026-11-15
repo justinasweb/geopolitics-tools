@@ -7,6 +7,9 @@ import { formatShare } from '../../src/lib/format.ts';
 import { nearestYear, readState, writeState, type StateContext } from '../../src/scripts/map/state.ts';
 import { countryPanelHtml, previousHtml, tooltipHtml } from '../../src/scripts/map/panel.ts';
 import type { LayerFile } from '../../src/lib/map/types.ts';
+import { byYear } from '../../src/lib/map/by-year.ts';
+import { MINERALS_VIEW, PRIMARY_VIEW } from '../../src/i18n/map.en.ts';
+import { NUCLEAR_TEXT } from '../../src/i18n/nuclear.en.ts';
 
 // The page engine reads the sample files here (the prototype's fixtures), never a live snapshot.
 process.env.GT_DATA = 'sample';
@@ -185,7 +188,7 @@ describe('share classes and words', () => {
     expect([0.005, 0.01, 0.049, 0.05, 0.2, 0.25, 0.6].map(shareClass)).toEqual([1, 2, 2, 3, 4, 5, 5]);
     expect(formatShare(0.317)).toBe('32%');
     expect(formatShare(0.043)).toBe('4.3%');
-    expect(formatShare(0.0004)).toBe('<0.1%');
+    expect(formatShare(0.0004)).toBe('under 0.1%');
     // One rule for every share: whole from 10%, one decimal below (India's gas, 0.49498, is 49% everywhere).
     expect([0.49497831, 0.0995, 0.057, 0.004, -0.12].map((s) => formatShare(s))).toEqual(['49%', '10%', '5.7%', '0.4%', '−12%']);
     expect([0.997, 0.9996, 1, 1.04].map((s) => formatShare(s))).toEqual(['99.7%', '100%', '100%', '104%']);
@@ -266,5 +269,26 @@ describe('view state in the URL', () => {
     const u = new URL('https://geopolitics.tools/minerals/lithium?utm=x');
     expect(writeState(u, { year: 2025 }, ctx).search).toBe('?utm=x');
     expect(writeState(u, { year: 2023, country: 'AUS', bloc: 'brics' }, ctx).search).toBe('?utm=x&year=2023&country=australia&bloc=brics');
+  });
+});
+
+describe('text that follows the year control', () => {
+  it('writes each year’s text or paragraphs, leaving out years with none', () => {
+    const json = byYear([2023, 2024, 2025], (y) => (y === 2023 ? null : y === 2024 ? 'Australia mines 37%' : ['One.', 'Two.']));
+    expect(JSON.parse(json)).toEqual({ 2024: 'Australia mines 37%', 2025: ['One.', 'Two.'] });
+    expect(byYear([2024], () => [])).toBe('{}');
+  });
+});
+
+describe('per-year answers', () => {
+  it('keeps the latest year in the present tense and says an earlier one in the past, with its year', async () => {
+    expect(MINERALS_VIEW.lede('Australia', '32%', 'lithium', '72%')).toBe('Australia mines 32% of the world’s lithium; the top three countries mine 72%.');
+    expect(MINERALS_VIEW.lede('Australia', '37%', 'lithium', '78%', 2024)).toBe('Australia mined 37% of the world’s lithium in 2024; the top three countries mined 78%.');
+    expect(PRIMARY_VIEW.lede('China', '98%', 'gallium', undefined, 2024)).toBe('China produced 98% of the world’s primary gallium in 2024.');
+    expect(MINERALS_VIEW.follow(['Argentina', 'Zimbabwe'], ['9%', '8%'], 2024)).toBe('Argentina and Zimbabwe followed with 9% and 8% in 2024.');
+    expect(MINERALS_VIEW.withheldSentence('the United States', 'lithium', false, 2024)).toMatch(/^the United States also mined lithium in 2024, but USGS withholds/);
+    const { inSentence } = await import('../../src/i18n/pages.en.ts');
+    expect(inSentence('Soviet Union', true)).toBe('The Soviet Union');
+    expect(NUCLEAR_TEXT.lede('Russia', '5,580', 'the United States', '5,044', '87%', 2015, 'stockpile', true)).toBe('Russia had the most estimated warheads, 5,580, then the United States with 5,044; together they held 87% of the world’s estimated military stockpile in early 2015.');
   });
 });

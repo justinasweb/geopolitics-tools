@@ -31,7 +31,7 @@ export function initDependencies(): void {
     phone.innerHTML = phoneHtml(s, grid);
     if (active && phone.querySelector(`#${active}`)) document.getElementById(active)?.focus();
     const q = queryOf(s, grid);
-    history.replaceState(history.state, '', q ? `${location.pathname}?${q}` : location.pathname);
+    history.replaceState(history.state, '', `${location.pathname}${q ? `?${q}` : ''}${location.hash}`);
     if (s.find) {
       const row = out.querySelector<HTMLTableRowElement>('tr.is-found');
       const wrap = out.querySelector<HTMLElement>('.gt-tablewrap');
@@ -100,4 +100,7 @@ export function initDependencies(): void {
 
   // The address may carry settings the build did not draw.
   if (location.search) draw();
+  // Arriving with a country to find (the home page's gas card): land on the grid, or the phone view, not the top.
+  // Only on first load, never on later redraws, and focus stays where it is.
+  if (s.find && out.querySelector('tr.is-found')) (ctl.offsetParent ? ctl : phone).scrollIntoView({ behavior: 'auto', block: 'start' });
 }

@@ -25,10 +25,12 @@ export interface Forces {
   deployed: number;
   deployedStrategic: number;
   deployedNonstrategic: number;
-  /** Warheads in the military stockpile that are not deployed (FAS: reserve/nondeployed). */
+  /** Warheads in the military stockpile that are not deployed (FAS: reserve/nondeployed), as FAS gives it. */
   reserve: number;
-  /** Deployed plus reserve: the warheads assigned to the military. */
+  /** The warheads assigned to the military: deployed plus reserve, and any FAS gives no status (`unassigned`). */
   stockpile: number;
+  /** Military stockpile less deployed and reserve: warheads FAS's table assigns to no status (India, early 2026). */
+  unassigned: number;
   /** Retired, still intact, awaiting dismantlement: total inventory less the military stockpile. */
   retired: number;
   inventory: number;
@@ -94,10 +96,12 @@ export function parseForces(text: string): NonNullable<NuclearData['forces']> {
     const stockpile = n('Military stockpile');
     const inventory = n('Total inventory');
     const [ds, dn] = [n('Deployed strategic'), n('Deployed nonstrategic')];
-    if (!inventory || stockpile > inventory || ds + dn > stockpile) throw new Error(`fas-forces/${FORCES_FILE}: ${r.Country}'s figures do not add up (deployed ≤ military stockpile ≤ total inventory)`);
+    // FAS's own reserve, not the stockpile less deployed: a gap between them is FAS's, said beside the split.
+    const reserve = n('Reserve/Nondeployed');
+    if (!inventory || stockpile > inventory || ds + dn + reserve > stockpile) throw new Error(`fas-forces/${FORCES_FILE}: ${r.Country}'s figures do not add up (deployed + reserve ≤ military stockpile ≤ total inventory)`);
     rows[id] = {
       place: id, deployedStrategic: ds, deployedNonstrategic: dn, deployed: ds + dn,
-      reserve: stockpile - ds - dn, stockpile, retired: inventory - stockpile, inventory,
+      reserve, stockpile, unassigned: stockpile - ds - dn - reserve, retired: inventory - stockpile, inventory,
     };
     asOf ||= r['As of']?.trim() ?? '';
     url ||= r.Source?.trim() ?? '';
@@ -139,7 +143,7 @@ export function parseStatus(text: string): NonNullable<NuclearData['forces']> | 
     if (!id) continue;
     const ds = n(r, c.ds) + n(r, c.deployed), dn = n(r, c.dn), reserve = n(r, c.reserve), retired = n(r, c.retired);
     const stockpile = ds + dn + reserve;
-    if (stockpile + retired > 0) out[id] = { place: id, deployedStrategic: ds, deployedNonstrategic: dn, deployed: ds + dn, reserve, stockpile, retired, inventory: stockpile + retired };
+    if (stockpile + retired > 0) out[id] = { place: id, deployedStrategic: ds, deployedNonstrategic: dn, deployed: ds + dn, reserve, stockpile, unassigned: 0, retired, inventory: stockpile + retired };
   }
   return Object.keys(out).length ? { year, asOf: String(year), url: 'https://ourworldindata.org/grapher/nuclear-warhead-inventories', rows: out } : null;
 }

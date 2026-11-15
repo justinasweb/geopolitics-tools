@@ -233,8 +233,9 @@ in each, and splitting it evenly moved five-year shares by about a point.
 fas.org/initiative/status-world-nuclear-forces can replace it when OWID lags. Copy the table, Total row included, into a CSV with the columns
 `Country, Deployed strategic, Deployed nonstrategic, Reserve/Nondeployed, Military stockpile, Total inventory, As of, Source`
 (`As of` the date FAS gives, as YYYY-MM or YYYY-MM-DD, the same on every row; `Source` the fas.org page), then import it
-like any file. The check refuses a row whose deployed and reserve warheads do not add up to the military stockpile, a
-stockpile above the total, a missing Total row or a link that is not fas.org. When its year is OWID's split's
+like any file. Leave a cell FAS gives as "n.a." empty. The check refuses a row whose deployed and reserve warheads add up to more
+than the military stockpile (less is allowed: FAS leaves some without a status, India's 12 in early 2026, which the
+split then names), a stockpile above the total, a missing Total row or a link that is not fas.org. When its year is OWID's split's
 year or later, it replaces OWID's split (never the series). It is kept under FAS's licence row (`LICENCE_OF` in src/data/licences.ts).
 
 **The IMF World Economic Outlook (`imf-weo`).** Since October 2025 the WEO is downloaded from the IMF data portal

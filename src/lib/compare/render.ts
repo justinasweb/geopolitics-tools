@@ -9,7 +9,7 @@ import { formatParts, formatShare } from '../format.ts';
 import { lineChartHtml } from '../linechart.ts';
 import { tagHtml, type Status } from '../tags.ts';
 import { sourceLinksHtml } from '../source-links.ts';
-import { MARK, SIDES, chartsAndGaps, compareCharts, comparePairs, compareRows, gapGroups, type CountryData, type Fig, type MeasureMeta, type Meta, type Row, type Side } from './model.ts';
+import { MARK, SIDES, chartsAndGaps, compareCharts, comparePairs, compareRows, gapGroups, type CountryData, type Fig, type MeasureMeta, type Meta, type MineralValue, type Row, type Side } from './model.ts';
 
 export const esc = (s: string | number) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
 
@@ -45,7 +45,10 @@ const shown = (r: Row, v: number) => {
   const own = formatParts(v, r.m.format, r.m.unit);
   return scaled(r) && own.unit ? `${own.num} ${own.unit}` : own.num;
 };
-const srcYear = (r: Row, c: Two) => T.sourceYear(r.m.credit, r.f.map((x, i) => ({ name: c[i].name, year: x[1] }))) + (T.measureNote[r.m.id] ? `. ${T.measureNote[r.m.id]}` : '');
+/** The side marked Higher: none when both sides read the same ("under 0.1" and "under 0.1"), whatever the raw numbers. */
+export const higherOf = (r: Row): -1 | 0 | 1 => (shown(r, r.f[0][0]) === shown(r, r.f[1][0]) ? -1 : r.higher);
+const yearOf = (r: Row, y: number) => (r.m.asOf?.[0] === y ? `as of ${r.m.asOf[1]}` : String(y));
+const srcYear = (r: Row, c: Two) => T.sourceYear(r.m.credit, r.f.map((x, i) => ({ name: c[i].name, year: yearOf(r, x[1]) }))) + (T.measureNote[r.m.id] ? `. ${T.measureNote[r.m.id]}` : '');
 const label = (m: MeasureMeta) => (m.href ? `<a href="${esc(m.href)}">${esc(m.label)}</a>` : esc(m.label));
 /** A figure's tag, as the country page shows it beside the year. */
 const tagOf = (f: Fig) => (f[2] ? ` ${tagHtml(f[2])}` : '');
@@ -63,13 +66,13 @@ export function keyHtml(meta: Meta, c: Two): string {
   const body = rows.map((r) => {
     const unit = unitOf(r);
     return `<tr><th scope="row">${label(r.m)}${unit ? `<small>${esc(unit)}</small>` : ''}</th>`
-      + r.f.map((f, i) => `<td class="n${r.higher === i ? ' is-high' : ''}">${esc(shown(r, f[0]))}${tagOf(f)}${r.higher === i ? higherHtml : ''}</td>`).join('')
+      + r.f.map((f, i) => `<td class="n${higherOf(r) === i ? ' is-high' : ''}">${esc(shown(r, f[0]))}${tagOf(f)}${higherOf(r) === i ? higherHtml : ''}</td>`).join('')
       + `<td class="gt-cmptbl__s">${esc(srcYear(r, c))}</td></tr>`;
   }).join('');
   const table = `<div class="gt-tablewrap gt-cmptblwrap" style="--gt-table-h:none" tabindex="0" role="region" aria-label="${esc(T.keyHeading)}">`
     + `<table class="gt-table gt-cmptbl"><caption class="gt-caption">${esc(T.higherNote)}</caption><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
   const phone = `<ul class="gt-cmprows" aria-label="${esc(T.keyHeading)}">` + rows.map((r) => `<li><div class="gt-cmprows__h"><b>${esc(r.m.label)}</b><span class="gt-caption">${esc(unitOf(r))}</span></div>`
-    + `<ul>${r.f.map((f, i) => `<li class="gt-cc--${SIDES[i]}"><span class="gt-cmprows__n">${chipHtml(SIDES[i], c[i])}</span><span class="gt-cmprows__v">${esc(shown(r, f[0]))}${tagOf(f)}</span>${r.higher === i ? higherHtml : ''}</li>`).join('')}</ul>`
+    + `<ul>${r.f.map((f, i) => `<li class="gt-cc--${SIDES[i]}"><span class="gt-cmprows__n">${chipHtml(SIDES[i], c[i])}</span><span class="gt-cmprows__v">${esc(shown(r, f[0]))}${tagOf(f)}</span>${higherOf(r) === i ? higherHtml : ''}</li>`).join('')}</ul>`
     + `<span class="gt-caption">${esc(srcYear(r, c))}</span></li>`).join('') + '</ul>';
   return sectionHtml(1, 'kf', T.keyHeading, '', table + phone + gapLine);
 }
@@ -91,15 +94,22 @@ export function chartsHtml(meta: Meta, c: Two, first = 2): string {
 
 // ---------- minerals ----------
 
+/** A mineral value: the share; "Withheld" (USGS lists the country but not its figure); or "–" (not listed). */
+const valueHtml = (v: MineralValue) => (v === 'withheld'
+  ? `<span aria-hidden="true" title="${esc(T.withheldLong)}">${esc(T.withheld)}</span><span class="gt-vh">${esc(T.withheldLong)}</span>`
+  : v === null ? `<span aria-hidden="true" title="${esc(T.notListed)}">–</span><span class="gt-vh">${esc(T.notListed)}</span>` : esc(formatShare(v)));
+
 export function mineralsHtml(meta: Meta, c: Two, n: number): string {
   const pairs = comparePairs(meta, c);
   if (!pairs.length) return '';
   const year = pairs[0].m.year;
   const est = pairs.some((x) => x.m.estimated);
   const items = pairs.map((x) => `<li><span class="gt-pairs__m">${esc(x.m.name)}</span><ul>`
-    + x.vals.map((v, i) => `<li class="gt-cc--${SIDES[i]}"><span class="gt-pairs__n">${esc(c[i].name)}</span><span class="gt-pairs__t"><span class="gt-pairs__f" style="width:${((v ?? 0) * 100).toFixed(1)}%"></span></span><span class="gt-pairs__v">${v === null ? `<span aria-hidden="true" title="${esc(T.notListed)}">–</span><span class="gt-vh">${esc(T.notListed)}</span>` : esc(formatShare(v))}</span></li>`).join('')
+    + x.vals.map((v, i) => `<li class="gt-cc--${SIDES[i]}"><span class="gt-pairs__n">${esc(c[i].name)}</span><span class="gt-pairs__t">${typeof v === 'number' ? `<span class="gt-pairs__f" style="width:${(v * 100).toFixed(1)}%"></span>` : ''}</span><span class="gt-pairs__v">${valueHtml(v)}</span></li>`).join('')
     + '</ul></li>').join('');
-  const note = pairs.some((x) => x.vals.includes(null)) ? `<p class="gt-caption gt-pairs__note">${esc(T.notListedNote)}</p>` : '';
+  // Each note only when a value needs it: withheld (listed, figure not published) is not the same as not listed.
+  const note = [pairs.some((x) => x.vals.includes('withheld')) && T.withheldNote, pairs.some((x) => x.vals.includes(null)) && T.notListedNote]
+    .filter((t): t is string => Boolean(t)).map((t) => `<p class="gt-caption gt-pairs__note">${esc(t)}</p>`).join('');
   return sectionHtml(n, 'minerals', T.minerals, T.mineralsFind(year), `<ul class="gt-pairs">${items}</ul>${note}`,
     sourceLineHtml(meta.mineralSource, [`${year}${est ? ', estimated' : ''}`], est ? 'estimate' : undefined));
 }

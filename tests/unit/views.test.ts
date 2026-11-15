@@ -47,8 +47,8 @@ describe('registry map views', () => {
     expect(V.valueText(p, 0.12)).toBe('+12%');
   });
 
-  it('gives shares only for layers that add up, and writes small ones as <0.1%', () => {
-    expect(V.shareOf(1, 10000)).toBe('<0.1%');
+  it('gives shares only for layers that add up, and writes small ones as under 0.1%', () => {
+    expect(V.shareOf(1, 10000)).toBe('under 0.1%');
     expect(V.shareOf(25, 100)).toBe('25%');
     expect(V.shareOf(5, null)).toBeNull();
     const pc = V.viewPage('co2pc')!;
@@ -64,6 +64,14 @@ describe('registry map views', () => {
       expect(a).not.toMatch(/undefined|NaN|, The /);
       for (const s of V.summary(p)) expect(s).not.toMatch(/undefined|NaN/);
     }
+  });
+  it('says a year before the latest in the past tense, the latest in the present', () => {
+    const p = V.viewPages().find((x) => x.id === 'refin');
+    if (!p || p.years.length < 2) return;
+    expect(V.lede(p)).toMatch(/^UNHCR counts .* in \d{4}, /);
+    expect(V.lede(p, p.years[0])).toMatch(new RegExp(`^UNHCR counted .* in ${p.years[0]}, `));
+    const s = VIEW_TEXT.sanctions.layers.sanctions.lede;
+    expect(s({ top: '', topIn: 'Russia', value: '100', share: '10%', year: 2025, past: true })).toMatch(/^In 2025, 100 entries .* gave Russia as/);
   });
   it('writes no sign on a change that rounds to zero, and no change from a tiny money figure', () => {
     type P = Parameters<Views['changeText']>[0];

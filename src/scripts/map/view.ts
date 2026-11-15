@@ -3,10 +3,12 @@
 //  - fetches the layer file (small) at once, so the year, the bloc and a selected country work before the map;
 //  - loads MapLibre and the basemap only when the map is shown: on desktop when the stage nears the screen, on a
 //    phone when "Show map" opens it full screen;
-//  - keeps ?year=&country=&bloc= in the address bar (replaceState, so Back leaves the page as usual).
+//  - keeps ?year=&country=&bloc= in the address bar (replaceState, so Back leaves the page as usual), and points the
+//    share row and Copy citation at that view.
 import type { LayerFile } from '../../lib/map/types';
 import type { Hit, MapController } from './engine';
 import { countryPanelHtml, tooltipHtml } from './panel';
+import { showYear } from './by-year';
 import { readState, writeState, type StateContext } from './state';
 import { esc, fill } from './text';
 
@@ -62,7 +64,30 @@ export function initMapView(root: HTMLElement): void {
     if (!file) return;
     const u = writeState(new URL(location.href), { year, country: selected ?? undefined, bloc: bloc ?? undefined }, ctx());
     if (u.href !== location.href) history.replaceState(history.state, '', u);
+    renderShare();
   };
+
+  // ---------- the share row and citations: the view shown ----------
+  // The build gave them the page's own address and the latest year's headline (ShareRow), kept for readers without
+  // this script. Here: the page's address with the view's year, country and bloc (no other parameters), and the
+  // headline the page shows for the year, else the build's text.
+  const share = document.querySelector<HTMLElement>('[data-share]');
+  const headline = document.querySelector<HTMLElement>('[data-headline]');
+  const pageUrl = share?.dataset.share ?? '';
+  const bare = (u: string) => u.replace(/^https?:\/\//, '');
+  const cites = [...document.querySelectorAll<HTMLButtonElement>('button.gt-cite[data-gt-copy]')]
+    .map((b) => ({ b, text: b.dataset.gtCopy ?? '' })).filter((c) => pageUrl && c.text.includes(bare(pageUrl)));
+  function renderShare() {
+    if (!file || !pageUrl) return;
+    const url = writeState(new URL(pageUrl), { year, country: selected ?? undefined, bloc: bloc ?? undefined }, ctx()).href;
+    const shown = headline && !headline.hidden ? headline.textContent?.trim() : '';
+    const q = `url=${encodeURIComponent(url)}&text=${encodeURIComponent(shown || share!.dataset.shareText || '')}`;
+    $<HTMLButtonElement>('[data-share-copy]', share!)!.dataset.gtCopy = url;
+    $<HTMLAnchorElement>('[data-share-x]', share!)!.href = `https://x.com/intent/post?${q}`;
+    $<HTMLAnchorElement>('[data-share-tg]', share!)!.href = `https://t.me/share/url?${q}`;
+    // A citation that names the page names the view shown.
+    for (const c of cites) c.b.dataset.gtCopy = c.text.replace(bare(pageUrl), bare(url));
+  }
 
   // ---------- the tooltip ----------
   const hideTip = () => { tip.hidden = true; };
@@ -92,6 +117,7 @@ export function initMapView(root: HTMLElement): void {
     year = y;
     for (const b of root.querySelectorAll<HTMLElement>('.gt-pyear[data-year]')) b.hidden = Number(b.dataset.year) !== y;
     for (const t of root.querySelectorAll('[data-year-text]')) t.textContent = yearText(y);
+    showYear(y);
     if (file) for (const t of root.querySelectorAll('[data-legend-title]')) t.textContent = file.data[yi()].legend;
     if (slider && from !== 'slider' && slider.value !== String(y)) {
       slider.value = String(y);
@@ -102,6 +128,7 @@ export function initMapView(root: HTMLElement): void {
     if (selected && file) renderSelected();
     renderBloc();
     renderSummary();
+    renderShare();
     if (changed) { saveUrl(); say(fill(file?.text.kicker ?? '{year}', { year: yearText(y) })); }
   }
 

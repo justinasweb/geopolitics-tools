@@ -27,7 +27,7 @@ function position(r: DepRow): string {
   const noun = RESOURCE_TEXT[r.resource].noun;
   if (r.state === 'pending') return DEP_TEXT.noData;
   if (r.state === 'none') return r.resource === 'arms' && r.period ? DEP_TEXT.noImports(r.period) : DEP_TEXT.noRow;
-  if (r.main) return DEP_TEXT.mainSupplier(nameOf(r.main.id), formatShare(r.main.share));
+  if (r.main) return DEP_TEXT.mainSupplier(nameOf(r.main.id), formatShare(r.main.share), RESOURCE_TEXT[r.resource].importsOf);
   // An old balance in the past tense, with its year.
   const old = r.old ? r.year : undefined;
   if (r.noUse) return DEP_TEXT.noUse(noun, old);

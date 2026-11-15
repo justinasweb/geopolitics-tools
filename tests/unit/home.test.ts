@@ -120,6 +120,13 @@ describe('homepage tool row', () => {
     expect(card.bars![0].name).toBe(name);
   });
 
+  it('links the gas question to the Dependencies grid with the country found, so the reader lands on the table', async () => {
+    const { gasCard } = await import('../../src/lib/home.ts');
+    const card = gasCard('HUN');
+    if (!card) return;
+    expect(card.href).toMatch(/\?sort=gas&find=Hungary#grid$/);
+  });
+
   it('says in the summary’s source when USGS’s mineral figures are estimates, as the minerals section does', async () => {
     const { countryModel } = await import('../../src/lib/country.ts');
     let seen = 0;

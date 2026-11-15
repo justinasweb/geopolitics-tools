@@ -61,9 +61,18 @@ export const CYBER_TEXT = {
   pairs: 'Attributions to states',
   pairsCaption: (n: number, year: number) => `${n === 1 ? 'The state and country pair' : `The ${n} state and country pairs`} with the most incidents that started in ${year}: incidents affecting the country that EuRepoC records as attributed to the state, and who attributed them. Groups EuRepoC codes as state-affiliated, and a state’s incidents in its own country, are left out.`,
   state: 'Attributed to', country: 'Country affected', incidents: 'Incidents',
-  /** The summary: the year's incidents by attribution. */
-  split: (s: { state: number; affiliated: number; group: number; none: number }, f: (n: number) => string) =>
-    `Of these, ${f(s.state)} ${s.state === 1 ? 'was' : 'were'} attributed to a state, ${f(s.affiliated)} only to groups EuRepoC links to a state, ${f(s.group)} only to other non-state groups, and ${f(s.none)} ${s.none === 1 ? 'was' : 'were'} not attributed.`,
+  /** The summary: the year's incidents by attribution, every part of yearSplit, a part of 0 left out. `other`: attributed,
+   *  but EuRepoC gives no state or kind of actor (its category "Unknown" or "Other", or a state-affiliated group whose
+   *  state is "Unknown"). */
+  split: (s: { state: number; affiliated: number; group: number; other: number; none: number }, f: (n: number) => string) => {
+    const was = (n: number) => (n === 1 ? 'was' : 'were');
+    const to = ([[s.state, 'to a state'], [s.affiliated, 'only to groups EuRepoC links to a state'], [s.group, 'only to other non-state groups'],
+      [s.other, 'to an initiator whose state or kind EuRepoC does not give']] as [number, string][]).filter(([n]) => n > 0)
+      .map(([n, what], i) => (i === 0 ? `${f(n)} ${was(n)} attributed ${what}` : `${f(n)} ${what}`));
+    const parts = [...to, ...(s.none > 0 ? [`${f(s.none)} ${was(s.none)} not attributed`] : [])];
+    if (!parts.length) return '';
+    return `Of these, ${parts.length > 1 ? `${parts.slice(0, -1).join(', ')}, and ${parts.at(-1)}` : parts[0]}.`;
+  },
   // The country page's block under More figures.
   block: 'Cyber incidents',
   blockCaption: (name: string, from: number, to: number) => `publicly known incidents affecting ${name}, ${from}–${to}`,

@@ -13,7 +13,7 @@ import { countryHref, live } from '../routes.ts';
 import { amount, listed, mineralPages, shareClass, withheld, nameOf, type MineralPage } from '../minerals.ts';
 import { list, inSentence } from '../../i18n/pages.en.ts';
 import { EXCHANGE_TEXT, ICT_TEXT, OUTAGE_TEXT, PARTS_TEXT as PX, VIEW_TEXT, VIEWS_TEXT } from '../../i18n/views.en.ts';
-import { classFor, creditOf, familyPages, partsOf, placeNote, shareOf, unreportedIn, unreportedText, valueText, viewPages, type ViewPage } from '../views.ts';
+import { classFor, creditOf, familyPages, legendOf, partsOf, yearNote, placeNote, shareOf, unreportedIn, unreportedText, valueText, viewPages, type ViewPage } from '../views.ts';
 import { creditName, data, indicator, shared } from '../data.ts';
 import { loadFlows } from '../../data/flows.ts';
 import { countClass, daysText, disasterPages, type DisasterPage } from '../disasters.ts';
@@ -48,7 +48,7 @@ import { CONFLICT_TEXT, monthText } from '../../i18n/conflict.en.ts';
 import { latestAnalyses, monthSpan } from '../hunger.ts';
 import { HUNGER_TEXT } from '../../i18n/hunger.en.ts';
 import { POWER_TEXT } from '../../i18n/electricity.en.ts';
-import { FORMER, nameIn, NUCLEAR_PAGES, SHARING_CHECKED, SHARING_CLASSES, TREATIES_CHECKED, sharingCounts, TREATY_CLASSES, armedStates, nuclearLive, providerName, sharingClass, sharingNote, sharingRows, treaties, treatyClass, warheadClass, warheads, warheadsModel, type NuclearPage } from '../nuclear.ts';
+import { FORMER, nameIn, NUCLEAR_PAGES, SHARING_CHECKED, SHARING_CLASSES, TREATIES_CHECKED, sharingCounts, TREATY_CLASSES, armedStates, nuclearLive, providerName, sharingClass, sharingNote, sharingRows, treaties, treatyClass, unassignedNote, warheadClass, warheads, warheadsModel, type NuclearPage } from '../nuclear.ts';
 import { NUCLEAR_TEXT } from '../../i18n/nuclear.en.ts';
 import type { Pair } from '../../data/flows.ts';
 import type { Hazard } from '../../adapters/hazards.ts';
@@ -226,7 +226,8 @@ function indicatorLayer(p: ViewPage): LayerFile {
     if (p.family.id === 'arms') Object.assign(more, armsBlocks(p.id === 'armsexp5', year, y.rows.map((r) => r.id)));
     if (p.id === 'ictexp') Object.assign(more, ictShares(year, y.rows.map((r) => r.id)));
     if (p.id === 'cyber') Object.assign(more, cyberBlocks(year));
-    return { year, ...(p.text.period ? { label: p.text.period(year) } : {}), legend: p.text.legend(year), v, order: y.rows.map((r) => r.id), blocs: bl, ...(Object.keys(more).length ? { more } : {}) };
+    const notes = Object.fromEntries(y.rows.flatMap((r) => { const n = yearNote(p, r.id, year); return n ? [[r.id, n]] : []; }));
+    return { year, ...(p.text.period ? { label: p.text.period(year) } : {}), legend: legendOf(p, year), v, order: y.rows.map((r) => r.id), blocs: bl, ...(Object.keys(more).length ? { more } : {}), ...(Object.keys(notes).length ? { notes } : {}) };
   });
   const notes = { ...c.notes };
   for (const id of new Set(p.years.flatMap((yr) => p.byYear[yr].rows.map((r) => r.id)))) {
@@ -1146,9 +1147,9 @@ function nuclearLayer(id: NuclearPage): LayerFile {
       const bl: Record<string, string> = {};
       for (const [b, members] of memberships) {
         const inBloc = y.rows.filter((r) => members.includes(r.id));
-        bl[b] = N.blocLine(BLOC_TEXT[b] ?? b, inBloc.length, warheads(inBloc.reduce((t, r) => t + r.value, 0)), year);
+        bl[b] = N.blocLine(BLOC_TEXT[b] ?? b, inBloc.length, warheads(inBloc.reduce((t, r) => t + r.value, 0)), year, m.measure);
       }
-      return { year, status: 'estimate', legend: N.legend(year), v, order: y.rows.map((r) => r.id), blocs: bl, ...(Object.keys(names).length ? { names } : {}) };
+      return { year, status: 'estimate', legend: N.legend(year, m.measure), v, order: y.rows.map((r) => r.id), blocs: bl, ...(Object.keys(names).length ? { names } : {}) };
     });
     const notes = { ...c.notes };
     for (const [id, f] of Object.entries(FORMER)) {
@@ -1158,7 +1159,7 @@ function nuclearLayer(id: NuclearPage): LayerFile {
     if (f) {
       for (const x of Object.values(f.rows)) {
         more[x.place] = [{
-          label: N.split(f.year), caption: N.splitCaption, source: f.asOf.length > 4 ? N.splitSource(formatPartialDate(f.asOf)) : N.splitSourceOwid(f.year),
+          label: N.split(f.year), caption: [N.splitCaption, unassignedNote(f, x.place)].filter(Boolean).join(' '), source: f.asOf.length > 4 ? N.splitSource(formatPartialDate(f.asOf)) : N.splitSourceOwid(f.year),
           rows: [
             { name: N.deployed, value: warheads(x.deployed), note: x.deployedNonstrategic ? `${N.deployedStrategic} ${warheads(x.deployedStrategic)}, ${N.deployedNonstrategic.toLowerCase()} ${warheads(x.deployedNonstrategic)}` : undefined },
             { name: N.reserve, value: warheads(x.reserve) },

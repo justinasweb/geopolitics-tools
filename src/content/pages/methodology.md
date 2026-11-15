@@ -2,7 +2,7 @@
 title: "Methodology"
 lede: "How each measure is worked out, what the labels mean, and what the figures cannot tell you."
 description: "How geopolitics.tools works out import reliance, supplier shares, five-year arms totals, common years and coverage, and the limits of the figures."
-updated: "2026-11-11"
+updated: "2026-11-15"
 approved: true
 author: "owner"
 drafted: "2026-11-06"
@@ -27,6 +27,8 @@ Import reliance is the share of what a country uses that it buys from abroad, af
 | Import reliance | (imports − exports) ÷ use, or ÷ supply for potash and phosphate |
 | Use | oil and gas: consumption, as EIA reports it; crops: production + imports − exports |
 | Supply | potash and phosphate: production + imports − exports, that is production plus net imports |
+
+For oil, import reliance counts all oil liquids, crude oil plus natural gas liquids and other liquids, as EIA reports them, while the main supplier's share is of crude-oil imports only (UN Comtrade, HS 2709; EIA for the United States), so the two cover different goods; the Dependencies tool and country pages say "of crude-oil imports". Natural gas has no such gap: both count natural gas, pipeline and LNG.
 
 FAOSTAT publishes fertiliser use, but only agricultural use: what farmers apply. Its trade figures cover every use, industry included, and goods passing through on their way elsewhere. Set against farm use alone, net imports came to more than all of a country's use in dozens of countries, the United States and France among them. Supply puts trade against figures of the same scope. FAOSTAT estimates most fertiliser trade figures itself; a row that uses one carries the **Estimate** label.
 

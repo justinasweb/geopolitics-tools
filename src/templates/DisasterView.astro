@@ -26,6 +26,7 @@ import { place } from '../lib/places';
 import { countryHref, live, route, hubCrumb } from '../lib/routes';
 import { layerPath } from '../lib/map/layers';
 import { breadcrumbs } from '../lib/structured';
+import { byYear } from '../lib/map/by-year';
 import type { Hazard } from '../adapters/hazards';
 
 interface Props { id: string }
@@ -38,7 +39,6 @@ const quakes = p.kind === 'EQ';
 const sourceName = (s: string) => SOURCE_SHORT[s] ?? longName(s);
 const source = quakes ? `${sourceName('gdacs')}; ${sourceName('usgs-quakes')}` : sourceName('gdacs');
 const updated = refreshed('gdacs');
-const per = p.byDays[p.days];
 const nameOf = (id: string) => place(id)?.name ?? id;
 const kindName = (k: string, n: number) => (BLOCK_TEXT.kinds[k] ?? [k, k])[n === 1 ? 0 : 1];
 const num = (n: number) => new Intl.NumberFormat('en').format(n);
@@ -47,13 +47,20 @@ const symbols = { red: 'triangle', orange: 'diamond', green: 'dot', none: 'hollo
 
 const answer = answerOf(p);
 
-// The summary: alerts by kind (every kind together), how many countries, then the caveats.
-const kinds = byKind(per.alerts);
-const summary = [
-  [ledeFor(p, p.days), !p.kind && kinds.length > 1 ? D.byKind(kinds.map(([k, n]) => D.kindPart(n, kindName(k, n)))) : '', per.rows.length ? D.countries(per.rows.length) : '', quakes ? quakeLine(p, p.days) : ''].filter(Boolean).join(' '),
-  [ledeFor(p, 30), !quakes && p.byDays[30].green.length ? D.greenNote(num(p.byDays[30].green.length)) : '', D.periodNote].filter(Boolean).join(' '),
-  [D.caveat, D.counting, quakes ? D.quakeNote : ''].filter(Boolean).join(' '),
-];
+// The summary: alerts by kind (every kind together), how many countries, then the caveats. The headline, the summary,
+// the map's label and the header's source line follow the period control; the tables stay on the year.
+const summaryOf = (days: number) => {
+  const x = p.byDays[days];
+  const kinds = byKind(x.alerts);
+  return [
+    [ledeFor(p, days), !p.kind && kinds.length > 1 ? D.byKind(kinds.map(([k, n]) => D.kindPart(n, kindName(k, n)))) : '', x.rows.length ? D.countries(x.rows.length) : '', quakes ? quakeLine(p, days) : ''].filter(Boolean).join(' '),
+    [ledeFor(p, 30), !quakes && p.byDays[30].green.length ? D.greenNote(num(p.byDays[30].green.length)) : '', D.periodNote].filter(Boolean).join(' '),
+    [D.caveat, D.counting, quakes ? D.quakeNote : ''].filter(Boolean).join(' '),
+  ];
+};
+const summary = summaryOf(p.days);
+const periods = p.periods.map((x) => x.days);
+const answerIn = (days: number) => [ledeFor(p, days), quakes ? quakeLine(p, days) : ''].filter(Boolean).join(' ');
 
 const crumbs: { label: string; href?: string }[] = [hubCrumb('climate'), { label: D.section, href: route(key('all'))!.path }, ...(p.kind ? [{ label: K.pick }] : [])];
 const marks = quakes
@@ -70,15 +77,15 @@ const related = [
   ...year.rows.slice(0, 3).filter((r) => countryHref(r.id)).map((r) => ({ href: countryHref(r.id)!, name: nameOf(r.id), note: D.countryPage })),
   ...disasterPages().filter((o) => o.id !== p.id && live(key(o.id))).slice(0, 3).map((o) => ({ href: live(key(o.id))!.path, name: KIND_TEXT[o.id].title, note: D.sameView })),
 ];
-const mapTop = per.rows.slice(0, 3).map((r) => `${nameOf(r.id)} ${D.alerts(r.n)}`).join(', ');
+const mapLabel = (days: number) => `${D.legend(days)}. ${p.byDays[days].rows.slice(0, 3).map((r) => `${nameOf(r.id)} ${D.alerts(r.n)}`).join(', ')}.`;
 ---
 <Page title={K.title} description={K.description} hub="climate" container="mv" image={route(key(p.id))!.image}
   jsonld={[breadcrumbs(crumbs.map((c) => ({ label: c.label, href: c.href })))]}>
   <div class="gt-mvhead">
     <Breadcrumbs items={crumbs} />
     <h1 class="gt-title gt-mvhead__t">{K.title} <span class="gt-mvhead__sub">{D.sub}</span></h1>
-    <p class="gt-lede gt-mvhead__a">{answer}</p>
-    <SourceLine source={source} parts={[range(per)]} updated={updated} />
+    <p class="gt-lede gt-mvhead__a" data-headline data-by-year={byYear(periods, answerIn)}>{answer}</p>
+    <SourceLine source={source} years={p.periods.map((x) => ({ year: x.days, parts: [range(x)] }))} year={p.days} updated={updated} />
   </div>
 
   <MapControls
@@ -87,7 +94,7 @@ const mapTop = per.rows.slice(0, 3).map((r) => `${nameOf(r.id)} ${D.alerts(r.n)}
     years={p.periods.map((x) => x.days)} year={p.days}
     periods={{ label: D.periodLabel, note: D.periodNote, options: Object.fromEntries(p.periods.map((x) => [x.days, D.period(x.days)])) }} />
 
-  <MapStage layer={layerPath(`disasters-${p.id}`)} label={`${D.legend(p.days)}. ${mapTop}.`} title={K.title}
+  <MapStage layer={layerPath(`disasters-${p.id}`)} label={mapLabel(p.days)} labels={byYear(periods, mapLabel)} title={K.title}
     legend={{ title: D.legend(p.days), scale: 'seq', ticks: D.ticks, none: D.none, marks }}>
     <div data-panel="world" slot="panel">
       <div class="gt-panel__head">
@@ -151,7 +158,7 @@ const mapTop = per.rows.slice(0, 3).map((r) => `${nameOf(r.id)} ${D.alerts(r.n)}
   <section class="gt-mvbelow" aria-labelledby="mv-sum">
     <div class="gt-mvbelow__main">
       <h2 class="gt-h2" id="mv-sum">{D.summary}</h2>
-      <div class="gt-prose">{summary.map((s) => <p>{s}</p>)}</div>
+      <div class="gt-prose" data-by-year={byYear(periods, summaryOf)}>{summary.map((s) => <p>{s}</p>)}</div>
       <SourceLine source={source} parts={[range(year)]} updated={updated} />
 
       <h2 class="gt-h2" id="table">{D.all}</h2>

@@ -28,7 +28,7 @@ export const listUpTo = (items: string[], max: number) => (items.length <= max ?
 export const possessive = (name: string) => (name.endsWith('s') ? `${name}’` : `${name}’s`);
 
 /** Names that read with "the" inside a sentence. */
-const WITH_THE = /^(United States|United Kingdom|United Arab Emirates|Netherlands|Philippines|Bahamas|Gambia|Maldives|Marshall Islands|Solomon Islands|Comoros|Seychelles|Central African Republic|Dominican Republic|Czech Republic|Democratic Republic|Republic of|Vatican(?! City)|Cayman Islands|Falkland Islands|Faroe Islands|Cook Islands|British Virgin Islands|Northern Mariana Islands|Turks and Caicos Islands|Virgin Islands)/;
+const WITH_THE = /^(United States|United Kingdom|Soviet Union|United Arab Emirates|Netherlands|Philippines|Bahamas|Gambia|Maldives|Marshall Islands|Solomon Islands|Comoros|Seychelles|Central African Republic|Dominican Republic|Czech Republic|Democratic Republic|Republic of|Vatican(?! City)|Cayman Islands|Falkland Islands|Faroe Islands|Cook Islands|British Virgin Islands|Northern Mariana Islands|Turks and Caicos Islands|Virgin Islands)/;
 /** A place name inside a sentence; `start` capitalises "The" at the start of a sentence. */
 export const inSentence = (name: string, start = false) => (WITH_THE.test(name) ? `${start ? 'The' : 'the'} ${name}` : name);
 
@@ -45,8 +45,11 @@ export const onSupply = (noun: string) => SUPPLY_NOUNS.has(noun.toLowerCase());
 export const ofUse = (noun: string, past = false) => (onSupply(noun) ? `its ${noun} supply` : `the ${noun} it ${past ? 'used' : 'uses'}`);
 
 /** The ten resources of the dependencies table, as a noun inside "of the … it uses". */
-export const RESOURCE_TEXT: Record<string, { label: string; noun: string }> = {
-  oil: { label: 'Oil', noun: 'oil' }, gas: { label: 'Natural gas', noun: 'gas' }, wheat: { label: 'Wheat', noun: 'wheat' },
+/** `importsOf`: what the supplier shares are of, where it is narrower than what the reliance counts (oil: reliance is
+ *  EIA's net imports of all oil liquids; suppliers are shares of crude-oil imports, UN Comtrade HS 2709 and EIA's US
+ *  crude imports). Gas has none: both sides are natural gas (EIA dry gas; HS 271111 LNG and 271121 pipeline gas). */
+export const RESOURCE_TEXT: Record<string, { label: string; noun: string; importsOf?: string }> = {
+  oil: { label: 'Oil', noun: 'oil', importsOf: 'crude-oil imports' }, gas: { label: 'Natural gas', noun: 'gas' }, wheat: { label: 'Wheat', noun: 'wheat' },
   maize: { label: 'Maize', noun: 'maize' }, rice: { label: 'Rice', noun: 'rice' }, soy: { label: 'Soybeans', noun: 'soybeans' },
   potash: { label: 'Potash', noun: 'potash' }, phosphate: { label: 'Phosphate', noun: 'phosphate' },
   arms: { label: 'Arms', noun: 'major arms' }, chips: { label: 'Chips', noun: 'chips' },
@@ -78,14 +81,16 @@ export const DEP_TEXT = {
   usgsProduction: 'Production: USGS, as FAOSTAT’s figure is an estimate far from it',
   /** Crops whose exports exceed production plus imports. */
   exportsNote: (source: string) => `Exports can come from an earlier harvest or stocks; ${source}’s yearly figures do not separate them`,
-  mainSupplier: (name: string, share: string) => `Main supplier: ${name}, ${share} of imports`,
+  mainSupplier: (name: string, share: string, of = 'imports') => `Main supplier: ${name}, ${share} of ${of}`,
   noImports: (period: string) => `No major arms imports recorded, ${period}`,
   noData: 'No data yet',
   noRow: 'Not reported by this source',
   /** A row's source and year: use and trade dated apart when the partners come from another source or year
    *  (imports, or exports when the partners are buyers). */
-  dated: (source: string, year: string, flowSource?: string, flowYear?: string, buyers = false, of = 'use') =>
-    (!flowSource || !flowYear || (flowSource === source && flowYear === year) ? `${source}, ${year}` : `${source}, ${of} ${year} · ${flowSource}, ${buyers ? 'exports' : 'imports'} ${flowYear}`),
+  /** `importsOf`: what the flows are of, where narrower than the balance (oil: "crude-oil imports", "crude-oil exports"). */
+  dated: (source: string, year: string, flowSource?: string, flowYear?: string, buyers = false, of = 'use', importsOf?: string) =>
+    (!flowSource || !flowYear || (flowSource === source && flowYear === year) ? `${source}, ${year}`
+      : `${source}, ${of} ${year} · ${flowSource}, ${importsOf ? (buyers ? importsOf.replace(/imports$/, 'exports') : importsOf) : buyers ? 'exports' : 'imports'} ${flowYear}`),
   /** Deliveries from suppliers that are not a country (SIPRI: non-state actors, NATO, the UN, unknown), in a list. */
   otherSuppliers: 'Other or unknown suppliers',
   /** Flows whose amount is the exporter's report, the importer's quantity being unusable (mirror data). */
@@ -164,6 +169,8 @@ export const COUNTRY_TEXT = {
   allMenu: 'All figures',
   allFind: (c: string, n: number) => (n === 1 ? `1 measure on this site has a recent figure for ${c}.` : `${n} measures on this site have a recent figure for ${c}.`),
   allColumns: { measure: 'Measure', value: 'Value', year: 'Year', rank: 'Rank', source: 'Source' },
+  /** Notes beside single figures in the table (a grid operator's own figure beside Ember's). */
+  allNotes: 'Notes', allNote: (n: number) => `Note ${n}`,
   allLabel: (c: string) => `All figures for ${c}`,
   coverage: 'Coverage notes',
   sourcesHeading: 'Sources for this page',
@@ -253,7 +260,8 @@ export const DOSSIER_TEXT = {
   /** The 65-and-over share's caption: a year after the UN's last estimate year is its medium-variant projection. */
   aged65Caption: (year: number, lastEstimate: number, source: string) => `${year}${year > lastEstimate ? ', Projection, medium variant' : ''} · ${source}`,
   tech: 'Technology and space', techMenu: 'Technology',
-  techFind: (c: string, n: string, year: number) => `Satellites owned in ${c} numbered ${n} at the end of ${year}.`,
+  /** `asOf`: the day a still-running year was counted (src/lib/as-of.ts); a finished year is its end. */
+  techFind: (c: string, n: string, year: number, asOf?: string | null) => `Satellites owned in ${c} numbered ${n} ${asOf ? `as of ${asOf}` : `at the end of ${year}`}.`,
   satellites: 'Satellites in orbit', launches: 'Orbital launches', compute: 'Share of AI computing power', models: 'Notable AI models',
   links: 'Sanctions, Chinese loans and grants, and trade', linksMenu: 'Sanctions, loans and grants',
   climate: 'Climate and hazards', climateMenu: 'Climate',
@@ -269,7 +277,7 @@ export const COMPARE_TEXT = {
   lede: (a: string, b: string) => `${a} and ${b} side by side on the same measures, each figure with its source and year.`,
   description: (a: string, b: string) => `${a} and ${b} side by side: economy, people, military spending, emissions, minerals and more, with sources.`,
   /** A row's source and year: one year when both figures share it, else each country's own ("United States: 2024; China: 2023 · World Bank"). */
-  sourceYear: (credit: string, years: { name: string; year: number }[]) => (new Set(years.map((y) => y.year)).size === 1
+  sourceYear: (credit: string, years: { name: string; year: number | string }[]) => (new Set(years.map((y) => y.year)).size === 1
     ? `${credit}, ${years[0].year}`
     : `${years.map((y) => `${y.name}: ${y.year}`).join('; ')} · ${credit}`),
   /** A line beside a row's source where its unit needs saying (SIPRI's TIV; military spending's dollars). */
@@ -289,6 +297,10 @@ export const COMPARE_TEXT = {
   /** The mineral pairs' "–": USGS names the largest producers only, so a country it does not list is not a zero. */
   notListed: 'Not listed by USGS',
   notListedNote: '– Not listed by USGS. USGS names the largest producers of each mineral, so a country it does not list has no published share, which is not the same as zero.',
+  /** A producer USGS lists with its figure withheld: the value (short on screen, full for screen readers) and the note. */
+  withheld: 'Withheld',
+  withheldLong: 'Withheld by USGS',
+  withheldNote: 'Withheld by USGS: USGS lists this country as a producer but withholds the figure to protect company data.',
   others: 'Other comparisons',
   change: 'Change',
   /** The first and second country's colour, named on their chips (tokens cmp-first and cmp-second). */
@@ -624,7 +636,7 @@ export const DEFINITION: Record<string, string> = {
   armsexp: `Deliveries of major conventional weapons supplied, in millions of SIPRI trend-indicator values (TIV): ${TIV_NOTE}.`,
   hunger: 'People in IPC Phase 3 (crisis) or worse in the latest analysis.',
   hungershare: 'The share of the analysed population in IPC Phase 3 (crisis) or worse.',
-  satellites: 'Payloads in orbit at the end of the year, counted by owning country, whether working or not.',
+  satellites: 'Payloads in orbit at the end of the year, counted by owning country, whether working or not. The latest year counts what was in orbit on the date of the catalogue’s newest entry.',
   launches: 'Orbital launches in the year that put at least one satellite in orbit, counted for the country of the launch site.',
   aicompute: 'The country’s share of the computing power of AI supercomputers documented by Epoch AI in operation, in H100-equivalents (how many Nvidia H100 chips would do the same work).',
   netuser: 'Share of the population who used the internet in the last three months, from any place and on any device: computer, phone, games machine or TV.',

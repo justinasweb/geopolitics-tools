@@ -46,8 +46,8 @@ describe('counts of one', () => {
     const { EXPLORER_TEXT } = await import('../../src/i18n/explorer.en.ts');
     const { OVERLAP_TEXT } = await import('../../src/i18n/overlap.en.ts');
     const { QUAKES_TEXT } = await import('../../src/i18n/disasters.en.ts').then((m) => ({ QUAKES_TEXT: Object.values(m).find((x) => typeof x === 'object' && x && 'quakeCaption' in x) as { quakeCaption: (n: number, t: number) => string } }));
-    expect(CYBER_TEXT.split({ state: 1, affiliated: 0, group: 2, none: 1 }, String)).toBe('Of these, 1 was attributed to a state, 0 only to groups EuRepoC links to a state, 2 only to other non-state groups, and 1 was not attributed.');
-    expect(CYBER_TEXT.split({ state: 3, affiliated: 0, group: 0, none: 2 }, String)).toMatch(/^Of these, 3 were attributed .* and 2 were not attributed\.$/);
+    expect(CYBER_TEXT.split({ state: 1, affiliated: 0, group: 2, other: 0, none: 1 }, String)).toBe('Of these, 1 was attributed to a state, 2 only to other non-state groups, and 1 was not attributed.');
+    expect(CYBER_TEXT.split({ state: 3, affiliated: 0, group: 0, other: 0, none: 2 }, String)).toMatch(/^Of these, 3 were attributed .* and 2 were not attributed\.$/);
     expect(COUNTRY_TEXT.allFind('Niue', 1)).toBe('1 measure on this site has a recent figure for Niue.');
     expect(COUNTRY_TEXT.fewBody('Niue', 1, 30)).toMatch(/^1 of the 30 sources this site uses has figures for Niue\./);
     expect(BLOCS_TEXT.overlapLine('nato', 'NATO', 1, 32, 'the SCO')).toBe('1 of the 32 NATO members is also in the SCO.');

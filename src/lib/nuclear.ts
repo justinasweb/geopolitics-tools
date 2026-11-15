@@ -96,12 +96,21 @@ export function warheadsModel(): WarheadsModel | null {
 
 const nameOf = (id: string) => place(id)?.name ?? id;
 
+/** One sentence per state whose deployed and reserve warheads fall short of its military stockpile in FAS's split
+ *  (India, early 2026), largest gap first; '' when every state's parts add up. `only` keeps one state's. */
+export function unassignedNote(forces: WarheadsModel['forces'], only?: string): string {
+  if (!forces) return '';
+  return Object.values(forces.rows).filter((x) => x.unassigned > 0 && (!only || x.place === only)).sort((a, b) => b.unassigned - a.unassigned)
+    .map((x) => T.unassigned(inSentence(nameOf(x.place)), warheads(x.unassigned), warheads(x.stockpile))).join(' ');
+}
+
 /** The warheads view's one-sentence answer: the two largest inventories and their share of the world's. */
-export function warheadsLede(m = warheadsModel()): string | null {
-  const y = m?.byYear[m.year];
+export function warheadsLede(m = warheadsModel(), year = m?.year): string | null {
+  const y = year === undefined ? undefined : m?.byYear[year];
   if (!y || y.rows.length < 2) return null;
   const [a, b] = y.rows;
-  return T.lede(inSentence(nameOf(a.id), true), warheads(a.value), inSentence(nameOf(b.id)), warheads(b.value), formatShare((a.value + b.value) / y.world), y.year);
+  // Each state under its name of the year (the Soviet Union to 1991), as the panel names it.
+  return T.lede(inSentence(nameIn(a.id, y.year), true), warheads(a.value), inSentence(nameIn(b.id, y.year)), warheads(b.value), formatShare((a.value + b.value) / y.world), y.year, m!.measure, y.year < m!.year);
 }
 
 /** The peak of a series: the largest world total and its year. */

@@ -13,7 +13,7 @@ import { shared } from './data.ts';
 import { nice } from './food.ts';
 import { place } from './places.ts';
 import { SHARE_BINS, shareClass } from './minerals.ts';
-import { formatShare } from './format.ts';
+import { formatShare, underIfZero } from './format.ts';
 
 export const FUELS = ['oil', 'gas'] as const;
 export const ENERGY_LAYERS = ['production', 'consumption', 'trade', 'reserves'] as const;
@@ -36,12 +36,16 @@ const n = (v: number, digits: number) => new Intl.NumberFormat('en', { maximumFr
 const MINUS = '−';
 /** A figure in the layer's unit: "13.2 m b/d", "450k b/d", "1,035 bcm", "47.8 tcm", "303 bn barrels". */
 export function amount(fuel: FuelId, layer: EnergyLayer, v: number): string {
-  const s = v < 0 ? MINUS : '';
+  return underIfZero(v, amountOf(fuel, layer, v));
+}
+function amountOf(fuel: FuelId, layer: EnergyLayer, v: number): string {
   const a = Math.abs(v);
   // Non-breaking spaces, so a figure never wraps between number and unit.
-  if (layer === 'reserves') return fuel === 'oil' ? `${s}${n(a, a < 10 ? 1 : 0)}\u00a0bn barrels` : `${s}${n(a, a < 10 ? 2 : 1)}\u00a0tcm`;
-  if (fuel === 'oil') return a >= 1000 ? `${s}${n(a / 1000, 1)}\u00a0m\u00a0b/d` : `${s}${n(a, a < 10 ? 1 : 0)}k\u00a0b/d`;
-  return `${s}${n(a, a < 10 ? 2 : a < 100 ? 1 : 0)}\u00a0bcm`;
+  const t = layer === 'reserves' ? (fuel === 'oil' ? `${n(a, a < 10 ? 1 : 0)}\u00a0bn barrels` : `${n(a, a < 10 ? 2 : 1)}\u00a0tcm`)
+    : fuel === 'oil' ? (a >= 1000 ? `${n(a / 1000, 1)}\u00a0m\u00a0b/d` : `${n(a, a < 10 ? 1 : 0)}k\u00a0b/d`)
+    : `${n(a, a < 10 ? 2 : a < 100 ? 1 : 0)}\u00a0bcm`;
+  // A negative amount that rounds to zero has no sign: "−0.00 bcm" is never written.
+  return v < 0 && /[1-9]/.test(t) ? `${MINUS}${t}` : t;
 }
 /** Short, for bars and ticks. */
 export const amountShort = (fuel: FuelId, layer: EnergyLayer, v: number) => amount(fuel, layer, v).replace('\u00a0barrels', '');
@@ -146,7 +150,7 @@ export function classFor(p: EnergyPage, v: number, world: number | null): number
   return world ? shareClass(v / world) : 1;
 }
 
-/** A figure's share of the world, for reading ("18%", "<0.1%"). */
+/** A figure's share of the world, for reading ("18%", "under 0.1%"). */
 export const shareOf = (v: number, world: number | null) => (world ? formatShare(v / world) : null);
 
 function buildPage(fuel: FuelId, layer: EnergyLayer): EnergyPage | null {

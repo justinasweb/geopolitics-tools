@@ -23,6 +23,7 @@ import { refreshed, data } from '../lib/data';
 import { countryHref, paths, live, hubCrumb } from '../lib/routes';
 import { layerPath } from '../lib/map/layers';
 import { breadcrumbs } from '../lib/structured';
+import { byYear } from '../lib/map/by-year';
 
 interface Props { id: string }
 const p = mineralPage(Astro.props.id)!;
@@ -64,7 +65,9 @@ const related = [
   ...listed(y).slice(0, 3).filter((x) => x.place && countryHref(x.place)).map((x) => ({ href: countryHref(x.place!)!, name: nameOf(x), note: T.countryPage })),
   ...all.filter((m) => m.id !== p.id && live(`view:minerals:${m.id}`)).slice(0, 2).map((m) => ({ href: paths.mineral(m.id), name: m.title, note: T.sameView })),
 ];
-const mapTop = listed(y).slice(0, 3).map((x) => `${nameOf(x)} ${formatShare(x.share!)}`).join(', ');
+// The headline, the map's label and the source lines follow the year control; the table stays on the latest year.
+const topOf = (Y: typeof y) => listed(Y).slice(0, 3).map((x) => `${nameOf(x)} ${formatShare(x.share!)}`).join(', ');
+const sourceYears = p.years.map((yr) => ({ year: yr, parts: [T.figures(yr, p.byYear[yr].estimated)], status: p.byYear[yr].estimated ? 'estimate' as const : undefined }));
 const yearStatus = Object.fromEntries(p.years.filter(est).map((yr) => [yr, 'estimate' as const]));
 ---
 <Page title={T.title(p.title)} description={T.description(p.name, y.year)} hub="resources" container="mv" image={paths.image('views', `minerals-${p.id}`)}
@@ -72,8 +75,8 @@ const yearStatus = Object.fromEntries(p.years.filter(est).map((yr) => [yr, 'esti
   <div class="gt-mvhead">
     <Breadcrumbs items={crumbs} />
     <h1 class="gt-title gt-mvhead__t">{p.title} <span class="gt-mvhead__sub">{T.sub}</span></h1>
-    {answer && <p class="gt-lede gt-mvhead__a">{answer}</p>}
-    <SourceLine source={p.source} parts={[T.figures(y.year, y.estimated)]} status={y.estimated ? 'estimate' : undefined} updated={updated} citation={citation} />
+    <p class="gt-lede gt-mvhead__a" data-headline data-by-year={byYear(p.years, (yr) => lede(p, p.byYear[yr]))} hidden={!answer}>{answer}</p>
+    <SourceLine source={p.source} years={sourceYears} year={y.year} updated={updated} citation={citation} />
   </div>
 
   <MapControls
@@ -81,7 +84,7 @@ const yearStatus = Object.fromEntries(p.years.filter(est).map((yr) => [yr, 'esti
     picker={all.filter((m) => live(`view:minerals:${m.id}`)).map((m) => ({ label: m.title, href: paths.mineral(m.id), current: m.id === p.id }))}
     years={p.years} year={y.year} yearStatus={yearStatus} />
 
-  <MapStage layer={layerPath(`minerals-${p.id}`)} label={T.mapLabel(p.name, y.year, mapTop)} title={p.title}
+  <MapStage layer={layerPath(`minerals-${p.id}`)} label={T.mapLabel(p.name, y.year, topOf(y))} labels={byYear(p.years, (yr) => T.mapLabel(p.name, yr, topOf(p.byYear[yr])))} title={p.title}
     legend={{ title: T.legendTitle(y.year), scale: 'seq', ticks: T.ticks, none: T.notListedLegend, withheld: w.length > 0 }}>
     <div data-panel="world" slot="panel">
       <div class="gt-panel__head">
@@ -130,7 +133,7 @@ const yearStatus = Object.fromEntries(p.years.filter(est).map((yr) => [yr, 'esti
         <div class="gt-blocline" hidden><span class="gt-blocline__key" aria-hidden="true"></span><p></p></div>
         <Notice>
           <p>{T.caveat}</p>
-          <SourceLine source={p.source} parts={[T.figures(y.year, y.estimated)]} updated={updated} />
+          <SourceLine source={p.source} years={sourceYears.map((e) => ({ ...e, status: undefined }))} year={y.year} updated={updated} />
         </Notice>
       </div>
     </div>
@@ -139,7 +142,7 @@ const yearStatus = Object.fromEntries(p.years.filter(est).map((yr) => [yr, 'esti
   <section class="gt-mvbelow" aria-labelledby="mv-sum">
     <div class="gt-mvbelow__main">
       <h2 class="gt-h2" id="mv-sum">{T.summary}</h2>
-      <div class="gt-prose">{summary(p).map((s) => <p>{s}</p>)}</div>
+      <div class="gt-prose" data-by-year={byYear(p.years, (yr) => summary(p, p.byYear[yr]))}>{summary(p).map((s) => <p>{s}</p>)}</div>
       <SourceLine source={p.source} parts={[yearsText]} updated={updated} citation={citation} />
       <h2 class="gt-h2" id="table">{T.all}</h2>
       <div class="gt-tablewrap" style="--gt-table-h:none" tabindex="0" role="region" aria-label={T.tableLabel(p.title)}>

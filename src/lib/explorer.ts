@@ -8,6 +8,7 @@ import { BLOC_TEXT } from '../i18n/map.en.ts';
 import { SOURCE_NOTE } from '../i18n/pages.en.ts';
 import { blocs } from './blocs.ts';
 import { creditName, refreshed } from './data.ts';
+import { asOfDate } from './as-of.ts';
 import { csvAllowed, indicatorModel } from './indicator.ts';
 import { place } from './places.ts';
 import { countryHref, indicatorHref } from './routes.ts';
@@ -63,7 +64,7 @@ export function explorerMeta(): Meta {
     const len = Math.max(...Object.values(d.v).map((a) => a.length));
     measures.push({
       id, label: t.label, short: t.short, unit: t.unit, group: m.indicator.group, format: m.indicator.format,
-      static: m.indicator.static, projectedAfter: m.indicator.projectedAfter, ...(m.indicator.lastActualBy ? { own: m.indicator.lastActualBy } : {}), ...(m.indicator.preliminaryYear ? { pre: m.indicator.preliminaryYear } : {}), year: m.year, from: d.from, to: d.from + len - 1,
+      static: m.indicator.static, projectedAfter: m.indicator.projectedAfter, ...(m.indicator.lastActualBy ? { own: m.indicator.lastActualBy } : {}), ...(m.indicator.preliminaryYear ? { pre: m.indicator.preliminaryYear } : {}), ...(asOfDate(m.indicator.id, m.year) ? { asOf: [m.year, asOfDate(m.indicator.id, m.year)!] as [number, string] } : {}), year: m.year, from: d.from, to: d.from + len - 1,
       credit: SOURCE_NOTE[id] ?? m.sources.map((s) => creditName(s)).join('; '),
       updated: refreshed(m.source), csv: csvAllowed(m), href: indicatorHref(id),
     });

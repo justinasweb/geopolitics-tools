@@ -104,6 +104,23 @@ describe('cyber incidents', () => {
     expect(undated(c)).toEqual({ all: 6, undated: 1 });
   });
 
+  it('splits every year into parts that add up to its total, and the summary says every part', () => {
+    const years = [...new Set(c.incidents.map((i) => i.year).filter((y): y is number => y !== null))];
+    const nums = (t: string) => [...t.matchAll(/\b\d[\d,]*\b/g)].map((m) => Number(m[0].replace(/,/g, '')));
+    for (const y of years) {
+      const s = yearSplit(c, y);
+      expect(Object.values(s).reduce((a, b) => a + b, 0)).toBe(yearTotal(c, y));
+      expect(nums(CYBER_TEXT.split(s, String)).reduce((a, b) => a + b, 0)).toBe(yearTotal(c, y));
+    }
+    // The latest year's figures: 700 incidents, none left out of the sentence.
+    const t = CYBER_TEXT.split({ state: 28, affiliated: 47, group: 207, other: 30, none: 388 }, String);
+    expect(t).toBe('Of these, 28 were attributed to a state, 47 only to groups EuRepoC links to a state, 207 only to other non-state groups, 30 to an initiator whose state or kind EuRepoC does not give, and 388 were not attributed.');
+    expect(nums(t).reduce((a, b) => a + b, 0)).toBe(700);
+    // A part of 0 is left out, and the first attributed part carries the verb.
+    expect(CYBER_TEXT.split({ state: 0, affiliated: 2, group: 0, other: 1, none: 0 }, String)).toBe('Of these, 2 were attributed only to groups EuRepoC links to a state, and 1 to an initiator whose state or kind EuRepoC does not give.');
+    expect(CYBER_TEXT.split({ state: 1, affiliated: 0, group: 0, other: 0, none: 0 }, String)).toBe('Of these, 1 was attributed to a state.');
+  });
+
   it('breaks a country down by attribution, and a state down by the country affected, affiliated groups apart', () => {
     expect(affecting(c, 'UKR', 2024).map((t) => [t.who, t.n])).toEqual([[{ state: 'RUS' }, 1], [{ affiliated: 'RUS' }, 1], [{ other: true }, 1]]);
     expect(attributedTo(c, 'RUS', 2023).map((t) => [t.who, t.n])).toEqual([[{ state: 'USA' }, 1]]);

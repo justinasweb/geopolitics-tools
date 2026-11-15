@@ -79,3 +79,17 @@ describe('electricity views', () => {
     expect(block.rows[0].name).toBe('Coal');
   });
 });
+
+describe('a grid operator’s figure beside Ember’s', () => {
+  const mix = (otherFossil: number, total = 11) => ({ total, groups: { coal: 0, gas: otherFossil, nuclear: 0, hydro: 8, wind: 1.24, solar: 0.09, other: 1.66 }, series: { 'Other fossil': otherFossil } });
+  it('notes Costa Rica 2024 from the checked-in report, and drops the note once Ember shows the plants', async () => {
+    const { noteFrom, operatorReports, OPERATOR_NOTE_UNTIL } = await import('../../src/lib/electricity.ts');
+    const r = operatorReports().find((x) => x.place === 'CRI' && x.year === 2024)!;
+    expect(r).toMatchObject({ operator: 'ICE', total: 12566.6, plantsGwh: 1331, url: expect.stringMatching(/^https:\/\/apps\.grupoice\.com\//) });
+    expect(noteFrom(r, mix(0.01), 'Costa Rica')).toBe('Costa Rica’s grid operator, ICE, reports 10.6% of 2024 generation from thermal (oil) plants; Ember’s figures show almost none.');
+    // Between 1% and the threshold the note gives Ember's share; above it there is no note.
+    expect(noteFrom(r, mix(0.33), 'Costa Rica')).toMatch(/Ember’s figures show 3%\.$/);
+    expect(noteFrom(r, mix(11 * (OPERATOR_NOTE_UNTIL + 0.001)), 'Costa Rica')).toBeNull();
+    expect(noteFrom(r, null, 'Costa Rica')).toBeNull();
+  });
+});

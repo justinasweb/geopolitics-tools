@@ -6,6 +6,15 @@ export type TreatyStatus = 'party' | 'signed' | 'not-party' | 'withdrew';
 /** A country's place on the treaties map: its NPT and TPNW standing together. */
 export type TreatyClass = 'both' | 'npt-signed' | 'npt' | 'outside' | 'withdrew';
 export type SharingClass = 'armed' | 'host' | 'reported' | 'umbrella';
+/** Which of FAS's totals the warheads series counts (src/adapters/nuclear.ts finds it from the figures). */
+export type WarheadMeasure = 'stockpile' | 'inventory';
+
+/** The measure as every warheads label names it. The military stockpile is deployed and reserve warheads; the total
+ *  inventory adds the retired ones, intact and waiting to be dismantled. */
+const MEASURE: Record<WarheadMeasure, { label: string; noun: string; inState: string }> = {
+  stockpile: { label: 'Military stockpile', noun: 'military stockpile', inState: 'in military stockpiles' },
+  inventory: { label: 'Total inventory', noun: 'total inventory', inState: 'in total inventories' },
+};
 
 const n = (v: number) => new Intl.NumberFormat('en').format(v);
 
@@ -38,25 +47,33 @@ export const NUCLEAR_TEXT = {
   formerShort: (successor: string, from: number) => `${successor} from ${from}`,
   measure: 'warheads',
   figureLabel: 'Estimated warheads',
-  legend: (year: number) => `Estimated warheads, early ${year}`,
+  legend: (year: number, m: WarheadMeasure) => `Estimated warheads ${MEASURE[m].inState}, early ${year}`,
   ticks: ['under 100', '100–300', '300–1,000', '1,000–5,000', '5,000+'],
   none: 'No nuclear weapons in FAS’s count',
   noneIn: 'No nuclear weapons in FAS’s count, {year}',
-  lede: (top: string, value: string, second: string, value2: string, share: string, year: number) =>
-    `${top} has the most estimated warheads, ${value}, then ${second} with ${value2}; together they hold ${share} of the world’s estimated total in early ${year}.`,
+  /** `past`: a year before the latest, in the past tense. */
+  lede: (top: string, value: string, second: string, value2: string, share: string, year: number, m: WarheadMeasure, past = false) =>
+    `${top} ${past ? 'had' : 'has'} the most estimated warheads, ${value}, then ${second} with ${value2}; together they ${past ? 'held' : 'hold'} ${share} of the world’s estimated ${MEASURE[m].noun} in early ${year}.`,
   world: 'All states with nuclear weapons',
-  worldTotal: 'Estimated world total',
-  /** FAS rounds nothing smaller than its own figures; the total is their sum, said as about. */
+  worldTotal: (m: WarheadMeasure) => `${MEASURE[m].label}, all states`,
+  /** Under the key figure, in the split's year only: the other of FAS's totals, from the split's own figures. */
+  otherTotal: (m: WarheadMeasure, v: string) => (m === 'stockpile'
+    ? `Total inventory, including retired warheads awaiting dismantlement: ${v}`
+    : `Military stockpile, without retired warheads awaiting dismantlement: ${v}`),
+  /** In running text only (captions, sentences): FAS's figures are estimates, so their sum is said as about. Key figures
+   *  carry the Estimate tag instead. */
   about: (v: string) => `about ${v}`,
   states: (k: number) => `${k} ${k === 1 ? 'state' : 'states'} with nuclear weapons`,
-  peak: (v: string, year: number) => `Peak: ${v} in ${year}`,
+  peak: (v: string, year: number, m: WarheadMeasure) => `Peak ${MEASURE[m].noun}, all states: ${v} in ${year}`,
   /** Change from a total under 100: in warheads, not a percentage. */
   changeAbs: (dir: 'up' | 'down' | 'flat', n: number, year: number) => (dir === 'flat' ? `About the same as in ${year}` : `${dir === 'up' ? 'Up' : 'Down'} ${new Intl.NumberFormat('en').format(n)} ${n === 1 ? 'warhead' : 'warheads'} from ${year}`),
   changeFrom: (dir: 'up' | 'down' | 'flat', size: string, year: number) => (dir === 'flat' ? `About the same as in ${year}` : `${dir === 'up' ? 'Up' : 'Down'} ${size} from ${year}`),
-  chart: (from: number, to: number) => `Estimated nuclear warheads, ${from}–${to}`,
-  chartCaption: 'Each line is one state’s estimated stockpile, as FAS counts it.',
+  chart: (from: number, to: number, m: WarheadMeasure) => `Estimated warheads ${MEASURE[m].inState}, ${from}–${to}`,
+  chartCaption: (m: WarheadMeasure) => `Each line is one state’s estimated ${MEASURE[m].noun}, as FAS counts it.`,
   split: (year: number) => `Deployed, reserve and retired, early ${year}`,
   splitCaption: 'Deployed warheads sit on missiles or at bases with delivery forces. Reserve warheads are in the military stockpile but not deployed. Retired warheads are intact and waiting to be dismantled.',
+  /** A state whose deployed and reserve warheads fall short of its military stockpile in FAS's table. */
+  unassigned: (name: string, n: string, of: string) => `FAS’s figures for ${name} do not assign ${n} of its ${of} warheads to a status.`,
   deployed: 'Deployed',
   reserve: 'Reserve (not deployed)',
   stockpile: 'Military stockpile',
@@ -71,13 +88,13 @@ export const NUCLEAR_TEXT = {
   methodologyNote: 'No state publishes a full count, so every figure is an estimate. FAS builds its estimates from official statements, budgets, satellite images and other open sources, and revises past years when it learns more; a revised figure replaces the old one here.',
   methodologyLink: 'https://fas.org/initiative/status-world-nuclear-forces/',
   table: 'Estimated nuclear warheads',
-  tableCaption: (year: number) => `Estimated warheads in early ${year}, with the split by status FAS gives for its latest estimate.`,
+  tableCaption: (year: number, m: WarheadMeasure) => `Estimated warheads ${MEASURE[m].inState} in early ${year}, with the split by status FAS gives for its latest estimate.`,
   country: 'Country',
   splitTable: (year: number) => `Deployed, reserve and retired, early ${year}`,
   splitTableCaption: (year: number, latest: number) => `FAS’s split by status is for early ${year}; the totals above are for early ${latest}, so they are not set side by side.`,
   extendedNote: (year: number) => `${year} is FAS’s current estimate, from its own figures, which are newer than the series.`,
-  blocLine: (bloc: string, k: number, value: string, year: number) => (k ? `${todaysMembers(bloc, { start: true })} hold an estimated ${value} warheads in early ${year} (${k} ${k === 1 ? 'state' : 'states'}).` : `None of ${todaysMembers(bloc)} has nuclear weapons in FAS’s count for early ${year}.`),
-  mapLabel: (year: number, k: number) => `World map of estimated nuclear warheads in early ${year}: ${k} states have nuclear weapons. The same figures are in the table below.`,
+  blocLine: (bloc: string, k: number, value: string, year: number, m: WarheadMeasure) => (k ? `${todaysMembers(bloc, { start: true })} hold an estimated ${value} warheads ${MEASURE[m].inState} in early ${year} (${k} ${k === 1 ? 'state' : 'states'}).` : `None of ${todaysMembers(bloc)} has nuclear weapons in FAS’s count for early ${year}.`),
+  mapLabel: (year: number, k: number, m: WarheadMeasure) => `World map of estimated nuclear warheads ${MEASURE[m].inState} in early ${year}: ${k} states have nuclear weapons. The same figures are in the table below.`,
   csv: 'Download the figures shown (CSV)',
   rank: 'Rank',
 
@@ -155,8 +172,12 @@ export const NUCLEAR_TEXT = {
 
   // Country page block
   block: 'Nuclear weapons',
-  blockCaption: (year: number) => `estimated warheads, early ${year}`,
+  blockCaption: (year: number, m: WarheadMeasure) => `estimated warheads in its ${MEASURE[m].noun}, early ${year}`,
+  /** The AI dossier's fact on a state's warheads. */
+  dossierFact: (theirs: string, m: WarheadMeasure) => `${theirs} estimated ${MEASURE[m].noun} of nuclear warheads.`,
   blockLink: 'Nuclear weapons map',
-  ogFigure: (v: string) => `about ${v} warheads`,
+  /** The share card's figure, a plain number: "FAS estimate, as of early {year}" is its source line; the caption under
+   *  it says what it counts. */
+  ogFigure: (v: string) => v,
   ogStates: (k: number) => `${n(k)} states`,
 };
