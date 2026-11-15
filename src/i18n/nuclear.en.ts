@@ -42,8 +42,9 @@ export const NUCLEAR_TEXT = {
   ticks: ['under 100', '100–300', '300–1,000', '1,000–5,000', '5,000+'],
   none: 'No nuclear weapons in FAS’s count',
   noneIn: 'No nuclear weapons in FAS’s count, {year}',
-  lede: (top: string, value: string, second: string, value2: string, share: string, year: number) =>
-    `${top} has the most estimated warheads, ${value}, then ${second} with ${value2}; together they hold ${share} of the world’s estimated total in early ${year}.`,
+  /** `past`: a year before the latest, in the past tense. */
+  lede: (top: string, value: string, second: string, value2: string, share: string, year: number, past = false) =>
+    `${top} ${past ? 'had' : 'has'} the most estimated warheads, ${value}, then ${second} with ${value2}; together they ${past ? 'held' : 'hold'} ${share} of the world’s estimated total in early ${year}.`,
   world: 'All states with nuclear weapons',
   worldTotal: 'Estimated world total',
   /** FAS rounds nothing smaller than its own figures; the total is their sum, said as about. */

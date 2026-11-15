@@ -68,8 +68,10 @@ export const MINERALS_VIEW = {
   mineral: 'Mineral',
   /** The page title when there is a finding. */
   title: (mineral: string) => `${mineral}: who mines it`,
-  lede: (top: string, share: string, mineral: string, top3?: string) =>
-    `${top} mines ${share} of the world’s ${mineral}${top3 ? `; the top three countries mine ${top3}` : ''}.`,
+  /** `past`: a year before the latest, said in the past tense with its year. */
+  lede: (top: string, share: string, mineral: string, top3?: string, past?: number) => (past
+    ? `${top} mined ${share} of the world’s ${mineral} in ${past}${top3 ? `; the top three countries mined ${top3}` : ''}.`
+    : `${top} mines ${share} of the world’s ${mineral}${top3 ? `; the top three countries mine ${top3}` : ''}.`),
   description: (mineral: string, year: number) => `Who mines ${mineral}: world mine production by country in ${year}, with shares, concentration and the figures by year, from USGS.`,
   figures: (year: number, estimated: boolean) => `${year} figures${estimated ? ', estimated' : ''}`,
   years: (years: number[], estimated: number[]) => {
@@ -121,8 +123,10 @@ export const MINERALS_VIEW = {
   changeIn: (pct: string, more: boolean, prev: number) => `${pct} ${more ? 'more' : 'less'} than in ${prev}`,
   top: (parts: string[], together: string | null) => `${parts.join(', ').replace(/, ([^,]*)$/, ' and $1')}${together ? `; together they mined ${together}` : ''}.`,
   topPart: (name: string, value: string, unit: string, share: string, first: boolean) => `${name} ${first ? 'mined ' : ''}${value} ${unit} (${share})`,
-  follow: (names: string[], shares: string[]) => `${names.join(' and ')} follow${names.length === 1 ? 's' : ''} with ${shares.join(' and ')}.`,
-  withheldSentence: (names: string, mineral: string, many: boolean) => `${names} also mine${many ? '' : 's'} ${mineral}, but USGS withholds the figure${many ? 's' : ''} to protect company data, so ${many ? 'they are' : 'it is'} not in the world total.`,
+  follow: (names: string[], shares: string[], past?: number) => (past
+    ? `${names.join(' and ')} followed with ${shares.join(' and ')} in ${past}.`
+    : `${names.join(' and ')} follow${names.length === 1 ? 's' : ''} with ${shares.join(' and ')}.`),
+  withheldSentence: (names: string, mineral: string, many: boolean, past?: number) => `${names} ${past ? `also mined ${mineral} in ${past}` : `also mine${many ? '' : 's'} ${mineral}`}, but USGS withholds the figure${many ? 's' : ''} to protect company data, so ${many ? 'they are' : 'it is'} not in the world total.`,
   scope: (mineral: string) => `These figures say where ${mineral} ${are(mineral)} mined; refining and trade are not covered here.`,
   bloc: (bloc: string, share: string, mineral: string, year: number, estimated = false) => `${todaysMembers(bloc, { start: true })} mined ${share} of the world’s ${mineral} in ${year}${estimated ? ', according to USGS estimates' : ''}.`,
   blocNone: (bloc: string, mineral: string, year: number) => `None of ${todaysMembers(bloc)} is listed as mining ${mineral} in ${year}.`,
@@ -141,8 +145,9 @@ export const PRIMARY_VIEW: typeof MINERALS_VIEW = {
   ...V,
   sub: 'primary production',
   title: (mineral: string) => `${mineral}: who produces it`,
-  lede: (top: string, share: string, mineral: string, top3?: string) =>
-    `${top} produces ${share} of the world’s primary ${mineral}${top3 ? `; the top three countries produce ${top3}` : ''}.`,
+  lede: (top: string, share: string, mineral: string, top3?: string, past?: number) => (past
+    ? `${top} produced ${share} of the world’s primary ${mineral} in ${past}${top3 ? `; the top three countries produced ${top3}` : ''}.`
+    : `${top} produces ${share} of the world’s primary ${mineral}${top3 ? `; the top three countries produce ${top3}` : ''}.`),
   description: (mineral: string, year: number) => `Who produces ${mineral}: world primary production by country in ${year}, with shares, concentration and the figures by year, from USGS.`,
   worldLabel: 'World primary production',
   producersLabel: (mineral: string, year: number) => `Producers by share of world primary ${mineral} production, ${year}`,
@@ -158,7 +163,7 @@ export const PRIMARY_VIEW: typeof MINERALS_VIEW = {
     V.total(world, unit, `primary ${mineral}`, basis, year, change, estimated).replace('The world mined', 'The world produced'),
   topPart: (name: string, value: string, unit: string, share: string, first: boolean) => `${name} ${first ? 'produced ' : ''}${value} ${unit} (${share})`,
   top: (parts: string[], together: string | null) => V.top(parts, null).replace(/\.$/, together ? `; together they produced ${together}.` : '.'),
-  withheldSentence: (names: string, mineral: string, many: boolean) => `${names} also produce${many ? '' : 's'} ${mineral}, but USGS withholds the figure${many ? 's' : ''} to protect company data, so ${many ? 'they are' : 'it is'} not in the world total.`,
+  withheldSentence: (names: string, mineral: string, many: boolean, past?: number) => `${names} ${past ? `also produced ${mineral} in ${past}` : `also produce${many ? '' : 's'} ${mineral}`}, but USGS withholds the figure${many ? 's' : ''} to protect company data, so ${many ? 'they are' : 'it is'} not in the world total.`,
   scope: (mineral: string) => `These figures say where primary ${mineral} ${are(mineral)} produced; refining to high purity and trade are not covered here.`,
   bloc: (bloc: string, share: string, mineral: string, year: number, estimated = false) => `${todaysMembers(bloc, { start: true })} produced ${share} of the world’s primary ${mineral} in ${year}${estimated ? ', according to USGS estimates' : ''}.`,
   blocNone: (bloc: string, mineral: string, year: number) => `None of ${todaysMembers(bloc)} is listed as producing primary ${mineral} in ${year}.`,

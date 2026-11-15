@@ -8,6 +8,8 @@ import { nearestYear, readState, writeState, type StateContext } from '../../src
 import { countryPanelHtml, previousHtml, tooltipHtml } from '../../src/scripts/map/panel.ts';
 import type { LayerFile } from '../../src/lib/map/types.ts';
 import { byYear } from '../../src/lib/map/by-year.ts';
+import { MINERALS_VIEW, PRIMARY_VIEW } from '../../src/i18n/map.en.ts';
+import { NUCLEAR_TEXT } from '../../src/i18n/nuclear.en.ts';
 
 // The page engine reads the sample files here (the prototype's fixtures), never a live snapshot.
 process.env.GT_DATA = 'sample';
@@ -275,5 +277,18 @@ describe('text that follows the year control', () => {
     const json = byYear([2023, 2024, 2025], (y) => (y === 2023 ? null : y === 2024 ? 'Australia mines 37%' : ['One.', 'Two.']));
     expect(JSON.parse(json)).toEqual({ 2024: 'Australia mines 37%', 2025: ['One.', 'Two.'] });
     expect(byYear([2024], () => [])).toBe('{}');
+  });
+});
+
+describe('per-year answers', () => {
+  it('keeps the latest year in the present tense and says an earlier one in the past, with its year', async () => {
+    expect(MINERALS_VIEW.lede('Australia', '32%', 'lithium', '72%')).toBe('Australia mines 32% of the world’s lithium; the top three countries mine 72%.');
+    expect(MINERALS_VIEW.lede('Australia', '37%', 'lithium', '78%', 2024)).toBe('Australia mined 37% of the world’s lithium in 2024; the top three countries mined 78%.');
+    expect(PRIMARY_VIEW.lede('China', '98%', 'gallium', undefined, 2024)).toBe('China produced 98% of the world’s primary gallium in 2024.');
+    expect(MINERALS_VIEW.follow(['Argentina', 'Zimbabwe'], ['9%', '8%'], 2024)).toBe('Argentina and Zimbabwe followed with 9% and 8% in 2024.');
+    expect(MINERALS_VIEW.withheldSentence('the United States', 'lithium', false, 2024)).toMatch(/^the United States also mined lithium in 2024, but USGS withholds/);
+    const { inSentence } = await import('../../src/i18n/pages.en.ts');
+    expect(inSentence('Soviet Union', true)).toBe('The Soviet Union');
+    expect(NUCLEAR_TEXT.lede('Russia', '5,580', 'the United States', '5,044', '87%', 2015, true)).toBe('Russia had the most estimated warheads, 5,580, then the United States with 5,044; together they held 87% of the world’s estimated total in early 2015.');
   });
 });

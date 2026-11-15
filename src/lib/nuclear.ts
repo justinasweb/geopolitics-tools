@@ -101,7 +101,8 @@ export function warheadsLede(m = warheadsModel(), year = m?.year): string | null
   const y = year === undefined ? undefined : m?.byYear[year];
   if (!y || y.rows.length < 2) return null;
   const [a, b] = y.rows;
-  return T.lede(inSentence(nameOf(a.id), true), warheads(a.value), inSentence(nameOf(b.id)), warheads(b.value), formatShare((a.value + b.value) / y.world), y.year);
+  // Each state under its name of the year (the Soviet Union to 1991), as the panel names it.
+  return T.lede(inSentence(nameIn(a.id, y.year), true), warheads(a.value), inSentence(nameIn(b.id, y.year)), warheads(b.value), formatShare((a.value + b.value) / y.world), y.year, y.year < m!.year);
 }
 
 /** The peak of a series: the largest world total and its year. */

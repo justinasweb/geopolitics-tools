@@ -83,12 +83,15 @@ export function worldChange(y: MineralYear): number | null {
 }
 
 /** The one-sentence answer under the title. */
+/** A year before the page's latest, which the answer and summary say in the past tense with its year; else undefined. */
+const pastYear = (p: MineralPage, y: MineralPage['latest']) => (y.year < p.latest.year ? y.year : undefined);
+
 export function lede(p: MineralPage, y = p.latest): string | null {
   const l = listed(y);
   if (!l.length) return null;
   // "The top three" says something only when more than three countries are listed (gallium has three).
   const top3 = l.length > 3 ? l.slice(0, 3).reduce((s, x) => s + (x.share ?? 0), 0) : null;
-  return p.text.lede(inSentence(nameOf(l[0]), true), formatShare(l[0].share!), p.name, top3 !== null ? formatShare(top3) : undefined);
+  return p.text.lede(inSentence(nameOf(l[0]), true), formatShare(l[0].share!), p.name, top3 !== null ? formatShare(top3) : undefined, pastYear(p, y));
 }
 
 /** The summary paragraphs: the world total and change, the top producers, who follows, withheld producers, scope. */
@@ -108,10 +111,10 @@ export function summary(p: MineralPage, y = p.latest): string[] {
     first.push(T.top(top.map((x, i) => T.topPart(inSentence(nameOf(x), i === 0), amount(x.value!), p.unit, formatShare(x.share!), i === 0)), together));
   }
   const next = l.slice(3, 5);
-  if (next.length) first.push(T.follow(next.map((x) => inSentence(nameOf(x), false)), next.map((x) => formatShare(x.share!))));
+  if (next.length) first.push(T.follow(next.map((x) => inSentence(nameOf(x), false)), next.map((x) => formatShare(x.share!)), pastYear(p, y)));
   const second: string[] = [];
   const w = withheld(y);
-  if (w.length) second.push(T.withheldSentence(list(w.map((x, i) => inSentence(nameOf(x), i === 0))), p.name, w.length > 1));
+  if (w.length) second.push(T.withheldSentence(list(w.map((x, i) => inSentence(nameOf(x), i === 0))), p.name, w.length > 1, pastYear(p, y)));
   second.push(T.scope(p.name));
   return [first.join(' '), second.join(' ')].filter(Boolean);
 }

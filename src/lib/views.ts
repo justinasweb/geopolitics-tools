@@ -235,10 +235,10 @@ export function lede(p: ViewPage, year = p.year): string | null {
   const y = p.byYear[year];
   const top = y?.rows[0];
   if (!top) return null;
-  if (p.layer.scale === 'div') return p.text.lede({ top: '', topIn: '', value: '', year, ...divCounts(y) });
+  if (p.layer.scale === 'div') return p.text.lede({ top: '', topIn: '', value: '', year, past: year < p.year, ...divCounts(y) });
   const top3 = p.layer.sums && y.rows.length > 3 ? shareOf(y.rows.slice(0, 3).reduce((s, r) => s + r.value, 0), y.world) ?? undefined : undefined;
   return p.text.lede({
-    top: inSentence(nameOf(top.id), true), topIn: inSentence(nameOf(top.id)), value: valueText(p, top.value), share: shareOf(top.value, y.world) ?? undefined, top3, year,
+    top: inSentence(nameOf(top.id), true), topIn: inSentence(nameOf(top.id)), value: valueText(p, top.value), share: shareOf(top.value, y.world) ?? undefined, top3, year, past: year < p.year,
     world: y.world !== null && !p.layer.sums ? valueText(p, y.world) : undefined,
     // Banded layers: how many places are in the top band, of how many.
     ...(p.layer.edges ? { up: y.rows.filter((r) => r.value >= p.edges[3]).length, of: y.rows.length } : {}),

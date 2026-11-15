@@ -24,8 +24,9 @@ export interface LayerText {
   worldLabel?: string;
   /** What the shares are of, where the total is not the world's ("the total for countries reporting"), and the table's column for them. */
   totalOf?: { phrase: string; column: string };
-  /** The one-sentence answer under the title: `top` starts a sentence ("The United States"), `topIn` sits inside one. */
-  lede: (p: { top: string; topIn: string; value: string; share?: string; top3?: string; world?: string; year: number; up?: number; down?: number; of?: number }) => string;
+  /** The one-sentence answer under the title: `top` starts a sentence ("The United States"), `topIn` sits inside one.
+   *  `past`: a year before the page's latest, said in the past tense. */
+  lede: (p: { top: string; topIn: string; value: string; share?: string; top3?: string; world?: string; year: number; up?: number; down?: number; of?: number; past?: boolean }) => string;
   /** The first summary sentence, on the world figure. */
   total?: (value: string, year: number, change: string | null) => string;
   /** A bloc's line in the panel, for layers that add up. */
@@ -206,7 +207,7 @@ export const VIEW_TEXT: Record<string, FamilyText> = {
       refin: {
         pick: 'Hosted', title: 'Refugees and others in need of protection', sub: 'by host country', measure: 'hosted', figureLabel: 'Refugees hosted',
         legend: (y) => `Refugees and others in need of protection hosted, ${y}`, worldLabel: 'Total, all hosts reported',
-        lede: ({ topIn, value, share, top3, year }) => `UNHCR counts ${value} people in these groups in ${topIn} in ${year}, ${share} of all it counted in host countries${top3 ? `; the top three host countries ${top3}` : ''}.`,
+        lede: ({ topIn, value, share, top3, year, past }) => `UNHCR ${past ? 'counted' : 'counts'} ${value} people in these groups in ${topIn} in ${year}, ${share} of all it counted in host countries${top3 ? `; the top three host countries ${top3}` : ''}.`,
         total: (v, y, ch) => `UNHCR counted ${v} refugees, asylum seekers and others in need of international protection in host countries in ${y}${ch ? `, ${ch}` : ''}.`,
         bloc: (b, s, y) => `${todaysMembers(b, { start: true })} hosted ${s} of them in ${y}.`,
         caveat: 'Refugees, asylum seekers and others in need of international protection living in each country, as UNHCR counts them. Palestinian refugees under UNRWA’s mandate are not included.',
@@ -470,7 +471,7 @@ export const VIEW_TEXT: Record<string, FamilyText> = {
       sanctions: {
         pick: 'All three lists', title: 'Sanctions list entries', sub: 'US, EU and UK lists', measure: 'entries', figureLabel: 'List entries',
         legend: (y) => `Sanctions list entries by country, ${y}`, worldLabel: 'Total, all countries',
-        lede: ({ topIn, value, share, top3, year }) => `In ${year}, ${value} entries on the US, EU and UK sanctions lists give ${topIn} as an address or nationality (counts entries, not how strict the measures are): ${share} of the entries with a country${top3 ? `, and ${top3} for the top three countries` : ''}.`,
+        lede: ({ topIn, value, share, top3, year, past }) => `In ${year}, ${value} entries on the US, EU and UK sanctions lists ${past ? 'gave' : 'give'} ${topIn} as an address or nationality (counts entries, not how strict the measures are): ${share} of the entries with a country${top3 ? `, and ${top3} for the top three countries` : ''}.`,
         total: (v, y) => `The three lists had ${v} entries with a country in ${y}.`,
         bloc: (b, s, y) => `In ${y}, ${s} of the entries give one of ${todaysMembers(b)} as an address or nationality.`,
         caveat: 'Entries on the US Specially Designated Nationals list, the EU financial sanctions list and the UK Sanctions List. A target on two lists counts once for each. Each entry is a person, company, ship or aircraft, placed by the country of its first address, else its nationality. The counts are of entries, not of how strict the measures are.',
@@ -479,7 +480,7 @@ export const VIEW_TEXT: Record<string, FamilyText> = {
       sanctionsus: {
         pick: 'US', title: 'US sanctions list entries', sub: 'Specially Designated Nationals list', measure: 'entries', figureLabel: 'List entries',
         legend: (y) => `US sanctions list entries by country, ${y}`, worldLabel: 'Total, all countries',
-        lede: ({ topIn, value, share, top3, year }) => `In ${year}, ${value} entries on the US Specially Designated Nationals list give ${topIn} as an address or nationality (counts entries, not how strict the measures are): ${share} of the entries with a country${top3 ? `, and ${top3} for the top three countries` : ''}.`,
+        lede: ({ topIn, value, share, top3, year, past }) => `In ${year}, ${value} entries on the US Specially Designated Nationals list ${past ? 'gave' : 'give'} ${topIn} as an address or nationality (counts entries, not how strict the measures are): ${share} of the entries with a country${top3 ? `, and ${top3} for the top three countries` : ''}.`,
         total: (v, y) => `The US list had ${v} entries with a country in ${y}.`,
         bloc: (b, s, y) => `In ${y}, ${s} of the entries give one of ${todaysMembers(b)} as an address or nationality.`,
         caveat: 'The US Treasury’s Specially Designated Nationals list, as published in the US Consolidated Screening List. Export controls such as the Entity List are not included. Each entry is a person, company, ship or aircraft, placed by the country of its first address, else its nationality. The counts are of entries, not of how strict the measures are.',
@@ -488,7 +489,7 @@ export const VIEW_TEXT: Record<string, FamilyText> = {
       sanctionseu: {
         pick: 'EU', title: 'EU sanctions list entries', sub: 'consolidated financial sanctions list', measure: 'entries', figureLabel: 'List entries',
         legend: (y) => `EU sanctions list entries by country, ${y}`, worldLabel: 'Total, all countries',
-        lede: ({ topIn, value, share, top3, year }) => `In ${year}, ${value} entries on the EU financial sanctions list give ${topIn} as an address or nationality (counts entries, not how strict the measures are): ${share} of the entries with a country${top3 ? `, and ${top3} for the top three countries` : ''}.`,
+        lede: ({ topIn, value, share, top3, year, past }) => `In ${year}, ${value} entries on the EU financial sanctions list ${past ? 'gave' : 'give'} ${topIn} as an address or nationality (counts entries, not how strict the measures are): ${share} of the entries with a country${top3 ? `, and ${top3} for the top three countries` : ''}.`,
         total: (v, y) => `The EU list had ${v} entries with a country in ${y}.`,
         bloc: (b, s, y) => `In ${y}, ${s} of the entries give one of ${todaysMembers(b)} as an address or nationality.`,
         caveat: 'The EU’s consolidated list of persons, groups and entities subject to financial sanctions. Each entry is a person, company, ship or aircraft, placed by the country of its first address, else its nationality. The counts are of entries, not of how strict the measures are.',
@@ -497,7 +498,7 @@ export const VIEW_TEXT: Record<string, FamilyText> = {
       sanctionsuk: {
         pick: 'UK', title: 'UK sanctions list entries', sub: 'UK Sanctions List', measure: 'entries', figureLabel: 'List entries',
         legend: (y) => `UK sanctions list entries by country, ${y}`, worldLabel: 'Total, all countries',
-        lede: ({ topIn, value, share, top3, year }) => `In ${year}, ${value} entries on the UK Sanctions List give ${topIn} as an address or nationality (counts entries, not how strict the measures are): ${share} of the entries with a country${top3 ? `, and ${top3} for the top three countries` : ''}.`,
+        lede: ({ topIn, value, share, top3, year, past }) => `In ${year}, ${value} entries on the UK Sanctions List ${past ? 'gave' : 'give'} ${topIn} as an address or nationality (counts entries, not how strict the measures are): ${share} of the entries with a country${top3 ? `, and ${top3} for the top three countries` : ''}.`,
         total: (v, y) => `The UK list had ${v} entries with a country in ${y}.`,
         bloc: (b, s, y) => `In ${y}, ${s} of the entries give one of ${todaysMembers(b)} as an address or nationality.`,
         caveat: 'The UK government’s Sanctions List of designations under UK law. Each entry is a person, company, ship or aircraft, placed by the country of its first address, else its nationality. The counts are of entries, not of how strict the measures are.',

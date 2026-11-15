@@ -65,6 +65,14 @@ describe('registry map views', () => {
       for (const s of V.summary(p)) expect(s).not.toMatch(/undefined|NaN/);
     }
   });
+  it('says a year before the latest in the past tense, the latest in the present', () => {
+    const p = V.viewPages().find((x) => x.id === 'refin');
+    if (!p || p.years.length < 2) return;
+    expect(V.lede(p)).toMatch(/^UNHCR counts .* in \d{4}, /);
+    expect(V.lede(p, p.years[0])).toMatch(new RegExp(`^UNHCR counted .* in ${p.years[0]}, `));
+    const s = VIEW_TEXT.sanctions.layers.sanctions.lede;
+    expect(s({ top: '', topIn: 'Russia', value: '100', share: '10%', year: 2025, past: true })).toMatch(/^In 2025, 100 entries .* gave Russia as/);
+  });
   it('writes no sign on a change that rounds to zero, and no change from a tiny money figure', () => {
     type P = Parameters<Views['changeText']>[0];
     const pts = { layer: { points: true }, format: { kind: 'share' } } as unknown as P;

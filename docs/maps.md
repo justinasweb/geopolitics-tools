@@ -54,7 +54,10 @@ before and without the map script.
   for the map's label, `SourceLine`'s `years` for parts and tags) and `showYear` (`src/scripts/map/by-year.ts`)
   swaps them on a year change and on a `?year=` in the address. The latest year's words are the HTML's own, so the
   page reads the same without the script. The title, description, share image and the table stay on the latest year
-  (the table's headings name its years).
+  (the table's headings name its years). The latest year's answer keeps the present tense ("Australia mines 32%");
+  an earlier year's is in the past tense and names its year ("Australia mined 37% … in 2024"): minerals' answer and
+  "followed with"/"also mined", the refugees-hosted and sanctions answers (`past` in a view's `lede`), and the
+  warheads answer, which names each state as it was then (the Soviet Union to 1991).
 - **URL state.** `?year=2024&country=australia&bloc=brics` (`src/scripts/map/state.ts`), kept with
   `history.replaceState`; defaults are left out and the canonical stays the bare path. A year a source does not
   cover moves to the nearest one it has, and the page says so. Switching mineral keeps the query.
