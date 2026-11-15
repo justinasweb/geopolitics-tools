@@ -96,6 +96,14 @@ export function warheadsModel(): WarheadsModel | null {
 
 const nameOf = (id: string) => place(id)?.name ?? id;
 
+/** One sentence per state whose deployed and reserve warheads fall short of its military stockpile in FAS's split
+ *  (India, early 2026), largest gap first; '' when every state's parts add up. `only` keeps one state's. */
+export function unassignedNote(forces: WarheadsModel['forces'], only?: string): string {
+  if (!forces) return '';
+  return Object.values(forces.rows).filter((x) => x.unassigned > 0 && (!only || x.place === only)).sort((a, b) => b.unassigned - a.unassigned)
+    .map((x) => T.unassigned(inSentence(nameOf(x.place)), warheads(x.unassigned), warheads(x.stockpile))).join(' ');
+}
+
 /** The warheads view's one-sentence answer: the two largest inventories and their share of the world's. */
 export function warheadsLede(m = warheadsModel(), year = m?.year): string | null {
   const y = year === undefined ? undefined : m?.byYear[year];

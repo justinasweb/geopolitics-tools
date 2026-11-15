@@ -48,7 +48,7 @@ import { CONFLICT_TEXT, monthText } from '../../i18n/conflict.en.ts';
 import { latestAnalyses, monthSpan } from '../hunger.ts';
 import { HUNGER_TEXT } from '../../i18n/hunger.en.ts';
 import { POWER_TEXT } from '../../i18n/electricity.en.ts';
-import { FORMER, nameIn, NUCLEAR_PAGES, SHARING_CHECKED, SHARING_CLASSES, TREATIES_CHECKED, sharingCounts, TREATY_CLASSES, armedStates, nuclearLive, providerName, sharingClass, sharingNote, sharingRows, treaties, treatyClass, warheadClass, warheads, warheadsModel, type NuclearPage } from '../nuclear.ts';
+import { FORMER, nameIn, NUCLEAR_PAGES, SHARING_CHECKED, SHARING_CLASSES, TREATIES_CHECKED, sharingCounts, TREATY_CLASSES, armedStates, nuclearLive, providerName, sharingClass, sharingNote, sharingRows, treaties, treatyClass, unassignedNote, warheadClass, warheads, warheadsModel, type NuclearPage } from '../nuclear.ts';
 import { NUCLEAR_TEXT } from '../../i18n/nuclear.en.ts';
 import type { Pair } from '../../data/flows.ts';
 import type { Hazard } from '../../adapters/hazards.ts';
@@ -1158,7 +1158,7 @@ function nuclearLayer(id: NuclearPage): LayerFile {
     if (f) {
       for (const x of Object.values(f.rows)) {
         more[x.place] = [{
-          label: N.split(f.year), caption: N.splitCaption, source: f.asOf.length > 4 ? N.splitSource(formatPartialDate(f.asOf)) : N.splitSourceOwid(f.year),
+          label: N.split(f.year), caption: [N.splitCaption, unassignedNote(f, x.place)].filter(Boolean).join(' '), source: f.asOf.length > 4 ? N.splitSource(formatPartialDate(f.asOf)) : N.splitSourceOwid(f.year),
           rows: [
             { name: N.deployed, value: warheads(x.deployed), note: x.deployedNonstrategic ? `${N.deployedStrategic} ${warheads(x.deployedStrategic)}, ${N.deployedNonstrategic.toLowerCase()} ${warheads(x.deployedNonstrategic)}` : undefined },
             { name: N.reserve, value: warheads(x.reserve) },

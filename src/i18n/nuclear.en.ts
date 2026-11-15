@@ -71,6 +71,8 @@ export const NUCLEAR_TEXT = {
   chartCaption: (m: WarheadMeasure) => `Each line is one state’s estimated ${MEASURE[m].noun}, as FAS counts it.`,
   split: (year: number) => `Deployed, reserve and retired, early ${year}`,
   splitCaption: 'Deployed warheads sit on missiles or at bases with delivery forces. Reserve warheads are in the military stockpile but not deployed. Retired warheads are intact and waiting to be dismantled.',
+  /** A state whose deployed and reserve warheads fall short of its military stockpile in FAS's table. */
+  unassigned: (name: string, n: string, of: string) => `FAS’s figures for ${name} do not assign ${n} of its ${of} warheads to a status.`,
   deployed: 'Deployed',
   reserve: 'Reserve (not deployed)',
   stockpile: 'Military stockpile',

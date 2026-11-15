@@ -99,11 +99,30 @@ describe('FAS adapter', () => {
     expect(() => parseForces(FORCES.replace('Russia,1718,0,2591,4309,5459', 'Russia,1718,0,2591,6000,5459'))).toThrow(/add up/);
   });
 
+  it('reads FAS’s early-2026 table as published: its rows add up to FAS’s totals, India’s reserve stays 178 of 190', async () => {
+    const text = readFileSync(new URL('../fixtures/live/fas-forces/status-world-nuclear-forces.csv', import.meta.url), 'utf8');
+    const f = parseForces(text);
+    const rows = Object.values(f.rows);
+    expect(f.year).toBe(2026);
+    expect(rows).toHaveLength(9);
+    expect(rows.reduce((t, x) => t + x.stockpile, 0)).toBe(9745);
+    expect(rows.reduce((t, x) => t + x.inventory, 0)).toBe(12187);
+    expect(f.rows.IND).toMatchObject({ deployed: 0, reserve: 178, stockpile: 190, unassigned: 12, retired: 0, inventory: 190 });
+    expect(f.rows.RUS).toMatchObject({ deployedStrategic: 1796, deployedNonstrategic: 0, reserve: 2604, stockpile: 4400, unassigned: 0, retired: 1020, inventory: 5420 });
+    expect(f.rows.USA).toMatchObject({ deployedStrategic: 1670, deployedNonstrategic: 100, reserve: 1930, stockpile: 3700, unassigned: 0, retired: 1342, inventory: 5042 });
+    expect(N.unassignedNote(f)).toBe('FAS’s figures for India do not assign 12 of its 190 warheads to a status.');
+    expect(N.unassignedNote(f, 'RUS')).toBe('');
+    const read = await readInput('status-world-nuclear-forces.csv', new TextEncoder().encode(text));
+    expect(prepare(KINDS['fas-forces'], read, now).rows).toBe(10);
+  });
+
   it('imports the FAS table only when it is whole, adds up and links to FAS', async () => {
     const kind = KINDS['fas-forces'];
     const read = (t: string) => readInput('status-world-nuclear-forces.csv', new TextEncoder().encode(t));
     expect(prepare(kind, await read(FORCES), now).rows).toBe(10);
-    await expect(read(FORCES.replace('Russia,1718,0,2591', 'Russia,1718,0,2500')).then((i) => prepare(kind, i, now))).rejects.toThrow(/do not add up/);
+    await expect(read(FORCES.replace('Russia,1718,0,2591', 'Russia,1718,0,3000')).then((i) => prepare(kind, i, now))).rejects.toThrow(/more than the military stockpile/);
+    // FAS leaves some warheads without a status: deployed and reserve may fall short of the stockpile.
+    expect(prepare(kind, await read(FORCES.replace('Russia,1718,0,2591', 'Russia,1718,0,2500')), now).rows).toBe(10);
     await expect(read(FORCES.replace(/\nTotal,.*\n/, '\n')).then((i) => prepare(kind, i, now))).rejects.toThrow(/Total/);
     await expect(read(FORCES.replace('https://fas.org/initiative', 'https://example.org/initiative')).then((i) => prepare(kind, i, now))).rejects.toThrow(/fas\.org/);
   });

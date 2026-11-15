@@ -28,7 +28,7 @@ import { byYear } from '../lib/map/by-year';
 import { refreshed } from '../lib/data';
 import {
   FORMER, nameIn, NUCLEAR_CSV, NUCLEAR_PAGES, SHARING_CHECKED, TREATIES_CHECKED, nuclearAnswer, peakOf, providerName,
-  sharingNote, sharingRows, treaties, warheads, warheadsLede, warheadsModel, type NuclearPage,
+  sharingNote, sharingRows, treaties, unassignedNote, warheads, warheadsLede, warheadsModel, type NuclearPage,
 } from '../lib/nuclear';
 
 interface Props { id: NuclearPage }
@@ -60,6 +60,8 @@ const chartYears = m ? m.years : [];
 const shortOf = (x: string) => place(x)?.short ?? nameOf(x);
 const sideBySide = !!(m?.splitIsLatest && forces);
 // The other of FAS's totals beside the latest year's key figure, from the split's own figures (never the series').
+// States whose split leaves warheads without a status, said beside the split (FAS's figures as given).
+const unassigned = unassignedNote(forces);
 const otherTotal = m && sideBySide ? Object.values(forces!.rows).reduce((t, x) => t + x[m.measure === 'stockpile' ? 'inventory' : 'stockpile'], 0) : null;
 const valueIn = (s: string, y: number) => m!.byYear[y].rows.find((r) => r.id === s)?.value ?? null;
 // A former state's years are their own line (the Soviet Union to 1991, then Russia), in the same colour; no figure moves.
@@ -155,7 +157,7 @@ const legend = id === 'warheads'
                 return <li><span class="gt-prow__n">{N[k]}</span><span class="gt-prow__v">{N.about(warheads(v))}</span></li>;
               })}
             </ul>
-            <p class="gt-caption gt-pblock__cap">{N.splitCaption}</p>
+            <p class="gt-caption gt-pblock__cap">{N.splitCaption} {unassigned}</p>
             <SourceLine source={forces.asOf.length > 4 ? N.splitSource(formatPartialDate(forces.asOf)) : N.splitSourceOwid(forces.year)} status="estimate" />
           </div>
         )}
@@ -182,7 +184,7 @@ const legend = id === 'warheads'
           <h2 class="gt-h2" id="table">{N.table}</h2>
           <div class="gt-tablewrap" style="--gt-table-h:none" tabindex="0" role="region" aria-label={N.table}>
             <table class="gt-table" data-gt-sort>
-              <caption class="gt-caption">{N.tableCaption(lastYear, m.measure)}</caption>
+              <caption class="gt-caption">{N.tableCaption(lastYear, m.measure)}{sideBySide && unassigned ? ` ${unassigned}` : ''}</caption>
               <thead><tr>
                 <th scope="col" data-key="n"><button type="button">{N.country}</button></th>
                 <th scope="col" class="n" data-key="v" data-type="num" aria-sort="descending"><button type="button">{N.figureLabel}</button></th>
@@ -213,7 +215,7 @@ const legend = id === 'warheads'
               <h3 class="gt-h3">{N.splitTable(forces.year)}</h3>
               <div class="gt-tablewrap" style="--gt-table-h:none" tabindex="0" role="region" aria-label={N.splitTable(forces.year)}>
                 <table class="gt-table" data-gt-sort>
-                  <caption class="gt-caption">{N.splitTableCaption(forces.year, lastYear)}</caption>
+                  <caption class="gt-caption">{N.splitTableCaption(forces.year, lastYear)}{unassigned ? ` ${unassigned}` : ''}</caption>
                   <thead><tr>
                     <th scope="col" data-key="n"><button type="button">{N.country}</button></th>
                     <th scope="col" class="n" data-key="d" data-type="num"><button type="button">{N.deployed}</button></th>

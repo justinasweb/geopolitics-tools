@@ -133,7 +133,9 @@ function treasuryHistoryCheck(text: string) {
   return (text.trim().match(/\n/g) ?? []).length;
 }
 
-/** The FAS table copied by hand: every figure a whole number, one "As of" date, a link to the page. */
+/** The FAS table copied by hand: every figure a whole number, one "As of" date, a link to the page. FAS leaves some
+ *  warheads without a status (India, early 2026: 178 reserve of 190), so deployed and reserve may fall short of the
+ *  military stockpile, never above it; a cell FAS gives as "n.a." is left empty. */
 function fasForcesCheck(text: string) {
   const rows = csvRecords(text);
   for (const c of ['Country', 'Deployed strategic', 'Deployed nonstrategic', 'Reserve/Nondeployed', 'Military stockpile', 'Total inventory', 'As of', 'Source']) {
@@ -146,7 +148,7 @@ function fasForcesCheck(text: string) {
   for (const r of rows) {
     const n = (k: string) => Number(r[k].replace(/,/g, '') || 0);
     check(Number.isInteger(n('Total inventory')) && n('Total inventory') > 0, `${r.Country}: no total inventory`);
-    check(n('Deployed strategic') + n('Deployed nonstrategic') + n('Reserve/Nondeployed') === n('Military stockpile'), `${r.Country}: deployed and reserve do not add up to the military stockpile`);
+    check(n('Deployed strategic') + n('Deployed nonstrategic') + n('Reserve/Nondeployed') <= n('Military stockpile'), `${r.Country}: deployed and reserve add up to more than the military stockpile`);
     check(n('Military stockpile') <= n('Total inventory'), `${r.Country}: military stockpile above total inventory`);
     check(/^https:\/\/(www\.)?fas\.org\//.test(r.Source.trim()), `${r.Country}: the source must be a fas.org link`);
   }
