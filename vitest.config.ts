@@ -1,5 +1,6 @@
-import { defineConfig } from 'vitest/config';
+import { getViteConfig } from 'astro/config';
 
-export default defineConfig({
+// Astro's Vite config, so a test can render a component with the container API (tests/unit/components.test.ts).
+export default getViteConfig({
   test: { include: ['tests/unit/**/*.test.ts'] },
 });
