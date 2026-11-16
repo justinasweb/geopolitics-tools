@@ -1,0 +1,21 @@
+{
+  "id": "week:2026-46",
+  "author": "ai",
+  "text": "In the week of 9–15 November 2026, GDACS carried a drought alert dated from 21 September 2022 for Aruba, Brazil, Colombia, Costa Rica, French Guiana, Guyana, Panama, Suriname and Venezuela. On the sanctions lists, 2 entries were added to the US Specially Designated Nationals (SDN) sanctions list and the US Entity List for export controls in the week of 9–15 November. The UK Sanctions List gained 20 entries in the same week. No entries were removed from either the US lists or the UK list. The European Union's Financial sanctions file had no entries added or removed. Added entries most often give an address or nationality in Russia, the United Arab Emirates and Guatemala. An entry is a person, company, vessel or aircraft. The counts show how many entries changed, not what the measures do.",
+  "model": "claude-sonnet-5-5",
+  "factsHash": "sha256:45b281728f4297767e6274a0b53a3cba",
+  "usedFacts": [
+    "alert-1",
+    "sanctions-eu-none",
+    "sanctions-places",
+    "sanctions-uk-added",
+    "sanctions-uk-removed",
+    "sanctions-us-added",
+    "sanctions-us-removed",
+    "week"
+  ],
+  "drafted": "2026-11-16",
+  "approved": false,
+  "approvedOn": null,
+  "approvedVia": null
+}
