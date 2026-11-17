@@ -1,4 +1,4 @@
-import { cpSync, mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -65,7 +65,7 @@ describe('the week’s facts', () => {
     expect(byId['price-rice-05-year']).toBeUndefined();
     expect(byId['outage-1']).toMatchObject({ value: 3.5, unit: 'hours', places: ['IRQ'] });
     expect(byId['sanctions-us-added']).toMatchObject({ value: 12, places: ['USA'] });
-    expect(byId['sanctions-eu-none'].statement).toMatch(/^No entries were added to or removed from the European Union/);
+    expect(byId['sanctions-eu-none'].statement).toBe('No entries were added to or removed from the EU’s consolidated financial sanctions list.');
     expect(byId['sanctions-eu-added']).toBeUndefined();
   });
 
@@ -112,6 +112,59 @@ describe('the week’s facts', () => {
     expect(byId['outage-1'].value).toBeUndefined();
     expect(problemLines(checkDraft(PUBLIC, w))).toEqual([]);
     expect(checkDraft(PUBLIC.replace('began on 4 November 2026', 'began on 4 November 2026 and lasted 3.5 hours'), w).ok).toBe(false);
+  });
+
+  it('say an alert GDACS raised in the week was raised, with the day GDACS began tracking it, level only when licensed', () => {
+    const rose: WeekData = { ...WEEK, cards: WEEK.cards.map((c) => (c.kind === 'disaster' ? { ...c, alerts: [
+      { id: '3', level: 'orange', type: 'DR', places: ['BRA', 'COL'], name: 'Z', from: '2022-09-21', rose: true },
+      { id: '4', level: 'red', type: 'EQ', places: ['JPN'], name: 'Y', from: '2026-11-05' },
+    ] } : c)) };
+    const out = Object.fromEntries(weekFacts('2026-45', rose, (s) => s === 'gdacs').facts.map((x) => [x.id, x]));
+    expect(out['alert-1'].statement).toBe('GDACS raised its alert for a drought in Brazil and Colombia in the week; GDACS has tracked this drought since 21 September 2022.');
+    expect(out['alert-1'].period).toBe('2022-09-21');
+    expect(out['alert-2'].statement).toBe('GDACS issued an alert for an earthquake in Japan, from 5 November 2026.');
+    for (const x of [out['alert-1'], out['alert-2']]) expect(x.statement).not.toMatch(/red|orange/i);
+    const on = Object.fromEntries(weekFacts('2026-45', rose, LICENSED).facts.map((x) => [x.id, x]));
+    expect(on['alert-1'].statement).toBe('GDACS raised its alert for a drought in Brazil and Colombia to orange in the week; GDACS has tracked this drought since 21 September 2022.');
+    expect(on['alert-2'].statement).toBe('GDACS issued a red alert for an earthquake in Japan, from 5 November 2026.');
+    const draft = 'In the week of 2–8 November 2026, GDACS raised its alert for a drought in Brazil and Colombia that it has tracked since 21 September 2022.';
+    expect(problemLines(checkDraft(draft, weekFacts('2026-45', rose, (s) => s === 'gdacs')))).toEqual([]);
+  });
+
+  it('give each US list its own count, with the total the card shows, and each list’s added and removed in one fact', () => {
+    const us: WeekData = { ...WEEK, cards: WEEK.cards.map((c) => (c.kind === 'sanctions' ? { ...c, lists: [
+      { list: 'US', added: 2, removed: 0, parts: { sdn: { added: 1, removed: 0 }, entity: { added: 1, removed: 0 } } },
+      { list: 'EU', added: 0, removed: 0 }, { list: 'UK', added: 20, removed: 0 },
+    ] } : c)) };
+    const f2 = weekFacts('2026-45', us, LICENSED);
+    const s = (id: string) => f2.facts.find((x) => x.id === id)?.statement;
+    expect(s('sanctions-us-sdn-added')).toBe('1 entry was added to and none removed from the US Specially Designated Nationals (SDN) sanctions list.');
+    expect(s('sanctions-us-entity-added')).toBe('1 entry was added to and none removed from the US Entity List for export controls.');
+    expect(s('sanctions-us-added')).toBe('2 entries were added in total to the US SDN list and the US Entity List, and none removed.');
+    expect(s('sanctions-uk-added')).toBe('20 entries were added to and none removed from the UK Sanctions List.');
+    expect(f2.facts.some((x) => x.id.endsWith('-removed'))).toBe(false);
+    for (const x of f2.facts) expect(strayNumbers(x, f2.names), x.id).toEqual([]);
+    expect(duplicateFacts(f2)).toEqual([]);
+    // Both added and removed: a fact holds one figure, so one each.
+    expect(f.facts.filter((x) => x.id.startsWith('sanctions-us')).map((x) => x.statement)).toEqual([
+      '12 entries were added in total to the US Specially Designated Nationals (SDN) sanctions list and the US Entity List for export controls.',
+      '1 entry was removed in total from the US Specially Designated Nationals (SDN) sanctions list and the US Entity List for export controls.',
+    ]);
+  });
+
+  it('give no dates for lists compared with the week’s Monday, and "since" the day of a copy from another day', () => {
+    for (const x of f.facts.filter((y) => y.id.startsWith('sanctions'))) expect(x.statement).not.toMatch(/between|since|November/);
+    const later = weekFacts('2026-45', { ...WEEK, cards: WEEK.cards.map((c) => (c.kind === 'sanctions' ? { ...c, since: '2026-11-03' } : c)) }, LICENSED);
+    expect(later.facts.find((x) => x.id === 'sanctions-uk-added')!.statement).toBe('3 entries were added to and none removed from the UK Sanctions List since 3 November 2026.');
+  });
+
+  it('word the places and the caveat as the card does', () => {
+    expect(f.facts.find((x) => x.id === 'sanctions-places')!.statement).toBe('The country named most often in the new entries, by address or nationality, is Russia. An entry can be a person, company, ship or aircraft; the figures count entries, not how strict the measures are.');
+  });
+
+  it('still pass week 46’s corrected and approved summary against its frozen facts', () => {
+    const read = (p: string) => JSON.parse(readFileSync(new URL(`../../src/data/ai/${p}`, import.meta.url), 'utf8'));
+    expect(problemLines(checkDraft(read('texts/weeks/2026-46.json').text, read('facts/weeks/2026-46.json')))).toEqual([]);
   });
 
   it('give the digest its three counts', () => {

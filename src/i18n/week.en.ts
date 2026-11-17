@@ -46,8 +46,17 @@ const HAZARD: Record<string, string> = { EQ: 'Earthquake', TC: 'Tropical cyclone
 const LEVEL: Record<string, string> = { red: 'Red', orange: 'Orange' };
 const LISTS: Record<string, { name: string; sub: string; short: string }> = {
   US: { name: 'United States', sub: 'SDN list and Entity List', short: 'US' },
-  EU: { name: 'European Union', sub: 'Financial sanctions file', short: 'EU' },
+  EU: { name: 'European Union', sub: 'Consolidated financial sanctions list', short: 'EU' },
   UK: { name: 'United Kingdom', sub: 'UK Sanctions List', short: 'UK' },
+};
+/** Each list by its own name, inside a sentence of the week's summary facts: the two US lists apart (`sdn`, `entity`),
+ *  `US` for both together. */
+export const LIST_NAMES: Record<string, string> = {
+  sdn: 'the US Specially Designated Nationals (SDN) sanctions list',
+  entity: 'the US Entity List for export controls',
+  US: 'the US SDN list and the US Entity List',
+  EU: 'the EU’s consolidated financial sanctions list',
+  UK: 'the UK Sanctions List',
 };
 
 /** The Pink Sheet series on the prices card, with the unit the Pink Sheet prices each in (US dollars). */
@@ -208,8 +217,10 @@ export const WEEK_TEXT = {
   },
   sanctionsCols: { list: 'List', added: 'Added', removed: 'Removed' },
   list: (l: string) => LISTS[l] ?? { name: l, sub: '', short: l },
-  sanctionsPlaces: (items: string[]) => `Entries added most often give an address or nationality in ${list(items)}.`,
-  sanctionsEntry: 'An entry is a person, company, vessel or aircraft. Counts say how many entries changed, not what the measures do.',
+  sanctionsPlaces: (items: string[]) => (items.length === 1
+    ? `The country named most often in the new entries, by address or nationality, is ${items[0]}.`
+    : `The countries named most often in the new entries, by address or nationality, are ${list(items)}.`),
+  sanctionsEntry: 'An entry can be a person, company, ship or aircraft; the figures count entries, not how strict the measures are.',
   sanctionsSince: (d: string) => `Compared with the lists as they stood on ${d}.`,
 
   // Latest feed
