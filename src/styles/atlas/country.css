@@ -21,7 +21,7 @@
 .gt-cplinks { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 24px; }
 .gt-cplinks a { font: 600 15px/22px var(--sans); color: var(--brand); }
 .gt-cphead__map { display: grid; gap: 6px; }
-.gt-cploc { aspect-ratio: 4 / 3; background: var(--paper-sunk); border: 1px solid var(--rule); position: relative; overflow: hidden; }
+.gt-cploc { aspect-ratio: 4 / 3; background: var(--paper-raised); border: 1px solid var(--rule); position: relative; overflow: hidden; }
 .gt-cploc .gt-mapbox { position: absolute; inset: 0; padding: 0; height: 100%; }
 .gt-cploc .gt-world__svg { height: 100%; }
 .gt-cploc .gt-world__c.is-muted { opacity: 1; }
