@@ -4,11 +4,11 @@ Generated from `src/data/licences.ts` by `node scripts/licence-table.ts > docs/l
 
 What each source's terms allow and what the site does with it (decision D9). Downloads are "Yes" only where the terms
 allow redistribution; otherwise the site shows charts and figures only. Credits travel with every chart and export.
-35 sources: 31 checked against the terms page, 0 to confirm, 4 waiting on permission.
+35 sources: 32 checked against the terms page, 0 to confirm, 3 waiting on permission.
 
 | Source | Licence | Downloads | Commercial use | Status | Note |
 |---|---|---|---|---|---|
-| [GDACS disaster alerts](https://gdacs.org/About/termofuse.aspx) | No licence stated; terms are a disclaimer only | Shown only | To confirm | Permission asked | The terms say data is "as is" and should be confirmed before decisions; nothing on reuse. Ask the JRC before offering downloads. Asked 10 Nov 2026 |
+| [GDACS disaster alerts](https://commission.europa.eu/legal-notice_en#copyright-notice) | CC BY 4.0 | Shown only | Yes | Checked 2026-11-16 | GDACS replied by email on 16 Nov 2026 (asked 10 Nov): its data is CC BY 4.0 under the Commission’s copyright notice, with attribution to GDACS and no suggestion that GDACS endorses the site. Downloads stay off until a view offers one |
 | [USGS earthquakes](https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits) | Public domain (US government work) | Yes | Yes | Checked 2026-11-10 | Credit as the USGS copyrights page asks; USGS works are public domain |
 | [IODA internet outages](https://www.caida.org/about/legal/) | Not stated | Shown only | To confirm | Permission asked | No terms found on the project pages; ask the IODA team. Asked 10 Nov 2026 (dainotti@gatech.edu, after ioda-info bounced) |
 | [IMF PortWatch](https://www.imf.org/en/about/copyright-and-terms) | IMF copyright and usage terms | Shown only | No | Permission asked | Scheduled fetching waits on the IMF (copyright@imf.org) |

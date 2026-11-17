@@ -19,6 +19,11 @@ GDACS, IODA and CelesTrak are now "permission asked" (asked 10 Nov; IODA at dain
 bounced). AidData stays checked (ODC-By 1.0 for GCDF 3.0, 10 Nov); AidData was asked to confirm and for CLG-Global 1.0's
 licence.
 
+Reply of 16 November: GDACS confirmed that its data is CC BY 4.0 (the Commission's copyright notice), with attribution to
+GDACS and no suggestion that GDACS endorses the site. GDACS is recorded as checked and taken off `WITHHELD`, so the
+disasters views, the country pages' disaster lines, the Climate hub's disasters card and This week's alert counts and
+levels are back. Every one credits "GDACS". The Climate hub intro needs redrafting with disasters in it.
+
 Replies of 10 and 11 November: WRI confirmed the Aqueduct credit by email (no need to cite the technical note; the data
 may be downloaded without registering). CelesTrak's Dr T.S. Kelso gave permission by email for derived figures with the
 credit "Orbital data from CelesTrak" and a link, so CelesTrak is out of `WITHHELD` and Space is live again (below); the
@@ -84,7 +89,7 @@ empty and withheld states. How each gate was read:
 
 ## Licence removals
 
-`WITHHELD` in `src/data/licences.ts` holds GDACS and IODA. WRI Aqueduct and AidData were on it from the second pass
+`WITHHELD` in `src/data/licences.ts` holds IODA (GDACS until 16 Nov, when its licence was confirmed). WRI Aqueduct and AidData were on it from the second pass
 until the third, when their licences were confirmed (above); CelesTrak was on it until 11 Nov, when its permission was
 recorded, so space, satellites and launches are back everywhere below. Removed from the build:
 

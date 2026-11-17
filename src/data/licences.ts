@@ -38,12 +38,12 @@ export const LICENCE_OF: Record<string, string> = { 'fas-forces': 'fas' };
  * snapshot (src/lib/data.ts), so no page, map, ranking or download shows their figures; This week names their events
  * and links to the source. Fetching and importing go on. Take a source out once its licence is recorded below.
  */
-export const WITHHELD = ['gdacs', 'ioda'];
+export const WITHHELD = ['ioda'];
 export const withheld = (source: string) => WITHHELD.includes(LICENCE_OF[source] ?? source);
 
 export const LICENCES: Licence[] = [
   // Fetched on a schedule.
-  { source: 'gdacs', name: 'GDACS disaster alerts', licence: 'No licence stated; terms are a disclaimer only', terms: 'https://gdacs.org/About/termofuse.aspx', downloads: 'shown only', commercial: 'to confirm', credit: 'GDACS, a cooperation framework of the United Nations and the European Commission', status: 'permission asked', checked: ON, note: 'The terms say data is "as is" and should be confirmed before decisions; nothing on reuse. Ask the JRC before offering downloads. Asked 10 Nov 2026' },
+  { source: 'gdacs', name: 'GDACS disaster alerts', licence: 'CC BY 4.0', terms: 'https://commission.europa.eu/legal-notice_en#copyright-notice', downloads: 'shown only', commercial: 'yes', credit: 'GDACS, Global Disaster Alert and Coordination System (CC BY 4.0)', status: 'checked', checked: '2026-11-16', note: 'GDACS replied by email on 16 Nov 2026 (asked 10 Nov): its data is CC BY 4.0 under the Commission’s copyright notice, with attribution to GDACS and no suggestion that GDACS endorses the site. Downloads stay off until a view offers one' },
   { source: 'usgs-quakes', name: 'USGS earthquakes', licence: 'Public domain (US government work)', terms: 'https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits', downloads: 'yes', commercial: 'yes', credit: 'U.S. Geological Survey, Earthquake Hazards Program', status: 'checked', checked: '2026-11-10', note: 'Credit as the USGS copyrights page asks; USGS works are public domain' },
   { source: 'ioda', name: 'IODA internet outages', licence: 'Not stated', terms: 'https://www.caida.org/about/legal/', downloads: 'shown only', commercial: 'to confirm', credit: 'IODA, Georgia Tech Internet Intelligence Lab', status: 'permission asked', checked: ON, note: 'No terms found on the project pages; ask the IODA team. Asked 10 Nov 2026 (dainotti@gatech.edu, after ioda-info bounced)' },
   { source: 'portwatch', name: 'IMF PortWatch', licence: 'IMF copyright and usage terms', terms: 'https://www.imf.org/en/about/copyright-and-terms', downloads: 'shown only', commercial: 'no', credit: 'IMF PortWatch (portwatch.imf.org), with data from the UN Global Platform', status: 'permission asked', checked: ON, note: 'Scheduled fetching waits on the IMF (copyright@imf.org)' },
