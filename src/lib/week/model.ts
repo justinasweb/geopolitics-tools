@@ -14,7 +14,7 @@ import { parseGdacs, type HazardKind } from '../../adapters/hazards.ts';
 import { ged } from '../../adapters/ucdp.ts';
 import { prices } from '../../adapters/prices.ts';
 import { outages } from '../../adapters/digital.ts';
-import { changes, entries, type List } from '../../adapters/sanctions.ts';
+import { changes, entries, type List, type UsPart } from '../../adapters/sanctions.ts';
 import { addDays, inPeriod, type Period } from './period.ts';
 
 export type CardKind = 'shipping' | 'disaster' | 'conflict' | 'prices' | 'food' | 'outage' | 'sanctions';
@@ -79,7 +79,9 @@ export interface SanctionsCard extends Base {
   kind: 'sanctions';
   /** The day of the earlier copy the lists are compared with; null when no earlier copy is kept yet. */
   since: string | null;
-  lists: { list: List; added: number; removed: number }[];
+  /** `parts`, on the US row: its counts per US list (SDN list and Entity List), adding up to the row's. Weeks frozen
+   *  before 17 Nov 2026 have none. */
+  lists: { list: List; added: number; removed: number; parts?: Record<UsPart, { added: number; removed: number }> }[];
   /** Places named most often in the added entries. */
   places: { place: string; n: number }[];
 }
@@ -293,7 +295,10 @@ export function sanctionsCard(input: WeekInput): { card: SanctionsCard; feed: Fe
   return {
     card: {
       kind: 'sanctions', src, quiet, since: base.date,
-      lists: diff.map((d) => ({ list: d.list, added: d.added.length, removed: d.removed.length })),
+      lists: diff.map((d) => ({
+        list: d.list, added: d.added.length, removed: d.removed.length,
+        ...(d.parts ? { parts: { sdn: { added: d.parts.sdn.added.length, removed: d.parts.sdn.removed.length }, entity: { added: d.parts.entity.added.length, removed: d.parts.entity.removed.length } } } : {}),
+      })),
       places: [...counts].map(([place, n]) => ({ place, n })).sort((a, b) => b.n - a.n || a.place.localeCompare(b.place)).slice(0, 3),
     },
     feed: [],

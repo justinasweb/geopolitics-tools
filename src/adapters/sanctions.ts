@@ -135,22 +135,28 @@ export const listingsAt = (s: Sanctions, year: number): Series => {
 /**
  * Every entry on each list by the list's own id (CSL `id`, EU `Entity_LogicalId`, UK `Unique ID`), with the place it
  * is counted under (null when none): what This week compares between an earlier copy and a later one to count the
- * entries added and removed. US: the SDN list and the Entity List, the two US lists the site reads. A list whose file
- * is not in the copy is left out.
+ * entries added and removed. US: the SDN list and the Entity List, the two US lists the site reads, with the one each
+ * entry is on (`usPart`) so their counts can be given apart. A list whose file is not in the copy is left out.
  */
-export type Entries = Partial<Record<List, Map<string, string | null>>>;
+export type UsPart = 'sdn' | 'entity';
+export type Entries = Partial<Record<List, Map<string, string | null>>> & { usPart?: Map<string, UsPart> };
 
 export function entries(raw: Raw): Entries {
   const out: Entries = {};
   if (raw.has('csl', 'consolidated.json')) {
     const at = country('csl');
     const m = new Map<string, string | null>();
+    const part = new Map<string, UsPart>();
     for (const r of raw.json<{ results?: (CslRecord & { id?: string; entity_number?: string | number })[] }>('csl', 'consolidated.json').results ?? []) {
-      if (!SDN.test(r.source ?? '') && !ENTITY_LIST.test(r.source ?? '')) continue;
+      const sdn = SDN.test(r.source ?? '');
+      if (!sdn && !ENTITY_LIST.test(r.source ?? '')) continue;
       const id = String(r.id ?? r.entity_number ?? '');
-      if (id) m.set(id, at(r.addresses?.find((a) => a?.country)?.country) ?? at(r.nationalities?.[0]) ?? at(r.citizenships?.[0]));
+      if (!id) continue;
+      m.set(id, at(r.addresses?.find((a) => a?.country)?.country) ?? at(r.nationalities?.[0]) ?? at(r.citizenships?.[0]));
+      part.set(id, sdn ? 'sdn' : 'entity');
     }
     out.US = m;
+    out.usPart = part;
   }
   if (raw.has('eu-sanctions', 'sanctions.csv')) {
     const at = country('eu-sanctions');
@@ -166,11 +172,24 @@ export function entries(raw: Raw): Entries {
   return out;
 }
 
-/** Entries in `after` and not `before` (added) and the other way round (removed), per list both copies have. */
-export function changes(before: Entries, after: Entries): { list: List; added: string[]; removed: string[]; places: (string | null)[] }[] {
+export interface ListChange { list: List; added: string[]; removed: string[]; places: (string | null)[]; parts?: Record<UsPart, { added: string[]; removed: string[] }> }
+
+/** Entries in `after` and not `before` (added) and the other way round (removed), per list both copies have. The US
+ *  list also gives them per US list (`parts`): an added entry by the list it is on now, a removed one by the list it
+ *  was on. */
+export function changes(before: Entries, after: Entries): ListChange[] {
   return LISTS.filter((l) => before[l] && after[l]).map((list) => {
     const [b, a] = [before[list]!, after[list]!];
     const added = [...a.keys()].filter((k) => !b.has(k));
-    return { list, added, removed: [...b.keys()].filter((k) => !a.has(k)), places: added.map((k) => a.get(k) ?? null) };
+    const removed = [...b.keys()].filter((k) => !a.has(k));
+    const out: ListChange = { list, added, removed, places: added.map((k) => a.get(k) ?? null) };
+    if (list === 'US' && before.usPart && after.usPart) {
+      const of = (ids: string[], m: Map<string, UsPart>, p: UsPart) => ids.filter((k) => m.get(k) === p);
+      out.parts = {
+        sdn: { added: of(added, after.usPart, 'sdn'), removed: of(removed, before.usPart, 'sdn') },
+        entity: { added: of(added, after.usPart, 'entity'), removed: of(removed, before.usPart, 'entity') },
+      };
+    }
+    return out;
   });
 }
