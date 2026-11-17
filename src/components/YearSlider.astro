@@ -1,6 +1,7 @@
 ---
 // Year slider with play. Moving it fires `gt-change` with { year }. Play steps a year at a time and slows down with
-// reduced motion. Estimated years carry a small "e" on the axis and in the announced value. A year's status tag
+// reduced motion. Estimated years carry a small "e" on the axis (read as "estimate") and "estimate" in the announced
+// value; when every year is an estimate the axis drops the "e", which the Estimate tag already says. A year's status tag
 // ("Preliminary", "Estimate") sits on its own line under the year, kept the same height without one, so nothing moves
 // as play passes years with and without it.
 import '../styles/atlas/years.css';
@@ -30,6 +31,9 @@ const { id, min, max, value = max, estimated = [], play = true, disabled = false
 const word = (v: number) => labels?.[v] ?? v;
 const k = Math.min(5, max - min);
 const ticks = Astro.props.ticks ?? [...new Set(Array.from({ length: k + 1 }, (_, i) => min + Math.round((i * (max - min)) / Math.max(1, k))))];
+const stops = Array.from({ length: Math.floor((max - min) / stop) + 1 }, (_, i) => min + i * stop);
+const allEstimated = stops.every((y) => estimated.includes(y));
+const marked = (t: number) => !allEstimated && estimated.includes(t);
 ---
 <div class:list={["gt-years", { "gt-years--noplay": !play, "gt-years--two": max - min === 1 }]} data-gt-years data-est={estimated.join(' ')} data-labels={labels ? JSON.stringify(labels) : undefined}>
   {play && <button class="gt-play" type="button" aria-label={YEAR_TEXT.play} disabled={disabled}></button>}
@@ -43,7 +47,7 @@ const ticks = Astro.props.ticks ?? [...new Set(Array.from({ length: k + 1 }, (_,
     ) : <span class="gt-years__now" aria-hidden="true">{word(value)}</span>}
   </div>
   <input id={id} type="range" min={min} max={max} step={stop} value={value} disabled={disabled} />
-  <div class="gt-years__ticks">{ticks.map((t) => <span data-est={estimated.includes(t) ? '' : undefined}>{word(t)}</span>)}</div>
+  <div class="gt-years__ticks">{ticks.map((t) => <span>{word(t)}{marked(t) && <><span class="gt-years__e" aria-hidden="true" title={YEAR_TEXT.estimate}>e</span><span class="gt-vh"> {YEAR_TEXT.estimate}</span></>}</span>)}</div>
 </div>
 
 <script>

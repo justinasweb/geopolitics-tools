@@ -71,7 +71,8 @@ describe('withheld sources', () => {
     const { withholding } = await import('../../src/lib/data.ts');
     const { withheld, WITHHELD } = await import('../../src/data/licences.ts');
     for (const s of WITHHELD) expect(LICENCES.some((l) => l.source === s)).toBe(true);
-    expect(withheld('gdacs')).toBe(true);
+    expect(withheld('ioda')).toBe(true);
+    expect(withheld('gdacs')).toBe(false);
     expect(withheld('usgs-quakes')).toBe(false);
     const raw = { has: () => true, list: () => ['a.json'], text: () => 'x', json: <T>() => ({ ok: 1 }) as T };
     const w = withholding(raw, (s) => s === 'gdacs');

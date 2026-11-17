@@ -8,11 +8,15 @@ keeps one line per closed question.
 
 ### Withheld sources: what is left (raised 9 Nov 2026)
 
-**The question.** GDACS, IODA and CelesTrak are withheld until their licences are cleared (`WITHHELD` in
-`src/data/licences.ts`, [gate-review.md](gate-review.md)): no page shows their figures, and This week names their
-events with links to the source. WRI Aqueduct and AidData were cleared on 9 Nov 2026 and are live.
+**The question.** IODA is withheld until its licence is cleared (`WITHHELD` in `src/data/licences.ts`,
+[gate-review.md](gate-review.md)): no page shows its figures, and This week names its outages with links to IODA. WRI
+Aqueduct and AidData were cleared on 9 Nov 2026, CelesTrak on 11 Nov and GDACS on 16 Nov (CC BY 4.0); they are live.
 
-- **Asking the publishers.** The JRC (GDACS), Georgia Tech (IODA) and CelesTrak, for their reuse terms in writing.
+- **Climate hub intro (17 Nov).** Its facts include disasters again now that GDACS is cleared, so the approved intro
+  (written without them) is out of date: redraft it (`npm run ai:facts`, then `ai:draft hub:climate`) for the owner's
+  approval.
+
+- **Asking the publishers.** Georgia Tech (IODA), for its reuse terms in writing.
 - **Registering with WRI.** The Aqueduct FAQ asks anyone who adapts or shares the data to register with WRI, and to
   share public work that uses it with the team. Until the site is registered, water stress is shown with its credit
   but has no CSV download (`downloads: 'shown only'`). Registering, and telling WRI once the site is live, is for the

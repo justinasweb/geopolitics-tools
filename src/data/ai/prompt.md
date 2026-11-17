@@ -84,13 +84,19 @@ the second that each map shows one source's own figures for each country, with t
 Write "The week in brief" for {subject}, at the top of This week: one paragraph of 100 to 150 words. Go through the
 sources in the facts in this order: disaster alerts, conflict, commodity prices, internet outages, sanctions lists.
 Give each source's main figures and the places they are about; name the source once ("GDACS", "UCDP", "the World
-Bank's Pink Sheet", "IODA", the list's name). Name the week by its dates ("in the week of 2–8 November"); never
-write "this week", since the page it sits on also shows the last 7 days. Give other days in full with their year
-("3 November 2026"), never a day without its year. Monthly figures keep their month and year ("in October 2026").
-Explain units, grades and list names on first use: "US$28.50 per million British thermal units (MMBtu)",
-"Thai rice with 5% broken grains", "the US Specially Designated Nationals (SDN) sanctions list and the US Entity List
-for export controls". Where a fact says a figure is preliminary, say so next to it. Do not say why an outage happened,
-why a list changed or what a disaster caused unless a fact says so. Leave out a source the facts do not cover.
+Bank's Pink Sheet", "IODA", the list's name). Name the week by its dates once, in the first sentence
+("in the week of 2–8 November"); after that write "in the week" or nothing, and never write "this week", since the
+page it sits on also shows the last 7 days. Give other days in full with their year ("3 November 2026"), never a day
+without its year. Monthly figures keep their month and year ("in October 2026"). Explain units, grades and list names
+on first use: "US$28.50 per million British thermal units (MMBtu)", "Thai rice with 5% broken grains", "the US
+Specially Designated Nationals (SDN) sanctions list", "the US Entity List for export controls". For an alert GDACS
+raised in the week, say it was raised in the week and since when GDACS has tracked it; never present an alert's start
+date as the week's news. Give each list's added and removed in one sentence; a count that covers more than one list
+says "in total". Where a fact says a figure is preliminary, say so next to it. Do not say why an outage happened, why
+a list changed or what a disaster caused unless a fact says so. Leave out a source the facts do not cover. Word the
+places as "The countries named most often in the new entries, by address or nationality, are X, Y and Z." End with
+the sanctions caveat as one sentence: "An entry can be a person, company, ship or aircraft; the figures count entries,
+not how strict the measures are."
 
 ## Redraft
 

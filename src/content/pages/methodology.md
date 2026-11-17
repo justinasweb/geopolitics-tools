@@ -2,7 +2,7 @@
 title: "Methodology"
 lede: "How each measure is worked out, what the labels mean, and what the figures cannot tell you."
 description: "How geopolitics.tools works out import reliance, supplier shares, five-year arms totals, common years and coverage, and the limits of the figures."
-updated: "2026-11-15"
+updated: "2026-11-17"
 approved: true
 author: "owner"
 drafted: "2026-11-06"
@@ -95,7 +95,7 @@ These texts are drafted with AI: the summaries on the United States, China and R
 
 **Facts first.** Each text has a facts file kept with the site's code. Every fact in it has its value, unit and period, the name of its source, a link to it and a date. A dossier's facts are the figures its page already shows; a history's are the dated joins and departures of the grouping, each with a citation such as a treaty or an official announcement; a river's are its treaties, dam milestones and official statements, each dated and cited. A fact that has not yet been checked against its source is marked as unverified, and nothing is drafted from a file that has one.
 
-**Drafting.** A script sends a text's facts file to Anthropic's Claude Sonnet 5.5 model (`claude-sonnet-5-5`) with a fixed prompt, kept with the code in `src/data/ai/prompt.md`. The prompt asks for plain, neutral text written only from its facts: no forecasts, no blame, no claims its facts do not support, no judging adjectives, and every figure with its unit and period, written with thousands separators (5,150). Countries keep the site's own names (Türkiye, not Turkey), and a country that joins a second time "rejoined". The text is about its subject: it never mentions its facts file, tables or itself, and never says what its facts leave out.
+**Drafting.** A script sends a text's facts file to Anthropic's Claude Sonnet 5.5 model (`claude-sonnet-5-5`) with a fixed prompt, kept with the code in `src/data/ai/prompt.md`. The prompt asks for plain, neutral text written only from its facts: no forecasts, no blame, no claims its facts do not support, no judging adjectives, and every figure with its unit and period, written with thousands separators (5,150). Countries keep the site's own names (Türkiye, not Turkey), and a country that joins a second time "rejoined". The text is about its subject: it never mentions its facts file, tables or itself, and never says what its facts leave out. A week's summary names the week by its dates once, in its first sentence. It says when GDACS raised an earlier alert in the week, and since when GDACS has tracked it, so an alert's start date never reads as the week's news. It gives each sanctions list's entries added and removed in one sentence, says "in total" for a count that covers more than one list, and ends with what an entry is: a person, company, ship or aircraft, counted as entries, not by how strict the measures are.
 
 **Checking.** A second script, which is not AI, reads every number, date and country name in the draft and looks for it in its facts file. A figure passes only if it is a fact's value, written exactly or rounded the way it is written to at least two significant figures, with the fact's unit and period in the same sentence. Dates must be dates in its facts, and countries must be countries its facts name, under any of their usual names. A draft that talks about its facts file or itself, rather than its subject, fails too. A draft that fails is sent back once with the list of what failed; if the second draft fails too, it is dropped and nothing is published.
 

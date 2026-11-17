@@ -157,7 +157,7 @@ describe('This week cards', () => {
   });
 
   it('counts sanctions entries added and removed against the earlier copy, and where the added ones are', () => {
-    expect(card('sanctions')).toMatchObject({ since: '2026-10-16', lists: [{ list: 'US', added: 2, removed: 1 }], places: [{ place: 'IRN', n: 1 }, { place: 'RUS', n: 1 }] });
+    expect(card('sanctions')).toMatchObject({ since: '2026-10-16', lists: [{ list: 'US', added: 2, removed: 1, parts: { sdn: { added: 2, removed: 1 }, entity: { added: 0, removed: 0 } } }], places: [{ place: 'IRN', n: 1 }, { place: 'RUS', n: 1 }] });
     const none = computeWeek(input({ baseline: null })).cards.find((c) => c.kind === 'sanctions')!;
     expect(none).toMatchObject({ since: null, lists: [] });
     expect(hasFigures(none)).toBe(false);
@@ -197,6 +197,14 @@ describe('sanctions entries', () => {
     expect([...e.UK!]).toEqual([['UK1', 'RUS'], ['UK2', 'IRN']]);
     expect(e.EU).toBeUndefined();
     expect(changes({ UK: new Map([['UK1', 'RUS']]) }, e)).toEqual([{ list: 'UK', added: ['UK2'], removed: [], places: ['IRN'] }]);
+  });
+
+  it('keeps the SDN list and the Entity List apart within the US count: added by the list now, removed by the list then', () => {
+    const sdn = 'Specially Designated Nationals (SDN) - Treasury Department';
+    const el = 'Entity List (EL) - Bureau of Industry and Security';
+    const before = entries(memRaw({ 'csl/consolidated.json': { results: [{ id: 'a', source: sdn }, { id: 'b', source: el }, { id: 'c', source: el }] } }));
+    const after = entries(memRaw({ 'csl/consolidated.json': { results: [{ id: 'a', source: sdn }, { id: 'd', source: sdn }, { id: 'e', source: el }] } }));
+    expect(changes(before, after)).toEqual([{ list: 'US', added: ['d', 'e'], removed: ['b', 'c'], places: [null, null], parts: { sdn: { added: ['d'], removed: [] }, entity: { added: ['e'], removed: ['b', 'c'] } } }]);
   });
 });
 
