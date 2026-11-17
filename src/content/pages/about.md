@@ -27,7 +27,7 @@ The site does not rank countries by merit. A rank is a position on one measure, 
 ## Who runs it
 
 <!-- owner -->
-geopolitics.tools is made and run by [Justinas Dimsta](https://x.com/JustinasDimsta/status/2120567230459252940), a web developer who likes working with data and follows geopolitics. He built it so that the official figures on who depends on whom, for what, are easy to find, read and check.
+geopolitics.tools is made and run by [Justinas Dimsta](https://x.com/JustinasDimsta), a web developer who likes working with data and follows geopolitics. He built it so that the official figures on who depends on whom, for what, are easy to find, read and check.
 <!-- /owner -->
 
 ## Get in touch

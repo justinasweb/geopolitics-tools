@@ -20,7 +20,7 @@ import type { Fact, FactsFile } from './facts.ts';
 /** The owner's own words on a page: kept word for word between `<!-- owner -->` and `<!-- /owner -->` in its file,
  *  never drafted and never labelled as AI (./check.ts, ownerProblems). */
 export const OWNER_TEXT: Record<string, { id: string; text: string }[]> = {
-  about: [{ id: 'owner-who', text: 'geopolitics.tools is made and run by [Justinas Dimsta](https://x.com/JustinasDimsta/status/2120567230459252940), a web developer who likes working with data and follows geopolitics. He built it so that the official figures on who depends on whom, for what, are easy to find, read and check.' }],
+  about: [{ id: 'owner-who', text: 'geopolitics.tools is made and run by [Justinas Dimsta](https://x.com/JustinasDimsta), a web developer who likes working with data and follows geopolitics. He built it so that the official figures on who depends on whom, for what, are easy to find, read and check.' }],
 };
 
 const REPO = 'https://github.com/justinasweb/geopolitics-tools/blob/main';
