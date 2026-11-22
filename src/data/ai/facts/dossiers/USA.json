@@ -9,7 +9,7 @@
     "GBR",
     "TWN"
   ],
-  "generated": "src/lib/ai/dossier-facts.ts from snapshot 2026-11-10T1329Z",
+  "generated": "src/lib/ai/dossier-facts.ts from snapshot 2026-11-22T1725Z",
   "facts": [
     {
       "id": "gdp",
@@ -26,7 +26,7 @@
       ],
       "source": "World Bank Indicators",
       "link": "https://data.worldbank.org/country/us",
-      "date": "2026-11-07"
+      "date": "2026-11-21"
     },
     {
       "id": "gdp-rank",
@@ -39,7 +39,7 @@
       ],
       "source": "World Bank Indicators",
       "link": "https://data.worldbank.org/country/us",
-      "date": "2026-11-07"
+      "date": "2026-11-21"
     },
     {
       "id": "gdp-of",
@@ -55,7 +55,7 @@
       ],
       "source": "World Bank Indicators",
       "link": "https://data.worldbank.org/country/us",
-      "date": "2026-11-07"
+      "date": "2026-11-21"
     },
     {
       "id": "population",
@@ -72,7 +72,7 @@
       ],
       "source": "World Bank Indicators",
       "link": "https://data.worldbank.org/country/us",
-      "date": "2026-11-07"
+      "date": "2026-11-21"
     },
     {
       "id": "population-rank",
@@ -85,7 +85,7 @@
       ],
       "source": "World Bank Indicators",
       "link": "https://data.worldbank.org/country/us",
-      "date": "2026-11-07"
+      "date": "2026-11-21"
     },
     {
       "id": "population-of",
@@ -101,7 +101,7 @@
       ],
       "source": "World Bank Indicators",
       "link": "https://data.worldbank.org/country/us",
-      "date": "2026-11-07"
+      "date": "2026-11-21"
     },
     {
       "id": "gdppc",
@@ -118,7 +118,7 @@
       ],
       "source": "World Bank Indicators",
       "link": "https://data.worldbank.org/country/us",
-      "date": "2026-11-07"
+      "date": "2026-11-21"
     },
     {
       "id": "gdppc-rank",
@@ -131,7 +131,7 @@
       ],
       "source": "World Bank Indicators",
       "link": "https://data.worldbank.org/country/us",
-      "date": "2026-11-07"
+      "date": "2026-11-21"
     },
     {
       "id": "gdppc-of",
@@ -147,7 +147,7 @@
       ],
       "source": "World Bank Indicators",
       "link": "https://data.worldbank.org/country/us",
-      "date": "2026-11-07"
+      "date": "2026-11-21"
     },
     {
       "id": "milpct",
@@ -160,7 +160,7 @@
       ],
       "source": "World Bank Indicators",
       "link": "https://data.worldbank.org/country/us",
-      "date": "2026-11-07"
+      "date": "2026-11-21"
     },
     {
       "id": "milpct-rank",
@@ -173,7 +173,7 @@
       ],
       "source": "World Bank Indicators",
       "link": "https://data.worldbank.org/country/us",
-      "date": "2026-11-07"
+      "date": "2026-11-21"
     },
     {
       "id": "milpct-of",
@@ -189,7 +189,7 @@
       ],
       "source": "World Bank Indicators",
       "link": "https://data.worldbank.org/country/us",
-      "date": "2026-11-07"
+      "date": "2026-11-21"
     },
     {
       "id": "co2pc",
@@ -244,7 +244,7 @@
       ],
       "source": "World Bank Indicators",
       "link": "https://data.worldbank.org/country/us",
-      "date": "2026-11-07"
+      "date": "2026-11-21"
     },
     {
       "id": "growth-rank",
@@ -257,7 +257,7 @@
       ],
       "source": "World Bank Indicators",
       "link": "https://data.worldbank.org/country/us",
-      "date": "2026-11-07"
+      "date": "2026-11-21"
     },
     {
       "id": "growth-of",
@@ -273,7 +273,7 @@
       ],
       "source": "World Bank Indicators",
       "link": "https://data.worldbank.org/country/us",
-      "date": "2026-11-07"
+      "date": "2026-11-21"
     },
     {
       "id": "inflation",
@@ -286,7 +286,7 @@
       ],
       "source": "World Bank Indicators",
       "link": "https://data.worldbank.org/country/us",
-      "date": "2026-11-07"
+      "date": "2026-11-21"
     },
     {
       "id": "inflation-rank",
@@ -299,7 +299,7 @@
       ],
       "source": "World Bank Indicators",
       "link": "https://data.worldbank.org/country/us",
-      "date": "2026-11-07"
+      "date": "2026-11-21"
     },
     {
       "id": "inflation-of",
@@ -315,7 +315,7 @@
       ],
       "source": "World Bank Indicators",
       "link": "https://data.worldbank.org/country/us",
-      "date": "2026-11-07"
+      "date": "2026-11-21"
     },
     {
       "id": "unemployment",
@@ -328,7 +328,7 @@
       ],
       "source": "World Bank Indicators",
       "link": "https://data.worldbank.org/country/us",
-      "date": "2026-11-07"
+      "date": "2026-11-21"
     },
     {
       "id": "unemployment-rank",
@@ -341,7 +341,7 @@
       ],
       "source": "World Bank Indicators",
       "link": "https://data.worldbank.org/country/us",
-      "date": "2026-11-07"
+      "date": "2026-11-21"
     },
     {
       "id": "unemployment-of",
@@ -357,7 +357,7 @@
       ],
       "source": "World Bank Indicators",
       "link": "https://data.worldbank.org/country/us",
-      "date": "2026-11-07"
+      "date": "2026-11-21"
     },
     {
       "id": "reserves",
@@ -374,7 +374,7 @@
       ],
       "source": "World Bank Indicators",
       "link": "https://data.worldbank.org/country/us",
-      "date": "2026-11-07"
+      "date": "2026-11-21"
     },
     {
       "id": "reserves-rank",
@@ -387,7 +387,7 @@
       ],
       "source": "World Bank Indicators",
       "link": "https://data.worldbank.org/country/us",
-      "date": "2026-11-07"
+      "date": "2026-11-21"
     },
     {
       "id": "reserves-of",
@@ -403,7 +403,7 @@
       ],
       "source": "World Bank Indicators",
       "link": "https://data.worldbank.org/country/us",
-      "date": "2026-11-07"
+      "date": "2026-11-21"
     },
     {
       "id": "trade",
@@ -416,7 +416,7 @@
       ],
       "source": "World Bank Indicators",
       "link": "https://data.worldbank.org/country/us",
-      "date": "2026-11-07"
+      "date": "2026-11-21"
     },
     {
       "id": "trade-rank",
@@ -429,7 +429,7 @@
       ],
       "source": "World Bank Indicators",
       "link": "https://data.worldbank.org/country/us",
-      "date": "2026-11-07"
+      "date": "2026-11-21"
     },
     {
       "id": "trade-of",
@@ -445,7 +445,7 @@
       ],
       "source": "World Bank Indicators",
       "link": "https://data.worldbank.org/country/us",
-      "date": "2026-11-07"
+      "date": "2026-11-21"
     },
     {
       "id": "fdi",
@@ -462,7 +462,7 @@
       ],
       "source": "World Bank Indicators",
       "link": "https://data.worldbank.org/country/us",
-      "date": "2026-11-07"
+      "date": "2026-11-21"
     },
     {
       "id": "fdi-rank",
@@ -475,7 +475,7 @@
       ],
       "source": "World Bank Indicators",
       "link": "https://data.worldbank.org/country/us",
-      "date": "2026-11-07"
+      "date": "2026-11-21"
     },
     {
       "id": "fdi-of",
@@ -491,7 +491,7 @@
       ],
       "source": "World Bank Indicators",
       "link": "https://data.worldbank.org/country/us",
-      "date": "2026-11-07"
+      "date": "2026-11-21"
     },
     {
       "id": "tfr",
@@ -578,6 +578,90 @@
       "date": "2026-10-28"
     },
     {
+      "id": "satellites",
+      "statement": "Satellites in orbit of the United States (counted to the date of the source’s newest entry, not to the end of the year).",
+      "value": 14056,
+      "unit": "satellites",
+      "period": "2026",
+      "places": [
+        "USA"
+      ],
+      "source": "CelesTrak SATCAT",
+      "link": "https://celestrak.org/satcat/search.php",
+      "date": "2026-11-22"
+    },
+    {
+      "id": "satellites-rank",
+      "statement": "The United States’ place on satellites in orbit, largest first.",
+      "value": 1,
+      "unit": "rank",
+      "period": "2026",
+      "places": [
+        "USA"
+      ],
+      "source": "CelesTrak SATCAT",
+      "link": "https://celestrak.org/satcat/search.php",
+      "date": "2026-11-22"
+    },
+    {
+      "id": "satellites-of",
+      "statement": "Places ranked on satellites in orbit.",
+      "value": 81,
+      "unit": "places",
+      "unitAliases": [
+        "countries"
+      ],
+      "period": "2026",
+      "places": [
+        "USA"
+      ],
+      "source": "CelesTrak SATCAT",
+      "link": "https://celestrak.org/satcat/search.php",
+      "date": "2026-11-22"
+    },
+    {
+      "id": "launches",
+      "statement": "Orbital launches of the United States.",
+      "value": 134,
+      "unit": "launches",
+      "period": "2026",
+      "places": [
+        "USA"
+      ],
+      "source": "CelesTrak SATCAT",
+      "link": "https://celestrak.org/satcat/search.php",
+      "date": "2026-11-22"
+    },
+    {
+      "id": "launches-rank",
+      "statement": "The United States’ place on orbital launches, largest first.",
+      "value": 1,
+      "unit": "rank",
+      "period": "2026",
+      "places": [
+        "USA"
+      ],
+      "source": "CelesTrak SATCAT",
+      "link": "https://celestrak.org/satcat/search.php",
+      "date": "2026-11-22"
+    },
+    {
+      "id": "launches-of",
+      "statement": "Places ranked on orbital launches.",
+      "value": 9,
+      "unit": "places",
+      "unitAliases": [
+        "countries"
+      ],
+      "period": "2026",
+      "places": [
+        "USA"
+      ],
+      "source": "CelesTrak SATCAT",
+      "link": "https://celestrak.org/satcat/search.php",
+      "date": "2026-11-22"
+    },
+    {
       "id": "aicompute",
       "statement": "Share of documented AI supercomputer power of the United States.",
       "value": 80.9335,
@@ -589,7 +673,7 @@
       ],
       "source": "Epoch AI",
       "link": "https://epoch.ai/data",
-      "date": "2026-11-07"
+      "date": "2026-11-21"
     },
     {
       "id": "aicompute-rank",
@@ -602,7 +686,7 @@
       ],
       "source": "Epoch AI",
       "link": "https://epoch.ai/data",
-      "date": "2026-11-07"
+      "date": "2026-11-21"
     },
     {
       "id": "aicompute-of",
@@ -618,7 +702,7 @@
       ],
       "source": "Epoch AI",
       "link": "https://epoch.ai/data",
-      "date": "2026-11-07"
+      "date": "2026-11-21"
     },
     {
       "id": "co2",
@@ -749,7 +833,7 @@
     {
       "id": "exports-oil",
       "statement": "The United States’ net exports of oil as a share of its production (preliminary).",
-      "value": 12.6185,
+      "value": 12.6188,
       "unit": "%",
       "share": true,
       "unitAliases": [
@@ -764,7 +848,7 @@
       ],
       "source": "U.S. Energy Information Administration",
       "link": "https://www.eia.gov/international/data/world",
-      "date": "2026-11-09",
+      "date": "2026-11-17",
       "status": "preliminary"
     },
     {
@@ -785,7 +869,7 @@
       ],
       "source": "U.S. Energy Information Administration",
       "link": "https://www.eia.gov/international/data/world",
-      "date": "2026-11-09",
+      "date": "2026-11-17",
       "status": "preliminary"
     },
     {
@@ -986,7 +1070,7 @@
       ],
       "source": "UN Comtrade",
       "link": "https://comtradeplus.un.org/",
-      "date": "2026-11-10"
+      "date": "2026-11-17"
     },
     {
       "id": "mineral-rare-earths",
@@ -1127,7 +1211,7 @@
     {
       "id": "ai-models",
       "statement": "Notable AI models from organisations in the United States.",
-      "value": 57,
+      "value": 60,
       "unit": "models",
       "period": "2026",
       "places": [
@@ -1135,7 +1219,7 @@
       ],
       "source": "Epoch AI",
       "link": "https://epoch.ai/data",
-      "date": "2026-11-07"
+      "date": "2026-11-21"
     }
   ]
 }
