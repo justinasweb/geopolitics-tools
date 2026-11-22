@@ -1,7 +1,9 @@
 // Launch QA, phone layout: every page of tests/qa/pages.mjs at 390 and 360 px wide, full-page screenshots, and four
 // checks: no sideways scroll, no text cut off by its box, no two controls (links, buttons, inputs) overlapping, and
 // no page running on past its footer. The last one also runs at 1440 px, where wide tables scroll inside a box.
-// Pages on the map view wrapper are also checked at every width for blocks past the header's content edges.
+// Pages on the map view wrapper are also checked at every width for blocks past the header's content edges, and map
+// pages at phone widths for blocks closer than 16 px to a panel's or sheet's sides (inline, with a place selected, and
+// in the full-screen map's sheet).
 // Usage: BASE=http://localhost:8787 node tests/qa/phone.mjs [screenshot dir, default shots/qa-phone] [report.json]
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { chromium } from 'playwright';
@@ -15,6 +17,32 @@ const rows = [];
 // Scroll height allowed below the site footer's bottom edge: anything more is something placed against the page from
 // inside a box (as the screen-reader text of an unpositioned scrolling table was, 14,000 px on /dependencies).
 const PAST_FOOTER = 50;
+
+// Side padding in map panels and sheets: every block in a panel's or sheet's head, body or foot, and anything else it
+// holds directly ("Show map"), keeps at least 16 px from its left and right edges and does not run past them. The
+// padding comes from the wrappers (.gt-panel__head, __body, __foot), never from the blocks.
+const PANEL_GAP = 16;
+async function panelPadding(page) {
+  return page.evaluate((GAP) => {
+    const out = [];
+    const vis = (e) => { const r = e.getBoundingClientRect(); return r.width > 1 && r.height > 1 && !e.closest('[hidden]') && getComputedStyle(e).visibility !== 'hidden'; };
+    const name = (e) => `${e.tagName.toLowerCase()}${e.classList[0] ? `.${e.classList[0]}` : ''}`;
+    for (const box of document.querySelectorAll('.gt-mvpanel, .gt-atpanel, [data-map-sheet], .gt-sheet')) {
+      if (!vis(box)) continue;
+      const br = box.getBoundingClientRect();
+      const blocks = [...box.querySelectorAll(':scope .gt-panel__head > *, :scope .gt-panel__body > *, :scope .gt-panel__foot > *'),
+        ...[...box.children].filter((c) => !c.matches('[data-panel], .gt-panel__head, .gt-panel__body, .gt-panel__foot, .gt-sheet__grab'))];
+      for (const b of blocks) {
+        if (!vis(b)) continue;
+        const r = b.getBoundingClientRect();
+        const l = Math.round(r.left - br.left), rt = Math.round(br.right - r.right);
+        if (l < GAP - 0.5 || rt < GAP - 0.5) out.push(`${name(box)} > ${name(b)} ${l} px from the left, ${rt} px from the right`);
+        if (out.length >= 5) return out;
+      }
+    }
+    return out;
+  }, PANEL_GAP);
+}
 
 for (const width of [390, 360, 1440]) {
   const phone = width < 600;
@@ -78,13 +106,36 @@ for (const width of [390, 360, 1440]) {
       }
       return { wide, sticking, clipped, overlaps, edges, scrollWidth: document.documentElement.scrollWidth, vw, scrollHeight, footBottom, below };
     }, PAST_FOOTER);
+    // Map panels at phone widths: the inline panel, a place selected in it, then the full-screen map's sheet after a tap.
+    found.panels = [];
+    if (phone && p.map) {
+      found.panels.push(...await panelPadding(page));
+      const picked = await page.evaluate(() => { const b = [...document.querySelectorAll('.gt-mvpanel [data-panel="world"] [data-select]')].find((e) => e.getBoundingClientRect().width > 0); b?.click(); return !!b; });
+      if (picked) { await page.waitForTimeout(300); found.panels.push(...await panelPadding(page)); await page.evaluate(() => document.querySelector('.gt-mvpanel [data-panel-close]')?.click()); }
+      const show = page.locator('[data-show-map]').first();
+      if (await show.count() && await show.isVisible()) {
+        await show.click();
+        const canvas = page.locator('.gt-mapfull canvas');
+        await canvas.waitFor({ timeout: 10_000 }).catch(() => {});
+        await page.waitForTimeout(1500);
+        const c = await canvas.boundingBox().catch(() => null);
+        if (c) for (const [fx, fy] of [[0.5, 0.45], [0.3, 0.4], [0.6, 0.35], [0.7, 0.5], [0.45, 0.55]]) {
+          await page.touchscreen.tap(c.x + c.width * fx, c.y + c.height * fy);
+          await page.waitForTimeout(400);
+          if (await page.locator('.gt-mapfull [data-map-sheet]:not([hidden])').count()) break;
+        }
+        found.panels.push(...await panelPadding(page));
+        await page.keyboard.press('Escape'); await page.keyboard.press('Escape');
+      }
+      found.panels = [...new Set(found.panels)];
+    }
     if (!phone) {
       // At 1440 only the footer and content-edge checks: the others are phone layout checks.
       found.wide = false; found.clipped = []; found.overlaps = [];
     }
     const file = `${out}/${width}-${p.path === '/' ? 'home' : p.path.slice(1).replace(/\//g, '_')}.png`;
     await page.screenshot({ path: file, fullPage: true });
-    const issues = [found.edges.length && `past the header's content edges: ${found.edges.join('; ')}`, found.wide && `sideways scroll (${found.scrollWidth} px): ${found.sticking.join('; ')}`, found.clipped.length && `clipped: ${found.clipped.join('; ')}`, found.overlaps.length && `overlap: ${found.overlaps.join('; ')}`, found.below && `runs ${found.scrollHeight - found.footBottom} px past the footer (${found.scrollHeight} px tall, footer ends at ${found.footBottom}): ${found.below.join('; ')}`].filter(Boolean);
+    const issues = [found.panels.length && `panel padding under ${PANEL_GAP} px: ${found.panels.join('; ')}`, found.edges.length && `past the header's content edges: ${found.edges.join('; ')}`, found.wide && `sideways scroll (${found.scrollWidth} px): ${found.sticking.join('; ')}`, found.clipped.length && `clipped: ${found.clipped.join('; ')}`, found.overlaps.length && `overlap: ${found.overlaps.join('; ')}`, found.below && `runs ${found.scrollHeight - found.footBottom} px past the footer (${found.scrollHeight} px tall, footer ends at ${found.footBottom}): ${found.below.join('; ')}`].filter(Boolean);
     rows.push({ name: p.name, path: p.path, width, issues, file });
     console.log(`${issues.length ? 'FAIL' : 'ok  '} ${width} ${p.name}${issues.length ? `\n     ${issues.join('\n     ')}` : ''}`);
     await page.close();

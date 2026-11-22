@@ -4,7 +4,8 @@
 /* ---------- country panel / bottom sheet ---------- */
 .gt-panel { container-type: inline-size; background: var(--paper-raised); border-left: 1px solid var(--rule); display: flex; flex-direction: column; min-height: 0; height: 100%; }
 .gt-panel__head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 20px 20px 12px; border-bottom: 1px solid var(--rule); }
-.gt-panel__body { padding: 16px 20px 20px; display: grid; gap: 18px; overflow: auto; }
+/* One column as wide as the panel or sheet, never its widest content: a long list cannot push the blocks past its edges. */
+.gt-panel__body { padding: 16px 20px 20px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; overflow: auto; }
 .gt-panel__facts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; margin: 0; }
 .gt-panel__facts dt { font: 400 13px/18px var(--sans); color: var(--ink-muted); }
 .gt-panel__facts dd { margin: 2px 0 0; font: 600 22px/26px var(--serif); font-variant-numeric: lining-nums tabular-nums; }
@@ -18,7 +19,7 @@
 .gt-sheet .gt-panel__foot { padding: 12px 16px; }
 /* ---------- map card wrapper ---------- */
 .gt-mapcard { container-type: inline-size; background: var(--paper-raised); border-top: 2px solid var(--ink); }
-.gt-panel__title { display: grid; gap: 4px; }
+.gt-panel__title { display: grid; gap: 4px; min-width: 0; }
 .gt-panel__tagdd { font-size: 15px; }
 
 /* A selected place's panel: smaller fact values (absolute figures, the year before), blocks, the trend line, rows */

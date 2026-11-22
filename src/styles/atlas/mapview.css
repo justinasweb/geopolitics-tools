@@ -156,12 +156,14 @@
   /* The map is not first on a phone: the panel reads inline, and "Show map" opens the map full screen. */
   .gt-stage { display: block; height: auto; border: 0; background: none; }
   .gt-stage > .gt-stage__map { display: none; }
-  .gt-mvpanel { border: 0; background: none; height: auto; }
-  .gt-mvpanel .gt-panel__head { padding: 0 0 12px; }
-  .gt-mvpanel .gt-panel__body { padding: 16px 0 0; overflow: visible; }
+  /* The inline panel keeps its box and takes the bottom sheet's padding from its wrappers (head, body, foot: 16px at the
+     sides), so its blocks line up with each other and with the sheet; the blocks themselves have none. */
+  .gt-mvpanel { border: 1px solid var(--rule); background: var(--paper-raised); height: auto; }
+  .gt-mvpanel .gt-panel__head { padding: 16px 16px 12px; }
+  .gt-mvpanel .gt-panel__body { padding: 14px 16px 16px; overflow: visible; }
   .gt-mvpanel [data-panel] { height: auto; }
-  .gt-mvpanel .gt-panel__foot { padding-inline: 0; }
-  .gt-mvpanel .gt-mvfirst__map { display: inline-flex; justify-content: center; width: 100%; margin-top: 16px; }
+  .gt-mvpanel .gt-panel__foot { padding: 12px 16px; }
+  .gt-mvpanel .gt-mvfirst__map { display: inline-flex; justify-content: center; width: calc(100% - 32px); margin: 0 16px 16px; }
   .gt-mvbelow { grid-template-columns: minmax(0, 1fr); gap: 28px; margin-top: 12px; }
 }
 

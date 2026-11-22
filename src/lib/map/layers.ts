@@ -977,7 +977,8 @@ function blocLayer(id: string): LayerFile {
     counts.forEach((r, i) => { v[r.id] = [blocCountClass(r.n), B.memberOf(r.n), '', 0, i + 1]; });
     order = counts.map((r) => r.id);
     series = Object.fromEntries(counts.map((r) => [r.id, [r.n]]));
-    for (const r of counts) more[r.id] = [{ label: B.itsBlocs, rows: groupsOf(r.id) }];
+    // Stacked: each grouping's member count is a sentence ("19 countries, plus the European Union…"), too long beside it.
+    for (const r of counts) more[r.id] = [{ label: B.itsBlocs, rows: groupsOf(r.id), stack: true }];
     for (const [b, m] of all) bl[b] = B.allBlocLine(b, BLOC_TEXT[b] ?? b, m.length);
   } else {
     const p = blocPage(id)!;
@@ -991,7 +992,7 @@ function blocLayer(id: string): LayerFile {
     }
     for (const pl of PLACES) {
       const g = groupsOf(pl.id, id);
-      if (g.length) (more[pl.id] ??= []).push({ label: p.members.includes(pl.id) ? B.otherBlocs : B.itsBlocs, rows: g });
+      if (g.length) (more[pl.id] ??= []).push({ label: p.members.includes(pl.id) ? B.otherBlocs : B.itsBlocs, rows: g, stack: true });
     }
     for (const [b, m] of all) {
       if (b === id) continue;
