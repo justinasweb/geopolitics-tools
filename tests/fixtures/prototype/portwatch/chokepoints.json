@@ -107,6 +107,18 @@
                 "industry_top2": "Mineral fuels",
                 "industry_top3": "Vehicles"
             }
+        },
+        {
+            "attributes": {
+                "portid": "chokepoint11",
+                "portname": "Taiwan Strait",
+                "lat": 24.7,
+                "lon": 119.8,
+                "vessel_count_total": 80000,
+                "industry_top1": "Mineral fuels",
+                "industry_top2": "Machinery",
+                "industry_top3": "Chemicals"
+            }
         }
     ]
 }

@@ -154,8 +154,11 @@ describe('resources and money', () => {
     expect(c.length).toBe(raw.json<{ features: unknown[] }>('portwatch', 'chokepoints.json').features.length);
     const suez = c.find((p) => p.name === 'Suez Canal')!;
     expect(suez.series.length).toBeLessThanOrEqual(365);
-    // The prototype's sample covers one year only: no same week in earlier years, so no usual level and no status.
-    expect(suez).toMatchObject({ baseline: null, change: null, status: 'unknown' });
+    // Panama's sample covers one year only: no same week in earlier years, so no usual level and no status. Suez's has
+    // four years (as Hormuz's and the Taiwan Strait's), so it is compared with 2023–2025.
+    expect(c.find((p) => p.name === 'Panama Canal')).toMatchObject({ baseline: null, change: null, status: 'unknown' });
+    expect(suez.baseYears).toEqual([2023, 2025]);
+    expect(suez.change).toBeCloseTo(suez.avg7! / suez.baseline! - 1);
     expect(statusFor(-0.5)).toBe('disrupted');
   });
 
