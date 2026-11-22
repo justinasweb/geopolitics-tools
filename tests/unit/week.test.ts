@@ -112,6 +112,12 @@ describe('This week cards', () => {
     expect(without.cards.map((c) => c.kind)).toEqual(['disaster']);
   });
 
+  it('keeps the shipping card off with PortWatch in the snapshot: imported monthly, it cannot back a weekly count (D22)', () => {
+    const withPortwatch = computeWeek(input({ sources: { gdacs: fresh, ioda: fresh, ucdp: fresh, pinksheet: fresh, csl: fresh, portwatch: fresh } }));
+    expect(withPortwatch.cards.map((c) => c.kind)).not.toContain('shipping');
+    expect(withPortwatch.feed.map((f) => f.kind as string)).not.toContain('shipping');
+  });
+
   it('counts alerts that began, or rose to orange or red, in the week, and lists the earlier ones still active apart', () => {
     const d = card('disaster');
     expect(d.alerts.map((a) => [a.id, a.level, a.places, a.rose ?? false])).toEqual([['TC1', 'red', ['PHL'], false], ['FL5', 'orange', ['IND'], true]]);

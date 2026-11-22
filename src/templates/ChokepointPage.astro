@@ -1,0 +1,171 @@
+---
+// A chokepoint's page (/chokepoints/{slug}, ChokepointPage design, D22): its status in words, three key figures, a
+// locator map cropped around PortWatch's point for it, ships per day for 12 months against the usual range, the vessel
+// mix, ships and PortWatch's estimated cargo by vessel type, the months as a table, related places and the share row.
+// Every figure carries IMF PortWatch and its last data day; a caveat the source gives (Hormuz) sits beside the figures
+// it qualifies. Left out until wave 2: who depends on it (modelled) and the closure scenario.
+import Page from '../layouts/Page.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import SourceLine from '../components/SourceLine.astro';
+import Notice from '../components/Notice.astro';
+import ShareRow from '../components/ShareRow.astro';
+import MarkIcon from '../components/MarkIcon.astro';
+import '../styles/atlas/mapview.css';
+import '../styles/atlas/keyfigure.css';
+import '../styles/atlas/table.css';
+import '../styles/atlas/place.css';
+import { CHOKEPOINTS_TEXT as X, changeCell, ships, tonnes, yearsText } from '../i18n/chokepoints.en';
+import { chokepointBySlug, importedOn, lastWeek, liveChokepoints, months, nearest, statusLine, tankerShare } from '../lib/chokepoints';
+import { VESSEL_TYPES } from '../adapters/portwatch';
+import { creditLine } from '../lib/data';
+import { cutWords, formatDate, formatPartialDate, formatShare } from '../lib/format';
+import { hubCrumb, live, route } from '../lib/routes';
+import { breadcrumbs } from '../lib/structured';
+import { pointLocator } from '../lib/mapsvg';
+import { dailyChartHtml } from '../lib/dailychart';
+import { markShape } from '../scripts/map/legend';
+
+interface Props { slug: string }
+const c = chokepointBySlug(Astro.props.slug)!;
+const key = `view:chokepoints:${c.slug}`;
+const path = route(key)!.path;
+const url = new URL(path, Astro.site).href;
+const last = formatDate(c.lastDate!);
+const first = formatDate(c.series[0].date);
+const imported = importedOn();
+const updated = imported ? X.imported(formatDate(imported)) : undefined;
+const week = X.weekTo(last);
+const line = statusLine(c);
+const title = X.placeTitle(c.name);
+const crumbs: { label: string; href?: string }[] = [hubCrumb('security'), { label: X.section, href: live('view:chokepoints:all')?.path }, { label: c.name }];
+const tanker = tankerShare(c);
+const weekRows = lastWeek(c);
+const monthRows = months(c);
+const loc = pointLocator(c.lon, c.lat);
+const mixColours: Record<string, string> = { n_tanker: 'var(--seq-5)', n_container: 'var(--seq-4)', n_dry_bulk: 'var(--seq-3)', n_general_cargo: 'var(--seq-2)', n_roro: 'var(--seq-1)' };
+const mixed = VESSEL_TYPES.map((t) => ({ t, share: c.mix[t] ?? 0 }));
+const other = Math.max(0, 1 - mixed.reduce((s, m) => s + m.share, 0));
+const mix = [...mixed, ...(other >= 0.005 ? [{ t: 'other', share: other }] : [])].filter((m) => m.share > 0);
+const mixText = mix.map((m) => `${X.types[m.t] ?? X.other} ${formatShare(m.share)}`).join(', ');
+const chart = dailyChartHtml({ label: X.chartLabel(c.name, first, last), points: c.series.map((d) => ({ date: d.date, value: d.total, range: d.range })), format: ships });
+const hasBand = c.series.some((d) => d.range);
+const caveat = c.caveat;
+const caveatLine = caveat ? X.caveatSource(caveat.source, formatDate(caveat.checked)) : '';
+const others = liveChokepoints().filter((o) => o.id !== c.id && live(`view:chokepoints:${o.slug}`));
+const related = [
+  ...nearest(c).map((o) => ({ href: live(`view:chokepoints:${o.slug}`)?.path, name: o.name, note: X.chokepoint })),
+  ...(live('view:oil:trade') ? [{ href: live('view:oil:trade')!.path, name: X.oilTrade, note: X.mapView }] : []),
+  ...(live('view:chokepoints:all') ? [{ href: live('view:chokepoints:all')!.path, name: X.section, note: X.allPoints(liveChokepoints().length) }] : []),
+].filter((r) => r.href);
+const description = cutWords(X.placeDescription(c.name, line), 160);
+const cite = `${creditLine('portwatch')}, ${X.dataTo(last)}.`;
+---
+<Page title={title} description={description} hub="security" container="mv" image={route(key)!.image}
+  jsonld={[breadcrumbs(crumbs.map((x) => ({ label: x.label, href: x.href })))]}>
+  <div class="gt-mvhead">
+    <Breadcrumbs items={crumbs} />
+    <h1 class="gt-title gt-mvhead__t">{c.name}</h1>
+    <p class="gt-lede gt-mvhead__a">{line}</p>
+    <SourceLine source={X.source} parts={[X.dataTo(last), ...(updated ? [updated] : [])]} />
+    {caveat && <Notice inline><p>{caveat.text} <a href={caveat.url}>{caveatLine}</a></p></Notice>}
+  </div>
+
+  <div class="gt-hzkf">
+    <div class="gt-pkf"><span class="gt-pkf__label">{X.kfWeek}</span><span class="gt-pkf__num">{c.avg7 === null ? '–' : ships(c.avg7)}</span><span class="gt-pkf__meta">{X.kfWeekMeta(last)}</span></div>
+    <div class="gt-pkf"><span class="gt-pkf__label">{X.kfUsual}</span><span class="gt-pkf__num">{c.baseline === null ? '–' : ships(c.baseline)}</span><span class="gt-pkf__meta">{c.baseYears ? X.kfUsualMeta(yearsText(c.baseYears)) : X.kfUsualNone}</span></div>
+    <div class="gt-pkf"><span class="gt-pkf__label">{X.kfTankers}</span><span class="gt-pkf__num">{tanker === null ? '–' : formatShare(tanker)}</span><span class="gt-pkf__meta">{X.kfTankersMeta(last)}</span></div>
+  </div>
+
+  <div class="gt-hzgrid">
+    <div class="gt-hzgrid__a">
+      <section class="gt-hzsec" aria-labelledby="cp-loc">
+        <h2 class="gt-h3" id="cp-loc">{X.where}</h2>
+        <figure class="gt-loc">
+          <svg viewBox={`0 0 ${loc.width} ${loc.height}`} role="img" aria-label={X.locLabel(c.name)}>
+            <rect class="gt-loc__sea" width={loc.width} height={loc.height} />
+            <g class="gt-loc__land">{loc.paths.map((p) => <path d={p.d} />)}</g>
+            <svg x={loc.at.x - 9} y={loc.at.y - 9} width="18" height="18" viewBox="0 0 16 16" set:html={markShape(`cp-${c.status}`)} />
+            <text class="gt-loc__strait" x={loc.at.x} y={loc.at.y - 16} text-anchor="middle">{c.name}</text>
+            <g class="gt-loc__scale" transform={`translate(16 ${loc.height - 18})`}>
+              <line x1="0" x2={loc.scale.px.toFixed(1)} y1="0" y2="0" /><line x1="0" x2="0" y1="-5" y2="5" /><line x1={loc.scale.px.toFixed(1)} x2={loc.scale.px.toFixed(1)} y1="-5" y2="5" />
+              <text x={(loc.scale.px / 2).toFixed(1)} y="-8" text-anchor="middle">{loc.scale.km.toLocaleString('en')} km</text>
+            </g>
+          </svg>
+          <figcaption class="gt-loc__key"><span><MarkIcon symbol={`cp-${c.status}`} />{X.locKey}: {X.status[c.status]}</span></figcaption>
+        </figure>
+      </section>
+
+      <section class="gt-hzsec" aria-labelledby="cp-chart">
+        <h2 class="gt-h3" id="cp-chart">{X.chart}</h2>
+        <figure class="gt-tc">
+          <Fragment set:html={chart} />
+          <figcaption><span><i class="gt-tc__linekey"></i>{X.chartLine(c.name)}</span>{hasBand && <span><i class="gt-tc__bandkey"></i>{X.chartBand}</span>}</figcaption>
+        </figure>
+        {hasBand && <p class="gt-caption">{X.chartGaps} {X.usualNote}</p>}
+        {caveat && <p class="gt-caption">{caveat.text}</p>}
+        <SourceLine source={X.source} parts={[X.daily(first, last), ...(updated ? [updated] : [])]} citation={cite} />
+      </section>
+    </div>
+
+    <div class="gt-hzgrid__b">
+      <section class="gt-hzsec" aria-labelledby="cp-mix">
+        <h2 class="gt-h3" id="cp-mix">{X.mix}</h2>
+        <div class="gt-mix" role="img" aria-label={X.mixLabel(mixText)}>
+          <div class="gt-mix__bar">{mix.map((m) => <span style={`width:${(m.share * 100).toFixed(1)}%;background:${mixColours[m.t] ?? 'var(--map-nodata)'}`} title={`${X.types[m.t] ?? X.other} ${formatShare(m.share)}`}></span>)}</div>
+          <ul class="gt-mix__key">{mix.map((m) => <li><i style={`background:${mixColours[m.t] ?? 'var(--map-nodata)'}`}></i><span>{X.types[m.t] ?? X.other}</span><b>{formatShare(m.share)}</b></li>)}</ul>
+        </div>
+        <SourceLine source={X.source} parts={[X.days30(last)]} />
+      </section>
+
+      <section class="gt-hzsec" aria-labelledby="cp-cargo">
+        <h2 class="gt-h3" id="cp-cargo">{X.cargo}</h2>
+        <p class="gt-label">{X.cargoLabel}</p>
+        <div class="gt-tablewrap" style="--gt-table-h:none" tabindex="0" role="region" aria-labelledby="cp-cargo">
+          <table class="gt-table">
+            <caption class="gt-caption">{X.cargoCaption}</caption>
+            <thead><tr><th scope="col"><span class="gt-th">{X.colType}</span></th><th scope="col" class="n"><span class="gt-th">{X.colShips}</span></th><th scope="col" class="n"><span class="gt-th">{X.colCargo}</span></th></tr></thead>
+            <tbody>
+              {weekRows.map((r) => (
+                <tr><th scope="row">{r.type === 'all' ? X.all : X.types[r.type]}</th><td class="n">{r.ships === null ? '–' : ships(r.ships)}</td><td class="n">{r.cargo === null ? '–' : tonnes(r.cargo)}</td></tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        {caveat && <p class="gt-caption">{caveat.text}</p>}
+        <SourceLine source={X.source} parts={[week, X.estimated]} />
+      </section>
+    </div>
+  </div>
+
+  <section class="gt-mvbelow" aria-labelledby="cp-months">
+    <div class="gt-mvbelow__main">
+      <h2 class="gt-h2" id="cp-months">{X.months}</h2>
+      <div class="gt-tablewrap" style="--gt-table-h:none" tabindex="0" role="region" aria-labelledby="cp-months">
+        <table class="gt-table gt-hztable">
+          <caption class="gt-caption">{X.monthsCaption}</caption>
+          <thead><tr>
+            <th scope="col"><span class="gt-th">{X.colMonth}</span></th><th scope="col" class="n"><span class="gt-th">{X.colTransits}</span></th><th scope="col" class="n"><span class="gt-th">{X.colPerDay}</span></th>
+            <th scope="col" class="n"><span class="gt-th">{X.colAgainst}</span></th><th scope="col" class="n"><span class="gt-th">{X.colCargoMonth}</span></th>
+          </tr></thead>
+          <tbody>
+            {monthRows.map((m) => (
+              <tr>
+                <th scope="row" class="gt-nowrap">{m.to ? X.partMonth(formatPartialDate(m.month), formatDate(m.to).replace(/ \d{4}$/, '')) : formatPartialDate(m.month)}</th>
+                <td class="n">{m.transits.toLocaleString('en')}</td><td class="n">{ships(m.perDay)}</td>
+                <td class="n">{m.against === null ? '–' : changeCell(m.against)}</td><td class="n">{m.cargo === null ? '–' : tonnes(m.cargo)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <SourceLine source={X.source} parts={[X.dataTo(last), ...(updated ? [updated] : [])]} citation={cite} />
+    </div>
+    <aside class="gt-mvbelow__side">
+      <h2 class="gt-label">{X.related}</h2>
+      <ul class="gt-related">{related.map((r) => <li><a href={r.href}><span>{r.name}</span><small>{r.note}</small></a></li>)}</ul>
+      <h2 class="gt-label">{X.others}</h2>
+      <ul class="gt-related">{others.map((o) => <li><a href={live(`view:chokepoints:${o.slug}`)!.path}><span>{o.name}</span></a></li>)}</ul>
+      <div class="gt-mvbelow__share"><ShareRow url={url} text={`${c.name}: ${line}`} /></div>
+    </aside>
+  </section>
+</Page>

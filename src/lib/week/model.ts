@@ -3,8 +3,10 @@
 // small, plain JSON with numbers, dates and place ids only; the words come from src/i18n/week.en.ts when a page is
 // built, so a frozen week reads in any language.
 //
-// One card per source the site has, in the design's order; PortWatch (shipping) and IPC (food crises) wait on
-// permission and are left out until they are live, not shown empty. A card whose source has not changed since the
+// One card per source the site has, in the design's order; IPC (food crises) waits on its key and is left out until it
+// is live, not shown empty. PortWatch (shipping) is in the snapshot but imported by hand once a month (D22), which
+// cannot back a weekly claim: its card and the "chokepoints below normal" count stay off until it arrives at least
+// weekly (docs/open-questions.md). A card whose source has not changed since the
 // period began is "quiet": it keeps the source's dates and drops its figures, so last month's numbers never read as
 // this week's.
 //
@@ -18,7 +20,8 @@ import { changes, entries, type List, type UsPart } from '../../adapters/sanctio
 import { addDays, inPeriod, type Period } from './period.ts';
 
 export type CardKind = 'shipping' | 'disaster' | 'conflict' | 'prices' | 'food' | 'outage' | 'sanctions';
-/** The design's order. Shipping and food crises are listed so their place is kept; nothing builds them yet. */
+/** The design's order. Shipping and food crises are listed so their place is kept; nothing builds them yet (shipping
+ *  stays off while PortWatch is imported monthly). */
 export const CARD_ORDER: CardKind[] = ['shipping', 'disaster', 'conflict', 'prices', 'food', 'outage', 'sanctions'];
 /** Each card's sources in the snapshot. */
 export const CARD_SOURCES: Record<CardKind, string[]> = {

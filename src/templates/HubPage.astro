@@ -11,6 +11,7 @@ import Notice from '../components/Notice.astro';
 import SourceLine from '../components/SourceLine.astro';
 import SourceText from '../components/SourceText.astro';
 import ToolIcon from '../components/ToolIcon.astro';
+import MarkIcon from '../components/MarkIcon.astro';
 import '../styles/atlas/tools.css';
 import '../styles/atlas/source.css';
 import '../styles/atlas/legend.css';
@@ -18,6 +19,7 @@ import '../styles/atlas/hub.css';
 import { HUB_TEXT as H } from '../i18n/hubs.en';
 import { DRAFT_BANNER, LONGREAD_TEXT } from '../i18n/pages.en';
 import { hubModel } from '../lib/hubs';
+import { markShape } from '../scripts/map/legend';
 import { paths } from '../lib/routes';
 import { breadcrumbs } from '../lib/structured';
 import { longApproved } from '../lib/ai/texts';
@@ -69,9 +71,10 @@ const approved = longApproved(`hub:${id}`);
                   </defs>
                 )}
                 {c.thumb.paths.map((p) => <path d={p.d} fill={p.fill} />)}
+                {c.thumb.marks?.map((k) => <svg x={k.x - 9} y={k.y - 9} width="18" height="18" viewBox="0 0 16 16" set:html={markShape(k.symbol)} />)}
               </svg>
             </div>
-            {c.key.length > 0 && <p class="gt-thumbkey">{c.key.map((k) => <span>{k.sw ? <i class={`gt-sw gt-sw--${k.sw}`} style={k.sw === 'hatch' ? `--gt-hatch:${k.fill}` : undefined}></i> : <i style={`background:${k.fill}`}></i>}{k.label}</span>)}</p>}
+            {c.key.length > 0 && <p class="gt-thumbkey">{c.key.map((k) => <span>{k.mark ? <MarkIcon symbol={k.mark} /> : k.sw ? <i class={`gt-sw gt-sw--${k.sw}`} style={k.sw === 'hatch' ? `--gt-hatch:${k.fill}` : undefined}></i> : <i style={`background:${k.fill}`}></i>}{k.label}</span>)}</p>}
           </div>
           <div class="gt-hubcard__b">
             <span class="gt-kicker">{c.kicker}</span>

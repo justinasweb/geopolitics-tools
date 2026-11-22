@@ -97,7 +97,7 @@ export function sourceRows(): SourceRow[] {
   }
   for (const s of IMPORTED) {
     if (LICENCE_OF[s.id] || !onSite(s.id)) continue;
-    out.push({ id: s.id, name: licenceOf(s.id)?.name ?? s.name, feeds: feedsOf(s.id), licence: licenceOf(s.id), every: T.onRelease(s.release), last: importDate(s.id), state: 'manual' });
+    out.push({ id: s.id, name: licenceOf(s.id)?.name ?? s.name, feeds: feedsOf(s.id), licence: licenceOf(s.id), every: T.onRelease(s.release), last: importDate(s.id), state: status[s.id]?.stale ? 'delayed' : 'manual' });
   }
   for (const [id, h] of Object.entries(HAND_KEPT)) {
     const l = licenceOf(id);

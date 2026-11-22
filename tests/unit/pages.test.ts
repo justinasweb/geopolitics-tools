@@ -66,8 +66,10 @@ describe('route registry', () => {
   });
 
   it('keeps views, hubs and tools out of the build until their phase', () => {
+    // Ports stay hidden (D22 covers chokepoints only).
+    expect(R.route('view:ports')?.live).toBe(false);
     // Phase 4 builds the critical minerals views, phase 5 the views on registry measures, phase 5b those on keyed sources (with sample data here), phase 6 the Explorer, Dependencies, Supply chains, Bloc overlap, the Atlas and the five topic hubs; the rest wait for theirs.
-    const built = /^(view:(minerals|emissions|refugees|disasters|food|blocs|alliance-history|space|ai|sanctions|internet|water|chinese-lending|arms|rivers|oil|gas|electricity|conflict|food-crises|nuclear):|tool:(explorer|dependencies|supply-chains|blocs-overlap|atlas)(:|$)|hub:(resources|technology|climate|security|power)$)/;
+    const built = /^(view:(minerals|emissions|refugees|disasters|food|blocs|alliance-history|space|ai|sanctions|internet|water|chinese-lending|arms|rivers|oil|gas|electricity|conflict|food-crises|nuclear|chokepoints):|tool:(explorer|dependencies|supply-chains|blocs-overlap|atlas)(:|$)|hub:(resources|technology|climate|security|power)$)/;
     for (const r of R.routes().filter((x) => ['view', 'hub', 'tool'].includes(x.kind))) expect(r.live).toBe(built.test(r.key) && !R.gateHidden(r.key));
   });
 

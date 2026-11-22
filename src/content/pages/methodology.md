@@ -2,7 +2,7 @@
 title: "Methodology"
 lede: "How each measure is worked out, what the labels mean, and what the figures cannot tell you."
 description: "How geopolitics.tools works out import reliance, supplier shares, five-year arms totals, common years and coverage, and the limits of the figures."
-updated: "2026-11-17"
+updated: "2026-11-22"
 approved: true
 author: "owner"
 drafted: "2026-11-06"
@@ -72,6 +72,12 @@ We use the importer's report because customs records of what comes in are usuall
 Crude oil flows into the United States are EIA's US crude oil imports by country of origin, in barrels a day; the other crude flows are UN Comtrade's. Converted from tonnes at an average 7.33 barrels a tonne; heavy crudes (Canada, Venezuela) hold fewer barrels a tonne, so their flows read up to about 15% high.
 
 **Concentration** is the Herfindahl–Hirschman index on suppliers' shares of the flows shown: the sum of the squared percentage shares, from near 0 (many small suppliers) to 10,000 (one supplier). As in the 2023 US merger guidelines, 1,000 to 1,800 counts as moderately concentrated and above 1,800 as highly concentrated. For a country, it is worked out on its own suppliers. Refugees by origin and host country have no concentration: countries of origin are not suppliers. Those figures are people hosted at the end of each year, not people moving that year.
+
+## Chokepoint traffic
+
+Chokepoint figures are IMF PortWatch's daily counts of ships crossing each of its 28 chokepoints, worked out from the position signals ships send (AIS), and its estimated cargo in metric tonnes, from each ship's size: estimates from ship signals, not official statistics. Where ships switch their signals off or the signals are jammed or faked, fewer ships are counted than cross; the page says so where PortWatch warns of it. We download the figures by hand once a month, so they end on the last day of that download, which every figure names.
+
+A chokepoint's **usual** traffic is the same week in the three years before: for a week of 2026, we take the average ships a day over the same seven days in 2023, 2024 and 2025, and use the median of those three averages. Each page says it plainly, as "compared with the same week in 2023–2025". A year counts when at least five of the seven days have counts; with fewer than two such years there is no usual level and no status. Its status compares the last 7 days' average with it: 30% or more below, 10% to 30% below, near usual (from 10% below to 15% above), or 15% or more above, read from the change as shown in whole percent, so a status never contradicts the number beside it. The monthly table compares each month with the same days in the same three years. The shaded **usual range** on the chart uses the same years: for each day, the lowest to the highest count on that day in each of them; a day missing in any of them has no range.
 
 ## Common years, preliminary years and coverage
 

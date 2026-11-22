@@ -5,10 +5,12 @@ import { gzipSync } from 'node:zlib';
 import { describe, expect, it } from 'vitest';
 import { parseCsv } from '../../../pipeline/lib/csv.ts';
 import { decodeText, importFile, prepare, readInput } from '../../../pipeline/lib/importer.ts';
-import { loadState, readRaw, run, type Snapshot } from '../../../pipeline/lib/runner.ts';
+import { importStale, loadState, readRaw, run, type Snapshot } from '../../../pipeline/lib/runner.ts';
 import { HOUR, DAY, type Source } from '../../../pipeline/lib/source.ts';
 import { IMPORTED, KINDS } from '../../../pipeline/sources/imported.ts';
 import { weoFiles, type WeoRelease } from '../../../pipeline/sources/imf-weo-file.ts';
+import { dayOf, portwatchDaily, portwatchPoints } from '../../../pipeline/sources/portwatch-file.ts';
+import { parseChokepoints } from '../../../src/adapters/portwatch.ts';
 import { parseDataMapper } from '../../../src/adapters/worldbank.ts';
 import { createHttp } from '../../../pipeline/lib/http.ts';
 import { makeXlsx, makeZip, tempStores } from './helpers.ts';
@@ -39,6 +41,9 @@ const SAMPLES: Record<string, string> = {
   'fas-forces': 'fas-forces/status-world-nuclear-forces.csv',
   // Made from the prototype's WEO sample in the layout of the IMF's "By Countries" table.
   'imf-weo': '../imports/WEOOct2026all.xls',
+  // PortWatch's two downloads in their November 2026 layout: the real ids, names and positions, made-up counts.
+  'portwatch-points': '../imports/portwatch/PortWatch_chokepoints_database.csv',
+  'portwatch-daily': '../imports/portwatch/Daily_Chokepoints_Data.csv',
 };
 
 const csvKind = (columns: string[], extra: Partial<(typeof KINDS)[string]> = {}) => ({ source: 't', save: 't.csv', about: '', how: 'csv' as const, columns, ...extra });
@@ -118,6 +123,62 @@ describe('import kinds', () => {
     const half = fixture(SAMPLES['imf-weo']).split('\n').filter((l, i) => i === 0 || !/\t[A-M][A-Z]{2}\t/.test(l)).join('\n');
     const prev = { 'GGXWDG_NGDP.json': fixture('imf/GGXWDG_NGDP.json') };
     expect(() => weoFiles({ text: half }, 'WEOOct2026all.xls', prev)).toThrow(/only|values now against/);
+  });
+
+  it('writes PortWatch’s two downloads as the ArcGIS fetcher’s files, which the adapter reads', async () => {
+    const points = portwatchPoints(await readInput('p.csv', enc(fixture(SAMPLES['portwatch-points']))), 'p.csv', {});
+    const daily = portwatchDaily(await readInput('d.csv', enc(fixture(SAMPLES['portwatch-daily']))), 'd.csv', {});
+    expect(points.files.map((f) => f.name)).toEqual(['chokepoints.json']);
+    expect(daily.files.map((f) => f.name)).toEqual(['chokepoints_daily.json']);
+    const meta = JSON.parse(points.files[0].body as string);
+    const days = JSON.parse(daily.files[0].body as string);
+    expect(points.rows).toBe(28);
+    // Degrees from lat and lon (X and Y are metres), vessel_count_RoRo read as vessel_count_roro, numbers as numbers.
+    expect(meta.features[0].attributes).toMatchObject({ portid: 'chokepoint1', portname: 'Suez Canal', fullname: 'Suez Canal', lat: 30.59334599, lon: 32.43688221, vessel_count_roro: 117, industry_top2: null });
+    expect(days.features[0].attributes).toEqual({
+      date: '2026-11-13', portid: 'chokepoint1', portname: 'Suez Canal', n_container: 10, n_dry_bulk: 4, n_general_cargo: 12, n_roro: 20, n_tanker: 1, n_cargo: 46, n_total: 47,
+      capacity_container: 100000, capacity_dry_bulk: 40000, capacity_general_cargo: 120000, capacity_roro: 200000, capacity_tanker: 10000, capacity_cargo: 460000, capacity: 470000,
+    });
+    // Sorted by day, then chokepoint number (chokepoint2 before chokepoint10).
+    expect(days.features.slice(0, 3).map((f: { attributes: { portid: string } }) => f.attributes.portid)).toEqual(['chokepoint1', 'chokepoint2', 'chokepoint3']);
+    expect(daily).toMatchObject({ rows: 84, dataTo: '2026-11-15' });
+    const c = parseChokepoints(meta, days);
+    expect(c).toHaveLength(28);
+    expect(c.find((x) => x.name === 'Strait of Hormuz')!.lastDate).toBe('2026-11-15');
+  });
+
+  it('reads PortWatch’s date forms and keeps four years and 40 days of daily rows', () => {
+    expect(['2019/01/01', '2019-1-1', '2019-01-01 00:00:00', '1/1/2019 12:00:00 AM', String(Date.UTC(2019, 0, 1))].map(dayOf)).toEqual(Array(5).fill('2019-01-01'));
+    expect(dayOf('Jan 2019')).toBeNull();
+    const head = 'date,portid,portname,n_total';
+    const rows = (dates: string[]) => [head, ...dates.flatMap((d) => Array.from({ length: 28 }, (_, i) => `${d},chokepoint${i + 1},C${i + 1},5`))].join('\n');
+    const r = portwatchDaily({ text: rows(['2022/10/05', '2022/10/06', '2026/11/15']) }, 'd.csv', {});
+    // 15 Nov 2026 less four years is 15 Nov 2022, less 40 days 6 Oct 2022: kept from that day.
+    const kept = JSON.parse(r.files[0].body as string).features.map((f: { attributes: { date: string } }) => f.attributes.date);
+    expect([...new Set(kept)]).toEqual(['2022-10-06', '2026-11-15']);
+    // Columns the file lacks are kept as null.
+    expect(JSON.parse(r.files[0].body as string).features[0].attributes.capacity_tanker).toBeNull();
+  });
+
+  it('refuses a PortWatch file without its columns, with too few chokepoints, without positions or far smaller than the last', async () => {
+    const pts = fixture(SAMPLES['portwatch-points']);
+    const daily = fixture(SAMPLES['portwatch-daily']);
+    expect(() => portwatchDaily({ text: pts }, 'p.csv', {})).toThrow(/missing columns: date, n_total; is this PortWatch's "Daily Chokepoints Data" download\?/);
+    expect(() => portwatchPoints({ text: daily }, 'd.csv', {})).toThrow(/missing columns: lat, lon/);
+    expect(() => portwatchPoints({ text: pts.replace(/^(.*?)\blat,lon\b/m, '$1latx,lonx') }, 'p.csv', {})).toThrow(/missing columns: lat, lon/);
+    // Old names through `from`: latitude and longitude.
+    expect(portwatchPoints({ text: pts.replace(/\blat,lon\b/, 'Latitude,Longitude') }, 'p.csv', {}).rows).toBe(28);
+    const lines = pts.trim().split('\n');
+    expect(() => portwatchPoints({ text: lines.slice(0, 20).join('\n') }, 'p.csv', {})).toThrow(/19 chokepoints; PortWatch lists 28/);
+    expect(() => portwatchPoints({ text: lines.map((l, i) => (i === 3 ? l.replace(/,30\.59334599,|,41\.16928167,/, ',,') : l)).join('\n') }, 'p.csv', {})).toThrow(/Bosporus Strait: no position in degrees/);
+    // Metres where degrees should be.
+    expect(() => portwatchPoints({ text: lines.map((l, i) => (i === 1 ? l.replace(',30.59334599,', ',3580049.2,') : l)).join('\n') }, 'p.csv', {})).toThrow(/Suez Canal: no position in degrees/);
+    expect(() => portwatchDaily({ text: daily.split('\n').filter((l) => !/chokepoint2[0-8],/.test(l)).join('\n') }, 'd.csv', {})).toThrow(/19 chokepoints in the daily rows/);
+    const big = portwatchDaily({ text: daily }, 'd.csv', {}).files[0].body as string;
+    const prev = JSON.stringify({ features: Array.from({ length: 1000 }, () => ({ attributes: {} })) });
+    expect(() => portwatchDaily({ text: daily }, 'd.csv', { 'chokepoints_daily.json': prev })).toThrow(/84 values now against 1000/);
+    expect(portwatchDaily({ text: daily }, 'd.csv', { 'chokepoints_daily.json': prev }, true).rows).toBe(84);
+    expect(portwatchDaily({ text: daily }, 'd.csv', { 'chokepoints_daily.json': big }).rows).toBe(84);
   });
 
   it('keeps the needed columns in order, drops the rest, and appends hand-kept columns', () => {
@@ -254,6 +315,26 @@ describe('importing into the stores', () => {
     expect(status.sources['imf-weo']).toMatchObject({ imported: true, release: 'each April and October', lastImport: now.toISOString() });
     // The same file again changes nothing.
     expect(await importFile(base(stores, 'imf-weo', join(FIXTURES, SAMPLES['imf-weo']), later))).toMatchObject({ changed: false });
+  });
+
+  it('imports PortWatch’s two files under one source, with the last day of data, beside the switched-off fetcher', async () => {
+    const stores = tempStores();
+    await importFile(base(stores, 'portwatch-points', join(FIXTURES, SAMPLES['portwatch-points'])));
+    const r = await importFile(base(stores, 'portwatch-daily', join(FIXTURES, SAMPLES['portwatch-daily'])));
+    expect(r).toMatchObject({ source: 'portwatch', file: 'chokepoints_daily.json', rows: 84, changed: true });
+    const snap = JSON.parse(new TextDecoder().decode((await stores.snapshots.get('latest.json'))!)) as Snapshot;
+    expect(Object.keys(snap.sources.portwatch.files).sort()).toEqual(['chokepoints.json', 'chokepoints_daily.json']);
+    expect(snap.sources.portwatch).toMatchObject({ name: 'IMF PortWatch chokepoints', attribution: 'UN Global Platform; IMF PortWatch (portwatch.imf.org)', dataTo: '2026-11-15' });
+    expect(Object.keys(snap.sources.portwatch.imported!).sort()).toEqual(['chokepoints.json', 'chokepoints_daily.json']);
+    // Imported by hand, it is past its deadline 45 days after the last import (the fetcher's is 10 days).
+    const status = JSON.parse(new TextDecoder().decode((await stores.snapshots.get('status.json'))!));
+    expect(status.sources.portwatch).toMatchObject({ imported: true, deadlineHours: 45 * DAY, stale: false, dataTo: '2026-11-15', lastImport: now.toISOString() });
+    const st = (await loadState(stores)).sources.portwatch;
+    const pw = IMPORTED.find((x) => x.id === 'portwatch')!;
+    expect(importStale(pw, st, new Date(now.getTime() + 45 * 86_400_000))).toBe(false);
+    expect(importStale(pw, st, new Date(now.getTime() + 46 * 86_400_000))).toBe(true);
+    expect(importStale(pw, undefined, now)).toBe(true);
+    expect(importStale(IMPORTED.find((x) => x.id === 'sipri')!, undefined, now)).toBe(false);
   });
 
   it('does not lose an import made while an hourly run is going', async () => {

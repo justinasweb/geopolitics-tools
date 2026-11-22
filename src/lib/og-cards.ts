@@ -5,7 +5,7 @@ import { INDICATOR_TEXT, STATUS_TEXT, tagged } from '../i18n/en';
 import { COMPARE_TEXT, COUNTRY_TEXT, INDICATOR_PAGE, OG_TEXT, SOURCE_NOTE, mineralName } from '../i18n/pages.en';
 import { countryModel } from './country';
 import { creditName, licenceOf } from './data';
-import { formatDate, formatShare, formatValue } from './format';
+import { formatDate, formatPartialDate, formatShare, formatValue } from './format';
 import { answerFor, indicatorModel, tagOf } from './indicator';
 import type { Card } from './og';
 import { place } from './places';
@@ -27,6 +27,8 @@ import { historyPage } from './history';
 import { BLOCS_CHECKED } from './blocs';
 import { riverPage } from './rivers';
 import { RIVERS_TEXT } from '../i18n/water.en';
+import { CHOKEPOINTS_TEXT, changeCell, ships as shipsText } from '../i18n/chokepoints.en';
+import { chokepointBySlug, lastDataDay, months as chokepointMonths, ranked, statusLine, viewLede as chokepointsLede } from './chokepoints';
 import { estimated as foodEstimated, foodPage, fromUsgs, lede as foodLede, mt, netText, shareOf as foodShare } from './food';
 import { amount as energyAmount, energyPage, isPreliminary, lede as energyLede, shareOf as energyShare, valueText as energyValue } from './energy';
 import { ENERGY_TEXT } from '../i18n/energy.en';
@@ -186,6 +188,26 @@ export function card(r: Route | null): Card {
     return {
       kicker: RIVERS_TEXT.section, title: RIVERS_TEXT.title(name), figure: String(p.dams.length), caption: RIVERS_TEXT.damsTitle, bars,
       source: [licenceOf('gdw')?.credit ?? short('gdw'), ...(bars.length ? [short('aquastat')] : [])].join('; '),
+    };
+  }
+  if (r.kind === 'view' && r.id === 'chokepoints:all') {
+    const X = CHOKEPOINTS_TEXT;
+    const list = ranked();
+    const below = list.filter((c) => c.status === 'below' || c.status === 'disrupted');
+    return {
+      kicker: X.section, title: X.title, figure: `${below.length} of ${list.length}`, caption: chokepointsLede() ?? undefined,
+      bars: below.slice(0, 5).map((c) => ({ label: c.name, value: -c.change!, text: changeCell(c.change!) })),
+      source: `${short('portwatch')}, ${X.dataTo(formatDate(lastDataDay()!))}`,
+    };
+  }
+  if (r.kind === 'view' && r.id.startsWith('chokepoints:')) {
+    const X = CHOKEPOINTS_TEXT;
+    const c = chokepointBySlug(r.id.split(':')[1])!;
+    const ms = chokepointMonths(c).slice(0, 5).reverse();
+    return {
+      kicker: X.section, title: X.placeTitle(c.name), figure: c.avg7 === null ? undefined : shipsText(c.avg7), caption: `${X.kfWeekMeta(formatDate(c.lastDate!))}. ${statusLine(c)}`,
+      bars: ms.map((m) => ({ label: formatPartialDate(m.month), value: m.perDay, text: shipsText(m.perDay) })),
+      source: `${short('portwatch')}, ${X.dataTo(formatDate(c.lastDate!))}`,
     };
   }
   if (r.kind === 'view' && r.id.startsWith('nuclear:')) {

@@ -85,6 +85,14 @@ export function worldMap(width = 1000) {
   return worlds.get(width)!;
 }
 
+/** Where a point in Equal Earth units (y up, as equalEarth gives it) falls on worldMap(width): where its marks go. */
+export function worldPoint(x: number, y: number, width = 1000): [number, number] {
+  const [x0] = project(-180, 0);
+  const [, yTop] = project(0, 84);
+  const k = width / (-2 * x0);
+  return [(x - x0) * k, (-y - yTop) * k];
+}
+
 /**
  * A locator map: the place and its neighbours in a 4:3 frame, zoomed so the place fills about the same share of the
  * frame whatever its size; a small island state is drawn as large as a big country. The frame is set by the largest
@@ -124,4 +132,24 @@ export function locatorMap(id: string, width = 400, height = 300) {
   const shown = (Math.max(bx1 - bx0, by1 - by0) / w) * width;
   const ring = shown < 14 ? { x: width / 2, y: height / 2, r: 14 } : null;
   return { paths, width, height, ring };
+}
+
+/**
+ * A locator map around a point (a chokepoint), cropped automatically: a 4:3 frame about `span` degrees of longitude
+ * wide, centred on the point, with the land in it, the point's position and a scale bar of a round length about a fifth
+ * of the frame. Neighbouring coasts make the place readable without drawing each map by hand.
+ */
+export function pointLocator(lon: number, lat: number, width = 400, height = 300, span = 14) {
+  shapes ??= load();
+  const [cx, cy] = project(lon, lat);
+  const w = Math.abs(project(lon + span / 2, lat)[0] - project(lon - span / 2, lat)[0]);
+  const h = (w * height) / width;
+  const v: View = { x: cx - w / 2, y: cy - h / 2, w, h, width };
+  const paths = shapes.map((sh) => ({ id: sh.id, d: pathOf(sh, v) })).filter((p) => p.d);
+  // Kilometres across the frame at the point's latitude, for a scale bar of 1, 2 or 5 × 10ⁿ km.
+  const kmAcross = span * 111.32 * Math.cos((lat * Math.PI) / 180);
+  const target = kmAcross / 5;
+  const mag = 10 ** Math.floor(Math.log10(target));
+  const km = [5, 2, 1].map((m) => m * mag).find((k) => k <= target) ?? mag;
+  return { paths, width, height, at: { x: width / 2, y: height / 2 }, scale: { km, px: (km / kmAcross) * width } };
 }

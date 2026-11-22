@@ -1,0 +1,126 @@
+---
+// The chokepoints map view (/chokepoints, D22): IMF PortWatch's 28 chokepoints as diamonds shaded by their last 7
+// days against the usual level (the last 365 days), each with a glyph so the status never rests on colour, over an
+// unshaded map; the panel counts them by status; below, every chokepoint ranked, linked to its page. All text,
+// figures and the table are in the HTML; the map (src/scripts/map/) loads after them.
+import Page from '../layouts/Page.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import SourceLine from '../components/SourceLine.astro';
+import Notice from '../components/Notice.astro';
+import ShareRow from '../components/ShareRow.astro';
+import MapStage from '../components/MapStage.astro';
+import MarkIcon from '../components/MarkIcon.astro';
+import '../styles/atlas/mapview.css';
+import '../styles/atlas/bars.css';
+import '../styles/atlas/keyfigure.css';
+import '../styles/atlas/table.css';
+import '../styles/atlas/tools.css';
+import '../styles/atlas/place.css';
+import { CHOKEPOINTS_TEXT as X, changeCell, ships } from '../i18n/chokepoints.en';
+import { STATUSES, importedOn, lastDataDay, liveChokepoints, ranked, statusCounts, viewLede } from '../lib/chokepoints';
+import { creditLine } from '../lib/data';
+import { formatDate } from '../lib/format';
+import { hubCrumb, live, route } from '../lib/routes';
+import { layerPath } from '../lib/map/layers';
+import { breadcrumbs } from '../lib/structured';
+
+const key = 'view:chokepoints:all';
+const path = route(key)!.path;
+const url = new URL(path, Astro.site).href;
+const list = ranked();
+const counts = statusCounts();
+const last = formatDate(lastDataDay()!);
+const imported = importedOn();
+const answer = viewLede()!;
+const sourceParts = [X.dataTo(last), ...(imported ? [X.imported(formatDate(imported))] : [])];
+const below = list.filter((c) => c.status === 'below' || c.status === 'disrupted');
+const furthest = Math.max(...below.map((c) => -c.change!), 0.01);
+const pageOf = (slug: string) => live(`view:chokepoints:${slug}`)?.path;
+const crumbs: { label: string; href?: string }[] = [hubCrumb('security'), { label: X.section }];
+const marks = STATUSES.map((s) => ({ symbol: `cp-${s}` as const, label: X.status[s] }));
+const related = [
+  ...(live('view:oil:trade') ? [{ href: live('view:oil:trade')!.path, name: X.oilTrade, note: X.mapView }] : []),
+  ...(live('view:gas:trade') ? [{ href: live('view:gas:trade')!.path, name: X.gasTrade, note: X.mapView }] : []),
+  ...(live('tool:supply-chains:oil') ? [{ href: live('tool:supply-chains:oil')!.path, name: X.oilChain, note: X.chain }] : []),
+];
+---
+<Page title={X.title} description={X.description(liveChokepoints().length, last)} hub="security" container="mv" image={route(key)!.image}
+  jsonld={[breadcrumbs(crumbs.map((c) => ({ label: c.label, href: c.href })))]}>
+  <div class="gt-mvhead">
+    <Breadcrumbs items={crumbs} />
+    <h1 class="gt-title gt-mvhead__t">{X.title} <span class="gt-mvhead__sub">{X.sub}</span></h1>
+    <p class="gt-lede gt-mvhead__a">{answer}</p>
+    <SourceLine source={X.source} parts={sourceParts} />
+  </div>
+
+  <MapStage layer={layerPath('chokepoints')} label={X.mapLabel(list.length, below.length)} title={X.title}
+    legend={{ title: X.legend, scale: 'seq', ticks: [], none: X.noShading, marks, marksOnly: true }}>
+    <div data-panel="world" slot="panel">
+      <div class="gt-panel__head">
+        <div class="gt-panel__title"><span class="gt-kicker">{X.title} · {X.weekTo(last)}</span><h2 class="gt-h3">{X.counts}</h2></div>
+      </div>
+      <div class="gt-panel__body">
+        <ul class="gt-devents">
+          {STATUSES.filter((s) => counts[s]).map((s) => <li><MarkIcon symbol={`cp-${s}`} /><span><b>{counts[s]}</b> {X.status[s]}</span></li>)}
+        </ul>
+        <div class="gt-pgroup">
+          <span class="gt-label">{X.furthest}</span>
+          {below.length ? (
+            <ol class="gt-bars gt-bars--tight" aria-label={X.furthest}>
+              {below.slice(0, 8).map((c) => (
+                <li><span class="gt-bars__name">{pageOf(c.slug) ? <a href={pageOf(c.slug)}>{c.name}</a> : c.name}</span><span class="gt-bars__track"><span class="gt-bars__fill" style={`width:${((100 * -c.change!) / furthest).toFixed(1)}%`}></span></span><span class="gt-bars__val">{changeCell(c.change!)}</span></li>
+              ))}
+            </ol>
+          ) : <p class="gt-caption">{X.noneBelow}</p>}
+        </div>
+        <Notice>
+          <p>{X.usualNote} {X.caveat}</p>
+          <SourceLine source={X.source} parts={sourceParts} />
+        </Notice>
+      </div>
+    </div>
+  </MapStage>
+
+  <section class="gt-mvbelow" aria-labelledby="table">
+    <div class="gt-mvbelow__main">
+      <h2 class="gt-h2" id="table">{X.tableTitle}</h2>
+      <div class="gt-tablewrap" style="--gt-table-h:none" tabindex="0" role="region" aria-label={X.tableLabel}>
+        <table class="gt-table gt-hztable" data-gt-sort>
+          <caption class="gt-caption">{X.caption(list.length)}</caption>
+          <thead><tr>
+            <th scope="col" data-key="n"><button type="button">{X.colName}</button></th>
+            <th scope="col" data-key="s"><button type="button">{X.colStatus}</button></th>
+            <th scope="col" class="n" data-key="c" data-type="num" aria-sort="ascending"><button type="button">{X.colChange}</button></th>
+            <th scope="col" class="n" data-key="a" data-type="num"><button type="button">{X.colAvg}</button></th>
+            <th scope="col" class="n" data-key="b" data-type="num"><button type="button">{X.colBase}</button></th>
+            <th scope="col" data-key="d"><button type="button">{X.colLast}</button></th>
+          </tr></thead>
+          <tbody>
+            {list.map((c) => (
+              <tr>
+                <th scope="row">{pageOf(c.slug) ? <a href={pageOf(c.slug)}>{c.name}</a> : c.name}</th>
+                <td data-v={STATUSES.indexOf(c.status)}><span class="gt-dlevel"><MarkIcon symbol={`cp-${c.status}`} />{X.statusShort[c.status]}</span></td>
+                <td class="n" data-v={c.change ?? ''}>{c.change === null ? '–' : changeCell(c.change)}</td>
+                <td class="n" data-v={c.avg7 ?? ''}>{c.avg7 === null ? '–' : ships(c.avg7)}</td>
+                <td class="n" data-v={c.baseline ?? ''}>{c.baseline === null ? '–' : ships(c.baseline)}</td>
+                <td class="gt-nowrap" data-v={c.lastDate ?? ''}>{c.lastDate ? formatDate(c.lastDate) : '–'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="gt-caption">{X.usualNote}</p>
+      <SourceLine source={X.source} parts={sourceParts} citation={`${creditLine('portwatch')}, ${X.dataTo(last)}.`} />
+    </div>
+    <aside class="gt-mvbelow__side">
+      {related.length > 0 && <><h2 class="gt-label">{X.related}</h2>
+      <ul class="gt-related">{related.map((r) => <li><a href={r.href}><span>{r.name}</span><small>{r.note}</small></a></li>)}</ul></>}
+      <div class="gt-mvbelow__share"><ShareRow url={url} text={answer} /></div>
+    </aside>
+  </section>
+</Page>
+
+<script>
+  import { initSortable } from '../scripts/table';
+  document.querySelectorAll<HTMLTableElement>('table[data-gt-sort]').forEach(initSortable);
+</script>

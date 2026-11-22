@@ -4,9 +4,11 @@
 
 /* ---------- page ---------- */
 .gt-mv { container: page / inline-size; max-width: 1440px; margin: 0 auto; padding: 20px 24px 72px; display: grid; gap: 20px; }
-.gt-mv > * { width: 100%; max-width: var(--content-max); margin-inline: auto; }
-.gt-mv > .gt-stage { max-width: 1392px; }
-.gt-mvhead { display: grid; gap: 10px; max-width: var(--content-max); }
+/* The wrapper alone sets its blocks' width and left edge: the header's content width, the map stage wider. Two classes'
+   weight, so a block's own rule (in whichever stylesheet loads last) never widens it; blocks set no max-width of their own. */
+.gt-mv > :not(.gt-stage) { width: 100%; max-width: var(--content-max); margin-inline: auto; }
+.gt-mv > .gt-stage { width: 100%; max-width: 1392px; margin-inline: auto; }
+.gt-mvhead { display: grid; gap: 10px; }
 .gt-mvhead .gt-crumbs { margin-bottom: 2px; }
 .gt-mvhead__t { font-size: 44px; line-height: 50px; }
 .gt-mvhead__sub { font-weight: 400; color: var(--ink-muted); font-size: .7em; letter-spacing: 0; }
@@ -103,7 +105,7 @@
 .gt-pyear { display: grid; gap: 20px; }
 
 /* ---------- below the map ---------- */
-.gt-mvbelow { display: grid; grid-template-columns: minmax(0, 8fr) minmax(0, 4fr); gap: 48px; margin-top: 28px; max-width: var(--content-max); }
+.gt-mvbelow { display: grid; grid-template-columns: minmax(0, 8fr) minmax(0, 4fr); gap: 48px; margin-top: 28px; }
 .gt-mvbelow__main { display: grid; gap: 16px; align-content: start; min-width: 0; }
 .gt-mvbelow__main .gt-h2 { border-top: 3px double var(--ink); padding-top: 14px; margin: 0; }
 .gt-mvbelow__main .gt-h2 ~ .gt-h2 { margin-top: 20px; }
@@ -154,7 +156,7 @@
   /* The map is not first on a phone: the panel reads inline, and "Show map" opens the map full screen. */
   .gt-stage { display: block; height: auto; border: 0; background: none; }
   .gt-stage > .gt-stage__map { display: none; }
-  .gt-mvpanel { border: 0; background: none; height: auto; }
+  .gt-panel.gt-mvpanel { border: 0; background: none; height: auto; }
   .gt-mvpanel .gt-panel__head { padding: 0 0 12px; }
   .gt-mvpanel .gt-panel__body { padding: 16px 0 0; overflow: visible; }
   .gt-mvpanel [data-panel] { height: auto; }

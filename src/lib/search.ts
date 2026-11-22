@@ -4,7 +4,8 @@
 // - Countries: every country page, with the territory table's ISO codes and the other names sources use for it
 //   (codes.csv: Burma, Turkey, Ivory Coast), and the Compare pages.
 // - Maps: every map view page by its layer's name, and each view family by its menu name.
-// - Measures: the indicator rankings. Places: disputed rivers, and chokepoints and ports once they are live.
+// - Measures: the indicator rankings. Places: disputed rivers, the chokepoints (with their short names: Hormuz, Suez),
+//   and ports once they are live.
 // - Blocs: each grouping (with its full name and members, so a country's blocs follow it), its history page.
 // - Tools, and Topics and pages: the tools, Supply chains' flows, the topic hubs and the site's own pages.
 import { BLOC_TEXT } from '../i18n/map.en.ts';
@@ -20,9 +21,9 @@ import { atlasLayers } from './atlas.ts';
 import { blocs } from './blocs.ts';
 import { menu } from './menu.ts';
 import { CODES, PLACES, place } from './places.ts';
-import { countryHref, hubOf, live, routes } from './routes.ts';
-import { CHOKEPOINTS } from '../adapters/portwatch.ts';
+import { countryHref, hubOf, live, routes, viewHref } from './routes.ts';
 import { fold, type WireIndex } from './search-match.ts';
+import { chokepointAliases, liveChokepoints } from './chokepoints.ts';
 
 export const GROUPS = ['countries', 'maps', 'measures', 'places', 'blocs', 'tools', 'pages'] as const;
 type GroupId = (typeof GROUPS)[number];
@@ -94,6 +95,11 @@ function items(): Item[] {
         });
     } else if (family === 'alliance-history') {
       out.push({ name: BLOC_TEXT[id] ?? id, group: 'blocs', detail: T.history, path: r.path, aliases: ['history', T.history, ...(blocFullName(id) ? [blocFullName(id)!] : [])] });
+    } else if (family === 'chokepoints') {
+      // The map is listed by its menu name (above); each chokepoint by its name and short forms.
+      if (id === 'all') continue;
+      const c = liveChokepoints().find((x) => x.slug === id);
+      if (c) out.push({ name: c.name, group: 'places', detail: T.chokepoint, path: r.path, aliases: [...chokepointAliases(c.name), ...aliasesOf(`view:chokepoints:${id}`)] });
     } else if (family === 'rivers') {
       out.push({ name: RIVERS_TEXT.name[id] ?? id, group: 'places', detail: T.river, path: r.path, aliases: ['river'] });
     } else {
@@ -160,8 +166,8 @@ export function searchIndex(): WireIndex {
     return [i.name, GROUPS.indexOf(i.group), i.detail, i.path, aliases.join('|'), (i.codes ?? []).join(' '), i.extra ?? ''];
   });
   // Chokepoints and ports while their maps are off: search answers that they are not here yet.
-  const s = (['chokepoints', 'ports'] as const).filter((id) => !live(`view:${id}`)).map((id): [string, string] => {
-    const names = [NAV_TEXT.views[id][0], ...(id === 'chokepoints' ? CHOKEPOINTS : []), ...(T.notYetNames[id] ?? [])];
+  const s = (['chokepoints', 'ports'] as const).filter((id) => !viewHref(id)).map((id): [string, string] => {
+    const names = [NAV_TEXT.views[id][0], ...(T.notYetNames[id] ?? [])];
     return [T.notYet(NAV_TEXT.views[id][0]), [...new Set(names)].join('|')];
   });
   return { g: [...GROUPS], e, t: tryLinks().map((l) => [l.label, l.href]), ...(s.length ? { s } : {}) };

@@ -76,8 +76,8 @@ empty and withheld states. How each gate was read:
 | Nuclear: treaties | /nuclear/treaties | Facts file (UNODA) | **Fail** (already hidden) | Data: compiled without UNODA, TPNW list and dates unchecked; UNODA terms not read | The file checked against treaties.unoda.org, `TREATIES_CHECKED` set, UN terms read |
 | Blocs | /blocs and 19 groupings | Hand-kept member lists, World Bank, USGS | Pass | Six lists re-confirmed 5 Nov; the other 12 match current membership as this review reads it, but have not been checked against each grouping's own list (open questions). Shares say "today's members" | |
 | Alliance history | /blocs/{11 blocs}/history | Facts files, AI-drafted, approved | Pass | SCO facts to re-check after launch (owner's decision, 5 Nov) | |
-| Chokepoints | /chokepoints | IMF PortWatch | **Fail** (already hidden) | Licence: the IMF's permission for scheduled downloads not given | The IMF's permission |
-| Ports | /ports | IMF PortWatch | **Fail** (already hidden) | As chokepoints | As chokepoints |
+| Chokepoints | /chokepoints and 28 pages | IMF PortWatch (imported by hand monthly, D22) | Pass (22 Nov) | The IMF's terms allow reuse with credit; scheduled downloads still need permission (asked again 22 Nov), so the files are imported by hand (kinds `portwatch-points`, `portwatch-daily`). The gate passes while the imported files are in the snapshot and under 45 days old (`freshImport` in src/lib/chokepoints.ts); hidden otherwise, as before. Every figure says "data to {date}" and credits "UN Global Platform; IMF PortWatch". Shown only, no CSV. This Week's shipping card stays off (monthly data) | A fresh import each month |
+| Ports | /ports | IMF PortWatch | **Fail** (already hidden) | Not part of D22 | The IMF's permission |
 | Food crises | /food-crises | IPC | **Fail** (already hidden) | Fetcher: no API key | `IPC_API_KEY` |
 | Explorer | /explorer, /over-time, /scatter | Every registry measure | Pass | Satellites and launches are back since CelesTrak's permission (11 Nov) | |
 | Dependencies | /dependencies | FAOSTAT, EIA, UN Comtrade, SIPRI | Pass | | |

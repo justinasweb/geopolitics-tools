@@ -109,8 +109,9 @@ layers whose view is live, and loads their files (`/map/<id>.json`) as the views
   the live view that draws it: trade flows (the arcs of every layer that has them, one select: oil, gas, the six
   crops and fertilisers, chips, chip machines, arms; the same flows on two layers are offered once), launch sites
   (the launches view's marks), disaster alerts (the all-alerts view's orange and red alerts, last 30 days) and a bloc
-  outline (one select of the 19 groupings). Pipelines, cables, chokepoints and outage marks are not listed: no live
-  view draws them. Flows two layers share (arms exports and imports) are offered once, named for their family ("Arms
+  outline (one select of the 19 groupings), and shipping chokepoints (the chokepoints view's status diamonds, each
+  linked to its page; the view is a layer of marks only, `marksOnly` in the registry, so it is offered as an overlay
+  and not as a shaded layer). Pipelines, cables and outage marks are not listed: no live view draws them. Flows two layers share (arms exports and imports) are offered once, named for their family ("Arms
   transfers"). One choice per overlay. An overlay shows the step of its own layer nearest the map's year that has
   marks (`overlayStep`), with its masks taken off (`overlayAt`). Its legend title says the time actually drawn
   (`overlayTime`): the one year every mark carries (a crop's or a fuel's flows carry `year` in the layer file; their
@@ -516,4 +517,5 @@ words in src/i18n/nuclear.en.ts), in the Power and alliances hub after Chinese l
   consumption, imports and OECD stocks). Left out for now by decision; the Energy Institute (to 2020 only) and OPEC
   (oil only, own terms) were the alternatives looked at.
 - Live data for the phase 5b views: each goes live when its key is set and its gates pass on live data. The chokepoints
-  and ports wait on the IMF's terms; submarine cables stay hidden.
+  are imported by hand from PortWatch once a month (D22) and are live while that import is under 45 days old; ports
+  wait on the IMF's terms; submarine cables stay hidden.

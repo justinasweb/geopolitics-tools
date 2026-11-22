@@ -24,7 +24,7 @@ export const SEARCH_TEXT = {
   partial: (q: string, name: string) => `No match for “${q}”. Showing results for ${name}.`,
   none: (q: string) => `Nothing matches “${q}”.`,
   noneHelp: 'Check the spelling, or try a country, a commodity such as wheat, a measure or a bloc.',
-  /** A map that is not on the site yet: "Chokepoints aren’t on the site yet." */
+  /** A map that is not on the site yet: "Ports aren’t on the site yet." (chokepoints too, while their import is missing or old). */
   notYet: (what: string) => `${what} aren’t on the site yet.`,
   /** Other names for the maps not on the site yet. */
   notYetNames: { chokepoints: ['chokepoint', 'strait', 'shipping lanes', 'Hormuz', 'Suez', 'Malacca', 'Bosporus', 'Bab el-Mandeb', 'Gibraltar', 'Dover', 'Panama Canal', 'Cape of Good Hope'], ports: ['port', 'harbour', 'harbor', 'shipping'] } as Record<string, string[]>,
@@ -36,6 +36,7 @@ export const SEARCH_TEXT = {
   compare: 'Compare',
   ranking: 'Indicator ranking',
   river: 'Disputed river',
+  chokepoint: 'Shipping chokepoint',
   history: 'Membership history',
   bloc: 'Grouping',
   member: (country: string) => `${country} is a member`,
@@ -54,6 +55,10 @@ export const SEARCH_TEXT = {
  * (src/data/places/codes.csv), so the two never disagree.
  */
 export const SEARCH_ALIASES: Record<string, string[]> = {
+  'view:chokepoints': ['chokepoint', 'strait', 'shipping lanes', 'shipping', 'PortWatch'],
+  'view:chokepoints:bosporus-strait': ['Bosphorus', 'Istanbul Strait'],
+  'view:chokepoints:oresund-strait': ['Øresund', 'The Sound'],
+  'view:chokepoints:dover-strait': ['Pas de Calais'],
   'view:emissions': ['carbon', 'greenhouse gases', 'climate change'],
   'view:food': ['agriculture', 'crops'],
   'view:food:soy-production': ['soy', 'soya'],

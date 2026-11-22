@@ -1,5 +1,10 @@
 # Prototype sample files
 
+**The PortWatch counts in `portwatch/` are synthetic, not PortWatch data.** The Strait of Hormuz, the Suez Canal and the
+Taiwan Strait carry four years and 40 days of made-up daily counts in PortWatch's layout (a usual level, a yearly
+wiggle and noise; Hormuz falling to about 4% of usual from March 2026), so sample builds show every chokepoint status;
+the other six keep the prototype's illustrative year.
+
 Copied unchanged from the prototype's `public/data/mock/` (the v8 build of 2026-10-22). They are in the formats the
 prototype's fetchers and import tool saved, and its adapters read, so the new pipeline is tested
 against them: the import tool must accept each one and keep it as it is, and the adapters must read

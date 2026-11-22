@@ -2,13 +2,14 @@
 // docs/data-pipeline.md). Each kind is one file: the columns the site needs, a row filter, and a
 // check that it is the right download. Imported files sit in the same state and snapshots as fetched
 // ones, under their own source id. Ported from the prototype's fetchers/import.php.
-import { CheckError, check } from '../lib/source.ts';
+import { CheckError, DAY, check } from '../lib/source.ts';
 import { csvRecords, parseCsv } from '../lib/csv.ts';
 import { matcher } from '../../src/adapters/core.ts';
 import { PLACES } from '../../src/lib/places.ts';
 import type { Input } from '../lib/importer.ts';
 import type { SourceFile } from '../lib/source.ts';
 import { WEO_COLUMNS, WEO_FILE_INDICATORS, weoFiles } from './imf-weo-file.ts';
+import { DAILY_COLUMNS, PORTWATCH_FROM, POINT_COLUMNS, portwatchDaily, portwatchPoints } from './portwatch-file.ts';
 
 /** The two AQUASTAT variables the water view reads. */
 const AQUASTAT_VARIABLES = ['Dependency ratio', 'Total renewable water resources per capita'];
@@ -26,6 +27,9 @@ export interface ImportedSource {
   licence: string;
   /** Where and how often it is released, for the status page and whoever imports it. */
   release: string;
+  /** Past its freshness deadline this long after the last import, in hours: the status shows it Delayed and pages that
+   *  need it current hide (PortWatch's daily transits, imported monthly). Most imports have none: they are released rarely. */
+  staleAfter?: number;
 }
 
 export type Row = Record<string, string>;
@@ -54,8 +58,9 @@ export interface Kind {
   convert?: (text: string) => string;
   /** For files: the names `split` writes, so their last imported copies can be read for the shrink check. */
   files?: string[];
-  /** For files: the files to save and the rows kept, from the input and the last imported copy of each file. */
-  split?: (input: Input, from: string, previous: Record<string, string | null>, allowShrink: boolean) => { files: SourceFile[]; rows: number };
+  /** For files: the files to save and the rows kept, from the input and the last imported copy of each file; `dataTo`, the
+   *  last day the data covers, when the file says (recorded in the state and the snapshot, as a fetch's is). */
+  split?: (input: Input, from: string, previous: Record<string, string | null>, allowShrink: boolean) => { files: SourceFile[]; rows: number; dataTo?: string };
 }
 
 export const IMPORTED: ImportedSource[] = [
@@ -69,6 +74,7 @@ export const IMPORTED: ImportedSource[] = [
   { id: 'usgs-minerals', name: 'USGS Mineral Commodity Summaries', attribution: 'U.S. Geological Survey, Mineral Commodity Summaries', licence: 'Public domain (US government work)', release: 'each January' },
   { id: 'fas-forces', name: 'FAS Status of World Nuclear Forces, current table', attribution: 'Federation of American Scientists, Status of World Nuclear Forces', licence: 'CC BY 4.0', release: 'about twice a year (copied by hand from the FAS page)' },
   { id: 'imf-weo', name: 'IMF World Economic Outlook', attribution: 'International Monetary Fund, World Economic Outlook', licence: 'IMF terms: reuse with credit (downloaded by hand; scheduled downloads need permission)', release: 'each April and October' },
+  { id: 'portwatch', name: 'IMF PortWatch chokepoints', attribution: 'UN Global Platform; IMF PortWatch (portwatch.imf.org)', licence: 'IMF terms: reuse with credit (downloaded by hand; scheduled downloads need permission)', release: 'monthly, downloaded by hand', staleAfter: 45 * DAY },
   { id: 'treasury-history', name: 'US Treasury holdings by country, history', attribution: 'U.S. Department of the Treasury, Treasury International Capital (TIC) system', licence: 'Public domain (US government work)', release: 'built once from the historical tables' },
 ];
 
@@ -257,6 +263,17 @@ export const KINDS: Record<string, Kind> = {
     source: 'imf-weo', save: 'release.json', how: 'files', columns: WEO_COLUMNS,
     files: [...WEO_FILE_INDICATORS.map((c) => `${c}.json`), 'release.json'], split: weoFiles,
     about: 'IMF World Economic Outlook: the IMF data portal CSV (SERIES_CODE, LATEST_ACTUAL_ANNUAL_DATA, PUBLICATION_DATE, a column per year), or the older "By Countries" table (tab-delimited .xls, or WEOOct2026all.xlsx with the IMF\'s file name)',
+  },
+  // The two PortWatch downloads (D22), one kind each: the importer reads one file per run.
+  'portwatch-points': {
+    source: 'portwatch', save: 'chokepoints.json', how: 'files', columns: POINT_COLUMNS, from: PORTWATCH_FROM,
+    files: ['chokepoints.json'], split: portwatchPoints,
+    about: 'IMF PortWatch "Chokepoints" CSV (PortWatch_chokepoints_database.csv): the 28 chokepoints with id, name and position',
+  },
+  'portwatch-daily': {
+    source: 'portwatch', save: 'chokepoints_daily.json', how: 'files', columns: DAILY_COLUMNS, from: PORTWATCH_FROM,
+    files: ['chokepoints_daily.json'], split: portwatchDaily,
+    about: 'IMF PortWatch "Daily Chokepoints Data" CSV (Daily_Chokepoints_Data.csv): transits by vessel type and day; the last four years and 40 days are kept',
   },
   'treasury-history': {
     source: 'treasury-history', save: 'mfh_history.csv', how: 'raw', check: treasuryHistoryCheck,

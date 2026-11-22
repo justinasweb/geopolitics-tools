@@ -155,6 +155,10 @@ Costa Rica's electricity shares on its country page. ICE's figures are in `src/d
 drops by itself once Ember's own other-fossil share for Costa Rica 2024 is above 5% (`OPERATOR_NOTE_UNTIL`).
 **Reported to Ember?** Not yet: owner to send.
 
+### This week's shipping card (raised 22 Nov 2026)
+
+The This week shipping card and its "chokepoints below normal" count stay off while PortWatch is imported by hand once a month (D22): they turn on when PortWatch data arrives at least weekly (the IMF's permission for scheduled downloads, asked again 22 Nov 2026).
+
 ## Launch review leftovers (raised 5 Nov 2026)
 
 - **G7 and Russia (decided 5 Nov 2026).** Russia joins in 1998, as the G8, per the G7 Research Group
@@ -259,10 +263,10 @@ that each disclosure is regular and citable, and a note that other countries' ho
 
 **The question.** The Atlas design lists eight overlays. Four have nothing live to draw them from: pipelines and
 terminals (GEM is imported, `src/adapters/gem.ts`, but no map view draws it yet), submarine cables (dropped, see
-Decided), chokepoints (waiting on the IMF's terms) and internet outages as marks (the outages view shades countries;
+Decided), chokepoints (live since 22 Nov 2026 from the hand import, D22: now an overlay) and internet outages as marks (the outages view shades countries;
 it has no marks).
 
-**What the site does now.** The Atlas lists only trade flows, launch sites, disaster alerts and the bloc outline.
+**What the site does now.** The Atlas lists trade flows, launch sites, disaster alerts, shipping chokepoints and the bloc outline.
 The others appear on their own once a view draws them, since the Atlas reads overlays from the views' layer files.
 
 **Options.**

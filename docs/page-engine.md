@@ -225,8 +225,9 @@ and `SearchDialog.astro` (in `Page.astro` and the Atlas), behaviour `src/scripts
   a search button) and searches it there. About 465 pages: **44 kB, 10.6 kB gzipped, 8.8 kB brotli** (6 Nov 2026);
   a test fails above 25 kB gzipped.
 - **Groups.** Countries (country pages, Compare), Maps (each view family by its menu name, each page by its layer's
-  name, with hub and family under it), Measures (indicator rankings), Places (disputed rivers; chokepoints and ports
-  join by themselves when their routes go live), Blocs (each grouping with its full name, its history page), Tools
+  name, with hub and family under it), Measures (indicator rankings), Places (disputed rivers; the chokepoint pages, each
+  with its short forms from `chokepointAliases`: "Hormuz", "Suez", "Bab el-Mandeb", "Strait of Malacca"; ports join
+  when their routes go live, and until then search answers "Ports aren't on the site yet."), Blocs (each grouping with its full name, its history page), Tools
   (the tools, Explorer's views, Supply chains' flows, This week), Topics and pages. The group with the best match comes
   first; each shows its best five ("5 of 26" in its heading), more when only one group matches.
 - **Matching** (`src/lib/search-match.ts`, shared with the tests). Accents, apostrophes and case are ignored

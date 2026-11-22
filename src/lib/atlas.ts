@@ -12,6 +12,8 @@ import { live } from './routes.ts';
 import { BLOC_ORDER } from './blocs.ts';
 import { BLOC_TEXT } from '../i18n/map.en.ts';
 import type { MarkSymbol } from '../scripts/map/legend.ts';
+import { CHOKEPOINTS_TEXT } from '../i18n/chokepoints.en.ts';
+import { STATUSES as STATUS_ORDER } from './chokepoints.ts';
 
 /** One shaded layer, as the Atlas lists it and its script reads it. */
 export interface AtlasLayer {
@@ -60,7 +62,8 @@ export function atlasTopics(): AtlasTopic[] {
   const keys = new Map<string, string>();
   for (const d of mapLayers()) {
     const route = live(d.view);
-    if (!route) continue;
+    // A layer of marks only (the chokepoints) shades nothing: the Atlas offers its marks as an overlay instead.
+    if (!route || d.marksOnly) continue;
     const f = layerFile(d.id);
     const key = keyOf(route.path);
     // Two layers on one view (none today) would share a key; fail rather than list one twice.
@@ -107,7 +110,7 @@ export interface AtlasOverlayVariant {
 }
 
 export interface AtlasOverlay {
-  id: 'flows' | 'launches' | 'alerts' | 'bloc';
+  id: 'flows' | 'launches' | 'alerts' | 'chokepoints' | 'bloc';
   label: string;
   desc: string;
   /** The topic it is listed under. */
@@ -131,7 +134,9 @@ let overlayCache: AtlasOverlay[] | null = null;
  *  - launch sites: the marks on the launches view; disaster alerts: the orange and red alerts of the all-alerts view
  *    over its shortest period;
  *  - bloc outline: the groupings every layer file lists, when the blocs views are live.
- * Pipelines, cables, chokepoints and internet outage marks have no live view that draws them yet, so they are not listed.
+ *  - chokepoints: the status diamonds of the chokepoints view, a layer of marks only (not a shaded layer), each linked
+ *    to its page; one step, so it is fixed at it.
+ * Pipelines, cables and internet outage marks have no live view that draws them yet, so they are not listed.
  */
 export function atlasOverlays(): AtlasOverlay[] {
   if (overlayCache) return overlayCache;
@@ -170,6 +175,22 @@ export function atlasOverlays(): AtlasOverlay[] {
     const parts = (f.overlays ?? []).filter((o) => (o.id === 'alerts-orange' || o.id === 'alerts-red') && o.items.length);
     const step = f.years.indexOf(Math.min(...f.years));
     if (parts.length) out.push({ id: 'alerts', label: O.alerts.label, desc: O.alerts.desc(f.data[step].label ?? ''), topic: 'climate', glyph: 'triangle', variants: [variantOf('alerts', alerts, f, parts, step)] });
+  }
+
+  const choke = mapLayers().find((d) => d.marksOnly && d.family === 'chokepoints' && live(d.view));
+  if (choke) {
+    const f = layerFile(choke.id);
+    const parts = (f.overlays ?? []).filter((o) => o.id === 'chokepoints' && o.items.length);
+    const statuses = [...new Set(parts.flatMap((o) => (o.kind === 'points' ? o.items.map((p) => p.s) : [])))];
+    if (parts.length) {
+      out.push({
+        id: 'chokepoints', label: O.chokepoints.label, desc: O.chokepoints.desc(f.data[0].label ?? ''), topic: 'security', glyph: 'diamond',
+        variants: [{
+          token: 'chokepoints', label: f.name, file: layerPath(choke.id), parts: parts.map((o) => o.id), step: 0, source: f.source,
+          legend: STATUS_ORDER.filter((s) => statuses.includes(`cp-${s}`)).map((s) => ({ symbol: `cp-${s}` as MarkSymbol, label: CHOKEPOINTS_TEXT.status[s] })),
+        }],
+      });
+    }
   }
 
   if (layers.some((l) => l.family === 'blocs')) {
