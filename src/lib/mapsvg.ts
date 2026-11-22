@@ -133,3 +133,23 @@ export function locatorMap(id: string, width = 400, height = 300) {
   const ring = shown < 14 ? { x: width / 2, y: height / 2, r: 14 } : null;
   return { paths, width, height, ring };
 }
+
+/**
+ * A locator map around a point (a chokepoint), cropped automatically: a 4:3 frame about `span` degrees of longitude
+ * wide, centred on the point, with the land in it, the point's position and a scale bar of a round length about a fifth
+ * of the frame. Neighbouring coasts make the place readable without drawing each map by hand.
+ */
+export function pointLocator(lon: number, lat: number, width = 400, height = 300, span = 14) {
+  shapes ??= load();
+  const [cx, cy] = project(lon, lat);
+  const w = Math.abs(project(lon + span / 2, lat)[0] - project(lon - span / 2, lat)[0]);
+  const h = (w * height) / width;
+  const v: View = { x: cx - w / 2, y: cy - h / 2, w, h, width };
+  const paths = shapes.map((sh) => ({ id: sh.id, d: pathOf(sh, v) })).filter((p) => p.d);
+  // Kilometres across the frame at the point's latitude, for a scale bar of 1, 2 or 5 × 10ⁿ km.
+  const kmAcross = span * 111.32 * Math.cos((lat * Math.PI) / 180);
+  const target = kmAcross / 5;
+  const mag = 10 ** Math.floor(Math.log10(target));
+  const km = [5, 2, 1].map((m) => m * mag).find((k) => k <= target) ?? mag;
+  return { paths, width, height, at: { x: width / 2, y: height / 2 }, scale: { km, px: (km / kmAcross) * width } };
+}

@@ -8,7 +8,6 @@ import { CHOKEPOINTS_TEXT as T, changeWords } from '../i18n/chokepoints.en.ts';
 import { data, shared } from './data.ts';
 import { formatDate } from './format.ts';
 
-const DAY = 86_400_000;
 const all = shared(chokepoints);
 
 /** The order statuses are listed in: furthest below first. */
@@ -74,9 +73,6 @@ export function statusLine(c: Chokepoint): string {
   if (c.change === null) return T.noRecent(formatDate(c.lastDate));
   return T.statusLine(changeWords(c.change), formatDate(c.lastDate));
 }
-
-/** The first day of the 7 or 365 ending on `date`. */
-export const daysBefore = (date: string, n: number) => new Date(Date.parse(`${date}T00:00:00Z`) - (n - 1) * DAY).toISOString().slice(0, 10);
 
 const avg = (xs: (number | null)[]) => {
   const v = xs.filter((x): x is number => x !== null);

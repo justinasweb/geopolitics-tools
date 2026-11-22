@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { parseChokepoints, slugOf, usualRange, yearsBefore } from '../../src/adapters/portwatch.ts';
-import { freshImport, FRESH_HOURS } from '../../src/lib/chokepoints.ts';
+import { freshImport, FRESH_HOURS, lastWeek, months, statusLine, tankerShare } from '../../src/lib/chokepoints.ts';
+import { dailyChartHtml, dailyTicks } from '../../src/lib/dailychart.ts';
+import { changeCell, changeWords, ships, tonnes } from '../../src/i18n/chokepoints.en.ts';
 
 const DAY = 86_400_000;
 const iso = (t: number) => new Date(t).toISOString().slice(0, 10);
@@ -69,5 +71,38 @@ describe('chokepoints', () => {
     // A snapshot older than the import (a local build from an earlier pull) is fresh.
     expect(freshImport('2026-11-22T10:00:00Z', '2026-11-10T13:29:11Z')).toBe(true);
     expect(freshImport(undefined, '2026-11-22T10:00:00Z')).toBe(false);
+  });
+
+  it('gives a place page its status line, last week by vessel type, and months with the usual level', () => {
+    const daily = { features: rows('chokepoint1', 'Suez Canal', '2022-10-01', '2026-11-15', (d) => (d >= '2026-11-09' ? 44 : 40)) };
+    const [c] = parseChokepoints(meta([['chokepoint1', 'Suez Canal']]), daily);
+    expect(statusLine(c)).toBe('Traffic was 10% above its usual level in the week to 15 Nov 2026.');
+    expect(lastWeek(c).find((r) => r.type === 'n_tanker')).toEqual({ type: 'n_tanker', ships: 22, cargo: 44_000 });
+    expect(lastWeek(c).at(-1)).toEqual({ type: 'all', ships: 44, cargo: 66_000 });
+    expect(tankerShare(c)).toBe(0.5);
+    const m = months(c);
+    // Twelve months newest first; November 2026 runs to the 15th; November 2025, begun mid-month, is left out.
+    expect(m).toHaveLength(12);
+    expect(m[0]).toMatchObject({ month: '2026-11', to: '2026-11-15', transits: 8 * 40 + 7 * 44 });
+    expect(m.at(-1)!.month).toBe('2025-12');
+    expect(m[1]).toMatchObject({ month: '2026-10', transits: 31 * 40, perDay: 40 });
+    expect(m[1].to).toBeUndefined();
+  });
+
+  it('words changes, ships and tonnes', () => {
+    expect([changeWords(-0.124), changeWords(0.03), changeWords(0.004)]).toEqual(['12% below', '3% above', 'at']);
+    expect([changeCell(-0.124), changeCell(0.03), changeCell(0)]).toEqual(['−12%', '+3%', '0%']);
+    expect([ships(96.4), ships(4.32), ships(0)]).toEqual(['96', '4.3', '0']);
+    expect([tonnes(1_234_567), tonnes(830_400), tonnes(486), tonnes(250_000_000)]).toEqual(['1.2 million tonnes', '830,000 tonnes', '486 tonnes', '250 million tonnes']);
+  });
+
+  it('draws the daily chart with a gap in the band where a day has no range', () => {
+    expect(dailyTicks(230)).toEqual([0, 50, 100, 150, 200, 250]);
+    const points = Array.from({ length: 10 }, (_, i) => ({ date: `2026-01-${String(i + 1).padStart(2, '0')}`, value: 10 + i, range: i === 4 ? null : [8, 14] as [number, number] }));
+    const html = dailyChartHtml({ label: 'Ships', points, format: ships });
+    expect(html.match(/class="gt-tc__band"/g)).toHaveLength(2);
+    expect(html.match(/class="gt-tc__line"/g)).toHaveLength(1);
+    expect(html).toContain('aria-label="Ships"');
+    expect(html).toContain('>2026</text>');
   });
 });

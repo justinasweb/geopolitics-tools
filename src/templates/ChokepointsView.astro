@@ -15,6 +15,7 @@ import '../styles/atlas/bars.css';
 import '../styles/atlas/keyfigure.css';
 import '../styles/atlas/table.css';
 import '../styles/atlas/tools.css';
+import '../styles/atlas/place.css';
 import { CHOKEPOINTS_TEXT as X, changeCell, ships } from '../i18n/chokepoints.en';
 import { STATUSES, importedOn, lastDataDay, liveChokepoints, ranked, statusCounts, viewLede } from '../lib/chokepoints';
 import { creditLine } from '../lib/data';
@@ -84,7 +85,7 @@ const related = [
     <div class="gt-mvbelow__main">
       <h2 class="gt-h2" id="table">{X.tableTitle}</h2>
       <div class="gt-tablewrap" style="--gt-table-h:none" tabindex="0" role="region" aria-label={X.tableLabel}>
-        <table class="gt-table" data-gt-sort>
+        <table class="gt-table gt-hztable" data-gt-sort>
           <caption class="gt-caption">{X.caption(list.length)}</caption>
           <thead><tr>
             <th scope="col" data-key="n"><button type="button">{X.colName}</button></th>

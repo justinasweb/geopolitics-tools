@@ -20,6 +20,7 @@ import BlocView from '../templates/BlocView.astro';
 import HistoryView from '../templates/HistoryView.astro';
 import RiverView from '../templates/RiverView.astro';
 import ChokepointsView from '../templates/ChokepointsView.astro';
+import ChokepointPage from '../templates/ChokepointPage.astro';
 import NuclearView from '../templates/NuclearView.astro';
 import type { NuclearPage } from '../lib/nuclear';
 import ExplorerPage from '../templates/ExplorerPage.astro';
@@ -55,6 +56,7 @@ const [a, b] = route.id.split(',');
 {route.kind === 'view' && route.id.startsWith('history:') && <HistoryView id={route.id.split(':')[1]} />}
 {route.kind === 'view' && route.id.startsWith('rivers:') && <RiverView id={route.id.split(':')[1]} />}
 {route.kind === 'view' && route.id === 'chokepoints:all' && <ChokepointsView />}
+{route.kind === 'view' && route.id.startsWith('chokepoints:') && route.id !== 'chokepoints:all' && <ChokepointPage slug={route.id.split(':')[1]} />}
 {route.kind === 'view' && route.id.startsWith('energy:') && <EnergyView id={route.id.split(':')[1]} />}
 {route.kind === 'view' && route.id.startsWith('conflict:') && <ConflictView />}
 {route.kind === 'view' && route.id.startsWith('nuclear:') && <NuclearView id={route.id.split(':')[1] as NuclearPage} />}

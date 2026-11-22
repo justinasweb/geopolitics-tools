@@ -29,6 +29,9 @@ export const CHOKEPOINTS_TEXT = {
   dataTo: (date: string) => `daily transits to ${date}`,
   imported: (date: string) => `imported ${date}`,
   weekTo: (date: string) => `week to ${date}`,
+  days30: (date: string) => `30 days to ${date}`,
+  daily: (from: string, to: string) => `${from} – ${to}, daily`,
+  estimated: 'estimated cargo',
   /** The view's summary line: how many are below their usual level, and which is furthest below. */
   lede: (date: string, below: number, all: number, furthest: { name: string; change: string } | null) =>
     below === 0
@@ -54,11 +57,11 @@ export const CHOKEPOINTS_TEXT = {
   noneBelow: 'None is 10% or more below usual.',
   tableTitle: 'All chokepoints',
   tableLabel: 'Shipping chokepoints, ships a day',
-  caption: (n: number) => `${n} chokepoints, sorted by the last 7 days against the usual level. Ships of every type, counted crossing in either direction.`,
+  caption: (n: number) => `${n} chokepoints, sorted by the last 7 days against the usual level. Ships a day of every type, counted crossing in either direction: the average of the last 7 days, and the usual level (the last 365 days).`,
   colName: 'Chokepoint',
-  colStatus: 'Last 7 days',
-  colAvg: 'Ships a day, last 7 days',
-  colBase: 'Usual: ships a day, last 365 days',
+  colStatus: 'Status',
+  colAvg: 'Last 7 days',
+  colBase: 'Usual',
   colChange: 'Against usual',
   colLast: 'Data to',
   summary: 'Summary',

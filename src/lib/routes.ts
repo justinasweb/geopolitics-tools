@@ -254,12 +254,15 @@ function build(): Route[] {
     });
   }
 
-  // Chokepoints (D22): the map at /chokepoints, while PortWatch's hand import is under 45 days old.
+  // Chokepoints (D22): the map at /chokepoints and a page for each (slug from its name), while PortWatch's hand import is under 45 days old.
   const points = liveChokepoints();
   if (points.length) {
     families.add('chokepoints');
     const lastmod = changed('portwatch');
     out.push({ key: 'view:chokepoints:all', kind: 'view', lang, path: paths.chokepoints(), live: true, indexed: true, aliases: [], id: 'chokepoints:all', image: paths.image('views', 'chokepoints'), lastmod });
+    for (const c of points) {
+      out.push({ key: `view:chokepoints:${c.slug}`, kind: 'view', lang, path: paths.chokepoint(c.slug), live: true, indexed: true, aliases: [], id: `chokepoints:${c.slug}`, image: paths.image('views', `chokepoints-${c.slug}`), lastmod });
+    }
   }
 
   // Views that failed the launch gate review stay registered but hidden, so nothing links to them.
