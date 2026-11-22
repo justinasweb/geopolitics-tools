@@ -2,8 +2,8 @@
 // checks: no sideways scroll, no text cut off by its box, no two controls (links, buttons, inputs) overlapping, and
 // no page running on past its footer. The last one also runs at 1440 px, where wide tables scroll inside a box.
 // Pages on the map view wrapper are also checked at every width for blocks past the header's content edges, and map
-// pages at phone widths for blocks closer than 16 px to a panel's or sheet's sides (inline, with a place selected, and
-// in the full-screen map's sheet).
+// pages at phone widths for panel edges: the inline panel (and with a place selected) within the page text, the
+// full-screen map's bottom sheet with 16 px at its sides.
 // Usage: BASE=http://localhost:8787 node tests/qa/phone.mjs [screenshot dir, default shots/qa-phone] [report.json]
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { chromium } from 'playwright';
@@ -18,25 +18,35 @@ const rows = [];
 // inside a box (as the screen-reader text of an unpositioned scrolling table was, 14,000 px on /dependencies).
 const PAST_FOOTER = 50;
 
-// Side padding in map panels and sheets: every block in a panel's or sheet's head, body or foot, and anything else it
-// holds directly ("Show map"), keeps at least 16 px from its left and right edges and does not run past them. The
-// padding comes from the wrappers (.gt-panel__head, __body, __foot), never from the blocks.
+// Side edges in map panels and sheets. The bottom sheets are boxed: every block in a sheet's head, body or foot, and
+// anything else it holds directly, keeps at least 16 px from its left and right edges, from the wrappers' padding.
+// The inline panel on a phone is unboxed (PhoneMapView design): its blocks sit on the page gutter and may not reach
+// past the page text's left or right edge (main's content box).
 const PANEL_GAP = 16;
 async function panelPadding(page) {
   return page.evaluate((GAP) => {
     const out = [];
     const vis = (e) => { const r = e.getBoundingClientRect(); return r.width > 1 && r.height > 1 && !e.closest('[hidden]') && getComputedStyle(e).visibility !== 'hidden'; };
     const name = (e) => `${e.tagName.toLowerCase()}${e.classList[0] ? `.${e.classList[0]}` : ''}`;
+    const blocksOf = (box) => [...box.querySelectorAll(':scope .gt-panel__head > *, :scope .gt-panel__body > *, :scope .gt-panel__foot > *'),
+      ...[...box.children].filter((c) => !c.matches('[data-panel], .gt-panel__head, .gt-panel__body, .gt-panel__foot, .gt-sheet__grab'))];
+    const main = document.querySelector('main');
+    const ms = main && getComputedStyle(main), mr = main?.getBoundingClientRect();
+    const textL = mr ? mr.left + parseFloat(ms.paddingLeft) : 0, textR = mr ? mr.right - parseFloat(ms.paddingRight) : innerWidth;
     for (const box of document.querySelectorAll('.gt-mvpanel, .gt-atpanel, [data-map-sheet], .gt-sheet')) {
       if (!vis(box)) continue;
       const br = box.getBoundingClientRect();
-      const blocks = [...box.querySelectorAll(':scope .gt-panel__head > *, :scope .gt-panel__body > *, :scope .gt-panel__foot > *'),
-        ...[...box.children].filter((c) => !c.matches('[data-panel], .gt-panel__head, .gt-panel__body, .gt-panel__foot, .gt-sheet__grab'))];
-      for (const b of blocks) {
+      // A sheet, or a panel drawn as a box (the Atlas's), keeps the 16 px; the unboxed inline panel keeps to the page text.
+      const boxed = box.matches('[data-map-sheet], .gt-sheet') || getComputedStyle(box).backgroundColor !== 'rgba(0, 0, 0, 0)';
+      for (const b of blocksOf(box)) {
         if (!vis(b)) continue;
         const r = b.getBoundingClientRect();
-        const l = Math.round(r.left - br.left), rt = Math.round(br.right - r.right);
-        if (l < GAP - 0.5 || rt < GAP - 0.5) out.push(`${name(box)} > ${name(b)} ${l} px from the left, ${rt} px from the right`);
+        if (boxed) {
+          const l = Math.round(r.left - br.left), rt = Math.round(br.right - r.right);
+          if (l < GAP - 0.5 || rt < GAP - 0.5) out.push(`${name(box)} > ${name(b)} ${l} px from the left, ${rt} px from the right (boxed: ${GAP} px)`);
+        } else if (r.left < textL - 0.5 || r.right > textR + 0.5) {
+          out.push(`${name(box)} > ${name(b)} ${Math.round(r.left)}–${Math.round(r.right)}, past the page text ${Math.round(textL)}–${Math.round(textR)}`);
+        }
         if (out.length >= 5) return out;
       }
     }
@@ -135,7 +145,7 @@ for (const width of [390, 360, 1440]) {
     }
     const file = `${out}/${width}-${p.path === '/' ? 'home' : p.path.slice(1).replace(/\//g, '_')}.png`;
     await page.screenshot({ path: file, fullPage: true });
-    const issues = [found.panels.length && `panel padding under ${PANEL_GAP} px: ${found.panels.join('; ')}`, found.edges.length && `past the header's content edges: ${found.edges.join('; ')}`, found.wide && `sideways scroll (${found.scrollWidth} px): ${found.sticking.join('; ')}`, found.clipped.length && `clipped: ${found.clipped.join('; ')}`, found.overlaps.length && `overlap: ${found.overlaps.join('; ')}`, found.below && `runs ${found.scrollHeight - found.footBottom} px past the footer (${found.scrollHeight} px tall, footer ends at ${found.footBottom}): ${found.below.join('; ')}`].filter(Boolean);
+    const issues = [found.panels.length && `panel edges: ${found.panels.join('; ')}`, found.edges.length && `past the header's content edges: ${found.edges.join('; ')}`, found.wide && `sideways scroll (${found.scrollWidth} px): ${found.sticking.join('; ')}`, found.clipped.length && `clipped: ${found.clipped.join('; ')}`, found.overlaps.length && `overlap: ${found.overlaps.join('; ')}`, found.below && `runs ${found.scrollHeight - found.footBottom} px past the footer (${found.scrollHeight} px tall, footer ends at ${found.footBottom}): ${found.below.join('; ')}`].filter(Boolean);
     rows.push({ name: p.name, path: p.path, width, issues, file });
     console.log(`${issues.length ? 'FAIL' : 'ok  '} ${width} ${p.name}${issues.length ? `\n     ${issues.join('\n     ')}` : ''}`);
     await page.close();
