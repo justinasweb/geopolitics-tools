@@ -199,18 +199,24 @@ describe('Atlas layers', async () => {
 
   it('lists only overlays drawn by a live layer, each part present in its file', async () => {
     const { atlasOverlays } = await import('../../src/lib/atlas.ts');
-    const { layerFile } = await import('../../src/lib/map/layers.ts');
+    const { layerFile, layerPath } = await import('../../src/lib/map/layers.ts');
     const ids = new Set(atlasLayers().map((l) => l.file));
     const all = atlasOverlays().flatMap((o) => o.variants.map((v) => ({ o, v })));
     expect(new Set(all.map((x) => x.v.token)).size).toBe(all.length);
     for (const { o, v } of all) {
       expect(kindOf(v.token)).toBe(o.id);
       if (!v.file) continue;
-      expect(ids.has(v.file)).toBe(true);
-      const f = layerFile(atlasLayers().find((l) => l.file === v.file)!.id);
+      // A layer of marks only (the chokepoints) is not a shaded layer: its file is read for its marks alone.
+      const own = mapLayers().find((d) => d.marksOnly && layerPath(d.id) === v.file);
+      expect(ids.has(v.file) || !!own).toBe(true);
+      const f = layerFile(own?.id ?? atlasLayers().find((l) => l.file === v.file)!.id);
       for (const part of v.parts!) expect(f.overlays?.some((x) => x.id === part && x.items.length)).toBe(true);
     }
-    // Pipelines, cables, chokepoints and outage marks have no live view yet.
+    // Pipelines, cables and outage marks have no live view yet; the chokepoints have, each diamond linked to its page.
     expect(atlasOverlays().map((o) => o.id)).not.toContain('pipelines');
+    const cp = atlasOverlays().find((o) => o.id === 'chokepoints')!;
+    expect(cp.variants[0]).toMatchObject({ token: 'chokepoints', step: 0 });
+    const marks = layerFile('chokepoints').overlays![0];
+    expect(marks.kind === 'points' && marks.items.every((p) => p.s && p.href?.startsWith('/chokepoints/'))).toBe(true);
   });
 });

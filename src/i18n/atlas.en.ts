@@ -18,6 +18,7 @@ export const ATLAS_TEXT = {
     flows: { label: 'Trade flows', desc: 'Largest flows, exporter to importer', pick: 'Flow' },
     launches: { label: 'Launch sites', desc: 'Orbital launches by site, in the year shown' },
     alerts: { label: 'Disaster alerts', desc: (period: string) => `Orange and red alerts, ${period.toLowerCase()}` },
+    chokepoints: { label: 'Shipping chokepoints', desc: (week: string) => `Ships a day against the usual, ${week}; click one for its page` },
     bloc: { label: 'Bloc outline', desc: 'Members’ borders drawn in ink', pick: 'Grouping' },
   },
   legend: 'Legend',
