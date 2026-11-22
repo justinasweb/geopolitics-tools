@@ -5,7 +5,7 @@ import { gzipSync } from 'node:zlib';
 import { describe, expect, it } from 'vitest';
 import { parseCsv } from '../../../pipeline/lib/csv.ts';
 import { decodeText, importFile, prepare, readInput } from '../../../pipeline/lib/importer.ts';
-import { loadState, readRaw, run, type Snapshot } from '../../../pipeline/lib/runner.ts';
+import { importStale, loadState, readRaw, run, type Snapshot } from '../../../pipeline/lib/runner.ts';
 import { HOUR, DAY, type Source } from '../../../pipeline/lib/source.ts';
 import { IMPORTED, KINDS } from '../../../pipeline/sources/imported.ts';
 import { weoFiles, type WeoRelease } from '../../../pipeline/sources/imf-weo-file.ts';
@@ -325,6 +325,15 @@ describe('importing into the stores', () => {
     expect(Object.keys(snap.sources.portwatch.files).sort()).toEqual(['chokepoints.json', 'chokepoints_daily.json']);
     expect(snap.sources.portwatch).toMatchObject({ name: 'IMF PortWatch chokepoints', attribution: 'UN Global Platform; IMF PortWatch (portwatch.imf.org)', dataTo: '2026-11-15' });
     expect(Object.keys(snap.sources.portwatch.imported!).sort()).toEqual(['chokepoints.json', 'chokepoints_daily.json']);
+    // Imported by hand, it is past its deadline 45 days after the last import (the fetcher's is 10 days).
+    const status = JSON.parse(new TextDecoder().decode((await stores.snapshots.get('status.json'))!));
+    expect(status.sources.portwatch).toMatchObject({ imported: true, deadlineHours: 45 * DAY, stale: false, dataTo: '2026-11-15', lastImport: now.toISOString() });
+    const st = (await loadState(stores)).sources.portwatch;
+    const pw = IMPORTED.find((x) => x.id === 'portwatch')!;
+    expect(importStale(pw, st, new Date(now.getTime() + 45 * 86_400_000))).toBe(false);
+    expect(importStale(pw, st, new Date(now.getTime() + 46 * 86_400_000))).toBe(true);
+    expect(importStale(pw, undefined, now)).toBe(true);
+    expect(importStale(IMPORTED.find((x) => x.id === 'sipri')!, undefined, now)).toBe(false);
   });
 
   it('does not lose an import made while an hourly run is going', async () => {

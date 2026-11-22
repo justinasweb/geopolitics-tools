@@ -164,6 +164,10 @@ export function buildSnapshot(id: string, now: Date, state: State, sources: Abou
   return out;
 }
 
+/** An import with a freshness deadline (PortWatch, 45 days) is stale when its last import is older, or it was never imported. */
+export const importStale = (src: ImportedSource, st: SourceState | undefined, now: Date) =>
+  !!src.staleAfter && (!st?.lastSuccess || (now.getTime() - Date.parse(st.lastSuccess)) / 3_600_000 > src.staleAfter);
+
 export function publicStatus(now: Date, state: State, sources: Source[], snapshot: string | undefined, imported: ImportedSource[] = []) {
   return {
     generated: now.toISOString(),
@@ -194,6 +198,7 @@ export function publicStatus(now: Date, state: State, sources: Source[], snapsho
         release: src.release,
         lastImport: st?.lastSuccess ?? null,
         files: st?.imported ?? {},
+        ...(src.staleAfter ? { deadlineHours: src.staleAfter, stale: importStale(src, st, now), dataTo: st?.dataTo ?? null } : {}),
       }];
     })]),
   };

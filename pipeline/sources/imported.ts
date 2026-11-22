@@ -2,7 +2,7 @@
 // docs/data-pipeline.md). Each kind is one file: the columns the site needs, a row filter, and a
 // check that it is the right download. Imported files sit in the same state and snapshots as fetched
 // ones, under their own source id. Ported from the prototype's fetchers/import.php.
-import { CheckError, check } from '../lib/source.ts';
+import { CheckError, DAY, check } from '../lib/source.ts';
 import { csvRecords, parseCsv } from '../lib/csv.ts';
 import { matcher } from '../../src/adapters/core.ts';
 import { PLACES } from '../../src/lib/places.ts';
@@ -27,6 +27,9 @@ export interface ImportedSource {
   licence: string;
   /** Where and how often it is released, for the status page and whoever imports it. */
   release: string;
+  /** Past its freshness deadline this long after the last import, in hours: the status shows it Delayed and pages that
+   *  need it current hide (PortWatch's daily transits, imported monthly). Most imports have none: they are released rarely. */
+  staleAfter?: number;
 }
 
 export type Row = Record<string, string>;
@@ -71,7 +74,7 @@ export const IMPORTED: ImportedSource[] = [
   { id: 'usgs-minerals', name: 'USGS Mineral Commodity Summaries', attribution: 'U.S. Geological Survey, Mineral Commodity Summaries', licence: 'Public domain (US government work)', release: 'each January' },
   { id: 'fas-forces', name: 'FAS Status of World Nuclear Forces, current table', attribution: 'Federation of American Scientists, Status of World Nuclear Forces', licence: 'CC BY 4.0', release: 'about twice a year (copied by hand from the FAS page)' },
   { id: 'imf-weo', name: 'IMF World Economic Outlook', attribution: 'International Monetary Fund, World Economic Outlook', licence: 'IMF terms: reuse with credit (downloaded by hand; scheduled downloads need permission)', release: 'each April and October' },
-  { id: 'portwatch', name: 'IMF PortWatch chokepoints', attribution: 'UN Global Platform; IMF PortWatch (portwatch.imf.org)', licence: 'IMF terms: reuse with credit (downloaded by hand; scheduled downloads need permission)', release: 'daily; downloaded by hand once a month' },
+  { id: 'portwatch', name: 'IMF PortWatch chokepoints', attribution: 'UN Global Platform; IMF PortWatch (portwatch.imf.org)', licence: 'IMF terms: reuse with credit (downloaded by hand; scheduled downloads need permission)', release: 'monthly, downloaded by hand', staleAfter: 45 * DAY },
   { id: 'treasury-history', name: 'US Treasury holdings by country, history', attribution: 'U.S. Department of the Treasury, Treasury International Capital (TIC) system', licence: 'Public domain (US government work)', release: 'built once from the historical tables' },
 ];
 
