@@ -23,16 +23,18 @@ export const CARGO_OF: Record<VesselType, string> = { n_tanker: 'capacity_tanker
 
 export type Status = 'disrupted' | 'below' | 'normal' | 'above' | 'unknown';
 
-/** A change as the pages show it: a whole percent (−0.124 → −12). */
+/** A change as the pages show it: a whole percent (−0.097 → −10). Statuses are worked out from this, so a status
+ *  never contradicts the number beside it. */
 export const wholePercent = (change: number) => Math.round(change * 100) + 0;
 
 /** The 7-day average against the same week in the three years before: 30% or more below is disrupted, 10% below, 15%
- *  above. */
+ *  above; read from the change as shown, in whole percent. */
 export function statusFor(change: number | null): Status {
   if (change == null) return 'unknown';
-  if (change <= -0.3) return 'disrupted';
-  if (change <= -0.1) return 'below';
-  if (change >= 0.15) return 'above';
+  const p = wholePercent(change);
+  if (p <= -30) return 'disrupted';
+  if (p <= -10) return 'below';
+  if (p >= 15) return 'above';
   return 'normal';
 }
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { parseChokepoints, sameDaysBefore, slugOf, usualRange, yearsBefore } from '../../src/adapters/portwatch.ts';
+import { parseChokepoints, sameDaysBefore, slugOf, statusFor, usualRange, yearsBefore } from '../../src/adapters/portwatch.ts';
 import { freshImport, FRESH_HOURS, lastWeek, months, statusLine, tankerShare } from '../../src/lib/chokepoints.ts';
 import { dailyChartHtml, dailyTicks } from '../../src/lib/dailychart.ts';
 import { changeCell, changeWords, ships, tonnes } from '../../src/i18n/chokepoints.en.ts';
@@ -130,5 +130,21 @@ describe('chokepoints', () => {
     expect(html.match(/class="gt-tc__line"/g)).toHaveLength(1);
     expect(html).toContain('aria-label="Ships"');
     expect(html).toContain('>2026</text>');
+  });
+
+  it('reads the status from the change as shown, so the two never disagree', () => {
+    // −9.7% shows as −10%, so it is 10% to 30% below; −9.4% shows as −9%, near usual.
+    expect([changeCell(-0.097), statusFor(-0.097)]).toEqual(['−10%', 'below']);
+    expect([changeCell(-0.094), statusFor(-0.094)]).toEqual(['−9%', 'normal']);
+    expect([changeCell(0.146), statusFor(0.146)]).toEqual(['+15%', 'above']);
+    expect([changeCell(0.144), statusFor(0.144)]).toEqual(['+14%', 'normal']);
+    expect([changeCell(-0.297), statusFor(-0.297)]).toEqual(['−30%', 'disrupted']);
+    // At a half the shown number and the status still agree, whichever way it rounds.
+    for (const c of [-0.295, -0.095, 0.145, -0.3, -0.1, 0.15]) {
+      const shown = Number(changeCell(c).replace('−', '-').replace('%', ''));
+      const want = shown <= -30 ? 'disrupted' : shown <= -10 ? 'below' : shown >= 15 ? 'above' : 'normal';
+      expect(statusFor(c)).toBe(want);
+      expect(changeWords(c)).toBe(shown === 0 ? 'at' : `${Math.abs(shown)}% ${shown < 0 ? 'below' : 'above'}`);
+    }
   });
 });
