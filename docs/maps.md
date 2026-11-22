@@ -517,4 +517,5 @@ words in src/i18n/nuclear.en.ts), in the Power and alliances hub after Chinese l
   consumption, imports and OECD stocks). Left out for now by decision; the Energy Institute (to 2020 only) and OPEC
   (oil only, own terms) were the alternatives looked at.
 - Live data for the phase 5b views: each goes live when its key is set and its gates pass on live data. The chokepoints
-  and ports wait on the IMF's terms; submarine cables stay hidden.
+  are imported by hand from PortWatch once a month (D22) and are live while that import is under 45 days old; ports
+  wait on the IMF's terms; submarine cables stay hidden.
