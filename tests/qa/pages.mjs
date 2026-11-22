@@ -19,6 +19,8 @@ export const PAGES = [
   { name: 'Map: gas', path: '/gas', map: true },
   { name: 'Map: water', path: '/water', map: true },
   { name: 'Map: river', path: '/water/rivers/nile', map: true },
+  { name: 'Map: chokepoints', path: '/chokepoints', map: true },
+  { name: 'Chokepoint page', path: '/chokepoints/strait-of-hormuz' },
   { name: 'Map: conflict', path: '/conflict', map: true },
   { name: 'Map: space', path: '/space', map: true },
   { name: 'Map: AI', path: '/ai', map: true },

@@ -70,7 +70,7 @@ export const CHOKEPOINTS_TEXT = {
 
   // The chokepoint pages.
   placeTitle: (name: string) => `${name}: traffic and trade`,
-  placeDescription: (name: string, line: string) => `${line} Ships a day for 12 months against the usual range, vessel mix and estimated cargo through ${name}. Source: IMF PortWatch.`,
+  placeDescription: (name: string, line: string) => `${name}: ${line.charAt(0).toLowerCase()}${line.slice(1)} Daily ships, vessel mix and estimated cargo (IMF PortWatch).`,
   /** The status line: "Traffic was 12% below its usual level in the week to 31 Oct 2026." */
   statusLine: (change: string, date: string) => (change === 'at' ? `Traffic was at its usual level in the week to ${date}.` : `Traffic was ${change} its usual level in the week to ${date}.`),
   noRecent: (date: string) => `No ships were counted in the last 7 days to ${date}.`,

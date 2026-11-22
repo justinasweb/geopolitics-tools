@@ -123,7 +123,7 @@ const cite = `${creditLine('portwatch')}, ${X.dataTo(last)}.`;
         <div class="gt-tablewrap" style="--gt-table-h:none" tabindex="0" role="region" aria-labelledby="cp-cargo">
           <table class="gt-table">
             <caption class="gt-caption">{X.cargoCaption}</caption>
-            <thead><tr><th scope="col">{X.colType}</th><th scope="col" class="n">{X.colShips}</th><th scope="col" class="n">{X.colCargo}</th></tr></thead>
+            <thead><tr><th scope="col"><span class="gt-th">{X.colType}</span></th><th scope="col" class="n"><span class="gt-th">{X.colShips}</span></th><th scope="col" class="n"><span class="gt-th">{X.colCargo}</span></th></tr></thead>
             <tbody>
               {weekRows.map((r) => (
                 <tr><th scope="row">{r.type === 'all' ? X.all : X.types[r.type]}</th><td class="n">{r.ships === null ? '–' : ships(r.ships)}</td><td class="n">{r.cargo === null ? '–' : tonnes(r.cargo)}</td></tr>
@@ -144,8 +144,8 @@ const cite = `${creditLine('portwatch')}, ${X.dataTo(last)}.`;
         <table class="gt-table gt-hztable">
           <caption class="gt-caption">{X.monthsCaption}</caption>
           <thead><tr>
-            <th scope="col">{X.colMonth}</th><th scope="col" class="n">{X.colTransits}</th><th scope="col" class="n">{X.colPerDay}</th>
-            <th scope="col" class="n">{X.colAgainst}</th><th scope="col" class="n">{X.colCargoMonth}</th>
+            <th scope="col"><span class="gt-th">{X.colMonth}</span></th><th scope="col" class="n"><span class="gt-th">{X.colTransits}</span></th><th scope="col" class="n"><span class="gt-th">{X.colPerDay}</span></th>
+            <th scope="col" class="n"><span class="gt-th">{X.colAgainst}</span></th><th scope="col" class="n"><span class="gt-th">{X.colCargoMonth}</span></th>
           </tr></thead>
           <tbody>
             {monthRows.map((m) => (

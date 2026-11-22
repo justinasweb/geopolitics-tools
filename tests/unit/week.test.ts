@@ -115,7 +115,7 @@ describe('This week cards', () => {
   it('keeps the shipping card off with PortWatch in the snapshot: imported monthly, it cannot back a weekly count (D22)', () => {
     const withPortwatch = computeWeek(input({ sources: { gdacs: fresh, ioda: fresh, ucdp: fresh, pinksheet: fresh, csl: fresh, portwatch: fresh } }));
     expect(withPortwatch.cards.map((c) => c.kind)).not.toContain('shipping');
-    expect(withPortwatch.feed.some((f) => f.kind === 'shipping')).toBe(false);
+    expect(withPortwatch.feed.map((f) => f.kind as string)).not.toContain('shipping');
   });
 
   it('counts alerts that began, or rose to orange or red, in the week, and lists the earlier ones still active apart', () => {
