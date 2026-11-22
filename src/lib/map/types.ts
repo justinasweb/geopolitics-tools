@@ -59,7 +59,11 @@ export interface PanelBlock {
 export interface Arc { p: [number, number][]; w: number; tip: string; m?: number }
 export interface Line { p: [number, number][][]; tip: string }
 /** A point; `m` is a bit mask of the year indices it shows in (bit i for data[i]), 0 or none for all; `i` the one index it shows in, for layers with more steps than a mask can hold (conflict months). */
-export interface Point { at: [number, number]; r?: number; tip: string; m?: number; i?: number }
+export interface Point { at: [number, number]; r?: number; tip: string; m?: number; i?: number;
+  /** The mark's own shape, in place of the overlay's (a chokepoint's status diamond, src/scripts/map/legend.ts). */
+  s?: 'cp-disrupted' | 'cp-below' | 'cp-normal' | 'cp-above' | 'cp-unknown';
+  /** Its page: a click on the mark opens it. */
+  href?: string }
 /**
  * Marks drawn over the shading. `label` names the marks without a year; `year` is set when every mark is from one
  * year whatever the slider shows (a crop's largest flows, from the trade matrix's year). Marks with `m` or `i` belong

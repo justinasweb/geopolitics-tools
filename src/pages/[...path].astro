@@ -19,6 +19,7 @@ import ConflictView from '../templates/ConflictView.astro';
 import BlocView from '../templates/BlocView.astro';
 import HistoryView from '../templates/HistoryView.astro';
 import RiverView from '../templates/RiverView.astro';
+import ChokepointsView from '../templates/ChokepointsView.astro';
 import NuclearView from '../templates/NuclearView.astro';
 import type { NuclearPage } from '../lib/nuclear';
 import ExplorerPage from '../templates/ExplorerPage.astro';
@@ -53,10 +54,11 @@ const [a, b] = route.id.split(',');
 {route.kind === 'view' && route.id.startsWith('blocs:') && <BlocView id={route.id.split(':')[1]} />}
 {route.kind === 'view' && route.id.startsWith('history:') && <HistoryView id={route.id.split(':')[1]} />}
 {route.kind === 'view' && route.id.startsWith('rivers:') && <RiverView id={route.id.split(':')[1]} />}
+{route.kind === 'view' && route.id === 'chokepoints:all' && <ChokepointsView />}
 {route.kind === 'view' && route.id.startsWith('energy:') && <EnergyView id={route.id.split(':')[1]} />}
 {route.kind === 'view' && route.id.startsWith('conflict:') && <ConflictView />}
 {route.kind === 'view' && route.id.startsWith('nuclear:') && <NuclearView id={route.id.split(':')[1] as NuclearPage} />}
-{route.kind === 'view' && !/^(minerals|disasters|food|energy|conflict|blocs|history|rivers|nuclear):/.test(route.id) && <IndicatorView id={route.id.split(':')[1]} />}
+{route.kind === 'view' && !/^(minerals|disasters|food|energy|conflict|blocs|history|rivers|nuclear|chokepoints):/.test(route.id) && <IndicatorView id={route.id.split(':')[1]} />}
 {route.kind === 'tool' && route.id.startsWith('explorer:') && <ExplorerPage view={route.id.split(':')[1] as View} />}
 {route.kind === 'tool' && route.id === 'dependencies' && <DependenciesPage />}
 {route.kind === 'tool' && route.id === 'supply-chains' && <SupplyChainsIndex />}

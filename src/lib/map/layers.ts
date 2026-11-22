@@ -55,6 +55,8 @@ import type { Hazard } from '../../adapters/hazards.ts';
 import type { Arc, Entry, LayerFile, LayerYear, Overlay, PanelBlock, Point } from './types.ts';
 import { OTHER_SUPPLIER } from '../../adapters/sipri.ts';
 import { DEP_TEXT } from '../../i18n/pages.en.ts';
+import { liveChokepoints, ranked } from '../chokepoints.ts';
+import { CHOKEPOINTS_TEXT, changeWords, ships } from '../../i18n/chokepoints.en.ts';
 
 export interface LayerDef {
   id: string;
@@ -71,6 +73,8 @@ export interface LayerDef {
   source?: string;
   /** Other sources the view reads (the Sources page lists a source only while a built page reads it). */
   reads?: string[];
+  /** Marks only, no shaded countries (the chokepoints): the Atlas offers its marks as an overlay, not as a layer. */
+  marksOnly?: boolean;
   build: () => LayerFile;
 }
 
@@ -1238,6 +1242,32 @@ function nuclearLayer(id: NuclearPage): LayerFile {
   };
 }
 
+/** The chokepoints as status diamonds over an unshaded map, each linked to its page (IMF PortWatch, last 7 days). */
+function chokepointLayer(): LayerFile {
+  const c = common();
+  const X = CHOKEPOINTS_TEXT;
+  const list = ranked(liveChokepoints());
+  const last = list.map((x) => x.lastDate).filter((d): d is string => !!d).sort().at(-1)!;
+  const year = Number(last.slice(0, 4));
+  const label = X.weekTo(formatDate(last));
+  const items: Point[] = list.map((x) => ({
+    at: toMap(x.lon, x.lat), s: `cp-${x.status}`, href: live(`view:chokepoints:${x.slug}`)?.path,
+    tip: x.change === null || !x.lastDate ? `${x.name}: ${X.status.unknown}` : X.tip(x.name, `${changeWords(x.change)} usual`, ships(x.avg7!), formatDate(x.lastDate)),
+  }));
+  return {
+    id: 'chokepoints', name: X.title, scale: 'seq', years: [year], year, ticks: [],
+    missing: { none: X.noShading }, source: creditName('portwatch'),
+    text: {
+      ...(c.words as LayerFile['text']),
+      kicker: `${X.title} · {year}`, measure: X.sub, shareLabel: X.legend, none: X.noShading,
+      withheld: MAP_TEXT.withheldBy, withheldWhy: '', prev: '{year}: {value}', rank: VIEWS_TEXT.rank(0, 1).replace('0', '{rank}').replace('1', '{of}'),
+    },
+    tags: c.tags, names: c.names, hrefs: c.hrefs, slugs: c.slugs, notes: c.notes, blocs: c.blocs,
+    data: [{ year, label, legend: X.legend, v: {}, order: [], blocs: {} }],
+    overlays: [{ id: 'chokepoints', kind: 'points', label: X.mark, symbol: 'diamond', items }],
+  };
+}
+
 const placeNames = new Map(PLACES.map((x) => [x.id, x.name]));
 const nameOf2 = (id: string) => placeNames.get(id) ?? (id === OTHER_SUPPLIER ? DEP_TEXT.otherSuppliers : id);
 
@@ -1250,6 +1280,7 @@ export function mapLayers(): LayerDef[] {
     ...foodPages().map((p) => ({ id: `food-${p.id}`, view: `view:food:${p.id}`, family: 'food', ranks: p.layer !== 'trade', source: 'faostat', build: () => foodLayer(p) })),
     ...energyPages().map((p) => ({ id: `energy-${p.id}`, view: `view:${p.fuel}:${p.layer}`, family: p.fuel, ranks: p.layer !== 'trade', source: 'eia', build: () => energyLayer(p) })),
     ...(conflictPage() ? [{ id: 'conflict', view: 'view:conflict:events', family: 'conflict', ranks: true, source: 'ucdp', build: () => conflictLayer() }] : []),
+    ...(liveChokepoints().length ? [{ id: 'chokepoints', view: 'view:chokepoints:all', family: 'chokepoints', ranks: false, source: 'portwatch', marksOnly: true, build: () => chokepointLayer() }] : []),
     ...riverIds().map((id) => ({ id: `rivers-${id}`, view: `view:rivers:${id}`, family: 'rivers', ranks: false, source: 'gdw', reads: ['aqueduct', 'aquastat'], build: () => riverLayer(id) })),
     ...NUCLEAR_PAGES.filter((id) => nuclearLive(id, data().sample)).map((id) => ({ id: `nuclear-${id}`, view: `view:nuclear:${id}`, family: 'nuclear', ranks: id === 'warheads', ...(id === 'warheads' ? { source: 'fas' } : id === 'treaties' ? { reads: ['unoda'] } : {}), build: () => nuclearLayer(id) })),
     ...HISTORY_BLOCS.map((id) => ({ id: `history-${id}`, view: `view:alliance-history:${id}`, family: 'alliance-history', ranks: false, build: () => historyLayer(id) })),

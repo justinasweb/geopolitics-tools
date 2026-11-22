@@ -168,8 +168,10 @@ describe('Atlas layers', async () => {
     expect(live('tool:atlas')).toMatchObject({ path: '/atlas', indexed: true });
   });
 
-  it('lists every layer whose map view is live, and only those', () => {
-    const want = mapLayers().filter((d) => live(d.view)).map((d) => d.id).sort();
+  it('lists every layer whose map view is live, and only those, but not a layer of marks only', () => {
+    // The chokepoints shade nothing: their diamonds are an overlay.
+    const want = mapLayers().filter((d) => live(d.view) && !d.marksOnly).map((d) => d.id).sort();
+    expect(mapLayers().some((d) => d.marksOnly && live(d.view))).toBe(true);
     expect(atlasLayers().map((l) => l.id).sort()).toEqual(want);
     expect(want.length).toBeGreaterThan(0);
   });

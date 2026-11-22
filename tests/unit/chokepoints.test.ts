@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { parseChokepoints, slugOf, usualRange, yearsBefore } from '../../src/adapters/portwatch.ts';
+import { freshImport, FRESH_HOURS } from '../../src/lib/chokepoints.ts';
 
 const DAY = 86_400_000;
 const iso = (t: number) => new Date(t).toISOString().slice(0, 10);
@@ -59,5 +60,14 @@ describe('chokepoints', () => {
   it('makes slugs from the name, never the id', () => {
     expect(['Strait of Hormuz', 'Suez Canal', 'Taiwan Strait', 'Oresund Strait', 'Øresund Strait', 'Bab el-Mandeb Strait', 'Cape of Good Hope'].map(slugOf))
       .toEqual(['strait-of-hormuz', 'suez-canal', 'taiwan-strait', 'oresund-strait', 'oresund-strait', 'bab-el-mandeb-strait', 'cape-of-good-hope']);
+  });
+
+  it('is live while the hand import is under 45 days old, hidden after', () => {
+    expect(FRESH_HOURS).toBe(45 * 24);
+    expect(freshImport('2026-11-22T10:00:00Z', '2027-01-06T10:00:00Z')).toBe(true);
+    expect(freshImport('2026-11-22T10:00:00Z', '2027-01-06T11:00:00Z')).toBe(false);
+    // A snapshot older than the import (a local build from an earlier pull) is fresh.
+    expect(freshImport('2026-11-22T10:00:00Z', '2026-11-10T13:29:11Z')).toBe(true);
+    expect(freshImport(undefined, '2026-11-22T10:00:00Z')).toBe(false);
   });
 });

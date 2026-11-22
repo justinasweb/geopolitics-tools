@@ -85,6 +85,14 @@ export function worldMap(width = 1000) {
   return worlds.get(width)!;
 }
 
+/** Where a point in Equal Earth units (y up, as equalEarth gives it) falls on worldMap(width): where its marks go. */
+export function worldPoint(x: number, y: number, width = 1000): [number, number] {
+  const [x0] = project(-180, 0);
+  const [, yTop] = project(0, 84);
+  const k = width / (-2 * x0);
+  return [(x - x0) * k, (-y - yTop) * k];
+}
+
 /**
  * A locator map: the place and its neighbours in a 4:3 frame, zoomed so the place fills about the same share of the
  * frame whatever its size; a small island state is drawn as large as a big country. The frame is set by the largest

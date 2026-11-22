@@ -14,6 +14,7 @@ import MarkIcon from './MarkIcon.astro';
 import { MAP_TEXT } from '../i18n/map.en';
 import { paths } from '../lib/routes';
 import { seqSteps } from '../lib/map/steps';
+import type { MarkSymbol } from '../scripts/map/legend';
 
 interface Props {
   /** The layer file (/map/<id>.json). */
@@ -24,7 +25,9 @@ interface Props {
   labels?: string;
   /** The view's name, for the phone map's top bar. */
   title: string;
-  legend: { title: string; scale: 'seq' | 'div'; ticks: string[]; ends?: [string, string]; none: string; withheld?: boolean | string; notyet?: string; marks?: { symbol: 'dot' | 'hollow' | 'triangle' | 'diamond' | 'square' | 'arc' | 'arc-dashed'; label: string }[];
+  legend: { title: string; scale: 'seq' | 'div'; ticks: string[]; ends?: [string, string]; none: string; withheld?: boolean | string; notyet?: string; marks?: { symbol: MarkSymbol; label: string }[];
+    /** Marks only, no shaded countries (the chokepoints): the legend lists the marks and says the countries are not shaded. */
+    marksOnly?: boolean;
     /** Named classes in place of a scale (a bloc's members): each a sequential class and its word. */
     categories?: { cls: number; label: string }[];
     /** Draw the categories in the categorical colours (unordered classes). */
@@ -62,7 +65,7 @@ const n = steps.length;
       <div class="gt-stage__leg">
         <div class="gt-legend gt-mapleg">
           <span class="gt-legend__title" data-legend-title>{legend.title}</span>
-          {legend.categories ? (
+          {legend.marksOnly ? null : legend.categories ? (
             <div class="gt-legend__extra gt-legend__cats">{legend.categories.map((c) => <span><i class="gt-sw" style={`background:var(--${legend.palette ?? 'seq'}-${c.cls})`}></i>{c.label}</span>)}{legend.hatch && <span><i class="gt-sw gt-sw--hatch" style={`--gt-hatch:var(--${legend.palette ?? 'seq'}-${legend.hatch.cls})`}></i>{legend.hatch.label}</span>}</div>
           ) : (
             <>
@@ -70,7 +73,7 @@ const n = steps.length;
               <div class:list={['gt-legend__ticks', { 'gt-legend__ticks--dense': legend.scale === 'div' }]} style={`--n:${n}`}>{legend.ticks.map((t) => <span>{t}</span>)}</div>
             </>
           )}
-          {legend.ends && <div class="gt-legend__ends"><span>← {legend.ends[0]}</span><span>{legend.ends[1]} →</span></div>}
+          {!legend.marksOnly && legend.ends && <div class="gt-legend__ends"><span>← {legend.ends[0]}</span><span>{legend.ends[1]} →</span></div>}
           <div class="gt-legend__extra">
             <span><i class="gt-sw gt-sw--nodata"></i>{legend.none}</span>
             {legend.withheld && <span><i class="gt-sw gt-sw--withheld"></i>{typeof legend.withheld === 'string' ? legend.withheld : MAP_TEXT.withheldBy}</span>}

@@ -19,7 +19,9 @@ import { indicatorModel, tagOf } from './indicator.ts';
 import { formatValue } from './format.ts';
 import { layerFile, mapLayers } from './map/layers.ts';
 import type { LayerFile } from './map/types.ts';
-import { worldMap } from './mapsvg.ts';
+import { worldMap, worldPoint } from './mapsvg.ts';
+import { fromMap } from './map/projection.ts';
+import type { MarkSymbol } from '../scripts/map/legend.ts';
 import { lede as mineralLede, mineralPage, mineralPages } from './minerals.ts';
 import { place } from './places.ts';
 import { countryHref, live, routes, viewHref } from './routes.ts';
@@ -29,6 +31,7 @@ import { conflictPage, ledeFor as conflictLede } from './conflict.ts';
 import { blocLede } from './blocview.ts';
 import { HISTORY_BLOCS, historyLede } from './history.ts';
 import { riverIds, riverLede } from './rivers.ts';
+import { viewLede as chokepointsLede } from './chokepoints.ts';
 import { NUCLEAR_PAGES, nuclearAnswer } from './nuclear.ts';
 import { NUCLEAR_TEXT } from '../i18n/nuclear.en.ts';
 import { BLOC_ORDER } from './blocs.ts';
@@ -36,6 +39,7 @@ import { BLOCS_TEXT } from '../i18n/blocs.en.ts';
 import { BLOC_TEXT } from '../i18n/map.en.ts';
 import { KIND_TEXT } from '../i18n/disasters.en.ts';
 import { RIVERS_TEXT } from '../i18n/water.en.ts';
+import { CHOKEPOINTS_TEXT } from '../i18n/chokepoints.en.ts';
 import { keyOf } from './atlas.ts';
 
 export interface Link { label: string; href: string }
@@ -58,10 +62,12 @@ export interface HubCard {
   /** `pattern` names the patterns it uses (withheld hatching, not-yet dots), defined in the card's own SVG. */
   thumb: { width: number; height: number; paths: { d: string; fill: string }[]; label: string; pattern: string; withheld: boolean; notyet: boolean;
     /** The hatch class's colour, when the layer has one (pattern `${pattern}-h`). */
-    hatch?: string };
+    hatch?: string;
+    /** Marks drawn over a layer that shades nothing (the chokepoints), in the thumbnail's units. */
+    marks?: { x: number; y: number; symbol: MarkSymbol }[] };
   /** The thumbnail's small key: a swatch (a colour, or the legend's swatch class) and words for each, so colour is
    *  never the only cue; every state the full map shows has its entry. */
-  key: { fill?: string; sw?: 'withheld' | 'notyet' | 'nodata' | 'hatch'; label: string }[];
+  key: { fill?: string; sw?: 'withheld' | 'notyet' | 'nodata' | 'hatch'; mark?: MarkSymbol; label: string }[];
   open: string;
 }
 
@@ -93,6 +99,7 @@ export function answerOf(key: string): string | null {
   if (family === 'blocs') return blocLede(id);
   if (family === 'alliance-history') return historyLede(id);
   if (family === 'rivers') return riverLede(id);
+  if (family === 'chokepoints') return id === 'all' ? chokepointsLede() : null;
   if (family === 'nuclear') return nuclearAnswer(id);
   const p = viewPage(id);
   return p && p.family.id === family ? viewLede(p) : null;
@@ -151,6 +158,18 @@ function keyOf2(f: LayerFile, i: number): HubCard['key'] {
   ];
 }
 
+/** A marks-only layer's marks on the thumbnail: each point's own shape (a chokepoint's status), placed on worldMap. */
+function marksOf(f: LayerFile, width: number): NonNullable<HubCard['thumb']['marks']> {
+  return (f.overlays ?? []).flatMap((o) => (o.kind === 'points' ? o.items.map((p) => {
+    const [x, y] = worldPoint(...fromMap(p.at[0], p.at[1]), width);
+    return { x, y, symbol: (p.s ?? o.symbol) as MarkSymbol };
+  }) : []));
+}
+/** The key of a marks-only thumbnail: each status shown, worded as the map's legend. */
+const marksKey = (family: string): HubCard['key'] => (family === 'chokepoints'
+  ? (Object.keys(CHOKEPOINTS_TEXT.status) as (keyof typeof CHOKEPOINTS_TEXT.status)[]).map((s) => ({ mark: `cp-${s}` as MarkSymbol, label: CHOKEPOINTS_TEXT.status[s] }))
+  : []);
+
 function cardOf(family: string, lead: boolean): HubCard | null {
   const path = viewHref(family);
   const route = path && routeAt(path);
@@ -174,8 +193,9 @@ function cardOf(family: string, lead: boolean): HubCard | null {
       paths: map.paths.map((p) => ({ d: p.d, fill: fillOf(f, p.id ? y.v[p.id]?.[0] : undefined, pattern) })),
       withheld: Object.values(y.v).some((e) => e[0] === 0), notyet: Object.values(y.v).some((e) => e[0] === -1),
       ...(Object.values(y.v).some((e) => e[0] === -2) ? { hatch: hatchOf(f) } : {}),
+      ...(def.marksOnly ? { marks: marksOf(f, map.width) } : {}),
     },
-    key: keyOf2(f, i),
+    key: def.marksOnly ? marksKey(family) : keyOf2(f, i),
     open: H.open(kicker),
   };
 }

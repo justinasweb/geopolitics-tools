@@ -14,17 +14,12 @@ import { day } from '../../pipeline/sources/portwatch.ts';
 import { CHOKEPOINT_NOTES, type ChokepointNote } from '../data/chokepoint-notes.ts';
 import type { Raw } from './core.ts';
 
-/** The chokepoints the site shows, matched loosely (see normaliseName). */
-export const CHOKEPOINTS = ['Suez Canal', 'Panama Canal', 'Bosporus Strait', 'Bab el-Mandeb Strait', 'Malacca Strait', 'Strait of Hormuz', 'Cape of Good Hope', 'Gibraltar Strait', 'Dover Strait'];
 export const VESSEL_TYPES = ['n_tanker', 'n_container', 'n_dry_bulk', 'n_general_cargo', 'n_roro'] as const;
 export type VesselType = (typeof VESSEL_TYPES)[number];
 /** The estimated cargo column of each vessel type. */
 export const CARGO_OF: Record<VesselType, string> = { n_tanker: 'capacity_tanker', n_container: 'capacity_container', n_dry_bulk: 'capacity_dry_bulk', n_general_cargo: 'capacity_general_cargo', n_roro: 'capacity_roro' };
 
 export type Status = 'disrupted' | 'below' | 'normal' | 'above' | 'unknown';
-
-/** "Strait of Hormuz" and "Hormuz Strait" both → "hormuz". */
-export const normaliseName = (name: unknown) => String(name ?? '').toLowerCase().replace(/\b(strait|straits|canal|of|the|channel|passage)\b/g, ' ').replace(/\s+/g, ' ').trim();
 
 /** The 7-day average against the 365-day mean: 30% or more below is disrupted, 10% below, 15% above. */
 export function statusFor(change: number | null): Status {
@@ -84,11 +79,8 @@ export function parseChokepoints(meta: { features?: { attributes: Attr }[] }, da
     const list = byId.get(String(a.portid));
     if (list) list.push({ ...a, date }); else byId.set(String(a.portid), [{ ...a, date }]);
   }
-  const wanted = CHOKEPOINTS.map(normaliseName);
-  const all = (meta.features ?? []).map((f) => f.attributes);
-  const shown = all.filter((m) => wanted.includes(normaliseName(m.portname)));
-  // No match at all means PortWatch renamed them: show every one rather than none.
-  return (shown.length ? shown : all).map((m) => {
+  // Every chokepoint PortWatch lists (28 in November 2026), matched to its days by portid.
+  return (meta.features ?? []).map((f) => f.attributes).filter((m) => m.portid != null).map((m) => {
     const every = (byId.get(String(m.portid)) ?? []).sort((x, y) => x.date.localeCompare(y.date));
     const byDate = new Map(every.map((r) => [r.date, numOr(r.n_total)]));
     let rows = every;
@@ -108,7 +100,8 @@ export function parseChokepoints(meta: { features?: { attributes: Attr }[] }, da
     const last30 = rows.slice(-30);
     const sum30 = last30.reduce((s, r) => s + (Number(r.n_total) || 0), 0);
     const mix = Object.fromEntries(VESSEL_TYPES.map((t) => [t, sum30 ? last30.reduce((s, r) => s + (Number(r[t]) || 0), 0) / sum30 : null])) as Chokepoint['mix'];
-    const name = String(m.portname);
+    // PortWatch's full name where it gives one, else its short name; the slug follows it, never the portid.
+    const name = String(m.fullname || m.portname);
     const slug = slugOf(name);
     const caveat = notes.find((n) => n.slug === slug);
     return {

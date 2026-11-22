@@ -495,6 +495,7 @@ export function initAtlas(root: HTMLElement): void {
           error(message) { fail(message); },
           hover(hit, touch) { if (!hit || touch || !(hit.id || hit.name || hit.tip || hit.disputed)) hideTip(); else showTip(tipFor(hit, false), hit.point); },
           click(hit, touch) {
+            if (hit?.href) { location.assign(hit.href); return; }
             if (hit?.tip) { if (touch) showTip(tipFor(hit, true), hit.point); return; }
             // On a phone the sheet shows the place; the tooltip would sit under it.
             if (touch && hit?.id && !phone) showTip(tipFor(hit, true), hit.point); else hideTip();

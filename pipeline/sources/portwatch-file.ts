@@ -61,7 +61,8 @@ const num = (s: string | undefined) => {
 function read(input: Input, columns: string[], required: string[], what: string) {
   check('text' in input, `this kind takes PortWatch's CSV download (${what}), not a workbook`);
   const rows = csvRows(input.text);
-  const head = (rows.next().value ?? []).map((c) => c.trim().toLowerCase());
+  const first = rows.next();
+  const head = (first.done ? [] : first.value).map((c) => c.trim().toLowerCase());
   const at = Object.fromEntries(columns.map((c) => [c, [c, ...(PORTWATCH_FROM[c] ?? [])].map((n) => head.indexOf(n.toLowerCase())).find((i) => i >= 0) ?? -1]));
   const missing = required.filter((c) => at[c] < 0);
   check(!missing.length, `missing columns: ${missing.join(', ')}; is this PortWatch's "${what}" download?\nColumns in the file: ${head.join(', ')}`);

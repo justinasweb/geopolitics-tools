@@ -60,7 +60,8 @@ export function atlasTopics(): AtlasTopic[] {
   const keys = new Map<string, string>();
   for (const d of mapLayers()) {
     const route = live(d.view);
-    if (!route) continue;
+    // A layer of marks only (the chokepoints) shades nothing: the Atlas offers its marks as an overlay instead.
+    if (!route || d.marksOnly) continue;
     const f = layerFile(d.id);
     const key = keyOf(route.path);
     // Two layers on one view (none today) would share a key; fail rather than list one twice.

@@ -149,8 +149,9 @@ describe('resources and money', () => {
   });
 
   it('reads PortWatch chokepoints with a status against the year', () => {
+    // Every chokepoint the file lists (the prototype's sample has 9; PortWatch lists 28), no filter by name.
     const c = chokepoints(raw);
-    expect(c.length).toBe(9);
+    expect(c.length).toBe(raw.json<{ features: unknown[] }>('portwatch', 'chokepoints.json').features.length);
     const suez = c.find((p) => p.name === 'Suez Canal')!;
     expect(suez.series.length).toBeLessThanOrEqual(365);
     expect(suez.change).toBeCloseTo(suez.avg7! / suez.baseline! - 1);

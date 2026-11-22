@@ -13,6 +13,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
 import { HOME_BOUNDS, WORLD_BOUNDS } from '../../lib/map/projection';
 import type { LayerFile, Overlay } from '../../lib/map/types';
+import { STATUS_MARKS, type StatusMark } from './legend';
 
 maplibregl.setWorkerUrl(workerUrl);
 
@@ -24,8 +25,9 @@ export interface Hit {
   /** Natural Earth's code and name, for shapes without a place. */
   code?: string;
   name?: string;
-  /** An overlay mark's tooltip text. */
+  /** An overlay mark's tooltip text, and its page if it has one. */
   tip?: string;
+  href?: string;
   /** The disputed boundary under the pointer, if any. */
   disputed?: string;
   point: { x: number; y: number };
@@ -103,6 +105,23 @@ function hatch(colour: string, paper: string, ink: string): ImageData {
     g.globalAlpha = 0.15; g.strokeStyle = ink;
     g.beginPath(); g.moveTo(-2, 10); g.lineTo(10, -2); g.moveTo(-2, 2); g.lineTo(2, -2); g.moveTo(6, 10); g.lineTo(10, 6); g.stroke();
   });
+}
+
+/** A chokepoint's status diamond (./legend.ts STATUS_MARKS), drawn at 32 × 32 from the same 16 × 16 paths. */
+function statusSymbol(k: StatusMark, T: Record<string, string>): ImageData {
+  const m = STATUS_MARKS[k];
+  return pattern((g) => {
+    g.scale(2, 2);
+    g.lineJoin = 'round';
+    g.lineCap = 'round';
+    g.fillStyle = T[m.fill]; g.strokeStyle = T[m.dashed ? '--ink-muted' : '--ink']; g.lineWidth = 1.3;
+    if (m.dashed) g.setLineDash([2, 1.5]);
+    const edge = new Path2D('M8 1.2 14.8 8 8 14.8 1.2 8z');
+    g.fill(edge); g.stroke(edge);
+    g.setLineDash([]);
+    g.strokeStyle = T[m.ink]; g.lineWidth = 1.6;
+    for (const d of m.glyph) g.stroke(new Path2D(d));
+  }, 32);
 }
 
 function symbol(kind: 'triangle' | 'diamond' | 'square', fill: string, stroke: string): ImageData {
@@ -201,6 +220,7 @@ export function createMap(container: HTMLElement, base: Basemap, first: LayerFil
       for (const k of ['triangle', 'diamond', 'square'] as const) {
         map.addImage(`sym-${k}`, symbol(k, k === 'triangle' ? T['--ink'] : T['--paper-raised'], k === 'triangle' ? T['--paper-raised'] : T['--ink']), { pixelRatio: 2 });
       }
+      for (const k of Object.keys(STATUS_MARKS) as StatusMark[]) map.addImage(`sym-${k}`, statusSymbol(k, T), { pixelRatio: 2 });
 
       map.addSource('countries', { type: 'geojson', data: base.countries, promoteId: 'id' });
       map.addSource('disputed', { type: 'geojson', data: base.disputed });
@@ -260,7 +280,7 @@ export function createMap(container: HTMLElement, base: Basemap, first: LayerFil
           paint: o.dashed ? { 'line-color': T['--accent'], 'line-width': 1.6, 'line-dasharray': [3, 2] } : { 'line-color': T['--brand'], 'line-width': 1.4, 'line-opacity': 0.85 },
         });
       } else {
-        map.addSource(src, { type: 'geojson', data: { type: 'FeatureCollection', features: o.items.map((p) => ({ type: 'Feature', properties: { r: p.r ?? 5, tip: p.tip, m: p.m ?? 0, i: p.i ?? -1 }, geometry: { type: 'Point', coordinates: p.at } })) } });
+        map.addSource(src, { type: 'geojson', data: { type: 'FeatureCollection', features: o.items.map((p) => ({ type: 'Feature', properties: { r: p.r ?? 5, tip: p.tip, m: p.m ?? 0, i: p.i ?? -1, img: `sym-${p.s ?? o.symbol}`, href: p.href ?? '' }, geometry: { type: 'Point', coordinates: p.at } })) } });
         if (o.items.some((p) => p.m || p.i !== undefined)) masked.push(src);
         if (o.symbol === 'dot' || o.symbol === 'hollow') {
           const hollow = o.symbol === 'hollow';
@@ -269,7 +289,9 @@ export function createMap(container: HTMLElement, base: Basemap, first: LayerFil
             paint: { 'circle-radius': ['get', 'r'], 'circle-color': hollow ? T['--paper-raised'] : T['--accent'], 'circle-opacity': hollow ? 1 : 0.8, 'circle-stroke-color': hollow ? T['--accent'] : T['--paper-raised'], 'circle-stroke-width': hollow ? 2 : 1.2 },
           });
         } else {
-          map.addLayer({ id: src, type: 'symbol', source: src, layout: { 'icon-image': `sym-${o.symbol}`, 'icon-size': 0.7, 'icon-allow-overlap': true } });
+          // Status diamonds are drawn larger, so their glyphs read.
+          const status = o.items.some((p) => p.s);
+          map.addLayer({ id: src, type: 'symbol', source: src, layout: { 'icon-image': ['get', 'img'], 'icon-size': status ? 1 : 0.7, 'icon-allow-overlap': true } });
         }
       }
       overlayLayers.push(src);
@@ -284,7 +306,7 @@ export function createMap(container: HTMLElement, base: Basemap, first: LayerFil
     const box: [maplibregl.PointLike, maplibregl.PointLike] = [[point.x - pad, point.y - pad], [point.x + pad, point.y + pad]];
     const mark = overlayLayers.length ? map.queryRenderedFeatures(box, { layers: overlayLayers })[0] : undefined;
     const pt = { x: point.x, y: point.y };
-    if (mark) return { id: null, tip: String(mark.properties.tip ?? ''), point: pt };
+    if (mark) return { id: null, tip: String(mark.properties.tip ?? ''), ...(mark.properties.href ? { href: String(mark.properties.href) } : {}), point: pt };
     const shape = map.queryRenderedFeatures(point, { layers: ['fill'] })[0];
     const line = map.queryRenderedFeatures(box, { layers: ['disputed'] })[0];
     if (!shape) return line ? { id: null, disputed: String(line.properties.name ?? ''), point: pt } : null;

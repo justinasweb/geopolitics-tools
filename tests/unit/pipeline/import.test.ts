@@ -143,6 +143,7 @@ describe('import kinds', () => {
     expect(days.features.slice(0, 3).map((f: { attributes: { portid: string } }) => f.attributes.portid)).toEqual(['chokepoint1', 'chokepoint2', 'chokepoint3']);
     expect(daily).toMatchObject({ rows: 84, dataTo: '2026-11-15' });
     const c = parseChokepoints(meta, days);
+    expect(c).toHaveLength(28);
     expect(c.find((x) => x.name === 'Strait of Hormuz')!.lastDate).toBe('2026-11-15');
   });
 

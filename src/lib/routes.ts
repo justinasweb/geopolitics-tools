@@ -24,6 +24,7 @@ import { blocPages } from './blocview.ts';
 import { BLOCS_CHECKED } from './blocs.ts';
 import { HISTORY_BLOCS } from './history.ts';
 import { riverIds } from './rivers.ts';
+import { liveChokepoints } from './chokepoints.ts';
 import { NUCLEAR_PAGES, SHARING_CHECKED, TREATIES_CHECKED, nuclearLive } from './nuclear.ts';
 import { depsLive } from './dependence.ts';
 import { explorerMeasures } from './explorer.ts';
@@ -88,6 +89,9 @@ export const paths = {
   history: (bloc: string) => `/${S.blocs}/${BLOC_SLUGS[bloc]}/history`,
   /** Nuclear weapons: /nuclear (warheads), /nuclear/treaties, /nuclear/sharing. */
   nuclear: (id: string) => `/${S.nuclear}${NUCLEAR_SLUGS[id] ? `/${NUCLEAR_SLUGS[id]}` : ''}`,
+  /** Chokepoints: /chokepoints, and one page per chokepoint (/chokepoints/strait-of-hormuz), its slug from its name. */
+  chokepoints: () => `/${S.chokepoints}`,
+  chokepoint: (slug: string) => `/${S.chokepoints}/${slug}`,
   /** Disputed rivers: /water/rivers/nile. */
   river: (id: string) => `/${S.water}/rivers/${id}`,
   /** Explorer: /explorer (table), /explorer/over-time, /explorer/scatter. */
@@ -248,6 +252,14 @@ function build(): Route[] {
       key: `view:rivers:${id}`, kind: 'view', lang, path: paths.river(id), live: true, indexed: true,
       aliases: [], id: `rivers:${id}`, image: paths.image('views', `rivers-${id}`),
     });
+  }
+
+  // Chokepoints (D22): the map at /chokepoints, while PortWatch's hand import is under 45 days old.
+  const points = liveChokepoints();
+  if (points.length) {
+    families.add('chokepoints');
+    const lastmod = changed('portwatch');
+    out.push({ key: 'view:chokepoints:all', kind: 'view', lang, path: paths.chokepoints(), live: true, indexed: true, aliases: [], id: 'chokepoints:all', image: paths.image('views', 'chokepoints'), lastmod });
   }
 
   // Views that failed the launch gate review stay registered but hidden, so nothing links to them.
