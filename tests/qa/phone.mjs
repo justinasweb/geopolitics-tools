@@ -1,6 +1,7 @@
 // Launch QA, phone layout: every page of tests/qa/pages.mjs at 390 and 360 px wide, full-page screenshots, and four
 // checks: no sideways scroll, no text cut off by its box, no two controls (links, buttons, inputs) overlapping, and
 // no page running on past its footer. The last one also runs at 1440 px, where wide tables scroll inside a box.
+// Pages on the map view wrapper are also checked at every width for blocks past the header's content edges.
 // Usage: BASE=http://localhost:8787 node tests/qa/phone.mjs [screenshot dir, default shots/qa-phone] [report.json]
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { chromium } from 'playwright';
@@ -59,15 +60,31 @@ for (const width of [390, 360, 1440]) {
       const below = footBottom !== null && scrollHeight > footBottom + PAST_FOOTER
         ? [...new Set([...document.querySelectorAll('body *')].filter((el) => el.getBoundingClientRect().top + scrollY > footBottom).map((el) => label(el.parentElement ?? el)))].slice(0, 3)
         : null;
-      return { wide, sticking, clipped, overlaps, scrollWidth: document.documentElement.scrollWidth, vw, scrollHeight, footBottom, below };
+      // Content edges: on a page built on the map view wrapper (place pages, map views), every block and what is in it
+      // lies within the header's content edges, as the wrapper sets them. The map stage is wider on purpose; tables
+      // scroll in their box and SVG drawings clip to theirs.
+      const head = document.querySelector('.gt-header__in');
+      const edges = [];
+      const mv = document.querySelector('main.gt-mv');
+      if (head && mv) {
+        const hs = getComputedStyle(head), hr = head.getBoundingClientRect();
+        const L = hr.left + parseFloat(hs.paddingLeft), R = hr.right - parseFloat(hs.paddingRight);
+        for (const el of mv.querySelectorAll('*')) {
+          if (!visible(el) || el.closest('.gt-stage, svg, .gt-tablewrap, .gt-mvcompact')) continue;
+          const r = el.getBoundingClientRect();
+          if (r.left < L - 1 || r.right > R + 1) edges.push(`${label(el)} ${Math.round(r.left)}–${Math.round(r.right)}, header content ${Math.round(L)}–${Math.round(R)}`);
+          if (edges.length >= 5) break;
+        }
+      }
+      return { wide, sticking, clipped, overlaps, edges, scrollWidth: document.documentElement.scrollWidth, vw, scrollHeight, footBottom, below };
     }, PAST_FOOTER);
     if (!phone) {
-      // At 1440 only the footer check: the others are phone layout checks.
+      // At 1440 only the footer and content-edge checks: the others are phone layout checks.
       found.wide = false; found.clipped = []; found.overlaps = [];
     }
     const file = `${out}/${width}-${p.path === '/' ? 'home' : p.path.slice(1).replace(/\//g, '_')}.png`;
     await page.screenshot({ path: file, fullPage: true });
-    const issues = [found.wide && `sideways scroll (${found.scrollWidth} px): ${found.sticking.join('; ')}`, found.clipped.length && `clipped: ${found.clipped.join('; ')}`, found.overlaps.length && `overlap: ${found.overlaps.join('; ')}`, found.below && `runs ${found.scrollHeight - found.footBottom} px past the footer (${found.scrollHeight} px tall, footer ends at ${found.footBottom}): ${found.below.join('; ')}`].filter(Boolean);
+    const issues = [found.edges.length && `past the header's content edges: ${found.edges.join('; ')}`, found.wide && `sideways scroll (${found.scrollWidth} px): ${found.sticking.join('; ')}`, found.clipped.length && `clipped: ${found.clipped.join('; ')}`, found.overlaps.length && `overlap: ${found.overlaps.join('; ')}`, found.below && `runs ${found.scrollHeight - found.footBottom} px past the footer (${found.scrollHeight} px tall, footer ends at ${found.footBottom}): ${found.below.join('; ')}`].filter(Boolean);
     rows.push({ name: p.name, path: p.path, width, issues, file });
     console.log(`${issues.length ? 'FAIL' : 'ok  '} ${width} ${p.name}${issues.length ? `\n     ${issues.join('\n     ')}` : ''}`);
     await page.close();

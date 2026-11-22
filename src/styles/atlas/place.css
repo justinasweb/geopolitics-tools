@@ -1,8 +1,9 @@
 /* Place pages (ChokepointPage and PlaceBlocks designs): three key figures, the locator map, the daily chart with its
-   usual range, the vessel mix, then the tables. */
-.gt-hzkf { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; max-width: 1200px; }
+   usual range, the vessel mix, then the tables. Their width and left edge come from the page wrapper (.gt-mv > *,
+   mapview.css), never from these blocks. */
+.gt-hzkf { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
 .gt-hzkf .gt-pkf { padding-top: 14px; border-top: 2px solid var(--ink); }
-.gt-hzgrid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 32px; max-width: 1200px; align-items: start; }
+.gt-hzgrid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 32px; align-items: start; }
 .gt-hzgrid__a, .gt-hzgrid__b { display: grid; gap: 28px; align-content: start; min-width: 0; }
 .gt-hzsec { display: grid; gap: 12px; padding-top: 12px; border-top: 1px solid var(--rule); min-width: 0; }
 .gt-hzsec .gt-h3 { margin: 0; }
