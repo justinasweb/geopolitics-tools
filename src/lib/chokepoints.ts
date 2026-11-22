@@ -135,3 +135,17 @@ const km = (a: Chokepoint, b: Chokepoint) => {
 };
 /** The chokepoints nearest to one, nearest first. */
 export const nearest = (c: Chokepoint, n = 3) => liveChokepoints().filter((x) => x.id !== c.id).sort((a, b) => km(c, a) - km(c, b)).slice(0, n);
+
+/**
+ * Other names a reader might type for a chokepoint: its name without "Strait", "Canal", "Channel" or "Passage"
+ * ("Hormuz", "Suez", "Bab el-Mandeb"), the "Strait of X" form of "X Strait" and the other way round, and "strait",
+ * "chokepoint" itself; spellings of our own are in SEARCH_ALIASES (Bosphorus).
+ */
+export function chokepointAliases(name: string): string[] {
+  const out = new Set<string>(['chokepoint']);
+  const bare = name.replace(/^Strait of /, '').replace(/ (Strait|Canal|Channel|Passage)$/, '').trim();
+  if (bare !== name) out.add(bare);
+  if (/ Strait$/.test(name)) { out.add(`Strait of ${bare}`); out.add('strait'); }
+  if (/^Strait of /.test(name)) { out.add(`${bare} Strait`); out.add('strait'); }
+  return [...out];
+}

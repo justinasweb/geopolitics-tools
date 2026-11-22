@@ -164,3 +164,28 @@ describe('pages not on the site yet', () => {
     expect(search(soon, 'Germany').total).toBeGreaterThan(0);
   });
 });
+
+describe('chokepoints in the built index', async () => {
+  const { searchIndex } = await import('../../src/lib/search.ts');
+  const built = searchIndex();
+  const live = decode(built);
+  const top = (q: string) => search(live, q, 5, (c) => c).groups.flatMap((g) => g.entries.map((e) => e.path))[0];
+  it('finds each chokepoint by its name and short forms, and the map by the family’s words', () => {
+    expect(top('Strait of Hormuz')).toBe('/chokepoints/strait-of-hormuz');
+    expect(top('Hormuz')).toBe('/chokepoints/strait-of-hormuz');
+    expect(top('Suez')).toBe('/chokepoints/suez-canal');
+    expect(top('Malacca')).toBe('/chokepoints/malacca-strait');
+    expect(top('Strait of Malacca')).toBe('/chokepoints/malacca-strait');
+    expect(top('Bosporus')).toBe('/chokepoints/bosporus-strait');
+    expect(top('Bosphorus')).toBe('/chokepoints/bosporus-strait');
+    expect(top('Bab el-Mandeb')).toBe('/chokepoints/bab-el-mandeb-strait');
+    expect(top('chokepoints')).toBe('/chokepoints');
+    expect(search(live, 'strait', 5, (c) => c).total).toBeGreaterThan(3);
+  });
+  it('says only ports are not on the site yet', () => {
+    expect((built.s ?? []).map(([t]) => t)).toEqual(['Ports aren’t on the site yet.']);
+    expect(search(live, 'Hormuz').soon).toBeUndefined();
+    expect(search(live, 'harbour').soon).toBe('Ports aren’t on the site yet.');
+  });
+});
+
