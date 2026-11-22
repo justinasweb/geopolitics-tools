@@ -205,6 +205,7 @@ node pipeline/import.ts wpp-age WPP2024_PopulationByAge5GroupSex_Medium.csv.gz -
 | US Treasury holdings, history | `treasury-history` | Built once |
 | FAS Status of World Nuclear Forces, current table | `fas-forces` | About twice a year: copy FAS's table by hand (below) |
 | IMF World Economic Outlook | `imf-weo` | April and October (below) |
+| IMF PortWatch chokepoints | `portwatch-points`, `portwatch-daily` | Daily; downloaded by hand once a month (below, D22) |
 
 Without a local copy of the repository, the **import** workflow does the same with the repository's secrets: Actions
 tab → import → Run workflow, with the kind and the file's download address (and `name` when the address does not end
@@ -257,6 +258,35 @@ tagged Estimate (`statusAt` in src/data/indicators.ts), in the indicator page's 
 Explorer's table, lines and scatter tooltip, and the CSV's status column. Rankings use the common year as usual, so an
 estimate is ranked with the actual figures and carries its tag. Source lines credit "IMF World Economic Outlook, October 2026". The API fetcher stays off (the IMF's
 terms ask for permission before scheduled downloads). Growth, inflation and unemployment come from the World Bank.
+
+**IMF PortWatch chokepoints (`portwatch-points`, `portwatch-daily`, D22).** Until the IMF allows scheduled downloads,
+PortWatch's chokepoints are downloaded by hand once a month from portwatch.imf.org, as two CSVs, and imported one per
+run (the importer reads one file at a time, so each download is its own kind rather than a zip split in two):
+
+- "Chokepoints" (portwatch.imf.org/datasets/fa9a5800b0ee4855af8b2944ab1e07af/about → Download → CSV,
+  `PortWatch_chokepoints_database.csv`, 28 rows): `node pipeline/import.ts portwatch-points PortWatch_chokepoints_database.csv`.
+  Its November 2026 columns: `X, Y, portid, portname, country, ISO3, continent, fullname, lat, lon, vessel_count_total,
+  vessel_count_container, vessel_count_dry_bulk, vessel_count_general_cargo, vessel_count_RoRo, vessel_count_tanker,
+  industry_top1, industry_top2, industry_top3, share_country_maritime_import, share_country_maritime_export, LOCODE,
+  pageid, countrynoaccents, ObjectId`. Kept: the id, name, full name, `lat` and `lon` (degrees; `X` and `Y` are Web
+  Mercator metres and are not read), the yearly average vessel counts (2019–2024) and the three main industries.
+- "Daily Chokepoints Data" (portwatch.imf.org/datasets/3da2b9ca97684916b75c4013f95d18ab/about → Download → CSV,
+  `Daily_Chokepoints_Data.csv`, about 80,500 rows, 28 chokepoints since 2019):
+  `node pipeline/import.ts portwatch-daily Daily_Chokepoints_Data.csv`. Its columns: `date, year, month, day, portid,
+  portname, n_container, n_dry_bulk, n_general_cargo, n_roro, n_tanker, n_cargo, n_total, capacity_container,
+  capacity_dry_bulk, capacity_general_cargo, capacity_roro, capacity_tanker, capacity_cargo, capacity, ObjectId`; the
+  date as `2019/01/01`, rows in no particular order. Kept: the day, the id and name, ships by type and in all (`n_*`) and
+  their estimated cargo in metric tonnes by type and in all (`capacity_*`), for the last four years and 40 days
+  before the file's last day (the place pages chart 365 days, each beside the same day in the three years before).
+
+Both are written as the switched-off ArcGIS fetcher writes them (`portwatch/chokepoints.json`,
+`portwatch/chokepoints_daily.json`, `{ features: [{ attributes }] }`, dates as YYYY-MM-DD), so the adapter reads either.
+Columns are matched without regard to case (`vessel_count_RoRo`), and older names are read through `PORTWATCH_FROM`
+(`latitude`/`longitude`, `full_name`, `n_all`) in `pipeline/sources/portwatch-file.ts`. The import refuses a file
+missing `portid`, `portname`, `date` or `n_total` (daily) or the coordinates (chokepoints), fewer than 28 chokepoints, a
+chokepoint without a position in degrees, more than 1% of rows it cannot date, or far fewer daily rows than the last
+import (below 80%; `--allow-shrink` when that is real). The state and snapshot record each file's download name and
+import date (`imported`) and the daily file's last day (`dataTo`), which the source lines show.
 
 **Hand-kept facts files.** Two sources are kept as dated, cited rows in the repository rather than fetched:
 `src/data/nuclear-treaties.csv` (UNODA Treaties Database: NPT and TPNW status) and `src/data/nuclear-sharing.csv`

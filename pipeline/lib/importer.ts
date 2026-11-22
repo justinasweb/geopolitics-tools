@@ -166,12 +166,14 @@ export async function importFile(o: ImportOptions): Promise<ImportResult> {
   // Most kinds save one file; the WEO table is saved as one file per indicator and its release.
   let out: { name: string; body: string | Uint8Array; contentType: string; rows: number }[];
   let rows: number;
+  let dataTo: string | undefined;
   if (o.kind.how === 'files') {
     const names = o.kind.files ?? [];
     const prev = Object.fromEntries(await Promise.all(names.map(async (n) => [n, await previous(n)] as const)));
     const r = o.kind.split!(input, from, prev, o.allowShrink ?? false);
     out = r.files.map((f) => ({ name: f.name, body: f.body, contentType: f.contentType ?? 'application/json', rows: 0 }));
     rows = r.rows;
+    dataTo = r.dataTo;
     out[0].rows = rows;
   } else {
     const file = typeof o.kind.save === 'function' ? o.kind.save(from) : o.kind.save;
@@ -199,6 +201,7 @@ export async function importFile(o: ImportOptions): Promise<ImportResult> {
   st.firstAttempt ??= now.toISOString();
   st.lastAttempt = st.lastSuccess = now.toISOString();
   st.failures = 0;
+  if (dataTo) st.dataTo = dataTo;
   st.rows = Object.values(st.imported ?? {}).reduce((s, f) => s + f.rows, 0);
 
   // This writer owns only the imported source; everything else is taken fresh from the bucket.
