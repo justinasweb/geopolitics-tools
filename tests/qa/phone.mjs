@@ -3,7 +3,7 @@
 // no page running on past its footer. The last one also runs at 1440 px, where wide tables scroll inside a box.
 // Pages on the map view wrapper are also checked at every width for blocks past the header's content edges, and map
 // pages at phone widths for panel edges: the inline panel (and with a place selected) within the page text, the
-// full-screen map's bottom sheet with 16 px at its sides.
+// full-screen map's bottom sheet padded 16 px at its sides by its wrappers.
 // Usage: BASE=http://localhost:8787 node tests/qa/phone.mjs [screenshot dir, default shots/qa-phone] [report.json]
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { chromium } from 'playwright';
@@ -18,10 +18,10 @@ const rows = [];
 // inside a box (as the screen-reader text of an unpositioned scrolling table was, 14,000 px on /dependencies).
 const PAST_FOOTER = 50;
 
-// Side edges in map panels and sheets. The bottom sheets are boxed: every block in a sheet's head, body or foot, and
-// anything else it holds directly, keeps at least 16 px from its left and right edges, from the wrappers' padding.
-// The inline panel on a phone is unboxed (PhoneMapView design): its blocks sit on the page gutter and may not reach
-// past the page text's left or right edge (main's content box).
+// Side edges in map panels and sheets. A bottom sheet (or a panel drawn as a box) takes its side padding from its
+// wrappers: .gt-panel__head, __body and __foot each pad at least 16 px at the sides, and every block starts at least
+// 16 px in. The inline panel on a phone is unboxed (PhoneMapView design): its blocks sit on the page gutter and may not
+// reach past the page text's left or right edge (main's content box).
 const PANEL_GAP = 16;
 async function panelPadding(page) {
   return page.evaluate((GAP) => {
@@ -38,12 +38,19 @@ async function panelPadding(page) {
       const br = box.getBoundingClientRect();
       // A sheet, or a panel drawn as a box (the Atlas's), keeps the 16 px; the unboxed inline panel keeps to the page text.
       const boxed = box.matches('[data-map-sheet], .gt-sheet') || getComputedStyle(box).backgroundColor !== 'rgba(0, 0, 0, 0)';
+      if (boxed) {
+        for (const w of box.querySelectorAll(':scope .gt-panel__head, :scope .gt-panel__body, :scope .gt-panel__foot')) {
+          if (!vis(w)) continue;
+          const ws = getComputedStyle(w), pl = parseFloat(ws.paddingLeft), pr = parseFloat(ws.paddingRight);
+          if (pl < GAP - 0.5 || pr < GAP - 0.5) out.push(`${name(box)} > ${name(w)} pads ${pl}/${pr} px at the sides (boxed: ${GAP} px)`);
+        }
+      }
       for (const b of blocksOf(box)) {
         if (!vis(b)) continue;
         const r = b.getBoundingClientRect();
         if (boxed) {
-          const l = Math.round(r.left - br.left), rt = Math.round(br.right - r.right);
-          if (l < GAP - 0.5 || rt < GAP - 0.5) out.push(`${name(box)} > ${name(b)} ${l} px from the left, ${rt} px from the right (boxed: ${GAP} px)`);
+          const l = Math.round(r.left - br.left);
+          if (l < GAP - 0.5) out.push(`${name(box)} > ${name(b)} ${l} px from the left (boxed: ${GAP} px)`);
         } else if (r.left < textL - 0.5 || r.right > textR + 0.5) {
           out.push(`${name(box)} > ${name(b)} ${Math.round(r.left)}–${Math.round(r.right)}, past the page text ${Math.round(textL)}–${Math.round(textR)}`);
         }
