@@ -156,7 +156,7 @@
   /* The map is not first on a phone: the panel reads inline, and "Show map" opens the map full screen. */
   .gt-stage { display: block; height: auto; border: 0; background: none; }
   .gt-stage > .gt-stage__map { display: none; }
-  .gt-mvpanel { border: 0; background: none; height: auto; }
+  .gt-panel.gt-mvpanel { border: 0; background: none; height: auto; }
   .gt-mvpanel .gt-panel__head { padding: 0 0 12px; }
   .gt-mvpanel .gt-panel__body { padding: 16px 0 0; overflow: visible; }
   .gt-mvpanel [data-panel] { height: auto; }
