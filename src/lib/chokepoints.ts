@@ -2,9 +2,9 @@
 // (src/adapters/portwatch.ts), imported by hand once a month (D22). They are live while the imported files are in the
 // snapshot and under 45 days old (the import's `staleAfter`, pipeline/sources/imported.ts): monthly figures any older
 // would not say what "the last 7 days" means. Every sentence and figure here comes with its last data day.
-import { chokepoints, VESSEL_TYPES, type Chokepoint, type Status, type VesselType } from '../adapters/portwatch.ts';
+import { chokepoints, sameDaysBefore, VESSEL_TYPES, type Chokepoint, type Status, type VesselType } from '../adapters/portwatch.ts';
 import { IMPORTED } from '../../pipeline/sources/imported.ts';
-import { CHOKEPOINTS_TEXT as T, changeWords } from '../i18n/chokepoints.en.ts';
+import { CHOKEPOINTS_TEXT as T, changeWords, ships, yearsText } from '../i18n/chokepoints.en.ts';
 import { data, shared } from './data.ts';
 import { formatDate } from './format.ts';
 
@@ -60,18 +60,24 @@ export function viewLede(): string | null {
   if (!list.length || !last) return null;
   const below = list.filter(isBelow);
   const furthest = ranked(below)[0];
-  return T.lede(formatDate(last), below.length, list.length, furthest ? { name: displayName(furthest.name, true), change: changeWords(furthest.change!) } : null);
+  // The years most chokepoints are compared with (2023–2025 for a week of 2026).
+  const years = mostCommon(list.map((c) => c.baseYears).filter((y): y is [number, number] => !!y).map(yearsText));
+  if (!years) return T.ledeNone(formatDate(last), list.length);
+  return T.lede(formatDate(last), below.length, list.length, years, furthest ? { name: displayName(furthest.name, true), change: changeWords(furthest.change!) } : null);
 }
+
+const mostCommon = (xs: string[]) => [...xs.reduce((m, x) => m.set(x, (m.get(x) ?? 0) + 1), new Map<string, number>())].sort((a, b) => b[1] - a[1])[0]?.[0];
 
 /** A chokepoint's name inside a sentence: every PortWatch chokepoint takes "the" (the Strait of Hormuz, the Suez Canal,
  *  the Cape of Good Hope). */
 export const displayName = (name: string, inSentence = false) => (inSentence ? `the ${name}` : name);
 
-/** The status line on a chokepoint's page: "Traffic was 12% below its usual level in the week to 31 Oct 2026." */
+/** The status line on a chokepoint's page: "Traffic in the week to 15 Nov 2026 was 12% below the same week in 2023–2025." */
 export function statusLine(c: Chokepoint): string {
   if (!c.lastDate) return '';
-  if (c.change === null) return T.noRecent(formatDate(c.lastDate));
-  return T.statusLine(changeWords(c.change), formatDate(c.lastDate));
+  if (c.avg7 === null) return T.noRecent(formatDate(c.lastDate));
+  if (c.change === null || !c.baseYears) return T.noUsual(formatDate(c.lastDate), ships(c.avg7));
+  return T.statusLine(changeWords(c.change), formatDate(c.lastDate), yearsText(c.baseYears));
 }
 
 const avg = (xs: (number | null)[]) => {
@@ -98,7 +104,8 @@ export function tankerShare(c: Chokepoint): number | null {
 export interface MonthRow { month: string; to?: string; transits: number; perDay: number; against: number | null; cargo: number | null }
 
 /**
- * The last 12 months, newest first: ships counted, ships a day over the days with a count, against the usual level,
+ * The last 12 months, newest first: ships counted, ships a day over the days with a count, against the same days in
+ * the three years before (the median of their averages; null with fewer than two of them),
  * and estimated cargo (null when no day has an estimate). The month the series starts in mid-way is left out; the
  * month it ends in mid-way says the day it runs to.
  */
@@ -120,7 +127,7 @@ export function months(c: Chokepoint): MonthRow[] {
     const end = new Date(Date.UTC(Number(m.slice(0, 4)), Number(m.slice(5, 7)), 0)).toISOString().slice(0, 10);
     out.push({
       month: m, ...(days.at(-1)!.date < end ? { to: days.at(-1)!.date } : {}), transits, perDay,
-      against: c.baseline ? perDay / c.baseline - 1 : null,
+      against: (() => { const u = sameDaysBefore(days.map((d) => d.date), c.byDate); return u && u.median ? perDay / u.median - 1 : null; })(),
       cargo: cargoDays.length ? cargoDays.reduce((s, d) => s + d.cargo.all!, 0) : null,
     });
   }

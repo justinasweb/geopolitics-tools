@@ -14,7 +14,7 @@ import '../styles/atlas/mapview.css';
 import '../styles/atlas/keyfigure.css';
 import '../styles/atlas/table.css';
 import '../styles/atlas/place.css';
-import { CHOKEPOINTS_TEXT as X, changeCell, ships, tonnes } from '../i18n/chokepoints.en';
+import { CHOKEPOINTS_TEXT as X, changeCell, ships, tonnes, yearsText } from '../i18n/chokepoints.en';
 import { chokepointBySlug, importedOn, lastWeek, liveChokepoints, months, nearest, statusLine, tankerShare } from '../lib/chokepoints';
 import { VESSEL_TYPES } from '../adapters/portwatch';
 import { creditLine } from '../lib/data';
@@ -72,7 +72,7 @@ const cite = `${creditLine('portwatch')}, ${X.dataTo(last)}.`;
 
   <div class="gt-hzkf">
     <div class="gt-pkf"><span class="gt-pkf__label">{X.kfWeek}</span><span class="gt-pkf__num">{c.avg7 === null ? '–' : ships(c.avg7)}</span><span class="gt-pkf__meta">{X.kfWeekMeta(last)}</span></div>
-    <div class="gt-pkf"><span class="gt-pkf__label">{X.kfUsual}</span><span class="gt-pkf__num">{c.baseline === null ? '–' : ships(c.baseline)}</span><span class="gt-pkf__meta">{X.kfUsualMeta(first, last)}</span></div>
+    <div class="gt-pkf"><span class="gt-pkf__label">{X.kfUsual}</span><span class="gt-pkf__num">{c.baseline === null ? '–' : ships(c.baseline)}</span><span class="gt-pkf__meta">{c.baseYears ? X.kfUsualMeta(yearsText(c.baseYears)) : X.kfUsualNone}</span></div>
     <div class="gt-pkf"><span class="gt-pkf__label">{X.kfTankers}</span><span class="gt-pkf__num">{tanker === null ? '–' : formatShare(tanker)}</span><span class="gt-pkf__meta">{X.kfTankersMeta(last)}</span></div>
   </div>
 

@@ -148,13 +148,14 @@ describe('resources and money', () => {
     expect(matchReports().every((r) => r.includes('every'))).toBe(true);
   });
 
-  it('reads PortWatch chokepoints with a status against the year', () => {
+  it('reads PortWatch chokepoints, with no status where earlier years are missing', () => {
     // Every chokepoint the file lists (the prototype's sample has 9; PortWatch lists 28), no filter by name.
     const c = chokepoints(raw);
     expect(c.length).toBe(raw.json<{ features: unknown[] }>('portwatch', 'chokepoints.json').features.length);
     const suez = c.find((p) => p.name === 'Suez Canal')!;
     expect(suez.series.length).toBeLessThanOrEqual(365);
-    expect(suez.change).toBeCloseTo(suez.avg7! / suez.baseline! - 1);
+    // The prototype's sample covers one year only: no same week in earlier years, so no usual level and no status.
+    expect(suez).toMatchObject({ baseline: null, change: null, status: 'unknown' });
     expect(statusFor(-0.5)).toBe('disrupted');
   });
 

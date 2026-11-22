@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { parseChokepoints, slugOf, usualRange, yearsBefore } from '../../src/adapters/portwatch.ts';
+import { parseChokepoints, sameDaysBefore, slugOf, usualRange, yearsBefore } from '../../src/adapters/portwatch.ts';
 import { freshImport, FRESH_HOURS, lastWeek, months, statusLine, tankerShare } from '../../src/lib/chokepoints.ts';
 import { dailyChartHtml, dailyTicks } from '../../src/lib/dailychart.ts';
 import { changeCell, changeWords, ships, tonnes } from '../../src/i18n/chokepoints.en.ts';
@@ -54,9 +54,33 @@ describe('chokepoints', () => {
     expect(at('2026-11-15').ships.n_tanker).toBe(30);
     expect(at('2026-11-15').cargo).toMatchObject({ n_tanker: 60_000, all: 90_000, n_roro: null });
     expect(h.avg7).toBe(60);
+    // Usual: the median of the same 7 days in 2025, 2024 and 2023 (100, 120, 80), not the last 365 days' average.
+    expect(h.baseline).toBe(100);
+    expect(h.baseYears).toEqual([2023, 2025]);
+    expect(h.change).toBeCloseTo(-0.4);
     expect(h.status).toBe('disrupted');
     // The caveat kept by hand for Hormuz, with its source and date.
     expect(h.caveat).toMatchObject({ source: 'IMF PortWatch, Strait of Hormuz page', checked: '2026-11-22' });
+  });
+
+  it('compares a week with the same days in each of the three years before: their median, from two years at least', () => {
+    const dates = ['2026-11-09', '2026-11-10', '2026-11-11', '2026-11-12', '2026-11-13', '2026-11-14', '2026-11-15'];
+    const by = new Map<string, number | null>();
+    for (const d of dates) { by.set(yearsBefore(d, 1), 50); by.set(yearsBefore(d, 2), 70); by.set(yearsBefore(d, 3), 90); }
+    expect(sameDaysBefore(dates, by)).toEqual({ median: 70, years: [2023, 2025] });
+    // A year with fewer than 5 of the 7 days counted is left out; two years give the median of two (their mean).
+    for (const d of dates.slice(0, 3)) by.delete(yearsBefore(d, 3));
+    expect(sameDaysBefore(dates, by)).toEqual({ median: 60, years: [2024, 2025] });
+    // Fewer than two years: no usual level, so no status.
+    for (const d of dates) by.delete(yearsBefore(d, 2));
+    expect(sameDaysBefore(dates, by)).toBeNull();
+  });
+
+  it('says no recent data when fewer than two of the three years before have the week', () => {
+    // Counted only since mid-2025: November 2025 alone is earlier, one year.
+    const daily = { features: rows('chokepoint1', 'Suez Canal', '2025-06-01', '2026-11-15', () => 40) };
+    const [c] = parseChokepoints(meta([['chokepoint1', 'Suez Canal']]), daily);
+    expect(c).toMatchObject({ baseline: null, change: null, status: 'unknown' });
   });
 
   it('makes slugs from the name, never the id', () => {
@@ -76,7 +100,7 @@ describe('chokepoints', () => {
   it('gives a place page its status line, last week by vessel type, and months with the usual level', () => {
     const daily = { features: rows('chokepoint1', 'Suez Canal', '2022-10-01', '2026-11-15', (d) => (d >= '2026-11-09' ? 44 : 40)) };
     const [c] = parseChokepoints(meta([['chokepoint1', 'Suez Canal']]), daily);
-    expect(statusLine(c)).toBe('Traffic was 10% above its usual level in the week to 15 Nov 2026.');
+    expect(statusLine(c)).toBe('Traffic in the week to 15 Nov 2026 was 10% above usual, compared with the same week in 2023–2025.');
     expect(lastWeek(c).find((r) => r.type === 'n_tanker')).toEqual({ type: 'n_tanker', ships: 22, cargo: 44_000 });
     expect(lastWeek(c).at(-1)).toEqual({ type: 'all', ships: 44, cargo: 66_000 });
     expect(tankerShare(c)).toBe(0.5);
@@ -85,7 +109,9 @@ describe('chokepoints', () => {
     expect(m).toHaveLength(12);
     expect(m[0]).toMatchObject({ month: '2026-11', to: '2026-11-15', transits: 8 * 40 + 7 * 44 });
     expect(m.at(-1)!.month).toBe('2025-12');
-    expect(m[1]).toMatchObject({ month: '2026-10', transits: 31 * 40, perDay: 40 });
+    // Each month against the same days of the month in the three years before (40 a day then too).
+    expect(m[1]).toMatchObject({ month: '2026-10', transits: 31 * 40, perDay: 40, against: 0 });
+    expect(m[0].against).toBeCloseTo((8 * 40 + 7 * 44) / 15 / 40 - 1);
     expect(m[1].to).toBeUndefined();
   });
 

@@ -1,12 +1,14 @@
 // IMF PortWatch chokepoints (portwatch/chokepoints.json and chokepoints_daily.json, ArcGIS
 // { features: [{ attributes }] }), fetched or imported by hand (D22). Each chokepoint gets its daily transits for the
-// last 365 days, with each day's usual range; a 7-day average against the 365-day mean, and a status from it; the
+// last 365 days, with each day's usual range; a 7-day average against the same week in the three years before, and a
+// status from it; the
 // vessel mix of the last 30 days; and its ships and estimated cargo by vessel type for each day.
 //
-// What "usual" means here. The status and the page's "below its usual level" compare the last 7 days' average with
-// the mean of the last 365 days (the baseline). The chart's usual range is something else, drawn for context: for
-// each day, the lowest and highest count on the same calendar day in each of the three years before. A day missing
-// in any of those years has no range (a gap in the band), so the band never narrows to one or two years unannounced.
+// What "usual" means here: the same days in each of the three years before. The status compares the last 7 days'
+// average with the median of the same 7 days' averages in each of those years (2023–2025 for a week of 2026), from
+// two years at least, or it has no status; the monthly table compares a month the same way; the chart's usual range
+// shades, for each day, the lowest to highest count on that day in the same three years (a day missing in any of
+// them has no range). One meaning, so a collapse inside the last year never lowers the level it is compared with.
 //
 // Estimated cargo (capacity_*) is PortWatch's estimate in metric tonnes, from the ships' signals (AIS) and their
 // size, not official statistics. PortWatch has no country field. Ported from the prototype's src/adapters/portwatch.js.
@@ -21,7 +23,11 @@ export const CARGO_OF: Record<VesselType, string> = { n_tanker: 'capacity_tanker
 
 export type Status = 'disrupted' | 'below' | 'normal' | 'above' | 'unknown';
 
-/** The 7-day average against the 365-day mean: 30% or more below is disrupted, 10% below, 15% above. */
+/** A change as the pages show it: a whole percent (−0.124 → −12). */
+export const wholePercent = (change: number) => Math.round(change * 100) + 0;
+
+/** The 7-day average against the same week in the three years before: 30% or more below is disrupted, 10% below, 15%
+ *  above. */
 export function statusFor(change: number | null): Status {
   if (change == null) return 'unknown';
   if (change <= -0.3) return 'disrupted';
@@ -32,6 +38,30 @@ export function statusFor(change: number | null): Status {
 
 const mean = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null);
 const numOr = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) ? v : null);
+
+/** A year's days count when at least this share of them has a count. */
+const COUNTED = 0.7;
+
+/**
+ * The usual level for some days: for each of the three years before, the average count on the same calendar days
+ * (when at least 70% of them have one), then the median of those years' averages. Null with fewer than two years.
+ * `years` is the first and last year used, by the last day's year (2023–2025 for a week ending in 2026).
+ */
+export function sameDaysBefore(dates: string[], byDate: Map<string, number | null>): { median: number; years: [number, number] } | null {
+  if (!dates.length) return null;
+  const last = Number(dates.at(-1)!.slice(0, 4));
+  const found: { year: number; avg: number }[] = [];
+  for (const k of [1, 2, 3]) {
+    const vs = dates.map((d) => byDate.get(yearsBefore(d, k))).filter((v): v is number => typeof v === 'number');
+    if (vs.length >= Math.ceil(dates.length * COUNTED)) found.push({ year: last - k, avg: vs.reduce((a, b) => a + b, 0) / vs.length });
+  }
+  if (found.length < 2) return null;
+  const sorted = found.map((f) => f.avg).sort((a, b) => a - b);
+  const mid = sorted.length / 2;
+  const median = sorted.length % 2 ? sorted[Math.floor(mid)] : (sorted[mid - 1] + sorted[mid]) / 2;
+  const ys = found.map((f) => f.year);
+  return { median, years: [Math.min(...ys), Math.max(...ys)] };
+}
 
 /** One day at a chokepoint. */
 export interface Transit {
@@ -49,7 +79,11 @@ export interface Chokepoint {
   /** PortWatch's id (chokepoint6), which can change between releases; `slug`, from the name, is what pages use. */
   id: string; slug: string; name: string; lat: number; lon: number; industries: string[];
   series: Transit[]; lastDate: string | null;
-  avg7: number | null; baseline: number | null; change: number | null; status: Status;
+  /** The last 7 days' average; the usual level (median of the same 7 days in the three years before) and the years it
+   *  comes from; the change between them. */
+  avg7: number | null; baseline: number | null; baseYears: [number, number] | null; change: number | null; status: Status;
+  /** Every day's count PortWatch gave (four years and more), for comparing other periods with the years before. */
+  byDate: Map<string, number | null>;
   mix: Record<VesselType, number | null>;
   /** A caveat the source gives on these figures (src/data/chokepoint-notes.ts). */
   caveat?: ChokepointNote;
@@ -93,9 +127,10 @@ export function parseChokepoints(meta: { features?: { attributes: Attr }[] }, da
       ships: Object.fromEntries(VESSEL_TYPES.map((t) => [t, numOr(r[t])])) as Transit['ships'],
       cargo: { ...Object.fromEntries(VESSEL_TYPES.map((t) => [t, numOr(r[CARGO_OF[t]])])), all: numOr(r.capacity) } as Transit['cargo'],
     }));
-    const totals = series.map((s) => s.total).filter((t): t is number => t != null);
-    const avg7 = mean(totals.slice(-7));
-    const baseline = mean(totals);
+    const week = series.slice(-7);
+    const avg7 = mean(week.map((s) => s.total).filter((t): t is number => t != null));
+    const usual = sameDaysBefore(week.map((d) => d.date), byDate);
+    const baseline = usual?.median ?? null;
     const change = avg7 != null && baseline ? avg7 / baseline - 1 : null;
     const last30 = rows.slice(-30);
     const sum30 = last30.reduce((s, r) => s + (Number(r.n_total) || 0), 0);
@@ -107,7 +142,7 @@ export function parseChokepoints(meta: { features?: { attributes: Attr }[] }, da
     return {
       id: String(m.portid), slug, name, lat: Number(m.lat), lon: Number(m.lon),
       industries: [m.industry_top1, m.industry_top2, m.industry_top3].filter(Boolean).map(String),
-      series, lastDate: series.at(-1)?.date ?? null, avg7, baseline, change, status: statusFor(change), mix,
+      series, lastDate: series.at(-1)?.date ?? null, avg7, baseline, baseYears: usual?.years ?? null, change, status: statusFor(change), mix, byDate,
       ...(caveat ? { caveat } : {}),
     };
   }).filter((p) => Number.isFinite(p.lat) && Number.isFinite(p.lon));
