@@ -156,21 +156,22 @@ export function initMapView(root: HTMLElement): void {
   }
 
   const inFull = () => full.open;
-  // On the full-screen phone map, the world sits between the legend and the country sheet.
-  function frame() {
+  // On the full-screen phone map, the map's free area sits between the legend and the country sheet. Opening the map
+  // fits the world into it (`fit`); the sheet opening, closing or changing country keeps the reader's zoom and only
+  // pans, if need be, to bring the picked country out from under the sheet.
+  function frame(fit = false) {
     if (!ctrl || !inFull()) return;
     const box = host.getBoundingClientRect();
     const leg = $('.gt-stage__leg', host)!.getBoundingClientRect();
-    ctrl.frame({ top: Math.max(12, leg.bottom - box.top + 8), bottom: sheet.hidden ? 12 : sheet.offsetHeight + 8 });
+    ctrl.frame({ top: Math.max(12, leg.bottom - box.top + 8), bottom: sheet.hidden ? 12 : sheet.offsetHeight + 8 }, { fit, reveal: sheet.hidden ? null : selected });
   }
   function renderSelected() {
     const f = file!, id = selected!;
     if (inFull()) {
       sheet.innerHTML = countryPanelHtml(f, yi(), id, true);
-      const opening = sheet.hidden;
       sheet.hidden = false;
       sheet.classList.remove('is-full');
-      if (opening) frame();
+      frame();
     } else {
       country.innerHTML = countryPanelHtml(f, yi(), id);
       country.hidden = false;
@@ -280,7 +281,7 @@ export function initMapView(root: HTMLElement): void {
     fullMap.append(host);
     full.showModal();
     if (selected) renderSelected();
-    start().then(() => { ctrl?.resize(); frame(); });
+    start().then(() => { ctrl?.resize(); frame(true); });
   }
   function closeFull() { if (full.open) full.close(); }
   full.addEventListener('close', () => {
@@ -290,7 +291,7 @@ export function initMapView(root: HTMLElement): void {
     // A country picked on the full-screen map is shown in the inline panel when the map closes.
     if (selected) renderSelected();
     ctrl?.resize();
-    ctrl?.frame({ top: 16, bottom: 16 });
+    ctrl?.frame({ top: 16, bottom: 16 }, { fit: true });
     root.querySelector<HTMLElement>('[data-show-map]')?.focus();
   });
   // Escape closes the country sheet first, then the map.

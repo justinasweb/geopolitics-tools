@@ -55,8 +55,10 @@ export interface MapController {
   select: (id: string | null) => void;
   setBloc: (members: string[] | null) => void;
   zoom: (how: 'in' | 'out' | 'reset') => void;
-  /** Fits the world into the part of the map that nothing covers (the phone map's legend and sheet). */
-  frame: (pad: { top: number; bottom: number }) => void;
+  /** Sets the part of the map that nothing covers (the phone map's legend and sheet). With `fit`, fits the default view
+   *  into it (first open, a new layer or layout); otherwise keeps the reader's centre and zoom, only moving the padding,
+   *  and with `reveal` pans just enough, at the same zoom, to bring that place out from under what covers the map. */
+  frame: (pad: { top: number; bottom: number }, how?: { fit?: boolean; reveal?: string | null }) => void;
   resize: () => void;
   /** The screen point of a place's largest shape, for a keyboard user's tooltip. */
   pointOf: (id: string) => { x: number; y: number } | null;
@@ -366,7 +368,7 @@ export function createMap(container: HTMLElement, base: Basemap, first: LayerFil
       year = next.data.length - 1;
       if (next.bounds) {
         home = next.bounds;
-        if (ready) map.fitBounds(home, { padding: fitPad, duration: reduced() ? 0 : 300 });
+        if (ready) map.fitBounds(home, { padding: fitPad, absolutePadding: true, duration: reduced() ? 0 : 300 });
       } else home = HOME_BOUNDS;
       if (!ready) return;
       map.setPaintProperty('fill', 'fill-color', fillOf(next));
@@ -400,12 +402,36 @@ export function createMap(container: HTMLElement, base: Basemap, first: LayerFil
       const opts = { duration: reduced() ? 0 : 300 };
       if (how === 'in') map.zoomIn(opts);
       else if (how === 'out') map.zoomOut(opts);
-      else map.fitBounds(home, { padding: fitPad, ...opts });
+      else map.fitBounds(home, { padding: fitPad, absolutePadding: true, ...opts });
     },
-    frame({ top, bottom }) {
+    frame({ top, bottom }, how = {}) {
       const pad = { top, bottom, left: 12, right: 12 };
       fitPad = pad;
-      map.fitBounds(home, { padding: pad, duration: reduced() ? 0 : 300 });
+      const duration = reduced() ? 0 : 300;
+      // `absolutePadding`: the fit's padding becomes the map's own, not added to it (MapLibre adds the two otherwise,
+      // and a sheet's padding counted twice leaves no room to fit the world, so the fit would do nothing).
+      if (how.fit) { map.fitBounds(home, { padding: pad, absolutePadding: true, duration }); return; }
+      // The centre stays the same place at the same zoom; with new padding it sits in the middle of the free area. A
+      // point's offset from the centre in pixels does not depend on the padding, so where the place will be is known
+      // before the move.
+      const was = map.getPadding();
+      const now = map.project(map.getCenter());
+      const W = container.clientWidth, H = container.clientHeight;
+      const to = { x: (W + pad.left - pad.right) / 2, y: (H + pad.top - pad.bottom) / 2 };
+      let dx = 0, dy = 0;
+      const c = how.reveal ? centres.get(how.reveal) : undefined;
+      if (c) {
+        const p = map.project(c as [number, number]);
+        const x = p.x - now.x + to.x, y = p.y - now.y + to.y;
+        const m = 24;
+        const [x0, x1, y0, y1] = [pad.left + m, W - pad.right - m, pad.top + m, H - pad.bottom - m];
+        if (x0 < x1) dx = x < x0 ? x - x0 : x > x1 ? x - x1 : 0;
+        if (y0 < y1) dy = y < y0 ? y - y0 : y > y1 ? y - y1 : 0;
+      }
+      const same = was.top === pad.top && was.bottom === pad.bottom && was.left === pad.left && was.right === pad.right;
+      if (same && !dx && !dy) return;
+      const center = dx || dy ? map.unproject([now.x + dx, now.y + dy]) : map.getCenter();
+      map.easeTo({ padding: pad, center, zoom: map.getZoom(), duration });
     },
     resize() { map.resize(); },
     pointOf(id) {
