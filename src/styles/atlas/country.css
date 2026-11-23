@@ -23,6 +23,12 @@
 .gt-cphead__map { display: grid; gap: 6px; }
 .gt-cploc { aspect-ratio: 4 / 3; background: var(--paper-raised); border: 1px solid var(--rule); position: relative; overflow: hidden; }
 .gt-cploc .gt-mapbox { position: absolute; inset: 0; padding: 0; height: 100%; }
+/* The locator as a link to the Atlas: the border darkens on hover and focus. */
+.gt-cploc--link { display: block; cursor: pointer; transition: border-color .15s; }
+.gt-cploc--link:hover, .gt-cploc--link:focus-visible { border-color: var(--ink); }
+.gt-cploc--link:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.gt-cploc__go { margin: 0; }
+.gt-cploc__go a { font: 600 15px/22px var(--sans); color: var(--brand); }
 .gt-cploc .gt-world__svg { height: 100%; }
 .gt-cploc .gt-world__c.is-muted { opacity: 1; }
 .gt-world__ring { fill: none; stroke: var(--accent); stroke-width: 2.5; vector-effect: non-scaling-stroke; }

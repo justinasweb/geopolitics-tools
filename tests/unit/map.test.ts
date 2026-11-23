@@ -75,6 +75,16 @@ describe('basemap', () => {
     }
   });
 
+  it('keeps the smallest places, simplified away otherwise, and marks those too small to see for a ring', () => {
+    // Monaco and Tuvalu would vanish at the basemap's tolerance: they keep their outlines, so the Atlas can select them
+    // (country pages link their locator to it).
+    for (const id of ['MCO', 'TUV', 'NRU', 'SMR', 'DEU', 'JPN']) expect(B.onBasemap(id)).toBe(true);
+    const tiny = (id: string) => B.basemap().countries.features.filter((f) => f.properties.id === id).every((f) => f.properties.tiny);
+    for (const id of ['MCO', 'TUV', 'NRU', 'SMR']) expect(tiny(id)).toBe(true);
+    // Tiny is the whole place: Australia's small territories share its id, and Australia is not tiny.
+    for (const id of ['DEU', 'JPN', 'AUS']) expect(B.basemap().countries.features.some((f) => f.properties.id === id && f.properties.tiny)).toBe(false);
+  });
+
   it('draws disputed land boundaries as lines, and no coastlines among them', () => {
     const { disputed } = B.basemap();
     const names = disputed.features.map((f) => f.properties.name);

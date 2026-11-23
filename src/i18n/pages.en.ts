@@ -149,6 +149,9 @@ export const COUNTRY_TEXT = {
   allCountries: 'All countries',
   boundaries: 'Boundaries: Natural Earth 1:50m, which shows who controls an area in practice. Borders shown do not imply endorsement.',
   locator: (name: string) => `Locator map: ${name}`,
+  /** The locator map and the line under it link to the Atlas with the place selected. */
+  openAtlas: (name: string) => `Open ${name} in the Atlas`,
+  openAtlasLink: 'Open in the Atlas',
   keyFigures: 'Key figures',
   rank: (r: string, of: number) => `${r} of ${of}`,
   onThisPage: 'On this page',

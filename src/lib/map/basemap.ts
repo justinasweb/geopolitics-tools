@@ -40,10 +40,10 @@ function simplify(pts: Pt[], tol: number): Pt[] {
 }
 
 const r4 = (v: number) => Math.round(v * 1e4) / 1e4;
-/** Projects, simplifies and writes a line in map coordinates (see projection.ts). */
-function line(pts: Pt[], closed: boolean): Pt[] | null {
+/** Projects, simplifies and writes a line in map coordinates (see projection.ts); `tol` 0 keeps every point. */
+function line(pts: Pt[], closed: boolean, tol = TOLERANCE): Pt[] | null {
   const projected = pts.map(([lon, lat]) => equalEarth(lon, lat));
-  const s = simplify(projected, TOLERANCE);
+  const s = tol ? simplify(projected, tol) : projected;
   if (closed && s.length < 4) return null;
   if (!closed && s.length < 2) return null;
   return s.map(([x, y]) => [r4((x / X_MAX) * 180), r4(mapLatOfY(y))]);
@@ -52,8 +52,12 @@ function line(pts: Pt[], closed: boolean): Pt[] | null {
 /** Antarctica is left out, as on the static maps: no source in the site reports it. */
 const SKIP = new Set(['ATA']);
 
+/** A place whose whole shape spans less than this (map units, about 14 px at the map's closest zoom) is `tiny`: too
+ *  small to see when selected, so the map draws a ring round it, as the country pages' locator does. */
+export const TINY_SPAN = 0.6;
+
 export interface Basemap {
-  countries: { type: 'FeatureCollection'; features: { type: 'Feature'; properties: { id: string | null; code: string; name?: string }; geometry: { type: 'MultiPolygon'; coordinates: Pt[][][] } }[] };
+  countries: { type: 'FeatureCollection'; features: { type: 'Feature'; properties: { id: string | null; code: string; name?: string; tiny?: true }; geometry: { type: 'MultiPolygon'; coordinates: Pt[][][] } }[] };
   disputed: { type: 'FeatureCollection'; features: { type: 'Feature'; properties: { name: string }; geometry: { type: 'MultiLineString'; coordinates: Pt[][] } }[] };
   /** Natural Earth codes and the place each maps to, for tests and the docs. */
   source: string;
@@ -69,11 +73,26 @@ export function basemap(): Basemap {
     const code = f.properties.adm0_a3;
     if (SKIP.has(code)) continue;
     const polys = (f.geometry.type === 'Polygon' ? [f.geometry.coordinates] : f.geometry.coordinates) as Ring[][];
-    const out = polys.map((p) => p.map((r) => line(r, true)).filter((r): r is Pt[] => r !== null)).filter((p) => p.length);
+    let out = polys.map((p) => p.map((r) => line(r, true)).filter((r): r is Pt[] => r !== null)).filter((p) => p.length);
+    // A place simplification would wipe out (Monaco, Tuvalu) keeps its outlines as drawn, so it can still be selected
+    // and ringed.
+    if (!out.length) out = polys.map((p) => p.map((r) => line(r, true, 0)).filter((r): r is Pt[] => r !== null)).filter((p) => p.length);
     if (!out.length) continue;
     const id = m.match(code);
     // A shape that maps to no place (the Siachen Glacier) keeps its Natural Earth name for the tooltip.
     countries.push({ type: 'Feature', properties: id ? { id, code } : { id, code, name: f.properties.name }, geometry: { type: 'MultiPolygon', coordinates: out } });
+  }
+  // Tiny: the place's shapes together (Australia's small territories share its id, Australia is not tiny).
+  const span = new Map<string, [number, number, number, number]>();
+  for (const f of countries) {
+    if (!f.properties.id) continue;
+    const b = span.get(f.properties.id) ?? [Infinity, -Infinity, Infinity, -Infinity];
+    for (const p of f.geometry.coordinates) for (const [x, y] of p[0]) { b[0] = Math.min(b[0], x); b[1] = Math.max(b[1], x); b[2] = Math.min(b[2], y); b[3] = Math.max(b[3], y); }
+    span.set(f.properties.id, b);
+  }
+  for (const f of countries) {
+    const b = f.properties.id ? span.get(f.properties.id)! : null;
+    if (b && Math.max(b[1] - b[0], b[3] - b[2]) < TINY_SPAN) f.properties.tiny = true;
   }
   const disputed: Basemap['disputed']['features'] = read('ne_50m_disputed.json').features.map((f) => ({
     type: 'Feature', properties: { name: f.properties.name },
@@ -104,6 +123,9 @@ export function anchors(): Record<string, [number, number]> {
   }
   return Object.fromEntries([...best].map(([id, b]) => [id, b.at]));
 }
+
+/** Whether a place has a shape on the interactive maps (the Atlas can select and frame it). */
+export const onBasemap = (id: string) => basemap().countries.features.some((f) => f.properties.id === id);
 
 /** A place's box in map coordinates, [[west, south], [east, north]]: its largest shape's, so far islands are left out. */
 export function boxOf(id: string): [[number, number], [number, number]] | null {
