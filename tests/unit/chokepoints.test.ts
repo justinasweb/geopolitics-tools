@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { parseChokepoints, sameDaysBefore, slugOf, statusFor, usualRange, yearsBefore } from '../../src/adapters/portwatch.ts';
-import { freshImport, FRESH_HOURS, lastWeek, months, statusLine, tankerShare } from '../../src/lib/chokepoints.ts';
+import { freshImport, FRESH_HOURS, lastWeek, months, statusLine, tankerShare, weekByYear } from '../../src/lib/chokepoints.ts';
 import { dailyChartHtml, dailyTicks } from '../../src/lib/dailychart.ts';
-import { changeCell, changeWords, ships, tonnes } from '../../src/i18n/chokepoints.en.ts';
+import { changeCell, changeWords, ships, tonnes, yearsText } from '../../src/i18n/chokepoints.en.ts';
 
 const DAY = 86_400_000;
 const iso = (t: number) => new Date(t).toISOString().slice(0, 10);
@@ -102,10 +102,14 @@ describe('chokepoints', () => {
   it('gives a place page its status line, last week by vessel type, and months with the usual level', () => {
     const daily = { features: rows('chokepoint1', 'Suez Canal', '2022-10-01', '2026-11-15', (d) => (d >= '2026-11-09' ? 44 : 40)) };
     const [c] = parseChokepoints(meta([['chokepoint1', 'Suez Canal']]), daily);
-    expect(statusLine(c)).toBe('Traffic in the week to 15 Nov 2026 was 10% above usual, compared with the same week in 2023–2025.');
+    expect(statusLine(c)).toBe('Traffic in the week to 15 Nov 2026 was 10% above usual, compared with the same week in 2023–25.');
     expect(lastWeek(c).find((r) => r.type === 'n_tanker')).toEqual({ type: 'n_tanker', ships: 22, cargo: 44_000 });
     expect(lastWeek(c).at(-1)).toEqual({ type: 'all', ships: 44, cargo: 66_000 });
     expect(tankerShare(c)).toBe(0.5);
+    // The same week in each of the three years before and this year, beside the median.
+    expect(weekByYear(c)).toEqual([2023, 2024, 2025].map((year) => ({ year, total: 280, days: 7, used: true })).concat({ year: 2026, total: 308, days: 7, used: true }));
+    expect(yearsText([2023, 2025])).toBe('2023–25');
+    expect(yearsText([1998, 2000])).toBe('1998–2000');
     const m = months(c);
     // Twelve months newest first; November 2026 runs to the 15th; November 2025, begun mid-month, is left out.
     expect(m).toHaveLength(12);

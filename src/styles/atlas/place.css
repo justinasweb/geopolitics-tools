@@ -3,6 +3,15 @@
    mapview.css), never from these blocks. */
 .gt-hzkf { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
 .gt-hzkf .gt-pkf { padding-top: 14px; border-top: 2px solid var(--ink); }
+/* The same week in each year beside the chokepoint's median (ChokepointPage): one line that wraps by year. */
+.gt-cpyears { display: grid; gap: 6px; margin-top: 16px; }
+.gt-cpyears__list { display: flex; flex-wrap: wrap; gap: 4px 0; margin: 0; padding: 0; list-style: none; font: 400 15px/22px var(--sans); }
+.gt-cpyears__list li { white-space: nowrap; }
+.gt-cpyears__list li + li::before { content: "·"; margin: 0 10px; color: var(--ink-muted); }
+.gt-cpyears__list span { color: var(--ink-muted); }
+.gt-cpyears__list b { font-weight: 600; font-variant-numeric: tabular-nums lining-nums; }
+.gt-cpyears__list .is-unused b { font-weight: 400; color: var(--ink-muted); }
+.gt-cpyears .gt-caption { margin: 0; max-width: 72ch; }
 .gt-hzgrid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 32px; align-items: start; }
 .gt-hzgrid__a, .gt-hzgrid__b { display: grid; gap: 28px; align-content: start; min-width: 0; }
 .gt-hzsec { display: grid; gap: 12px; padding-top: 12px; border-top: 1px solid var(--rule); min-width: 0; }

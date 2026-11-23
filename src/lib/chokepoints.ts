@@ -2,7 +2,7 @@
 // (src/adapters/portwatch.ts), imported by hand once a month (D22). They are live while the imported files are in the
 // snapshot and under 45 days old (the import's `staleAfter`, pipeline/sources/imported.ts): monthly figures any older
 // would not say what "the last 7 days" means. Every sentence and figure here comes with its last data day.
-import { chokepoints, sameDaysBefore, VESSEL_TYPES, type Chokepoint, type Status, type VesselType } from '../adapters/portwatch.ts';
+import { chokepoints, sameDaysBefore, VESSEL_TYPES, yearsBefore, type Chokepoint, type Status, type VesselType } from '../adapters/portwatch.ts';
 import { IMPORTED } from '../../pipeline/sources/imported.ts';
 import { CHOKEPOINTS_TEXT as T, changeWords, count, dayRange, ships, yearsText } from '../i18n/chokepoints.en.ts';
 import { data, shared } from './data.ts';
@@ -85,6 +85,18 @@ export function statusLine(c: Chokepoint): string {
   if (c.avg7 === null) return T.noRecent(formatDate(c.lastDate));
   if (c.change === null || !c.baseYears) return T.noUsual(formatDate(c.lastDate), ships(c.avg7));
   return T.statusLine(changeWords(c.change), formatDate(c.lastDate), yearsText(c.baseYears));
+}
+
+/** The last 7 days and the same 7 days in each of the three years before, oldest first: the crossings counted, on how
+ *  many of the days, and whether the usual level used that year. */
+export function weekByYear(c: Chokepoint): { year: number; total: number | null; days: number; used: boolean }[] {
+  if (!c.week || !c.lastDate) return [];
+  const dates = c.series.slice(-7).map((d) => d.date);
+  const last = Number(c.lastDate.slice(0, 4));
+  return [3, 2, 1, 0].map((k) => {
+    const vs = dates.map((d) => (k ? c.byDate.get(yearsBefore(d, k)) : c.byDate.get(d))).filter((v): v is number => typeof v === 'number');
+    return { year: last - k, total: vs.length ? vs.reduce((a, b) => a + b, 0) : null, days: vs.length, used: k === 0 || c.baseWeeks.some((w) => w.year === last - k) };
+  });
 }
 
 const avg = (xs: (number | null)[]) => {

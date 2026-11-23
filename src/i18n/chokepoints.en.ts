@@ -32,8 +32,8 @@ export function dayRange(from: string, to: string, { short = false, year = false
 /** A whole count of crossings: "16", "1,053". */
 export const count = (n: number) => Math.round(n).toLocaleString('en');
 
-/** The years a comparison uses: "2023–2025". */
-export const yearsText = (y: [number, number]) => (y[0] === y[1] ? String(y[0]) : `${y[0]}–${y[1]}`);
+/** The years a comparison uses: "2023–25" ("2019–2021" across a century, "2024" for one). */
+export const yearsText = (y: [number, number]) => (y[0] === y[1] ? String(y[0]) : y[0].toString().slice(0, 2) === y[1].toString().slice(0, 2) ? `${y[0]}–${String(y[1]).slice(2)}` : `${y[0]}–${y[1]}`);
 
 export const CHOKEPOINTS_TEXT = {
   section: 'Chokepoints',
@@ -99,9 +99,15 @@ export const CHOKEPOINTS_TEXT = {
   noUsual: (date: string, avg: string) => `${avg} ships a day crossed in the week to ${date}; fewer than two of the three years before have counts for that week, so there is no usual level to compare with.`,
   kfWeek: 'Last 7 days',
   kfWeekMeta: (date: string) => `ships a day, average · week to ${date}`,
-  kfUsual: 'Same week, earlier years',
-  kfUsualMeta: (years: string) => `ships a day · median of ${years}`,
+  kfAgainst: (years: string) => `Against the ${years} median`,
+  kfAgainstNone: 'Against earlier years',
+  kfAgainstMeta: (median: string) => `median ${median} ships a day`,
   kfUsualNone: 'fewer than two earlier years with counts',
+  /** The same week in each year, beside the median it gives: "Crossings on 9–15 Nov: 2023 544 · 2024 260 …". */
+  yearsLabel: (days: string) => `Crossings on ${days}, by year`,
+  yearsNone: 'no count',
+  yearsPart: (n: string, days: number) => (days === 7 ? n : `${n} (${days} of 7 days)`),
+  yearsNote: (years: string) => `The median: each year’s average a day over these seven days, ${years}, and the middle one of them (the mean of two where only two years have counts for at least five of the days).`,
   kfTankers: 'Tankers',
   kfTankersMeta: (date: string) => `of ships · week to ${date}`,
   where: 'Where it is',
