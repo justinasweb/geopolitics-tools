@@ -153,6 +153,25 @@ describe('chokepoints', () => {
     expect(html).toContain('>2026</text>');
   });
 
+  it('labels the daily chart’s months with each label’s own year on the first and on January', () => {
+    // 12 months from 16 Nov 2025, as on a chokepoint page: the first label is December 2025, not 2026.
+    const start = Date.parse('2025-11-16T00:00:00Z');
+    const points = Array.from({ length: 365 }, (_, i) => ({ date: iso(start + i * DAY), value: 50, range: null }));
+    const html = dailyChartHtml({ label: 'Crossings', points, format: ships });
+    const labels = [...html.matchAll(/<g(?: class="([^"]*)")?><line[^>]*><\/line>((?:<text[^>]*>[^<]*<\/text>)+)<\/g>/g)]
+      .map((m) => ({ text: [...m[2].matchAll(/>([^<]*)<\/text>/g)].map((t) => t[1]).join(' '), wide: /gt-tc__wide/.test(m[1] ?? ''), cls: m[1] ?? '' }))
+      .filter((l) => /^[A-Z]/.test(l.text)); // month labels, not the value axis
+    expect(labels.map((l) => l.text)).toEqual(['Dec 2025', 'Jan 2026', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov']);
+    // The two with a year always show; in a narrow column the others thin out to every third month from the last of
+    // them (12 labels are too tight for every other one), none crowding them.
+    expect(labels.filter((l) => !l.wide).map((l) => l.text)).toEqual(['Dec 2025', 'Jan 2026', 'Apr', 'Jul', 'Oct']);
+    // December and January, a month apart, lean away from each other in a narrow column.
+    expect(labels.slice(0, 2).map((l) => l.cls)).toEqual(['gt-tc__end', 'gt-tc__start']);
+    // A series that starts in January gives its year once, on that label.
+    const jan = dailyChartHtml({ label: 'x', points: Array.from({ length: 60 }, (_, i) => ({ date: iso(Date.parse('2026-01-01T00:00:00Z') + i * DAY), value: 1, range: null })), format: ships });
+    expect(jan.match(/>2026<\/text>/g)).toHaveLength(1);
+  });
+
   it('reads the status from the change as shown, so the two never disagree', () => {
     // −9.7% shows as −10%, so it is 10% to 30% below; −9.4% shows as −9%, near usual.
     expect([changeCell(-0.097), statusFor(-0.097)]).toEqual(['−10%', 'below']);

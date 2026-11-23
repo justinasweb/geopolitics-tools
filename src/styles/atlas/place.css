@@ -45,7 +45,7 @@
 .gt-tc__line { fill: none; stroke: var(--ink); stroke-width: 1.4; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
 .gt-tc__dot { fill: var(--accent); stroke: var(--paper-raised); stroke-width: 2; }
 .gt-tc__lab { font-weight: 600; font-size: 13px; fill: var(--ink); }
-@container (max-width: 439px) { .gt-tc__wide { display: none; } }
+@container (max-width: 439px) { .gt-tc__wide { display: none; } .gt-tc__end text { text-anchor: end; } .gt-tc__start text { text-anchor: start; } }
 
 /* Tables: a month or vessel type stays on one line; the table scrolls in its box on a phone. */
 .gt-hztable th[scope=row] { white-space: nowrap; }

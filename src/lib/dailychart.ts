@@ -1,6 +1,6 @@
 // The daily chart on place pages (svg.gt-tc, PlaceBlocks design): a value for each day of 12 months as a line, the
 // usual range shaded behind it (with gaps where a day has none), the latest value marked and labelled, months along
-// the bottom. Drawn as linechart.ts draws (no viewBox: as wide as its column and `height` pixels tall, text placed in
+// the bottom with the year under the first and under each January. Drawn as linechart.ts draws (no viewBox: as wide as its column and `height` pixels tall, text placed in
 // percent of the plot, the line and band in a nested SVG stretched over the plot, strokes that do not stretch), so
 // its text stays at the design sizes at any width. Under 440px fewer month labels show (place.css).
 import { CHART_TICK_PX, NARROWEST, textWidth } from './chart.ts';
@@ -32,7 +32,7 @@ function runs(n: number, ok: (i: number) => boolean): [number, number][] {
 }
 
 export function dailyChartHtml({ label, points, format, height = 240 }: { label: string; points: DailyPoint[]; format: (v: number) => string; height?: number }): string {
-  const H = height, T = 12, B = 30, PW = 1000;
+  const H = height, T = 12, B = 44, PW = 1000;
   const n = points.length;
   const max = Math.max(0, ...points.flatMap((p) => [p.value ?? 0, p.range?.[1] ?? 0]));
   const ticks = dailyTicks(max);
@@ -58,18 +58,28 @@ export function dailyChartHtml({ label, points, format, height = 240 }: { label:
     return `<path class="gt-tc__line" d="${d}"></path>`;
   }).join('');
 
-  // A label at the first day of each month: the year in January, the month otherwise; every other month in a
-  // narrow column (three months apart under 288px).
-  const firsts = points.map((p, i) => ({ p, i })).filter(({ p }) => p.date.endsWith('-01'));
+  // A label at the first day of each month: its month, and on the first label and each January a second line with
+  // that day's own year ("Dec / 2025", "Jan / 2026"). Those always show; in a narrow column every other month shows
+  // (three months apart under 288px), counted from the last label with a year, leaving out one too close to the next.
+  const firsts = points.map((p, i) => ({ p, i }))
+    // Too close to the right edge for its words: left out.
+    .filter(({ p, i }) => p.date.endsWith('-01') && i / Math.max(1, n - 1) <= 0.97);
   const narrowEvery = (NARROWEST - L - R) / Math.max(1, firsts.length) < 36 ? 3 : 2;
+  const withYear = (k: number) => k === 0 || firsts[k].p.date.slice(5, 7) === '01';
+  const always = firsts.map((_f, k) => k).filter(withYear);
   const months = firsts.map(({ p, i }, k) => {
     const m = Number(p.date.slice(5, 7)) - 1;
-    // January is labelled with its year, so the year change reads without a longer label.
-    const text = m === 0 ? p.date.slice(0, 4) : MONTHS[m];
-    const cls = (firsts.length - 1 - k) % narrowEvery === 0 ? '' : ' class="gt-tc__wide"';
-    // Too close to the right edge for its words: left out.
-    if (i / Math.max(1, n - 1) > 0.97) return '';
-    return `<g${cls}><line class="gt-tc__grid" x1="${pct(i)}" x2="${pct(i)}" y1="${H - B}" y2="${H - B + 4}"></line><text x="${pct(i)}" y="${H - 10}" text-anchor="middle" font-weight="${m === 0 ? 600 : 400}">${esc(text)}</text></g>`;
+    const year = withYear(k) ? p.date.slice(0, 4) : '';
+    const prev = Math.max(...always.filter((a) => a <= k));
+    const next = Math.min(...always.filter((a) => a > k), Infinity);
+    const narrow = year !== '' || ((k - prev) % narrowEvery === 0 && next - k >= narrowEvery);
+    // Two labels with a year a month apart (the first in December, then January): in a narrow column they lean away
+    // from each other (place.css), so the years do not run together.
+    const lean = year && always.includes(k + 1) && k + 1 === always[always.indexOf(k) + 1] ? 'gt-tc__end' : year && always.includes(k - 1) ? 'gt-tc__start' : '';
+    const cls = [narrow ? '' : 'gt-tc__wide', lean].filter(Boolean).join(' ');
+    return `<g${cls ? ` class="${cls}"` : ''}><line class="gt-tc__grid" x1="${pct(i)}" x2="${pct(i)}" y1="${H - B}" y2="${H - B + 4}"></line>`
+      + `<text x="${pct(i)}" y="${H - B + 18}" text-anchor="middle">${esc(MONTHS[m])}</text>`
+      + (year ? `<text x="${pct(i)}" y="${H - B + 34}" text-anchor="middle" font-weight="600">${esc(year)}</text>` : '') + '</g>';
   }).join('');
   const grid = ticks.map((t) => `<g><line class="gt-tc__grid" x1="0" x2="100%" y1="${y(t)}" y2="${y(t)}"></line><text x="-8" y="${y(t) + 4}" text-anchor="end">${esc(format(t))}</text></g>`).join('');
   const dot = lastIndex >= 0
