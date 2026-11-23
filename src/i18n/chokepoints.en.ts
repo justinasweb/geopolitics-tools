@@ -70,15 +70,25 @@ export const CHOKEPOINTS_TEXT = {
   dayCounts: (n: string, usual: string, days: string) => `${n} crossings a day on ${days}, against a usual ${usual}`,
   ledeNone: (date: string, all: number) => `In the week to ${date}, none of the ${all} chokepoints had counts for the same week in at least two of the three years before, so none can be compared.`,
   usualNote: 'Usual: the same week in each of the three years before (the median of their averages); no status where fewer than two of those years have counts.',
+  /** Read from the whole percent shown (statusFor), so the bands meet exactly: −30% is the first "30% or more below",
+   *  −9% and +14% are near usual. */
   status: {
-    disrupted: '30% or more below usual',
-    below: '10% to 30% below usual',
-    normal: 'Near usual',
-    above: '15% or more above usual',
+    disrupted: '30% or more below',
+    below: '10% to 29% below',
+    normal: 'Near usual (9% below to 14% above)',
+    above: '15% or more above',
     unknown: 'No recent data',
   } as Record<Status, string>,
+  /** The same in a sentence or a count ("3 chokepoints 30% or more below usual"). */
+  statusUsual: {
+    disrupted: '30% or more below usual',
+    below: '10% to 29% below usual',
+    normal: 'near usual (9% below to 14% above)',
+    above: '15% or more above usual',
+    unknown: 'no recent data',
+  } as Record<Status, string>,
   /** Short words for the table. */
-  statusShort: { disrupted: '30%+ below', below: '10–30% below', normal: 'Near usual', above: '15%+ above', unknown: 'No data' } as Record<Status, string>,
+  statusShort: { disrupted: '30%+ below', below: '10–29% below', normal: 'Near usual', above: '15%+ above', unknown: 'No data' } as Record<Status, string>,
   legend: (days: string, years: string) => `Crossings a day on ${days}, against the same week in ${years}`,
   noShading: 'Countries are not shaded on this map',
   keys: 'Map. Arrow keys move the map, plus and minus zoom, N and P step through the chokepoints, furthest below usual first, Enter opens the page of the one shown, Escape clears it. The same figures are in the table of all chokepoints below.',

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { parseChokepoints, sameDaysBefore, slugOf, statusFor, usualRange, yearsBefore } from '../../src/adapters/portwatch.ts';
 import { freshImport, FRESH_HOURS, lastWeek, months, statusLine, tankerShare, weekByYear } from '../../src/lib/chokepoints.ts';
 import { dailyChartHtml, dailyTicks } from '../../src/lib/dailychart.ts';
-import { changeCell, changeWords, ofCount, ships, tonnes, yearsText } from '../../src/i18n/chokepoints.en.ts';
+import { CHOKEPOINTS_TEXT as X, changeCell, changeWords, ofCount, ships, tonnes, yearsText } from '../../src/i18n/chokepoints.en.ts';
 
 const DAY = 86_400_000;
 const iso = (t: number) => new Date(t).toISOString().slice(0, 10);
@@ -160,6 +160,8 @@ describe('chokepoints', () => {
     expect([changeCell(0.146), statusFor(0.146)]).toEqual(['+15%', 'above']);
     expect([changeCell(0.144), statusFor(0.144)]).toEqual(['+14%', 'normal']);
     expect([changeCell(-0.297), statusFor(-0.297)]).toEqual(['−30%', 'disrupted']);
+    // The words name the bands exactly as the whole percent shown falls in them.
+    expect(X.status).toMatchObject({ disrupted: '30% or more below', below: '10% to 29% below', normal: 'Near usual (9% below to 14% above)', above: '15% or more above' });
     // At a half the shown number and the status still agree, whichever way it rounds.
     for (const c of [-0.295, -0.095, 0.145, -0.3, -0.1, 0.15]) {
       const shown = Number(changeCell(c).replace('−', '-').replace('%', ''));

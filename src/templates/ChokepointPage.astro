@@ -112,7 +112,7 @@ const cite = `${creditLine('portwatch')}, ${X.dataTo(last)}.`;
               <text x={(loc.scale.px / 2).toFixed(1)} y="-8" text-anchor="middle">{loc.scale.km.toLocaleString('en')} km</text>
             </g>
           </svg>
-          <figcaption class="gt-loc__key"><span><MarkIcon symbol={`cp-${c.status}`} />{X.locKey}: {X.status[c.status]}</span></figcaption>
+          <figcaption class="gt-loc__key"><span><MarkIcon symbol={`cp-${c.status}`} />{X.locKey}: {X.statusUsual[c.status]}</span></figcaption>
         </figure>
       </section>
 

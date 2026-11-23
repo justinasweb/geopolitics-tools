@@ -64,7 +64,7 @@ const related = [
       </div>
       <div class="gt-panel__body">
         <ul class="gt-devents">
-          {STATUSES.filter((s) => counts[s]).map((s) => <li><MarkIcon symbol={`cp-${s}`} /><span><b>{counts[s]}</b> {X.status[s]}</span></li>)}
+          {STATUSES.filter((s) => counts[s]).map((s) => <li><MarkIcon symbol={`cp-${s}`} /><span><b>{counts[s]}</b> {X.statusUsual[s]}</span></li>)}
         </ul>
         <div class="gt-pgroup">
           <span class="gt-label">{X.furthest}</span>
