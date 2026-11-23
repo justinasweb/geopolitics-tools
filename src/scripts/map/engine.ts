@@ -60,6 +60,8 @@ export interface MapController {
   resize: () => void;
   /** The screen point of a place's largest shape, for a keyboard user's tooltip. */
   pointOf: (id: string) => { x: number; y: number } | null;
+  /** The screen point of a mark's position (an overlay point's `at`), for the same tooltip. */
+  pointAt: (at: [number, number]) => { x: number; y: number };
   remove: () => void;
 }
 
@@ -410,6 +412,10 @@ export function createMap(container: HTMLElement, base: Basemap, first: LayerFil
       const c = centres.get(id);
       if (!c) return null;
       const p = map.project(c as [number, number]);
+      return { x: p.x, y: p.y };
+    },
+    pointAt(at) {
+      const p = map.project(at);
       return { x: p.x, y: p.y };
     },
     remove() { map.remove(); },

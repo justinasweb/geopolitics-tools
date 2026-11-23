@@ -47,6 +47,7 @@ export function initMapView(root: HTMLElement): void {
   let selected: string | null = null;
   let bloc: string | null = null;
   let kbd: string | null = null;
+  let kbdMark = -1;
 
   const isPhone = () => getComputedStyle(stageMap).display === 'none';
   const yi = () => Math.max(0, file?.years.indexOf(year) ?? 0);
@@ -229,6 +230,19 @@ export function initMapView(root: HTMLElement): void {
           },
           key(k) {
             const order = f.data[yi()].order;
+            // A layer of marks only (the chokepoints) has no places in order: N and P step through its linked marks
+            // instead, in the layer's order (furthest below first), saying each one's tooltip; Enter opens its page.
+            const marks = order.length ? [] : (f.overlays ?? []).flatMap((o) => (o.kind === 'points' ? o.items.filter((p) => p.href) : []));
+            if (marks.length) {
+              if (k === 'next' || k === 'prev') {
+                kbdMark = kbdMark < 0 ? (k === 'next' ? 0 : marks.length - 1) : (kbdMark + (k === 'next' ? 1 : marks.length - 1)) % marks.length;
+                const m = marks[kbdMark];
+                showTip(`<span>${esc(m.tip)}</span>`, ctrl!.pointAt(m.at));
+                say(m.tip);
+              } else if (k === 'open') { if (kbdMark >= 0) location.assign(marks[kbdMark].href!); }
+              else { kbdMark = -1; hideTip(); }
+              return;
+            }
             if (k === 'next' || k === 'prev') {
               if (!order.length) return;
               const at = order.indexOf(kbd ?? selected ?? '');

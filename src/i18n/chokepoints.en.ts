@@ -81,6 +81,7 @@ export const CHOKEPOINTS_TEXT = {
   statusShort: { disrupted: '30%+ below', below: '10–30% below', normal: 'Near usual', above: '15%+ above', unknown: 'No data' } as Record<Status, string>,
   legend: (days: string, years: string) => `Crossings a day on ${days}, against the same week in ${years}`,
   noShading: 'Countries are not shaded on this map',
+  keys: 'Map. Arrow keys move the map, plus and minus zoom, N and P step through the chokepoints, furthest below usual first, Enter opens the page of the one shown, Escape clears it. The same figures are in the table of all chokepoints below.',
   mark: 'Shipping chokepoint',
   mapLabel: (n: number, below: number, days: string) => `Map of ${n} shipping chokepoints, ${below} with 10% or more fewer crossings on ${days} than in the same week in the three years before. The same figures are in the table below.`,
   tip: (name: string, status: string, avg: string, days: string) => `${name}: ${status}, ${avg} crossings a day on ${days}`,
