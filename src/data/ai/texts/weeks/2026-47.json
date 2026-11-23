@@ -16,7 +16,7 @@
     "week"
   ],
   "drafted": "2026-11-23",
-  "approved": false,
-  "approvedOn": null,
-  "approvedVia": null
+  "approved": true,
+  "approvedOn": "2026-11-23",
+  "approvedVia": "telegram"
 }
