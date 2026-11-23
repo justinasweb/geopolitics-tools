@@ -140,6 +140,7 @@ describe('chokepoints', () => {
     expect([ships(0.04), ships(0.05)]).toEqual(['under 0.1', '0.1']);
     expect([ofCount(3, 3), ofCount(2, 3), ofCount(0, 3)]).toEqual(['all 3', '2 of 3', 'none of 3']);
     expect([tonnes(1_234_567), tonnes(830_400), tonnes(486), tonnes(250_000_000)]).toEqual(['1.2 million tonnes', '830,000 tonnes', '486 tonnes', '250 million tonnes']);
+    expect([tonnes(1_234_567, false), tonnes(830_400, false)]).toEqual(['1.2 million', '830,000']);
   });
 
   it('draws the daily chart with a gap in the band where a day has no range', () => {

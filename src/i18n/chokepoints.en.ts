@@ -8,8 +8,9 @@ import { wholePercent, type Status } from '../adapters/portwatch.ts';
 export const ships = (n: number) => (n === 0 ? '0' : n < 0.05 ? 'under 0.1' : new Intl.NumberFormat('en', { maximumFractionDigits: n >= 10 ? 0 : 1 }).format(n));
 /** Part of a small count, in place of a share: "all 3", "2 of 3", "none of 3". */
 export const ofCount = (part: number, total: number) => (part === total ? `all ${count(total)}` : part === 0 ? `none of ${count(total)}` : `${count(part)} of ${count(total)}`);
-/** Metric tonnes as the pages say them: "1.2 million tonnes", "830,000 tonnes". */
-export const tonnes = (t: number) => (t >= 1e6 ? `${new Intl.NumberFormat('en', { maximumFractionDigits: t >= 1e8 ? 0 : 1 }).format(t / 1e6)} million tonnes` : `${new Intl.NumberFormat('en', { maximumSignificantDigits: 3 }).format(t)} tonnes`);
+/** Metric tonnes as the pages say them: "1.2 million tonnes", "830,000 tonnes"; without the unit in a column that
+ *  names it ("1.2 million", "830,000"). */
+export const tonnes = (t: number, unit = true) => `${t >= 1e6 ? `${new Intl.NumberFormat('en', { maximumFractionDigits: t >= 1e8 ? 0 : 1 }).format(t / 1e6)} million` : new Intl.NumberFormat('en', { maximumSignificantDigits: 3 }).format(t)}${unit ? ' tonnes' : ''}`;
 /** A change against the usual level, as the whole percent the status is read from ("12% below", "3% above", "at"). */
 export function changeWords(change: number): string {
   const p = wholePercent(change);
@@ -146,15 +147,17 @@ export const CHOKEPOINTS_TEXT = {
   cargoCaption: 'Daily averages for the five vessel types PortWatch counts: tankers, container ships, bulk carriers, general cargo and ro-ro (vehicles). Cargo is PortWatch’s estimate in metric tonnes, from each ship’s size and signals.',
   colType: 'Vessel type',
   colShips: 'Crossings a day',
-  colCargo: 'Estimated cargo a day',
+  colCargo: 'Estimated tonnes a day',
   all: 'All vessel types',
   months: 'Crossings by month',
-  monthsCaption: 'Crossings, all five vessel types. Against usual: the month’s crossings a day against the same days in the three years before (the median of their averages); – where fewer than two of those years have counts.',
+  monthsCaption: 'Crossings, all five vessel types. Against usual: the month’s crossings a day against the same days in the three years before (the median of their averages); – where fewer than two of those years have counts. A month the data ends in part-way says the day it runs to, and its tonnes are for those days only.',
   colMonth: 'Month',
   colTransits: 'Crossings',
   colPerDay: 'Per day',
   colAgainst: 'Against usual',
-  colCargoMonth: 'Estimated cargo',
+  // No "preliminary, may be revised" note: PortWatch's description of the dataset (ArcGIS item 3da2b9ca97684916b75c4013f95d18ab,
+  // Daily_Chokepoints_Data, read 23 Nov 2026) defines the counts and the payload estimates but says nothing of revisions.
+  colCargoMonth: 'Estimated tonnes in the month',
   partMonth: (month: string, to: string) => `${month} (to ${to})`,
   types: { n_tanker: 'Tankers', n_container: 'Container ships', n_dry_bulk: 'Bulk carriers', n_general_cargo: 'General cargo', n_roro: 'Ro-ro (vehicles)' } as Record<string, string>,
   other: 'Other',
