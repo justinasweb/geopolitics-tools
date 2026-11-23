@@ -132,15 +132,17 @@ export function writeText(t: StoredText, root = process.cwd()): void {
   writeFileSync(p, joinMd({ lines, body: kindOf(t.id) === 'page' ? `\n${t.text.trim()}\n` : md.body }));
 }
 
-/** The hash a stored text's facts have now: of the facts it uses, or of the whole file for a text saved before. */
-export const currentHash = (t: Pick<StoredText, 'usedFacts'>, facts: FactsFile) => factsHash(facts, t.usedFacts);
+/** The hash a stored text's facts have now: of what it shows of the facts it uses (read again from its text, so a
+ *  figure that would now read differently changes it), or of the whole file for a long text or one saved before. */
+export const currentHash = (t: Pick<StoredText, 'usedFacts' | 'text'>, facts: FactsFile) =>
+  (t.usedFacts ? factsHash(facts, t.usedFacts, checkDraft(t.text, facts).shown) : factsHash(facts));
 
 /** The facts a text uses and their hash, for saving it: from the checker's matches. Long pages and hub intros are
  *  mostly prose the checker cannot tie to facts, so they keep the whole file's hash. */
 export function usage(id: string, text: string, facts: FactsFile): Pick<StoredText, 'usedFacts' | 'factsHash'> {
   if (isLong(id)) return { usedFacts: undefined, factsHash: factsHash(facts) };
-  const usedFacts = checkDraft(text, facts).used;
-  return { usedFacts, factsHash: factsHash(facts, usedFacts) };
+  const { used: usedFacts, shown } = checkDraft(text, facts);
+  return { usedFacts, factsHash: factsHash(facts, usedFacts, shown) };
 }
 
 /** Where a text stands against its current facts. A hand-written text is the owner's and is never stale. */
@@ -178,10 +180,13 @@ export function approveText(id: string, facts: FactsFile, o: ApproveOptions, roo
   if (t.author === 'owner') throw new Error(`${id}: the owner wrote this text; it needs no approval.`);
   const refused = refusals(facts);
   if (refused.length) throw new Error(`${id}: its facts are not ready:\n${refused.join('\n')}`);
-  if (t.factsHash !== currentHash(t, facts)) throw new Error(`${id}: its facts changed since it was drafted (${t.factsHash ?? 'no hash'} → ${currentHash(t, facts)}); redraft it.`);
   if (o.textHash && o.textHash !== textHash(t.text)) throw new Error(`${id}: the text changed since it was sent for review; review it again.`);
+  // A figure that no longer reads as its fact both fails the check and moves the hash (what the text shows changed),
+  // whether the facts changed or the text was edited: the message gives both, with the check's reasons.
+  const stale = t.factsHash !== currentHash(t, facts);
   const r = checkDraft(t.text, facts);
-  if (!r.ok) throw new Error(`${id}: the text no longer passes the check:\n${problemLines(r).join('\n')}`);
+  if (!r.ok) throw new Error(`${id}: the text no longer passes the check${stale ? ' (its facts changed since it was drafted, or the text was edited: redraft it)' : ''}:\n${problemLines(r).join('\n')}`);
+  if (stale) throw new Error(`${id}: its facts changed since it was drafted (${t.factsHash ?? 'no hash'} → ${currentHash(t, facts)}); redraft it.`);
   const out = { ...t, approved: true, approvedOn: o.on, approvedVia: o.via, skipped: undefined };
   writeText(out, root);
   return out;

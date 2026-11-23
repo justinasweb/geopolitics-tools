@@ -3,7 +3,7 @@
   "author": "ai",
   "text": "Denmark, Ireland and the United Kingdom joined in 1973, Greece in 1981, and Portugal and Spain in 1986. The Maastricht Treaty came into force in 1993, founding the European Union. Austria, Finland and Sweden joined in 1995; Cyprus, Czechia, Estonia, Hungary, Latvia, Lithuania, Malta, Poland, Slovakia and Slovenia in 2004; Bulgaria and Romania in 2007; and Croatia in 2013. The United Kingdom left on 31 January 2020.",
   "model": "manual (Claude chat)",
-  "factsHash": "sha256:bc0a0d8ec9e97ca7fd436836d46edd35",
+  "factsHash": "sha256:ba7025a7309847bad563e0d983e7c081",
   "usedFacts": [
     "founding-members",
     "join-AUT-1995",

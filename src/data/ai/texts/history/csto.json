@@ -3,7 +3,7 @@
   "author": "ai",
   "text": "Belarus, Azerbaijan and Georgia joined in 1993. Azerbaijan, Georgia and Uzbekistan did not renew the treaty and left in 1999, and the treaty's members founded the Collective Security Treaty Organization in 2002. Uzbekistan rejoined in 2006 and suspended its membership in 2012. Armenia froze its participation in 2024 but has not left.",
   "model": "manual (Claude chat)",
-  "factsHash": "sha256:e2360f62c30b84de57b44ece7e6f9534",
+  "factsHash": "sha256:bac69537e0f539950f388240391d0185",
   "usedFacts": [
     "join-AZE-1993",
     "join-BLR-1993",

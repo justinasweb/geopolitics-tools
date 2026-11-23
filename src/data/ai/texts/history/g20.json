@@ -3,7 +3,7 @@
   "author": "ai",
   "text": "Finance ministers and central bank governors met as the G20 before leaders held the first G20 summit in 2008. The African Union became a member in 2023.",
   "model": "manual (Claude chat)",
-  "factsHash": "sha256:3cc6128696de925c26862869f4c263e2",
+  "factsHash": "sha256:f97822bf14c2bf6c3ec654145dc5cad3",
   "usedFacts": [
     "countries-2026",
     "note-2008",

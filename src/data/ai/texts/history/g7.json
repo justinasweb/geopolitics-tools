@@ -3,7 +3,7 @@
   "author": "ai",
   "text": "Canada joined in 1976. Russia joined in 1998, and the group became the G8. The other members suspended their participation in the G8 in March 2014, and the group met as the G7 again from 2014.",
   "model": "manual (Claude chat)",
-  "factsHash": "sha256:e1e8c64fd26f72548ad3ce659bc1dbc7",
+  "factsHash": "sha256:d2e2d9536cebc7eb5f911090af46d1bc",
   "usedFacts": [
     "founding-members",
     "join-CAN-1976",

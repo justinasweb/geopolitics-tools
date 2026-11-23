@@ -3,7 +3,7 @@
   "author": "ai",
   "text": "Brunei joined in 1984. Vietnam joined in 1995, Laos and Myanmar in 1997, and Cambodia in 1999. Timor-Leste joined in 2025.",
   "model": "manual (Claude chat)",
-  "factsHash": "sha256:ac99ecf0ad0ce744f2993bdca1086ba0",
+  "factsHash": "sha256:3488fedb09f4f3feb126998e8e24e6fe",
   "usedFacts": [
     "join-BRN-1984",
     "join-KHM-1999",

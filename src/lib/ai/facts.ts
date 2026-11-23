@@ -80,13 +80,29 @@ export function canonical(v: unknown): string {
   return JSON.stringify(v);
 }
 
-/** The hash stored with a text: over what the text may say (subject, places, names) and the facts it uses, not over
- *  how or when the file was generated. With `used` (the fact ids the checker matched, ./check.ts) only those facts
- *  count, so a change to a fact the text does not use leaves it approved; a used fact that is gone counts as changed.
- *  Without it, every fact counts (texts saved before `usedFacts`). A fact's date (when the source was published or
- *  last refreshed), the owner's notes and the status field (its words are in the statement) are left out, so a weekly refresh that changes no figure, or a note, never
- *  forces a redraft. */
-export function factsHash(f: FactsFile, used?: string[]): string {
+/**
+ * The hash stored with a text, so a text whose facts changed is flagged (./store.ts).
+ *
+ * With `used` and `shown` (the fact ids the checker matched and how the text writes each figure, ./check.ts): only what
+ * the text shows of each used fact counts: its figure as the text writes it ("13%"; none for a fact the text uses for a
+ * year, place or name only), its period, its source, its places and its tag (Preliminary, Estimate, Projection). A
+ * figure is in `shown` only while the current value still reads that way, so a value that moves without changing what
+ * the text says (12.6185 → 12.6188, "13%" both times), a new fetch date, a reworded statement or link leaves the text
+ * approved; a figure that would read differently, a new year, source, place or tag, or a used fact that is gone,
+ * changes the hash.
+ *
+ * Without them, every fact counts (long pages and hub intros, which the checker cannot tie to single facts, and texts
+ * saved before `usedFacts`): over what the text may say (subject, places, names) and the facts, less their dates, the
+ * owner's notes and the status field (its words are in the statement).
+ */
+export function factsHash(f: FactsFile, used?: string[], shown?: Record<string, string[]>): string {
+  if (used && shown) {
+    const body = canonical([...new Set(used)].sort().map((id) => {
+      const x = f.facts.find((y) => y.id === id);
+      return x ? { id, shown: shown[id] ?? null, period: x.period ?? null, source: x.source, places: [...(x.places ?? [])].sort(), status: x.status ?? null } : { id, missing: true };
+    }));
+    return `sha256:${createHash('sha256').update(body).digest('hex').slice(0, 32)}`;
+  }
   // `status` is in the statement's words too, so a tag that changes still changes the hash.
   const strip = (x: Fact) => ({ ...x, date: undefined, note: undefined, status: undefined });
   const base = { id: f.id, subject: f.subject, countries: f.countries ?? [], names: f.names ?? [] };

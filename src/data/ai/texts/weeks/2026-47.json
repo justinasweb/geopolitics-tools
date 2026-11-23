@@ -3,7 +3,7 @@
   "author": "ai",
   "text": "In the week of 16–22 November 2026, GDACS issued no new orange or red disaster alerts, meaning no alerts began or rose to orange or red in the week. On the US Specially Designated Nationals (SDN) sanctions list, 34 entries were added and none removed. On the US Entity List for export controls, no entries were added or removed. On the EU's consolidated financial sanctions list, 34 entries were added and none removed. On the UK Sanctions List, 9 entries were added and 1 was removed. The countries named most often in the new entries, by address or nationality, are Russia, Canada and Ukraine. An entry can be a person, company, ship or aircraft; the figures count entries, not how strict the measures are.",
   "model": "claude-sonnet-5-5",
-  "factsHash": "sha256:03bafdd8e77ceca2529bb2ad8760102d",
+  "factsHash": "sha256:cfd0b90d0a1a8d649a2697f7599c56f0",
   "usedFacts": [
     "alerts",
     "sanctions-eu-added",
