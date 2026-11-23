@@ -113,11 +113,15 @@ describe('Compare model', () => {
 });
 
 describe('Compare markup', () => {
-  it('names both countries with their side’s colour and marker, and the gaps under the table', () => {
+  it('names both countries with their side’s marker, no colour words, and the gaps under the table', () => {
     const html = keyHtml(meta, [mali, tuvalu]);
     expect(html).toContain('gt-cchip gt-cc--first');
     expect(html).toContain('gt-cchip gt-cc--second');
-    expect(html).toContain('<span class="gt-cchip__col">blue</span>');
+    expect(html).not.toContain('gt-cchip__col');
+    expect(html).not.toMatch(/\b(blue|orange)\b/);
+    // Every chip keeps its marker: the square for the first country, the triangle for the second.
+    const chips = html.match(/<(a|span) class="gt-cchip gt-cc--(first|second)"[^>]*><svg[^>]*>.*?<\/svg>/g) ?? [];
+    expect(chips).toHaveLength(html.match(/class="gt-cchip /g)!.length);
     expect(html).toContain('<b>Not available for both.</b> No data for Mali');
     expect(html.match(/<tr>/g)).toHaveLength(2);
     expect(html).not.toMatch(/gt-cc--(us|cn|ru)/);

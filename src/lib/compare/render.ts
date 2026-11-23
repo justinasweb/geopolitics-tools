@@ -15,11 +15,11 @@ export const esc = (s: string | number) => String(s).replace(/[&<>"']/g, (c) => 
 
 type Two = [CountryData, CountryData];
 
-/** A country's chip: its marker, its name and, with `colour`, the colour's name. Linked to its page when `link`. */
-export function chipHtml(side: Side, d: CountryData, opts: { colour?: boolean; link?: boolean } = {}): string {
+/** A country's chip: its marker and its name. Linked to its page when `link`. */
+export function chipHtml(side: Side, d: CountryData, opts: { link?: boolean } = {}): string {
   const tag = opts.link && d.href ? 'a' : 'span';
   return `<${tag} class="gt-cchip gt-cc--${side}"${tag === 'a' ? ` href="${esc(d.href!)}"` : ''}><svg viewBox="0 0 12 12" aria-hidden="true">${MARK[side]}</svg>`
-    + `<b>${esc(d.name)}</b>${opts.colour ? `<span class="gt-cchip__col">${esc(T.colours[side])}</span>` : ''}</${tag}>`;
+    + `<b>${esc(d.name)}</b></${tag}>`;
 }
 
 /** The source line (SourceLine component). */
@@ -61,7 +61,7 @@ export function keyHtml(meta: Meta, c: Two): string {
   const gapLine = groups.length || over.length ? `<p class="gt-caption gt-cmpgaps"><b>${esc(T.notBoth)}</b> ${esc(T.notCompared(groups, over))}</p>` : '';
   if (!rows.length) return sectionHtml(1, 'kf', T.keyHeading, '', gapLine);
   const head = `<th scope="col"><span class="gt-th">${esc(T.measure)}</span></th>`
-    + SIDES.map((s, i) => `<th scope="col" class="n"><span class="gt-th">${chipHtml(s, c[i], { colour: true })}</span></th>`).join('')
+    + SIDES.map((s, i) => `<th scope="col" class="n"><span class="gt-th">${chipHtml(s, c[i])}</span></th>`).join('')
     + `<th scope="col"><span class="gt-th">${esc(T.source)}</span></th>`;
   const body = rows.map((r) => {
     const unit = unitOf(r);
@@ -121,4 +121,4 @@ export function compareHtml(meta: Meta, c: Two): string {
 }
 
 /** The chips under the heading, linked to each country's page. */
-export const keyChipsHtml = (c: Two) => SIDES.map((s, i) => chipHtml(s, c[i], { colour: true, link: true })).join('');
+export const keyChipsHtml = (c: Two) => SIDES.map((s, i) => chipHtml(s, c[i], { link: true })).join('');

@@ -304,7 +304,6 @@ export const COMPARE_TEXT = {
   others: 'Other comparisons',
   change: 'Change',
   /** The first and second country's colour, named on their chips (tokens cmp-first and cmp-second). */
-  colours: { first: 'blue', second: 'orange' } as Record<string, string>,
   /** Before the measures not compared. */
   notBoth: 'Not available for both.',
   /** "No data for Mali: satellites, launches (source: CelesTrak); for either: AI computing power (source: Epoch AI).
