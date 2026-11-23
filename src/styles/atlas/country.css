@@ -23,6 +23,14 @@
 .gt-cphead__map { display: grid; gap: 6px; }
 .gt-cploc { aspect-ratio: 4 / 3; background: var(--paper-raised); border: 1px solid var(--rule); position: relative; overflow: hidden; }
 .gt-cploc .gt-mapbox { position: absolute; inset: 0; padding: 0; height: 100%; }
+/* The locator as a link to the Atlas: the border darkens on hover and focus. */
+.gt-cploc--link { display: block; cursor: pointer; transition: border-color .15s; }
+.gt-cploc--link:hover, .gt-cploc--link:focus-visible { border-color: var(--ink); }
+.gt-cploc--link:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+/* The map's shapes set their own cursor (maps.css); inside the link, the sea, shapes, outline and ring point too. */
+.gt-cploc--link .gt-smap, .gt-cploc--link .gt-smap * { cursor: pointer; }
+.gt-cploc__go { margin: 0; }
+.gt-cploc__go a { font: 600 15px/22px var(--sans); color: var(--brand); }
 .gt-cploc .gt-world__svg { height: 100%; }
 .gt-cploc .gt-world__c.is-muted { opacity: 1; }
 .gt-world__ring { fill: none; stroke: var(--accent); stroke-width: 2.5; vector-effect: non-scaling-stroke; }
@@ -137,7 +145,6 @@
 .gt-cchip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px; border: 1px solid var(--rule-strong); background: var(--paper-raised); font: 400 14px/20px var(--sans); color: var(--ink); white-space: nowrap; }
 .gt-cchip svg { width: 12px; height: 12px; fill: var(--cc); flex: none; }
 .gt-cchip b { font-weight: 600; }
-.gt-cchip__col { color: var(--ink-muted); font-size: 13px; }
 .gt-cchip button { border: 0; background: none; padding: 2px; margin: -2px -4px -2px 0; color: var(--ink-muted); cursor: pointer; display: inline-flex; }
 .gt-cchip button .gt-ico { width: 14px; height: 14px; }
 .gt-ckey { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -192,7 +199,6 @@
 .gt-cmprows__v { font: 600 18px/24px var(--sans); font-variant-numeric: tabular-nums; }
 .gt-cmpswitch { position: sticky; top: 0; z-index: 3; display: flex; justify-content: space-between; align-items: center; gap: 8px; background: var(--paper); border-block: 1px solid var(--rule); padding: 8px 16px; margin: 0 -16px; }
 .gt-cmpswitch__c { display: flex; flex-wrap: wrap; gap: 6px; }
-.gt-cmpswitch .gt-cchip__col { display: none; }
 /* profile blocks and map grid */
 .gt-cpblocks { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
 .gt-cpblock { display: grid; gap: 10px; align-content: start; border: 1px solid var(--rule); background: var(--paper-raised); padding: 16px; }
@@ -269,7 +275,6 @@
   .gt-pairs > li { grid-template-columns: minmax(0, 1fr); gap: 6px; }
   .gt-pairs ul li { grid-template-columns: 104px minmax(0, 1fr) 64px; }
   .gt-cmp2 { gap: 36px; }
-  .gt-blocs .gt-cchip__col { display: none; }
   .gt-blocs .gt-mem { font-size: 0; gap: 0; } .gt-blocs .gt-mem svg { width: 14px; height: 14px; }
   .gt-blocs .gt-na { font-size: 0; } .gt-blocs .gt-na::before { content: "–"; font-size: 15px; }
   .gt-shared { display: block; width: max-content; margin: 4px 0 0; }

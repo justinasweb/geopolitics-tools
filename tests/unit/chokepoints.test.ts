@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { parseChokepoints, sameDaysBefore, slugOf, statusFor, usualRange, yearsBefore } from '../../src/adapters/portwatch.ts';
-import { freshImport, FRESH_HOURS, lastWeek, months, statusLine, tankerShare } from '../../src/lib/chokepoints.ts';
+import { freshImport, FRESH_HOURS, lastWeek, months, statusLine, tankerShare, weekByYear } from '../../src/lib/chokepoints.ts';
 import { dailyChartHtml, dailyTicks } from '../../src/lib/dailychart.ts';
-import { changeCell, changeWords, ships, tonnes } from '../../src/i18n/chokepoints.en.ts';
+import { CHOKEPOINTS_TEXT as X, changeCell, changeWords, ofCount, ships, tonnes, yearsText } from '../../src/i18n/chokepoints.en.ts';
 
 const DAY = 86_400_000;
 const iso = (t: number) => new Date(t).toISOString().slice(0, 10);
@@ -67,10 +67,12 @@ describe('chokepoints', () => {
     const dates = ['2026-11-09', '2026-11-10', '2026-11-11', '2026-11-12', '2026-11-13', '2026-11-14', '2026-11-15'];
     const by = new Map<string, number | null>();
     for (const d of dates) { by.set(yearsBefore(d, 1), 50); by.set(yearsBefore(d, 2), 70); by.set(yearsBefore(d, 3), 90); }
-    expect(sameDaysBefore(dates, by)).toEqual({ median: 70, years: [2023, 2025] });
+    expect(sameDaysBefore(dates, by)).toMatchObject({ median: 70, years: [2023, 2025] });
+    // Each year's week, oldest first, for the page to show beside the median.
+    expect(sameDaysBefore(dates, by)!.each).toEqual([{ year: 2023, avg: 90, total: 630, days: 7 }, { year: 2024, avg: 70, total: 490, days: 7 }, { year: 2025, avg: 50, total: 350, days: 7 }]);
     // A year with fewer than 5 of the 7 days counted is left out; two years give the median of two (their mean).
     for (const d of dates.slice(0, 3)) by.delete(yearsBefore(d, 3));
-    expect(sameDaysBefore(dates, by)).toEqual({ median: 60, years: [2024, 2025] });
+    expect(sameDaysBefore(dates, by)).toMatchObject({ median: 60, years: [2024, 2025] });
     // Fewer than two years: no usual level, so no status.
     for (const d of dates) by.delete(yearsBefore(d, 2));
     expect(sameDaysBefore(dates, by)).toBeNull();
@@ -100,10 +102,14 @@ describe('chokepoints', () => {
   it('gives a place page its status line, last week by vessel type, and months with the usual level', () => {
     const daily = { features: rows('chokepoint1', 'Suez Canal', '2022-10-01', '2026-11-15', (d) => (d >= '2026-11-09' ? 44 : 40)) };
     const [c] = parseChokepoints(meta([['chokepoint1', 'Suez Canal']]), daily);
-    expect(statusLine(c)).toBe('Traffic in the week to 15 Nov 2026 was 10% above usual, compared with the same week in 2023–2025.');
+    expect(statusLine(c)).toBe('The Suez Canal averaged 44 crossings a day on 9–15 November; the median for that week in 2023–25 was 40 (10% above).');
     expect(lastWeek(c).find((r) => r.type === 'n_tanker')).toEqual({ type: 'n_tanker', ships: 22, cargo: 44_000 });
     expect(lastWeek(c).at(-1)).toEqual({ type: 'all', ships: 44, cargo: 66_000 });
     expect(tankerShare(c)).toBe(0.5);
+    // The same week in each of the three years before and this year, beside the median.
+    expect(weekByYear(c)).toEqual([2023, 2024, 2025].map((year) => ({ year, total: 280, days: 7, used: true })).concat({ year: 2026, total: 308, days: 7, used: true }));
+    expect(yearsText([2023, 2025])).toBe('2023–25');
+    expect(yearsText([1998, 2000])).toBe('1998–2000');
     const m = months(c);
     // Twelve months newest first; November 2026 runs to the 15th; November 2025, begun mid-month, is left out.
     expect(m).toHaveLength(12);
@@ -115,11 +121,26 @@ describe('chokepoints', () => {
     expect(m[1].to).toBeUndefined();
   });
 
+  it('leads a week of under one crossing a day with its count, and the vessel type when one has them all', () => {
+    // Kerch: 1 tanker on three of the last 7 days; 2, 1 and 15 a day the same week in 2023, 2024 and 2025.
+    const daily = { features: rows('chokepoint9', 'Kerch Strait', '2022-10-01', '2026-11-15', (d) => {
+      if (d >= '2026-11-09') return ['2026-11-10', '2026-11-13', '2026-11-15'].includes(d) ? 1 : 0;
+      return d.startsWith('2023') ? 2 : d.startsWith('2024') ? 1 : 15;
+    }) };
+    for (const f of daily.features) { const a = f.attributes; if (String(a.date) >= '2026-11-09') Object.assign(a, { n_tanker: a.n_total, n_container: 0, n_dry_bulk: 0 }); }
+    const [k] = parseChokepoints(meta([['chokepoint9', 'Kerch Strait']]), daily);
+    expect(statusLine(k)).toBe('The Kerch Strait recorded 3 crossings on 9–15 November, all by tankers; the median for that week in 2023–25 was 14 (79% below).');
+  });
+
   it('words changes, ships and tonnes', () => {
     expect([changeWords(-0.124), changeWords(0.03), changeWords(0.004)]).toEqual(['12% below', '3% above', 'at']);
     expect([changeCell(-0.124), changeCell(0.03), changeCell(0)]).toEqual(['−12%', '+3%', '0%']);
     expect([ships(96.4), ships(4.32), ships(0)]).toEqual(['96', '4.3', '0']);
+    // A count above zero never reads as zero.
+    expect([ships(0.04), ships(0.05)]).toEqual(['under 0.1', '0.1']);
+    expect([ofCount(3, 3), ofCount(2, 3), ofCount(0, 3)]).toEqual(['all 3', '2 of 3', 'none of 3']);
     expect([tonnes(1_234_567), tonnes(830_400), tonnes(486), tonnes(250_000_000)]).toEqual(['1.2 million tonnes', '830,000 tonnes', '486 tonnes', '250 million tonnes']);
+    expect([tonnes(1_234_567, false), tonnes(830_400, false)]).toEqual(['1.2 million', '830,000']);
   });
 
   it('draws the daily chart with a gap in the band where a day has no range', () => {
@@ -132,6 +153,25 @@ describe('chokepoints', () => {
     expect(html).toContain('>2026</text>');
   });
 
+  it('labels the daily chart’s months with each label’s own year on the first and on January', () => {
+    // 12 months from 16 Nov 2025, as on a chokepoint page: the first label is December 2025, not 2026.
+    const start = Date.parse('2025-11-16T00:00:00Z');
+    const points = Array.from({ length: 365 }, (_, i) => ({ date: iso(start + i * DAY), value: 50, range: null }));
+    const html = dailyChartHtml({ label: 'Crossings', points, format: ships });
+    const labels = [...html.matchAll(/<g(?: class="([^"]*)")?><line[^>]*><\/line>((?:<text[^>]*>[^<]*<\/text>)+)<\/g>/g)]
+      .map((m) => ({ text: [...m[2].matchAll(/>([^<]*)<\/text>/g)].map((t) => t[1]).join(' '), wide: /gt-tc__wide/.test(m[1] ?? ''), cls: m[1] ?? '' }))
+      .filter((l) => /^[A-Z]/.test(l.text)); // month labels, not the value axis
+    expect(labels.map((l) => l.text)).toEqual(['Dec 2025', 'Jan 2026', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov']);
+    // The two with a year always show; in a narrow column the others thin out to every third month from the last of
+    // them (12 labels are too tight for every other one), none crowding them.
+    expect(labels.filter((l) => !l.wide).map((l) => l.text)).toEqual(['Dec 2025', 'Jan 2026', 'Apr', 'Jul', 'Oct']);
+    // December and January, a month apart, lean away from each other in a narrow column.
+    expect(labels.slice(0, 2).map((l) => l.cls)).toEqual(['gt-tc__end', 'gt-tc__start']);
+    // A series that starts in January gives its year once, on that label.
+    const jan = dailyChartHtml({ label: 'x', points: Array.from({ length: 60 }, (_, i) => ({ date: iso(Date.parse('2026-01-01T00:00:00Z') + i * DAY), value: 1, range: null })), format: ships });
+    expect(jan.match(/>2026<\/text>/g)).toHaveLength(1);
+  });
+
   it('reads the status from the change as shown, so the two never disagree', () => {
     // −9.7% shows as −10%, so it is 10% to 30% below; −9.4% shows as −9%, near usual.
     expect([changeCell(-0.097), statusFor(-0.097)]).toEqual(['−10%', 'below']);
@@ -139,6 +179,8 @@ describe('chokepoints', () => {
     expect([changeCell(0.146), statusFor(0.146)]).toEqual(['+15%', 'above']);
     expect([changeCell(0.144), statusFor(0.144)]).toEqual(['+14%', 'normal']);
     expect([changeCell(-0.297), statusFor(-0.297)]).toEqual(['−30%', 'disrupted']);
+    // The words name the bands exactly as the whole percent shown falls in them.
+    expect(X.status).toMatchObject({ disrupted: '30% or more below', below: '10% to 29% below', normal: 'Near usual (9% below to 14% above)', above: '15% or more above' });
     // At a half the shown number and the status still agree, whichever way it rounds.
     for (const c of [-0.295, -0.095, 0.145, -0.3, -0.1, 0.15]) {
       const shown = Number(changeCell(c).replace('−', '-').replace('%', ''));

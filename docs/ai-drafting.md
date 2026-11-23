@@ -48,15 +48,19 @@ lists the `countries` and `names` (treaties, dams, groupings) a text may name. O
   "rejoined", and a territory note names its place ("Falkland Islands: …"), never only its id.
 - **`sample: true`** marks a file generated from the sample data; it is refused the same way. Run `npm run data:pull`
   before `ai:facts` so the dossier files come from the real snapshot.
-- **The hash** stored with each text (`factsHash`) covers the subject, places and names, and the facts the text
-  uses, but not the facts' dates or notes, so a weekly refresh that changes no figure does not make a text stale.
+- **The hash** stored with each text (`factsHash`) covers what the text shows of the facts it uses: each figure as
+  the text writes it (`checkDraft(...).shown`, "13%"), and each used fact's period, source, places and tag. Not the
+  unrounded values, fetch dates, statements, links or notes: a refresh that moves a value without changing how it
+  reads (12.6185 → 12.6188, still "13%") leaves the text approved; a figure that would read differently, a new year,
+  source, place or tag makes it stale. All texts were re-anchored to this hash on 23 Nov 2026.
 - **Used facts.** A short text (dossier, history, river, This week) is saved with `usedFacts`: the ids of the facts
   the checker matched (`checkDraft(...).used`). Those are each figure's fact; for a date, place, grouping name or
   comparison a sentence says without one of its figures' facts giving it, every fact that gives it; and the owner's
   own words. Only those facts are hashed, so a change to a fact the text does not use (a rank on another list, a new
-  fact) leaves it approved, and a used fact that changes or disappears makes it stale. Long pages and hub intros are
-  mostly prose that the checker cannot tie to single facts, so they keep the whole file's hash; so do texts saved
-  before `usedFacts` (6 Nov 2026), until they are saved again.
+  fact) leaves it approved, and a used fact whose shown parts change, or that disappears, makes it stale. Long pages
+  and hub intros are mostly prose that the checker cannot tie to single facts, so they keep the whole file's hash
+  (subject, places, names and every fact, less dates, notes and status); so do texts saved before `usedFacts`
+  (6 Nov 2026), until they are saved again.
 
 Dossier facts are generated again at build time from the data being built, so a dossier summary disappears as soon as
 a figure it was drafted from changes (a new year, a revision) until it is redrafted and approved. History and river

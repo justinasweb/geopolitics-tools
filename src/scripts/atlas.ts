@@ -452,19 +452,25 @@ export function initAtlas(root: HTMLElement): void {
     renderYear();
     renderLegend();
     renderPanel();
+    frame(true);
     drawOverlays();
   }
 
   // ---------- the map ----------
-  /** Fits the world into what the legend, the year card and the sheets leave free (a phone), or the whole map. */
-  function frame() {
+  /** The map's free area: what the legend, the year card and the sheets leave (a phone), or the whole map. `fit` fits
+   *  the world into it (the map's first draw, a new layer, a switch between phone and desktop); otherwise the reader's
+   *  centre and zoom stay, and the picked place is panned out from under the sheet if it is hidden. `focus` frames the
+   *  selected place with its neighbours in place of the world (arriving with ?country=, from a country page). */
+  function frame(fit = false, focus = false) {
     if (!ctrl) return;
-    if (!phone) { ctrl.frame({ top: 16, bottom: 16 }); return; }
+    const reveal = fit ? null : state.country ?? null;
+    const how = { fit: fit && !(focus && state.country), reveal, focus: focus ? state.country ?? null : null };
+    if (!phone) { ctrl.frame({ top: 16, bottom: 16 }, how); return; }
     const box = host.getBoundingClientRect();
     const top = legend.getBoundingClientRect().bottom - box.top + 8;
     const sheetUp = root.classList.contains('is-country') ? panel.offsetHeight : 0;
     const bottom = Math.max(sheetUp, $('.gt-atdock')!.offsetHeight + (yearCard.hidden ? 0 : yearCard.offsetHeight)) + 24;
-    ctrl.frame({ top: Math.max(12, top), bottom });
+    ctrl.frame({ top: Math.max(12, top), bottom }, how);
   }
   function start(): Promise<void> {
     if (starting) return starting;
@@ -489,7 +495,8 @@ export function initAtlas(root: HTMLElement): void {
             ctrl!.setAttribution(phone ? W.borders : null);
             ctrl!.setYear(yi());
             ctrl!.select(state.country ?? null);
-            frame();
+            // A country in the address (a country page's locator links here) is framed with its neighbours.
+            frame(true, true);
             drawOverlays();
           },
           error(message) { fail(message); },
@@ -589,6 +596,7 @@ export function initAtlas(root: HTMLElement): void {
     renderYear();
     renderPanel();
     renderBar();
+    frame(true);
     ctrl?.setAttribution(phone ? W.borders : null);
     ctrl?.resize();
   }

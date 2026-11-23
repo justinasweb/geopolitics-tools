@@ -35,8 +35,10 @@ interface Props {
     /** A named class drawn as a hatch of another class's colour (the layer file's `hatch`). */
     hatch?: { cls: number; label: string } };
   basemap?: string;
+  /** The map's keys for screen readers, where N and P step through something other than countries (the chokepoints). */
+  keys?: string;
 }
-const { layer, label, labels, title, legend, basemap = '/geo/basemap.json' } = Astro.props;
+const { layer, label, labels, title, legend, basemap = '/geo/basemap.json', keys = MAP_TEXT.keys } = Astro.props;
 // One band per tick on a sequential scale (fewer than five when quantile edges merged), its steps spread (seqSteps).
 const steps = legend.scale === 'seq' ? seqSteps(legend.ticks.length || 5) : [1, 2, 3, 4, 5, 6, 7];
 const n = steps.length;
@@ -45,7 +47,7 @@ const n = steps.length;
   <div class="gt-stage__map">
     <div class="gt-maphost">
       <div class="gt-mapcanvas" aria-label={label} data-label-by-year={labels} aria-describedby="mv-keys"></div>
-      <p class="gt-vh" id="mv-keys">{MAP_TEXT.keys}</p>
+      <p class="gt-vh" id="mv-keys">{keys}</p>
       <div class="gt-mapstate" data-map-state="loading"><p class="gt-mapstate__msg">{MAP_TEXT.loading}</p></div>
       <div class="gt-mapstate" data-map-state="error" hidden>
         <div class="gt-mapstate__err" role="alert">

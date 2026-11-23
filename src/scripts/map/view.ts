@@ -47,6 +47,7 @@ export function initMapView(root: HTMLElement): void {
   let selected: string | null = null;
   let bloc: string | null = null;
   let kbd: string | null = null;
+  let kbdMark = -1;
 
   const isPhone = () => getComputedStyle(stageMap).display === 'none';
   const yi = () => Math.max(0, file?.years.indexOf(year) ?? 0);
@@ -155,21 +156,22 @@ export function initMapView(root: HTMLElement): void {
   }
 
   const inFull = () => full.open;
-  // On the full-screen phone map, the world sits between the legend and the country sheet.
-  function frame() {
+  // On the full-screen phone map, the map's free area sits between the legend and the country sheet. Opening the map
+  // fits the world into it (`fit`); the sheet opening, closing or changing country keeps the reader's zoom and only
+  // pans, if need be, to bring the picked country out from under the sheet.
+  function frame(fit = false) {
     if (!ctrl || !inFull()) return;
     const box = host.getBoundingClientRect();
     const leg = $('.gt-stage__leg', host)!.getBoundingClientRect();
-    ctrl.frame({ top: Math.max(12, leg.bottom - box.top + 8), bottom: sheet.hidden ? 12 : sheet.offsetHeight + 8 });
+    ctrl.frame({ top: Math.max(12, leg.bottom - box.top + 8), bottom: sheet.hidden ? 12 : sheet.offsetHeight + 8 }, { fit, reveal: sheet.hidden ? null : selected });
   }
   function renderSelected() {
     const f = file!, id = selected!;
     if (inFull()) {
       sheet.innerHTML = countryPanelHtml(f, yi(), id, true);
-      const opening = sheet.hidden;
       sheet.hidden = false;
       sheet.classList.remove('is-full');
-      if (opening) frame();
+      frame();
     } else {
       country.innerHTML = countryPanelHtml(f, yi(), id);
       country.hidden = false;
@@ -229,6 +231,19 @@ export function initMapView(root: HTMLElement): void {
           },
           key(k) {
             const order = f.data[yi()].order;
+            // A layer of marks only (the chokepoints) has no places in order: N and P step through its linked marks
+            // instead, in the layer's order (furthest below first), saying each one's tooltip; Enter opens its page.
+            const marks = order.length ? [] : (f.overlays ?? []).flatMap((o) => (o.kind === 'points' ? o.items.filter((p) => p.href) : []));
+            if (marks.length) {
+              if (k === 'next' || k === 'prev') {
+                kbdMark = kbdMark < 0 ? (k === 'next' ? 0 : marks.length - 1) : (kbdMark + (k === 'next' ? 1 : marks.length - 1)) % marks.length;
+                const m = marks[kbdMark];
+                showTip(`<span>${esc(m.tip)}</span>`, ctrl!.pointAt(m.at));
+                say(m.tip);
+              } else if (k === 'open') { if (kbdMark >= 0) location.assign(marks[kbdMark].href!); }
+              else { kbdMark = -1; hideTip(); }
+              return;
+            }
             if (k === 'next' || k === 'prev') {
               if (!order.length) return;
               const at = order.indexOf(kbd ?? selected ?? '');
@@ -266,7 +281,7 @@ export function initMapView(root: HTMLElement): void {
     fullMap.append(host);
     full.showModal();
     if (selected) renderSelected();
-    start().then(() => { ctrl?.resize(); frame(); });
+    start().then(() => { ctrl?.resize(); frame(true); });
   }
   function closeFull() { if (full.open) full.close(); }
   full.addEventListener('close', () => {
@@ -276,7 +291,7 @@ export function initMapView(root: HTMLElement): void {
     // A country picked on the full-screen map is shown in the inline panel when the map closes.
     if (selected) renderSelected();
     ctrl?.resize();
-    ctrl?.frame({ top: 16, bottom: 16 });
+    ctrl?.frame({ top: 16, bottom: 16 }, { fit: true });
     root.querySelector<HTMLElement>('[data-show-map]')?.focus();
   });
   // Escape closes the country sheet first, then the map.

@@ -30,8 +30,10 @@ interface Props {
   fromData?: boolean;
   /** An extra class on the container (gt-cp--thin). */
   mainClass?: string;
+  /** The footer's line in place of the site's, for a section whose data is not updated daily (the chokepoints). */
+  footer?: string;
 }
-const { title, description, noindex = false, hub, wide = false, container = 'page', image, imageAlt, published, jsonld, fromData = true, mainClass } = Astro.props;
+const { title, description, noindex = false, hub, wide = false, container = 'page', image, imageAlt, published, jsonld, fromData = true, mainClass, footer } = Astro.props;
 const cls = [...(container === 'page' ? ['gt-page', { 'gt-page--wide': wide }] : [`gt-${container}`]), mainClass];
 ---
 <Base title={title} description={description} noindex={noindex} image={image} imageAlt={imageAlt} published={published} jsonld={jsonld} sample={fromData && data().sample}>
@@ -40,7 +42,7 @@ const cls = [...(container === 'page' ? ['gt-page', { 'gt-page--wide': wide }] :
   <main class:list={cls} id="top">
     <slot />
   </main>
-  <Footer />
+  <Footer tagline={footer} />
   <CorrectionForm />
   <SearchDialog />
 </Base>

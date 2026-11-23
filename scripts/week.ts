@@ -12,7 +12,9 @@
 // Both read the frozen week from data/raw/weeks/<id>.json (pipeline/pull.ts brings it from R2). Without --week they
 // take the last closed week. GITHUB_OUTPUT gets commit=true when the summary run saved files, and deploy=true when it
 // handled a newly archived week, so the archive page goes live (production rebuilds only on a deploy).
+import { execFile } from 'node:child_process';
 import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { promisify } from 'node:util';
 import { dirname, join } from 'node:path';
 import { TELEGRAM_TEXT as T } from '../src/i18n/telegram.en.ts';
 import { range } from '../src/i18n/week.en.ts';
@@ -98,16 +100,31 @@ export function digestPost(id: string, w: WeekData, summaryText: string | null, 
   return lines.join('\n');
 }
 
-export type DigestResult = 'holding' | 'not archived' | 'not live' | 'sent' | 'not sent';
+export type DigestResult = 'holding' | 'not archived' | 'not live' | 'deploy failed' | 'sent' | 'not sent';
 
-/** Sends the owner the digest for review, with Post and Don't post. */
-export async function digest(id: string, b: Bot, o: { holding: boolean; check?: (url: string) => Promise<number> }): Promise<DigestResult> {
+/** What the check of the week's page found: its status, and whether Cloudflare blocked the check itself (a 403 with
+ *  cf-mitigated or a challenge page), which says nothing about whether the page is live. */
+export interface PageCheck { status: number; blocked?: boolean }
+/** Whether a production deploy (ci.yml's production job) that includes the commit adding the week succeeded. */
+export interface DeployCheck { state: 'ok' | 'failed' | 'unknown'; detail: string }
+
+/** Sends the owner the digest for review, with Post and Don't post. It refuses only when the page is really missing
+ *  (404, 410) or the deploy failed: a check Cloudflare blocks, or that gets no answer or a server error, falls back to
+ *  the deploy, and the owner, who reviews every digest before it is posted, is told the page was not checked. */
+export async function digest(id: string, b: Bot, o: { holding: boolean; check?: (url: string) => Promise<PageCheck>; deployed?: (id: string) => Promise<DeployCheck> }): Promise<DigestResult> {
   if (o.holding) { say(T.digestHolding); return 'holding'; }
   const w = loadWeek(id);
   if (!w) { await b.send(T.digestNotArchived(weekNumber(id))); return 'not archived'; }
   const url = weekUrl(id);
-  const status = await (o.check ?? pageStatus)(url);
-  if (status !== 200) { await b.send(T.digestNotLive(url, status || 'no answer')); return 'not live'; }
+  const page = await (o.check ?? checkPage)(url);
+  if (page.status === 404 || page.status === 410) { await b.send(T.digestNotLive(url, page.status)); return 'not live'; }
+  if (page.status !== 200) {
+    const why = page.blocked ? T.digestBlocked(page.status) : page.status ? String(page.status) : 'no answer';
+    const d = await (o.deployed ?? productionDeployed)(id);
+    say(`week ${id}: could not check ${url} (${why}); deploy ${d.state}: ${d.detail}`);
+    if (d.state === 'failed') { await b.send(T.digestDeployFailed(url, why, d.detail)); return 'deploy failed'; }
+    await b.send(T.digestUnchecked(url, why, d.state === 'ok' ? d.detail : null));
+  }
   const s = publishedText(`week:${id}`);
   const post = digestPost(id, w, s && s.ai ? s.text : null);
   await b.send(escapeHtml(T.digestIntro(weekNumber(id))), { parse_mode: 'HTML' });
@@ -115,11 +132,54 @@ export async function digest(id: string, b: Bot, o: { holding: boolean; check?: 
   return sent ? 'sent' : 'not sent';
 }
 
-async function pageStatus(url: string): Promise<number> {
+/** Says who is asking, so the check is not taken for an anonymous bot (it runs from GitHub Actions). */
+export const DIGEST_AGENT = 'geopolitics-tools-digest (+https://geopolitics.tools)';
+
+/** Checks the week's page with a GET (some protections refuse HEAD) and tells a Cloudflare block apart from the page's
+ *  own answer. */
+export async function checkPage(url: string, get: typeof fetch = fetch): Promise<PageCheck> {
   try {
-    return (await fetch(url, { method: 'HEAD', redirect: 'manual' })).status;
+    const r = await get(url, { method: 'GET', redirect: 'manual', headers: { 'User-Agent': DIGEST_AGENT, Accept: 'text/html' } });
+    if (r.status !== 403) return { status: r.status };
+    if (r.headers.has('cf-mitigated')) return { status: 403, blocked: true };
+    const body = await r.text().catch(() => '');
+    return { status: 403, blocked: /challenge-platform|cf-chl|cf_chl_opt|Just a moment\.\.\.|Attention Required! \| Cloudflare/i.test(body) };
   } catch {
-    return 0;
+    return { status: 0 };
+  }
+}
+
+const run = promisify(execFile);
+/** `gh api` as JSON (GH_TOKEN in the workflow). */
+const ghApi = async (path: string): Promise<unknown> => JSON.parse((await run('gh', ['api', path], { maxBuffer: 16 * 1024 * 1024 })).stdout);
+
+/**
+ * The fallback when the page cannot be checked: the commit that added the week's facts (the summary run commits them
+ * and then starts the production deploy), and ci.yml's runs on main whose commit includes it. A successful production
+ * job among them means the week's page was deployed; only failed ones mean it was not. Anything else is unknown.
+ */
+export async function productionDeployed(id: string, api: (path: string) => Promise<unknown> = ghApi, repo = process.env.GITHUB_REPOSITORY): Promise<DeployCheck> {
+  if (!repo) return { state: 'unknown', detail: 'GITHUB_REPOSITORY is not set' };
+  try {
+    const path = `src/data/ai/facts/weeks/${id}.json`;
+    const commits = (await api(`repos/${repo}/commits?sha=main&path=${encodeURIComponent(path)}&per_page=1`)) as { sha: string }[];
+    const sha = commits[0]?.sha;
+    if (!sha) return { state: 'unknown', detail: `no commit on main adds ${path}` };
+    const { workflow_runs: runs } = (await api(`repos/${repo}/actions/workflows/ci.yml/runs?branch=main&per_page=30`)) as { workflow_runs: { id: number; head_sha: string; event: string; html_url: string }[] };
+    let failed: string | null = null;
+    for (const r of runs.filter((x) => x.event === 'push' || x.event === 'workflow_dispatch')) {
+      if (r.head_sha !== sha) {
+        const { status } = (await api(`repos/${repo}/compare/${sha}...${r.head_sha}`)) as { status: string };
+        if (status !== 'ahead' && status !== 'identical') continue;
+      }
+      const { jobs } = (await api(`repos/${repo}/actions/runs/${r.id}/jobs`)) as { jobs: { name: string; conclusion: string | null }[] };
+      const prod = jobs.find((j) => j.name === 'production');
+      if (prod?.conclusion === 'success') return { state: 'ok', detail: r.html_url };
+      if (prod?.conclusion === 'failure') failed ??= r.html_url;
+    }
+    return failed ? { state: 'failed', detail: failed } : { state: 'unknown', detail: `no finished production deploy includes ${sha.slice(0, 7)}` };
+  } catch (e) {
+    return { state: 'unknown', detail: `GitHub API: ${(e as Error).message.split('\n')[0]}` };
   }
 }
 

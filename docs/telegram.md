@@ -78,7 +78,12 @@ note and then the post exactly as the channel would get it:
 > The week's maps, figures and sources: https://geopolitics.tools/this-week/2026-45
 
 The counts are the three the week's cards give; a card with no new data that week is left out. Before sending, the
-script checks the archive page answers on the site; if not, it tells the owner and sends nothing.
+script checks the archive page with a GET (User-Agent `geopolitics-tools-digest`). A 404 or 410 means it is not live:
+the owner is told and nothing is sent. When the check itself fails (Cloudflare answers GitHub Actions with a 403
+challenge, `cf-mitigated`; or no answer, or a server error), it checks the production deploy instead through `gh api`:
+ci.yml's runs on main that include the commit adding the week's facts. A failed deploy sends nothing; a successful
+one, or one it cannot find, sends the digest with a note that the page was not checked (the owner reviews it before
+tapping Post). From 23 Nov 2026, after week 47's digest stopped on such a 403.
 
 **Holding page.** Nothing is posted while the site is on the holding page, checked three times: the Worker does not
 start the digest while `HOLDING` is `true`, `week.yml` skips it while `SITE_HOLDING` is not `false`, and the Post

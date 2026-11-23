@@ -24,8 +24,10 @@ import { countryNames, NOT_COUNTRIES, stripAccents } from './names.ts';
 
 export type ProblemKind = 'number' | 'date' | 'country' | 'comparison' | 'style' | 'owner' | 'status' | 'repeat';
 export interface Problem { kind: ProblemKind; text: string; sentence: string; message: string }
-/** `used`: the ids of the facts the text draws on (./facts.ts factsHash hashes only these for a stored text). */
-export interface CheckResult { ok: boolean; problems: Problem[]; used: string[] }
+/** `used`: the ids of the facts the text draws on (./facts.ts factsHash hashes only these for a stored text).
+ *  `shown`: how the text writes each figure it takes from a fact ("13%", "341.8 million"), by fact id; the hash covers
+ *  these, not the facts' unrounded values. */
+export interface CheckResult { ok: boolean; problems: Problem[]; used: string[]; shown: Record<string, string[]> }
 
 // ---------------------------------------------------------------------------------------------------------------
 // Reading numbers
@@ -421,6 +423,7 @@ export function checkDraft(draft: string, facts: FactsFile): CheckResult {
   // The facts the text draws on: each figure's fact, and for a date, place, name or comparison the sentence says
   // without one of its figures' facts giving it, every fact that gives it. The owner's own words count too.
   const used = new Set<string>(facts.facts.filter((x) => x.owner).map((x) => x.id));
+  const shown = new Map<string, Set<string>>();
   const text = stripAccents(plainText(draft.replace(OWNER_BLOCK, '\n'))).replace(/[’‘]/g, "'");
   // A history note sits under its page's answer, which gives today's count (historyLede): the note does not say it again.
   const latest = facts.kind === 'history' ? Math.max(0, ...facts.facts.flatMap((x) => /^(members|countries)-\d{4}$/.test(x.id) ? [Number(x.id.slice(-4))] : [])) : 0;
@@ -473,7 +476,11 @@ export function checkDraft(draft: string, facts: FactsFile): CheckResult {
         continue;
       }
       const good = same.find((a) => unitIn(st, a) && a.period.every((y) => sentenceYears.has(y) || q.value === y));
-      if (good) figures.add(good.fact.id);
+      if (good) {
+        figures.add(good.fact.id);
+        const as = q.text.replace(/\s+/g, ' ').trim();
+        shown.set(good.fact.id, (shown.get(good.fact.id) ?? new Set()).add(as));
+      }
       if (!good) {
         const a = same[0];
         const missing = [!unitIn(st, a) ? `its unit (${a.fact.unit || a.unit.map((g) => g.join(' ')).join(' or ')})` : '', a.period.some((y) => !sentenceYears.has(y)) ? `its period (${a.fact.period})` : ''].filter(Boolean).join(' and ');
@@ -519,7 +526,7 @@ export function checkDraft(draft: string, facts: FactsFile): CheckResult {
     for (const id of figures) used.add(id);
     for (const g of said) if (![...g].some((id) => figures.has(id))) for (const id of g) used.add(id);
   }
-  return { ok: problems.length === 0, problems, used: [...used].sort() };
+  return { ok: problems.length === 0, problems, used: [...used].sort(), shown: Object.fromEntries([...shown].map(([id, s]) => [id, [...s].sort()])) };
 }
 
 function unitStartsWithScale(unit = '', scaleWord: string): boolean {

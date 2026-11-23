@@ -55,11 +55,16 @@ export interface MapController {
   select: (id: string | null) => void;
   setBloc: (members: string[] | null) => void;
   zoom: (how: 'in' | 'out' | 'reset') => void;
-  /** Fits the world into the part of the map that nothing covers (the phone map's legend and sheet). */
-  frame: (pad: { top: number; bottom: number }) => void;
+  /** Sets the part of the map that nothing covers (the phone map's legend and sheet). With `fit`, fits the default view
+   *  into it (first open, a new layer or layout); otherwise keeps the reader's centre and zoom, only moving the padding,
+   *  and with `reveal` pans just enough, at the same zoom, to bring that place out from under what covers the map.
+   *  `focus` frames that place with its neighbours at a moderate zoom (arriving at the Atlas with ?country=). */
+  frame: (pad: { top: number; bottom: number }, how?: { fit?: boolean; reveal?: string | null; focus?: string | null }) => void;
   resize: () => void;
   /** The screen point of a place's largest shape, for a keyboard user's tooltip. */
   pointOf: (id: string) => { x: number; y: number } | null;
+  /** The screen point of a mark's position (an overlay point's `at`), for the same tooltip. */
+  pointAt: (at: [number, number]) => { x: number; y: number };
   remove: () => void;
 }
 
@@ -137,6 +142,10 @@ function symbol(kind: 'triangle' | 'diamond' | 'square', fill: string, stroke: s
 }
 
 type Expr = maplibregl.ExpressionSpecification;
+
+/** The narrowest frame `focus` gives a place, in map units (about 30° of longitude): a small country with the
+ *  countries round it, an island state with its nearest neighbours. */
+const FOCUS_SPAN = 30;
 
 export interface MapOptions {
   /** Fade the other places while one is selected (map views). The Atlas keeps them at full strength, so the next
@@ -236,6 +245,11 @@ export function createMap(container: HTMLElement, base: Basemap, first: LayerFil
       map.addLayer({ id: 'bloc', type: 'line', source: 'countries', filter: ['in', ['get', 'id'], ['literal', []]], paint: { 'line-color': T['--ink'], 'line-width': 2 } });
       map.addLayer({ id: 'hover', type: 'line', source: 'countries', filter: ['==', ['get', 'id'], ''], paint: { 'line-color': T['--ink'], 'line-width': 1.4 } });
       map.addLayer({ id: 'selected', type: 'line', source: 'countries', filter: ['==', ['get', 'id'], ''], paint: { 'line-color': T['--accent'], 'line-width': 2.5 } });
+      // A place too small to see (basemap `tiny`: Monaco, Tuvalu) gets a ring round it when selected, as on the
+      // country pages' locator.
+      const tiny = [...new Set(base.countries.features.filter((f) => f.properties?.tiny).map((f) => f.properties!.id as string))];
+      map.addSource('rings', { type: 'geojson', data: { type: 'FeatureCollection', features: tiny.flatMap((id) => (centres.has(id) ? [{ type: 'Feature' as const, properties: { id }, geometry: { type: 'Point' as const, coordinates: centres.get(id)! } }] : [])) } });
+      map.addLayer({ id: 'ring', type: 'circle', source: 'rings', filter: ['==', ['get', 'id'], ''], paint: { 'circle-radius': 14, 'circle-opacity': 0, 'circle-stroke-color': T['--accent'], 'circle-stroke-width': 2.5 } });
       addOverlays(shown);
       ready = true;
       showMarks();
@@ -339,6 +353,25 @@ export function createMap(container: HTMLElement, base: Basemap, first: LayerFil
   });
   canvas.addEventListener('blur', () => { setHover(null); on.hover(null, false); });
 
+  /** A place's frame with its neighbours: its largest shape and the shapes near it (Japan's main islands, not
+   *  far territories), widened to at least FOCUS_SPAN so a small country shows the countries round it. */
+  function placeBox(id: string): [[number, number], [number, number]] | null {
+    const polys = base.countries.features.filter((f) => f.properties?.id === id).flatMap((f) => (f.geometry.type === 'MultiPolygon' ? f.geometry.coordinates : []));
+    const boxes = polys.map((p) => { const xs = p[0].map((q) => q[0]), ys = p[0].map((q) => q[1]); return [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)]; })
+      .sort((a, b) => (b[1] - b[0]) * (b[3] - b[2]) - (a[1] - a[0]) * (a[3] - a[2]));
+    if (!boxes.length) return null;
+    const REACH = 4;
+    let [x0, x1, y0, y1] = boxes[0];
+    const [l0, l1, t0, t1] = boxes[0];
+    for (const [a0, a1, b0, b1] of boxes.slice(1)) {
+      if (a1 < l0 - REACH || a0 > l1 + REACH || b1 < t0 - REACH || b0 > t1 + REACH) continue;
+      x0 = Math.min(x0, a0); x1 = Math.max(x1, a1); y0 = Math.min(y0, b0); y1 = Math.max(y1, b1);
+    }
+    const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+    const w = Math.max((x1 - x0) * 3, FOCUS_SPAN), h = Math.max((y1 - y0) * 3, FOCUS_SPAN * 0.6);
+    return [[cx - w / 2, cy - h / 2], [cx + w / 2, cy + h / 2]];
+  }
+
   // The largest polygon's centre of each place, for the keyboard tooltip.
   const centres = new Map<string, [number, number]>();
   for (const f of base.countries.features) {
@@ -364,7 +397,7 @@ export function createMap(container: HTMLElement, base: Basemap, first: LayerFil
       year = next.data.length - 1;
       if (next.bounds) {
         home = next.bounds;
-        if (ready) map.fitBounds(home, { padding: fitPad, duration: reduced() ? 0 : 300 });
+        if (ready) map.fitBounds(home, { padding: fitPad, absolutePadding: true, duration: reduced() ? 0 : 300 });
       } else home = HOME_BOUNDS;
       if (!ready) return;
       map.setPaintProperty('fill', 'fill-color', fillOf(next));
@@ -390,7 +423,7 @@ export function createMap(container: HTMLElement, base: Basemap, first: LayerFil
     },
     select(id) {
       selected = id;
-      if (ready) map.setFilter('selected', ['==', ['get', 'id'], id ?? '']);
+      if (ready) { map.setFilter('selected', ['==', ['get', 'id'], id ?? '']); map.setFilter('ring', ['==', ['get', 'id'], id ?? '']); }
       paint();
     },
     setBloc(members) { if (ready) map.setFilter('bloc', ['in', ['get', 'id'], ['literal', members ?? []]]); },
@@ -398,18 +431,48 @@ export function createMap(container: HTMLElement, base: Basemap, first: LayerFil
       const opts = { duration: reduced() ? 0 : 300 };
       if (how === 'in') map.zoomIn(opts);
       else if (how === 'out') map.zoomOut(opts);
-      else map.fitBounds(home, { padding: fitPad, ...opts });
+      else map.fitBounds(home, { padding: fitPad, absolutePadding: true, ...opts });
     },
-    frame({ top, bottom }) {
+    frame({ top, bottom }, how = {}) {
       const pad = { top, bottom, left: 12, right: 12 };
       fitPad = pad;
-      map.fitBounds(home, { padding: pad, duration: reduced() ? 0 : 300 });
+      const duration = reduced() ? 0 : 300;
+      // `absolutePadding`: the fit's padding becomes the map's own, not added to it (MapLibre adds the two otherwise,
+      // and a sheet's padding counted twice leaves no room to fit the world, so the fit would do nothing).
+      if (how.fit) { map.fitBounds(home, { padding: pad, absolutePadding: true, duration }); return; }
+      const box = how.focus ? placeBox(how.focus) : null;
+      if (box) { map.fitBounds(box, { padding: pad, absolutePadding: true, maxZoom: 5, duration: 0 }); return; }
+      // The centre stays the same place at the same zoom; with new padding it sits in the middle of the free area. A
+      // point's offset from the centre in pixels does not depend on the padding, so where the place will be is known
+      // before the move.
+      const was = map.getPadding();
+      const now = map.project(map.getCenter());
+      const W = container.clientWidth, H = container.clientHeight;
+      const to = { x: (W + pad.left - pad.right) / 2, y: (H + pad.top - pad.bottom) / 2 };
+      let dx = 0, dy = 0;
+      const c = how.reveal ? centres.get(how.reveal) : undefined;
+      if (c) {
+        const p = map.project(c as [number, number]);
+        const x = p.x - now.x + to.x, y = p.y - now.y + to.y;
+        const m = 24;
+        const [x0, x1, y0, y1] = [pad.left + m, W - pad.right - m, pad.top + m, H - pad.bottom - m];
+        if (x0 < x1) dx = x < x0 ? x - x0 : x > x1 ? x - x1 : 0;
+        if (y0 < y1) dy = y < y0 ? y - y0 : y > y1 ? y - y1 : 0;
+      }
+      const same = was.top === pad.top && was.bottom === pad.bottom && was.left === pad.left && was.right === pad.right;
+      if (same && !dx && !dy) return;
+      const center = dx || dy ? map.unproject([now.x + dx, now.y + dy]) : map.getCenter();
+      map.easeTo({ padding: pad, center, zoom: map.getZoom(), duration });
     },
     resize() { map.resize(); },
     pointOf(id) {
       const c = centres.get(id);
       if (!c) return null;
       const p = map.project(c as [number, number]);
+      return { x: p.x, y: p.y };
+    },
+    pointAt(at) {
+      const p = map.project(at);
       return { x: p.x, y: p.y };
     },
     remove() { map.remove(); },

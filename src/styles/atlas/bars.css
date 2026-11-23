@@ -18,6 +18,8 @@
 .gt-bars--wide li { grid-template-columns: minmax(72px, 9.5em) minmax(48px, 1fr) 5.6em; }
 .gt-bars__rest { display: block; height: 100%; background: var(--paper-sunk); box-shadow: inset 0 0 0 1px var(--rule); }
 .gt-bars__fill--prev { background: var(--seq-3) !important; }
+/* Names that wrap in place of being cut ("Bab el-Mandeb Strait" in a phone's panel). */
+.gt-bars--wrap .gt-bars__name { white-space: normal; overflow: visible; overflow-wrap: anywhere; line-height: 18px; padding: 4px 0; }
 .gt-bars--tight.gt-bars--wide li { grid-template-columns: minmax(64px, 7.6em) minmax(48px, 1fr) 5.6em; }
 /* Values with the source's full figure beside them ("7.6 m of 7.6 m"): a wider value column that never wraps. */
 .gt-bars--tight.gt-bars--of li { grid-template-columns: minmax(64px, 7.6em) minmax(40px, 1fr) 7.4em; }

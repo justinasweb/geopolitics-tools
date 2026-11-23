@@ -38,6 +38,7 @@ import { creditName, data, sourceName } from '../lib/data';
 import { fitSentences, formatDate, formatParts, formatShare, formatValue } from '../lib/format';
 import { notesFor, place } from '../lib/places';
 import { countryHref, indicatorHref, live, paths } from '../lib/routes';
+import { onBasemap } from '../lib/map/basemap';
 import { blocsOf } from '../lib/blocview';
 import { BLOCS_CHECKED } from '../lib/blocs';
 import { BLOC_TEXT } from '../i18n/map.en';
@@ -134,6 +135,9 @@ const compareLinks = m.dossier ? DOSSIERS.filter((o) => o !== p.id).map((o) => {
   return r ? { href: r.path, label: COUNTRY_TEXT.compare(nameOf(o)) } : null;
 }).filter((x): x is { href: string; label: string } => x !== null) : [];
 const links = [...compareLinks, { href: paths.countries(), label: COUNTRY_TEXT.allCountries }];
+// The locator opens the Atlas with the place selected (?country=, src/scripts/map/atlas-state.ts), while the Atlas is
+// live and the place has a shape on its map; otherwise the locator is a picture only.
+const atlasHref = live('tool:atlas') && onBasemap(p.id) ? `${paths.atlas()}?country=${p.slug}` : null;
 // The groupings it belongs to (src/data/blocs.csv), in the blocs' order, each linked to its page when live, dated as the
 // bloc pages date their member lists.
 const memberOf = blocsOf(p.id).map((b) => ({ name: COUNTRY_TEXT.memberNameOf[`${b}:${p.id}`] ?? COUNTRY_TEXT.memberName[b] ?? BLOC_TEXT[b] ?? b, href: live(`view:blocs:${b}`)?.path }));
@@ -177,7 +181,10 @@ const citation = COUNTRY_TEXT.citation(name, kind, url, Number(m.updated.slice(0
         <ul class="gt-cplinks">{links.map((l) => <li><a href={l.href}>{l.label} <span aria-hidden="true">→</span></a></li>)}</ul>
       </div>
       <div class="gt-cphead__map">
-        <div class="gt-cploc"><StaticMap label={COUNTRY_TEXT.locator(name)} select={p.id} /></div>
+        {atlasHref
+          ? <a class="gt-cploc gt-cploc--link" href={atlasHref} aria-label={COUNTRY_TEXT.openAtlas(inSentence(name))}><StaticMap label={COUNTRY_TEXT.locator(name)} select={p.id} /></a>
+          : <div class="gt-cploc"><StaticMap label={COUNTRY_TEXT.locator(name)} select={p.id} /></div>}
+        {atlasHref && <p class="gt-cploc__go"><a href={atlasHref}>{COUNTRY_TEXT.openAtlasLink} <span aria-hidden="true">→</span></a></p>}
         <p class="gt-caption">{COUNTRY_TEXT.boundaries}</p>
       </div>
     </header>

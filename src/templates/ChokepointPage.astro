@@ -14,8 +14,8 @@ import '../styles/atlas/mapview.css';
 import '../styles/atlas/keyfigure.css';
 import '../styles/atlas/table.css';
 import '../styles/atlas/place.css';
-import { CHOKEPOINTS_TEXT as X, changeCell, ships, tonnes, yearsText } from '../i18n/chokepoints.en';
-import { chokepointBySlug, importedOn, lastWeek, liveChokepoints, months, nearest, statusLine, tankerShare } from '../lib/chokepoints';
+import { CHOKEPOINTS_TEXT as X, changeCell, count, dayRange, ofCount, ships, tonnes, yearsText } from '../i18n/chokepoints.en';
+import { FEW, chokepointBySlug, descriptionLine, fewCrossings, importedOn, lastWeek, liveChokepoints, months, nearest, statusLine, tankerShare, typeCounts, weekByYear } from '../lib/chokepoints';
 import { VESSEL_TYPES } from '../adapters/portwatch';
 import { creditLine } from '../lib/data';
 import { cutWords, formatDate, formatPartialDate, formatShare } from '../lib/format';
@@ -34,19 +34,27 @@ const last = formatDate(c.lastDate!);
 const first = formatDate(c.series[0].date);
 const imported = importedOn();
 const updated = imported ? X.imported(formatDate(imported)) : undefined;
-const week = X.weekTo(last);
+const week = X.week(c.lastDate!);
 const line = statusLine(c);
 const title = X.placeTitle(c.name);
 const crumbs: { label: string; href?: string }[] = [hubCrumb('security'), { label: X.section, href: live('view:chokepoints:all')?.path }, { label: c.name }];
 const tanker = tankerShare(c);
+// Under one crossing a day the week is given as its count; shares on fewer than 10 crossings as counts ("2 of 3").
+const few = fewCrossings(c);
+const week7 = typeCounts(c.series.slice(-7));
+const days30 = typeCounts(c.series.slice(-30));
+const tankerText = tanker === null ? '–' : week7.total < FEW ? ofCount(week7.by.n_tanker, week7.total) : formatShare(tanker);
 const weekRows = lastWeek(c);
+const byYear = weekByYear(c);
+const weekDays = c.week ? dayRange(c.week.from, c.lastDate!, { short: true }) : '';
 const monthRows = months(c);
 const loc = pointLocator(c.lon, c.lat);
 const mixColours: Record<string, string> = { n_tanker: 'var(--seq-5)', n_container: 'var(--seq-4)', n_dry_bulk: 'var(--seq-3)', n_general_cargo: 'var(--seq-2)', n_roro: 'var(--seq-1)' };
 const mixed = VESSEL_TYPES.map((t) => ({ t, share: c.mix[t] ?? 0 }));
 const other = Math.max(0, 1 - mixed.reduce((s, m) => s + m.share, 0));
 const mix = [...mixed, ...(other >= 0.005 ? [{ t: 'other', share: other }] : [])].filter((m) => m.share > 0);
-const mixText = mix.map((m) => `${X.types[m.t] ?? X.other} ${formatShare(m.share)}`).join(', ');
+const mixValue = (m: { t: string; share: number }) => (days30.total < FEW && m.t in days30.by ? ofCount(days30.by[m.t as keyof typeof days30.by], days30.total) : formatShare(m.share));
+const mixText = mix.map((m) => `${X.types[m.t] ?? X.other} ${mixValue(m)}`).join(', ');
 const chart = dailyChartHtml({ label: X.chartLabel(c.name, first, last), points: c.series.map((d) => ({ date: d.date, value: d.total, range: d.range })), format: ships });
 const hasBand = c.series.some((d) => d.range);
 const caveat = c.caveat;
@@ -57,24 +65,36 @@ const related = [
   ...(live('view:oil:trade') ? [{ href: live('view:oil:trade')!.path, name: X.oilTrade, note: X.mapView }] : []),
   ...(live('view:chokepoints:all') ? [{ href: live('view:chokepoints:all')!.path, name: X.section, note: X.allPoints(liveChokepoints().length) }] : []),
 ].filter((r) => r.href);
-const description = cutWords(X.placeDescription(c.name, line), 160);
+const description = cutWords(descriptionLine(c), 160);
 const cite = `${creditLine('portwatch')}, ${X.dataTo(last)}.`;
 ---
-<Page title={title} description={description} hub="security" container="mv" image={route(key)!.image}
+<Page title={title} description={description} footer={X.footer} hub="security" container="mv" image={route(key)!.image}
   jsonld={[breadcrumbs(crumbs.map((x) => ({ label: x.label, href: x.href })))]}>
   <div class="gt-mvhead">
     <Breadcrumbs items={crumbs} />
     <h1 class="gt-title gt-mvhead__t">{c.name}</h1>
     <p class="gt-lede gt-mvhead__a">{line}</p>
+    <p class="gt-caption">{X.counting} {X.caveat}</p>
     <SourceLine source={X.source} parts={[X.dataTo(last), ...(updated ? [updated] : [])]} />
     {caveat && <Notice inline><p>{caveat.text} <a href={caveat.url}>{caveatLine}</a></p></Notice>}
   </div>
 
   <div class="gt-hzkf">
-    <div class="gt-pkf"><span class="gt-pkf__label">{X.kfWeek}</span><span class="gt-pkf__num">{c.avg7 === null ? '–' : ships(c.avg7)}</span><span class="gt-pkf__meta">{X.kfWeekMeta(last)}</span></div>
-    <div class="gt-pkf"><span class="gt-pkf__label">{X.kfUsual}</span><span class="gt-pkf__num">{c.baseline === null ? '–' : ships(c.baseline)}</span><span class="gt-pkf__meta">{c.baseYears ? X.kfUsualMeta(yearsText(c.baseYears)) : X.kfUsualNone}</span></div>
-    <div class="gt-pkf"><span class="gt-pkf__label">{X.kfTankers}</span><span class="gt-pkf__num">{tanker === null ? '–' : formatShare(tanker)}</span><span class="gt-pkf__meta">{X.kfTankersMeta(last)}</span></div>
+    {few
+      ? <div class="gt-pkf"><span class="gt-pkf__label">{X.kfFew}</span><span class="gt-pkf__num">{count(week7.total)}</span><span class="gt-pkf__meta">{X.kfFewMeta(weekDays)}</span></div>
+      : <div class="gt-pkf"><span class="gt-pkf__label">{X.kfWeek(weekDays)}</span><span class="gt-pkf__num">{c.avg7 === null ? '–' : ships(c.avg7)}</span><span class="gt-pkf__meta">{X.kfWeekMeta}</span></div>}
+    <div class="gt-pkf"><span class="gt-pkf__label">{c.baseYears ? X.kfAgainst(yearsText(c.baseYears)) : X.kfAgainstNone}</span><span class="gt-pkf__num">{c.change === null ? '–' : changeCell(c.change)}</span><span class="gt-pkf__meta">{c.baseline === null ? X.kfUsualNone : X.kfAgainstMeta(ships(c.baseline))}</span></div>
+    <div class="gt-pkf"><span class="gt-pkf__label">{X.kfTankers}</span><span class:list={['gt-pkf__num', { 'gt-pkf__num--word': week7.total < FEW && tanker !== null }]}>{tankerText}</span><span class="gt-pkf__meta">{X.kfTankersMeta(weekDays)}</span></div>
   </div>
+  {byYear.length > 0 && (
+    <div class="gt-cpyears">
+      <p class="gt-label" id="cp-years">{X.yearsLabel(weekDays)}</p>
+      <ul class="gt-cpyears__list" aria-labelledby="cp-years">
+        {byYear.map((y) => <li class:list={{ 'is-now': y.year === byYear.at(-1)!.year, 'is-unused': !y.used }}><span>{y.year}</span> <b>{y.total === null ? X.yearsNone : X.yearsPart(count(y.total), y.days)}</b></li>)}
+      </ul>
+      {c.baseYears && <p class="gt-caption">{X.yearsNote(yearsText(c.baseYears))}</p>}
+    </div>
+  )}
 
   <div class="gt-hzgrid">
     <div class="gt-hzgrid__a">
@@ -91,7 +111,7 @@ const cite = `${creditLine('portwatch')}, ${X.dataTo(last)}.`;
               <text x={(loc.scale.px / 2).toFixed(1)} y="-8" text-anchor="middle">{loc.scale.km.toLocaleString('en')} km</text>
             </g>
           </svg>
-          <figcaption class="gt-loc__key"><span><MarkIcon symbol={`cp-${c.status}`} />{X.locKey}: {X.status[c.status]}</span></figcaption>
+          <figcaption class="gt-loc__key"><span><MarkIcon symbol={`cp-${c.status}`} />{X.locKey}: {X.statusUsual[c.status]}</span></figcaption>
         </figure>
       </section>
 
@@ -101,24 +121,38 @@ const cite = `${creditLine('portwatch')}, ${X.dataTo(last)}.`;
           <Fragment set:html={chart} />
           <figcaption><span><i class="gt-tc__linekey"></i>{X.chartLine(c.name)}</span>{hasBand && <span><i class="gt-tc__bandkey"></i>{X.chartBand}</span>}</figcaption>
         </figure>
-        {hasBand && <p class="gt-caption">{X.chartGaps} {X.usualNote}</p>}
+        {hasBand && <p class="gt-caption">{X.bandNote}</p>}
         {caveat && <p class="gt-caption">{caveat.text}</p>}
+        <details class="gt-cpdays">
+          <summary>{X.daysTable(first, last)}</summary>
+          <div class="gt-tablewrap" tabindex="0" role="region" aria-label={X.daysTable(first, last)}>
+            <table class="gt-table">
+              <caption class="gt-caption">{X.daysCaption}</caption>
+              <thead><tr><th scope="col"><span class="gt-th">{X.colDate}</span></th><th scope="col" class="n"><span class="gt-th">{X.colShips}</span></th><th scope="col" class="n"><span class="gt-th">{X.colRange}</span></th></tr></thead>
+              <tbody>
+                {[...c.series].reverse().map((d) => (
+                  <tr><th scope="row" class="gt-nowrap">{formatDate(d.date)}</th><td class="n">{d.total === null ? '–' : count(d.total)}</td><td class="n">{d.range ? X.range(count(d.range[0]), count(d.range[1])) : '–'}</td></tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </details>
         <SourceLine source={X.source} parts={[X.daily(first, last), ...(updated ? [updated] : [])]} citation={cite} />
       </section>
     </div>
 
     <div class="gt-hzgrid__b">
       <section class="gt-hzsec" aria-labelledby="cp-mix">
-        <h2 class="gt-h3" id="cp-mix">{X.mix}</h2>
-        <div class="gt-mix" role="img" aria-label={X.mixLabel(mixText)}>
-          <div class="gt-mix__bar">{mix.map((m) => <span style={`width:${(m.share * 100).toFixed(1)}%;background:${mixColours[m.t] ?? 'var(--map-nodata)'}`} title={`${X.types[m.t] ?? X.other} ${formatShare(m.share)}`}></span>)}</div>
-          <ul class="gt-mix__key">{mix.map((m) => <li><i style={`background:${mixColours[m.t] ?? 'var(--map-nodata)'}`}></i><span>{X.types[m.t] ?? X.other}</span><b>{formatShare(m.share)}</b></li>)}</ul>
+        <h2 class="gt-h3" id="cp-mix">{X.mix(X.days30(c.lastDate!))}</h2>
+        <div class="gt-mix" role="img" aria-label={X.mixLabel(X.days30(c.lastDate!), mixText)}>
+          <div class="gt-mix__bar">{mix.map((m) => <span style={`width:${(m.share * 100).toFixed(1)}%;background:${mixColours[m.t] ?? 'var(--map-nodata)'}`} title={`${X.types[m.t] ?? X.other} ${mixValue(m)}`}></span>)}</div>
+          <ul class="gt-mix__key">{mix.map((m) => <li><i style={`background:${mixColours[m.t] ?? 'var(--map-nodata)'}`}></i><span>{X.types[m.t] ?? X.other}</span><b>{mixValue(m)}</b></li>)}</ul>
         </div>
-        <SourceLine source={X.source} parts={[X.days30(last)]} />
+        <SourceLine source={X.source} parts={[X.days30(c.lastDate!)]} />
       </section>
 
       <section class="gt-hzsec" aria-labelledby="cp-cargo">
-        <h2 class="gt-h3" id="cp-cargo">{X.cargo}</h2>
+        <h2 class="gt-h3" id="cp-cargo">{X.cargo(weekDays)}</h2>
         <p class="gt-label">{X.cargoLabel}</p>
         <div class="gt-tablewrap" style="--gt-table-h:none" tabindex="0" role="region" aria-labelledby="cp-cargo">
           <table class="gt-table">
@@ -126,7 +160,7 @@ const cite = `${creditLine('portwatch')}, ${X.dataTo(last)}.`;
             <thead><tr><th scope="col"><span class="gt-th">{X.colType}</span></th><th scope="col" class="n"><span class="gt-th">{X.colShips}</span></th><th scope="col" class="n"><span class="gt-th">{X.colCargo}</span></th></tr></thead>
             <tbody>
               {weekRows.map((r) => (
-                <tr><th scope="row">{r.type === 'all' ? X.all : X.types[r.type]}</th><td class="n">{r.ships === null ? '–' : ships(r.ships)}</td><td class="n">{r.cargo === null ? '–' : tonnes(r.cargo)}</td></tr>
+                <tr><th scope="row">{r.type === 'all' ? X.all : X.types[r.type]}</th><td class="n">{r.ships === null ? '–' : ships(r.ships)}</td><td class="n">{r.cargo === null ? '–' : tonnes(r.cargo, false)}</td></tr>
               ))}
             </tbody>
           </table>
@@ -152,7 +186,7 @@ const cite = `${creditLine('portwatch')}, ${X.dataTo(last)}.`;
               <tr>
                 <th scope="row" class="gt-nowrap">{m.to ? X.partMonth(formatPartialDate(m.month), formatDate(m.to).replace(/ \d{4}$/, '')) : formatPartialDate(m.month)}</th>
                 <td class="n">{m.transits.toLocaleString('en')}</td><td class="n">{ships(m.perDay)}</td>
-                <td class="n">{m.against === null ? '–' : changeCell(m.against)}</td><td class="n">{m.cargo === null ? '–' : tonnes(m.cargo)}</td>
+                <td class="n">{m.against === null ? '–' : changeCell(m.against)}</td><td class="n">{m.cargo === null ? '–' : tonnes(m.cargo, false)}</td>
               </tr>
             ))}
           </tbody>

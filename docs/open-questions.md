@@ -12,22 +12,11 @@ keeps one line per closed question.
 [gate-review.md](gate-review.md)): no page shows its figures, and This week names its outages with links to IODA. WRI
 Aqueduct and AidData were cleared on 9 Nov 2026, CelesTrak on 11 Nov and GDACS on 16 Nov (CC BY 4.0); they are live.
 
-- **Climate hub intro (17 Nov).** Its facts include disasters again now that GDACS is cleared, so the approved intro
-  (written without them) is out of date: redraft it (`npm run ai:facts`, then `ai:draft hub:climate`) for the owner's
-  approval.
-
 - **Asking the publishers.** Georgia Tech (IODA), for its reuse terms in writing.
-- **Registering with WRI.** The Aqueduct FAQ asks anyone who adapts or shares the data to register with WRI, and to
-  share public work that uses it with the team. Until the site is registered, water stress is shown with its credit
-  but has no CSV download (`downloads: 'shown only'`). Registering, and telling WRI once the site is live, is for the
-  owner.
-- **Approvals waiting.** The Climate and Technology hub intros (redrafted without the hidden views) are approved in the
-  pull request; week 45's redrafted summary goes to Telegram on merge. Until then week 45 shows the cards only and the
-  two hubs show the draft banner.
 - **About's facts file.** It now trails the code by two licences (Aqueduct, AidData). The text does not mention them,
   so it stays approved; the next redraft of About picks them up.
 
-### Map canvas: dark band on narrow maps (raised 28 Oct 2026)### Map canvas: dark band on narrow maps (raised 28 Oct 2026)### Map canvas: dark band on narrow maps (raised 28 Oct 2026)
+### Map canvas: dark band on narrow maps (raised 28 Oct 2026)
 
 **The question.** On a narrow desktop map (the Atlas at 1024px, where the map column is about 420px wide) the MapLibre
 canvas draws a dark band at the top left, under the borders line. It is the canvas itself, not a page element, and it

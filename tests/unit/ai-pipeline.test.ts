@@ -123,7 +123,7 @@ describe('the store and the approval step', () => {
     expect(stateOf(t, f)).toBe('draft');
     expect(() => approveText('river:helmand', f, { on: '2026-11-03', via: 'telegram', textHash: 'not-it' }, root)).toThrow(/changed since it was sent/);
     const a = approveText('river:helmand', f, { on: '2026-11-03', via: 'telegram', textHash: textHash(GOOD) }, root);
-    expect(a).toMatchObject({ approved: true, approvedOn: '2026-11-03', approvedVia: 'telegram', usedFacts: ['flow', 'treaty'], factsHash: factsHash(f, ['flow', 'treaty']) });
+    expect(a).toMatchObject({ approved: true, approvedOn: '2026-11-03', approvedVia: 'telegram', usedFacts: ['flow', 'treaty'], factsHash: factsHash(f, ['flow', 'treaty'], checkDraft(GOOD, f).shown) });
     expect(stateOf(readText('river:helmand', root), f)).toBe('approved');
   });
 

@@ -8,6 +8,11 @@ import CorrectionLink from './CorrectionLink.astro';
 import { NAV_FOOTER, SOCIAL } from '../data/nav';
 import { NAV_TEXT, UI_TEXT } from '../i18n/en';
 
+interface Props {
+  /** In place of the site's line ("updated daily") where a section's data is not. */
+  tagline?: string;
+}
+const { tagline = UI_TEXT.footerTagline } = Astro.props;
 const year = new Date().getFullYear();
 ---
 <footer class="gt-footer">
@@ -15,7 +20,7 @@ const year = new Date().getFullYear();
     <div class="gt-footer__row">
       <div class="gt-footer__brand">
         <a class="gt-logo" href="/" aria-label={UI_TEXT.home}><Lockup /></a>
-        <p>{UI_TEXT.footerTagline}</p>
+        <p>{tagline}</p>
       </div>
       <div class="gt-footer__end">
         <nav aria-label={UI_TEXT.footerNav}>
