@@ -6,7 +6,7 @@ import { chokepoints, sameDaysBefore, VESSEL_TYPES, yearsBefore, type Chokepoint
 import { IMPORTED } from '../../pipeline/sources/imported.ts';
 import { CHOKEPOINTS_TEXT as T, changeWords, count, dayRange, daysBefore, ships, yearsText } from '../i18n/chokepoints.en.ts';
 import { data, shared } from './data.ts';
-import { formatDate } from './format.ts';
+import { DESCRIPTION_MAX } from './format.ts';
 
 const all = shared(chokepoints);
 
@@ -53,7 +53,7 @@ export const statusCounts = (list = liveChokepoints()) => Object.fromEntries(STA
 
 const isBelow = (c: Chokepoint) => c.status === 'below' || c.status === 'disrupted';
 
-/** The view's summary line: how many have 10% or more fewer ships than usual, and which is furthest below. */
+/** The view's summary line: how many recorded at least 10% fewer crossings than usual, and which is furthest below. */
 export function viewLede(): string | null {
   const list = liveChokepoints();
   const last = lastDataDay();
@@ -61,15 +61,15 @@ export function viewLede(): string | null {
   const below = list.filter(isBelow);
   const furthest = ranked(below)[0];
   const years = commonYears(list);
-  if (!years) return T.ledeNone(formatDate(last), list.length);
-  return T.lede(formatDate(last), below.length, list.length, years, furthest ? { name: displayName(furthest.name, true), change: changeWords(furthest.change!), counts: weekCounts(furthest), ...(furthest.caveat ? { note: furthest.caveat.short } : {}) } : null);
+  const days = dayRange(daysBefore(last, 6), last);
+  if (!years) return T.ledeNone(days, list.length);
+  return T.lede(days, below.length, list.length, years, furthest ? { name: displayName(furthest.name, true), change: changeWords(furthest.change!), counts: weekCounts(furthest), ...(furthest.caveat ? { note: furthest.caveat.short } : {}) } : null);
 }
 
-/** A chokepoint's crossings in its last 7 days against the usual week: "16 crossings on 9–15 November, against a usual
- *  607" (the usual a day times 7), or a day when a day of the 7 has no count. */
+/** A chokepoint's crossings in its last 7 days against the usual week: "16 crossings, against a usual 607" (the usual
+ *  a day times 7), or a day when a day of the 7 has no count. */
 export function weekCounts(c: Chokepoint): string {
-  const days = dayRange(c.week!.from, c.lastDate!);
-  return c.week!.days === 7 ? T.weekCounts(count(c.week!.total), count(c.baseline! * 7), days) : T.dayCounts(ships(c.avg7!), ships(c.baseline!), days);
+  return c.week!.days === 7 ? T.weekCounts(count(c.week!.total), count(c.baseline! * 7)) : T.dayCounts(ships(c.avg7!), ships(c.baseline!));
 }
 
 /** The years most chokepoints are compared with ("2023–25" for a week of 2026). */
@@ -93,7 +93,8 @@ export function typeCounts(days: Chokepoint['series']): { by: Record<VesselType,
 /** Shares on fewer crossings than this are given as counts ("2 of 3"), never as a percentage. */
 export const FEW = 10;
 
-/** The status line on a chokepoint's page: "Traffic in the week to 15 Nov 2026 was 12% below the same week in 2023–2025." */
+/** The status line on a chokepoint's page: "The Bosporus Strait averaged 49 crossings a day on 9–15 November; the median
+ *  for that week in 2023–25 was 101 (52% below)." */
 export function statusLine(c: Chokepoint): string {
   if (!c.lastDate) return '';
   if (c.avg7 === null) return T.noRecent(dayRange(daysBefore(c.lastDate, 6), c.lastDate));
@@ -105,7 +106,8 @@ export function statusLine(c: Chokepoint): string {
       c.change === null || !c.baseYears ? null : { years: yearsText(c.baseYears), median: count(c.baseline! * 7), change: changeWords(c.change) });
   }
   if (c.change === null || !c.baseYears) return T.noUsual(dayRange(c.week!.from, c.lastDate), ships(c.avg7));
-  return T.statusLine(changeWords(c.change), formatDate(c.lastDate), yearsText(c.baseYears));
+  const name = displayName(c.name, true);
+  return T.statusLine(name.charAt(0).toUpperCase() + name.slice(1), ships(c.avg7), dayRange(c.week!.from, c.lastDate), yearsText(c.baseYears), ships(c.baseline!), changeWords(c.change));
 }
 
 /** The last 7 days and the same 7 days in each of the three years before, oldest first: the crossings counted, on how
@@ -118,6 +120,19 @@ export function weekByYear(c: Chokepoint): { year: number; total: number | null;
     const vs = dates.map((d) => (k ? c.byDate.get(yearsBefore(d, k)) : c.byDate.get(d))).filter((v): v is number => typeof v === 'number');
     return { year: last - k, total: vs.length ? vs.reduce((a, b) => a + b, 0) : null, days: vs.length, used: k === 0 || c.baseWeeks.some((w) => w.year === last - k) };
   });
+}
+
+/** The page's description, its line short enough to leave room for a source's warning within 160 characters:
+ *  "Bosporus Strait: 49 crossings a day on 9–15 Nov, 52% below the 2023–25 median." */
+export function descriptionLine(c: Chokepoint): string {
+  if (!c.lastDate || c.avg7 === null) return statusLine(c);
+  const figure = fewCrossings(c) ? T.inWeek(c.week!.total) : T.perDay(ships(c.avg7));
+  const vs = c.change === null || !c.baseYears ? null : { change: changeWords(c.change), years: yearsText(c.baseYears) };
+  const days = dayRange(c.week!.from, c.lastDate, { short: true });
+  const full = T.placeDescription(T.descLine(c.name, figure, days, vs), c.caveat?.short);
+  // A source's warning is never cut: where both do not fit, the change alone ("Strait of Hormuz: 97% below the 2023–25
+  // median on 9–15 Nov.").
+  return full.length <= DESCRIPTION_MAX || !c.caveat || !vs ? full : T.placeDescription(T.descChange(c.name, days, vs), c.caveat.short);
 }
 
 const avg = (xs: (number | null)[]) => {

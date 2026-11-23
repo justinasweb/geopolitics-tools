@@ -61,14 +61,14 @@ export const CHOKEPOINTS_TEXT = {
   /** The view's summary line: how many are below their usual level, and which is furthest below, with its crossings
    *  in the week against the usual week ("16 crossings on 9–15 November, against a usual 607") and the source's
    *  warning on it, if any. */
-  lede: (date: string, below: number, all: number, years: string, furthest: { name: string; change: string; counts: string; note?: string } | null) =>
+  lede: (days: string, below: number, all: number, years: string, furthest: { name: string; change: string; counts: string; note?: string } | null) =>
     below === 0
-      ? `In the week to ${date}, none of the ${all} chokepoints had 10% or more fewer crossings than in the same week in ${years}.`
-      : `In the week to ${date}, ${below} of the ${all} chokepoints had 10% or more fewer crossings than in the same week in ${years}${furthest ? `; the furthest below was ${furthest.name}, with ${furthest.counts} (${furthest.change})` : ''}.${furthest?.note ? ` ${furthest.note}` : ''}`,
+      ? `In the week of ${days}, none of the ${all} chokepoints recorded at least 10% fewer crossings than the same week in ${years}.`
+      : `In the week of ${days}, ${below} of the ${all} chokepoints recorded at least 10% fewer crossings than the same week in ${years}${furthest ? `; the furthest below was ${furthest.name}, with ${furthest.counts} (${furthest.change})` : ''}.${furthest?.note ? ` ${furthest.note}` : ''}`,
   /** A week's crossings against the usual week: in all when all 7 days have counts, else a day. */
-  weekCounts: (n: string, usual: string, days: string) => `${n} crossings on ${days}, against a usual ${usual}`,
-  dayCounts: (n: string, usual: string, days: string) => `${n} crossings a day on ${days}, against a usual ${usual}`,
-  ledeNone: (date: string, all: number) => `In the week to ${date}, none of the ${all} chokepoints had counts for the same week in at least two of the three years before, so none can be compared.`,
+  weekCounts: (n: string, usual: string) => `${n} crossings, against a usual ${usual}`,
+  dayCounts: (n: string, usual: string) => `${n} crossings a day, against a usual ${usual}`,
+  ledeNone: (days: string, all: number) => `In the week of ${days}, none of the ${all} chokepoints had counts for the same week in at least two of the three years before, so none can be compared.`,
   usualNote: 'Usual: the same week in each of the three years before (the median of their averages); no status where fewer than two of those years have counts.',
   /** Read from the whole percent shown (statusFor), so the bands meet exactly: −30% is the first "30% or more below",
    *  −9% and +14% are near usual. */
@@ -115,9 +115,19 @@ export const CHOKEPOINTS_TEXT = {
 
   // The chokepoint pages.
   placeTitle: (name: string) => `${name}: traffic and trade`,
-  placeDescription: (name: string, line: string, note?: string) => `${name}: ${line.charAt(0).toLowerCase()}${line.slice(1)} ${note ?? 'Daily crossings, vessel mix and estimated cargo (IMF PortWatch).'}`,
+  /** The page's description: a short status line ("Bosporus Strait: 49 crossings a day on 9–15 Nov, 52% below the
+   *  2023–25 median."), then the source's warning where there is one, else what the page has. */
+  placeDescription: (line: string, note?: string) => `${line} ${note ?? 'Daily crossings, vessel mix and estimated cargo (IMF PortWatch).'}`,
+  descLine: (name: string, figure: string, days: string, vs: { change: string; years: string } | null) => `${name}: ${figure} on ${days}${vs ? `, ${vs.change} the ${vs.years} median` : ''}.`,
+  descChange: (name: string, days: string, vs: { change: string; years: string }) => `${name}: ${vs.change} the ${vs.years} median on ${days}.`,
+  /** "49 crossings a day", "3 crossings". */
+  perDay: (avg: string) => `${avg} crossings a day`,
+  inWeek: (n: number) => `${count(n)} crossing${n === 1 ? '' : 's'}`,
   /** The status line: "Traffic was 12% below its usual level in the week to 31 Oct 2026." */
-  statusLine: (change: string, date: string, years: string) => (change === 'at' ? `Traffic in the week to ${date} was at its usual level, compared with the same week in ${years}.` : `Traffic in the week to ${date} was ${change} usual, compared with the same week in ${years}.`),
+  /** The status line: the value, then the comparison. "The Bosporus Strait averaged 49 crossings a day on 9–15 November;
+   *  the median for that week in 2023–25 was 101 (52% below)." */
+  statusLine: (name: string, avg: string, days: string, years: string, median: string, change: string) =>
+    `${name} averaged ${avg} crossings a day on ${days}; the median for that week in ${years} was ${median}${change === 'at' ? ', the same' : ` (${change})`}.`,
   /** A week of fewer than 7 crossings, led by the count: "The Kerch Strait recorded 3 crossings on 9–15 November, all by
    *  tankers; the median for that week in 2023–25 was 16 (81% below)." */
   fewLine: (name: string, n: number, days: string, type: string | null, usual: { years: string; median: string; change: string } | null) =>

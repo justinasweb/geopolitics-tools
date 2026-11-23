@@ -69,7 +69,7 @@ const related = [
         <div class="gt-pgroup">
           <span class="gt-label">{X.furthest}</span>
           {below.length ? (
-            <ol class="gt-bars gt-bars--tight" aria-label={X.furthest}>
+            <ol class="gt-bars gt-bars--tight gt-bars--wrap" aria-label={X.furthest}>
               {below.slice(0, 8).map((c) => (
                 <li><span class="gt-bars__name">{pageOf(c.slug) ? <a href={pageOf(c.slug)}>{c.name}</a> : c.name}</span><span class="gt-bars__track"><span class="gt-bars__fill" style={`width:${((100 * -c.change!) / furthest).toFixed(1)}%`}></span></span><span class="gt-bars__val">{changeCell(c.change!)}</span></li>
               ))}

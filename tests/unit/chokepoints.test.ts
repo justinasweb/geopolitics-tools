@@ -102,7 +102,7 @@ describe('chokepoints', () => {
   it('gives a place page its status line, last week by vessel type, and months with the usual level', () => {
     const daily = { features: rows('chokepoint1', 'Suez Canal', '2022-10-01', '2026-11-15', (d) => (d >= '2026-11-09' ? 44 : 40)) };
     const [c] = parseChokepoints(meta([['chokepoint1', 'Suez Canal']]), daily);
-    expect(statusLine(c)).toBe('Traffic in the week to 15 Nov 2026 was 10% above usual, compared with the same week in 2023–25.');
+    expect(statusLine(c)).toBe('The Suez Canal averaged 44 crossings a day on 9–15 November; the median for that week in 2023–25 was 40 (10% above).');
     expect(lastWeek(c).find((r) => r.type === 'n_tanker')).toEqual({ type: 'n_tanker', ships: 22, cargo: 44_000 });
     expect(lastWeek(c).at(-1)).toEqual({ type: 'all', ships: 44, cargo: 66_000 });
     expect(tankerShare(c)).toBe(0.5);

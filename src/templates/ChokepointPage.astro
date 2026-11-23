@@ -15,7 +15,7 @@ import '../styles/atlas/keyfigure.css';
 import '../styles/atlas/table.css';
 import '../styles/atlas/place.css';
 import { CHOKEPOINTS_TEXT as X, changeCell, count, dayRange, ofCount, ships, tonnes, yearsText } from '../i18n/chokepoints.en';
-import { FEW, chokepointBySlug, fewCrossings, importedOn, lastWeek, liveChokepoints, months, nearest, statusLine, tankerShare, typeCounts, weekByYear } from '../lib/chokepoints';
+import { FEW, chokepointBySlug, descriptionLine, fewCrossings, importedOn, lastWeek, liveChokepoints, months, nearest, statusLine, tankerShare, typeCounts, weekByYear } from '../lib/chokepoints';
 import { VESSEL_TYPES } from '../adapters/portwatch';
 import { creditLine } from '../lib/data';
 import { cutWords, formatDate, formatPartialDate, formatShare } from '../lib/format';
@@ -65,8 +65,7 @@ const related = [
   ...(live('view:oil:trade') ? [{ href: live('view:oil:trade')!.path, name: X.oilTrade, note: X.mapView }] : []),
   ...(live('view:chokepoints:all') ? [{ href: live('view:chokepoints:all')!.path, name: X.section, note: X.allPoints(liveChokepoints().length) }] : []),
 ].filter((r) => r.href);
-// A source's warning goes in the description in place of its last sentence, so it is never cut off.
-const description = cutWords(X.placeDescription(c.name, line, c.caveat?.short), 160);
+const description = cutWords(descriptionLine(c), 160);
 const cite = `${creditLine('portwatch')}, ${X.dataTo(last)}.`;
 ---
 <Page title={title} description={description} footer={X.footer} hub="security" container="mv" image={route(key)!.image}

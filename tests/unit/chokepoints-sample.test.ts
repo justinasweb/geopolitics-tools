@@ -25,7 +25,7 @@ describe('chokepoints on the sample files', async () => {
     const h = by('Strait of Hormuz');
     expect(X.statusShort[h.status]).toBe('30%+ below');
     expect(changeCell(h.change!)).toMatch(/^−\d+%$/);
-    expect(statusLine(h)).toMatch(/^Traffic in the week to 13 Oct 2026 was \d+% below usual, compared with the same week in 2023–25\.$/);
+    expect(statusLine(h)).toMatch(/^The Strait of Hormuz averaged [\d.]+ crossings a day on 7–13 October; the median for that week in 2023–25 was \d+ \(\d+% below\)\.$/);
     expect(X.statusShort[by('Taiwan Strait').status]).toBe('Near usual');
     const p = by('Panama Canal');
     expect(X.statusShort[p.status]).toBe('No data');
@@ -38,7 +38,7 @@ describe('chokepoints on the sample files', async () => {
   it('names the furthest below with its crossings against the usual week, and the source’s warning on it', () => {
     const h = by('Strait of Hormuz');
     const lede = viewLede()!;
-    expect(lede).toContain(`the furthest below was the Strait of Hormuz, with ${h.week!.total.toLocaleString('en')} crossings on 7–13 October, against a usual ${Math.round(h.baseline! * 7).toLocaleString('en')}`);
+    expect(lede).toContain(`the furthest below was the Strait of Hormuz, with ${h.week!.total.toLocaleString('en')} crossings, against a usual ${Math.round(h.baseline! * 7).toLocaleString('en')}`);
     expect(lede.endsWith(` ${h.caveat!.short}`)).toBe(true);
   });
 
