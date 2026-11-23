@@ -1,0 +1,126 @@
+{
+  "id": "week:2026-47",
+  "kind": "week",
+  "subject": "week 47 of 2026 (16 November 2026 to 22 November 2026)",
+  "countries": [],
+  "names": [
+    "GDACS",
+    "UCDP",
+    "IODA",
+    "Pink Sheet",
+    "SDN",
+    "Entity List",
+    "UK Sanctions List",
+    "Consolidated Screening List",
+    "Rice, Thai 5%",
+    "Thai 5%",
+    "Thai rice with 5% broken grains",
+    "US hard red winter",
+    "million British thermal units",
+    "Specially Designated Nationals",
+    "consolidated financial sanctions list"
+  ],
+  "generated": "scripts/week.ts, from the frozen week 2026-47 (data/raw/weeks/2026-47.json, made 2026-11-23T00:41:28.777Z)",
+  "facts": [
+    {
+      "id": "week",
+      "statement": "This summary covers ISO week 47 of 2026, from 16 November 2026 to 22 November 2026.",
+      "value": 47,
+      "unit": "week",
+      "source": "geopolitics.tools, This week",
+      "link": "https://geopolitics.tools/this-week/2026-47",
+      "date": "2026-11-23"
+    },
+    {
+      "id": "alerts",
+      "statement": "GDACS issued no new orange or red disaster alerts in the week: alerts that began, or rose to orange or red, in the week.",
+      "value": 0,
+      "unit": "alerts",
+      "source": "GDACS",
+      "link": "https://www.gdacs.org/",
+      "date": "2026-11-22"
+    },
+    {
+      "id": "sanctions-us-sdn-added",
+      "statement": "34 entries were added to and none removed from the US Specially Designated Nationals (SDN) sanctions list.",
+      "value": 34,
+      "unit": "entries",
+      "source": "United States: SDN list",
+      "link": "https://www.trade.gov/consolidated-screening-list",
+      "date": "2026-11-21",
+      "places": [
+        "USA"
+      ]
+    },
+    {
+      "id": "sanctions-us-entity-none",
+      "statement": "No entries were added to or removed from the US Entity List for export controls.",
+      "value": 0,
+      "unit": "entries",
+      "source": "United States: Entity List",
+      "link": "https://www.trade.gov/consolidated-screening-list",
+      "date": "2026-11-21",
+      "places": [
+        "USA"
+      ]
+    },
+    {
+      "id": "sanctions-us-added",
+      "statement": "34 entries were added in total to the US SDN list and the US Entity List, and none removed.",
+      "value": 34,
+      "unit": "entries",
+      "source": "United States: SDN list and Entity List",
+      "link": "https://www.trade.gov/consolidated-screening-list",
+      "date": "2026-11-21",
+      "places": [
+        "USA"
+      ]
+    },
+    {
+      "id": "sanctions-eu-added",
+      "statement": "34 entries were added to and none removed from the EU’s consolidated financial sanctions list.",
+      "value": 34,
+      "unit": "entries",
+      "source": "European Union: Consolidated financial sanctions list",
+      "link": "https://webgate.ec.europa.eu/fsd/fsf",
+      "date": "2026-11-21",
+      "places": []
+    },
+    {
+      "id": "sanctions-uk-added",
+      "statement": "9 entries were added to the UK Sanctions List.",
+      "value": 9,
+      "unit": "entries",
+      "source": "United Kingdom: UK Sanctions List",
+      "link": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+      "date": "2026-11-21",
+      "places": [
+        "GBR"
+      ]
+    },
+    {
+      "id": "sanctions-uk-removed",
+      "statement": "1 entry was removed from the UK Sanctions List.",
+      "value": 1,
+      "unit": "entries",
+      "source": "United Kingdom: UK Sanctions List",
+      "link": "https://www.gov.uk/government/publications/the-uk-sanctions-list",
+      "date": "2026-11-21",
+      "places": [
+        "GBR"
+      ]
+    },
+    {
+      "id": "sanctions-places",
+      "statement": "The countries named most often in the new entries, by address or nationality, are Russia, Canada and Ukraine. An entry can be a person, company, ship or aircraft; the figures count entries, not how strict the measures are.",
+      "places": [
+        "RUS",
+        "CAN",
+        "UKR"
+      ],
+      "source": "US Consolidated Screening List; EU FSF; UK Sanctions List",
+      "link": "https://www.trade.gov/consolidated-screening-list",
+      "date": "2026-11-21"
+    }
+  ]
+}
