@@ -57,7 +57,8 @@ const related = [
   ...(live('view:oil:trade') ? [{ href: live('view:oil:trade')!.path, name: X.oilTrade, note: X.mapView }] : []),
   ...(live('view:chokepoints:all') ? [{ href: live('view:chokepoints:all')!.path, name: X.section, note: X.allPoints(liveChokepoints().length) }] : []),
 ].filter((r) => r.href);
-const description = cutWords(X.placeDescription(c.name, line), 160);
+// A source's warning goes in the description in place of its last sentence, so it is never cut off.
+const description = cutWords(X.placeDescription(c.name, line, c.caveat?.short), 160);
 const cite = `${creditLine('portwatch')}, ${X.dataTo(last)}.`;
 ---
 <Page title={title} description={description} hub="security" container="mv" image={route(key)!.image}

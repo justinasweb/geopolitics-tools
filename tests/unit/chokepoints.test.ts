@@ -67,10 +67,12 @@ describe('chokepoints', () => {
     const dates = ['2026-11-09', '2026-11-10', '2026-11-11', '2026-11-12', '2026-11-13', '2026-11-14', '2026-11-15'];
     const by = new Map<string, number | null>();
     for (const d of dates) { by.set(yearsBefore(d, 1), 50); by.set(yearsBefore(d, 2), 70); by.set(yearsBefore(d, 3), 90); }
-    expect(sameDaysBefore(dates, by)).toEqual({ median: 70, years: [2023, 2025] });
+    expect(sameDaysBefore(dates, by)).toMatchObject({ median: 70, years: [2023, 2025] });
+    // Each year's week, oldest first, for the page to show beside the median.
+    expect(sameDaysBefore(dates, by)!.each).toEqual([{ year: 2023, avg: 90, total: 630, days: 7 }, { year: 2024, avg: 70, total: 490, days: 7 }, { year: 2025, avg: 50, total: 350, days: 7 }]);
     // A year with fewer than 5 of the 7 days counted is left out; two years give the median of two (their mean).
     for (const d of dates.slice(0, 3)) by.delete(yearsBefore(d, 3));
-    expect(sameDaysBefore(dates, by)).toEqual({ median: 60, years: [2024, 2025] });
+    expect(sameDaysBefore(dates, by)).toMatchObject({ median: 60, years: [2024, 2025] });
     // Fewer than two years: no usual level, so no status.
     for (const d of dates) by.delete(yearsBefore(d, 2));
     expect(sameDaysBefore(dates, by)).toBeNull();

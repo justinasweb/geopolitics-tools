@@ -4,7 +4,7 @@
 // would not say what "the last 7 days" means. Every sentence and figure here comes with its last data day.
 import { chokepoints, sameDaysBefore, VESSEL_TYPES, type Chokepoint, type Status, type VesselType } from '../adapters/portwatch.ts';
 import { IMPORTED } from '../../pipeline/sources/imported.ts';
-import { CHOKEPOINTS_TEXT as T, changeWords, ships, yearsText } from '../i18n/chokepoints.en.ts';
+import { CHOKEPOINTS_TEXT as T, changeWords, count, dayRange, ships, yearsText } from '../i18n/chokepoints.en.ts';
 import { data, shared } from './data.ts';
 import { formatDate } from './format.ts';
 
@@ -63,7 +63,14 @@ export function viewLede(): string | null {
   // The years most chokepoints are compared with (2023–2025 for a week of 2026).
   const years = mostCommon(list.map((c) => c.baseYears).filter((y): y is [number, number] => !!y).map(yearsText));
   if (!years) return T.ledeNone(formatDate(last), list.length);
-  return T.lede(formatDate(last), below.length, list.length, years, furthest ? { name: displayName(furthest.name, true), change: changeWords(furthest.change!) } : null);
+  return T.lede(formatDate(last), below.length, list.length, years, furthest ? { name: displayName(furthest.name, true), change: changeWords(furthest.change!), counts: weekCounts(furthest), ...(furthest.caveat ? { note: furthest.caveat.short } : {}) } : null);
+}
+
+/** A chokepoint's crossings in its last 7 days against the usual week: "16 crossings on 9–15 November, against a usual
+ *  607" (the usual a day times 7), or a day when a day of the 7 has no count. */
+export function weekCounts(c: Chokepoint): string {
+  const days = dayRange(c.week!.from, c.lastDate!);
+  return c.week!.days === 7 ? T.weekCounts(count(c.week!.total), count(c.baseline! * 7), days) : T.dayCounts(ships(c.avg7!), ships(c.baseline!), days);
 }
 
 const mostCommon = (xs: string[]) => [...xs.reduce((m, x) => m.set(x, (m.get(x) ?? 0) + 1), new Map<string, number>())].sort((a, b) => b[1] - a[1])[0]?.[0];

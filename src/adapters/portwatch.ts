@@ -49,21 +49,27 @@ const COUNTED = 0.7;
  * (when at least 70% of them have one), then the median of those years' averages. Null with fewer than two years.
  * `years` is the first and last year used, by the last day's year (2023–2025 for a week ending in 2026).
  */
-export function sameDaysBefore(dates: string[], byDate: Map<string, number | null>): { median: number; years: [number, number] } | null {
+export function sameDaysBefore(dates: string[], byDate: Map<string, number | null>): { median: number; years: [number, number]; each: YearCount[] } | null {
   if (!dates.length) return null;
   const last = Number(dates.at(-1)!.slice(0, 4));
-  const found: { year: number; avg: number }[] = [];
-  for (const k of [1, 2, 3]) {
+  const found: YearCount[] = [];
+  for (const k of [3, 2, 1]) {
     const vs = dates.map((d) => byDate.get(yearsBefore(d, k))).filter((v): v is number => typeof v === 'number');
-    if (vs.length >= Math.ceil(dates.length * COUNTED)) found.push({ year: last - k, avg: vs.reduce((a, b) => a + b, 0) / vs.length });
+    if (vs.length >= Math.ceil(dates.length * COUNTED)) {
+      const total = vs.reduce((a, b) => a + b, 0);
+      found.push({ year: last - k, avg: total / vs.length, total, days: vs.length });
+    }
   }
   if (found.length < 2) return null;
   const sorted = found.map((f) => f.avg).sort((a, b) => a - b);
   const mid = sorted.length / 2;
   const median = sorted.length % 2 ? sorted[Math.floor(mid)] : (sorted[mid - 1] + sorted[mid]) / 2;
   const ys = found.map((f) => f.year);
-  return { median, years: [Math.min(...ys), Math.max(...ys)] };
+  return { median, years: [Math.min(...ys), Math.max(...ys)], each: found };
 }
+
+/** One year's count over some days: their average a day, their sum and how many of the days had a count. */
+export interface YearCount { year: number; avg: number; total: number; days: number }
 
 /** One day at a chokepoint. */
 export interface Transit {
@@ -84,6 +90,10 @@ export interface Chokepoint {
   /** The last 7 days' average; the usual level (median of the same 7 days in the three years before) and the years it
    *  comes from; the change between them. */
   avg7: number | null; baseline: number | null; baseYears: [number, number] | null; change: number | null; status: Status;
+  /** The last 7 days: their first day, and the crossings counted in them (`days` of the 7 with a count). */
+  week: { from: string; total: number; days: number } | null;
+  /** The same 7 days in each of the three years before that the usual level used, oldest first. */
+  baseWeeks: YearCount[];
   /** Every day's count PortWatch gave (four years and more), for comparing other periods with the years before. */
   byDate: Map<string, number | null>;
   mix: Record<VesselType, number | null>;
@@ -130,7 +140,8 @@ export function parseChokepoints(meta: { features?: { attributes: Attr }[] }, da
       cargo: { ...Object.fromEntries(VESSEL_TYPES.map((t) => [t, numOr(r[CARGO_OF[t]])])), all: numOr(r.capacity) } as Transit['cargo'],
     }));
     const week = series.slice(-7);
-    const avg7 = mean(week.map((s) => s.total).filter((t): t is number => t != null));
+    const counted = week.map((s) => s.total).filter((t): t is number => t != null);
+    const avg7 = mean(counted);
     const usual = sameDaysBefore(week.map((d) => d.date), byDate);
     const baseline = usual?.median ?? null;
     const change = avg7 != null && baseline ? avg7 / baseline - 1 : null;
@@ -145,6 +156,7 @@ export function parseChokepoints(meta: { features?: { attributes: Attr }[] }, da
       id: String(m.portid), slug, name, lat: Number(m.lat), lon: Number(m.lon),
       industries: [m.industry_top1, m.industry_top2, m.industry_top3].filter(Boolean).map(String),
       series, lastDate: series.at(-1)?.date ?? null, avg7, baseline, baseYears: usual?.years ?? null, change, status: statusFor(change), mix, byDate,
+      week: week.length ? { from: week[0].date, total: counted.reduce((a, b) => a + b, 0), days: counted.length } : null, baseWeeks: usual?.each ?? [],
       ...(caveat ? { caveat } : {}),
     };
   }).filter((p) => Number.isFinite(p.lat) && Number.isFinite(p.lon));

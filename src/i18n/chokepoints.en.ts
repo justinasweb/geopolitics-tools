@@ -18,6 +18,20 @@ export const changeCell = (change: number) => {
   const p = wholePercent(change);
   return p === 0 ? '0%' : `${p < 0 ? '−' : '+'}${Math.abs(p)}%`;
 };
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+/** A run of days, as short as reads clearly: "9–15 November", "28 October – 3 November", "29 December 2025 – 4 January
+ *  2026"; `short` months ("9–15 Nov") for labels, `year` to add the year to the end ("9–15 Nov 2026"). */
+export function dayRange(from: string, to: string, { short = false, year = false } = {}): string {
+  const m = (d: string) => { const n = MONTHS[Number(d.slice(5, 7)) - 1]; return short ? n.slice(0, 3) : n; };
+  const dd = (d: string) => String(Number(d.slice(8, 10)));
+  const y = (d: string) => d.slice(0, 4);
+  if (y(from) !== y(to)) return `${dd(from)} ${m(from)} ${y(from)} – ${dd(to)} ${m(to)} ${y(to)}`;
+  const end = year ? ` ${y(to)}` : '';
+  return from.slice(0, 7) === to.slice(0, 7) ? `${dd(from)}–${dd(to)} ${m(to)}${end}` : `${dd(from)} ${m(from)} – ${dd(to)} ${m(to)}${end}`;
+}
+/** A whole count of crossings: "16", "1,053". */
+export const count = (n: number) => Math.round(n).toLocaleString('en');
+
 /** The years a comparison uses: "2023–2025". */
 export const yearsText = (y: [number, number]) => (y[0] === y[1] ? String(y[0]) : `${y[0]}–${y[1]}`);
 
@@ -34,11 +48,16 @@ export const CHOKEPOINTS_TEXT = {
   days30: (date: string) => `30 days to ${date}`,
   daily: (from: string, to: string) => `${from} – ${to}, daily`,
   estimated: 'estimated cargo',
-  /** The view's summary line: how many are below their usual level, and which is furthest below. */
-  lede: (date: string, below: number, all: number, years: string, furthest: { name: string; change: string } | null) =>
+  /** The view's summary line: how many are below their usual level, and which is furthest below, with its crossings
+   *  in the week against the usual week ("16 crossings on 9–15 November, against a usual 607") and the source's
+   *  warning on it, if any. */
+  lede: (date: string, below: number, all: number, years: string, furthest: { name: string; change: string; counts: string; note?: string } | null) =>
     below === 0
       ? `In the week to ${date}, none of the ${all} chokepoints had 10% or more fewer ships than in the same week in ${years}.`
-      : `In the week to ${date}, ${below} of the ${all} chokepoints had 10% or more fewer ships than in the same week in ${years}${furthest ? `; the furthest below was ${furthest.name}, ${furthest.change} its level then` : ''}.`,
+      : `In the week to ${date}, ${below} of the ${all} chokepoints had 10% or more fewer ships than in the same week in ${years}${furthest ? `; the furthest below was ${furthest.name}, with ${furthest.counts} (${furthest.change})` : ''}.${furthest?.note ? ` ${furthest.note}` : ''}`,
+  /** A week's crossings against the usual week: in all when all 7 days have counts, else a day. */
+  weekCounts: (n: string, usual: string, days: string) => `${n} crossings on ${days}, against a usual ${usual}`,
+  dayCounts: (n: string, usual: string, days: string) => `${n} crossings a day on ${days}, against a usual ${usual}`,
   ledeNone: (date: string, all: number) => `In the week to ${date}, none of the ${all} chokepoints had counts for the same week in at least two of the three years before, so none can be compared.`,
   usualNote: 'Usual: the same week in each of the three years before (the median of their averages); no status where fewer than two of those years have counts.',
   status: {
@@ -73,7 +92,7 @@ export const CHOKEPOINTS_TEXT = {
 
   // The chokepoint pages.
   placeTitle: (name: string) => `${name}: traffic and trade`,
-  placeDescription: (name: string, line: string) => `${name}: ${line.charAt(0).toLowerCase()}${line.slice(1)} Daily ships, vessel mix and estimated cargo (IMF PortWatch).`,
+  placeDescription: (name: string, line: string, note?: string) => `${name}: ${line.charAt(0).toLowerCase()}${line.slice(1)} ${note ?? 'Daily ships, vessel mix and estimated cargo (IMF PortWatch).'}`,
   /** The status line: "Traffic was 12% below its usual level in the week to 31 Oct 2026." */
   statusLine: (change: string, date: string, years: string) => (change === 'at' ? `Traffic in the week to ${date} was at its usual level, compared with the same week in ${years}.` : `Traffic in the week to ${date} was ${change} usual, compared with the same week in ${years}.`),
   noRecent: (date: string) => `No ships were counted in the last 7 days to ${date}.`,
