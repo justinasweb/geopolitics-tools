@@ -12,7 +12,8 @@
 .gt-world__c { cursor: default; }
 .gt-smap__sea { fill: var(--paper-sunk); }
 .gt-smap { display: block; width: 100%; height: 100%; }
-/* Locator (country pages): white sea, grey land with light borders as on the Atlas, the selected place in --seq-4. */
+/* Locator (country pages): white sea, grey land outlined in --rule-strong (borders and coasts, which the paper-coloured
+   world-map border lost on grey land), the selected place in --seq-4 with its accent outline drawn over the borders. */
 .gt-smap--loc .gt-smap__sea { fill: var(--paper-raised); }
-.gt-smap--loc .gt-world__c { fill: var(--map-nodata); }
+.gt-smap--loc .gt-world__c { fill: var(--map-nodata); stroke: var(--rule-strong); stroke-width: .75; }
 .gt-smap--loc .gt-world__c.is-sel { fill: var(--seq-4); }
