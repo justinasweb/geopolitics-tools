@@ -55,7 +55,7 @@ import type { Hazard } from '../../adapters/hazards.ts';
 import type { Arc, Entry, LayerFile, LayerYear, Overlay, PanelBlock, Point } from './types.ts';
 import { OTHER_SUPPLIER } from '../../adapters/sipri.ts';
 import { DEP_TEXT } from '../../i18n/pages.en.ts';
-import { liveChokepoints, ranked } from '../chokepoints.ts';
+import { commonYears, liveChokepoints, ranked } from '../chokepoints.ts';
 import { CHOKEPOINTS_TEXT, changeWords, ships } from '../../i18n/chokepoints.en.ts';
 
 export interface LayerDef {
@@ -1250,21 +1250,22 @@ function chokepointLayer(): LayerFile {
   const list = ranked(liveChokepoints());
   const last = list.map((x) => x.lastDate).filter((d): d is string => !!d).sort().at(-1)!;
   const year = Number(last.slice(0, 4));
-  const label = X.weekTo(formatDate(last));
+  const label = X.week(last);
+  const legend = X.legend(label, commonYears(list) ?? '');
   const items: Point[] = list.map((x) => ({
     at: toMap(x.lon, x.lat), s: `cp-${x.status}`, href: live(`view:chokepoints:${x.slug}`)?.path,
-    tip: x.change === null || !x.lastDate ? `${x.name}: ${X.status.unknown}` : X.tip(x.name, `${changeWords(x.change)} usual`, ships(x.avg7!), formatDate(x.lastDate)),
+    tip: x.change === null || !x.lastDate ? `${x.name}: ${X.status.unknown}` : X.tip(x.name, `${changeWords(x.change)} usual`, ships(x.avg7!), X.week(x.lastDate)),
   }));
   return {
     id: 'chokepoints', name: X.title, scale: 'seq', years: [year], year, ticks: [],
     missing: { none: X.noShading }, source: creditName('portwatch'),
     text: {
       ...(c.words as LayerFile['text']),
-      kicker: `${X.title} · {year}`, measure: X.sub, shareLabel: X.legend, none: X.noShading,
+      kicker: `${X.title} · {year}`, measure: X.sub, shareLabel: legend, none: X.noShading,
       withheld: MAP_TEXT.withheldBy, withheldWhy: '', prev: '{year}: {value}', rank: VIEWS_TEXT.rank(0, 1).replace('0', '{rank}').replace('1', '{of}'),
     },
     tags: c.tags, names: c.names, hrefs: c.hrefs, slugs: c.slugs, notes: c.notes, blocs: c.blocs,
-    data: [{ year, label, legend: X.legend, v: {}, order: [], blocs: {} }],
+    data: [{ year, label, legend, v: {}, order: [], blocs: {} }],
     overlays: [{ id: 'chokepoints', kind: 'points', label: X.mark, symbol: 'diamond', items }],
   };
 }

@@ -4,7 +4,7 @@
 // would not say what "the last 7 days" means. Every sentence and figure here comes with its last data day.
 import { chokepoints, sameDaysBefore, VESSEL_TYPES, yearsBefore, type Chokepoint, type Status, type VesselType } from '../adapters/portwatch.ts';
 import { IMPORTED } from '../../pipeline/sources/imported.ts';
-import { CHOKEPOINTS_TEXT as T, changeWords, count, dayRange, ships, yearsText } from '../i18n/chokepoints.en.ts';
+import { CHOKEPOINTS_TEXT as T, changeWords, count, dayRange, daysBefore, ships, yearsText } from '../i18n/chokepoints.en.ts';
 import { data, shared } from './data.ts';
 import { formatDate } from './format.ts';
 
@@ -60,8 +60,7 @@ export function viewLede(): string | null {
   if (!list.length || !last) return null;
   const below = list.filter(isBelow);
   const furthest = ranked(below)[0];
-  // The years most chokepoints are compared with (2023–2025 for a week of 2026).
-  const years = mostCommon(list.map((c) => c.baseYears).filter((y): y is [number, number] => !!y).map(yearsText));
+  const years = commonYears(list);
   if (!years) return T.ledeNone(formatDate(last), list.length);
   return T.lede(formatDate(last), below.length, list.length, years, furthest ? { name: displayName(furthest.name, true), change: changeWords(furthest.change!), counts: weekCounts(furthest), ...(furthest.caveat ? { note: furthest.caveat.short } : {}) } : null);
 }
@@ -72,6 +71,9 @@ export function weekCounts(c: Chokepoint): string {
   const days = dayRange(c.week!.from, c.lastDate!);
   return c.week!.days === 7 ? T.weekCounts(count(c.week!.total), count(c.baseline! * 7), days) : T.dayCounts(ships(c.avg7!), ships(c.baseline!), days);
 }
+
+/** The years most chokepoints are compared with ("2023–25" for a week of 2026). */
+export const commonYears = (list = liveChokepoints()) => mostCommon(list.map((c) => c.baseYears).filter((y): y is [number, number] => !!y).map(yearsText));
 
 const mostCommon = (xs: string[]) => [...xs.reduce((m, x) => m.set(x, (m.get(x) ?? 0) + 1), new Map<string, number>())].sort((a, b) => b[1] - a[1])[0]?.[0];
 
@@ -94,7 +96,7 @@ export const FEW = 10;
 /** The status line on a chokepoint's page: "Traffic in the week to 15 Nov 2026 was 12% below the same week in 2023–2025." */
 export function statusLine(c: Chokepoint): string {
   if (!c.lastDate) return '';
-  if (c.avg7 === null) return T.noRecent(formatDate(c.lastDate));
+  if (c.avg7 === null) return T.noRecent(dayRange(daysBefore(c.lastDate, 6), c.lastDate));
   if (fewCrossings(c)) {
     const { by, total } = typeCounts(c.series.slice(-7));
     const only = total ? VESSEL_TYPES.find((t) => by[t] === total) : undefined;
@@ -102,7 +104,7 @@ export function statusLine(c: Chokepoint): string {
     return T.fewLine(name.charAt(0).toUpperCase() + name.slice(1), total, dayRange(c.week!.from, c.lastDate), only ? T.typeIn[only][total === 1 ? 0 : 1] : null,
       c.change === null || !c.baseYears ? null : { years: yearsText(c.baseYears), median: count(c.baseline! * 7), change: changeWords(c.change) });
   }
-  if (c.change === null || !c.baseYears) return T.noUsual(formatDate(c.lastDate), ships(c.avg7));
+  if (c.change === null || !c.baseYears) return T.noUsual(dayRange(c.week!.from, c.lastDate), ships(c.avg7));
   return T.statusLine(changeWords(c.change), formatDate(c.lastDate), yearsText(c.baseYears));
 }
 

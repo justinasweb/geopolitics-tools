@@ -205,7 +205,7 @@ export function card(r: Route | null): Card {
     const c = chokepointBySlug(r.id.split(':')[1])!;
     const ms = chokepointMonths(c).slice(0, 5).reverse();
     return {
-      kicker: X.section, title: X.placeTitle(c.name), figure: c.avg7 === null ? undefined : fewCrossings(c) ? countText(c.week!.total) : shipsText(c.avg7), caption: `${fewCrossings(c) ? `${X.kfFew}.` : `${X.kfWeekMeta(formatDate(c.lastDate!))}.`} ${statusLine(c)}${c.caveat ? ` ${c.caveat.short}` : ''}`,
+      kicker: X.section, title: X.placeTitle(c.name), figure: c.avg7 === null ? undefined : fewCrossings(c) ? countText(c.week!.total) : shipsText(c.avg7), caption: `${fewCrossings(c) ? `${X.kfFew}.` : `${X.kfWeek(X.week(c.lastDate!))}, ${X.kfWeekMeta}.`} ${statusLine(c)}${c.caveat ? ` ${c.caveat.short}` : ''}`,
       bars: ms.map((m) => ({ label: formatPartialDate(m.month), value: m.perDay, text: shipsText(m.perDay) })),
       source: `${short('portwatch')}, ${X.dataTo(formatDate(c.lastDate!))}`,
     };

@@ -127,7 +127,7 @@ describe('chokepoints', () => {
       if (d >= '2026-11-09') return ['2026-11-10', '2026-11-13', '2026-11-15'].includes(d) ? 1 : 0;
       return d.startsWith('2023') ? 2 : d.startsWith('2024') ? 1 : 15;
     }) };
-    for (const f of daily.features) { const a = f.attributes; if (a.date >= '2026-11-09') Object.assign(a, { n_tanker: a.n_total, n_container: 0, n_dry_bulk: 0 }); }
+    for (const f of daily.features) { const a = f.attributes; if (String(a.date) >= '2026-11-09') Object.assign(a, { n_tanker: a.n_total, n_container: 0, n_dry_bulk: 0 }); }
     const [k] = parseChokepoints(meta([['chokepoint9', 'Kerch Strait']]), daily);
     expect(statusLine(k)).toBe('The Kerch Strait recorded 3 crossings on 9–15 November, all by tankers; the median for that week in 2023–25 was 14 (79% below).');
   });

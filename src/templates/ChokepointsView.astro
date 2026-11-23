@@ -17,7 +17,7 @@ import '../styles/atlas/table.css';
 import '../styles/atlas/tools.css';
 import '../styles/atlas/place.css';
 import { CHOKEPOINTS_TEXT as X, changeCell, ships } from '../i18n/chokepoints.en';
-import { STATUSES, importedOn, lastDataDay, liveChokepoints, ranked, statusCounts, viewLede } from '../lib/chokepoints';
+import { STATUSES, commonYears, importedOn, lastDataDay, liveChokepoints, ranked, statusCounts, viewLede } from '../lib/chokepoints';
 import { creditLine } from '../lib/data';
 import { formatDate } from '../lib/format';
 import { hubCrumb, live, route } from '../lib/routes';
@@ -29,7 +29,9 @@ const path = route(key)!.path;
 const url = new URL(path, Astro.site).href;
 const list = ranked();
 const counts = statusCounts();
-const last = formatDate(lastDataDay()!);
+const lastDay = lastDataDay()!;
+const last = formatDate(lastDay);
+const week = X.week(lastDay);
 const imported = importedOn();
 const answer = viewLede()!;
 const sourceParts = [X.dataTo(last), ...(imported ? [X.imported(formatDate(imported))] : [])];
@@ -44,7 +46,7 @@ const related = [
   ...(live('tool:supply-chains:oil') ? [{ href: live('tool:supply-chains:oil')!.path, name: X.oilChain, note: X.chain }] : []),
 ];
 ---
-<Page title={X.title} description={X.description(liveChokepoints().length, last)} hub="security" container="mv" image={route(key)!.image}
+<Page title={X.title} description={X.description(liveChokepoints().length, last)} footer={X.footer} hub="security" container="mv" image={route(key)!.image}
   jsonld={[breadcrumbs(crumbs.map((c) => ({ label: c.label, href: c.href })))]}>
   <div class="gt-mvhead">
     <Breadcrumbs items={crumbs} />
@@ -54,11 +56,11 @@ const related = [
     <SourceLine source={X.source} parts={sourceParts} />
   </div>
 
-  <MapStage layer={layerPath('chokepoints')} label={X.mapLabel(list.length, below.length)} title={X.title}
-    legend={{ title: X.legend, scale: 'seq', ticks: [], none: X.noShading, marks, marksOnly: true }}>
+  <MapStage layer={layerPath('chokepoints')} label={X.mapLabel(list.length, below.length, week)} title={X.title}
+    legend={{ title: X.legend(week, commonYears() ?? ''), scale: 'seq', ticks: [], none: X.noShading, marks, marksOnly: true }}>
     <div data-panel="world" slot="panel">
       <div class="gt-panel__head">
-        <div class="gt-panel__title"><span class="gt-kicker">{X.title} · {X.weekTo(last)}</span><h2 class="gt-h3">{X.counts}</h2></div>
+        <div class="gt-panel__title"><span class="gt-kicker">{X.title} · {week}</span><h2 class="gt-h3">{X.counts}</h2></div>
       </div>
       <div class="gt-panel__body">
         <ul class="gt-devents">
@@ -87,12 +89,12 @@ const related = [
       <h2 class="gt-h2" id="table">{X.tableTitle}</h2>
       <div class="gt-tablewrap" style="--gt-table-h:none" tabindex="0" role="region" aria-label={X.tableLabel}>
         <table class="gt-table gt-hztable" data-gt-sort>
-          <caption class="gt-caption">{X.caption(list.length)}</caption>
+          <caption class="gt-caption">{X.caption(list.length, week)}</caption>
           <thead><tr>
             <th scope="col" data-key="n"><button type="button">{X.colName}</button></th>
             <th scope="col" data-key="s"><button type="button">{X.colStatus}</button></th>
             <th scope="col" class="n" data-key="c" data-type="num" aria-sort="ascending"><button type="button">{X.colChange}</button></th>
-            <th scope="col" class="n" data-key="a" data-type="num"><button type="button">{X.colAvg}</button></th>
+            <th scope="col" class="n gt-thwrap" data-key="a" data-type="num"><button type="button">{X.colAvg(X.week(lastDay, true))}</button></th>
             <th scope="col" class="n" data-key="b" data-type="num"><button type="button">{X.colBase}</button></th>
             <th scope="col" data-key="d"><button type="button">{X.colLast}</button></th>
           </tr></thead>

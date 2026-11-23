@@ -44,6 +44,9 @@
 
 /* Tables: a month or vessel type stays on one line; the table scrolls in its box on a phone. */
 .gt-hztable th[scope=row] { white-space: nowrap; }
+/* A header with its dates ("Crossings a day, 9–15 Nov") takes two lines rather than widening the table. */
+.gt-hztable th.gt-thwrap { white-space: normal; min-width: 9em; vertical-align: bottom; }
+.gt-hztable th.gt-thwrap button { justify-content: flex-end; text-align: right; }
 
 /* Vessel mix: one stacked bar and a labelled key, so it reads without colour. */
 .gt-mix { display: grid; gap: 10px; }

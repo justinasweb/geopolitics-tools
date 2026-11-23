@@ -34,7 +34,7 @@ const last = formatDate(c.lastDate!);
 const first = formatDate(c.series[0].date);
 const imported = importedOn();
 const updated = imported ? X.imported(formatDate(imported)) : undefined;
-const week = X.weekTo(last);
+const week = X.week(c.lastDate!);
 const line = statusLine(c);
 const title = X.placeTitle(c.name);
 const crumbs: { label: string; href?: string }[] = [hubCrumb('security'), { label: X.section, href: live('view:chokepoints:all')?.path }, { label: c.name }];
@@ -69,7 +69,7 @@ const related = [
 const description = cutWords(X.placeDescription(c.name, line, c.caveat?.short), 160);
 const cite = `${creditLine('portwatch')}, ${X.dataTo(last)}.`;
 ---
-<Page title={title} description={description} hub="security" container="mv" image={route(key)!.image}
+<Page title={title} description={description} footer={X.footer} hub="security" container="mv" image={route(key)!.image}
   jsonld={[breadcrumbs(crumbs.map((x) => ({ label: x.label, href: x.href })))]}>
   <div class="gt-mvhead">
     <Breadcrumbs items={crumbs} />
@@ -83,9 +83,9 @@ const cite = `${creditLine('portwatch')}, ${X.dataTo(last)}.`;
   <div class="gt-hzkf">
     {few
       ? <div class="gt-pkf"><span class="gt-pkf__label">{X.kfFew}</span><span class="gt-pkf__num">{count(week7.total)}</span><span class="gt-pkf__meta">{X.kfFewMeta(weekDays)}</span></div>
-      : <div class="gt-pkf"><span class="gt-pkf__label">{X.kfWeek}</span><span class="gt-pkf__num">{c.avg7 === null ? '–' : ships(c.avg7)}</span><span class="gt-pkf__meta">{X.kfWeekMeta(last)}</span></div>}
+      : <div class="gt-pkf"><span class="gt-pkf__label">{X.kfWeek(weekDays)}</span><span class="gt-pkf__num">{c.avg7 === null ? '–' : ships(c.avg7)}</span><span class="gt-pkf__meta">{X.kfWeekMeta}</span></div>}
     <div class="gt-pkf"><span class="gt-pkf__label">{c.baseYears ? X.kfAgainst(yearsText(c.baseYears)) : X.kfAgainstNone}</span><span class="gt-pkf__num">{c.change === null ? '–' : changeCell(c.change)}</span><span class="gt-pkf__meta">{c.baseline === null ? X.kfUsualNone : X.kfAgainstMeta(ships(c.baseline))}</span></div>
-    <div class="gt-pkf"><span class="gt-pkf__label">{X.kfTankers}</span><span class:list={['gt-pkf__num', { 'gt-pkf__num--word': week7.total < FEW && tanker !== null }]}>{tankerText}</span><span class="gt-pkf__meta">{X.kfTankersMeta(last)}</span></div>
+    <div class="gt-pkf"><span class="gt-pkf__label">{X.kfTankers}</span><span class:list={['gt-pkf__num', { 'gt-pkf__num--word': week7.total < FEW && tanker !== null }]}>{tankerText}</span><span class="gt-pkf__meta">{X.kfTankersMeta(weekDays)}</span></div>
   </div>
   {byYear.length > 0 && (
     <div class="gt-cpyears">
@@ -130,16 +130,16 @@ const cite = `${creditLine('portwatch')}, ${X.dataTo(last)}.`;
 
     <div class="gt-hzgrid__b">
       <section class="gt-hzsec" aria-labelledby="cp-mix">
-        <h2 class="gt-h3" id="cp-mix">{X.mix}</h2>
-        <div class="gt-mix" role="img" aria-label={X.mixLabel(mixText)}>
+        <h2 class="gt-h3" id="cp-mix">{X.mix(X.days30(c.lastDate!))}</h2>
+        <div class="gt-mix" role="img" aria-label={X.mixLabel(X.days30(c.lastDate!), mixText)}>
           <div class="gt-mix__bar">{mix.map((m) => <span style={`width:${(m.share * 100).toFixed(1)}%;background:${mixColours[m.t] ?? 'var(--map-nodata)'}`} title={`${X.types[m.t] ?? X.other} ${mixValue(m)}`}></span>)}</div>
           <ul class="gt-mix__key">{mix.map((m) => <li><i style={`background:${mixColours[m.t] ?? 'var(--map-nodata)'}`}></i><span>{X.types[m.t] ?? X.other}</span><b>{mixValue(m)}</b></li>)}</ul>
         </div>
-        <SourceLine source={X.source} parts={[X.days30(last)]} />
+        <SourceLine source={X.source} parts={[X.days30(c.lastDate!)]} />
       </section>
 
       <section class="gt-hzsec" aria-labelledby="cp-cargo">
-        <h2 class="gt-h3" id="cp-cargo">{X.cargo}</h2>
+        <h2 class="gt-h3" id="cp-cargo">{X.cargo(weekDays)}</h2>
         <p class="gt-label">{X.cargoLabel}</p>
         <div class="gt-tablewrap" style="--gt-table-h:none" tabindex="0" role="region" aria-labelledby="cp-cargo">
           <table class="gt-table">
