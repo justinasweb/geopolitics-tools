@@ -27,6 +27,8 @@
 .gt-cploc--link { display: block; cursor: pointer; transition: border-color .15s; }
 .gt-cploc--link:hover, .gt-cploc--link:focus-visible { border-color: var(--ink); }
 .gt-cploc--link:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+/* The map's shapes set their own cursor (maps.css); inside the link, the sea, shapes, outline and ring point too. */
+.gt-cploc--link .gt-smap, .gt-cploc--link .gt-smap * { cursor: pointer; }
 .gt-cploc__go { margin: 0; }
 .gt-cploc__go a { font: 600 15px/22px var(--sans); color: var(--brand); }
 .gt-cploc .gt-world__svg { height: 100%; }
