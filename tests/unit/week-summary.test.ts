@@ -12,7 +12,7 @@ import { place } from '../../src/lib/places.ts';
 import { parseCallback } from '../../src/lib/review.ts';
 import type { WeekData } from '../../src/lib/week/model.ts';
 import { reviewMessage } from '../../scripts/review.ts';
-import { digest, digestPost, summary, weekUrl } from '../../scripts/week.ts';
+import { checkPage, DIGEST_AGENT, digest, digestPost, productionDeployed, summary, weekUrl } from '../../scripts/week.ts';
 import type { Bot } from '../../scripts/telegram.ts';
 
 // This week's summary (src/lib/ai/week-facts.ts, scripts/week.ts) and the review steps behind the Telegram buttons
@@ -278,13 +278,75 @@ describe('the summary and digest runs', () => {
     repo();
     expect(await digest('2026-45', b, { holding: true })).toBe('holding');
     expect(sent).toEqual([]);
-    expect(await digest('2026-45', b, { holding: false, check: async () => 404 })).toBe('not live');
+    expect(await digest('2026-45', b, { holding: false, check: async () => ({ status: 404 }) })).toBe('not live');
     sent.length = 0;
-    expect(await digest('2026-45', b, { holding: false, check: async () => 200 })).toBe('sent');
+    expect(await digest('2026-45', b, { holding: false, check: async () => ({ status: 200 }) })).toBe('sent');
     expect(sent).toHaveLength(2);
     const post = sent[1];
     expect(post.text).toContain('• 2 new orange or red disaster alerts (GDACS)');
     expect((post.extra!.reply_markup as { inline_keyboard: { callback_data: string }[][] }).inline_keyboard[0].map((x) => x.callback_data)).toEqual(['p|2026-45', 'x|2026-45']);
+  });
+
+  it('checks the page with a GET and its own User-Agent, and tells a Cloudflare 403 apart from the page', async () => {
+    const calls: RequestInit[] = [];
+    const answer = (status: number, headers: Record<string, string> = {}, body = '') => (async (_u: unknown, init?: RequestInit) => { calls.push(init!); return new Response(body, { status, headers }); }) as typeof fetch;
+    expect(await checkPage('https://geopolitics.tools/this-week/2026-47', answer(200))).toEqual({ status: 200 });
+    expect(calls[0]).toMatchObject({ method: 'GET', headers: { 'User-Agent': DIGEST_AGENT } });
+    // GitHub Actions on 23 Nov: Cloudflare's managed challenge, a 403 with cf-mitigated; or the challenge page alone.
+    expect(await checkPage('u', answer(403, { 'cf-mitigated': 'challenge' }))).toEqual({ status: 403, blocked: true });
+    expect(await checkPage('u', answer(403, {}, '<title>Just a moment...</title><script src="/cdn-cgi/challenge-platform/h/b/orchestrate/chl_page/v1"></script>'))).toEqual({ status: 403, blocked: true });
+    // A 403 from the site itself is not a Cloudflare block.
+    expect(await checkPage('u', answer(403, {}, 'Forbidden'))).toEqual({ status: 403, blocked: false });
+    expect(await checkPage('u', answer(404))).toEqual({ status: 404 });
+    expect(await checkPage('u', (async () => { throw new Error('offline'); }) as typeof fetch)).toEqual({ status: 0 });
+  });
+
+  it('on a Cloudflare 403 falls back to the production deploy: sends when it succeeded, refuses when it failed', async () => {
+    repo();
+    const blocked = async () => ({ status: 403, blocked: true });
+    let asked = 0;
+    const deploy = (state: 'ok' | 'failed' | 'unknown') => async () => { asked++; return { state, detail: 'https://github.com/x/y/actions/runs/1' }; };
+    sent.length = 0;
+    expect(await digest('2026-45', b, { holding: false, check: blocked, deployed: deploy('ok') })).toBe('sent');
+    // The owner is told the page was not checked, then gets the intro and the post.
+    expect(sent).toHaveLength(3);
+    expect(sent[0].text).toMatch(/could not be checked \(Cloudflare blocked the check, 403\), but the production deploy with this week succeeded/);
+    sent.length = 0;
+    expect(await digest('2026-45', b, { holding: false, check: blocked, deployed: deploy('failed') })).toBe('deploy failed');
+    expect(sent).toHaveLength(1);
+    expect(sent[0].text).toMatch(/^No digest yet: .* the production deploy with this week failed/);
+    // A deploy it cannot find: the digest goes to the owner with a warning to open the link first.
+    sent.length = 0;
+    expect(await digest('2026-45', b, { holding: false, check: blocked, deployed: deploy('unknown') })).toBe('sent');
+    expect(sent[0].text).toMatch(/Open the link before you tap Post/);
+    // A real 404 refuses without asking about the deploy.
+    asked = 0;
+    expect(await digest('2026-45', b, { holding: false, check: async () => ({ status: 404 }), deployed: deploy('ok') })).toBe('not live');
+    expect(asked).toBe(0);
+  });
+
+  it('finds the production deploy that includes the commit adding the week', async () => {
+    const sha = 'a'.repeat(40), later = 'b'.repeat(40), other = 'c'.repeat(40);
+    const runs = [
+      { id: 3, head_sha: other, event: 'pull_request', html_url: 'run3' },
+      { id: 2, head_sha: later, event: 'workflow_dispatch', html_url: 'run2' },
+      { id: 1, head_sha: sha, event: 'push', html_url: 'run1' },
+    ];
+    const api = (jobs: Record<number, string>) => async (path: string) => {
+      if (path.startsWith('repos/o/r/commits?')) return path.includes(encodeURIComponent('src/data/ai/facts/weeks/2026-47.json')) ? [{ sha }] : [];
+      if (path.startsWith('repos/o/r/actions/workflows/ci.yml/runs')) return { workflow_runs: runs };
+      if (path.startsWith('repos/o/r/compare/')) return { status: path.endsWith(later) ? 'ahead' : 'diverged' };
+      const id = Number(path.match(/runs\/(\d+)\/jobs/)![1]);
+      return { jobs: [{ name: 'check', conclusion: 'success' }, { name: 'production', conclusion: jobs[id] ?? null }] };
+    };
+    // The dispatched deploy after the week's commit succeeded.
+    expect(await productionDeployed('2026-47', api({ 2: 'success', 1: 'failure' }), 'o/r')).toEqual({ state: 'ok', detail: 'run2' });
+    // Every deploy that includes it failed.
+    expect(await productionDeployed('2026-47', api({ 2: 'failure', 1: 'failure' }), 'o/r')).toEqual({ state: 'failed', detail: 'run2' });
+    // Still running, or no commit adds the week: unknown.
+    expect((await productionDeployed('2026-47', api({}), 'o/r')).state).toBe('unknown');
+    expect((await productionDeployed('2026-48', api({ 2: 'success' }), 'o/r')).state).toBe('unknown');
+    expect((await productionDeployed('2026-47', api({}), undefined)).state).toBe('unknown');
   });
 });
 

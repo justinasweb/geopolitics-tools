@@ -83,4 +83,7 @@ jobs:
         run: gh workflow run ci.yml --ref main
       - name: Send the digest to the owner for review
         if: inputs.task == 'digest' && env.SITE_HOLDING != 'true'
+        env:
+          # When Cloudflare blocks the page check, the digest checks the production deploy instead (gh api).
+          GH_TOKEN: ${{ github.token }}
         run: npm run week:digest -- ${WEEK:+--week "$WEEK"}

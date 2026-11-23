@@ -60,5 +60,10 @@ export const TELEGRAM_TEXT = {
   digestLink: (url: string) => `The week’s maps, figures and sources: ${url}`,
   digestNotArchived: (week: number) => `No digest for week ${week}: the data run has not archived it, so it has no page.`,
   digestNotLive: (url: string, status: number | string) => `No digest yet: ${url} does not answer (${status}). Run week → digest again once the site has deployed.`,
+  digestBlocked: (status: number) => `Cloudflare blocked the check, ${status}`,
+  digestDeployFailed: (url: string, why: string, run: string) => `No digest yet: ${url} could not be checked (${why}) and the production deploy with this week failed: ${run}. Run week → digest again once it has deployed.`,
+  digestUnchecked: (url: string, why: string, run: string | null) => (run
+    ? `Note: ${url} could not be checked (${why}), but the production deploy with this week succeeded (${run}). The digest follows.`
+    : `Note: ${url} could not be checked (${why}), nor could the production deploy. Open the link before you tap Post.`),
   digestHolding: 'No digest: the site is still on the holding page (SITE_HOLDING).',
 };
