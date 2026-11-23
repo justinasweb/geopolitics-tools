@@ -14,8 +14,8 @@ import '../styles/atlas/mapview.css';
 import '../styles/atlas/keyfigure.css';
 import '../styles/atlas/table.css';
 import '../styles/atlas/place.css';
-import { CHOKEPOINTS_TEXT as X, changeCell, count, dayRange, ships, tonnes, yearsText } from '../i18n/chokepoints.en';
-import { chokepointBySlug, importedOn, lastWeek, liveChokepoints, months, nearest, statusLine, tankerShare, weekByYear } from '../lib/chokepoints';
+import { CHOKEPOINTS_TEXT as X, changeCell, count, dayRange, ofCount, ships, tonnes, yearsText } from '../i18n/chokepoints.en';
+import { FEW, chokepointBySlug, fewCrossings, importedOn, lastWeek, liveChokepoints, months, nearest, statusLine, tankerShare, typeCounts, weekByYear } from '../lib/chokepoints';
 import { VESSEL_TYPES } from '../adapters/portwatch';
 import { creditLine } from '../lib/data';
 import { cutWords, formatDate, formatPartialDate, formatShare } from '../lib/format';
@@ -39,6 +39,11 @@ const line = statusLine(c);
 const title = X.placeTitle(c.name);
 const crumbs: { label: string; href?: string }[] = [hubCrumb('security'), { label: X.section, href: live('view:chokepoints:all')?.path }, { label: c.name }];
 const tanker = tankerShare(c);
+// Under one crossing a day the week is given as its count; shares on fewer than 10 crossings as counts ("2 of 3").
+const few = fewCrossings(c);
+const week7 = typeCounts(c.series.slice(-7));
+const days30 = typeCounts(c.series.slice(-30));
+const tankerText = tanker === null ? '–' : week7.total < FEW ? ofCount(week7.by.n_tanker, week7.total) : formatShare(tanker);
 const weekRows = lastWeek(c);
 const byYear = weekByYear(c);
 const weekDays = c.week ? dayRange(c.week.from, c.lastDate!, { short: true }) : '';
@@ -48,7 +53,8 @@ const mixColours: Record<string, string> = { n_tanker: 'var(--seq-5)', n_contain
 const mixed = VESSEL_TYPES.map((t) => ({ t, share: c.mix[t] ?? 0 }));
 const other = Math.max(0, 1 - mixed.reduce((s, m) => s + m.share, 0));
 const mix = [...mixed, ...(other >= 0.005 ? [{ t: 'other', share: other }] : [])].filter((m) => m.share > 0);
-const mixText = mix.map((m) => `${X.types[m.t] ?? X.other} ${formatShare(m.share)}`).join(', ');
+const mixValue = (m: { t: string; share: number }) => (days30.total < FEW && m.t in days30.by ? ofCount(days30.by[m.t as keyof typeof days30.by], days30.total) : formatShare(m.share));
+const mixText = mix.map((m) => `${X.types[m.t] ?? X.other} ${mixValue(m)}`).join(', ');
 const chart = dailyChartHtml({ label: X.chartLabel(c.name, first, last), points: c.series.map((d) => ({ date: d.date, value: d.total, range: d.range })), format: ships });
 const hasBand = c.series.some((d) => d.range);
 const caveat = c.caveat;
@@ -75,9 +81,11 @@ const cite = `${creditLine('portwatch')}, ${X.dataTo(last)}.`;
   </div>
 
   <div class="gt-hzkf">
-    <div class="gt-pkf"><span class="gt-pkf__label">{X.kfWeek}</span><span class="gt-pkf__num">{c.avg7 === null ? '–' : ships(c.avg7)}</span><span class="gt-pkf__meta">{X.kfWeekMeta(last)}</span></div>
+    {few
+      ? <div class="gt-pkf"><span class="gt-pkf__label">{X.kfFew}</span><span class="gt-pkf__num">{count(week7.total)}</span><span class="gt-pkf__meta">{X.kfFewMeta(weekDays)}</span></div>
+      : <div class="gt-pkf"><span class="gt-pkf__label">{X.kfWeek}</span><span class="gt-pkf__num">{c.avg7 === null ? '–' : ships(c.avg7)}</span><span class="gt-pkf__meta">{X.kfWeekMeta(last)}</span></div>}
     <div class="gt-pkf"><span class="gt-pkf__label">{c.baseYears ? X.kfAgainst(yearsText(c.baseYears)) : X.kfAgainstNone}</span><span class="gt-pkf__num">{c.change === null ? '–' : changeCell(c.change)}</span><span class="gt-pkf__meta">{c.baseline === null ? X.kfUsualNone : X.kfAgainstMeta(ships(c.baseline))}</span></div>
-    <div class="gt-pkf"><span class="gt-pkf__label">{X.kfTankers}</span><span class="gt-pkf__num">{tanker === null ? '–' : formatShare(tanker)}</span><span class="gt-pkf__meta">{X.kfTankersMeta(last)}</span></div>
+    <div class="gt-pkf"><span class="gt-pkf__label">{X.kfTankers}</span><span class:list={['gt-pkf__num', { 'gt-pkf__num--word': week7.total < FEW && tanker !== null }]}>{tankerText}</span><span class="gt-pkf__meta">{X.kfTankersMeta(last)}</span></div>
   </div>
   {byYear.length > 0 && (
     <div class="gt-cpyears">
@@ -124,8 +132,8 @@ const cite = `${creditLine('portwatch')}, ${X.dataTo(last)}.`;
       <section class="gt-hzsec" aria-labelledby="cp-mix">
         <h2 class="gt-h3" id="cp-mix">{X.mix}</h2>
         <div class="gt-mix" role="img" aria-label={X.mixLabel(mixText)}>
-          <div class="gt-mix__bar">{mix.map((m) => <span style={`width:${(m.share * 100).toFixed(1)}%;background:${mixColours[m.t] ?? 'var(--map-nodata)'}`} title={`${X.types[m.t] ?? X.other} ${formatShare(m.share)}`}></span>)}</div>
-          <ul class="gt-mix__key">{mix.map((m) => <li><i style={`background:${mixColours[m.t] ?? 'var(--map-nodata)'}`}></i><span>{X.types[m.t] ?? X.other}</span><b>{formatShare(m.share)}</b></li>)}</ul>
+          <div class="gt-mix__bar">{mix.map((m) => <span style={`width:${(m.share * 100).toFixed(1)}%;background:${mixColours[m.t] ?? 'var(--map-nodata)'}`} title={`${X.types[m.t] ?? X.other} ${mixValue(m)}`}></span>)}</div>
+          <ul class="gt-mix__key">{mix.map((m) => <li><i style={`background:${mixColours[m.t] ?? 'var(--map-nodata)'}`}></i><span>{X.types[m.t] ?? X.other}</span><b>{mixValue(m)}</b></li>)}</ul>
         </div>
         <SourceLine source={X.source} parts={[X.days30(last)]} />
       </section>

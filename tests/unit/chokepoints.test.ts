@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { parseChokepoints, sameDaysBefore, slugOf, statusFor, usualRange, yearsBefore } from '../../src/adapters/portwatch.ts';
 import { freshImport, FRESH_HOURS, lastWeek, months, statusLine, tankerShare, weekByYear } from '../../src/lib/chokepoints.ts';
 import { dailyChartHtml, dailyTicks } from '../../src/lib/dailychart.ts';
-import { changeCell, changeWords, ships, tonnes, yearsText } from '../../src/i18n/chokepoints.en.ts';
+import { changeCell, changeWords, ofCount, ships, tonnes, yearsText } from '../../src/i18n/chokepoints.en.ts';
 
 const DAY = 86_400_000;
 const iso = (t: number) => new Date(t).toISOString().slice(0, 10);
@@ -121,10 +121,24 @@ describe('chokepoints', () => {
     expect(m[1].to).toBeUndefined();
   });
 
+  it('leads a week of under one crossing a day with its count, and the vessel type when one has them all', () => {
+    // Kerch: 1 tanker on three of the last 7 days; 2, 1 and 15 a day the same week in 2023, 2024 and 2025.
+    const daily = { features: rows('chokepoint9', 'Kerch Strait', '2022-10-01', '2026-11-15', (d) => {
+      if (d >= '2026-11-09') return ['2026-11-10', '2026-11-13', '2026-11-15'].includes(d) ? 1 : 0;
+      return d.startsWith('2023') ? 2 : d.startsWith('2024') ? 1 : 15;
+    }) };
+    for (const f of daily.features) { const a = f.attributes; if (a.date >= '2026-11-09') Object.assign(a, { n_tanker: a.n_total, n_container: 0, n_dry_bulk: 0 }); }
+    const [k] = parseChokepoints(meta([['chokepoint9', 'Kerch Strait']]), daily);
+    expect(statusLine(k)).toBe('The Kerch Strait recorded 3 crossings on 9–15 November, all by tankers; the median for that week in 2023–25 was 14 (79% below).');
+  });
+
   it('words changes, ships and tonnes', () => {
     expect([changeWords(-0.124), changeWords(0.03), changeWords(0.004)]).toEqual(['12% below', '3% above', 'at']);
     expect([changeCell(-0.124), changeCell(0.03), changeCell(0)]).toEqual(['−12%', '+3%', '0%']);
     expect([ships(96.4), ships(4.32), ships(0)]).toEqual(['96', '4.3', '0']);
+    // A count above zero never reads as zero.
+    expect([ships(0.04), ships(0.05)]).toEqual(['under 0.1', '0.1']);
+    expect([ofCount(3, 3), ofCount(2, 3), ofCount(0, 3)]).toEqual(['all 3', '2 of 3', 'none of 3']);
     expect([tonnes(1_234_567), tonnes(830_400), tonnes(486), tonnes(250_000_000)]).toEqual(['1.2 million tonnes', '830,000 tonnes', '486 tonnes', '250 million tonnes']);
   });
 

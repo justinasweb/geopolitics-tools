@@ -79,10 +79,29 @@ const mostCommon = (xs: string[]) => [...xs.reduce((m, x) => m.set(x, (m.get(x) 
  *  the Cape of Good Hope). */
 export const displayName = (name: string, inSentence = false) => (inSentence ? `the ${name}` : name);
 
+/** Under one crossing a day over all 7 days: the pages give the week's count, not an average. */
+export const fewCrossings = (c: Chokepoint) => c.avg7 !== null && c.avg7 < 1 && c.week?.days === 7;
+
+/** Crossings by vessel type over some days, and in all. */
+export function typeCounts(days: Chokepoint['series']): { by: Record<VesselType, number>; total: number } {
+  const by = Object.fromEntries(VESSEL_TYPES.map((t) => [t, days.reduce((s, d) => s + (d.ships[t] ?? 0), 0)])) as Record<VesselType, number>;
+  return { by, total: days.reduce((s, d) => s + (d.total ?? 0), 0) };
+}
+
+/** Shares on fewer crossings than this are given as counts ("2 of 3"), never as a percentage. */
+export const FEW = 10;
+
 /** The status line on a chokepoint's page: "Traffic in the week to 15 Nov 2026 was 12% below the same week in 2023–2025." */
 export function statusLine(c: Chokepoint): string {
   if (!c.lastDate) return '';
   if (c.avg7 === null) return T.noRecent(formatDate(c.lastDate));
+  if (fewCrossings(c)) {
+    const { by, total } = typeCounts(c.series.slice(-7));
+    const only = total ? VESSEL_TYPES.find((t) => by[t] === total) : undefined;
+    const name = displayName(c.name, true);
+    return T.fewLine(name.charAt(0).toUpperCase() + name.slice(1), total, dayRange(c.week!.from, c.lastDate), only ? T.typeIn[only][total === 1 ? 0 : 1] : null,
+      c.change === null || !c.baseYears ? null : { years: yearsText(c.baseYears), median: count(c.baseline! * 7), change: changeWords(c.change) });
+  }
   if (c.change === null || !c.baseYears) return T.noUsual(formatDate(c.lastDate), ships(c.avg7));
   return T.statusLine(changeWords(c.change), formatDate(c.lastDate), yearsText(c.baseYears));
 }

@@ -3,8 +3,11 @@
 // adapter's rule); the words name the comparison, not a cause.
 import { wholePercent, type Status } from '../adapters/portwatch.ts';
 
-/** Crossings a day: whole from 10, one decimal below ("96", "4.3"), "0" for none. */
-export const ships = (n: number) => (n === 0 ? '0' : new Intl.NumberFormat('en', { maximumFractionDigits: n >= 10 ? 0 : 1 }).format(n));
+/** Crossings a day: whole from 10, one decimal below ("96", "4.3"), "0" only for none, "under 0.1" for fewer
+ *  (never a zero for a count above it). */
+export const ships = (n: number) => (n === 0 ? '0' : n < 0.05 ? 'under 0.1' : new Intl.NumberFormat('en', { maximumFractionDigits: n >= 10 ? 0 : 1 }).format(n));
+/** Part of a small count, in place of a share: "all 3", "2 of 3", "none of 3". */
+export const ofCount = (part: number, total: number) => (part === total ? `all ${count(total)}` : part === 0 ? `none of ${count(total)}` : `${count(part)} of ${count(total)}`);
 /** Metric tonnes as the pages say them: "1.2 million tonnes", "830,000 tonnes". */
 export const tonnes = (t: number) => (t >= 1e6 ? `${new Intl.NumberFormat('en', { maximumFractionDigits: t >= 1e8 ? 0 : 1 }).format(t / 1e6)} million tonnes` : `${new Intl.NumberFormat('en', { maximumSignificantDigits: 3 }).format(t)} tonnes`);
 /** A change against the usual level, as the whole percent the status is read from ("12% below", "3% above", "at"). */
@@ -97,6 +100,16 @@ export const CHOKEPOINTS_TEXT = {
   placeDescription: (name: string, line: string, note?: string) => `${name}: ${line.charAt(0).toLowerCase()}${line.slice(1)} ${note ?? 'Daily crossings, vessel mix and estimated cargo (IMF PortWatch).'}`,
   /** The status line: "Traffic was 12% below its usual level in the week to 31 Oct 2026." */
   statusLine: (change: string, date: string, years: string) => (change === 'at' ? `Traffic in the week to ${date} was at its usual level, compared with the same week in ${years}.` : `Traffic in the week to ${date} was ${change} usual, compared with the same week in ${years}.`),
+  /** A week of fewer than 7 crossings, led by the count: "The Kerch Strait recorded 3 crossings on 9–15 November, all by
+   *  tankers; the median for that week in 2023–25 was 16 (81% below)." */
+  fewLine: (name: string, n: number, days: string, type: string | null, usual: { years: string; median: string; change: string } | null) =>
+    `${name} recorded ${count(n)} crossing${n === 1 ? '' : 's'} on ${days}${type ? `, ${n === 1 ? 'by' : 'all by'} ${type}` : ''}; ${usual
+      ? `the median for that week in ${usual.years} was ${usual.median}${usual.change === 'at' ? ', the same' : ` (${usual.change})`}.`
+      : 'fewer than two of the three years before have counts for that week, so there is no usual level to compare with.'}`,
+  /** Vessel types inside a sentence, one and many. */
+  typeIn: { n_tanker: ['a tanker', 'tankers'], n_container: ['a container ship', 'container ships'], n_dry_bulk: ['a bulk carrier', 'bulk carriers'], n_general_cargo: ['a general cargo ship', 'general cargo ships'], n_roro: ['a ro-ro ship', 'ro-ro ships'] } as Record<string, [string, string]>,
+  kfFew: 'Crossings in the 7 days',
+  kfFewMeta: (days: string) => `in all · ${days}`,
   noRecent: (date: string) => `No crossings were counted in the last 7 days to ${date}.`,
   noUsual: (date: string, avg: string) => `${avg} crossings a day in the week to ${date}; fewer than two of the three years before have counts for that week, so there is no usual level to compare with.`,
   kfWeek: 'Last 7 days',
