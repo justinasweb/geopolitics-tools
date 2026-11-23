@@ -50,6 +50,7 @@ const related = [
     <Breadcrumbs items={crumbs} />
     <h1 class="gt-title gt-mvhead__t">{X.title} <span class="gt-mvhead__sub">{X.sub}</span></h1>
     <p class="gt-lede gt-mvhead__a">{answer}</p>
+    <p class="gt-caption">{X.counting} {X.caveat}</p>
     <SourceLine source={X.source} parts={sourceParts} />
   </div>
 
@@ -74,7 +75,7 @@ const related = [
           ) : <p class="gt-caption">{X.noneBelow}</p>}
         </div>
         <Notice>
-          <p>{X.usualNote} {X.caveat}</p>
+          <p>{X.usualNote}</p>
           <SourceLine source={X.source} parts={sourceParts} />
         </Notice>
       </div>

@@ -3,7 +3,7 @@
 // adapter's rule); the words name the comparison, not a cause.
 import { wholePercent, type Status } from '../adapters/portwatch.ts';
 
-/** Ships a day: whole from 10, one decimal below ("96", "4.3"), "0" for none. */
+/** Crossings a day: whole from 10, one decimal below ("96", "4.3"), "0" for none. */
 export const ships = (n: number) => (n === 0 ? '0' : new Intl.NumberFormat('en', { maximumFractionDigits: n >= 10 ? 0 : 1 }).format(n));
 /** Metric tonnes as the pages say them: "1.2 million tonnes", "830,000 tonnes". */
 export const tonnes = (t: number) => (t >= 1e6 ? `${new Intl.NumberFormat('en', { maximumFractionDigits: t >= 1e8 ? 0 : 1 }).format(t / 1e6)} million tonnes` : `${new Intl.NumberFormat('en', { maximumSignificantDigits: 3 }).format(t)} tonnes`);
@@ -38,7 +38,7 @@ export const yearsText = (y: [number, number]) => (y[0] === y[1] ? String(y[0]) 
 export const CHOKEPOINTS_TEXT = {
   section: 'Chokepoints',
   title: 'Shipping chokepoints',
-  sub: 'ships a day against the same week in earlier years',
+  sub: 'crossings a day against the same week in earlier years',
   description: (n: number, last: string) => `Daily ship traffic through ${n} shipping chokepoints to ${last}, against each one’s usual level: Suez, Hormuz, Malacca, Panama and more. Source: IMF PortWatch.`,
   source: 'IMF PortWatch',
   /** "daily transits to 15 Nov 2026", "imported 22 Nov 2026". */
@@ -53,8 +53,8 @@ export const CHOKEPOINTS_TEXT = {
    *  warning on it, if any. */
   lede: (date: string, below: number, all: number, years: string, furthest: { name: string; change: string; counts: string; note?: string } | null) =>
     below === 0
-      ? `In the week to ${date}, none of the ${all} chokepoints had 10% or more fewer ships than in the same week in ${years}.`
-      : `In the week to ${date}, ${below} of the ${all} chokepoints had 10% or more fewer ships than in the same week in ${years}${furthest ? `; the furthest below was ${furthest.name}, with ${furthest.counts} (${furthest.change})` : ''}.${furthest?.note ? ` ${furthest.note}` : ''}`,
+      ? `In the week to ${date}, none of the ${all} chokepoints had 10% or more fewer crossings than in the same week in ${years}.`
+      : `In the week to ${date}, ${below} of the ${all} chokepoints had 10% or more fewer crossings than in the same week in ${years}${furthest ? `; the furthest below was ${furthest.name}, with ${furthest.counts} (${furthest.change})` : ''}.${furthest?.note ? ` ${furthest.note}` : ''}`,
   /** A week's crossings against the usual week: in all when all 7 days have counts, else a day. */
   weekCounts: (n: string, usual: string, days: string) => `${n} crossings on ${days}, against a usual ${usual}`,
   dayCounts: (n: string, usual: string, days: string) => `${n} crossings a day on ${days}, against a usual ${usual}`,
@@ -69,17 +69,17 @@ export const CHOKEPOINTS_TEXT = {
   } as Record<Status, string>,
   /** Short words for the table. */
   statusShort: { disrupted: '30%+ below', below: '10–30% below', normal: 'Near usual', above: '15%+ above', unknown: 'No data' } as Record<Status, string>,
-  legend: 'Ships a day, last 7 days against the same week in the three years before',
+  legend: 'Crossings a day, last 7 days against the same week in the three years before',
   noShading: 'Countries are not shaded on this map',
   mark: 'Shipping chokepoint',
-  mapLabel: (n: number, below: number) => `Map of ${n} shipping chokepoints, ${below} with 10% or more fewer ships in the last 7 days than in the same week in the three years before. The same figures are in the table below.`,
-  tip: (name: string, status: string, avg: string, date: string) => `${name}: ${status}, ${avg} ships a day in the week to ${date}`,
+  mapLabel: (n: number, below: number) => `Map of ${n} shipping chokepoints, ${below} with 10% or more fewer crossings in the last 7 days than in the same week in the three years before. The same figures are in the table below.`,
+  tip: (name: string, status: string, avg: string, date: string) => `${name}: ${status}, ${avg} crossings a day in the week to ${date}`,
   counts: 'Chokepoints by traffic',
   furthest: 'Furthest below usual',
   noneBelow: 'None is 10% or more below usual.',
   tableTitle: 'All chokepoints',
-  tableLabel: 'Shipping chokepoints, ships a day',
-  caption: (n: number) => `${n} chokepoints, sorted by the last 7 days against the same week in the three years before. Ships a day of every type, counted crossing in either direction: the average of the last 7 days, and the usual level (the median of the same week’s averages in those years).`,
+  tableLabel: 'Shipping chokepoints, crossings a day',
+  caption: (n: number) => `${n} chokepoints, sorted by the last 7 days against the same week in the three years before. Crossings a day, all five vessel types: the average of the last 7 days, and the usual level (the median of the same week’s averages in those years).`,
   colName: 'Chokepoint',
   colStatus: 'Status',
   colAvg: 'Last 7 days',
@@ -88,20 +88,22 @@ export const CHOKEPOINTS_TEXT = {
   colLast: 'Data to',
   summary: 'Summary',
   related: 'Related',
-  caveat: 'PortWatch counts ships from the position signals they send (AIS). A ship with its signal off is not counted.',
+  /** Said once, near the headline: what a crossing is. */
+  counting: 'PortWatch counts a crossing in either direction from a ship’s position signals (AIS).',
+  caveat: 'A ship with its signal off is not counted.',
 
   // The chokepoint pages.
   placeTitle: (name: string) => `${name}: traffic and trade`,
-  placeDescription: (name: string, line: string, note?: string) => `${name}: ${line.charAt(0).toLowerCase()}${line.slice(1)} ${note ?? 'Daily ships, vessel mix and estimated cargo (IMF PortWatch).'}`,
+  placeDescription: (name: string, line: string, note?: string) => `${name}: ${line.charAt(0).toLowerCase()}${line.slice(1)} ${note ?? 'Daily crossings, vessel mix and estimated cargo (IMF PortWatch).'}`,
   /** The status line: "Traffic was 12% below its usual level in the week to 31 Oct 2026." */
   statusLine: (change: string, date: string, years: string) => (change === 'at' ? `Traffic in the week to ${date} was at its usual level, compared with the same week in ${years}.` : `Traffic in the week to ${date} was ${change} usual, compared with the same week in ${years}.`),
-  noRecent: (date: string) => `No ships were counted in the last 7 days to ${date}.`,
-  noUsual: (date: string, avg: string) => `${avg} ships a day crossed in the week to ${date}; fewer than two of the three years before have counts for that week, so there is no usual level to compare with.`,
+  noRecent: (date: string) => `No crossings were counted in the last 7 days to ${date}.`,
+  noUsual: (date: string, avg: string) => `${avg} crossings a day in the week to ${date}; fewer than two of the three years before have counts for that week, so there is no usual level to compare with.`,
   kfWeek: 'Last 7 days',
-  kfWeekMeta: (date: string) => `ships a day, average · week to ${date}`,
+  kfWeekMeta: (date: string) => `crossings a day, average · week to ${date}`,
   kfAgainst: (years: string) => `Against the ${years} median`,
   kfAgainstNone: 'Against earlier years',
-  kfAgainstMeta: (median: string) => `median ${median} ships a day`,
+  kfAgainstMeta: (median: string) => `median ${median} crossings a day`,
   kfUsualNone: 'fewer than two earlier years with counts',
   /** The same week in each year, beside the median it gives: "Crossings on 9–15 Nov: 2023 544 · 2024 260 …". */
   yearsLabel: (days: string) => `Crossings on ${days}, by year`,
@@ -109,28 +111,28 @@ export const CHOKEPOINTS_TEXT = {
   yearsPart: (n: string, days: number) => (days === 7 ? n : `${n} (${days} of 7 days)`),
   yearsNote: (years: string) => `The median: each year’s average a day over these seven days, ${years}, and the middle one of them (the mean of two where only two years have counts for at least five of the days).`,
   kfTankers: 'Tankers',
-  kfTankersMeta: (date: string) => `of ships · week to ${date}`,
+  kfTankersMeta: (date: string) => `of crossings · week to ${date}`,
   where: 'Where it is',
   locLabel: (name: string) => `Map of the area around ${name}, its position marked`,
   locKey: 'PortWatch’s point for the chokepoint',
-  chart: 'Ships per day, last 12 months',
-  chartLabel: (name: string, from: string, to: string) => `Ships through ${name} each day from ${from} to ${to}, with the usual range. The monthly figures are in the table below.`,
-  chartLine: (name: string) => `Ships through ${name} per day`,
+  chart: 'Crossings a day, last 12 months',
+  chartLabel: (name: string, from: string, to: string) => `Crossings of ${name} each day from ${from} to ${to}, with the usual range. The monthly figures are in the table below.`,
+  chartLine: (name: string) => `Crossings of ${name} a day`,
   chartBand: 'Usual range: same day in the three years before, lowest to highest',
   chartGaps: 'No band where one of those years has no count.',
   mix: 'Vessel mix, last 30 days',
   mixLabel: (parts: string) => `Vessel mix over the last 30 days: ${parts}`,
-  cargo: 'Ships and estimated cargo, last 7 days',
+  cargo: 'Crossings and estimated cargo, last 7 days',
   cargoLabel: 'Estimated cargo, IMF PortWatch (from ship signals, not official statistics)',
-  cargoCaption: 'Daily averages by vessel type. Cargo is PortWatch’s estimate in metric tonnes, from each ship’s size and signals.',
+  cargoCaption: 'Daily averages for the five vessel types PortWatch counts: tankers, container ships, bulk carriers, general cargo and ro-ro (vehicles). Cargo is PortWatch’s estimate in metric tonnes, from each ship’s size and signals.',
   colType: 'Vessel type',
-  colShips: 'Ships a day',
+  colShips: 'Crossings a day',
   colCargo: 'Estimated cargo a day',
-  all: 'All ships',
-  months: 'Transits by month',
-  monthsCaption: 'Ships of all types counted crossing in either direction. Against usual: the month’s ships a day against the same days in the three years before (the median of their averages); – where fewer than two of those years have counts.',
+  all: 'All vessel types',
+  months: 'Crossings by month',
+  monthsCaption: 'Crossings, all five vessel types. Against usual: the month’s crossings a day against the same days in the three years before (the median of their averages); – where fewer than two of those years have counts.',
   colMonth: 'Month',
-  colTransits: 'Transits',
+  colTransits: 'Crossings',
   colPerDay: 'Per day',
   colAgainst: 'Against usual',
   colCargoMonth: 'Estimated cargo',

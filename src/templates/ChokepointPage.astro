@@ -69,6 +69,7 @@ const cite = `${creditLine('portwatch')}, ${X.dataTo(last)}.`;
     <Breadcrumbs items={crumbs} />
     <h1 class="gt-title gt-mvhead__t">{c.name}</h1>
     <p class="gt-lede gt-mvhead__a">{line}</p>
+    <p class="gt-caption">{X.counting} {X.caveat}</p>
     <SourceLine source={X.source} parts={[X.dataTo(last), ...(updated ? [updated] : [])]} />
     {caveat && <Notice inline><p>{caveat.text} <a href={caveat.url}>{caveatLine}</a></p></Notice>}
   </div>
