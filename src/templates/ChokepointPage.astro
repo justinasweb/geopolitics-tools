@@ -122,8 +122,22 @@ const cite = `${creditLine('portwatch')}, ${X.dataTo(last)}.`;
           <Fragment set:html={chart} />
           <figcaption><span><i class="gt-tc__linekey"></i>{X.chartLine(c.name)}</span>{hasBand && <span><i class="gt-tc__bandkey"></i>{X.chartBand}</span>}</figcaption>
         </figure>
-        {hasBand && <p class="gt-caption">{X.chartGaps} {X.usualNote}</p>}
+        {hasBand && <p class="gt-caption">{X.bandNote}</p>}
         {caveat && <p class="gt-caption">{caveat.text}</p>}
+        <details class="gt-cpdays">
+          <summary>{X.daysTable(first, last)}</summary>
+          <div class="gt-tablewrap" tabindex="0" role="region" aria-label={X.daysTable(first, last)}>
+            <table class="gt-table">
+              <caption class="gt-caption">{X.daysCaption}</caption>
+              <thead><tr><th scope="col"><span class="gt-th">{X.colDate}</span></th><th scope="col" class="n"><span class="gt-th">{X.colShips}</span></th><th scope="col" class="n"><span class="gt-th">{X.colRange}</span></th></tr></thead>
+              <tbody>
+                {[...c.series].reverse().map((d) => (
+                  <tr><th scope="row" class="gt-nowrap">{formatDate(d.date)}</th><td class="n">{d.total === null ? '–' : count(d.total)}</td><td class="n">{d.range ? X.range(count(d.range[0]), count(d.range[1])) : '–'}</td></tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </details>
         <SourceLine source={X.source} parts={[X.daily(first, last), ...(updated ? [updated] : [])]} citation={cite} />
       </section>
     </div>

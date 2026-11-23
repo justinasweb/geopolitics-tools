@@ -12,6 +12,11 @@
 .gt-cpyears__list b { font-weight: 600; font-variant-numeric: tabular-nums lining-nums; }
 .gt-cpyears__list .is-unused b { font-weight: 400; color: var(--ink-muted); }
 .gt-cpyears .gt-caption { margin: 0; max-width: 72ch; }
+/* The chart's daily counts, collapsed under it (ChokepointPage). */
+.gt-cpdays { margin-top: 12px; }
+.gt-cpdays > summary { cursor: pointer; font: 600 14px/20px var(--sans); color: var(--brand); min-height: 44px; display: flex; align-items: center; }
+.gt-cpdays > summary:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.gt-cpdays .gt-tablewrap { --gt-table-h: 360px; }
 .gt-hzgrid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 32px; align-items: start; }
 .gt-hzgrid__a, .gt-hzgrid__b { display: grid; gap: 28px; align-content: start; min-width: 0; }
 .gt-hzsec { display: grid; gap: 12px; padding-top: 12px; border-top: 1px solid var(--rule); min-width: 0; }
