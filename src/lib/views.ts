@@ -15,6 +15,7 @@ import { asOfDate } from './as-of.ts';
 import { VIEW_MEASURES } from '../data/view-measures.ts';
 import { yearsOf } from '../adapters/core.ts';
 import { operatorNote, worldShare } from './electricity.ts';
+import { analysisIn, analysisNote } from './hunger.ts';
 import { cyberData, undated, yearSplit, yearTotal } from './cyber.ts';
 import { CYBER_TEXT } from '../i18n/cyber.en.ts';
 import { edgeTexts, formatValue, SHARE_SMALL } from './format.ts';
@@ -326,7 +327,12 @@ const NOTE_FROM = 100_000;
  * latest year's groups when most of a large figure is asylum seekers or others in need of protection.
  */
 /** A place's note for one year only: a grid operator's own figure beside Ember's on the electricity views. */
-export const yearNote = (p: ViewPage, id: string, year: number): string | null => (p.family.id === 'electricity' ? operatorNote(id, year) : null);
+export const yearNote = (p: ViewPage, id: string, year: number): string | null => {
+  if (p.family.id === 'electricity') return operatorNote(id, year);
+  // Food crises: the people analysed when the analysis covered part of the country, and an area its title names.
+  if (p.family.id === 'food-crises') { const a = analysisIn(id, year); return a ? analysisNote(a) : null; }
+  return null;
+};
 
 export function placeNote(p: ViewPage, id: string, worked = true): string | null {
   const notes: string[] = [];

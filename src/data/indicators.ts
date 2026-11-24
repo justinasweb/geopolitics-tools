@@ -25,7 +25,7 @@ import { LISTS, listingsAt, sanctions } from '../adapters/sanctions.ts';
 import { gas, oil } from '../adapters/eia.ts';
 import { ember, powerSeries } from '../adapters/ember.ts';
 import { deathsByYear, ged } from '../adapters/ucdp.ts';
-import { hungerSeries, ipc } from '../adapters/ipc.ts';
+import { hungerSeries, ipc, partialSeries } from '../adapters/ipc.ts';
 
 export type Group = 'economy' | 'people' | 'energy' | 'food' | 'climate' | 'security' | 'tech' | 'influence';
 export const GROUPS: Group[] = ['economy', 'people', 'energy', 'food', 'climate', 'security', 'tech', 'influence'];
@@ -61,6 +61,10 @@ export interface Indicator {
   estimates?: (raw: Raw) => Series;
   /** Set from `estimates` when the indicator loads: statusAt tags these values Estimate wherever they are shown. */
   estimatedBy?: Series;
+  /** The figures that cover only part of the place (an IPC analysis of some areas), 1 by place and year. */
+  partial?: (raw: Raw) => Series;
+  /** Set from `partial` when the indicator loads: statusAt tags these values Partial wherever they are shown. */
+  partialBy?: Series;
   /** The source's latest year is preliminary, revised as countries report (EIA's international data). */
   preliminaryLatest?: boolean;
   /** Set from preliminaryLatest when the indicator loads: the latest year in the snapshot, tagged Preliminary wherever
@@ -171,8 +175,8 @@ const LIST: Indicator[] = [
   { id: 'conflictdeaths', group: 'security', source: 'ucdp', format: count, scale: 'log', load: (raw) => deathsByYear(ged(raw)) },
   { id: 'armsimp', group: 'security', source: 'sipri', format: unit('TIV m'), scale: 'log', load: armsBy('to') },
   { id: 'armsexp', group: 'security', source: 'sipri', format: unit('TIV m'), scale: 'log', load: armsBy('from') },
-  { id: 'hunger', group: 'security', source: 'ipc', format: count, scale: 'log', load: (raw) => hungerSeries(ipcOf(raw), 'people') },
-  { id: 'hungershare', group: 'security', source: 'ipc', format: share, scale: 'linear', load: (raw) => hungerSeries(ipcOf(raw), 'share') },
+  { id: 'hunger', group: 'security', source: 'ipc', format: count, scale: 'log', load: (raw) => hungerSeries(ipcOf(raw), 'people'), partial: (raw) => partialSeries(ipcOf(raw)) },
+  { id: 'hungershare', group: 'security', source: 'ipc', format: share, scale: 'linear', load: (raw) => hungerSeries(ipcOf(raw), 'share'), partial: (raw) => partialSeries(ipcOf(raw)) },
   // Technology and space
   { id: 'satellites', group: 'tech', source: 'celestrak', format: count, scale: 'log', load: (raw) => spaceOf(raw).inOrbit },
   { id: 'launches', group: 'tech', source: 'celestrak', format: count, scale: 'linear', load: (raw) => spaceOf(raw).launches },
@@ -196,14 +200,19 @@ export interface Loaded { indicator: Indicator; values: Series; years: number[] 
 /** Each entry's own projectedAfter, for files that do not set one. */
 const PROJECTED_AFTER = new Map(LIST.map((d) => [d.id, d.projectedAfter]));
 
-/** Loads indicators from one snapshot, each once, with derived ones loading what they need. */
-export function registry(raw: Raw) {
+/**
+ * Loads indicators from one snapshot, each once, with derived ones loading what they need. `reset: false` for a
+ * second registry on the build's own snapshot (the flows check): it must not clear the tags (estimates, partial
+ * figures, preliminary years) the build's registry set on indicators it has already loaded and cached.
+ */
+export function registry(raw: Raw, { reset = true }: { reset?: boolean } = {}) {
   const cache = new Map<string, Series>();
   // The build has one snapshot: an imported WEO release moves the projection label for every page.
-  for (const d of LIST) {
+  if (reset) for (const d of LIST) {
     if (d.lastActual) d.projectedAfter = d.lastActual(raw) ?? PROJECTED_AFTER.get(d.id);
     if (d.ownLastActual) d.lastActualBy = d.ownLastActual(raw);
     if (d.estimates) d.estimatedBy = undefined;
+    if (d.partial) d.partialBy = undefined;
     if (d.preliminaryLatest) d.preliminaryYear = undefined;
   }
   const get = (id: string): Series => {
@@ -213,6 +222,7 @@ export function registry(raw: Raw) {
     if (!cache.has(id)) {
       cache.set(id, d.load(raw, get));
       if (d.estimates) d.estimatedBy = d.estimates(raw);
+      if (d.partial) d.partialBy = d.partial(raw);
       if (d.preliminaryLatest) d.preliminaryYear = yearsOf(cache.get(id)!).at(-1);
     }
     return cache.get(id)!;
@@ -240,18 +250,20 @@ export function valueAt(l: Loaded, id: string, year: number, fallback = 0): { va
   return null;
 }
 
-export type ValueStatus = 'estimate' | 'projection' | 'preliminary';
+export type ValueStatus = 'estimate' | 'projection' | 'preliminary' | 'partial';
 
 /**
  * A value's tag: a projection after the indicator's last actual year; an estimate after the place's own last actual
  * year and up to the indicator's (a country whose WEO figures end in 2023 has estimates for 2024 and 2025), or where
- * the source flags the figure itself as an estimate (FAOSTAT); preliminary in a source's preliminary latest year (EIA).
+ * the source flags the figure itself as an estimate (FAOSTAT); preliminary in a source's preliminary latest year (EIA);
+ * partial where the figure covers only part of the place (IPC).
  */
 export function statusAt(ind: Indicator, place: string, year: number): ValueStatus | undefined {
   if (ind.projectedAfter !== undefined && year > ind.projectedAfter) return 'projection';
   const own = ind.lastActualBy?.[place];
   if (own !== undefined && year > own) return 'estimate';
   if (ind.estimatedBy?.[place]?.[year]) return 'estimate';
+  if (ind.partialBy?.[place]?.[year]) return 'partial';
   return ind.preliminaryYear !== undefined && year >= ind.preliminaryYear ? 'preliminary' : undefined;
 }
 

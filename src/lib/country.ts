@@ -9,6 +9,8 @@ import { withheld } from './minerals.ts';
 import { alertsIn, firstDay, lastDay } from './disasters.ts';
 import { warheadsModel } from './nuclear.ts';
 import { cyberData, since } from './cyber.ts';
+import { analysesInForce, ipcDay, latestAnalyses } from './hunger.ts';
+import type { Analysis } from '../adapters/ipc.ts';
 import { INDICATORS, type Loaded } from '../data/indicators.ts';
 import { INDICATOR_TEXT } from '../i18n/en.ts';
 import { DEP_TEXT, RESOURCE_TEXT, SOURCE_SHORT, SUMMARY, inSentence, mineralName } from '../i18n/pages.en.ts';
@@ -80,6 +82,9 @@ export interface Blocks {
   refugees?: { hosted?: Figure; from?: Figure;
     /** Hosted not shown in the default year (../data/not-reported.ts): the last year reported, its figure before then, and why. */
     hostedUnreported?: { since: number; last: { value: number; year: number } | null; reason: string } };
+  /** Its IPC or Cadre Harmonisé analysis in force on `day`, or else its latest (`inForce` false); only for places IPC
+   *  has analysed. */
+  food?: { analysis: Analysis; inForce: boolean; day: string };
   disasters?: { count: number; byKind: Record<string, number>; from: string; to: string };
   emissions?: Figure;
   sanctions?: { listings: PlaceListings | null };
@@ -122,6 +127,9 @@ function blocksFor(id: string): Blocks {
   const from = figure('refout', id);
   const unreported = hostedUnreported(id);
   if (hosted || from || unreported) out.refugees = { hosted: hosted ?? undefined, from: from ?? undefined, ...(unreported ? { hostedUnreported: unreported } : {}) };
+  const now = analysesInForce().get(id);
+  const last = now ?? latestAnalyses().get(id);
+  if (last) out.food = { analysis: last, inForce: !!now, day: ipcDay() };
   out.disasters = disastersFor(id);
   out.emissions = figure('co2pc', id) ?? undefined;
   const s = sanctionsData();
@@ -246,6 +254,7 @@ export function countryModel(id: string): CountryModel | null {
       for (const f of allFigures) add(f.source, INDICATOR_TEXT[f.id].short ?? INDICATOR_TEXT[f.id].label);
       for (const s of depSources(deps)) add(s, DEP_TEXT.heading);
       if (minerals.length) add('usgs-minerals', 'Minerals');
+      if (blocks.food) add('ipc', 'Food crisis');
       if (blocks.disasters) add('gdacs', 'Disasters');
       if (blocks.sanctions) for (const s of ['csl', 'eu-sanctions', 'uk-sanctions']) add(s, 'Sanctions');
       if (blocks.lending) add('aiddata', 'Chinese loans and grants');

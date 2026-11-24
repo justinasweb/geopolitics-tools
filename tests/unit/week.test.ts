@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { Raw } from '../../src/adapters/core.ts';
 import { entries, changes } from '../../src/adapters/sanctions.ts';
-import { computeWeek, hasFigures, alertCount, type WeekInput } from '../../src/lib/week/model.ts';
+import { computeWeek, hasFigures, alertCount, phase5Count, phase5Partial, type WeekInput } from '../../src/lib/week/model.ts';
 import { addDays, rollingWeek, isWeekId, isoWeek, lastClosedWeek, prevWeek, weekId, weekRange } from '../../src/lib/week/period.ts';
 import { day, months, pct, range, WEEK_TEXT } from '../../src/i18n/week.en.ts';
 
@@ -77,6 +77,20 @@ const input = (over: Partial<WeekInput> = {}): WeekInput => ({
   ...over,
 });
 
+/** IPC analyses in the API's format: one in force on 22 Oct with people in Phase 5, one over, one new this week. */
+const ipcAn = (id: string, country: string, from: string, to: string, p5: number, title = 'Acute Food Insecurity Analysis') => ({
+  id, title, country, condition: 'A', ipc_period: 'P', year: 2026, from, to, estimated_population: 1000, population: 1000,
+  phases: [700, 100, 100, 100 - p5, p5].map((population, i) => ({ phase: i + 1, population, percentage: population / 1000 })),
+});
+const ipcNow = [{ ...ipcAn('1', 'SD', 'Oct 2026', 'Jan 2027', 60), population: 5000 }, ipcAn('2', 'SS', 'Apr 2026', 'Jul 2026', 30), ipcAn('3', 'HT', 'Sep 2026', 'Feb 2027', 0)];
+const withIpc = (over: Partial<WeekInput> = {}) => {
+  const base = input();
+  return input({
+    raw: memRaw({ ...files, 'ipc/country.json': ipcNow }), sources: { ...base.sources, ipc: fresh },
+    baseline: { date: base.baseline!.date, raw: memRaw({ 'ipc/country.json': ipcNow.slice(0, 2) }) }, ...over,
+  });
+};
+
 describe('weeks and periods', () => {
   it('numbers ISO weeks, including the ones that straddle a new year', () => {
     expect(isoWeek('2026-11-02')).toEqual({ year: 2026, week: 45 });
@@ -110,6 +124,26 @@ describe('This week cards', () => {
     expect(w.cards.map((c) => c.kind)).toEqual(['disaster', 'conflict', 'prices', 'outage', 'sanctions']);
     const without = computeWeek(input({ sources: { gdacs: fresh } }));
     expect(without.cards.map((c) => c.kind)).toEqual(['disaster']);
+  });
+
+  it('counts the countries with people in IPC Phase 5 in the analyses in force on the last day, and names new analyses', () => {
+    const fw = computeWeek(withIpc());
+    const f = fw.cards.find((c) => c.kind === 'food')!;
+    expect(fw.cards.map((c) => c.kind)).toEqual(['disaster', 'conflict', 'prices', 'food', 'outage', 'sanctions']);
+    expect(f).toMatchObject({ day: '2026-10-22', phase5: 1, partial: 1, rows: [{ place: 'SDN', people: 60, from: '2026-10', to: '2027-01', analysed: 1000, population: 5000 }], added: [{ place: 'HTI', system: 'IPC' }] });
+    expect(phase5Count(fw)).toBe(1);
+    expect(phase5Partial(fw)).toBe(1);
+    expect(fw.feed.filter((x) => x.kind === 'food')).toEqual([{ kind: 'food', date: '2026-10-21', place: 'HTI', system: 'IPC', from: '2026-09', to: '2027-02' }]);
+    // Without a copy from the period's first day, no analysis is called new.
+    expect(computeWeek(withIpc({ baseline: null })).cards.find((c) => c.kind === 'food')).toMatchObject({ added: null });
+  });
+
+  it('keeps the Phase 5 count on a quiet food card, without its figures', () => {
+    const old = { fetched: '2026-10-22T06:00:00Z', changed: '2026-10-01T06:00:00Z' };
+    const fw = computeWeek(withIpc({ sources: { ...input().sources, ipc: old } }));
+    expect(fw.cards.find((c) => c.kind === 'food')).toMatchObject({ quiet: true, phase5: 1, rows: [] });
+    expect(phase5Count(fw)).toBe(1);
+    expect(fw.feed.some((x) => x.kind === 'food')).toBe(false);
   });
 
   it('keeps the shipping card off with PortWatch in the snapshot: imported monthly, it cannot back a weekly count (D22)', () => {

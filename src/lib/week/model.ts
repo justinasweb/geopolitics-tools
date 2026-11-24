@@ -3,8 +3,9 @@
 // small, plain JSON with numbers, dates and place ids only; the words come from src/i18n/week.en.ts when a page is
 // built, so a frozen week reads in any language.
 //
-// One card per source the site has, in the design's order; IPC (food crises) waits on its key and is left out until it
-// is live, not shown empty. PortWatch (shipping) is in the snapshot but imported by hand once a month (D22), which
+// One card per source the site has, in the design's order. The food crises card counts the countries whose IPC or Cadre
+// Harmonisé analysis in force on the period's last day has people in Phase 5; its new analyses are those missing from
+// the copy kept on the period's first day. PortWatch (shipping) is in the snapshot but imported by hand once a month (D22), which
 // cannot back a weekly claim: its card and the "chokepoints below normal" count stay off until it arrives at least
 // weekly (docs/open-questions.md). A card whose source has not changed since the
 // period began is "quiet": it keeps the source's dates and drops its figures, so last month's numbers never read as
@@ -16,12 +17,13 @@ import { parseGdacs, type HazardKind } from '../../adapters/hazards.ts';
 import { ged } from '../../adapters/ucdp.ts';
 import { prices } from '../../adapters/prices.ts';
 import { outages } from '../../adapters/digital.ts';
+import { ipc, isPartial, latestOf } from '../../adapters/ipc.ts';
 import { changes, entries, type List, type UsPart } from '../../adapters/sanctions.ts';
 import { addDays, inPeriod, type Period } from './period.ts';
 
 export type CardKind = 'shipping' | 'disaster' | 'conflict' | 'prices' | 'food' | 'outage' | 'sanctions';
-/** The design's order. Shipping and food crises are listed so their place is kept; nothing builds them yet (shipping
- *  stays off while PortWatch is imported monthly). */
+/** The design's order. Shipping is listed so its place is kept; nothing builds it (it stays off while PortWatch is
+ *  imported monthly). */
 export const CARD_ORDER: CardKind[] = ['shipping', 'disaster', 'conflict', 'prices', 'food', 'outage', 'sanctions'];
 /** Each card's sources in the snapshot. */
 export const CARD_SOURCES: Record<CardKind, string[]> = {
@@ -78,6 +80,22 @@ export interface ConflictCard extends Base {
 export interface PriceRow { code: string; value: number; month: number | null; year: number | null }
 export interface PricesCard extends Base { kind: 'prices'; month: string; rows: PriceRow[] }
 export interface OutageCard extends Base { kind: 'outage'; rows: { place: string; start: string; hours: number }[] }
+export interface FoodAnalysis { place: string; system: 'IPC' | 'CH'; from: string; to: string }
+export interface FoodCard extends Base {
+  kind: 'food';
+  /** The day the analyses in force are counted on: the period's last day. */
+  day: string;
+  /** Countries whose analysis in force counts people in Phase 5: the count at the top of the page, kept when the card
+   *  is quiet, since the analyses stay in force. */
+  phase5: number;
+  /** Those countries, most people first, with their analysis's period; empty when quiet. `analysed` and `population`
+   *  only when the analysis covered part of the country (weeks frozen before 25 Nov 2026 have neither). */
+  rows: (FoodAnalysis & { people: number; analysed?: number; population?: number })[];
+  /** How many of the `phase5` countries' analyses covered part of the country; absent in weeks frozen before 25 Nov 2026. */
+  partial?: number;
+  /** Analyses not in the copy from the period's first day, by country; null when no copy from that day was kept. */
+  added: FoodAnalysis[] | null;
+}
 export interface SanctionsCard extends Base {
   kind: 'sanctions';
   /** The day of the earlier copy the lists are compared with; null when no earlier copy is kept yet. */
@@ -88,12 +106,13 @@ export interface SanctionsCard extends Base {
   /** Places named most often in the added entries. */
   places: { place: string; n: number }[];
 }
-export type Card = DisasterCard | ConflictCard | PricesCard | OutageCard | SanctionsCard;
+export type Card = DisasterCard | ConflictCard | PricesCard | FoodCard | OutageCard | SanctionsCard;
 
 export type FeedKind = 'disaster' | 'shipping' | 'conflict' | 'outage' | 'food' | 'sanctions' | 'prices';
 export type FeedItem =
   | { kind: 'disaster'; date: string; time?: string; level: 'red' | 'orange'; type: HazardKind; places: string[] }
   | { kind: 'outage'; date: string; time?: string; place: string; hours: number }
+  | ({ kind: 'food'; date: string } & FoodAnalysis)
   | { kind: 'conflict'; date: string; month: string }
   | { kind: 'prices'; date: string; month: string };
 
@@ -116,7 +135,8 @@ export interface WeekInput {
   sources: Record<string, { fetched: string; changed?: string } | undefined>;
   /**
    * The copies kept from the start of the period (the week's Monday) and that day: the sanctions lists, to count
-   * entries added and removed, and GDACS's alerts, to tell which earlier alerts rose in the week. Null when none.
+   * entries added and removed, GDACS's alerts, to tell which earlier alerts rose in the week, and IPC's analyses, to
+   * tell which are new. Null when none.
    */
   baseline: { date: string; raw: Raw } | null;
   made: string;
@@ -283,6 +303,22 @@ export function outageCard(input: WeekInput): { card: OutageCard; feed: FeedItem
   return { card: { kind: 'outage', src, quiet, rows }, feed };
 }
 
+export function foodCard(input: WeekInput): { card: FoodCard; feed: FeedItem[] } | null {
+  const src = info(input, CARD_SOURCES.food);
+  const all = src && attempt(() => cached(input.raw, 'ipc', ipc));
+  if (!src || !all?.length) return null;
+  const p = input.period;
+  const quiet = quietOf(src, p);
+  const of = (a: (typeof all)[number]): FoodAnalysis => ({ place: a.place, system: a.system, from: a.from, to: a.to });
+  const p5 = [...latestOf(all, p.to).values()].filter((a) => a.phases[4] > 0)
+    .sort((a, b) => b.phases[4] - a.phases[4] || a.place.localeCompare(b.place)).map((a) => ({ ...of(a), people: a.phases[4], ...(isPartial(a) ? { analysed: a.analysed, population: a.population! } : {}) }));
+  // New analyses: those the copy from the period's first day did not have, dated on the day IPC's data last changed.
+  const base = input.baseline?.raw.has('ipc', 'country.json') ? new Set(ipc(input.baseline.raw).map((a) => a.id)) : null;
+  const added = base ? all.filter((a) => !base.has(a.id)).map(of).sort((a, b) => b.from.localeCompare(a.from) || a.place.localeCompare(b.place)) : null;
+  const feed: FeedItem[] = added && inPeriod(src.changed, p) ? added.map((a) => ({ kind: 'food', date: src.changed.slice(0, 10), ...a })) : [];
+  return { card: { kind: 'food', src, quiet, day: p.to, phase5: p5.length, partial: p5.filter((r) => r.analysed).length, rows: quiet ? [] : p5, added: quiet ? [] : added }, feed };
+}
+
 export function sanctionsCard(input: WeekInput): { card: SanctionsCard; feed: FeedItem[] } | null {
   const src = info(input, CARD_SOURCES.sanctions);
   const files: [string, string][] = [['csl', 'consolidated.json'], ['eu-sanctions', 'sanctions.csv'], ['uk-sanctions', 'sanctions.csv']];
@@ -308,7 +344,7 @@ export function sanctionsCard(input: WeekInput): { card: SanctionsCard; feed: Fe
   };
 }
 
-const BUILDERS = { disaster: disasterCard, conflict: conflictCard, prices: pricesCard, outage: outageCard, sanctions: sanctionsCard };
+const BUILDERS = { disaster: disasterCard, conflict: conflictCard, prices: pricesCard, food: foodCard, outage: outageCard, sanctions: sanctionsCard };
 
 /** Every card the snapshot has a source for, and the feed, newest first. */
 export function computeWeek(input: WeekInput): WeekData {
@@ -334,3 +370,8 @@ export const alertCount = (w: WeekData) => {
   const d = w.cards.find((c): c is DisasterCard => c.kind === 'disaster');
   return d && !d.quiet ? d.alerts.length : null;
 };
+
+/** Countries with people in IPC Phase 5 in the analyses in force on the period's last day: the count at the top of the page. */
+export const phase5Count = (w: WeekData) => w.cards.find((c): c is FoodCard => c.kind === 'food')?.phase5 ?? null;
+/** How many of them come from an analysis of part of the country. */
+export const phase5Partial = (w: WeekData) => w.cards.find((c): c is FoodCard => c.kind === 'food')?.partial ?? 0;

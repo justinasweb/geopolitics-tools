@@ -323,13 +323,16 @@ the data run), words in `src/i18n/week.en.ts`. Built from data only.
   red in it (their level in GDACS's copy from the period's first day was lower). Orange and red alerts of every kind
   that began earlier and are still active (lasting into the period, or listed as current by GDACS: a drought's end
   date is its last update, often weeks back) are listed under "Still active" with their start dates and not counted. A named tropical cyclone that GDACS keeps as
-  two events with dates that meet is merged into one; other kinds are never merged. The PortWatch and IPC counts are
-  left out while those sources are hidden; the row works with one to three counts.
+  two events with dates that meet is merged into one; other kinds are never merged. Countries with people in
+  catastrophic hunger (IPC Phase 5): the latest analysis of each country valid on the period's last day (its months
+  cover that day), kept on a quiet card since the analyses stay in force. The PortWatch count is left out while it is
+  hidden; the row works with one to three counts.
 - **Cards**, in this order, each only when its source is in the snapshot: disasters (GDACS, up to seven alerts, level
   as a word and a solid or outline triangle, the first three countries and "+ 11 more" as a disclosure), conflict (UCDP events by country, latest month against the one before,
   Preliminary when the month comes from a Candidate release), prices (six Pink Sheet series, month and year changes),
-  internet outages (IODA, began in the period, no cause) and sanctions (entries added and removed per list against
-  the lists on the period's first day). Shipping and food crises wait on PortWatch and IPC. Every card gives its
+  food crises (people in Phase 5 by country, bars without a reference line; new analyses are those missing from the
+  IPC copy kept on the period's first day, dated on the day IPC's data changed, in the card and the feed), internet outages (IODA, began in the period, no cause) and sanctions (entries added and removed per list against
+  the lists on the period's first day). Shipping waits on PortWatch. "Famine" is never said: Phase 5 counts people, and IPC classifies areas separately. Every card gives its
   source, period and when the site last fetched it, and links to its map where there is one.
 - **No new data.** When a source's data last changed before the period began, its card shows "No new data since
   {date}" and no figures, its box right under the headline.

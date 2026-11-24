@@ -7,7 +7,7 @@
 
 import type { Format } from '../../data/indicators.ts';
 
-export type Status = 'estimate' | 'projection' | 'preliminary';
+export type Status = 'estimate' | 'projection' | 'preliminary' | 'partial';
 
 /**
  * One place's entry for a year: [class, value, detail, status, rank].

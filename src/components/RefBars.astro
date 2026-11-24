@@ -1,7 +1,7 @@
 ---
 // Bars against a reference line (.gt-ref, WeekCard design): a value as a share of a usual level, such as transits
-// against normal traffic, with the line at `ref` percent of the track and a note on rows past a threshold. Used by the
-// shipping and food crises cards, which wait on their sources (PortWatch, IPC); shown in /dev/components until then.
+// against normal traffic, with the line at `ref` percent of the track and a note on rows past a threshold. The food
+// crises card uses it without a line; the shipping card, which waits for PortWatch, is shown in /dev/components.
 import '../styles/atlas/week.css';
 
 interface Props {
@@ -14,7 +14,7 @@ interface Props {
 }
 const { label, ref, rows, key } = Astro.props;
 ---
-<ol class="gt-ref" aria-label={label} style={`--ref:${ref}%`}>
+<ol class:list={['gt-ref', { 'gt-ref--noline': ref < 0 }]} aria-label={label} style={`--ref:${ref}%`}>
   {rows.map((r) => (
     <li><span class="gt-ref__name">{r.name}</span><span class="gt-ref__track"><span class="gt-ref__fill" style={`width:${r.width.toFixed(1)}%`}></span></span><span class="gt-ref__val">{r.value}</span>{r.note && <span class="gt-ref__note">{r.note}</span>}</li>
   ))}

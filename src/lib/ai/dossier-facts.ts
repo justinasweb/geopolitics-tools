@@ -54,7 +54,8 @@ function figureFact(f: Figure, placeId: string, id = f.id): Fact[] {
   const theirs = possessive(inSentence(name, true));
   // The figure's tag on the page, which the sentence must carry too.
   const tag = statusAt(ind, placeId, f.year);
-  const status = tag === 'estimate' ? 'estimated' as const : tag === 'projection' ? 'projected' as const : tag;
+  // Partial (IPC) never reaches a dossier: none of the three countries has an IPC analysis.
+  const status = tag === 'estimate' ? 'estimated' as const : tag === 'projection' ? 'projected' as const : tag === 'partial' ? undefined : tag;
   const out: Fact[] = [{
     // The indicator's note goes in only when it has no figures of its own (the checker wants one figure a fact).
     // A still-running year counted on one day (satellites) says so, without the date: a statement's only number is its value.

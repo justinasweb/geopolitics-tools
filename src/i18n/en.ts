@@ -172,12 +172,12 @@ export const UI_TEXT = {
 };
 
 export const STATUS_TEXT = {
-  estimate: 'Estimate', projection: 'Projection', preliminary: 'Preliminary', notyet: 'Not yet reported', sample: 'Sample',
+  estimate: 'Estimate', projection: 'Projection', preliminary: 'Preliminary', partial: 'Part of country', notyet: 'Not yet reported', sample: 'Sample',
   sampleTitle: 'Illustrative figure, not real data',
 };
 
 /** A name or figure in running text with its tag, in the tables' word: "India (estimate)". */
-export const tagged = (text: string, status?: 'estimate' | 'projection' | 'preliminary') =>
+export const tagged = (text: string, status?: 'estimate' | 'projection' | 'preliminary' | 'partial') =>
   (status ? `${text} (${STATUS_TEXT[status].toLowerCase()})` : text);
 
 export const SOURCE_TEXT = {

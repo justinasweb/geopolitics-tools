@@ -555,6 +555,9 @@ export const SOURCE_BRIEF: Record<string, string> = { aiddata: 'AidData' };
  *  src/lib/source-links.ts). */
 /** PeeringDB's credit after its name: the day its files were fetched (link in src/lib/source-links.ts). */
 export const PEERINGDB_CREDIT = (d: string) => `fetched on ${d}`;
+/** IPC's terms (API terms of use, March 2023) ask for its licence, the date the data was last updated and a link to
+ *  ipcinfo.org, and a link to cadreharmonise.org with Cadre Harmonisé data, which every food crises view has. */
+export const IPC_CREDIT = (d: string) => `updated ${d}, ipcinfo.org, cadreharmonise.org (CC BY-NC-SA 3.0 IGO)`;
 export const AQUEDUCT_CREDIT = (d: string) => `accessed on ${d}, aqueduct.wri.org (CC BY 4.0)`;
 
 export const SOURCE_NOTE: Record<string, string> = {

@@ -1,4 +1,5 @@
-/* Atlas design system: Status tags (Estimate, Projection, Preliminary, Not yet reported) and the Sample tag.
+/* Atlas design system: Status tags (Estimate, Projection, Preliminary, Not yet reported) and the Sample tag; Part of
+   country (IPC analyses of some areas) is ours, in the outlined style of Not yet reported on a sunk ground.
    Ported from the design system's bundle.css; colours and fonts come from tokens.css. */
 
 /* ---------- status tags ---------- */
@@ -7,6 +8,7 @@
 .gt-tag--estimate { background: var(--est-bg); color: var(--est-ink); }
 .gt-tag--projection { background: var(--proj-bg); color: var(--proj-ink); }
 .gt-tag--preliminary { background: var(--prelim-bg); color: var(--prelim-ink); }
+.gt-tag--partial { background: var(--paper-sunk); color: var(--ink); box-shadow: inset 0 0 0 1px var(--rule-strong); }
 .gt-tag--notyet { background: transparent; color: var(--ink-muted); box-shadow: inset 0 0 0 1px var(--rule-strong); }
 .gt-tag--sm { height: 18px; padding: 0 5px; font-size: 11px; }
 .gt-tag--sample { background: transparent; color: var(--ink); border: 1px dashed var(--rule-strong); }

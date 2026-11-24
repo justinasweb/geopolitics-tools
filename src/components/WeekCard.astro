@@ -1,12 +1,13 @@
 ---
 // One source on This week (WeekCard design): kind label with its glyph, a headline that states the finding, one small
 // chart or table (the default slot), then the source in two short lines (source and period; updated and tags) and a
-// link to its map. `quiet` replaces the chart with the no-new-data state, so older figures never read as this week's.
+// link to its map. The source carries the links its terms ask for (IPC). `quiet` replaces the chart with the no-new-data state, so older figures never read as this week's.
 import '../styles/atlas/week.css';
 import '../styles/atlas/states.css';
 import '../styles/atlas/source.css';
 import StatusTag, { type Status } from './StatusTag.astro';
 import WeekGlyph from './WeekGlyph.astro';
+import SourceText from './SourceText.astro';
 import { SOURCE_TEXT } from '../i18n/en';
 
 interface Props {
@@ -34,7 +35,7 @@ const { kind, label, headline, wide = false, quiet, source, period, updated, tag
   </div>
   <footer class="gt-card__foot">
     <div class="gt-csrc">
-      <p class="gt-source"><span>{SOURCE_TEXT.source} <b>{source}</b></span><span class="gt-source__sep" aria-hidden="true">·</span><span>{period}</span></p>
+      <p class="gt-source"><span>{SOURCE_TEXT.source} <b><SourceText text={source} /></b></span><span class="gt-source__sep" aria-hidden="true">·</span><span>{period}</span></p>
       <p class="gt-source"><span>{updated}</span>{tags.map((t) => <StatusTag status={t} small />)}</p>
     </div>
     {href && go && <a class="gt-card__go" href={href}>{go} <span aria-hidden="true">→</span></a>}
