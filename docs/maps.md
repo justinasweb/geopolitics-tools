@@ -369,10 +369,17 @@ calendar years only.
 ## Food crises (phase 5b)
 
 `/food-crises` (people in IPC Phase 3 or worse) and `/food-crises/share` (their share of the people analysed): each
-country's latest IPC or Cadre Harmonisé analysis starting in the year. A country without an analysis reads "No IPC
+country's latest IPC or Cadre Harmonisé analysis starting in the year (two analyses for one period: the later one;
+IPC's regional "LAC" analysis is left out, as are early analyses with no people in any phase). A country without an analysis reads "No IPC
 analysis", never "No data" or zero. The total covers the countries analysed, which change from year to year, so its
-change is not shown. A country's panel gives its latest analysis by phase; the page lists countries with people in
-Phase 5, which counts people in catastrophe, not famine (an area classification this endpoint does not give).
+change is not shown. A country's panel gives its latest analysis by phase, with its period, whether it is a projection and the people
+analysed (with IPC's population for the whole country when the analysis covers less). A figure from an analysis
+of part of the country (people analysed under 95% of IPC's population for it) is tagged "Part of country" (status
+`partial`, from the indicator's `partial` series) and its note says how many people the analysis covered; an area is
+named only from the analysis's title (`AREAS` in src/adapters/ipc.ts). The page lists countries whose
+analysis in force on the snapshot's day counts people in Phase 5, which counts people in catastrophe, not famine (an
+area classification this endpoint does not give). Country pages have a Food crisis block for every place IPC has
+analysed: the analysis in force, or the latest in the past tense with its period.
 
 ## Internet (phase 6)
 

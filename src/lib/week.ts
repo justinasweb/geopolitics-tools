@@ -13,13 +13,15 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { rawDir } from '../adapters/core.ts';
-import { data, isWithheld } from './data.ts';
+import { creditName, data, isWithheld } from './data.ts';
 import { publishedText } from './ai/texts.ts';
 import { place } from './places.ts';
 import { viewHref, paths } from './routes.ts';
-import { computeWeek, alertCount, hasFigures, CARD_ORDER, CARD_SOURCES, type AlertItem, type Card, type CardKind, type DisasterCard, type FeedItem, type OutageCard, type WeekData } from './week/model.ts';
+import { computeWeek, alertCount, phase5Count, phase5Partial, hasFigures, CARD_ORDER, CARD_SOURCES, type AlertItem, type Card, type CardKind, type DisasterCard, type FeedItem, type FoodAnalysis, type OutageCard, type WeekData } from './week/model.ts';
 import { isWeekId, lastClosedWeek, rollingWeek, weekNumber, weekRange } from './week/period.ts';
 import { WEEK_TEXT as W, PRICE_TEXT, day, month, months, pct, range } from '../i18n/week.en.ts';
+import { monthSpan } from './hunger.ts';
+import { formatValue } from './format.ts';
 import type { Status } from './tags.ts';
 
 const weeksDir = () => join(process.env.GT_DATA_DIR ?? join(process.cwd(), 'data/raw'), 'weeks');
@@ -96,7 +98,7 @@ export const GLYPHS: Record<string, { cat: number; svg: string }> = {
 };
 
 /** Where each card's "Open the … map" goes, when that page is live. */
-const MAPS: Record<string, string> = { disaster: 'disasters', conflict: 'conflict', outage: 'internet', sanctions: 'sanctions' };
+const MAPS: Record<string, string> = { disaster: 'disasters', conflict: 'conflict', food: 'food-crises', outage: 'internet', sanctions: 'sanctions' };
 
 export interface AlertRow {
   level: 'red' | 'orange';
@@ -114,6 +116,7 @@ export interface TableRow { head: string; sub?: string; cells: { text: string; n
 export type Body =
   | { type: 'alerts'; rows: AlertRow[]; empty?: string; active: AlertRow[]; activeTitle: string; activeNote: string; activeMore?: string; notes: string[] }
   | { type: 'pair'; label: string; rows: PairRow[]; keyA: string; keyB: string; key: string; notes: string[] }
+  | { type: 'ref'; label: string; rows: { name: string; width: number; value: string }[]; notes: string[] }
   | { type: 'table'; cols: { text: string; num?: boolean }[]; rows: TableRow[]; notes: string[] }
   | { type: 'notes'; notes: string[] }
   | { type: 'links'; items: { text: string; date: string; datetime: string; href: string }[]; empty?: string; notes: string[] };
@@ -258,6 +261,23 @@ function cardView(c: Card, w: WeekData): CardView {
         },
       };
     }
+    case 'food': {
+      const inForce = W.inForce(day(c.day, { year: true }));
+      if (c.quiet) return { ...quiet(W.countries(c.phase5)), source: creditName('ipc') };
+      const top = Math.max(1, ...c.rows.map((r) => r.people));
+      const added = c.added ?? [];
+      return {
+        ...base, headline: W.foodHead(c.phase5), source: creditName('ipc'), period: inForce,
+        body: c.rows.length ? {
+          type: 'ref', label: W.foodLabel,
+          rows: c.rows.map((r) => ({ name: nameOf(r.place), width: (100 * r.people) / top, value: new Intl.NumberFormat('en').format(r.people) })),
+          notes: [
+            W.foodCaption(day(c.day, { year: true })),
+            ...c.rows.filter((r) => r.analysed).map((r) => W.foodPartial(nameOf(r.place), formatValue(r.analysed!, { kind: 'count' }), formatValue(r.population!, { kind: 'count' }))),
+            c.added ? (added.length ? W.foodNew(span, added.map(foodItem)) : W.foodNoneNew(span)) : ''].filter(Boolean),
+        } : { type: 'notes', notes: [W.foodNone(day(c.day, { year: true })), c.added ? (added.length ? W.foodNew(span, added.map(foodItem)) : W.foodNoneNew(span)) : ''].filter(Boolean) },
+      };
+    }
     case 'outage': {
       if (c.quiet) return { ...quiet(), source: W.source.outage };
       return {
@@ -285,6 +305,9 @@ function cardView(c: Card, w: WeekData): CardView {
   }
 }
 
+/** A new analysis in a sentence: "Haiti (IPC, Sep 2026 – Feb 2027)". */
+const foodItem = (a: FoodAnalysis) => W.foodItem(nameOf(a.place), a.system, monthSpan(a.from, a.to));
+
 export interface FeedView { kind: string; label: string; date: string; datetime: string; time?: string; text: string; href?: string; source: string }
 
 function feedView(f: FeedItem): FeedView {
@@ -294,6 +317,7 @@ function feedView(f: FeedItem): FeedView {
     case 'outage': return { ...common, text: W.feedItem.outage(nameOf(f.place), W.hours(f.hours)), href: viewHref('internet') };
     case 'conflict': return { ...common, text: W.feedItem.conflict(month(f.month, true)), href: viewHref('conflict') };
     case 'prices': return { ...common, text: W.feedItem.prices(month(f.month, true)) };
+    case 'food': return { ...common, text: W.feedItem.food(f.system, nameOf(f.place), monthSpan(f.from, f.to)), href: viewHref('food-crises') };
   }
 }
 
@@ -333,7 +357,11 @@ export function weekPageFor(w: WeekData, weekOf: string | null): WeekPageModel {
   const longRange = range(p.from, p.to, { long: true });
   const path = paths.week(weekOf ?? undefined);
   const n = briefKind('disaster') ? null : alertCount(w);
-  const counts = n === null ? [] : [{ num: String(n), label: W.counts.disaster(n), source: `GDACS · ${range(p.from, p.to)}` }];
+  const p5 = phase5Count(w);
+  const counts = [
+    ...(n === null ? [] : [{ num: String(n), label: W.counts.disaster(n), source: `GDACS · ${range(p.from, p.to)}` }]),
+    ...(p5 === null ? [] : [{ num: String(p5), label: W.counts.food(p5), source: `IPC · ${W.inForce(day(p.to, { year: true }))}${phase5Partial(w) ? `; ${W.foodPartCount(phase5Partial(w), p5)}` : ''}` }]),
+  ];
   const archive = [...archivedWeeks().keys()];
   // An archived week links to the one before it; the live page to the last few closed weeks.
   const prevId = weekOf ? archive.find((k) => k < weekOf) : undefined;

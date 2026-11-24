@@ -94,7 +94,7 @@ const checked = (label: string, production: string, format: Format, cs: Commodit
     const f = pick(rows);
     const l = latestComplete(rows, cs, f, swap ? swap(raw, f) : f);
     let prod: Record<string, Record<number, number>> = {};
-    try { prod = registry(raw).get(production); } catch { /* no EIA files in this snapshot: nothing to check against */ }
+    try { prod = registry(raw, { reset: false }).get(production); } catch { /* no EIA files in this snapshot: nothing to check against */ }
     for (const w of checkFlows(label, Number(l.period), l.pairs, prod)) if (!warned.has(w)) { warned.add(w); console.warn(`flows: ${w}`); }
     for (const p of l.pairs) { const o = overOutput(prod, p.from, Number(l.period), p.amount); if (o !== null) p.output = o; }
     return l;

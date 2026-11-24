@@ -65,7 +65,8 @@ describe('This week archive', () => {
     expect(ledger.weeks).toEqual(['2026-43', '2026-44']);
     expect(Object.keys(ledger.baselines)).toEqual(['2026-10-26', '2026-10-30', '2026-11-02', '2026-11-03']);
     expect(baselineFor(ledger, '2026-10-27', '2026-11-02')?.date).toBe('2026-10-30');
-    // GDACS is recorded with the lists, so a frozen week can tell which earlier alerts rose in it.
+    // GDACS is recorded with the lists, so a frozen week can tell which earlier alerts rose in it (and IPC, when the
+    // state has it, to tell new analyses).
     expect(Object.keys(ledger.baselines['2026-10-26']).sort()).toEqual(['csl', 'gdacs']);
     expect(await get(stores, LEDGER_KEY)).toBeTruthy();
   });

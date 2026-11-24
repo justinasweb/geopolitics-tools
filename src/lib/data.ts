@@ -12,7 +12,7 @@ import { rawDir, type Raw } from '../adapters/core.ts';
 import { registry, INDICATORS, type Loaded } from '../data/indicators.ts';
 import { LICENCE_OF, LICENCES, withheld, type Licence } from '../data/licences.ts';
 import { weoRelease } from '../adapters/worldbank.ts';
-import { AQUEDUCT_CREDIT, PEERINGDB_CREDIT, SOURCE_SHORT } from '../i18n/pages.en.ts';
+import { AQUEDUCT_CREDIT, IPC_CREDIT, PEERINGDB_CREDIT, SOURCE_SHORT } from '../i18n/pages.en.ts';
 import { formatDate } from './format.ts';
 
 export interface SnapshotSource { name: string; attribution: string; licence: string; fetched: string; changed?: string; dataTo?: string; imported?: Record<string, { file?: string; date?: string }> }
@@ -160,11 +160,14 @@ export function isDelayed(source: string): boolean {
 /** The edition a source line names, read from the source's own files: the WEO's release ("October 2026"); for WRI
  *  Aqueduct, whose terms ask for it, the day its files were downloaded with its site and licence
  *  ("accessed on 25 Oct 2026, aqueduct.wri.org (CC BY 4.0)"); for PeeringDB, the day its files were fetched
- *  ("fetched on 11 Nov 2026"). */
+ *  ("fetched on 11 Nov 2026"); for IPC, whose terms ask for its licence, the date the data was last updated and links, the day
+ *  its analyses last changed with its sites and licence ("updated 24 Nov 2026, ipcinfo.org, cadreharmonise.org
+ *  (CC BY-NC-SA 3.0 IGO)"). */
 const EDITIONS: Record<string, (raw: Raw) => string | undefined> = {
   'imf-weo': (raw) => weoRelease(raw)?.release,
   aqueduct: () => { const d = data().snapshot.sources.aqueduct?.fetched; return d ? AQUEDUCT_CREDIT(formatDate(d)) : undefined; },
   peeringdb: () => { const d = data().snapshot.sources.peeringdb?.fetched; return d ? PEERINGDB_CREDIT(formatDate(d)) : undefined; },
+  ipc: () => { const s = data().snapshot.sources.ipc; const d = s?.changed ?? s?.fetched; return d ? IPC_CREDIT(formatDate(d)) : undefined; },
 };
 export const editionOf = (source: string): string | undefined => (EDITIONS[source] ? tryLoad(EDITIONS[source]) ?? undefined : undefined);
 
@@ -185,5 +188,12 @@ export function creditLine(source: string): string {
   return credit ? (edition ? `${credit}, ${edition}` : credit) : sourceName(source);
 }
 
-/** The short name for credits and captions ("World Bank"); a source with an edition is named in full with it. */
-export const creditName = (source: string): string => (editionOf(source) ? sourceName(source) : SOURCE_SHORT[source] ?? sourceName(source));
+/** Sources whose edition is a credit their terms ask for, short enough after their short name ("IPC, fetched on …"). */
+const SHORT_WITH_EDITION = new Set(['ipc']);
+/** The short name for credits and captions ("World Bank"); a source with an edition is named in full with it, or by
+ *  its short name with it (SHORT_WITH_EDITION). */
+export const creditName = (source: string): string => {
+  const edition = editionOf(source);
+  if (!edition) return SOURCE_SHORT[source] ?? sourceName(source);
+  return SHORT_WITH_EDITION.has(source) && SOURCE_SHORT[source] ? `${SOURCE_SHORT[source]}, ${edition}` : sourceName(source);
+};

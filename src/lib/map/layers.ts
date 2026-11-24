@@ -13,6 +13,7 @@ import { countryHref, live } from '../routes.ts';
 import { amount, listed, mineralPages, shareClass, withheld, nameOf, type MineralPage } from '../minerals.ts';
 import { list, inSentence } from '../../i18n/pages.en.ts';
 import { EXCHANGE_TEXT, ICT_TEXT, OUTAGE_TEXT, PARTS_TEXT as PX, VIEW_TEXT, VIEWS_TEXT } from '../../i18n/views.en.ts';
+import { statusAt } from '../../data/indicators.ts';
 import { classFor, creditOf, familyPages, legendOf, partsOf, yearNote, placeNote, shareOf, unreportedIn, unreportedText, valueText, viewPages, type ViewPage } from '../views.ts';
 import { creditName, data, indicator, shared } from '../data.ts';
 import { loadFlows } from '../../data/flows.ts';
@@ -46,6 +47,7 @@ import { groupsOf, mixOf } from '../electricity.ts';
 import { cells, conflictPage, deathClass, VIOLENCE } from '../conflict.ts';
 import { CONFLICT_TEXT, monthText } from '../../i18n/conflict.en.ts';
 import { latestAnalyses, monthSpan } from '../hunger.ts';
+import { isPartial } from '../../adapters/ipc.ts';
 import { HUNGER_TEXT } from '../../i18n/hunger.en.ts';
 import { POWER_TEXT } from '../../i18n/electricity.en.ts';
 import { FORMER, nameIn, NUCLEAR_PAGES, SHARING_CHECKED, SHARING_CLASSES, TREATIES_CHECKED, sharingCounts, TREATY_CLASSES, armedStates, nuclearLive, providerName, sharingClass, sharingNote, sharingRows, treaties, treatyClass, unassignedNote, warheadClass, warheads, warheadsModel, type NuclearPage } from '../nuclear.ts';
@@ -97,7 +99,7 @@ function common(): Pick<LayerFile, 'tags' | 'names' | 'hrefs' | 'slugs' | 'notes
   const bl: LayerFile['blocs'] = {};
   for (const [id, members] of blocs()) bl[id] = { name: BLOC_TEXT[id] ?? id, members };
   return {
-    tags: { estimate: tagHtml('estimate'), projection: tagHtml('projection'), preliminary: tagHtml('preliminary') },
+    tags: { estimate: tagHtml('estimate'), projection: tagHtml('projection'), preliminary: tagHtml('preliminary'), partial: tagHtml('partial') },
     names, hrefs, slugs, notes, blocs: bl,
     words: {
       world: MAP_TEXT.world, close: MAP_TEXT.close, countryPage: MAP_TEXT.countryPage, inTable: MAP_TEXT.inTable,
@@ -205,7 +207,9 @@ function indicatorLayer(p: ViewPage): LayerFile {
     y.rows.forEach((r, i) => {
       const share = p.layer.sums ? shareOf(r.value, y.world) : null;
       // No rank on a neutral layer (documented cyber incidents): the panel shows no "3 of 120".
-      v[r.id] = [classFor(p, r.value), valueText(p, r.value), share ? (y.worldOwn ? W.ofWorld(share) : W.ofTotal(share)) : '', 0, p.layer.neutral ? 0 : i + 1];
+      // Partial (IPC analyses of some areas) is the one per-place status these views tag on the map.
+      const partial = statusAt(p.loaded.indicator, r.id, year) === 'partial' ? 'partial' : 0;
+      v[r.id] = [classFor(p, r.value), valueText(p, r.value), share ? (y.worldOwn ? W.ofWorld(share) : W.ofTotal(share)) : '', partial, p.layer.neutral ? 0 : i + 1];
     });
     // Not reported (src/data/not-reported.ts): hatched like "withheld by source", with the layer's own words for it.
     for (const n of unreportedIn(p, year)) v[n.place] ??= [0, unreported!.label, '', 0, 0];
@@ -285,7 +289,7 @@ function withPhases(more: Record<string, PanelBlock[]>): Record<string, PanelBlo
   for (const [id, a] of latestAnalyses()) {
     const f = (v: number) => formatValue(v, { kind: 'count' });
     out[id] = [...(out[id] ?? []), {
-      label: H.latest, caption: H.latestCaption(a.system, monthSpan(a.from, a.to), f(a.analysed)),
+      label: H.latest, caption: H.latestCaption(a.system, a.period, monthSpan(a.from, a.to), f(a.analysed), isPartial(a) ? f(a.population!) : null),
       rows: ([5, 4, 3, 2, 1] as const).map((k) => ({ name: H.phase[k], value: f(a.phases[k - 1]), note: a.analysed ? formatValue(a.phases[k - 1] / a.analysed, { kind: 'share' }) : undefined })),
     }];
   }

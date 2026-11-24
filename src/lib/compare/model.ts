@@ -87,7 +87,7 @@ export const pairQuery = (a: string, b: string) => `a=${encodeURIComponent(a)}${
 export const pairHref = (pairs: Pair[], page: string, a: string, b: string) => staticPair(pairs, a, b)?.path ?? `${page}?${pairQuery(a, b)}`;
 
 /** A figure: value, year and, when it has one, its tag (Estimate, Projection, Preliminary). */
-export type Fig = [number, number] | [number, number, 'estimate' | 'projection' | 'preliminary'];
+export type Fig = [number, number] | [number, number, 'estimate' | 'projection' | 'preliminary' | 'partial'];
 
 export interface Row {
   m: MeasureMeta;

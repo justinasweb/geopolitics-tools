@@ -25,6 +25,7 @@ export const WEEK_LINKS: Record<string, string> = {
   conflict: 'https://ucdp.uu.se/downloads/',
   prices: 'https://www.worldbank.org/en/research/commodity-markets',
   outage: 'https://ioda.inetintel.cc.gatech.edu/',
+  food: 'https://www.ipcinfo.org/',
   US: 'https://www.trade.gov/consolidated-screening-list',
   EU: 'https://webgate.ec.europa.eu/fsd/fsf',
   UK: 'https://www.gov.uk/government/publications/the-uk-sanctions-list',
@@ -33,7 +34,7 @@ export const WEEK_LINKS: Record<string, string> = {
 const LIST_PLACE: Record<string, string | undefined> = { US: 'USA', UK: 'GBR' };
 /** Names the summary may use that the checker would otherwise read as a figure or a country ("Thai 5%", "US hard red
  *  winter"): the sources, the lists and the price series. */
-const NAMES = ['GDACS', 'UCDP', 'IODA', 'Pink Sheet', 'SDN', 'Entity List', 'UK Sanctions List', 'Consolidated Screening List', 'Rice, Thai 5%', 'Thai 5%', 'Thai rice with 5% broken grains', 'US hard red winter', 'million British thermal units', 'Specially Designated Nationals', 'consolidated financial sanctions list'];
+const NAMES = ['GDACS', 'UCDP', 'IODA', 'IPC', 'Cadre Harmonisé', 'IPC Phase 5', 'Phase 5', 'Pink Sheet', 'SDN', 'Entity List', 'UK Sanctions List', 'Consolidated Screening List', 'Rice, Thai 5%', 'Thai 5%', 'Thai rice with 5% broken grains', 'US hard red winter', 'million British thermal units', 'Specially Designated Nationals', 'consolidated financial sanctions list'];
 /** At most this many alerts and outages are listed one by one; the counts cover them all. */
 export const WEEK_ITEMS = 8;
 
@@ -152,6 +153,25 @@ function cardFacts(c: Card, weekStart: string, isWithheld: (source: string) => b
           value: r1(r.hours), unit: 'hours', period: r.start.slice(0, 10), places: [r.place], ...src,
         })),
       ];
+    }
+    case 'food': {
+      // Phase 5 counts people; famine is IPC's classification of an area and is never said here.
+      const src = { source: 'IPC', link: WEEK_LINKS.food, date };
+      const span = (x: { from: string; to: string }) => (x.from === x.to ? monthLong(x.from) : `${monthLong(x.from)} to ${monthLong(x.to)}`);
+      const sys = (x: { system: string }) => (x.system === 'CH' ? 'Cadre Harmonisé' : 'IPC');
+      const out: Fact[] = [{
+        id: 'food-phase5', statement: `${c.phase5 === 0 ? 'No' : c.phase5} ${plural(c.phase5, 'country has', 'countries have')} people in catastrophic hunger (IPC Phase 5) in the IPC and Cadre Harmonisé analyses in force on ${long(c.day)}.`,
+        value: c.phase5, unit: 'countries', period: c.day, ...src,
+      }];
+      for (const r of c.rows) {
+        out.push({ id: `food-${r.place.toLowerCase()}`, statement: `The ${sys(r)} analysis of ${nameOf(r.place)} for ${span(r)} counts ${r.people} people in Phase 5 (catastrophe).`, value: r.people, unit: 'people', period: `${r.from}–${r.to}`, places: [r.place], ...src });
+        // An analysis of part of the country: the people it covered, so a draft never reads the count as the country's.
+        if (r.analysed) out.push({ id: `food-${r.place.toLowerCase()}-analysed`, statement: `The ${sys(r)} analysis of ${nameOf(r.place)} for ${span(r)} covered ${r.analysed} people, part of the country.`, value: r.analysed, unit: 'people', period: `${r.from}–${r.to}`, places: [r.place], ...src });
+      }
+      for (const [i, r] of (c.added ?? []).slice(0, WEEK_ITEMS).entries()) {
+        out.push({ id: `food-new-${i + 1}`, statement: `A new ${sys(r)} analysis of ${nameOf(r.place)} was published in the week, for ${span(r)}.`, period: `${r.from}–${r.to}`, places: [r.place], ...src });
+      }
+      return out;
     }
     case 'sanctions':
       return sanctionsFacts(c, weekStart, date);

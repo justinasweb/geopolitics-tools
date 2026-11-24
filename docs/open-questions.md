@@ -144,6 +144,24 @@ Costa Rica's electricity shares on its country page. ICE's figures are in `src/d
 drops by itself once Ember's own other-fossil share for Costa Rica 2024 is above 5% (`OPERATOR_NOTE_UNTIL`).
 **Reported to Ember?** Not yet: owner to send.
 
+### Food crises: what IPC's country endpoint does not say (raised 24 Nov 2026)
+
+- **Famine markers.** The spec's food crises row lists "famine markers". The country endpoint gives people by phase,
+  not IPC's area classifications, so nothing marks a famine. Marking one needs IPC's areas endpoint (area phase and
+  geometry). Until then the views and This week count people in Phase 5 and never say "famine".
+- **Analyses that cover part of a country.** Several latest analyses cover only some areas: Yemen's of March 2026
+  ("YESOUTH", 10.5 of 35.3 million people), Pakistan's of March 2026 (Punjab), Sudan's update of February 2026 (8.3 of
+  48 million). Decided 24 Nov 2026: every Phase 5 and Phase 3+ count from such an analysis says how many people it
+  covered ("71,424 (of 8.3 m people analysed)"), and the maps, tables and country rows tag it "Part of country". The
+  maps' year values can still jump between a national and a partial analysis. Areas are named only when the title
+  names one the site words for itself (`AREAS` in src/adapters/ipc.ts: the Gaza Strip).
+- **Palestine.** Decided 24 Nov 2026: no hand note. IPC gives about 2.1 million people for Palestine, but its titles
+  do not say "Gaza", so nothing names the Gaza Strip; IPC's own population for the country equals the people
+  analysed, so these analyses are not tagged Part of country either.
+- **New analyses on This week.** An analysis is "new" when the IPC copy kept on the period's first day did not have
+  it, and is dated on the day IPC's data changed: IPC's API gives no publication date. The first copies are kept from
+  the first data run after merge, so the first week names none.
+
 ### This week's shipping card (raised 22 Nov 2026)
 
 The This week shipping card and its "chokepoints below normal" count stay off while PortWatch is imported by hand once a month (D22): they turn on when PortWatch data arrives at least weekly (the IMF's permission for scheduled downloads, asked again 22 Nov 2026).
@@ -328,8 +346,9 @@ its tool entry on a hub has no links under it. Topic presets would give it some.
   month (Japan in Aug 2026) and states its holding and month.
 - **Submarine cables.** Decided 5 Nov 2026: dropped (TeleGeography asked USD 25,000 a year; no open source of routes
   and landings fits); `/internet` keeps waiting and outages stay live.
-- **Sources waiting on replies.** Decided 5 Nov 2026: no follow-ups; IPC and PortWatch are treated as no answer and
-  their views stay hidden, and WEO is imported by hand (import kind `imf-weo`, docs/data-pipeline.md). PeeringDB agreed
+- **Sources waiting on replies.** Decided 5 Nov 2026: no follow-ups; PortWatch is treated as no answer and its views
+  stay hidden (chokepoints are imported by hand since 22 Nov, D22). IPC answered on 24 Nov 2026 and approved our API
+  key; food crises are live (docs/maps.md). WEO is imported by hand (import kind `imf-weo`, docs/data-pipeline.md). PeeringDB agreed
   by email on 11 Nov 2026 that our use is within its AUP (`src/data/licences.ts`); exchange points are at
   `/internet/exchanges` (docs/maps.md).
 - **Refugees hosted in Russia.** Decided 5 Nov 2026: from 2024 Russia is marked "Not reported since 2023" on the

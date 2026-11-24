@@ -78,7 +78,7 @@ empty and withheld states. How each gate was read:
 | Alliance history | /blocs/{11 blocs}/history | Facts files, AI-drafted, approved | Pass | SCO facts to re-check after launch (owner's decision, 5 Nov) | |
 | Chokepoints | /chokepoints and 28 pages | IMF PortWatch (imported by hand monthly, D22) | Pass (22 Nov) | The IMF's terms allow reuse with credit; scheduled downloads still need permission (asked again 22 Nov), so the files are imported by hand (kinds `portwatch-points`, `portwatch-daily`). The gate passes while the imported files are in the snapshot and under 45 days old (`freshImport` in src/lib/chokepoints.ts); hidden otherwise, as before. Every figure says "data to {date}" and credits "UN Global Platform; IMF PortWatch". Shown only, no CSV. This Week's shipping card stays off (monthly data) | A fresh import each month |
 | Ports | /ports | IMF PortWatch | **Fail** (already hidden) | Not part of D22 | The IMF's permission |
-| Food crises | /food-crises | IPC | **Fail** (already hidden) | Fetcher: no API key | `IPC_API_KEY` |
+| Food crises | /food-crises | IPC | Pass (24 Nov) | API key approved 24 Nov 2026; views, country page block and This week card live once the data run has fetched IPC. Non-commercial, shown only, credit with date and link | |
 | Explorer | /explorer, /over-time, /scatter | Every registry measure | Pass | Satellites and launches are back since CelesTrak's permission (11 Nov) | |
 | Dependencies | /dependencies | FAOSTAT, EIA, UN Comtrade, SIPRI | Pass | | |
 | Supply chains | /supply-chains and 11 flows | FAOSTAT, UN Comtrade, SIPRI, UNHCR | Pass | Latest year only, labelled | |

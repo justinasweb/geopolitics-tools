@@ -82,9 +82,9 @@ export const WEEK_TEXT = {
   weekLink: (x: number, r: string) => `Week ${x}, ${r}`,
   archiveLead: (week: number) => `Week ${week}:`,
   archiveTitle: (week: number, r: string) => `Week ${week}: ${r}`,
-  lede: 'Disasters, conflict, prices, internet outages and sanctions, from the latest data each source has published.',
+  lede: 'Disasters, conflict, prices, food crises, internet outages and sanctions, from the latest data each source has published.',
   archiveLede: 'Disasters, conflict, prices, internet outages and sanctions in one ISO week, Monday to Sunday (UTC), as the data stood when it closed.',
-  description: (r: string) => `Disaster alerts, conflict events, commodity prices, internet outages and sanctions list changes for ${r}, with sources and dates.`,
+  description: (r: string) => `Disaster alerts, conflict events, commodity prices, food crises, internet outages and sanctions list changes for ${r}, with sources and dates.`,
   archiveDescription: (week: number, r: string) => `Week ${week} (${r}): disaster alerts, conflict events, commodity prices, internet outages and sanctions list changes as they stood at the week’s close.`,
   updatedDaily: 'Updated daily',
   lastUpdate: (d: string, t: string) => `Last update ${d}, ${t} UTC`,
@@ -101,6 +101,7 @@ export const WEEK_TEXT = {
 
   counts: {
     disaster: (x: number) => (x === 1 ? 'new disaster alert, orange or red' : 'new disaster alerts, orange and red'),
+    food: (x: number) => `${x === 1 ? 'country' : 'countries'} with people in catastrophic hunger (IPC Phase 5)`,
   },
 
   kind: { shipping: 'Shipping', disaster: 'Disaster', conflict: 'Conflict', prices: 'Prices', food: 'Food crisis', outage: 'Internet outage', sanctions: 'Sanctions' } as Record<string, string>,
@@ -112,6 +113,7 @@ export const WEEK_TEXT = {
     conflict: (d: string, m: string) => `UCDP has published no new events since ${d}. The latest month is ${m}; the conflict map shows it.`,
     prices: (d: string, m: string) => `The World Bank has published no new monthly prices since ${d}. The latest month is ${m}.`,
     outage: (d: string) => `IODA has sent no new outage data since ${d}. The outages map shows the outages from then.`,
+    food: (d: string, m: string) => `IPC has published no new analyses since ${d}. The count of ${m} above uses the analyses still in force.`,
     sanctions: (d: string) => `None of the three lists has changed since ${d}, so no entries were added or removed in this period.`,
   } as Record<string, (d: string, m: string) => string>,
   noBaseline: 'No earlier copy to compare yet',
@@ -127,14 +129,14 @@ export const WEEK_TEXT = {
     outage: 'IODA, Georgia Tech',
     sanctions: 'US Consolidated Screening List; EU FSF; UK Sanctions List',
   },
-  feedSource: { disaster: 'GDACS', conflict: 'UCDP', prices: 'World Bank', outage: 'IODA' } as Record<string, string>,
+  feedSource: { disaster: 'GDACS', conflict: 'UCDP', prices: 'World Bank', outage: 'IODA', food: 'IPC' } as Record<string, string>,
   updated: (d: string, t?: string) => `Updated ${d}${t ? `, ${t} UTC` : ''}`,
   monthly: (m: string) => `${m}, monthly averages`,
   lastData: (d: string) => `no new data since ${d}`,
   since: (d: string, to: string) => `${d} – ${to}`,
 
   go: {
-    disaster: 'Open the disasters map', conflict: 'Open the conflict map', outage: 'Open the outages map', sanctions: 'Open the sanctions map',
+    disaster: 'Open the disasters map', conflict: 'Open the conflict map', food: 'Open the food crises map', outage: 'Open the outages map', sanctions: 'Open the sanctions map',
   } as Record<string, string>,
 
   // Disasters
@@ -180,6 +182,20 @@ export const WEEK_TEXT = {
   },
   pricesCols: { name: 'Commodity', month: 'Month', year: 'Year' },
   pricesCaption: 'Change on the month before and on the same month a year earlier. Monthly averages in US dollars.',
+  // Food crises: Phase 5 counts people; IPC's classification of areas is another thing and is never named here.
+  inForce: (d: string) => `analyses in force on ${d}`,
+  countries: (x: number) => s(x, 'country', 'countries'),
+  foodHead: (x: number) => (x ? `${s(x, 'country', 'countries')} with people in catastrophic hunger (IPC Phase 5)` : 'No country with people in catastrophic hunger (IPC Phase 5)'),
+  foodLabel: 'People in IPC Phase 5 (catastrophe), by country',
+  foodCaption: (d: string) => `People in Phase 5 (catastrophe) in each country’s IPC or Cadre Harmonisé analysis in force on ${d}. Phase 5 counts people, household by household; IPC classifies areas separately.`,
+  /** A bar from an analysis of part of the country. */
+  foodPartial: (place: string, analysed: string, population: string) => `${place}: of ${analysed} people analysed, part of the ${population} IPC counts in the country.`,
+  /** On the count: how many of the countries come from such analyses. */
+  foodPartCount: (x: number, of: number) => (x === of ? (of === 1 ? 'its analysis covered part of the country' : 'each analysis covered part of its country') : `${x} of the analyses covered part of the country`),
+  foodNone: (d: string) => `No IPC or Cadre Harmonisé analysis in force on ${d} counts people in Phase 5 (catastrophe). Countries without an analysis are not counted: that does not mean no one there is hungry.`,
+  foodItem: (place: string, system: string, period: string) => `${place} (${system === 'CH' ? 'Cadre Harmonisé' : 'IPC'}, ${period})`,
+  foodNew: (span: string, items: string[]) => `New analyses ${span}: ${list(items)}.`,
+  foodNoneNew: (span: string) => `IPC published no new analyses ${span}.`,
   // Outages
   outagesHead: (x: number) => (x ? s(x, 'national-scale internet outage', 'national-scale internet outages') : 'No national-scale internet outages recorded'),
   outagesCols: { place: 'Country', began: 'Began', length: 'Length' },
@@ -239,6 +255,7 @@ export const WEEK_TEXT = {
     outage: (place: string, hours: string) => `Internet outage began in ${place}, lasting ${hours}`,
     conflict: (m: string) => `Conflict events for ${m} published`,
     prices: (m: string) => `Commodity prices for ${m} published`,
+    food: (system: string, place: string, period: string) => `New ${system === 'CH' ? 'Cadre Harmonisé' : 'IPC'} analysis: ${place}, ${period}`,
   },
 
   // Week navigation

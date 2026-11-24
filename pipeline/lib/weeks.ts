@@ -1,13 +1,14 @@
 // This week's archive, kept by the data run in the snapshots bucket next to the snapshots:
 //
 //   weeks/ledger.json          the archive's memory: which weeks are frozen, and per day the raw copies of the
-//                              three sanctions lists (for entries added and removed) and of GDACS's alerts (for
-//                              alerts that rose to orange or red in the week) as they stood at that day's first run
+//                              three sanctions lists (for entries added and removed), of GDACS's alerts (for
+//                              alerts that rose to orange or red in the week) and of IPC's analyses (for new
+//                              analyses) as they stood at that day's first run
 //   weeks/<yyyy>-<ww>.json     a closed ISO week's cards and feed, frozen once and never written again
 //
 // It runs at the start of each scheduled run, before any fetch, so what it records is the data as it stood when the
 // day (or the week) ended. The raw copies the ledger points at are the runner's own files in gt-raw, so nothing is
-// copied: the sanctions lists' are kept for good; GDACS's for 14 days, longer than a week is ever compared.
+// copied: the sanctions lists' and IPC's are kept for good; GDACS's for 14 days, longer than a week is ever compared.
 //
 // The week's AI summary is not kept here: it is a text of the drafting pipeline, in the repository
 // (src/data/ai/texts/weeks/, docs/ai-drafting.md), drafted after the run that froze the week (scripts/week.ts).
@@ -30,8 +31,8 @@ export const weekKey = (id: string) => `weeks/${id}.json`;
 export const BASELINE_DAYS = 45;
 /** A closed week is frozen only this many days after its Sunday at most. */
 export const FREEZE_DAYS = 2;
-/** The sources whose copies are recorded each day: the sanctions lists and GDACS. */
-export const BASELINE_SOURCES = [...CARD_SOURCES.sanctions, ...CARD_SOURCES.disaster];
+/** The sources whose copies are recorded each day: the sanctions lists, GDACS and IPC. */
+export const BASELINE_SOURCES = [...CARD_SOURCES.sanctions, ...CARD_SOURCES.disaster, ...CARD_SOURCES.food];
 
 type Rec = { key: string; sha256: string };
 export interface Ledger {

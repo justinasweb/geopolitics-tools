@@ -49,6 +49,9 @@ import { NUCLEAR_TEXT } from '../i18n/nuclear.en';
 import { warheads } from '../lib/nuclear';
 import { CYBER_TEXT } from '../i18n/cyber.en';
 import { cyberData } from '../lib/cyber';
+import { HUNGER_TEXT } from '../i18n/hunger.en';
+import { monthSpan } from '../lib/hunger';
+import { isPartial } from '../adapters/ipc';
 import { publishedText } from '../lib/ai/texts';
 
 interface Props { id: string }
@@ -103,6 +106,11 @@ const blocks = m.blocks;
 const disasterParts = blocks.disasters ? Object.entries(blocks.disasters.byKind).sort((a, b) => b[1] - a[1]).map(([k, n]) => `${n} ${(BLOCK_TEXT.kinds[k] ?? [k, k])[n === 1 ? 0 : 1]}`) : [];
 // Refugees hosted shown as not reported from a year on (src/data/not-reported.ts), as on the hosted maps.
 const nrHosted = blocks.refugees?.hostedUnreported;
+// Food crisis: the analysis in force, with its period and the people analysed; or the latest, in the past.
+const food = blocks.food;
+const fa = food?.analysis;
+const foodCount = (v: number) => formatValue(v, { kind: 'count' });
+const foodLink = live('view:food-crises:hunger');
 
 const buildYear = Number(data().snapshot.created.slice(0, 4));
 const d = dossierFor(p.id, buildYear);
@@ -110,7 +118,7 @@ const people = d.people;
 const co2Stat = d.climate?.stats.find((f) => f.id === 'co2');
 // CO2 per person sits in Climate when that section shows it, so More figures leaves it out.
 const emissions = d.climate?.stats.some((f) => f.id === 'co2pc') ? undefined : blocks.emissions;
-const hasBlocks = Boolean(blocks.refugees || blocks.disasters || emissions || blocks.sanctions || blocks.lending || blocks.nuclear || blocks.cyber);
+const hasBlocks = Boolean(blocks.refugees || blocks.food || blocks.disasters || emissions || blocks.sanctions || blocks.lending || blocks.nuclear || blocks.cyber);
 const pop = m.allFigures.find((f) => f.id === 'population');
 // The age pyramid: one drawing per five-year step on one shared scale, so moving the slider shows the shape change.
 const pyr = people?.pyramid ?? null;
@@ -357,6 +365,21 @@ const citation = COUNTRY_TEXT.citation(name, kind, url, Number(m.updated.slice(0
                   )}
                   {blocks.refugees.from && <CpStat num={formatValue(blocks.refugees.from.value, INDICATORS.refout.format)} caption={BLOCK_TEXT.fledFrom(blocks.refugees.from.year)} />}
                   <SourceLine source={sourceName('unhcr')} parts={[String(blocks.refugees.hosted?.year ?? blocks.refugees.from?.year ?? nrHosted?.last?.year ?? nrHosted!.since)]} />
+                </article>
+              )}
+              {food && fa && (
+                <article class="gt-cpblock">
+                  <h3 class="gt-h3">{HUNGER_TEXT.block}</h3>
+                  {food.inForce ? (
+                    <>
+                      <CpStat num={foodCount(fa.crisis)} caption={HUNGER_TEXT.blockCaption(fa.system, fa.period, monthSpan(fa.from, fa.to), foodCount(fa.analysed), formatShare(fa.share ?? 0))} />
+                      {fa.phases[4] > 0 && <p class="gt-caption">{HUNGER_TEXT.blockPhase5(fa.phases[4], isPartial(fa) ? foodCount(fa.analysed) : null)}</p>}
+                      {isPartial(fa) && <p class="gt-caption">{HUNGER_TEXT.blockPart(foodCount(fa.analysed), foodCount(fa.population!))} <StatusTag status="partial" small /></p>}
+                      {fa.area && <p class="gt-caption">{HUNGER_TEXT.area(fa.area)}</p>}
+                    </>
+                  ) : <p class="gt-caption">{HUNGER_TEXT.blockOld(formatDate(food.day), monthSpan(fa.from, fa.to), foodCount(fa.crisis), foodCount(fa.analysed))}</p>}
+                  {foodLink && <p class="gt-caption"><a href={`${foodLink.path}?country=${m.place.slug}`}>{HUNGER_TEXT.blockLink}</a></p>}
+                  <SourceLine source={sourceName('ipc')} parts={[HUNGER_TEXT.sourcePart(fa.period, monthSpan(fa.from, fa.to))]} status={fa.period === 'current' ? undefined : 'projection'} />
                 </article>
               )}
               {blocks.disasters && (

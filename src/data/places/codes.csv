@@ -81,6 +81,7 @@ eia,iso3,XKS,XKX,,,EIA code for Kosovo
 eia,iso3,NLDA,,,,"Netherlands Antilles, dissolved in 2010; EIA keeps it as a series"
 eia,iso3,USIQ,,,,EIA's US Pacific islands total
 eia,iso3,WAK,,,,Wake Island (no population)
+ipc,iso2,LAC,,,,"IPC's regional analysis for Latin America and the Caribbean, not one country"
 owid,iso3,OWID_WRL,,,,World total
 imf-weo,iso3,UVK,XKX,,,IMF code for Kosovo (By Countries table)
 imf-weo,iso3,KOS,XKX,,,IMF data portal code for Kosovo
