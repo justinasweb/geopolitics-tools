@@ -153,7 +153,13 @@ drops by itself once Ember's own other-fossil share for Costa Rica 2024 is above
   ("YESOUTH", 10.5 of 35.3 million people), Pakistan's of March 2026 (Punjab), Sudan's update of February 2026 (8.3 of
   48 million). Decided 24 Nov 2026: every Phase 5 and Phase 3+ count from such an analysis says how many people it
   covered ("71,424 (of 8.3 m people analysed)"), and the maps, tables and country rows tag it "Part of country". The
-  maps' year values can still jump between a national and a partial analysis.
+  maps' year values can still jump between a national and a partial analysis: since 25 Nov, where two years'
+  analyses covered different populations (people analysed more than 20% apart, `coverageChanged`), the table says
+  "Coverage changed" in place of a change, the year's note gives both coverages, and trend lines break there with a
+  mark. The review asked for one partial and the other not to count too; not done, because IPC's population for a
+  country moves between analyses of the same people (Kenya 2025–26: 16.6 m analysed both years, of 52 m then of
+  16.6 m; Nigeria's July 2026 analysis gives none), which flagged 218 m against 219 m. Two analyses of different areas
+  but similar size still compare.
 - **Palestine.** Decided 24 Nov 2026: no hand note. Since 25 Nov the fetcher also keeps IPC's list of analyses
   (`analyses.json`), whose titles say "Palestine (Gaza Strip) - …", so every Palestine food figure says "Gaza Strip
   only" from IPC's own data. IPC's population for the country equals the people analysed, so these analyses are not

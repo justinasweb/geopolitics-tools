@@ -18,7 +18,7 @@ import '../styles/atlas/table.css';
 import '../styles/atlas/tools.css';
 import { MAP_TEXT } from '../i18n/map.en';
 import { EXCHANGE_TEXT as EX, PARTS_TEXT as PX, VIEW_TEXT, VIEWS_TEXT as W } from '../i18n/views.en';
-import { changeSize, changeText, diffText, flat, placeChange, creditOf, familyPages, legendOf, lede, partsOf, placeNote, shareOf, summary, yearNote, unreportedIn, unreportedText, valueText, viewPage, worldChange, indicatorLabel, prevOf, yearText } from '../lib/views';
+import { changeSize, changeText, coverageBreak, diffText, flat, placeChange, creditOf, familyPages, legendOf, lede, partsOf, placeNote, shareOf, summary, yearNote, unreportedIn, unreportedText, valueText, viewPage, worldChange, indicatorLabel, prevOf, yearText } from '../lib/views';
 import { refreshed } from '../lib/data';
 import { formatValue } from '../lib/format';
 import { place } from '../lib/places';
@@ -75,9 +75,11 @@ const rows = y.rows.map((r) => {
   const q = prev?.rows.find((x) => x.id === r.id);
   // Shares of a country's own total (electricity) change in percentage points.
   const ch = div || !q ? null : placeChange(p, r.value, q.value);
+  // Food crises: analyses of different populations give no change (Yemen nationwide in 2025, its south in 2026).
+  const broken = !!q && coverageBreak(p, r.id, p.year);
   // Small counts (cyber incidents under 10) change by a number of incidents, not a percentage.
   const diff = div || !q ? null : diffText(p, r.value, q.value);
-  return { r, q, ch, diff, parts: partsOf(p, r.id, p.year) };
+  return { r, q, ch, diff, broken, parts: partsOf(p, r.id, p.year) };
 });
 // Refugees: the three groups UNHCR adds together, as columns; notes on single countries, numbered under the table.
 const hasParts = p.layer.sums && rows.some((x) => x.parts);
@@ -222,13 +224,13 @@ const bars = (rs: Row[], max: number, yr: number) => rs.map((r) => ({ id: r.id, 
             {hasParts && <th scope="col" class="n" data-key="po" data-type="num"><button type="button">{PX.oipShort}</button></th>}
           </tr></thead>
           <tbody>
-            {rows.map(({ r, q, ch, diff, parts }) => (
+            {rows.map(({ r, q, ch, diff, broken, parts }) => (
               <tr data-place={r.id}>
                 <th scope="row">{countryHref(r.id) ? <a href={countryHref(r.id)}>{nameOf(r.id)}</a> : nameOf(r.id)}{noteNo(r.id) > 0 && <sup class="gt-fn"><a href={`#mv-note-${noteNo(r.id)}`} aria-label={`${W.notes} ${noteNo(r.id)}`}>{noteNo(r.id)}</a></sup>}</th>
                 <td class="n" data-v={r.value}>{valueText(p, r.value)}{areaOf(r.id, p.year) && <> <AreaTag label={areaOf(r.id, p.year)!} /></>}</td>
                 {p.layer.sums && <td class="n" data-v={y.world ? r.value / y.world : ''}>{shareOf(r.value, y.world) ?? '–'}</td>}
                 {prev && (q ? <td class="n" data-v={q.value}>{valueText(p, q.value)}</td> : <td class="n gt-na" data-v="">–</td>)}
-                {prev && !div && (ch === null ? <td class="n gt-na" data-v="">–</td> : <td class="n" data-v={ch}><span class="gt-chg"><Icon name={flat(p, ch) ? 'flat' : ch > 0 ? 'up' : 'down'} />{diff ?? pct(ch)}</span></td>)}
+                {prev && !div && (broken ? <td class="n gt-muted" style="white-space:normal;min-width:6em" data-v="">{HG.coverageChanged}</td> : ch === null ? <td class="n gt-na" data-v="">–</td> : <td class="n" data-v={ch}><span class="gt-chg"><Icon name={flat(p, ch) ? 'flat' : ch > 0 ? 'up' : 'down'} />{diff ?? pct(ch)}</span></td>)}
                 {hasParts && (parts ? [parts.refugees, parts.asylum, parts.oip].map((v) => <td class="n" data-v={v}>{count(v)}</td>) : [0, 1, 2].map(() => <td class="n gt-na" data-v="">–</td>))}
               </tr>
             ))}

@@ -1,6 +1,6 @@
 // The extras on the food crises views and country pages, from the IPC analyses (../adapters/ipc.ts): each country's
 // latest analysis, people by phase, and the countries with people in Phase 5 (catastrophe) in the analyses in force.
-import { ipc, isPartial, latestByYear, latestOf, type Analysis } from '../adapters/ipc.ts';
+import { coverageChanged, ipc, isPartial, latestByYear, latestOf, type Analysis } from '../adapters/ipc.ts';
 import type { Status } from './tags.ts';
 import { formatValue } from './format.ts';
 import { data, shared } from './data.ts';
@@ -18,9 +18,22 @@ export const latestAnalyses = (): Map<string, Analysis> => latest() ?? new Map()
 /** Each place's latest analysis valid on the snapshot's day. */
 export const analysesInForce = (): Map<string, Analysis> => latestOf(analyses() ?? [], ipcDay());
 
+const people = (v: number) => formatValue(v, { kind: 'count' });
 const byYear = shared(() => latestByYear(analyses() ?? []));
 /** The analysis behind a place's figure in a year on the maps: the latest starting in that year. */
 export const analysisIn = (id: string, year: number): Analysis | undefined => byYear()?.[id]?.[year];
+
+/** A place's figures in two years come from analyses that covered different populations (../adapters/ipc.ts). */
+export function coverageChangedAt(id: string, year: number, before: number): boolean {
+  const a = analysisIn(id, year), b = analysisIn(id, before);
+  return !!a && !!b && coverageChanged(a, b);
+}
+
+/** The note on a figure whose coverage changed from the year before it on the maps: both analyses' people analysed. */
+export function coverageNote(id: string, year: number, before: number): string | null {
+  const a = analysisIn(id, year), b = analysisIn(id, before);
+  return a && b && coverageChanged(a, b) ? HUNGER_TEXT.coverageNote(before, people(b.analysed), people(a.analysed)) : null;
+}
 
 /** The analysis's period ended before the snapshot's day (its last month is before the day's). */
 export const isEnded = (a: Analysis, day = ipcDay()) => a.to < day.slice(0, 7);
@@ -36,7 +49,6 @@ export function foodTags(id: string, year: number): Status[] {
   return [...(isPartial(a) ? ['partial' as const] : []), ...(latestAnalyses().get(id) === a && isEnded(a) ? ['ended' as const] : [])];
 }
 
-const people = (v: number) => formatValue(v, { kind: 'count' });
 /** "(of 8.3 m people analysed)" beside a count from an analysis of part of the country; empty otherwise. */
 export const ofAnalysed = (a: Analysis) => (isPartial(a) ? ` ${HUNGER_TEXT.ofAnalysed(people(a.analysed))}` : '');
 /** The note on a map figure from a partial analysis: people analysed against IPC's count for the country. */

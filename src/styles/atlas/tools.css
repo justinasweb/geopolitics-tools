@@ -31,7 +31,8 @@ main.gt-tl > *, .gt-tl > * { width: 100%; max-width: var(--content-max); margin-
 .gt-caveats { margin: 6px 0 0; padding-left: 18px; display: grid; gap: 6px; font: 400 15px/22px var(--sans); color: var(--ink); }
 .gt-dlbox { display: grid; gap: 8px; justify-items: start; }
 .gt-ser-1 { --sc: var(--cat-1); } .gt-ser-2 { --sc: var(--cat-6); } .gt-ser-3 { --sc: var(--cat-2); } .gt-ser-4 { --sc: var(--cat-3); } .gt-ser-5 { --sc: var(--cat-5); } .gt-ser-6 { --sc: var(--cat-4); } .gt-ser-med { --sc: var(--ink); }
-.gt-lc__line.gt-ser-1, .gt-lc__line.gt-ser-2, .gt-lc__line.gt-ser-3, .gt-lc__line.gt-ser-4, .gt-lc__line.gt-ser-5, .gt-lc__line.gt-ser-6, .gt-lc__line.gt-ser-med { stroke: var(--sc); }
+.gt-lc__line.gt-ser-1, .gt-lc__line.gt-ser-2, .gt-lc__line.gt-ser-3, .gt-lc__line.gt-ser-4, .gt-lc__line.gt-ser-5, .gt-lc__line.gt-ser-6, .gt-lc__line.gt-ser-med,
+.gt-lc__break[class*="gt-ser-"] { stroke: var(--sc); }
 .gt-lc__lab.gt-ser-1, .gt-lc__lab.gt-ser-2, .gt-lc__lab.gt-ser-3, .gt-lc__lab.gt-ser-4, .gt-lc__lab.gt-ser-5, .gt-lc__lab.gt-ser-6 { fill: var(--sc); }
 .gt-ser-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--sc); }
 @container page (max-width: 1099px) {

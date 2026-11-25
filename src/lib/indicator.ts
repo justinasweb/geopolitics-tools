@@ -8,7 +8,7 @@ import { formatValue } from './format.ts';
 import { place } from './places.ts';
 import { ANSWER, DEFAULT_VERB, INDICATOR_PAGE, inSentence } from '../i18n/pages.en.ts';
 import { tagged } from '../i18n/en.ts';
-import { areaAt, foodTags } from './hunger.ts';
+import { areaAt, coverageChangedAt, foodTags } from './hunger.ts';
 import type { Status } from './tags.ts';
 import { counts, defaultYear, median, preliminaryYears, ranked, ranking, type Row } from './stats.ts';
 
@@ -71,6 +71,11 @@ export function tagsAt(ind: Indicator, id: string, year: number): Status[] {
 
 /** The area a figure's analysis covers, said beside it ("Gaza Strip only"): the food crisis measures only. */
 export const areaFor = (ind: Indicator, id: string, year: number): string | null => (ind.source === 'ipc' ? areaAt(id, year) : null);
+
+/** Where a line of the measure over `years` does not join (../linechart.ts `breaks`): the food crisis measures, between
+ *  two years whose analyses covered different populations. */
+export const breaksFor = (ind: Indicator, id: string, years: number[], values: (number | null)[]): number[] =>
+  ind.source !== 'ipc' ? [] : years.flatMap((yr, i) => (i > 0 && values[i] != null && values[i - 1] != null && coverageChangedAt(id, yr, years[i - 1]) ? [i] : []));
 
 /** A figure's tag, as the CSV gives it: an estimate or projection (statusAt), else preliminary in the source's preliminary years. */
 export const tagOf = (m: IndicatorModel, id: string, year: number): ValueStatus | 'preliminary' | undefined =>

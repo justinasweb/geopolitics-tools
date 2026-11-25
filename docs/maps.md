@@ -382,7 +382,9 @@ the tags' shape, `AreaTag` on the pages, This week's card and feed), and the vie
 other sources' "West Bank and Gaza". The page lists countries whose
 analysis in force on the snapshot's day counts people in Phase 5, which counts people in catastrophe, not famine (an
 area classification this endpoint does not give). Country pages have a Food crisis block for every place IPC has
-analysed: the analysis in force, or the latest in the past tense with its period.
+analysed: the same analysis the maps show, tagged "Period ended" when its period ended before the snapshot's day.
+Where a place's analyses in two years covered different populations (people analysed more than 20% apart), the table gives "Coverage changed" in place of a change, the tooltip and panel note both
+coverages, and trend lines (the panel's, the indicator page's) break there with an upright mark.
 
 ## Internet (phase 6)
 

@@ -83,6 +83,17 @@ export const ipc = (raw: Raw) => parseIpc(raw.json<Row[]>('ipc', 'country.json')
  *  are under 95% of it (Yemen's south, Pakistan's Punjab). */
 export const isPartial = (a: Analysis) => a.population !== null && a.analysed < a.population * 0.95;
 
+/** How far apart two analyses' people analysed can be before their figures no longer compare: more than 20%. */
+export const COVERAGE_GAP = 1.2;
+/**
+ * Two analyses covered different populations: the people analysed differ by more than COVERAGE_GAP (Yemen: 34.9 m
+ * nationwide in 2025, 10.5 m in 2026; Pakistan: 36 m in 2025, Punjab's 53 m in 2026). A change between them is not a
+ * change in hunger, so it is never given as a percentage. Whether each is tagged Part of country is not compared:
+ * IPC's population for the country moves between analyses of the same people (Kenya: 16.6 m analysed in 2025 and
+ * 2026, of 52 m and then of 16.6 m), and some analyses give none (Nigeria's of July 2026).
+ */
+export const coverageChanged = (a: Analysis, b: Analysis) => Math.max(a.analysed, b.analysed) > COVERAGE_GAP * Math.min(a.analysed, b.analysed);
+
 /** Whether an analysis is valid on a day (YYYY-MM-DD): the day's month is within its period. */
 export const inForce = (a: Analysis, day: string) => a.from <= day.slice(0, 7) && day.slice(0, 7) <= a.to;
 

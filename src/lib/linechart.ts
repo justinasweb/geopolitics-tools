@@ -23,6 +23,9 @@ export interface Line {
   noLabel?: boolean;
   /** The line's own last actual year, when earlier than the chart's (a country's WEO estimates): dashed after it. */
   actualTo?: number;
+  /** Indexes whose value does not compare with the one before (an IPC analysis of another population): the line is
+   *  not joined there, and a short upright mark stands in the gap. */
+  breaks?: number[];
 }
 export interface LineChartProps {
   label: string;
@@ -77,11 +80,12 @@ export function lineChartHtml({ label, years, lines, format, projectedAfter, ban
     const ends = [splitIndex > 0 ? splitIndex - 1 : last, own > 0 ? own - 1 : last];
     return Math.min(...ends);
   };
-  const segs = (vals: (number | null)[], from: number, to: number) => {
+  const segs = (vals: (number | null)[], from: number, to: number, breaks: number[] = []) => {
     const out: string[] = [];
     let d = '';
     for (let i = from; i <= to; i++) {
       const v = vals[i];
+      if (breaks.includes(i) && d) { out.push(d); d = ''; }
       if (v === null || v === undefined) { if (d) out.push(d); d = ''; continue; }
       d += `${d ? 'L' : 'M'}${x(i).toFixed(1)} ${y(v).toFixed(1)}`;
     }
@@ -121,9 +125,14 @@ export function lineChartHtml({ label, years, lines, format, projectedAfter, ban
   const xt = yearTicks.map((t) => `<text${t.cls ? ` class="${t.cls}"` : ''} x="${pct(t.i)}" y="${H - 8}" text-anchor="middle">${t.yr}</text>`).join('');
   const paths = lines.map((l) => {
     const to = solidTo(l);
-    const solid = segs(l.values, 0, to).map((d) => `<path class="${cls('gt-lc__line', l.cls, l.dashed && 'gt-lc__line--dash')}" d="${d}"></path>`).join('');
-    const proj = to < last ? segs(l.values, to, last).map((d) => `<path class="${cls('gt-lc__line', 'gt-lc__line--proj', l.cls)}" d="${d}"></path>`).join('') : '';
-    return `<g>${solid}${proj}</g>`;
+    const solid = segs(l.values, 0, to, l.breaks).map((d) => `<path class="${cls('gt-lc__line', l.cls, l.dashed && 'gt-lc__line--dash')}" d="${d}"></path>`).join('');
+    const proj = to < last ? segs(l.values, to, last, l.breaks).map((d) => `<path class="${cls('gt-lc__line', 'gt-lc__line--proj', l.cls)}" d="${d}"></path>`).join('') : '';
+    // Each break: a short upright mark halfway between the two points, at the height between them.
+    const marks = (l.breaks ?? []).filter((i) => i > 0 && l.values[i] != null && l.values[i - 1] != null).map((i) => {
+      const mx = (x(i - 1) + x(i)) / 2, my = (y(l.values[i - 1]!) + y(l.values[i]!)) / 2;
+      return `<path class="${cls('gt-lc__break', l.cls)}" d="M${mx.toFixed(1)} ${(my - 7).toFixed(1)}V${(my + 7).toFixed(1)}"></path>`;
+    }).join('');
+    return `<g>${solid}${proj}${marks}</g>`;
   }).join('');
   const split = splitIndex > 0
     ? `<g><line class="gt-lc__split" x1="${pct(splitIndex - 1)}" x2="${pct(splitIndex - 1)}" y1="${T}" y2="${H - B}"></line>`

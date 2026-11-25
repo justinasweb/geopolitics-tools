@@ -9,7 +9,7 @@ import SourceLine from '../components/SourceLine.astro';
 import SegmentedControl from '../components/SegmentedControl.astro';
 import StaticMap from '../components/StaticMap.astro';
 import MapLegend from '../components/MapLegend.astro';
-import LineChart from '../components/LineChart.astro';
+import LineChart, { type Line } from '../components/LineChart.astro';
 import Notice from '../components/Notice.astro';
 import ShareRow from '../components/ShareRow.astro';
 import StatusTag from '../components/StatusTag.astro';
@@ -21,8 +21,9 @@ import '../styles/atlas/country.css';
 import { INDICATORS } from '../data/indicators';
 import { INDICATOR_TEXT } from '../i18n/en';
 import { ANSWER, DEFINITION, INDICATOR_PAGE as T, RELATED, SOURCE_NOTE, list } from '../i18n/pages.en';
-import { answerFor, areaFor, csvAllowed, indicatorModel, tagsAt } from '../lib/indicator';
+import { answerFor, areaFor, breaksFor, csvAllowed, indicatorModel, tagsAt } from '../lib/indicator';
 import AreaTag from '../components/AreaTag.astro';
+import { HUNGER_TEXT } from '../i18n/hunger.en';
 import { creditLine, creditName, licenceOf, refreshed } from '../lib/data';
 import { edgeTexts, formatValue } from '../lib/format';
 import { place } from '../lib/places';
@@ -69,8 +70,8 @@ const et = edgeTexts(b, fmt);
 const ticks = b.length ? [`under ${et[0]}`, ...b.slice(0, -1).map((_, i) => `${et[i]}–${et[i + 1]}`), `${et.at(-1)}+`] : [];
 
 const trend = m.trend;
-const trendLines = trend.years.length > 2 ? [
-  ...trend.top.map((t, i) => ({ label: nameOf(t.id), values: t.values, cls: `gt-ser-${i + 1}`, actualTo: ind.lastActualBy?.[t.id] })),
+const trendLines: Line[] = trend.years.length > 2 ? [
+  ...trend.top.map((t, i) => ({ label: nameOf(t.id), values: t.values, cls: `gt-ser-${i + 1}`, actualTo: ind.lastActualBy?.[t.id], breaks: breaksFor(ind, t.id, trend.years, t.values) })),
   { label: T.median, values: trend.median, cls: 'gt-ser-med', dashed: true },
 ] : [];
 const medVals = trend.median.filter((v): v is number => v !== null);
@@ -150,7 +151,7 @@ const description = indicatorDescription(id);
         <h2 class="gt-h2" id="trend-h">{T.overTime}</h2>
         {trendFind && <p class="gt-cpsec__find">{trendFind}</p>}
         <LineChart label={`${label}, ${trend.years[0]}–${trend.years.at(-1)}`} years={trend.years} lines={trendLines} format={fmt} projectedAfter={ind.projectedAfter} zero={ind.scale === 'log'} />
-        <p class="gt-caption">{T.trendCaption(m.year)}</p>
+        <p class="gt-caption">{T.trendCaption(m.year)}{trendLines.some((l) => l.breaks?.length) && ` ${HUNGER_TEXT.coverageBreak}`}</p>
         <SourceLine source={credit} parts={[`${trend.years[0]}–${trend.years.at(-1)}`]} updated={updated} />
       </section>
     ) : <div />}

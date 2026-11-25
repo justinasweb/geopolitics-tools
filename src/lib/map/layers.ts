@@ -46,7 +46,7 @@ import { CYBER_TEXT } from '../../i18n/cyber.en.ts';
 import { groupsOf, mixOf } from '../electricity.ts';
 import { cells, conflictPage, deathClass, VIOLENCE } from '../conflict.ts';
 import { CONFLICT_TEXT, monthText } from '../../i18n/conflict.en.ts';
-import { areaAt, areaLabel, foodTags, latestAnalyses, monthSpan } from '../hunger.ts';
+import { areaAt, areaLabel, coverageChangedAt, foodTags, latestAnalyses, monthSpan } from '../hunger.ts';
 import { isPartial } from '../../adapters/ipc.ts';
 import { HUNGER_TEXT } from '../../i18n/hunger.en.ts';
 import { POWER_TEXT } from '../../i18n/electricity.en.ts';
@@ -263,10 +263,12 @@ function indicatorLayer(p: ViewPage): LayerFile {
       rank: W.rank(0, 1).replace('0', '{rank}').replace('1', '{of}'),
       detailLabel: p.layer.sums ? PT.share : undefined, rankLabel: PT.rank, rankOf: PT.rankOf, statusLabel: PT.status,
       trend: PT.figureTrend(p.text.figureLabel), trendCaption: PT.trendCaption, ranking: PT.ranking,
+      ...(p.family.id === 'food-crises' ? { breakNote: HUNGER_TEXT.coverageBreak } : {}),
       ...(p.text.barsLabel ? { bars: `${p.text.barsLabel}, {year}` } : {}),
     },
     tags: { ...c.tags, ...areaTags }, names: c.names, hrefs: c.hrefs, slugs: c.slugs, notes, blocs: c.blocs, data,
     ...(p.family.id === 'food-crises' ? { tagWords: { ended: STATUS_TEXT.ended, ...areaWords } } : {}),
+    ...(p.family.id === 'food-crises' ? { breaks: foodBreaks(p) } : {}),
     series: seriesOf(p.years.map((year) => Object.fromEntries(p.byYear[year].rows.map((r) => [r.id, r.value])))),
     format: p.format, more: p.family.id === 'space' ? withSpace(viewMore(p)) : p.family.id === 'sanctions' ? withSanctions(viewMore(p), p.id) : p.id === 'outages' ? withOutages(viewMore(p)) : p.id === 'exchanges' ? withExchanges(viewMore(p)) : p.family.id === 'chinese-lending' ? withLending(viewMore(p), p.id) : p.family.id === 'electricity' ? withMix(viewMore(p), p) : p.family.id === 'food-crises' ? withPhases(viewMore(p)) : CHIP_LAYERS[p.id] ? withSuppliers(viewMore(p), p) : viewMore(p),
     ...(p.id === 'launches' ? { overlays: [launchSites(p)] } : p.id === 'exchanges' ? { overlays: [exchangeMarks()] } : p.id === 'aicompute' ? { overlays: [aiClusters(p)] } : p.id === 'waterstress' ? { overlays: [damMarks()] } : p.family.id === 'arms' ? { overlays: [armsArcs(p)] } : p.id === 'cyber' ? { overlays: [cyberArcs(p)] } : CHIP_LAYERS[p.id] ? { overlays: [chipArcs(p)] } : {}),
@@ -294,6 +296,17 @@ function withSpace(more: Record<string, PanelBlock[]>): Record<string, PanelBloc
 
 /** Arms: for each place, its main partners over the period and, for importers, its suppliers by group (now and, when
  * the data reaches back far enough, in the period before). */
+/** Food crises: where each place's trend line does not join, as indexes into the layer's years: a figure from an analysis
+ *  of another population than the year before's (../hunger.ts). */
+function foodBreaks(p: ViewPage): Record<string, number[]> {
+  const out: Record<string, number[]> = {};
+  p.years.forEach((year, i) => {
+    if (i === 0) return;
+    for (const r of p.byYear[year].rows) if (coverageChangedAt(r.id, year, p.years[i - 1])) (out[r.id] ??= []).push(i);
+  });
+  return out;
+}
+
 /** Food crises: each country's latest IPC or Cadre Harmonisé analysis, people by phase, after its other blocks. */
 function withPhases(more: Record<string, PanelBlock[]>): Record<string, PanelBlock[]> {
   const H = HUNGER_TEXT;

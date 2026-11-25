@@ -19,6 +19,12 @@ export const HUNGER_TEXT = {
   mapNote: (analysed: string, population: string) => `The analysis covered ${analysed} people, part of the ${population} IPC counts in the country.`,
   /** Beside every figure from an analysis of an area IPC's list of analyses names ("Palestine (Gaza Strip)"). */
   only: (area: string) => `${area} only`,
+  /** In place of a change between two analyses that covered different populations. */
+  coverageChanged: 'Coverage changed',
+  /** The note on such a figure: the earlier analysis's people analysed and this one's. */
+  coverageNote: (before: number, then: string, now: string) => `Coverage changed from ${before}: that analysis covered ${then} people, this one ${now}, so the figures do not compare.`,
+  /** Under a trend chart with a break in a line, and in the map panel's trend. */
+  coverageBreak: 'A break in a line marks a change in the population analysed: the figures either side do not compare.',
   catastrophe: 'People in catastrophe (Phase 5)',
   catastropheCaption: (day: string) => `Countries whose analysis in force on ${day} counts people in IPC Phase 5. Phase 5 counts households facing catastrophe; famine is a classification of an area, made only when several thresholds are met.`,
   country: 'Country',

@@ -1,5 +1,6 @@
 import { beforeAll, describe, expect, it } from 'vitest';
-import { areaIn, hungerSeries, inForce, ipcMonth, isPartial, latestOf, parseIpc, partialSeries } from '../../src/adapters/ipc.ts';
+import { lineChartHtml } from '../../src/lib/linechart.ts';
+import { areaIn, coverageChanged, hungerSeries, inForce, ipcMonth, isPartial, latestOf, parseIpc, partialSeries } from '../../src/adapters/ipc.ts';
 
 // The food crises views and the IPC adapter, built from the sample file.
 process.env.GT_DATA = 'sample';
@@ -69,6 +70,24 @@ describe('IPC adapter', () => {
     expect([areaIn('Nigeria - Cadre Harmonisé Analysis March 2025'), areaIn('Guinea-Bissau - Cadre Harmonisé Analysis March 2025'), areaIn('Yemen - Acute Food Insecurity (Projection)')]).toEqual([null, null, null]);
   });
 
+  it('says coverage changed between analyses of different populations, never a percentage', () => {
+    // Yemen: 34.9 m nationwide in 2025, 10.5 m (its south) in 2026.
+    const [nation, south, near] = parseIpc([
+      an(1, 'Sep 2025', 300, { country: 'YE', estimated_population: 34_900_000, population: 34_900_000 }),
+      an(2, 'Oct 2026', 300, { country: 'YE', estimated_population: 10_500_000, population: 35_300_000 }),
+      an(3, 'Oct 2027', 300, { country: 'YE', estimated_population: 32_000_000, population: 35_300_000 }),
+    ]);
+    expect(coverageChanged(nation, south)).toBe(true);
+    // 32 m of 35.3 m is tagged Part of country and the 2025 one not, but the people analysed are within 20%: IPC's
+    // population for a country moves between analyses of the same people, so the tags are not compared.
+    expect(coverageChanged(nation, near)).toBe(false);
+    const [a, b] = parseIpc([an(4, 'Jun 2025', 300, { estimated_population: 1000, population: 1000 }), an(5, 'Jun 2026', 300, { estimated_population: 1150, population: 1150 })]);
+    expect(coverageChanged(a, b)).toBe(false);
+    const html = lineChartHtml({ label: 'x', years: [2024, 2025, 2026], lines: [{ label: 'Yemen', values: [10, 18, 5], breaks: [2] }], format: { kind: 'count' } });
+    expect(html.match(/class="gt-lc__line[^"]*" d="M/g)).toHaveLength(2);
+    expect(html).toContain('gt-lc__break');
+  });
+
   it('knows which analyses are in force on a day', () => {
     const list = parseIpc([an(1, 'Jun 2026', 300, { to: 'Aug 2026' }), an(2, 'Oct 2026', 100, { to: 'Jan 2027', country: 'SO' })]);
     expect([...latestOf(list, '2026-11-24').keys()]).toEqual(['SOM']);
@@ -122,6 +141,15 @@ describe('food crisis tags', () => {
       expect(H.foodTags(id, year).includes('ended')).toBe(H.isEnded(a));
       expect(H.foodTags(id, year).includes('partial')).toBe(isPartial(a));
       for (const y of [year - 1, year - 2]) expect(H.foodTags(id, y)).not.toContain('ended');
+    }
+  });
+
+  it('give no percentage change where coverage changed, and say so in the year’s note', () => {
+    const p = V.familyPages('food-crises')[0];
+    for (const y of p.years.slice(1)) for (const r of p.byYear[y].rows) {
+      if (!V.coverageBreak(p, r.id, y)) continue;
+      expect(V.yearNote(p, r.id, y)).toContain(`Coverage changed from ${y - 1}`);
+      expect(L.layerFile('food-crises-hunger').breaks?.[r.id]).toContain(p.years.indexOf(y));
     }
   });
 

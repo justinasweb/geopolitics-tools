@@ -127,6 +127,8 @@ export interface LayerFile {
     /** The selected place's panel: fact labels, the trend's title ({from}, {to}) and caption ({first}, {from}, {last}, {to}), the ranking's title ({year}). */
     detailLabel?: string; rankLabel?: string; rankOf?: string; statusLabel?: string;
     trend?: string; trendCaption?: string; ranking?: string;
+    /** Under a trend line with a break in it (food crises: the population analysed changed). */
+    breakNote?: string;
     /** The world panel's label over its bars ({year}), for an `unranked` layer, in place of the page's "Largest". */
     bars?: string;
   };
@@ -147,6 +149,9 @@ export interface LayerFile {
    * Each place's figure as a number, one per entry of `data` (null where it has none): the panel's trend line and
    * its bars. Formatted in the browser with `format`.
    */
+  /** Where a place's trend line does not join, by place: indexes into `data` whose figure does not compare with the one
+   *  before (an IPC analysis of another population). */
+  breaks?: Record<string, number[]>;
   series?: Record<string, (number | null)[]>;
   format?: Format;
   /** Blocks for a selected place that stay the same in every year (its other measures, its other minerals). */

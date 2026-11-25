@@ -72,18 +72,24 @@ export function sparkHtml(f: LayerFile, id: string, label: string): string {
   const pct = (i: number) => `${(share(i) * 100).toFixed(2)}%`;
   const Y = (v: number) => (hi === lo ? B : B - ((B - T) * (v - lo)) / (hi - lo));
   const lines = grid.map((g) => `<line x1="0" x2="100%" y1="${Y(g).toFixed(1)}" y2="${Y(g).toFixed(1)}" class="gt-spark__grid"/><text x="-6" y="${(Y(g) + 4).toFixed(1)}" text-anchor="end">${esc(gridText[grid.indexOf(g)])}</text>`).join('');
-  // Gaps (years without a figure) break the line.
+  // Gaps (years without a figure) break the line, as do figures that do not compare with the one before (f.breaks),
+  // which get a short upright mark between the two.
+  const breaks = f.breaks?.[id] ?? [];
   let d = '';
-  pts.forEach((p, i) => { if (p) d += `${d && pts[i - 1] ? 'L' : 'M'}${(share(p.x) * PW).toFixed(1)},${Y(p.v).toFixed(1)}`; });
+  pts.forEach((p, i) => { if (p) d += `${d && pts[i - 1] && !breaks.includes(i) ? 'L' : 'M'}${(share(p.x) * PW).toFixed(1)},${Y(p.v).toFixed(1)}`; });
+  const marks = breaks.filter((i) => pts[i] && pts[i - 1]).map((i) => {
+    const mx = ((share(i - 1) + share(i)) / 2) * PW, my = (Y(pts[i - 1]!.v) + Y(pts[i]!.v)) / 2;
+    return `<path d="M${mx.toFixed(1)},${(my - 6).toFixed(1)}V${(my + 6).toFixed(1)}" class="gt-spark__line"/>`;
+  }).join('');
   const first = have[0], last = have.at(-1)!;
   const tag = (y: LayerYear) => (y.status ? 'e' : '');
   const caption = fill(f.text.trendCaption ?? '{first} in {from}, {last} in {to}.', { first: fmt(first.v), from: first.year, last: fmt(last.v), to: last.year });
   return `<div class="gt-pblock"><div class="gt-pblock__head"><span class="gt-label">${esc(label)}</span></div>`
     + `<svg class="gt-spark" height="${H}" style="--l:${L}px" role="img" aria-label="${esc(`${label}: ${caption}`)}">${lines}`
-    + `<svg width="100%" height="${H}" viewBox="0 0 ${PW} ${H}" preserveAspectRatio="none" overflow="visible" aria-hidden="true"><path d="${d}" class="gt-spark__line"/></svg>`
+    + `<svg width="100%" height="${H}" viewBox="0 0 ${PW} ${H}" preserveAspectRatio="none" overflow="visible" aria-hidden="true"><path d="${d}" class="gt-spark__line"/>${marks}</svg>`
     + `<circle cx="${pct(last.x)}" cy="${Y(last.v).toFixed(1)}" r="3" class="gt-spark__dot"/>`
     + `<text x="${pct(first.x)}" y="92" text-anchor="start">${first.year}${tag(f.data[first.x])}</text><text x="${pct(last.x)}" y="92" text-anchor="end">${last.year}${tag(f.data[last.x])}</text></svg>`
-    + `<p class="gt-caption gt-pblock__cap">${esc(caption)}</p></div>`;
+    + `<p class="gt-caption gt-pblock__cap">${esc(caption)}${breaks.length && f.text.breakNote ? ` ${esc(f.text.breakNote)}` : ''}</p></div>`;
 }
 
 /** The ranking around a place: the top three, then the place with its neighbours, as bars with the place marked. */
