@@ -10,7 +10,7 @@
     "VNM",
     "TWN"
   ],
-  "generated": "src/lib/ai/dossier-facts.ts from snapshot 2026-11-22T1725Z",
+  "generated": "src/lib/ai/dossier-facts.ts from snapshot 2026-11-25T1428Z",
   "facts": [
     {
       "id": "gdp",
@@ -195,44 +195,44 @@
     {
       "id": "co2pc",
       "statement": "CO2 per person of China.",
-      "value": 8.658,
+      "value": 8.769,
       "unit": "t",
-      "period": "2024",
+      "period": "2025",
       "places": [
         "CHN"
       ],
       "source": "Our World in Data CO2",
       "link": "https://ourworldindata.org/co2/country/chn",
-      "date": "2026-10-24"
+      "date": "2026-11-23"
     },
     {
       "id": "co2pc-rank",
       "statement": "China’s place on CO2 per person, largest first.",
-      "value": 30,
+      "value": 29,
       "unit": "rank",
-      "period": "2024",
+      "period": "2025",
       "places": [
         "CHN"
       ],
       "source": "Our World in Data CO2",
       "link": "https://ourworldindata.org/co2/country/chn",
-      "date": "2026-10-24"
+      "date": "2026-11-23"
     },
     {
       "id": "co2pc-of",
       "statement": "Places ranked on CO2 per person.",
-      "value": 213,
+      "value": 218,
       "unit": "places",
       "unitAliases": [
         "countries"
       ],
-      "period": "2024",
+      "period": "2025",
       "places": [
         "CHN"
       ],
       "source": "Our World in Data CO2",
       "link": "https://ourworldindata.org/co2/country/chn",
-      "date": "2026-10-24"
+      "date": "2026-11-23"
     },
     {
       "id": "growth",
@@ -581,7 +581,7 @@
     {
       "id": "satellites",
       "statement": "Satellites in orbit of China (counted to the date of the source’s newest entry, not to the end of the year).",
-      "value": 1724,
+      "value": 1726,
       "unit": "satellites",
       "period": "2026",
       "places": [
@@ -589,7 +589,7 @@
       ],
       "source": "CelesTrak SATCAT",
       "link": "https://celestrak.org/satcat/search.php",
-      "date": "2026-11-22"
+      "date": "2026-11-24"
     },
     {
       "id": "satellites-rank",
@@ -602,7 +602,7 @@
       ],
       "source": "CelesTrak SATCAT",
       "link": "https://celestrak.org/satcat/search.php",
-      "date": "2026-11-22"
+      "date": "2026-11-24"
     },
     {
       "id": "satellites-of",
@@ -618,7 +618,7 @@
       ],
       "source": "CelesTrak SATCAT",
       "link": "https://celestrak.org/satcat/search.php",
-      "date": "2026-11-22"
+      "date": "2026-11-24"
     },
     {
       "id": "launches",
@@ -631,7 +631,7 @@
       ],
       "source": "CelesTrak SATCAT",
       "link": "https://celestrak.org/satcat/search.php",
-      "date": "2026-11-22"
+      "date": "2026-11-24"
     },
     {
       "id": "launches-rank",
@@ -644,7 +644,7 @@
       ],
       "source": "CelesTrak SATCAT",
       "link": "https://celestrak.org/satcat/search.php",
-      "date": "2026-11-22"
+      "date": "2026-11-24"
     },
     {
       "id": "launches-of",
@@ -660,7 +660,7 @@
       ],
       "source": "CelesTrak SATCAT",
       "link": "https://celestrak.org/satcat/search.php",
-      "date": "2026-11-22"
+      "date": "2026-11-24"
     },
     {
       "id": "aicompute",
@@ -708,86 +708,86 @@
     {
       "id": "co2",
       "statement": "CO2 emissions of China.",
-      "value": 12289,
+      "value": 12417.5,
       "unit": "Mt",
-      "period": "2024",
+      "period": "2025",
       "places": [
         "CHN"
       ],
       "source": "Our World in Data CO2",
       "link": "https://ourworldindata.org/co2/country/chn",
-      "date": "2026-10-24"
+      "date": "2026-11-23"
     },
     {
       "id": "co2-rank",
       "statement": "China’s place on CO2 emissions, largest first.",
       "value": 1,
       "unit": "rank",
-      "period": "2024",
+      "period": "2025",
       "places": [
         "CHN"
       ],
       "source": "Our World in Data CO2",
       "link": "https://ourworldindata.org/co2/country/chn",
-      "date": "2026-10-24"
+      "date": "2026-11-23"
     },
     {
       "id": "co2-of",
       "statement": "Places ranked on CO2 emissions.",
-      "value": 214,
+      "value": 219,
       "unit": "places",
       "unitAliases": [
         "countries"
       ],
-      "period": "2024",
+      "period": "2025",
       "places": [
         "CHN"
       ],
       "source": "Our World in Data CO2",
       "link": "https://ourworldindata.org/co2/country/chn",
-      "date": "2026-10-24"
+      "date": "2026-11-23"
     },
     {
       "id": "co2cum",
       "statement": "CO2 emitted since 1750 of China.",
-      "value": 285087,
+      "value": 298480,
       "unit": "Mt",
-      "period": "2024",
+      "period": "2025",
       "places": [
         "CHN"
       ],
       "source": "Our World in Data CO2",
       "link": "https://ourworldindata.org/co2/country/chn",
-      "date": "2026-10-24"
+      "date": "2026-11-23"
     },
     {
       "id": "co2cum-rank",
       "statement": "China’s place on CO2 emitted since 1750, largest first.",
       "value": 2,
       "unit": "rank",
-      "period": "2024",
+      "period": "2025",
       "places": [
         "CHN"
       ],
       "source": "Our World in Data CO2",
       "link": "https://ourworldindata.org/co2/country/chn",
-      "date": "2026-10-24"
+      "date": "2026-11-23"
     },
     {
       "id": "co2cum-of",
       "statement": "Places ranked on CO2 emitted since 1750.",
-      "value": 214,
+      "value": 219,
       "unit": "places",
       "unitAliases": [
         "countries"
       ],
-      "period": "2024",
+      "period": "2025",
       "places": [
         "CHN"
       ],
       "source": "Our World in Data CO2",
       "link": "https://ourworldindata.org/co2/country/chn",
-      "date": "2026-10-24"
+      "date": "2026-11-23"
     },
     {
       "id": "waterstress",
@@ -833,8 +833,8 @@
     },
     {
       "id": "imports-oil",
-      "statement": "China’s net imports of oil as a share of its use.",
-      "value": 67.415,
+      "statement": "China’s net imports of oil as a share of its use (preliminary).",
+      "value": 68.2686,
       "unit": "%",
       "share": true,
       "unitAliases": [
@@ -843,13 +843,14 @@
         "of its oil",
         "oil imports"
       ],
-      "period": "2024",
+      "period": "2025",
       "places": [
         "CHN"
       ],
       "source": "U.S. Energy Information Administration",
       "link": "https://www.eia.gov/international/data/world",
-      "date": "2026-11-17"
+      "date": "2026-11-24",
+      "status": "preliminary"
     },
     {
       "id": "main-supplier-oil",
@@ -861,19 +862,19 @@
         "oil imports",
         "imports of oil"
       ],
-      "period": "2024",
+      "period": "2025",
       "places": [
         "CHN",
         "RUS"
       ],
       "source": "U.S. Energy Information Administration",
       "link": "https://www.eia.gov/international/data/world",
-      "date": "2026-11-17"
+      "date": "2026-11-24"
     },
     {
       "id": "imports-gas",
       "statement": "China’s net imports of gas as a share of its use (preliminary).",
-      "value": 39.1737,
+      "value": 36.3737,
       "unit": "%",
       "share": true,
       "unitAliases": [
@@ -882,13 +883,13 @@
         "of its gas",
         "gas imports"
       ],
-      "period": "2024",
+      "period": "2025",
       "places": [
         "CHN"
       ],
       "source": "U.S. Energy Information Administration",
       "link": "https://www.eia.gov/international/data/world",
-      "date": "2026-11-17",
+      "date": "2026-11-24",
       "status": "preliminary"
     },
     {
@@ -901,14 +902,14 @@
         "gas imports",
         "imports of gas"
       ],
-      "period": "2024",
+      "period": "2025",
       "places": [
         "CHN",
         "AUS"
       ],
       "source": "U.S. Energy Information Administration",
       "link": "https://www.eia.gov/international/data/world",
-      "date": "2026-11-17"
+      "date": "2026-11-24"
     },
     {
       "id": "imports-wheat",
@@ -928,13 +929,13 @@
       ],
       "source": "FAOSTAT",
       "link": "https://www.fao.org/faostat/en/#data",
-      "date": "2026-10-24",
+      "date": "2026-11-23",
       "status": "estimated"
     },
     {
       "id": "main-supplier-wheat",
       "statement": "Australia is the main supplier of China’s wheat imports.",
-      "value": 61.8001,
+      "value": 58.4044,
       "unit": "%",
       "share": true,
       "unitAliases": [
@@ -948,7 +949,7 @@
       ],
       "source": "FAOSTAT",
       "link": "https://www.fao.org/faostat/en/#data",
-      "date": "2026-10-24"
+      "date": "2026-11-23"
     },
     {
       "id": "imports-maize",
@@ -968,12 +969,12 @@
       ],
       "source": "FAOSTAT",
       "link": "https://www.fao.org/faostat/en/#data",
-      "date": "2026-10-24"
+      "date": "2026-11-23"
     },
     {
       "id": "main-supplier-maize",
       "statement": "Brazil is the main supplier of China’s maize imports.",
-      "value": 48.4931,
+      "value": 45.429,
       "unit": "%",
       "share": true,
       "unitAliases": [
@@ -987,7 +988,7 @@
       ],
       "source": "FAOSTAT",
       "link": "https://www.fao.org/faostat/en/#data",
-      "date": "2026-10-24"
+      "date": "2026-11-23"
     },
     {
       "id": "imports-rice",
@@ -1007,12 +1008,12 @@
       ],
       "source": "FAOSTAT",
       "link": "https://www.fao.org/faostat/en/#data",
-      "date": "2026-10-24"
+      "date": "2026-11-23"
     },
     {
       "id": "main-supplier-rice",
       "statement": "Vietnam is the main supplier of China’s rice imports.",
-      "value": 39.1307,
+      "value": 36.0013,
       "unit": "%",
       "share": true,
       "unitAliases": [
@@ -1026,7 +1027,7 @@
       ],
       "source": "FAOSTAT",
       "link": "https://www.fao.org/faostat/en/#data",
-      "date": "2026-10-24"
+      "date": "2026-11-23"
     },
     {
       "id": "imports-soy",
@@ -1046,12 +1047,12 @@
       ],
       "source": "FAOSTAT",
       "link": "https://www.fao.org/faostat/en/#data",
-      "date": "2026-10-24"
+      "date": "2026-11-23"
     },
     {
       "id": "main-supplier-soy",
       "statement": "Brazil is the main supplier of China’s soybeans imports.",
-      "value": 72.9798,
+      "value": 69.2808,
       "unit": "%",
       "share": true,
       "unitAliases": [
@@ -1065,7 +1066,7 @@
       ],
       "source": "FAOSTAT",
       "link": "https://www.fao.org/faostat/en/#data",
-      "date": "2026-10-24"
+      "date": "2026-11-23"
     },
     {
       "id": "imports-potash",
@@ -1086,7 +1087,7 @@
       ],
       "source": "FAOSTAT",
       "link": "https://www.fao.org/faostat/en/#data",
-      "date": "2026-10-24",
+      "date": "2026-11-23",
       "status": "estimated"
     },
     {
@@ -1106,7 +1107,7 @@
       ],
       "source": "FAOSTAT",
       "link": "https://www.fao.org/faostat/en/#data",
-      "date": "2026-10-24"
+      "date": "2026-11-23"
     },
     {
       "id": "exports-phosphate",
@@ -1126,7 +1127,7 @@
       ],
       "source": "FAOSTAT",
       "link": "https://www.fao.org/faostat/en/#data",
-      "date": "2026-10-24",
+      "date": "2026-11-23",
       "status": "estimated"
     },
     {
@@ -1165,7 +1166,7 @@
       ],
       "source": "UN Comtrade",
       "link": "https://comtradeplus.un.org/",
-      "date": "2026-11-17"
+      "date": "2026-11-24"
     },
     {
       "id": "mineral-gallium",
@@ -1325,32 +1326,32 @@
     {
       "id": "refin",
       "statement": "Refugees and others needing protection, by host of China.",
-      "value": 712,
+      "value": 703,
       "unit": "people",
       "unitAliases": [
         "residents",
         "inhabitants"
       ],
-      "period": "2025",
+      "period": "2026",
       "places": [
         "CHN"
       ],
       "source": "UNHCR Refugee Data Finder",
       "link": "https://www.unhcr.org/refugee-statistics/download",
-      "date": "2026-10-24"
+      "date": "2026-11-23"
     },
     {
       "id": "refin-rank",
       "statement": "China’s place on refugees and others needing protection, by host, largest first.",
-      "value": 140,
+      "value": 139,
       "unit": "rank",
-      "period": "2025",
+      "period": "2026",
       "places": [
         "CHN"
       ],
       "source": "UNHCR Refugee Data Finder",
       "link": "https://www.unhcr.org/refugee-statistics/download",
-      "date": "2026-10-24"
+      "date": "2026-11-23"
     },
     {
       "id": "refin-of",
@@ -1360,59 +1361,59 @@
       "unitAliases": [
         "countries"
       ],
-      "period": "2025",
+      "period": "2026",
       "places": [
         "CHN"
       ],
       "source": "UNHCR Refugee Data Finder",
       "link": "https://www.unhcr.org/refugee-statistics/download",
-      "date": "2026-10-24"
+      "date": "2026-11-23"
     },
     {
       "id": "refout",
       "statement": "Refugees from the country of China (Refugees, asylum seekers and others in need of protection abroad).",
-      "value": 253678,
+      "value": 252872,
       "unit": "people",
       "unitAliases": [
         "residents",
         "inhabitants"
       ],
-      "period": "2025",
+      "period": "2026",
       "places": [
         "CHN"
       ],
       "source": "UNHCR Refugee Data Finder",
       "link": "https://www.unhcr.org/refugee-statistics/download",
-      "date": "2026-10-24"
+      "date": "2026-11-23"
     },
     {
       "id": "refout-rank",
       "statement": "China’s place on refugees from the country, largest first.",
-      "value": 26,
+      "value": 23,
       "unit": "rank",
-      "period": "2025",
+      "period": "2026",
       "places": [
         "CHN"
       ],
       "source": "UNHCR Refugee Data Finder",
       "link": "https://www.unhcr.org/refugee-statistics/download",
-      "date": "2026-10-24"
+      "date": "2026-11-23"
     },
     {
       "id": "refout-of",
       "statement": "Places ranked on refugees from the country.",
-      "value": 206,
+      "value": 204,
       "unit": "places",
       "unitAliases": [
         "countries"
       ],
-      "period": "2025",
+      "period": "2026",
       "places": [
         "CHN"
       ],
       "source": "UNHCR Refugee Data Finder",
       "link": "https://www.unhcr.org/refugee-statistics/download",
-      "date": "2026-10-24"
+      "date": "2026-11-23"
     },
     {
       "id": "nuclear-warheads",
