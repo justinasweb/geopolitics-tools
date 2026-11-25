@@ -159,6 +159,7 @@ describe('food crisis tags', () => {
 
   it('draw partial analyses with lines the legend names', () => {
     const f = L.layerFile('food-crises-hunger');
+    expect(f.notes.PSE).toBeUndefined();
     expect(f.missing.partial).toBe('Analysis of part of the country');
     for (const [id, a] of H.latestAnalyses()) if (isPartial(a)) expect(H.ofAnalysedAt(id, Number(a.from.slice(0, 4)))).toMatch(/^of .+ people analysed$/);
   });
@@ -180,11 +181,11 @@ describe('food crisis tags', () => {
       const tags = H.foodTags(id, f.year);
       expect(e[3]).toBe(tags.includes('partial') ? 'partial' : 0);
       expect((f.data[i].tip?.[id]?.t ?? '').split(' ').filter((t) => !t.startsWith('area-')).join(' ')).toBe(tags.join(' '));
-      expect(f.data[i].notes?.[id] ?? null).toBe(H.panelNote(id, f.year));
+      expect(f.data[i].notes?.[id] ?? null).toBe([H.panelNote(id, f.year), H.areaAt(id, f.year)].filter(Boolean).join(' ') || null);
     }
   });
 
-  it('keep the panel as on main: no periods, area labels or coverage notes there, all of them in the tooltip', async () => {
+  it('keep the panel as on main: no periods, tags beyond Part of country or coverage notes there, all of them in the tooltip', async () => {
     const { countryPanelHtml, tooltipHtml } = await import('../../src/scripts/map/panel.ts');
     const f = L.layerFile('food-crises-hunger');
     const i = f.years.indexOf(f.year);
@@ -192,7 +193,9 @@ describe('food crisis tags', () => {
       const panel = countryPanelHtml(f, i, id);
       const tip = tooltipHtml(f, f.data[i], id, id);
       if (f.data[i].periods?.[id]) { expect(tip).toContain(f.data[i].periods![id]); expect(panel).not.toContain(f.data[i].periods![id]); }
-      expect(panel).not.toMatch(/Period ended|Coverage changed| only<|of the total shown|IPC counts in the country\. These figures/);
+      expect(panel).not.toMatch(/Period ended|Coverage changed|of the total shown|IPC counts in the country\. These figures|West Bank/);
+      // The area an analysis covers is its note in the panel ("Gaza Strip only"), not a label.
+      if (H.areaAt(id, f.year)) expect(panel).toContain(`<p>${H.areaAt(id, f.year)}</p>`);
       if (H.foodTags(id, f.year).includes('ended')) expect(tip).toContain('Period ended');
     }
   });

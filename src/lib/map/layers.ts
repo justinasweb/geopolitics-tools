@@ -251,13 +251,20 @@ function indicatorLayer(p: ViewPage): LayerFile {
     if (p.family.id === 'arms') Object.assign(more, armsBlocks(p.id === 'armsexp5', year, y.rows.map((r) => r.id)));
     if (p.id === 'ictexp') Object.assign(more, ictShares(year, y.rows.map((r) => r.id)));
     if (p.id === 'cyber') Object.assign(more, cyberBlocks(year));
-    // The panel's notes for the year; on the food crises views as on main, the tooltip's are in `tip`.
-    const notes = Object.fromEntries(y.rows.flatMap((r) => { const n = p.family.id === 'food-crises' ? panelNote(r.id, year) : yearNote(p, r.id, year); return n ? [[r.id, n]] : []; }));
+    // The panel's notes for the year; on the food crises views as on main, with the area an analysis covers ("Gaza Strip
+    // only", from IPC's list of analyses). The tooltip's are in `tip`.
+    const notes = Object.fromEntries(y.rows.flatMap((r) => {
+      const n = p.family.id === 'food-crises' ? [panelNote(r.id, year), areaAt(r.id, year)].filter(Boolean).join(' ') : yearNote(p, r.id, year);
+      return n ? [[r.id, n]] : [];
+    }));
     // Food crises: the analysis behind each figure, its period and whether it is an assessment or a projection.
     const periods = p.family.id === 'food-crises' ? Object.fromEntries(y.rows.flatMap((r) => { const t = periodAt(r.id, year); return t ? [[r.id, t]] : []; })) : {};
     return { year, ...(p.text.period ? { label: p.text.period(year) } : {}), legend: legendOf(p, year), v, order: y.rows.map((r) => r.id), blocs: bl, ...(Object.keys(more).length ? { more } : {}), ...(Object.keys(notes).length ? { notes } : {}), ...(Object.keys(periods).length ? { periods } : {}), ...(Object.keys(tip).length ? { tip } : {}) };
   });
   const notes = { ...c.notes };
+  // Food crises: the general note on what other sources count for Palestine ("West Bank and Gaza") would contradict
+  // "Gaza Strip only" beside its figures, in the panel as in the tooltip.
+  if (p.family.id === 'food-crises') delete notes.PSE;
   for (const id of new Set(p.years.flatMap((yr) => p.byYear[yr].rows.map((r) => r.id)))) {
     const n = placeNote(p, id);
     if (n) notes[id] = notes[id] ? `${notes[id]} ${n}` : n;

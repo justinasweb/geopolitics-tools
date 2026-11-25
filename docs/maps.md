@@ -380,7 +380,8 @@ shown" in the tooltip, with "Periods and coverage differ between countries." in 
 caption (`totalOf` in src/i18n/views.en.ts).
 The sidebar next to the map (the world panel, and a country's panel) is as it was before 25 Nov 2026, at the owner's
 request: "World", "Total, countries analysed", bars without labels, "Part of country" as the only tag, the year before
-hidden beside it, an unbroken trend line, the general Palestine note and the panel's own note wording. The map's
+hidden beside it, an unbroken trend line and the panel's own note wording; its note for an analysis of a named area
+is that area ("Gaza Strip only", from IPC's list of analyses), in place of the general Palestine note. The map's
 tooltip says the rest from the layer file's `tip` and `periods` (detail, every tag, its own notes), so the two read
 apart. A country's panel gives its latest analysis by phase, with its period, whether it is a projection and the people
 analysed (with IPC's population for the whole country when the analysis covers less). A figure from an analysis

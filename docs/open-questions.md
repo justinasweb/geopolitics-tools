@@ -166,9 +166,8 @@ drops by itself once Ember's own other-fossil share for Costa Rica 2024 is above
   tagged Part of country.
 - **The sidebar next to the food crises map.** Back as it was before 25 Nov 2026 (owner, 25 Nov: too much there),
   while the tooltip, tables and pages took the review's fixes. Left open: the sidebar still says "World" and "Total,
-  countries analysed", its trend line joins across coverage changes (Yemen 18 m → 5.4 m reads as a fall), its
-  Palestine note names "West Bank and Gaza" beside a Gaza-only figure, and Cadre Harmonisé is no longer explained
-  anywhere on the views (the sentence was in the sidebar's caveat).
+  countries analysed", its trend line joins across coverage changes (Yemen 18 m → 5.4 m reads as a fall), and
+  Cadre Harmonisé is no longer explained anywhere on the views (the sentence was in the sidebar's caveat).
 - **New analyses on This week.** An analysis is "new" when the IPC copy kept on the period's first day did not have
   it, and is dated on the day IPC's data changed: IPC's API gives no publication date. The first copies are kept from
   the first data run after merge, so the first week names none.
