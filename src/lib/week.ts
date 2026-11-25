@@ -22,6 +22,7 @@ import { isWeekId, lastClosedWeek, rollingWeek, weekNumber, weekRange } from './
 import { WEEK_TEXT as W, PRICE_TEXT, day, month, months, pct, range } from '../i18n/week.en.ts';
 import { monthSpan } from './hunger.ts';
 import { HUNGER_TEXT } from '../i18n/hunger.en.ts';
+import { inSentence, possessive } from '../i18n/pages.en.ts';
 import { formatValue } from './format.ts';
 import type { Status } from './tags.ts';
 
@@ -280,7 +281,7 @@ function cardView(c: Card, w: WeekData): CardView {
           })),
           notes: [
             W.foodCaption(day(c.day, { year: true })),
-            ...c.rows.filter((r) => r.analysed).map((r) => W.foodPartial(nameOf(r.place), formatValue(r.analysed!, { kind: 'count' }), formatValue(r.population!, { kind: 'count' }))),
+            ...c.rows.filter((r) => r.analysed).map((r) => W.foodPartial(possessive(inSentence(nameOf(r.place), true)), formatValue(r.analysed!, { kind: 'count' }), formatValue(r.population!, { kind: 'count' }))),
             c.added ? (added.length ? W.foodNew(span, added.map(foodItem)) : W.foodNoneNew(span)) : ''].filter(Boolean),
         } : { type: 'notes', notes: [W.foodNone(day(c.day, { year: true })), c.added ? (added.length ? W.foodNew(span, added.map(foodItem)) : W.foodNoneNew(span)) : ''].filter(Boolean) },
       };

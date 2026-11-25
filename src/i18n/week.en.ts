@@ -190,7 +190,8 @@ export const WEEK_TEXT = {
   foodLabel: 'People in IPC Phase 5 (catastrophe), by country',
   foodCaption: (d: string) => `People in Phase 5 (catastrophe) in each country’s IPC or Cadre Harmonisé analysis in force on ${d}. ${PHASE5_NOTE}`,
   /** A bar from an analysis of part of the country. */
-  foodPartial: (place: string, analysed: string, population: string) => `${place}: of ${analysed} people analysed, part of the ${population} IPC counts in the country.`,
+  /** `placeOf`: the place's possessive, at the start of a sentence ("Sudan’s", "The Democratic Republic of the Congo’s"). */
+  foodPartial: (placeOf: string, analysed: string, population: string) => `${placeOf} analysis covered ${analysed} of the ${population} people IPC counts in the country.`,
   /** On the count: how many of the countries come from such analyses. */
   foodPartCount: (x: number, of: number) => (x === of ? (of === 1 ? 'its analysis covered part of the country' : 'each analysis covered part of its country') : `${x} of the analyses covered part of the country`),
   foodNone: (d: string) => `No IPC or Cadre Harmonisé analysis in force on ${d} counts people in Phase 5 (catastrophe). Countries without an analysis are not counted: that does not mean no one there is hungry.`,

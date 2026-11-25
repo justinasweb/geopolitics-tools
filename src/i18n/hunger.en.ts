@@ -34,8 +34,9 @@ export const HUNGER_TEXT = {
   ofAnalysedShort: (analysed: string) => `of ${analysed} people analysed`,
   /** The map legend's words for the lines over such a figure. */
   partialLegend: 'Analysis of part of the country',
-  /** The map's note on such a figure. */
-  mapNote: (analysed: string, population: string) => `The analysis covered ${analysed} people, part of the ${population} IPC counts in the country.`,
+  /** The map's note on such a figure, starting with the place's possessive: "Sudan’s analysis covered 8.3 m of the 48 m
+   *  people IPC counts in the country." */
+  mapNote: (placeOf: string, analysed: string, population: string) => `${placeOf} analysis covered ${analysed} of the ${population} people IPC counts in the country.`,
   /** Beside every figure from an analysis of an area IPC's list of analyses names ("Palestine (Gaza Strip)"). */
   only: (area: string) => `${area} only`,
   /** In place of a change between two analyses that covered different populations. */

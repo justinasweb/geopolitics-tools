@@ -5,6 +5,8 @@ import type { Status } from './tags.ts';
 import { formatValue } from './format.ts';
 import { data, editionOf, shared, sourceName } from './data.ts';
 import { HUNGER_TEXT } from '../i18n/hunger.en.ts';
+import { inSentence, possessive } from '../i18n/pages.en.ts';
+import { place } from './places.ts';
 
 const analyses = shared(ipc);
 
@@ -51,9 +53,10 @@ export function foodTags(id: string, year: number): Status[] {
 
 /** "(of 8.3 m people analysed)" beside a count from an analysis of part of the country; empty otherwise. */
 export const ofAnalysed = (a: Analysis) => (isPartial(a) ? ` ${HUNGER_TEXT.ofAnalysed(people(a.analysed))}` : '');
-/** The note on a map figure from a partial analysis: people analysed against IPC's count for the country. */
+/** The note on a map figure from a partial analysis: people analysed against IPC's count for the country, said of the
+ *  place by name ("The Democratic Republic of the Congo’s analysis covered …"). */
 export function analysisNote(a: Analysis): string | null {
-  return isPartial(a) ? HUNGER_TEXT.mapNote(people(a.analysed), people(a.population!)) : null;
+  return isPartial(a) ? HUNGER_TEXT.mapNote(possessive(inSentence(place(a.place)?.name ?? a.place, true)), people(a.analysed), people(a.population!)) : null;
 }
 
 /** The analysis behind a place's figure in a year, after the figure in a ranked row: "Oct 2026 – Jan 2027 projection". */

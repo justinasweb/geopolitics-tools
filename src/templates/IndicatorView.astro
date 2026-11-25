@@ -49,7 +49,7 @@ import { POWER_TEXT as PW } from '../i18n/electricity.en';
 import { basesOf, cyberData, ownState, pairs as cyberPairs } from '../lib/cyber';
 import { CYBER_TEXT as CX } from '../i18n/cyber.en';
 import { OTHER_SUPPLIER } from '../adapters/sipri';
-import { DEP_TEXT } from '../i18n/pages.en';
+import { DEP_TEXT, inSentence } from '../i18n/pages.en';
 
 interface Props { id: string }
 const p = viewPage(Astro.props.id)!;
@@ -275,7 +275,7 @@ const bars = (rs: Row[], max: number, yr: number) => rs.map((r) => ({ id: r.id, 
       {t.notes.length > 0 && (
         <div class="gt-mvnotes">
           <h3 class="gt-label">{W.notes}</h3>
-          <ol class="gt-caption">{t.notes.map((n, i) => <li id={t.noteId(i + 1)}><b>{nameOf(n.id)}:</b> {n.text}</li>)}</ol>
+          <ol class="gt-caption">{t.notes.map((n, i) => <li id={t.noteId(i + 1)}>{!n.text.startsWith(inSentence(nameOf(n.id), true)) && <><b>{nameOf(n.id)}:</b> </>}{n.text}</li>)}</ol>
         </div>
       )}
         </div>

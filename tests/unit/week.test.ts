@@ -138,6 +138,12 @@ describe('This week cards', () => {
     expect(computeWeek(withIpc({ baseline: null })).cards.find((c) => c.kind === 'food')).toMatchObject({ added: null });
   });
 
+  it('says on the food card whose analysis covered part of the country, with the analysis’s own figures', async () => {
+    const { weekPageFor } = await import('../../src/lib/week.ts');
+    const words = JSON.stringify(weekPageFor(computeWeek(withIpc()), null).cards);
+    expect(words).toContain('Sudan’s analysis covered 1,000 of the 5,000 people IPC counts in the country.');
+  });
+
   it('names a new analysis once, for its latest period, though IPC gives it for each', () => {
     const current = { ...ipcAn('3', 'HT', 'Jul 2026', 'Aug 2026', 0), ipc_period: 'C' };
     const fw = computeWeek(withIpc({ raw: memRaw({ ...files, 'ipc/country.json': [...ipcNow, current] }) }));

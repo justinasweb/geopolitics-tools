@@ -165,6 +165,16 @@ describe('food crisis tags', () => {
     for (const [id, a] of H.latestAnalyses()) if (isPartial(a)) expect(H.ofAnalysedAt(id, Number(a.from.slice(0, 4)))).toMatch(/^of .+ people analysed$/);
   });
 
+  it('say whose analysis covered part of the country, with its figures, and "the" where the name takes it', () => {
+    const [sd, cd] = parseIpc([
+      an(1, 'Oct 2026', 300, { estimated_population: 8_289_603, population: 47_535_794 }),
+      an(2, 'Oct 2026', 300, { country: 'CD', estimated_population: 105_000_000, population: 113_000_000 }),
+    ]);
+    expect(H.analysisNote(sd)).toBe('Sudan’s analysis covered 8.3 m of the 48 m people IPC counts in the country.');
+    expect(H.analysisNote(cd)).toBe('The Democratic Republic of the Congo’s analysis covered 105 m of the 113 m people IPC counts in the country.');
+    expect(H.analysisNote(parseIpc([an(3, 'Oct 2026', 300, { population: 1000 })])[0])).toBeNull();
+  });
+
   it('put the same tags on the map as beside the figure elsewhere', () => {
     const f = L.layerFile('food-crises-hunger');
     const i = f.years.indexOf(f.year);
