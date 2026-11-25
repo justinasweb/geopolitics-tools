@@ -4,7 +4,8 @@
 // (current, projection or projection update), and counts the people in each phase: 1 minimal, 2 stressed, 3 crisis,
 // 4 emergency, 5 catastrophe. Phase 3 or above is "in food crisis". Phase 5 counts people in catastrophe; famine is a
 // classification of an area, which this endpoint does not give. An analysis with no people in any phase (some from
-// 2012–2014) has no figures and is left out: blank, not zero.
+// 2012–2014) has no figures and is left out: blank, not zero. ipc/analyses.json, IPC's list of analyses, gives each its
+// link and, in the title, the area it covers when that is not the whole place ("Palestine (Gaza Strip) - …").
 import { type Raw, type Series, matcher, num, put } from './core.ts';
 
 type Row = Record<string, unknown>;
@@ -26,8 +27,10 @@ export interface Analysis {
   /** The population IPC gives for the whole country with the analysis, when it gives one: analyses can cover only part
    *  of a country (Yemen's south, Pakistan's Punjab). */
   population: number | null;
-  /** The area the title names, when it is one the site words for itself: "the Gaza Strip". Never from a hand note. */
+  /** The area the analysis covers when IPC's list of analyses names one in its title ("Gaza Strip"); never from a hand note. */
   area: string | null;
+  /** The analysis's page on ipcinfo.org, from IPC's list of analyses. */
+  link: string | null;
   phases: [number, number, number, number, number];
   crisis: number;
   /** Phase 3 or above as a share of the population analysed. */
@@ -41,13 +44,13 @@ export function ipcMonth(s: unknown): string | null {
   const i = m ? MONTHS.indexOf(m[1]) : -1;
   return m && i >= 0 ? `${m[2]}-${String(i + 1).padStart(2, '0')}` : null;
 }
-/** Areas named in titles. Only these are said in words; other partial analyses give their people analysed. */
-const AREAS: [RegExp, string][] = [[/\bgaza\b/i, 'the Gaza Strip']];
-const areaOf = (title: string) => AREAS.find(([re]) => re.test(title))?.[1] ?? null;
+/** The area in a title from IPC's list of analyses: "Palestine (Gaza Strip) - Acute Food Insecurity …" → "Gaza Strip". */
+export const areaIn = (title: unknown) => String(title ?? '').match(/^[^(–-]*\(([^)]+)\)\s+[-–]\s/)?.[1].trim() ?? null;
 const PERIOD: Record<string, Analysis['period']> = { C: 'current', P: 'projection', A: 'update' };
 
-export function parseIpc(rows: Row[]): Analysis[] {
+export function parseIpc(rows: Row[], list: Row[] = []): Analysis[] {
   const m = matcher('ipc', 'iso2');
+  const listed = new Map(list.map((r) => [String(r.id), r]));
   const out: Analysis[] = [];
   for (const r of rows) {
     if (r.condition && r.condition !== 'A') continue;
@@ -64,20 +67,32 @@ export function parseIpc(rows: Row[]): Analysis[] {
     // A few early analyses give a population analysed far below the people they count in phases (Pakistan 2013: 144).
     const analysed = Math.max(num(r.estimated_population) ?? 0, total);
     const title = String(r.title ?? '').trim();
+    const l = listed.get(String(r.id));
     out.push({
       id: Number(r.id), place, title, system: /cadre harmonis/i.test(title) || /\bCH\b/.test(title) ? 'CH' : 'IPC', period: PERIOD[String(r.ipc_period)] ?? 'current',
-      from, to, year: num(r.year) ?? Number(from.slice(0, 4)), analysed, population: num(r.population) || null, area: areaOf(title), phases: ph, crisis, share: crisis / analysed,
+      from, to, year: num(r.year) ?? Number(from.slice(0, 4)), analysed, population: num(r.population) || null, area: l ? areaIn(l.title) : null, link: l?.link ? String(l.link) : null, phases: ph, crisis, share: crisis / analysed,
     });
   }
   // Two analyses can share a period (a March update of November's projection): the later analysis comes last.
   return out.sort((a, b) => a.from.localeCompare(b.from) || a.year - b.year || a.id - b.id);
 }
 
-export const ipc = (raw: Raw) => parseIpc(raw.json<Row[]>('ipc', 'country.json'));
+export const ipc = (raw: Raw) => parseIpc(raw.json<Row[]>('ipc', 'country.json'), raw.has('ipc', 'analyses.json') ? raw.json<Row[]>('ipc', 'analyses.json') : []);
 
 /** The analysis covered less than the whole country: IPC's population for the country is known and the people analysed
  *  are under 95% of it (Yemen's south, Pakistan's Punjab). */
 export const isPartial = (a: Analysis) => a.population !== null && a.analysed < a.population * 0.95;
+
+/** How far apart two analyses' people analysed can be before their figures no longer compare: more than 20%. */
+export const COVERAGE_GAP = 1.2;
+/**
+ * Two analyses covered different populations: the people analysed differ by more than COVERAGE_GAP (Yemen: 34.9 m
+ * nationwide in 2025, 10.5 m in 2026; Pakistan: 36 m in 2025, Punjab's 53 m in 2026). A change between them is not a
+ * change in hunger, so it is never given as a percentage. Whether each is tagged Part of country is not compared:
+ * IPC's population for the country moves between analyses of the same people (Kenya: 16.6 m analysed in 2025 and
+ * 2026, of 52 m and then of 16.6 m), and some analyses give none (Nigeria's of July 2026).
+ */
+export const coverageChanged = (a: Analysis, b: Analysis) => Math.max(a.analysed, b.analysed) > COVERAGE_GAP * Math.min(a.analysed, b.analysed);
 
 /** Whether an analysis is valid on a day (YYYY-MM-DD): the day's month is within its period. */
 export const inForce = (a: Analysis, day: string) => a.from <= day.slice(0, 7) && day.slice(0, 7) <= a.to;

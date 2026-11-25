@@ -21,6 +21,8 @@ import { computeWeek, alertCount, phase5Count, phase5Partial, hasFigures, CARD_O
 import { isWeekId, lastClosedWeek, rollingWeek, weekNumber, weekRange } from './week/period.ts';
 import { WEEK_TEXT as W, PRICE_TEXT, day, month, months, pct, range } from '../i18n/week.en.ts';
 import { monthSpan } from './hunger.ts';
+import { HUNGER_TEXT } from '../i18n/hunger.en.ts';
+import { inSentence, possessive } from '../i18n/pages.en.ts';
 import { formatValue } from './format.ts';
 import type { Status } from './tags.ts';
 
@@ -82,6 +84,8 @@ export function weekSummary(id: string): Summary | null {
 // ---- What the page shows ---------------------------------------------------------------------------------------
 
 const nameOf = (id: string) => place(id)?.name ?? id;
+/** A food analysis's place, with the area it covers when IPC names one: "Palestine (Gaza Strip only)". */
+const foodPlace = (a: { place: string; area?: string }) => (a.area ? `${nameOf(a.place)} (${HUNGER_TEXT.only(a.area)})` : nameOf(a.place));
 const HOURLY = new Set(['disaster', 'outage']);
 /** "21 Oct" or, for hourly sources, "21 Oct, 06:00 UTC". */
 const updatedText = (kind: string, fetched: string) => W.updated(day(fetched), HOURLY.has(kind) ? fetched.slice(11, 16) : undefined);
@@ -116,7 +120,7 @@ export interface TableRow { head: string; sub?: string; cells: { text: string; n
 export type Body =
   | { type: 'alerts'; rows: AlertRow[]; empty?: string; active: AlertRow[]; activeTitle: string; activeNote: string; activeMore?: string; notes: string[] }
   | { type: 'pair'; label: string; rows: PairRow[]; keyA: string; keyB: string; key: string; notes: string[] }
-  | { type: 'ref'; label: string; rows: { name: string; width: number; value: string }[]; notes: string[] }
+  | { type: 'ref'; label: string; rows: { name: string; width: number; value: string; note?: string }[]; notes: string[] }
   | { type: 'table'; cols: { text: string; num?: boolean }[]; rows: TableRow[]; notes: string[] }
   | { type: 'notes'; notes: string[] }
   | { type: 'links'; items: { text: string; date: string; datetime: string; href: string }[]; empty?: string; notes: string[] };
@@ -270,10 +274,14 @@ function cardView(c: Card, w: WeekData): CardView {
         ...base, headline: W.foodHead(c.phase5), source: creditName('ipc'), period: inForce,
         body: c.rows.length ? {
           type: 'ref', label: W.foodLabel,
-          rows: c.rows.map((r) => ({ name: nameOf(r.place), width: (100 * r.people) / top, value: new Intl.NumberFormat('en').format(r.people) })),
+          rows: c.rows.map((r) => ({
+            name: foodPlace(r), width: (100 * r.people) / top, value: new Intl.NumberFormat('en').format(r.people),
+            // The analysis behind the count: "Oct 2026 – Jan 2027 projection" (weeks frozen before 25 Nov 2026: its months).
+            note: [r.period ? HUNGER_TEXT.rowPeriod(r.period, monthSpan(r.from, r.to)) : monthSpan(r.from, r.to), r.analysed ? HUNGER_TEXT.ofAnalysedShort(formatValue(r.analysed, { kind: 'count' })) : ''].filter(Boolean).join(', '),
+          })),
           notes: [
             W.foodCaption(day(c.day, { year: true })),
-            ...c.rows.filter((r) => r.analysed).map((r) => W.foodPartial(nameOf(r.place), formatValue(r.analysed!, { kind: 'count' }), formatValue(r.population!, { kind: 'count' }))),
+            ...c.rows.filter((r) => r.analysed).map((r) => W.foodPartial(possessive(inSentence(nameOf(r.place), true)), formatValue(r.analysed!, { kind: 'count' }), formatValue(r.population!, { kind: 'count' }))),
             c.added ? (added.length ? W.foodNew(span, added.map(foodItem)) : W.foodNoneNew(span)) : ''].filter(Boolean),
         } : { type: 'notes', notes: [W.foodNone(day(c.day, { year: true })), c.added ? (added.length ? W.foodNew(span, added.map(foodItem)) : W.foodNoneNew(span)) : ''].filter(Boolean) },
       };
@@ -306,7 +314,11 @@ function cardView(c: Card, w: WeekData): CardView {
 }
 
 /** A new analysis in a sentence: "Haiti (IPC, Sep 2026 – Feb 2027)". */
-const foodItem = (a: FoodAnalysis) => W.foodItem(nameOf(a.place), a.system, monthSpan(a.from, a.to));
+/** A new analysis in the card's list: "Sudan (IPC projection for Oct 2026 – Jan 2027)"; weeks frozen before 25 Nov 2026
+ *  give no kind: "Sudan (IPC, Oct 2026 – Jan 2027)". */
+const foodItem = (a: FoodAnalysis) => (a.period
+  ? `${foodPlace(a)} (${HUNGER_TEXT.label(a.system, a.period, monthSpan(a.from, a.to))})`
+  : W.foodItem(foodPlace(a), a.system, monthSpan(a.from, a.to)));
 
 export interface FeedView { kind: string; label: string; date: string; datetime: string; time?: string; text: string; href?: string; source: string }
 
@@ -317,7 +329,7 @@ function feedView(f: FeedItem): FeedView {
     case 'outage': return { ...common, text: W.feedItem.outage(nameOf(f.place), W.hours(f.hours)), href: viewHref('internet') };
     case 'conflict': return { ...common, text: W.feedItem.conflict(month(f.month, true)), href: viewHref('conflict') };
     case 'prices': return { ...common, text: W.feedItem.prices(month(f.month, true)) };
-    case 'food': return { ...common, text: W.feedItem.food(f.system, nameOf(f.place), monthSpan(f.from, f.to)), href: viewHref('food-crises') };
+    case 'food': return { ...common, text: f.period ? W.feedItem.foodKind(HUNGER_TEXT.label(f.system, f.period, monthSpan(f.from, f.to)), foodPlace(f)) : W.feedItem.food(f.system, foodPlace(f), monthSpan(f.from, f.to)), href: viewHref('food-crises') };
   }
 }
 

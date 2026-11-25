@@ -133,9 +133,22 @@ describe('This week cards', () => {
     expect(f).toMatchObject({ day: '2026-10-22', phase5: 1, partial: 1, rows: [{ place: 'SDN', people: 60, from: '2026-10', to: '2027-01', analysed: 1000, population: 5000 }], added: [{ place: 'HTI', system: 'IPC' }] });
     expect(phase5Count(fw)).toBe(1);
     expect(phase5Partial(fw)).toBe(1);
-    expect(fw.feed.filter((x) => x.kind === 'food')).toEqual([{ kind: 'food', date: '2026-10-21', place: 'HTI', system: 'IPC', from: '2026-09', to: '2027-02' }]);
+    expect(fw.feed.filter((x) => x.kind === 'food')).toEqual([{ kind: 'food', date: '2026-10-21', place: 'HTI', system: 'IPC', from: '2026-09', to: '2027-02', period: 'projection' }]);
     // Without a copy from the period's first day, no analysis is called new.
     expect(computeWeek(withIpc({ baseline: null })).cards.find((c) => c.kind === 'food')).toMatchObject({ added: null });
+  });
+
+  it('says on the food card whose analysis covered part of the country, with the analysis’s own figures', async () => {
+    const { weekPageFor } = await import('../../src/lib/week.ts');
+    const words = JSON.stringify(weekPageFor(computeWeek(withIpc()), null).cards);
+    expect(words).toContain('Sudan’s analysis covered 1,000 of the 5,000 people IPC counts in the country.');
+  });
+
+  it('names a new analysis once, for its latest period, though IPC gives it for each', () => {
+    const current = { ...ipcAn('3', 'HT', 'Jul 2026', 'Aug 2026', 0), ipc_period: 'C' };
+    const fw = computeWeek(withIpc({ raw: memRaw({ ...files, 'ipc/country.json': [...ipcNow, current] }) }));
+    expect(fw.cards.find((c) => c.kind === 'food')).toMatchObject({ added: [{ place: 'HTI', from: '2026-09', period: 'projection' }] });
+    expect(fw.feed.filter((x) => x.kind === 'food')).toHaveLength(1);
   });
 
   it('keeps the Phase 5 count on a quiet food card, without its figures', () => {

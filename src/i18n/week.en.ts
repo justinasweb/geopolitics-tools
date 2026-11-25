@@ -3,6 +3,7 @@
 // on August"). IODA states no causes, so outages have none. Sanctions changes are counts of entries added and removed,
 // never a judgement of the targets. Phase 5 of the IPC scale is "catastrophic hunger (IPC Phase 5)", never "famine".
 // Dates read "21 Oct", times are UTC, and every count gives its period.
+import { PHASE5_NOTE } from './hunger.en.ts';
 import { list } from './pages.en.ts';
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -187,9 +188,10 @@ export const WEEK_TEXT = {
   countries: (x: number) => s(x, 'country', 'countries'),
   foodHead: (x: number) => (x ? `${s(x, 'country', 'countries')} with people in catastrophic hunger (IPC Phase 5)` : 'No country with people in catastrophic hunger (IPC Phase 5)'),
   foodLabel: 'People in IPC Phase 5 (catastrophe), by country',
-  foodCaption: (d: string) => `People in Phase 5 (catastrophe) in each country’s IPC or Cadre Harmonisé analysis in force on ${d}. Phase 5 counts people, household by household; IPC classifies areas separately.`,
+  foodCaption: (d: string) => `People in Phase 5 (catastrophe) in each country’s IPC or Cadre Harmonisé analysis in force on ${d}. ${PHASE5_NOTE}`,
   /** A bar from an analysis of part of the country. */
-  foodPartial: (place: string, analysed: string, population: string) => `${place}: of ${analysed} people analysed, part of the ${population} IPC counts in the country.`,
+  /** `placeOf`: the place's possessive, at the start of a sentence ("Sudan’s", "The Democratic Republic of the Congo’s"). */
+  foodPartial: (placeOf: string, analysed: string, population: string) => `${placeOf} analysis covered ${analysed} of the ${population} people IPC counts in the country.`,
   /** On the count: how many of the countries come from such analyses. */
   foodPartCount: (x: number, of: number) => (x === of ? (of === 1 ? 'its analysis covered part of the country' : 'each analysis covered part of its country') : `${x} of the analyses covered part of the country`),
   foodNone: (d: string) => `No IPC or Cadre Harmonisé analysis in force on ${d} counts people in Phase 5 (catastrophe). Countries without an analysis are not counted: that does not mean no one there is hungry.`,
@@ -256,6 +258,8 @@ export const WEEK_TEXT = {
     conflict: (m: string) => `Conflict events for ${m} published`,
     prices: (m: string) => `Commodity prices for ${m} published`,
     food: (system: string, place: string, period: string) => `New ${system === 'CH' ? 'Cadre Harmonisé' : 'IPC'} analysis: ${place}, ${period}`,
+    /** With the analysis's kind (weeks frozen from 25 Nov 2026): "New IPC projection for Oct 2026 – Jan 2027: Sudan". */
+    foodKind: (analysis: string, place: string) => `New ${analysis}: ${place}`,
   },
 
   // Week navigation

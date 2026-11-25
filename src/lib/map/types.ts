@@ -7,7 +7,7 @@
 
 import type { Format } from '../../data/indicators.ts';
 
-export type Status = 'estimate' | 'projection' | 'preliminary' | 'partial';
+export type Status = 'estimate' | 'projection' | 'preliminary' | 'partial' | 'ended';
 
 /**
  * One place's entry for a year: [class, value, detail, status, rank].
@@ -38,6 +38,13 @@ export interface LayerYear {
   more?: Record<string, PanelBlock[]>;
   /** Notes for this year only, by place id, after the layer's own notes (a grid operator's figure beside Ember's). */
   notes?: Record<string, string>;
+  /** What each figure comes from, by place id, under its value in the tooltip (food crises: "Oct 2026 – Jan 2027
+   *  projection"). */
+  periods?: Record<string, string>;
+  /** The tooltip's own words for a place's figure where they differ from the panel's (food crises): its detail, its
+   *  tags (keys of the file's `tags`, separated by spaces: Part of country, Period ended, "area-…") and its notes, in
+   *  place of the layer's and the year's. */
+  tip?: Record<string, { d?: string; t?: string; n?: string }>;
 }
 
 /** A short block in a selected place's panel: a label, optional caption, rows of name and value, a source line. */
@@ -105,7 +112,8 @@ export interface LayerFile {
    *  often a country is targeted). */
   caveat?: string;
   /** Legend words for the shapes without a class. */
-  missing: { none: string; withheld?: string; notyet?: string };
+  /** `partial`: the legend's words for the lines over a figure from an analysis of part of a place (IPC). */
+  missing: { none: string; withheld?: string; notyet?: string; partial?: string };
   source: string;
   /** Words with {placeholders}, filled in by the engine. */
   text: {
@@ -128,8 +136,10 @@ export interface LayerFile {
     /** The world panel's label over its bars ({year}), for an `unranked` layer, in place of the page's "Largest". */
     bars?: string;
   };
-  /** Status tags as HTML (their glyph and word). */
-  tags: Record<Status, string>;
+  /** Status tags as HTML (their glyph and word), and labels for the areas IPC analyses cover ("area-gaza-strip"). */
+  tags: Record<Status, string> & Record<string, string>;
+  /** Tags the tooltip says in plain words, by key (food crises: "Period ended", the area an analysis covers). */
+  tagWords?: Record<string, string>;
   names: Record<string, string>;
   /** Country pages that exist. */
   hrefs: Record<string, string>;
@@ -143,6 +153,9 @@ export interface LayerFile {
    * Each place's figure as a number, one per entry of `data` (null where it has none): the panel's trend line and
    * its bars. Formatted in the browser with `format`.
    */
+  /** Where a place's trend line in the panel does not join, by place: indexes into `data` whose figure does not compare
+   *  with the one before (food crises: an analysis of another population, as the tables' "Coverage changed"). */
+  breaks?: Record<string, number[]>;
   series?: Record<string, (number | null)[]>;
   format?: Format;
   /** Blocks for a selected place that stay the same in every year (its other measures, its other minerals). */

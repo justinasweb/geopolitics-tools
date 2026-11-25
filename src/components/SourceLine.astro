@@ -13,6 +13,8 @@ interface Props {
   source: string;
   /** When the site last refreshed the data (ISO date or Date). */
   updated?: string | Date;
+  /** The words before that date where "Updated" would read as the source's own (IPC: "Last fetched"). */
+  updatedLabel?: string;
   /** Extra plain parts, such as the period ("15–21 Oct 2026"). */
   parts?: string[];
   status?: Status;
@@ -25,14 +27,14 @@ interface Props {
   years?: { year: number; parts: string[]; status?: Status }[];
   year?: number;
 }
-const { source, updated, parts = [], status, citation, citeDisabled = false, years, year } = Astro.props;
+const { source, updated, updatedLabel = SOURCE_TEXT.updated, parts = [], status, citation, citeDisabled = false, years, year } = Astro.props;
 ---
 <p class="gt-source">
   <span>{SOURCE_TEXT.source} <b><SourceText text={source} /></b></span>
   {years
     ? years.map((e) => <span class="gt-source__yr" data-for-year={e.year} hidden={e.year !== year}>{e.parts.map((p) => <><span class="gt-source__sep" aria-hidden="true">·</span><span>{p}</span></>)}</span>)
     : parts.map((p) => <><span class="gt-source__sep" aria-hidden="true">·</span><span>{p}</span></>)}
-  {updated && <><span class="gt-source__sep" aria-hidden="true">·</span><span>{SOURCE_TEXT.updated} {formatDate(updated)}</span></>}
+  {updated && <><span class="gt-source__sep" aria-hidden="true">·</span><span>{updatedLabel} {formatDate(updated)}</span></>}
   {years
     ? years.filter((e) => e.status).map((e) => <span class="gt-source__yr" data-for-year={e.year} hidden={e.year !== year}><span class="gt-source__sep" aria-hidden="true">·</span><StatusTag status={e.status!} small /></span>)
     : status && <><span class="gt-source__sep" aria-hidden="true">·</span><StatusTag status={status} small /></>}

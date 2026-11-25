@@ -8,6 +8,8 @@ import { formatValue } from './format.ts';
 import { place } from './places.ts';
 import { ANSWER, DEFAULT_VERB, INDICATOR_PAGE, inSentence } from '../i18n/pages.en.ts';
 import { tagged } from '../i18n/en.ts';
+import { areaAt, coverageChangedAt, foodTags, ofAnalysedAt, periodAt } from './hunger.ts';
+import type { Status } from './tags.ts';
 import { counts, defaultYear, median, preliminaryYears, ranked, ranking, type Row } from './stats.ts';
 
 /** Fewer reporting places than this in the common year, and the page is built but not indexed. */
@@ -58,6 +60,29 @@ export function indicatorModel(id: string): IndicatorModel | null {
   cache.set(id, out);
   return out;
 }
+
+/** A figure's tags where it is shown beside its value: the registry's one (statusAt), or for the food crisis measures
+ *  their own from the analysis behind them (./hunger.ts: Part of country, Period ended). */
+export function tagsAt(ind: Indicator, id: string, year: number): Status[] {
+  if (ind.source === 'ipc') return foodTags(id, year);
+  const s = statusAt(ind, id, year);
+  return s ? [s] : [];
+}
+
+/** The area a figure's analysis covers, said beside it ("Gaza Strip only"): the food crisis measures only. */
+export const areaFor = (ind: Indicator, id: string, year: number): string | null => (ind.source === 'ipc' ? areaAt(id, year) : null);
+
+/** Everything said beside a figure (FigureLabels): its tags, the area its analysis covers, from an analysis of part of a
+ *  country the people it covered, and the analysis's period. */
+export const labelsAt = (ind: Indicator, id: string, year: number) => ({
+  tags: tagsAt(ind, id, year), area: areaFor(ind, id, year),
+  of: ind.source === 'ipc' ? ofAnalysedAt(id, year) : null, period: ind.source === 'ipc' ? periodAt(id, year) : null,
+});
+
+/** Where a line of the measure over `years` does not join (../linechart.ts `breaks`): the food crisis measures, between
+ *  two years whose analyses covered different populations. */
+export const breaksFor = (ind: Indicator, id: string, years: number[], values: (number | null)[]): number[] =>
+  ind.source !== 'ipc' ? [] : years.flatMap((yr, i) => (i > 0 && values[i] != null && values[i - 1] != null && coverageChangedAt(id, yr, years[i - 1]) ? [i] : []));
 
 /** A figure's tag, as the CSV gives it: an estimate or projection (statusAt), else preliminary in the source's preliminary years. */
 export const tagOf = (m: IndicatorModel, id: string, year: number): ValueStatus | 'preliminary' | undefined =>

@@ -14,6 +14,19 @@ const CLOSE = '<svg class="gt-ico" viewBox="0 0 24 24" aria-hidden="true"><path 
 const nameOf = (f: LayerFile, id: string, y?: LayerYear) => y?.names?.[id] ?? f.names[id] ?? id;
 /** A year as the layer says it: the year, or a period's words. */
 const when = (y: LayerYear) => y.label ?? y.year;
+/** An entry's tags as HTML: one key of the file's `tags`, or several separated by spaces. */
+const tagsHtml = (f: LayerFile, s: string) => s.split(' ').map((t) => f.tags[t] ?? '').join(' ');
+/**
+ * A tooltip's tags: those the layer says in words (`tagWords`: Period ended, the area an analysis covers) as plain text
+ * on one line, after the figure's period when it has one ("Jun–Aug 2026 projection · Period ended"), since a tag's ink
+ * does not show on the tooltip's dark ground; the others as tags.
+ */
+function tipTags(f: LayerFile, tags: string | 0 | undefined, period?: string): string[] {
+  const keys = tags ? tags.split(' ') : [];
+  const line = [period, ...keys.filter((k) => f.tagWords?.[k]).map((k) => f.tagWords![k])].filter(Boolean);
+  const boxed = keys.filter((k) => !f.tagWords?.[k]).join(' ');
+  return [...(line.length ? [`<span>${esc(line.join(' · '))}</span>`] : []), ...(boxed ? [tagsHtml(f, boxed)] : [])];
+}
 
 /** The tooltip for a place on a year: name, value with what it measures, detail and year, status, source, hint. */
 export function tooltipHtml(f: LayerFile, y: LayerYear, id: string | null, fallbackName: string, touch = false): string {
@@ -25,13 +38,18 @@ export function tooltipHtml(f: LayerFile, y: LayerYear, id: string | null, fallb
   // Not yet reported: the word, then the last figure and its year.
   else if (e[0] === -1) parts.push(`<span class="gt-tip__val gt-tip__val--word">${esc(e[1])}</span>`, `<span class="tnum">${esc(e[2])}</span>`);
   else {
+    // The tooltip's own detail, tags and notes where the layer gives them (y.tip: food crises), else the panel's.
+    const tip = id ? y.tip?.[id] : undefined;
+    const detail = tip?.d ?? e[2];
+    const tags = tip?.t ?? e[3];
     parts.push(`<span class="gt-tip__val">${esc(e[1])}<small>${esc(f.text.measure)}</small></span>`);
     // A detail that is just the year (a historical series) is not followed by the year again.
-    if (e[2]) parts.push(`<span class="tnum">${esc(e[2])}${e[2] === String(when(y)) ? '' : ` · ${when(y)}`}</span>`);
-    if (e[3]) parts.push(f.tags[e[3]]);
+    if (detail) parts.push(`<span class="tnum">${esc(detail)}${detail === String(when(y)) ? '' : ` · ${when(y)}`}</span>`);
+    parts.push(...tipTags(f, tags, id ? y.periods?.[id] : undefined));
   }
-  // The place's note, then this year's own (y.notes).
-  for (const n of id ? [f.notes[id], y.notes?.[id]] : []) if (n) parts.push(`<span class="gt-tip__note">${INFO}${esc(n)}</span>`);
+  // The place's note, then this year's own (y.notes); or the tooltip's own notes.
+  const tipNote = id && e && e[0] > 0 ? y.tip?.[id]?.n : undefined;
+  for (const n of id ? (tipNote !== undefined ? [tipNote] : [f.notes[id], y.notes?.[id]]) : []) if (n) parts.push(`<span class="gt-tip__note">${INFO}${esc(n)}</span>`);
   parts.push(`<span class="gt-tip__src">${esc(f.source)}</span>`);
   if (id) parts.push(`<span class="gt-tip__hint">${esc(touch ? f.text.tapHint : f.text.hint)}</span>`);
   return parts.join('');
@@ -59,15 +77,26 @@ export function sparkHtml(f: LayerFile, id: string, label: string): string {
   const pct = (i: number) => `${(share(i) * 100).toFixed(2)}%`;
   const Y = (v: number) => (hi === lo ? B : B - ((B - T) * (v - lo)) / (hi - lo));
   const lines = grid.map((g) => `<line x1="0" x2="100%" y1="${Y(g).toFixed(1)}" y2="${Y(g).toFixed(1)}" class="gt-spark__grid"/><text x="-6" y="${(Y(g) + 4).toFixed(1)}" text-anchor="end">${esc(gridText[grid.indexOf(g)])}</text>`).join('');
-  // Gaps (years without a figure) break the line.
+  // Gaps (years without a figure) break the line, as do figures that do not compare with the one before (f.breaks: food
+  // crises, where the population analysed changed). A figure a break leaves joined to neither neighbour is a dot: a
+  // stroke of no length.
+  const breaks = f.breaks?.[id] ?? [];
+  const joined = (i: number) => i > 0 && !!pts[i] && !!pts[i - 1] && !breaks.includes(i);
   let d = '';
-  pts.forEach((p, i) => { if (p) d += `${d && pts[i - 1] ? 'L' : 'M'}${(share(p.x) * PW).toFixed(1)},${Y(p.v).toFixed(1)}`; });
+  let dots = '';
+  pts.forEach((p, i) => {
+    if (!p) return;
+    const at = `${(share(p.x) * PW).toFixed(1)},${Y(p.v).toFixed(1)}`;
+    if (joined(i)) d += `L${at}`;
+    else if (joined(i + 1) || !(breaks.includes(i) || breaks.includes(i + 1))) d += `M${at}`;
+    else dots += `M${at}h0.01`;
+  });
   const first = have[0], last = have.at(-1)!;
   const tag = (y: LayerYear) => (y.status ? 'e' : '');
   const caption = fill(f.text.trendCaption ?? '{first} in {from}, {last} in {to}.', { first: fmt(first.v), from: first.year, last: fmt(last.v), to: last.year });
   return `<div class="gt-pblock"><div class="gt-pblock__head"><span class="gt-label">${esc(label)}</span></div>`
     + `<svg class="gt-spark" height="${H}" style="--l:${L}px" role="img" aria-label="${esc(`${label}: ${caption}`)}">${lines}`
-    + `<svg width="100%" height="${H}" viewBox="0 0 ${PW} ${H}" preserveAspectRatio="none" overflow="visible" aria-hidden="true"><path d="${d}" class="gt-spark__line"/></svg>`
+    + `<svg width="100%" height="${H}" viewBox="0 0 ${PW} ${H}" preserveAspectRatio="none" overflow="visible" aria-hidden="true"><path d="${d}" class="gt-spark__line"/>${dots ? `<path d="${dots}" class="gt-spark__line gt-spark__line--dot"/>` : ''}</svg>`
     + `<circle cx="${pct(last.x)}" cy="${Y(last.v).toFixed(1)}" r="3" class="gt-spark__dot"/>`
     + `<text x="${pct(first.x)}" y="92" text-anchor="start">${first.year}${tag(f.data[first.x])}</text><text x="${pct(last.x)}" y="92" text-anchor="end">${last.year}${tag(f.data[last.x])}</text></svg>`
     + `<p class="gt-caption gt-pblock__cap">${esc(caption)}</p></div>`;

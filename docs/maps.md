@@ -369,17 +369,47 @@ calendar years only.
 ## Food crises (phase 5b)
 
 `/food-crises` (people in IPC Phase 3 or worse) and `/food-crises/share` (their share of the people analysed): each
-country's latest IPC or Cadre Harmonisé analysis starting in the year (two analyses for one period: the later one;
+country's latest IPC or Cadre Harmonisé analysis period starting in the year, of any analysis's current, projection or
+second projection periods (since 25 Nov 2026; before, only each analysis's latest period, so Afghanistan and Sudan had
+no 2025 figure). The table under the map follows the year control: one table per year (`data-for-year`), each with
+the year before (two analyses for one period: the later one;
 IPC's regional "LAC" analysis is left out, as are early analyses with no people in any phase). A country without an analysis reads "No IPC
 analysis", never "No data" or zero. The total covers the countries analysed, which change from year to year, so its
-change is not shown. A country's panel gives its latest analysis by phase, with its period, whether it is a projection and the people
+change is not shown, and it is never called the world's: "190 m across the analyses shown", shares "of the total
+shown" in the tooltip, with "Periods and coverage differ between countries." in the summary and after the table's
+caption (`totalOf` in src/i18n/views.en.ts).
+The sidebar next to the map (the world panel, and a country's panel) is as it was before 25 Nov 2026, at the owner's
+request: "World", "Total, countries analysed", bars without labels, "Part of country" as the only tag, the year before
+hidden beside it and the panel's own note wording. Its trend line breaks, with no mark or caption, where the table says
+"Coverage changed" (`breaks`, the same rule), a figure left alone drawn as a dot; its note for an analysis of a named area
+is that area ("Gaza Strip only", from IPC's list of analyses), in place of the general Palestine note. The map's
+tooltip says the rest from the layer file's `tip` and `periods` (detail, every tag, its own notes), so the two read
+apart. A country's panel gives its latest analysis by phase, with its period, whether it is a projection and the people
 analysed (with IPC's population for the whole country when the analysis covers less). A figure from an analysis
 of part of the country (people analysed under 95% of IPC's population for it) is tagged "Part of country" (status
-`partial`, from the indicator's `partial` series) and its note says how many people the analysis covered; an area is
-named only from the analysis's title (`AREAS` in src/adapters/ipc.ts). The page lists countries whose
+`partial`, from the indicator's `partial` series) and its note says how many people the analysis covered. An area is
+named only where IPC's list of analyses names it in the title ("Palestine (Gaza Strip) - …", `areaIn` in
+src/adapters/ipc.ts): "Gaza Strip only" sits beside every such figure outside the sidebar (map tooltip as a label in
+the tags' shape, `AreaTag` on the pages, This week's card and feed), and the tooltip drops the general Palestine note
+on other sources' "West Bank and Gaza". The page lists countries whose
 analysis in force on the snapshot's day counts people in Phase 5, which counts people in catastrophe, not famine (an
 area classification this endpoint does not give). Country pages have a Food crisis block for every place IPC has
-analysed: the analysis in force, or the latest in the past tense with its period.
+analysed: the same analysis the maps show, tagged "Period ended" when its period ended before the snapshot's day.
+A country page with no analysis in IPC's data says so in a short Food crisis block ("IPC and Cadre Harmonisé have
+no analysis for India. These pages cover only places with an analysis.").
+Analyses are named one way everywhere (src/i18n/hunger.en.ts): "IPC projection for Oct 2026 – Jan 2027", "Cadre
+Harmonisé assessment for Oct–Dec 2025"; IPC's current period is an assessment ("estimated") and its projection and
+second projection are projections ("projected"); nothing says "revised", which the API does not mark. Each ranked row
+(tables, indicator rows, country figures, the map's tooltip, This week's Phase 5 rows) carries its
+analysis's period ("Oct 2026 – Jan 2027 projection").
+Beside every food figure (`FigureLabels`: the view's table, indicator rows, country figures) go its tags (Part of
+country, Period ended), the area its analysis covers and, from a partial analysis, "of N people analysed". On the map, a figure from a partial
+analysis has fine diagonal lines over its colour (feature state `p`, `partialLines` in src/scripts/map/engine.ts),
+named in the legend ("Analysis of part of the country", `missing.partial`), so it never rests on colour alone.
+Legend ticks keep a number with its unit and may wrap after a range's dash (`tickHtml` in src/scripts/map/legend.ts),
+so long ones ("500,000–1.4 m") take two lines in the 400px box and on a 390px phone rather than run together.
+Where a place's analyses in two years covered different populations (people analysed more than 20% apart), the table gives "Coverage changed" in place of a change, the tooltip and the table's notes give both coverages,
+and the indicator page's trend lines break there with an upright mark.
 
 ## Internet (phase 6)
 

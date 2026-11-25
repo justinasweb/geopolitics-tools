@@ -2,16 +2,22 @@
 // (tooltips and the country panel), so a tag looks the same wherever it is drawn.
 import { STATUS_TEXT } from '../i18n/en.ts';
 
-export type Status = 'estimate' | 'projection' | 'preliminary' | 'partial' | 'notyet' | 'sample';
+export type Status = 'estimate' | 'projection' | 'preliminary' | 'partial' | 'ended' | 'notyet' | 'sample';
 
 export const GLYPH: Record<Status, string> = {
   estimate: '<path d="M1.5 5c1.5-1.6 3-1.6 4.5 0s3 1.6 4.5 0M1.5 8.5c1.5-1.6 3-1.6 4.5 0s3 1.6 4.5 0" fill="none" stroke="currentColor" stroke-width="1.4"/>',
   projection: '<path d="M1 6h6.5" stroke="currentColor" stroke-width="1.4" stroke-dasharray="2 1.5"/><path d="M7 3l3.5 3L7 9z" fill="currentColor"/>',
   preliminary: '<circle cx="6" cy="6" r="4.6" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M6 1.4a4.6 4.6 0 0 1 0 9.2z" fill="currentColor"/>',
   partial: '<rect x="1.5" y="1.5" width="9" height="9" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M1.5 6.5h9v4h-9z" fill="currentColor"/>',
+  // A line that stops at a bar: a period that has run out.
+  ended: '<path d="M1 6h7" stroke="currentColor" stroke-width="1.4"/><path d="M9.5 2v8" stroke="currentColor" stroke-width="1.6"/>',
   notyet: '<circle cx="6" cy="6" r="4.6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="2 1.6"/>',
   sample: '<rect x="1.5" y="1.5" width="9" height="9" fill="none" stroke="currentColor" stroke-width="1.3" stroke-dasharray="2 1.4"/>',
 };
+
+/** The label for the area an analysis covers ("Gaza Strip only"), styled as a tag with no glyph: a key for map files. */
+export const areaKey = (label: string) => `area-${label.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+export const areaTagHtml = (label: string) => `<span class="gt-tag gt-tag--area gt-tag--sm">${label.replace(/[&<>"]/g, (c) => `&#${c.charCodeAt(0)};`)}</span>`;
 
 /** A small status tag as HTML, for markup built outside Astro components. */
 export const tagHtml = (s: Status) =>

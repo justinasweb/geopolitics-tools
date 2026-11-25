@@ -9,7 +9,7 @@ import { withheld } from './minerals.ts';
 import { alertsIn, firstDay, lastDay } from './disasters.ts';
 import { warheadsModel } from './nuclear.ts';
 import { cyberData, since } from './cyber.ts';
-import { analysesInForce, ipcDay, latestAnalyses } from './hunger.ts';
+import { ipcDay, isEnded, latestAnalyses } from './hunger.ts';
 import type { Analysis } from '../adapters/ipc.ts';
 import { INDICATORS, type Loaded } from '../data/indicators.ts';
 import { INDICATOR_TEXT } from '../i18n/en.ts';
@@ -82,9 +82,12 @@ export interface Blocks {
   refugees?: { hosted?: Figure; from?: Figure;
     /** Hosted not shown in the default year (../data/not-reported.ts): the last year reported, its figure before then, and why. */
     hostedUnreported?: { since: number; last: { value: number; year: number } | null; reason: string } };
-  /** Its IPC or Cadre Harmonisé analysis in force on `day`, or else its latest (`inForce` false); only for places IPC
-   *  has analysed. */
-  food?: { analysis: Analysis; inForce: boolean; day: string };
+  /** Its latest IPC or Cadre Harmonisé analysis, the one the maps and tables show, and whether its period has ended or
+   *  not yet begun on `day`; only for places IPC has analysed. */
+  food?: { analysis: Analysis; ended: boolean; ahead: boolean; day: string };
+  /** IPC's data is in the snapshot and has no analysis of the place: said in a short block, since a blank would read
+   *  as no hunger. */
+  foodNone?: boolean;
   disasters?: { count: number; byKind: Record<string, number>; from: string; to: string };
   emissions?: Figure;
   sanctions?: { listings: PlaceListings | null };
@@ -127,9 +130,9 @@ function blocksFor(id: string): Blocks {
   const from = figure('refout', id);
   const unreported = hostedUnreported(id);
   if (hosted || from || unreported) out.refugees = { hosted: hosted ?? undefined, from: from ?? undefined, ...(unreported ? { hostedUnreported: unreported } : {}) };
-  const now = analysesInForce().get(id);
-  const last = now ?? latestAnalyses().get(id);
-  if (last) out.food = { analysis: last, inForce: !!now, day: ipcDay() };
+  const last = latestAnalyses().get(id);
+  if (last) out.food = { analysis: last, ended: isEnded(last), ahead: last.from > ipcDay().slice(0, 7), day: ipcDay() };
+  else if (latestAnalyses().size) out.foodNone = true;
   out.disasters = disastersFor(id);
   out.emissions = figure('co2pc', id) ?? undefined;
   const s = sanctionsData();
@@ -254,7 +257,7 @@ export function countryModel(id: string): CountryModel | null {
       for (const f of allFigures) add(f.source, INDICATOR_TEXT[f.id].short ?? INDICATOR_TEXT[f.id].label);
       for (const s of depSources(deps)) add(s, DEP_TEXT.heading);
       if (minerals.length) add('usgs-minerals', 'Minerals');
-      if (blocks.food) add('ipc', 'Food crisis');
+      if (blocks.food || blocks.foodNone) add('ipc', 'Food crisis');
       if (blocks.disasters) add('gdacs', 'Disasters');
       if (blocks.sanctions) for (const s of ['csl', 'eu-sanctions', 'uk-sanctions']) add(s, 'Sanctions');
       if (blocks.lending) add('aiddata', 'Chinese loans and grants');

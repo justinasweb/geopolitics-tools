@@ -3,40 +3,80 @@
 // classifies by area. Every figure keeps its analysis's period and the population analysed; a country with no
 // analysis has none, which does not mean no hunger.
 const n = (x: number) => new Intl.NumberFormat('en').format(x);
+/** The one caption wherever Phase 5 figures are shown (the views, country pages, the map panel, This week). */
+export const PHASE5_NOTE = 'These figures count people in households classified in Phase 5 (Catastrophe). IPC classifies areas separately.';
 const SYSTEM = (s: string) => (s === 'CH' ? 'Cadre Harmonisé' : 'IPC');
-const PERIOD: Record<string, string> = { current: 'current situation', projection: 'projection', update: 'projection update' };
+// IPC's current period is an assessment; its projection and second projection (the API's P and A) are both projections.
+// The API marks no revision, so nothing here says "revised".
+const KIND: Record<string, string> = { current: 'assessment', projection: 'projection', update: 'projection' };
+const kindOf = (kind: string) => KIND[kind] ?? 'analysis';
+/** "IPC projection for Oct 2026 – Jan 2027", "Cadre Harmonisé assessment for Oct–Dec 2025". */
+const labelOf = (system: string, kind: string, period: string) => `${SYSTEM(system)} ${kindOf(kind)} for ${period}`;
+// The map panel's words for the periods, kept as they were (the panel is unchanged from main).
+const PANEL_PERIOD: Record<string, string> = { current: 'current situation', projection: 'projection', update: 'projection update' };
 
 export const HUNGER_TEXT = {
   months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
   phase: { 1: 'Phase 1, minimal', 2: 'Phase 2, stressed', 3: 'Phase 3, crisis', 4: 'Phase 4, emergency', 5: 'Phase 5, catastrophe' } as Record<1 | 2 | 3 | 4 | 5, string>,
   latest: 'Latest analysis',
-  /** "IPC projection, Oct 2026 – Jan 2027: people by phase, of 8,289,603 analysed (of 50,448,963 in the country)." */
+  /** The map panel's caption on a place's latest analysis, as on main: "IPC projection update, Oct 2026 – Jan 2027:
+   *  people by phase, of 8.3 m analysed (of 48 m in the country, by IPC's count)." */
   latestCaption: (system: string, kind: string, period: string, analysed: string, population: string | null) =>
-    `${SYSTEM(system)} ${PERIOD[kind] ?? 'analysis'}, ${period}: people by phase, of ${analysed} analysed${population ? ` (of ${population} in the country, by IPC’s count)` : ''}.`,
+    `${SYSTEM(system)} ${PANEL_PERIOD[kind] ?? 'analysis'}, ${period}: people by phase, of ${analysed} analysed${population ? ` (of ${population} in the country, by IPC’s count)` : ''}.`,
+  /** An analysis named in full: "IPC projection for Oct 2026 – Jan 2027". */
+  label: labelOf,
+  /** The same after a figure in a ranked row: "Oct 2026 – Jan 2027 projection". */
+  rowPeriod: (kind: string, period: string) => `${period} ${kindOf(kind)}`,
+  /** What the analysis does with its people: an assessment estimates them, a projection projects them. */
+  verb: (kind: string) => (kindOf(kind) === 'projection' ? 'projected' : 'estimated'),
   /** Beside a count from an analysis of part of the country. */
   ofAnalysed: (analysed: string) => `(of ${analysed} people analysed)`,
-  /** The map's note on such a figure. */
-  mapNote: (analysed: string, population: string) => `The analysis covered ${analysed} people, part of the ${population} IPC counts in the country.`,
-  /** An area the analysis's title names. */
-  area: (area: string) => `The analysis covers ${area}.`,
+  /** The same beside a figure that has its tags with it. */
+  ofAnalysedShort: (analysed: string) => `of ${analysed} people analysed`,
+  /** The map legend's words for the lines over such a figure. */
+  partialLegend: 'Analysis of part of the country',
+  /** The map's note on such a figure, starting with the place's possessive: "Sudan’s analysis covered 8.3 m of the 48 m
+   *  people IPC counts in the country." */
+  mapNote: (placeOf: string, analysed: string, population: string) => `${placeOf} analysis covered ${analysed} of the ${population} people IPC counts in the country.`,
+  /** The map panel's note on such a figure, as on main. */
+  panelNote: (analysed: string, population: string) => `The analysis covered ${analysed} people, part of the ${population} IPC counts in the country.`,
+  /** Beside every figure from an analysis of an area IPC's list of analyses names ("Palestine (Gaza Strip)"). */
+  only: (area: string) => `${area} only`,
+  /** In place of a change between two analyses that covered different populations. */
+  coverageChanged: 'Coverage changed',
+  /** The note on such a figure: the earlier analysis's people analysed and this one's. */
+  coverageNote: (before: number, then: string, now: string) => `Coverage changed from ${before}: that analysis covered ${then} people, this one ${now}, so the figures do not compare.`,
+  /** Under a trend chart with a break in a line, and in the map panel's trend. */
+  coverageBreak: 'A break in a line marks a change in the population analysed: the figures either side do not compare.',
   catastrophe: 'People in catastrophe (Phase 5)',
-  catastropheCaption: (day: string) => `Countries whose analysis in force on ${day} counts people in IPC Phase 5. Phase 5 counts households facing catastrophe; famine is a classification of an area, made only when several thresholds are met.`,
+  catastropheCaption: (day: string) => `Countries whose analysis in force on ${day} has people in Phase 5. ${PHASE5_NOTE}`,
+  phase5Note: PHASE5_NOTE,
   country: 'Country',
-  period: 'Period',
+  period: 'Analysis',
   people5: 'Phase 5',
   people3: 'Phase 3 or above',
 
   // The country page's block.
   block: 'Food crisis',
-  /** Under the figure: what it counts, for which period, of how many. */
+  /** Under the figure: what it counts, of how many, and the analysis with its period. */
   blockCaption: (system: string, kind: string, period: string, analysed: string, share: string) =>
-    `people in ${SYSTEM(system)} Phase 3 (crisis) or worse, ${period} (${PERIOD[kind] ?? 'analysis'}): ${share} of the ${analysed} analysed`,
+    `people ${kindOf(kind) === 'projection' ? 'projected' : 'estimated'} to be in Phase 3 (crisis) or worse, ${share} of the ${analysed} analysed. ${labelOf(system, kind, period)}.`,
   blockPart: (analysed: string, population: string) => `The analysis covered ${analysed} of the ${population} people IPC counts in the country.`,
-  blockPhase5: (x: number, analysed: string | null) => `${n(x)} of them in Phase 5 (catastrophe)${analysed ? `, of ${analysed} people analysed` : ''}.`,
-  /** The latest analysis is no longer in force: said in the past, with its period. */
-  blockOld: (day: string, period: string, crisis: string, analysed: string) =>
-    `No IPC or Cadre Harmonisé analysis is in force on ${day}. The latest, for ${period}, counted ${crisis} people in Phase 3 or worse of ${analysed} analysed.`,
+  blockPhase5: (x: number, kind: string, analysed: string | null) => `${n(x)} of them ${kindOf(kind) === 'projection' ? 'projected' : 'estimated'} to be in Phase 5 (catastrophe)${analysed ? `, of ${analysed} people analysed` : ''}.`,
+  /** The latest analysis is no longer in force: its figure is still the one the maps show, tagged Period ended. */
+  blockOld: (day: string) => `Its period has ended, and no newer IPC or Cadre Harmonisé analysis is in force on ${day}.`,
+  /** The latest analysis is for a period that has not begun. */
+  blockAhead: (month: string) => `Its period begins in ${month}.`,
   blockLink: 'Food crises map',
-  /** The source line's period part. */
-  sourcePart: (kind: string, period: string) => `${period}, ${PERIOD[kind] ?? 'analysis'}`,
+  /** A place IPC's data has no analysis of. */
+  blockNone: (place: string) => `IPC and Cadre Harmonisé have no analysis for ${place}. These pages cover only places with an analysis.`,
+  /** The source line's period part: "Covers Oct 2026 – Jan 2027 (projection)". */
+  sourcePart: (kind: string, period: string) => `Covers ${period} (${kindOf(kind)})`,
+  /** A view's or indicator page's period part: its figures are each country's latest analysis starting in the year. */
+  covers: (year: number | string) => `Covers analyses starting in ${year}`,
+  /** Before the day the site last fetched IPC's data, kept apart from the "updated" date IPC's terms ask for in the
+   *  credit, which is the day its analyses last changed. */
+  lastFetched: 'Last fetched',
+  /** The credit's name for Cadre Harmonisé figures, which reach the site through IPC's API. */
+  chCredit: 'Cadre Harmonisé, via the IPC API',
 };

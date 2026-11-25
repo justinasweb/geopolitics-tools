@@ -4,6 +4,7 @@
 import '../styles/atlas/legend.css';
 import { SOURCE_TEXT, LEGEND_TEXT } from '../i18n/en';
 import { seqSteps } from '../lib/map/steps';
+import { tickHtml } from '../scripts/map/legend';
 
 interface Props {
   title: string;
@@ -23,7 +24,7 @@ const align = (i: number) => (scale === 'div' ? (i === 3 ? 'text-align:center' :
 <div class="gt-legend">
   <span class="gt-legend__title">{title}</span>
   <div class="gt-legend__scale" style={`--n:${n}`}>{steps.map((k) => <i style={`background:var(--${scale}-${k})`} />)}</div>
-  <div class:list={['gt-legend__ticks', { 'gt-legend__ticks--dense': scale === 'div' }]} style={`--n:${n}`}>{ticks.map((t, i) => <span style={align(i)}>{t}</span>)}</div>
+  <div class:list={['gt-legend__ticks', { 'gt-legend__ticks--dense': scale === 'div' }]} style={`--n:${n}`}>{ticks.map((t, i) => <span style={align(i)} set:html={tickHtml(t)} />)}</div>
   {ends && <div class="gt-legend__ends"><span>← {ends[0]}</span><span>{ends[1]} →</span></div>}
   {(nodata || withheld) && (
     <div class="gt-legend__extra">

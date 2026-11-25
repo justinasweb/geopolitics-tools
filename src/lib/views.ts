@@ -15,7 +15,7 @@ import { asOfDate } from './as-of.ts';
 import { VIEW_MEASURES } from '../data/view-measures.ts';
 import { yearsOf } from '../adapters/core.ts';
 import { operatorNote, worldShare } from './electricity.ts';
-import { analysisIn, analysisNote } from './hunger.ts';
+import { analysisIn, analysisNote, coverageChangedAt, coverageNote } from './hunger.ts';
 import { cyberData, undated, yearSplit, yearTotal } from './cyber.ts';
 import { CYBER_TEXT } from '../i18n/cyber.en.ts';
 import { edgeTexts, formatValue, SHARE_SMALL } from './format.ts';
@@ -208,6 +208,10 @@ export function changeText(p: ViewPage, ch: number): string {
 /** Below this, a total in the year before (money with `millions`) is too small for a percentage change to mean anything. */
 const MONEY_BASE = 1e6;
 
+/** The place's figures this year and the year before come from analyses of different populations (food crises): the
+ *  table says "Coverage changed" in place of a change. */
+export const coverageBreak = (p: ViewPage, id: string, year: number) => p.family.id === 'food-crises' && coverageChangedAt(id, year, prevOf(p, year));
+
 /** A place's change from the year before: in points for share layers, else as a share; none from a total under $1 m. */
 export function placeChange(p: ViewPage, now: number, before: number): number | null {
   if (p.layer.points) return now - before;
@@ -329,8 +333,12 @@ const NOTE_FROM = 100_000;
 /** A place's note for one year only: a grid operator's own figure beside Ember's on the electricity views. */
 export const yearNote = (p: ViewPage, id: string, year: number): string | null => {
   if (p.family.id === 'electricity') return operatorNote(id, year);
-  // Food crises: the people analysed when the analysis covered part of the country, and an area its title names.
-  if (p.family.id === 'food-crises') { const a = analysisIn(id, year); return a ? analysisNote(a) : null; }
+  // Food crises: the people analysed when the analysis covered part of the country, and a change of coverage from the year before.
+  if (p.family.id === 'food-crises') {
+    const a = analysisIn(id, year);
+    const parts = [a ? analysisNote(a) : null, coverageNote(id, year, prevOf(p, year))].filter(Boolean);
+    return parts.length ? parts.join(' ') : null;
+  }
   return null;
 };
 

@@ -1,5 +1,6 @@
 /* Atlas design system: Status tags (Estimate, Projection, Preliminary, Not yet reported) and the Sample tag; Part of
-   country (IPC analyses of some areas) is ours, in the outlined style of Not yet reported on a sunk ground.
+   country (IPC analyses of some areas, on a sunk ground) and Period ended (an IPC analysis no longer in force) are
+   ours, in the outlined style of Not yet reported.
    Ported from the design system's bundle.css; colours and fonts come from tokens.css. */
 
 /* ---------- status tags ---------- */
@@ -9,6 +10,14 @@
 .gt-tag--projection { background: var(--proj-bg); color: var(--proj-ink); }
 .gt-tag--preliminary { background: var(--prelim-bg); color: var(--prelim-ink); }
 .gt-tag--partial { background: var(--paper-sunk); color: var(--ink); box-shadow: inset 0 0 0 1px var(--rule-strong); }
+/* FigureLabels on a line of their own under a figure in a table cell: they wrap, so the column stays narrow. */
+.gt-figlabels { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 2px 4px; max-width: 15em; margin: 3px 0 0 auto; white-space: normal; }
+.gt-figlabels .gt-figof { white-space: normal; }
+/* The people an analysis of part of a country covered, beside its figure (FigureLabels). */
+.gt-figof { font: 400 12px/16px var(--sans); color: var(--ink-muted); white-space: nowrap; }
+/* The area an analysis covers ("Gaza Strip only"): a label in the tags' shape, outlined, no glyph. */
+.gt-tag--area { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink-muted); }
+.gt-tag--ended { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1px var(--rule-strong); }
 .gt-tag--notyet { background: transparent; color: var(--ink-muted); box-shadow: inset 0 0 0 1px var(--rule-strong); }
 .gt-tag--sm { height: 18px; padding: 0 5px; font-size: 11px; }
 .gt-tag--sample { background: transparent; color: var(--ink); border: 1px dashed var(--rule-strong); }

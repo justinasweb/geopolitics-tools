@@ -7,7 +7,10 @@
 .gt-legend__scale { display: grid; grid-template-columns: repeat(var(--n, 5), minmax(0, 1fr)); gap: 2px; }
 .gt-legend__scale i { display: block; height: 12px; }
 .gt-legend__ticks { display: grid; grid-template-columns: repeat(var(--n, 5), minmax(0, 1fr)); gap: 2px; font-variant-numeric: tabular-nums; }
-.gt-legend__ticks span { white-space: nowrap; }
+/* Long ticks ("500,000–1.4 m") wrap onto a second line after their dash (<wbr>) rather than run into the next one or
+   widen the legend past its box: two rows on a phone, and in the 400px box on a desktop. */
+.gt-legend, .gt-legend > *, .gt-legend__ticks span { min-width: 0; }
+.gt-legend__ticks span { white-space: normal; overflow-wrap: break-word; line-height: 16px; }
 .gt-legend__ends { display: flex; justify-content: space-between; gap: 12px; }
 .gt-legend__ends span:last-child { text-align: right; }
 .gt-legend__extra { display: flex; flex-wrap: wrap; gap: 6px 16px; }
@@ -17,6 +20,8 @@
 .gt-sw--withheld { background-color: var(--map-nodata); background-image: repeating-linear-gradient(135deg, var(--map-withheld) 0 1.5px, transparent 1.5px 4px); box-shadow: inset 0 0 0 1px var(--rule-strong); }
 .gt-sw--hatch { background-color: color-mix(in srgb, var(--gt-hatch) 30%, var(--paper-raised)); background-image: repeating-linear-gradient(-45deg, color-mix(in srgb, var(--gt-hatch) 85%, var(--ink)) 0 2px, transparent 2px 5px); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--gt-hatch) 85%, var(--ink)); }
 .gt-sw--notyet { background-color: var(--paper-raised); background-image: radial-gradient(circle, var(--ink-muted) 1px, transparent 1.3px); background-size: 4px 4px; box-shadow: inset 0 0 0 1px var(--rule-strong); }
+/* A figure from an analysis of part of a place: the map's lines (engine.ts partialLines) over a mid class colour. */
+.gt-sw--partial { background-color: var(--seq-3); background-image: repeating-linear-gradient(45deg, color-mix(in srgb, var(--ink) 75%, transparent) 0 1.2px, color-mix(in srgb, var(--paper-raised) 90%, transparent) 1.2px 2.4px, transparent 2.4px 5.6px); box-shadow: inset 0 0 0 1px var(--rule-strong); }
 .gt-legend__ticks--dense { font-size: 12px; line-height: 15px; }
 
 /* Map marks (MapOverlays legends): a shape and its words */

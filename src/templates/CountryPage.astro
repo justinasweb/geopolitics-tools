@@ -25,7 +25,10 @@ import AiText from '../components/AiText.astro';
 import ComparePicker from '../components/ComparePicker.astro';
 import '../styles/atlas/country.css';
 import '../styles/atlas/bars.css';
-import { INDICATORS, statusAt, type Format } from '../data/indicators';
+import { INDICATORS, type Format } from '../data/indicators';
+import { areaFor, labelsAt, tagsAt } from '../lib/indicator';
+import AreaTag from '../components/AreaTag.astro';
+import FigureLabels from '../components/FigureLabels.astro';
 import { INDICATOR_TEXT, SOURCE_TEXT } from '../i18n/en';
 import { NOT_REPORTED_TEXT } from '../i18n/views.en';
 import {
@@ -34,7 +37,7 @@ import {
 import { countryModel, countrySources, DOSSIERS, MINERAL_SHARE, type Figure } from '../lib/country';
 import { leadImports } from '../lib/dependence';
 import { dossierFor } from '../lib/dossier';
-import { creditName, data, sourceName } from '../lib/data';
+import { creditName, data, refreshed, sourceName } from '../lib/data';
 import { fitSentences, formatDate, formatParts, formatShare, formatValue } from '../lib/format';
 import { notesFor, place } from '../lib/places';
 import { countryHref, indicatorHref, live, paths } from '../lib/routes';
@@ -50,7 +53,7 @@ import { warheads } from '../lib/nuclear';
 import { CYBER_TEXT } from '../i18n/cyber.en';
 import { cyberData } from '../lib/cyber';
 import { HUNGER_TEXT } from '../i18n/hunger.en';
-import { monthSpan } from '../lib/hunger';
+import { areaLabel, creditFor, monthSpan } from '../lib/hunger';
 import { isPartial } from '../adapters/ipc';
 import { publishedText } from '../lib/ai/texts';
 
@@ -69,7 +72,7 @@ const aiSummary = m.dossier ? publishedText(`dossier:${p.id}`) : null;
 const label = (id: string) => INDICATOR_TEXT[id].short ?? INDICATOR_TEXT[id].label;
 const parts = (f: Figure) => formatParts(f.value, INDICATORS[f.id].format, INDICATOR_TEXT[f.id].unit);
 // A figure's tag: a projection, or an estimate after the country's own last actual year (WEO).
-const tagOf = (f: Figure) => statusAt(INDICATORS[f.id], p.id, f.year);
+const tagsOf = (f: Figure) => tagsAt(INDICATORS[f.id], p.id, f.year);
 // Climate's sentence writes CO2 in tonnes below one million ("Tuvalu emitted 11,000 t"); figures stay in Mt.
 const MT: Format = { kind: 'mt' };
 const short = (s: string) => creditName(s);
@@ -118,7 +121,7 @@ const people = d.people;
 const co2Stat = d.climate?.stats.find((f) => f.id === 'co2');
 // CO2 per person sits in Climate when that section shows it, so More figures leaves it out.
 const emissions = d.climate?.stats.some((f) => f.id === 'co2pc') ? undefined : blocks.emissions;
-const hasBlocks = Boolean(blocks.refugees || blocks.food || blocks.disasters || emissions || blocks.sanctions || blocks.lending || blocks.nuclear || blocks.cyber);
+const hasBlocks = Boolean(blocks.refugees || blocks.food || blocks.foodNone || blocks.disasters || emissions || blocks.sanctions || blocks.lending || blocks.nuclear || blocks.cyber);
 const pop = m.allFigures.find((f) => f.id === 'population');
 // The age pyramid: one drawing per five-year step on one shared scale, so moving the slider shows the shape change.
 const pyr = people?.pyramid ?? null;
@@ -204,7 +207,7 @@ const citation = COUNTRY_TEXT.citation(name, kind, url, Number(m.updated.slice(0
             <span class="gt-cpkf__label">{indicatorHref(f.id) ? <a href={indicatorHref(f.id)}>{label(f.id)}</a> : label(f.id)}</span>
             <span class="gt-cpkf__num">{parts(f).num}<small>{parts(f).unit}</small></span>
             {f.of > 1 && <span class="gt-rank"><b>{ordinal(f.rank)}</b> of {f.of}</span>}
-            <span class="gt-cpkf__src">{short(f.source)} · {yearOrAsOf(f.id, f.year)}{tagOf(f) && <StatusTag status={tagOf(f)!} small />}</span>
+            <span class="gt-cpkf__src">{short(f.source)} · {yearOrAsOf(f.id, f.year)}<FigureLabels {...labelsAt(INDICATORS[f.id], p.id, f.year)} /></span>
           </li>
         ))}
       </ul>
@@ -370,16 +373,23 @@ const citation = COUNTRY_TEXT.citation(name, kind, url, Number(m.updated.slice(0
               {food && fa && (
                 <article class="gt-cpblock">
                   <h3 class="gt-h3">{HUNGER_TEXT.block}</h3>
-                  {food.inForce ? (
-                    <>
-                      <CpStat num={foodCount(fa.crisis)} caption={HUNGER_TEXT.blockCaption(fa.system, fa.period, monthSpan(fa.from, fa.to), foodCount(fa.analysed), formatShare(fa.share ?? 0))} />
-                      {fa.phases[4] > 0 && <p class="gt-caption">{HUNGER_TEXT.blockPhase5(fa.phases[4], isPartial(fa) ? foodCount(fa.analysed) : null)}</p>}
-                      {isPartial(fa) && <p class="gt-caption">{HUNGER_TEXT.blockPart(foodCount(fa.analysed), foodCount(fa.population!))} <StatusTag status="partial" small /></p>}
-                      {fa.area && <p class="gt-caption">{HUNGER_TEXT.area(fa.area)}</p>}
-                    </>
-                  ) : <p class="gt-caption">{HUNGER_TEXT.blockOld(formatDate(food.day), monthSpan(fa.from, fa.to), foodCount(fa.crisis), foodCount(fa.analysed))}</p>}
+                  {/* The same figure and tags as the maps and tables: the latest analysis, marked when its period has ended. */}
+                  <CpStat num={foodCount(fa.crisis)} caption={HUNGER_TEXT.blockCaption(fa.system, fa.period, monthSpan(fa.from, fa.to), foodCount(fa.analysed), formatShare(fa.share ?? 0))} />
+                  {areaLabel(fa) && <p class="gt-caption"><AreaTag label={areaLabel(fa)!} /></p>}
+                  {food.ended && <p class="gt-caption">{HUNGER_TEXT.blockOld(formatDate(food.day))} <StatusTag status="ended" small /></p>}
+                  {food.ahead && <p class="gt-caption">{HUNGER_TEXT.blockAhead(monthSpan(fa.from, fa.from))}</p>}
+                  {fa.phases[4] > 0 && <p class="gt-caption">{HUNGER_TEXT.blockPhase5(fa.phases[4], fa.period, isPartial(fa) ? foodCount(fa.analysed) : null)} {HUNGER_TEXT.phase5Note}</p>}
+                  {isPartial(fa) && <p class="gt-caption">{HUNGER_TEXT.blockPart(foodCount(fa.analysed), foodCount(fa.population!))} <StatusTag status="partial" small /></p>}
                   {foodLink && <p class="gt-caption"><a href={`${foodLink.path}?country=${m.place.slug}`}>{HUNGER_TEXT.blockLink}</a></p>}
-                  <SourceLine source={sourceName('ipc')} parts={[HUNGER_TEXT.sourcePart(fa.period, monthSpan(fa.from, fa.to))]} status={fa.period === 'current' ? undefined : 'projection'} />
+                  <SourceLine source={creditFor(fa)} parts={[HUNGER_TEXT.sourcePart(fa.period, monthSpan(fa.from, fa.to))]} updated={refreshed('ipc')} updatedLabel={HUNGER_TEXT.lastFetched} status={fa.period === 'current' ? undefined : 'projection'} />
+                </article>
+              )}
+              {blocks.foodNone && (
+                <article class="gt-cpblock">
+                  <h3 class="gt-h3">{HUNGER_TEXT.block}</h3>
+                  <p class="gt-caption">{HUNGER_TEXT.blockNone(inSentence(name))}</p>
+                  {foodLink && <p class="gt-caption"><a href={foodLink.path}>{HUNGER_TEXT.blockLink}</a></p>}
+                  <SourceLine source={sourceName('ipc')} updated={refreshed('ipc')} updatedLabel={HUNGER_TEXT.lastFetched} />
                 </article>
               )}
               {blocks.disasters && (
@@ -449,7 +459,7 @@ const citation = COUNTRY_TEXT.citation(name, kind, url, Number(m.updated.slice(0
               ]}
               rows={m.allFigures.map((f) => [
                 { v: INDICATOR_TEXT[f.id].label, href: indicatorHref(f.id) },
-                { v: f.value, text: formatValue(f.value, INDICATORS[f.id].format), status: tagOf(f), fn: fnOf(f) },
+                { v: f.value, text: formatValue(f.value, INDICATORS[f.id].format), status: tagsOf(f)[0], tags: tagsOf(f).slice(1), area: areaFor(INDICATORS[f.id], p.id, f.year), of: [labelsAt(INDICATORS[f.id], p.id, f.year).period, labelsAt(INDICATORS[f.id], p.id, f.year).of].filter(Boolean).join(', ') || null, fn: fnOf(f) },
                 { v: f.year, text: yearOrAsOf(f.id, f.year) },
                 f.of > 1 ? { v: f.rank, text: `${ordinal(f.rank)} of ${f.of}` } : null,
                 short(f.source),

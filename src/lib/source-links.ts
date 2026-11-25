@@ -2,13 +2,14 @@
 // source line (parts are separated by "; "). WRI Aqueduct: "accessed on [date], aqueduct.wri.org (CC BY 4.0)", its
 // site and its licence linked. CelesTrak: "Orbital data from CelesTrak" with a link, as its permission of 10 Nov 2026
 // asks. PeeringDB: its name linked to peeringdb.com, followed by the fetch date (src/lib/data.ts). IPC: "updated
-// [date], ipcinfo.org, cadreharmonise.org (CC BY-NC-SA 3.0 IGO)", its sites and its licence linked, as its terms ask. Pure and small,
+// [date], ipcinfo.org, cadreharmonise.org (CC BY-NC-SA 3.0 IGO)", its sites and its licence linked, as its terms ask
+// (cadreharmonise.org answers at www., over https, since 25 Nov 2026; the bare name refused connections). Pure and small,
 // so the map panels use it in the browser too.
 export const SOURCE_LINKS: Record<string, [words: string, href: string][]> = {
   'WRI Aqueduct': [['aqueduct.wri.org', 'https://aqueduct.wri.org/'], ['CC BY 4.0', 'https://creativecommons.org/licenses/by/4.0/']],
   CelesTrak: [['CelesTrak', 'https://celestrak.org']],
   PeeringDB: [['PeeringDB', 'https://www.peeringdb.com/']],
-  'ipcinfo.org': [['ipcinfo.org', 'https://www.ipcinfo.org/'], ['cadreharmonise.org', 'http://cadreharmonise.org'], ['CC BY-NC-SA 3.0 IGO', 'https://creativecommons.org/licenses/by-nc-sa/3.0/igo/']],
+  'ipcinfo.org': [['ipcinfo.org', 'https://www.ipcinfo.org/'], ['cadreharmonise.org', 'https://www.cadreharmonise.org/'], ['CC BY-NC-SA 3.0 IGO', 'https://creativecommons.org/licenses/by-nc-sa/3.0/igo/']],
 };
 
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);

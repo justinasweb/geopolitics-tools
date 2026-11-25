@@ -1,0 +1,9 @@
+---
+// The area an IPC analysis covers, beside each of its figures ("Gaza Strip only"): the status tags' shape, outlined, with
+// no glyph, so it reads as a label of the figure and never as a status. The map builds the same (src/lib/tags.ts).
+import '../styles/atlas/tags.css';
+
+interface Props { label: string }
+const { label } = Astro.props;
+---
+<span class="gt-tag gt-tag--area gt-tag--sm">{label}</span>

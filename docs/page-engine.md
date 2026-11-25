@@ -331,7 +331,7 @@ the data run), words in `src/i18n/week.en.ts`. Built from data only.
   as a word and a solid or outline triangle, the first three countries and "+ 11 more" as a disclosure), conflict (UCDP events by country, latest month against the one before,
   Preliminary when the month comes from a Candidate release), prices (six Pink Sheet series, month and year changes),
   food crises (people in Phase 5 by country, bars without a reference line; new analyses are those missing from the
-  IPC copy kept on the period's first day, dated on the day IPC's data changed, in the card and the feed), internet outages (IODA, began in the period, no cause) and sanctions (entries added and removed per list against
+  IPC copy kept on the period's first day, dated on the day IPC's data changed, named once for its latest period, in the card and the feed), internet outages (IODA, began in the period, no cause) and sanctions (entries added and removed per list against
   the lists on the period's first day). Shipping waits on PortWatch. "Famine" is never said: Phase 5 counts people, and IPC classifies areas separately. Every card gives its
   source, period and when the site last fetched it, and links to its map where there is one.
 - **No new data.** When a source's data last changed before the period began, its card shows "No new data since

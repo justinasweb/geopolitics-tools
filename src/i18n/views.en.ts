@@ -22,8 +22,9 @@ export interface LayerText {
   legend: (year: number, asOf?: string | null) => string;
   /** The panel's key figure label, when the layer has a world figure. */
   worldLabel?: string;
-  /** What the shares are of, where the total is not the world's ("the total for countries reporting"), and the table's column for them. */
-  totalOf?: { phrase: string; column: string };
+  /** What the shares are of, where the total is not the world's ("the total for countries reporting"), the table's column
+   *  for them and, where set, its total row, the tooltip's share ("19% of the total shown") and a line after the table's caption. */
+  totalOf?: { phrase: string; column: string; row?: string; share?: (share: string) => string; caveat?: string };
   /** The one-sentence answer under the title: `top` starts a sentence ("The United States"), `topIn` sits inside one.
    *  `past`: a year before the page's latest, said in the past tense. */
   lede: (p: { top: string; topIn: string; value: string; share?: string; top3?: string; world?: string; year: number; up?: number; down?: number; of?: number; past?: boolean; asOf?: string | null }) => string;
@@ -60,6 +61,7 @@ export interface FamilyText {
 const fossil = 'from fossil fuels and cement';
 /** Aqueduct's top category, said in full wherever a count of countries in it is given. */
 const highestStress = 'in WRI Aqueduct’s highest water-stress category (withdrawals above 80% of renewable supply)';
+const totalCaveat = 'Periods and coverage differ between countries.';
 const hungerCaveat = 'IPC and Cadre Harmonisé analyses cover the countries and areas that ask for them, often part of a country, for a few months; each country’s figure is its latest analysis starting in the year. A country with no analysis is shown as such: that does not mean no one there is hungry.';
 const chipsCaveat = (what: string) => `Imports of ${what} as the importing countries report them to UN Comtrade, at their value in US dollars. Chips cross borders several times as they are made, tested and packaged, so imports count some chips more than once. Taiwan does not report to Comtrade; its sales show in its partners’ imports.`;
 const power5 = ['Under 20%', '20–40%', '40–60%', '60–80%', '80% or more'];
@@ -90,8 +92,10 @@ export const VIEW_TEXT: Record<string, FamilyText> = {
       hunger: {
         pick: 'People', title: 'People in food crisis', sub: 'IPC Phase 3 or worse, by country', measure: 'in Phase 3 or worse', figureLabel: 'People in Phase 3 or worse',
         legend: (y) => `People in food crisis or worse (IPC Phase 3+), latest analysis in ${y}`, worldLabel: 'Total, countries analysed',
-        lede: ({ top, value, share, top3, year }) => `${top} had the most people in food crisis or worse in its latest analysis of ${year}: ${value}, ${share} of the total in countries analysed${top3 ? `; the top three had ${top3}` : ''}.`,
-        total: (v, y, ch) => `Analyses in ${y} counted ${v} people in food crisis or worse${ch ? `, ${ch}` : ''}.`,
+        // Not a world total: each country's latest analysis in the year, for its own months and the people it covered.
+        totalOf: { phrase: 'the total shown', column: 'Share of the total shown', row: 'Total across the analyses shown', share: (s) => `${s} of the total shown`, caveat: totalCaveat },
+        lede: ({ top, value, share, top3, year }) => `${top} had the most people in food crisis or worse in its latest analysis of ${year}: ${value}, ${share} of the total shown${top3 ? `; the top three had ${top3}` : ''}.`,
+        total: (v, y, ch) => `${v} people were in food crisis or worse across the analyses shown for ${y}${ch ? `, ${ch}` : ''}. ${totalCaveat}`,
         bloc: (b, s, y) => `${todaysMembers(b, { start: true })} had ${s} of them in ${y}.`,
         caveat: hungerCaveat,
         description: (y) => `People in food crisis or worse (IPC Phase 3+) by country, ${y}, from IPC and Cadre Harmonisé analyses, on a map and in a table. Source: IPC.`,
