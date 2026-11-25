@@ -49,10 +49,13 @@ jobs:
         if: steps.data.outcome == 'success'
         run: node pipeline/adapter-check.ts data/raw
       # Every AI-drafted text, draft or approved, against its facts file (docs/ai-drafting.md): a pasted draft that
-      # does not pass, or a text whose facts changed, shows red here.
+      # does not pass, or a text whose facts changed, shows red here. On pull requests, an approved text whose facts a
+      # source update moved (new figure or year) is a warning in the job summary instead, so routine updates do not
+      # fail every pull request; pushes to main and manual runs (production, and the rebuilds the data run and
+      # ai-review start) keep it red, so drift never reaches the live site.
       - name: AI texts against their facts
         if: steps.data.outcome == 'success'
-        run: npm run ai:check -- --all
+        run: npm run ai:check -- --all ${{ github.event_name == 'pull_request' && '--drift-warns' || '' }}
       - name: Build
         run: ${{ steps.data.outcome == 'success' && 'npm run build' || 'npm run build:sample' }}
       - uses: actions/upload-artifact@v7

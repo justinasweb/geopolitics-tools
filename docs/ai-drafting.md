@@ -23,7 +23,7 @@ Facts files are in `src/data/ai/facts/<kind>/<id>.json` (`weeks/` for This week'
 | `npm run ai:draft -- <id>… \| --all [--pr]` | Drafts with the API, checks, redrafts once, saves passing drafts. `--pr` commits them on a new branch and opens a pull request listing every draft |
 | `npm run ai:paste -- <id> <file>` | The manual path: checks a draft made in a Claude chat and saves it as a draft |
 | `npm run ai:own -- <id> <file>` | Saves the owner's own text: marked `author: owner`, never overwritten, no AI label |
-| `npm run ai:check [-- <id>…]` | Checks stored texts against their current facts; CI runs it with `--all` on every pull request |
+| `npm run ai:check [-- <id>…]` | Checks stored texts against their current facts; CI runs it with `--all` on every pull request, and on pull requests only (`--drift-warns`) an approved text that still matches its committed facts file but not facts a source update moved is a warning in the job summary, not a failure; pushes to main and production deploys fail on it |
 | `npm run ai:approve -- <id> [--text-hash <h>] [--via cli\|telegram]` | Approves a short text |
 | `npm run ai:review -- send\|approve\|skip\|edit …` | The Telegram review step ([telegram.md](telegram.md)): sends drafts with Approve, Edit and Skip, and records a decision |
 | `npm run week:summary [-- --week 2026-45]` | Writes a closed week's facts, drafts its summary (100 to 150 words), checks it and sends it for review |

@@ -8,11 +8,11 @@ import { anthropicClient, cleanReply, draftText, NoKeyError, type DraftClient, t
 import { duplicateFacts, factsHash, refusals, validateFacts, type FactsFile } from '../../src/lib/ai/facts.ts';
 import { buildPrompt, promptSections } from '../../src/lib/ai/prompt.ts';
 import { territoryStatement } from '../../src/lib/ai/page-facts.ts';
-import { approveText, readText, saveDraft, stateOf, textHash, writeText } from '../../src/lib/ai/store.ts';
+import { approveText, driftOnly, readText, saveDraft, stateOf, textHash, usage, writeText, type StoredText } from '../../src/lib/ai/store.ts';
 import { HISTORY_BLOCS, historySpans } from '../../src/lib/history.ts';
 import { RIVERS } from '../../src/data/rivers.ts';
 import { place } from '../../src/lib/places.ts';
-import { prBody, runDrafts } from '../../scripts/ai.ts';
+import { checkTexts, prBody, runDrafts } from '../../scripts/ai.ts';
 
 // The drafting pipeline (docs/ai-drafting.md) with a stubbed model: nothing here calls the API.
 
@@ -207,6 +207,43 @@ describe('the store and the approval step', () => {
     expect(t.factsHash).toBeUndefined();
     expect(stateOf(t, null)).toBe('draft');
     expect(stateOf({ ...t, approved: true }, null)).toBe('stale');
+  });
+});
+
+describe('the check on pull requests and on production', () => {
+  // The facts the text was approved against (committed) and the same facts after a source update moved one figure.
+  const stored = facts();
+  const moved = facts({ facts: [stored.facts[0], { ...stored.facts[1], value: 26, period: '1974' }] });
+  const approved = (text = GOOD, over: Partial<StoredText> = {}): StoredText => ({
+    id: 'river:helmand', text, author: 'ai', model: 'test', ...usage('river:helmand', GOOD, stored), drafted: '2026-11-01', approved: true, approvedOn: '2026-11-02', approvedVia: 'cli', ...over,
+  });
+  const run = (t: StoredText, now: FactsFile, driftWarns: boolean, kept: FactsFile | null = stored) =>
+    checkTexts(['river:helmand'], { driftWarns }, { text: () => t, stored: () => kept, now: () => now });
+
+  it('only warns on a pull request when an approved text fails because a source update moved its facts', () => {
+    expect(driftOnly(approved(), stored, moved)).toBe(true);
+    const pr = run(approved(), moved, true);
+    expect(pr).toMatchObject({ failed: [], warned: ['river:helmand'] });
+    expect(pr.lines.every((l) => l.startsWith('warning: '))).toBe(true);
+    // Pushes to main and production: the same drift fails.
+    expect(run(approved(), moved, false)).toMatchObject({ failed: ['river:helmand'], warned: [] });
+    // Facts unchanged: nothing to say.
+    expect(run(approved(), stored, true)).toMatchObject({ failed: [], warned: [], lines: [] });
+  });
+
+  it('still fails a pull request for anything else: a changed, unapproved or undated text, banned wording, facts without a source', () => {
+    const cases: [string, StoredText, FactsFile, FactsFile | null][] = [
+      ['text edited after approval', approved(BAD), moved, stored],
+      ['draft not approved', approved(GOOD, { approved: false, approvedOn: undefined }), moved, stored],
+      ['approved without a date', approved(GOOD, { approvedOn: undefined }), moved, stored],
+      ['banned wording', approved(`${GOOD} It is a vital treaty.`), moved, stored],
+      ['a fact without a source', approved(), facts({ facts: [stored.facts[0], { ...moved.facts[1], source: '' }] }), stored],
+      ['no committed facts file', approved(), moved, null],
+    ];
+    for (const [what, t, now, kept] of cases) {
+      expect(driftOnly(t, kept, now), what).toBe(false);
+      expect(run(t, now, true, kept).failed, what).toEqual(['river:helmand']);
+    }
   });
 });
 
