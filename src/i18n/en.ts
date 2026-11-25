@@ -65,7 +65,7 @@ export const INDICATOR_TEXT: Record<string, IndicatorText> = {
   armsimp: { label: 'Arms imports', unit: 'TIV m', note: 'SIPRI trend-indicator value (TIV): SIPRI’s measure of military capability delivered, not price or number of weapons.' },
   armsexp: { label: 'Arms exports', unit: 'TIV m', note: 'SIPRI trend-indicator value (TIV): SIPRI’s measure of military capability delivered, not price or number of weapons.' },
   hunger: { label: 'People in food crisis or worse', short: 'Food crisis (IPC 3+)', unit: 'people' },
-  hungershare: { label: 'Share in food crisis or worse', rate: '% of people analysed', short: 'Food crisis share', unit: 'share' },
+  hungershare: { label: 'Share of people analysed in Phase 3 or worse', rate: '% of people analysed', short: 'Food crisis share', unit: 'share' },
   satellites: { label: 'Satellites in orbit', unit: 'satellites' },
   launches: { label: 'Orbital launches', unit: 'launches' },
   aicompute: { label: 'Share of documented AI supercomputer power', short: 'AI compute share', unit: 'share' },

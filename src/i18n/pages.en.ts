@@ -15,7 +15,8 @@ export function ordinal(n: number): string {
 }
 
 /** A label inside a sentence: capitalised words lowercased, acronyms (GDP, CO2, AI) and proper names kept. */
-const PROPER = new Set(['Chinese', 'UN', 'US', 'EU', 'UK']);
+// IPC's phases are names: "Phase 3" keeps its capital in running text.
+const PROPER = new Set(['Chinese', 'UN', 'US', 'EU', 'UK', 'Phase']);
 export const lc = (label: string) => label.replace(/\b[A-Z][a-z]+\b/g, (w) => (PROPER.has(w) ? w : w.toLowerCase()));
 
 /** "a, b and c". */
@@ -548,7 +549,7 @@ export const SOURCE_SHORT: Record<string, string> = {
 };
 
 /** Shorter still, for meta descriptions, where the source line's full name would run past 170 characters. */
-export const SOURCE_BRIEF: Record<string, string> = { aiddata: 'AidData' };
+export const SOURCE_BRIEF: Record<string, string> = { aiddata: 'AidData', ipc: 'IPC' };
 
 /** Where an indicator's figures come from, when the publisher is not the original source. */
 /** WRI Aqueduct's credit after its name, as its terms ask: the access date, its site and its licence (links in

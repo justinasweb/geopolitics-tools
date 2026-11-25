@@ -40,6 +40,8 @@ const ind = m.indicator;
 const text = INDICATOR_TEXT[id];
 const fmt = ind.format;
 const label = text.label;
+// The unit after the title, unless it is one the title says already ("…, share of service exports" + "share").
+const showUnit = !!text.unit && !['US$', 'people'].includes(text.unit) && !label.toLowerCase().includes(text.unit.toLowerCase());
 const path = paths.indicator(id);
 const url = new URL(path, Astro.site).href;
 const nameOf = (pid: string) => place(pid)?.name ?? pid;
@@ -88,7 +90,7 @@ const description = indicatorDescription(id);
   jsonld={indicatorLd(id)}>
   <header class="gt-tlhead">
     <Breadcrumbs items={crumbs} />
-    <h1 class="gt-title gt-tlhead__t">{label}{text.unit && !['US$', 'people'].includes(text.unit) && <span class="gt-mvhead__sub"> {text.unit}</span>}</h1>
+    <h1 class="gt-title gt-tlhead__t">{label}{showUnit && <span class="gt-mvhead__sub"> {text.unit}</span>}</h1>
     {answer && <p class="gt-lede gt-tlhead__a">{answer}{leadTags.map((t) => <> <StatusTag status={t} small /></>)}</p>}
     <p class="gt-tldef"><b>{T.definition}</b> {DEFINITION[id] ?? text.note} <a href={paths.page('methodology')}>{T.methodology}</a></p>
     <SourceLine source={credit} parts={ind.static ? [] : [ind.source === 'ipc' ? HUNGER_TEXT.covers(yearText) : yearText]} updated={updated} updatedLabel={ind.source === 'ipc' ? HUNGER_TEXT.lastFetched : undefined} status={projected(m.year) ? 'projection' : undefined} />
