@@ -7,7 +7,10 @@
 .gt-legend__scale { display: grid; grid-template-columns: repeat(var(--n, 5), minmax(0, 1fr)); gap: 2px; }
 .gt-legend__scale i { display: block; height: 12px; }
 .gt-legend__ticks { display: grid; grid-template-columns: repeat(var(--n, 5), minmax(0, 1fr)); gap: 2px; font-variant-numeric: tabular-nums; }
-.gt-legend__ticks span { white-space: nowrap; }
+/* Long ticks ("500,000–1.4 m") wrap onto a second line after their dash (<wbr>) rather than run into the next one or
+   widen the legend past its box: two rows on a phone, and in the 400px box on a desktop. */
+.gt-legend, .gt-legend > *, .gt-legend__ticks span { min-width: 0; }
+.gt-legend__ticks span { white-space: normal; overflow-wrap: break-word; line-height: 16px; }
 .gt-legend__ends { display: flex; justify-content: space-between; gap: 12px; }
 .gt-legend__ends span:last-child { text-align: right; }
 .gt-legend__extra { display: flex; flex-wrap: wrap; gap: 6px 16px; }

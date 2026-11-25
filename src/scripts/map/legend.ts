@@ -38,6 +38,10 @@ const SHAPES: Record<MarkSymbol, string> = {
   'cp-disrupted': statusSvg('cp-disrupted'), 'cp-below': statusSvg('cp-below'), 'cp-normal': statusSvg('cp-normal'), 'cp-above': statusSvg('cp-above'), 'cp-unknown': statusSvg('cp-unknown'),
 };
 
+/** A legend tick as HTML: a number keeps its unit ("2.5 m"), and a range may wrap after its dash ("500,000–" /
+ *  "1.4 m"), so a long tick takes two lines rather than run into the next one (legend.css). */
+export const tickHtml = (t: string) => esc(t).replace(/(\d) (?=[^\d\s])/g, '$1\u00a0').replace(/–/g, '–<wbr>');
+
 /** A mark's shape alone (16 × 16), to place inside another SVG (a hub card's thumbnail). */
 export const markShape = (s: MarkSymbol) => SHAPES[s];
 
@@ -55,7 +59,7 @@ export function legendHtml(f: LayerFile, yi: number): string {
     out.push(`<div class="gt-legend__extra gt-legend__cats">${f.categories.map((c) => `<span><i class="gt-sw" style="background:var(--${f.palette ?? 'seq'}-${c.cls})"></i>${esc(c.label)}</span>`).join('')}${hatch}</div>`);
   } else {
     out.push(`<div class="gt-legend__scale" style="--n:${n}">${steps.map((k) => `<i style="background:var(--${f.scale}-${k})"></i>`).join('')}</div>`);
-    if (f.ticks.length) out.push(`<div class="gt-legend__ticks${f.scale === 'div' ? ' gt-legend__ticks--dense' : ''}" style="--n:${n}">${f.ticks.map((t) => `<span>${esc(t)}</span>`).join('')}</div>`);
+    if (f.ticks.length) out.push(`<div class="gt-legend__ticks${f.scale === 'div' ? ' gt-legend__ticks--dense' : ''}" style="--n:${n}">${f.ticks.map((t) => `<span>${tickHtml(t)}</span>`).join('')}</div>`);
   }
   if (f.ends) out.push(`<div class="gt-legend__ends"><span>← ${esc(f.ends[0])}</span><span>${esc(f.ends[1])} →</span></div>`);
   const extra = [`<span><i class="gt-sw gt-sw--nodata"></i>${esc(f.missing.none)}</span>`];

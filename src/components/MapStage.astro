@@ -14,7 +14,7 @@ import MarkIcon from './MarkIcon.astro';
 import { MAP_TEXT } from '../i18n/map.en';
 import { paths } from '../lib/routes';
 import { seqSteps } from '../lib/map/steps';
-import type { MarkSymbol } from '../scripts/map/legend';
+import { tickHtml, type MarkSymbol } from '../scripts/map/legend';
 
 interface Props {
   /** The layer file (/map/<id>.json). */
@@ -74,7 +74,7 @@ const n = steps.length;
           ) : (
             <>
               <div class="gt-legend__scale" style={`--n:${n}`}>{steps.map((k) => <i style={`background:var(--${legend.scale}-${k})`}></i>)}</div>
-              <div class:list={['gt-legend__ticks', { 'gt-legend__ticks--dense': legend.scale === 'div' }]} style={`--n:${n}`}>{legend.ticks.map((t) => <span>{t}</span>)}</div>
+              <div class:list={['gt-legend__ticks', { 'gt-legend__ticks--dense': legend.scale === 'div' }]} style={`--n:${n}`}>{legend.ticks.map((t) => <span set:html={tickHtml(t)} />)}</div>
             </>
           )}
           {!legend.marksOnly && legend.ends && <div class="gt-legend__ends"><span>← {legend.ends[0]}</span><span>{legend.ends[1]} →</span></div>}

@@ -398,6 +398,8 @@ tags (Part of country, Period ended), the area its analysis covers and, from a p
 analysed"; the map panel's rankings repeat the tags under each row (`tagRows`). On the map, a figure from a partial
 analysis has fine diagonal lines over its colour (feature state `p`, `partialLines` in src/scripts/map/engine.ts),
 named in the legend ("Analysis of part of the country", `missing.partial`), so it never rests on colour alone.
+Legend ticks keep a number with its unit and may wrap after a range's dash (`tickHtml` in src/scripts/map/legend.ts),
+so long ones ("500,000–1.4 m") take two lines in the 400px box and on a 390px phone rather than run together.
 Where a place's analyses in two years covered different populations (people analysed more than 20% apart), the table gives "Coverage changed" in place of a change, the tooltip and panel note both
 coverages, and trend lines (the panel's, the indicator page's) break there with an upright mark.
 
