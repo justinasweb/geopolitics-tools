@@ -102,12 +102,15 @@ export interface LayerFile {
   ends?: [string, string];
   /** Figures that must not read as a ranking (documented cyber incidents): no rank, no ranking around the place, and
    *  the world panel's bars without numbers. */
+  /** Its rankings repeat each figure's tags under its row (food crises: Part of country, Period ended, the area). */
+  tagRows?: boolean;
   unranked?: boolean;
   /** A caveat every place's panel shows next to its figure, with or without one (documented incidents are not how
    *  often a country is targeted). */
   caveat?: string;
   /** Legend words for the shapes without a class. */
-  missing: { none: string; withheld?: string; notyet?: string };
+  /** `partial`: the legend's words for the lines over a figure from an analysis of part of a place (IPC). */
+  missing: { none: string; withheld?: string; notyet?: string; partial?: string };
   source: string;
   /** Words with {placeholders}, filled in by the engine. */
   text: {

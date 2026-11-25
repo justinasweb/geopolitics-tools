@@ -61,6 +61,7 @@ export function legendHtml(f: LayerFile, yi: number): string {
   const extra = [`<span><i class="gt-sw gt-sw--nodata"></i>${esc(f.missing.none)}</span>`];
   if (f.missing.withheld) extra.push(`<span><i class="gt-sw gt-sw--withheld"></i>${esc(f.missing.withheld)}</span>`);
   if (f.missing.notyet) extra.push(`<span><i class="gt-sw gt-sw--notyet"></i>${esc(f.missing.notyet)}</span>`);
+  if (f.missing.partial) extra.push(`<span><i class="gt-sw gt-sw--partial"></i>${esc(f.missing.partial)}</span>`);
   out.push(`<div class="gt-legend__extra">${extra.join('')}</div>`);
   return out.join('');
 }

@@ -1,0 +1,21 @@
+---
+// What sits beside a food crisis figure wherever it is shown (src/lib/hunger.ts): its tags (Part of country, Period
+// ended), the area its analysis covers ("Gaza Strip only") and, from an analysis of part of the country, the people it
+// covered ("of 8.3 m people analysed"). Empty for other figures.
+import StatusTag from './StatusTag.astro';
+import AreaTag from './AreaTag.astro';
+import type { Status } from '../lib/tags';
+
+interface Props { tags?: Status[]; area?: string | null; of?: string | null;
+  /** On a line of their own under the figure, wrapping (a table cell), rather than after it. */
+  block?: boolean }
+const { tags = [], area = null, of = null, block = false } = Astro.props;
+const any = tags.length > 0 || !!area || !!of;
+---
+{block ? any && (
+  <span class="gt-figlabels">{tags.map((t) => <StatusTag status={t} small />)}{area && <AreaTag label={area} />}{of && <small class="gt-figof">{of}</small>}</span>
+) : (
+<>
+{tags.map((t) => <>{' '}<StatusTag status={t} small /></>)}{area && <>{' '}<AreaTag label={area} /></>}{of && <>{' '}<small class="gt-figof">{of}</small></>}
+</>
+)}

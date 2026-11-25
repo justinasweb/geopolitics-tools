@@ -383,6 +383,11 @@ other sources' "West Bank and Gaza". The page lists countries whose
 analysis in force on the snapshot's day counts people in Phase 5, which counts people in catastrophe, not famine (an
 area classification this endpoint does not give). Country pages have a Food crisis block for every place IPC has
 analysed: the same analysis the maps show, tagged "Period ended" when its period ended before the snapshot's day.
+Beside every food figure (`FigureLabels`: the view's rankings and table, indicator rows, country figures) go its
+tags (Part of country, Period ended), the area its analysis covers and, from a partial analysis, "of N people
+analysed"; the map panel's rankings repeat the tags under each row (`tagRows`). On the map, a figure from a partial
+analysis has fine diagonal lines over its colour (feature state `p`, `partialLines` in src/scripts/map/engine.ts),
+named in the legend ("Analysis of part of the country", `missing.partial`), so it never rests on colour alone.
 Where a place's analyses in two years covered different populations (people analysed more than 20% apart), the table gives "Coverage changed" in place of a change, the tooltip and panel note both
 coverages, and trend lines (the panel's, the indicator page's) break there with an upright mark.
 

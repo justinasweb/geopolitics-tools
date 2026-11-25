@@ -153,6 +153,13 @@ describe('food crisis tags', () => {
     }
   });
 
+  it('draw partial analyses with lines the legend names, and repeat tags under ranking rows', () => {
+    const f = L.layerFile('food-crises-hunger');
+    expect(f.missing.partial).toBe('Analysis of part of the country');
+    expect(f.tagRows).toBe(true);
+    for (const [id, a] of H.latestAnalyses()) if (isPartial(a)) expect(H.ofAnalysedAt(id, Number(a.from.slice(0, 4)))).toMatch(/^of .+ people analysed$/);
+  });
+
   it('put the same tags on the map as beside the figure elsewhere', () => {
     const f = L.layerFile('food-crises-hunger');
     const i = f.years.indexOf(f.year);

@@ -56,6 +56,12 @@ export function analysisNote(a: Analysis): string | null {
   return isPartial(a) ? HUNGER_TEXT.mapNote(people(a.analysed), people(a.population!)) : null;
 }
 
+/** "of 8.3 m people analysed" beside a place's figure in a year from an analysis of part of it; null otherwise. */
+export function ofAnalysedAt(id: string, year: number): string | null {
+  const a = analysisIn(id, year);
+  return a && isPartial(a) ? HUNGER_TEXT.ofAnalysedShort(people(a.analysed)) : null;
+}
+
 /** The label beside every figure from an analysis of a named area ("Gaza Strip only"), as IPC's list of analyses names it. */
 export const areaLabel = (a: Analysis | undefined) => (a?.area ? HUNGER_TEXT.only(a.area) : null);
 /** The same for a place's figure in a year on the maps. */

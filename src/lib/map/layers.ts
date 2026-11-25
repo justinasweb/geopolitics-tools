@@ -255,7 +255,7 @@ function indicatorLayer(p: ViewPage): LayerFile {
   }
   return {
     id: `${p.family.id}-${p.id}`, name: p.text.title, scale: p.layer.scale, years: p.years, year: p.year, ticks: p.ticks, ends: p.text.ends,
-    missing: { none: p.text.none ?? VIEW_TEXT[p.family.id].none ?? W.noData, ...(unreported ? { withheld: unreported.label } : {}) }, source: creditOf(p), ...(p.layer.neutral ? { unranked: true, caveat: p.text.caveat } : {}),
+    missing: { none: p.text.none ?? VIEW_TEXT[p.family.id].none ?? W.noData, ...(unreported ? { withheld: unreported.label } : {}), ...(p.family.id === 'food-crises' ? { partial: HUNGER_TEXT.partialLegend } : {}) }, source: creditOf(p), ...(p.layer.neutral ? { unranked: true, caveat: p.text.caveat } : {}),
     text: {
       ...(c.words as LayerFile['text']),
       kicker: `${p.text.title} · ${p.text.period ? p.text.period(p.year) : '{year}'}`, measure: p.text.measure, shareLabel: p.text.figureLabel, none: p.text.noneIn?.('{year}') ?? W.notListed(0).replace('0', '{year}'),
@@ -268,7 +268,7 @@ function indicatorLayer(p: ViewPage): LayerFile {
     },
     tags: { ...c.tags, ...areaTags }, names: c.names, hrefs: c.hrefs, slugs: c.slugs, notes, blocs: c.blocs, data,
     ...(p.family.id === 'food-crises' ? { tagWords: { ended: STATUS_TEXT.ended, ...areaWords } } : {}),
-    ...(p.family.id === 'food-crises' ? { breaks: foodBreaks(p) } : {}),
+    ...(p.family.id === 'food-crises' ? { breaks: foodBreaks(p), tagRows: true } : {}),
     series: seriesOf(p.years.map((year) => Object.fromEntries(p.byYear[year].rows.map((r) => [r.id, r.value])))),
     format: p.format, more: p.family.id === 'space' ? withSpace(viewMore(p)) : p.family.id === 'sanctions' ? withSanctions(viewMore(p), p.id) : p.id === 'outages' ? withOutages(viewMore(p)) : p.id === 'exchanges' ? withExchanges(viewMore(p)) : p.family.id === 'chinese-lending' ? withLending(viewMore(p), p.id) : p.family.id === 'electricity' ? withMix(viewMore(p), p) : p.family.id === 'food-crises' ? withPhases(viewMore(p)) : CHIP_LAYERS[p.id] ? withSuppliers(viewMore(p), p) : viewMore(p),
     ...(p.id === 'launches' ? { overlays: [launchSites(p)] } : p.id === 'exchanges' ? { overlays: [exchangeMarks()] } : p.id === 'aicompute' ? { overlays: [aiClusters(p)] } : p.id === 'waterstress' ? { overlays: [damMarks()] } : p.family.id === 'arms' ? { overlays: [armsArcs(p)] } : p.id === 'cyber' ? { overlays: [cyberArcs(p)] } : CHIP_LAYERS[p.id] ? { overlays: [chipArcs(p)] } : {}),

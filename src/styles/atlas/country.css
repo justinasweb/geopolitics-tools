@@ -110,6 +110,7 @@
 .gt-lc { width: 100%; height: auto; display: block; font: 400 12px var(--sans); fill: var(--ink-muted); font-variant-numeric: tabular-nums; overflow: visible; }
 .gt-lc__grid { stroke: var(--rule); }
 .gt-lc__line { fill: none; stroke: var(--ink); stroke-width: 2.4; stroke-linejoin: round; }
+.gt-lc__line--dot { stroke-linecap: round; stroke-width: 4; }
 .gt-lc__line--proj, .gt-lc__line--dash { stroke-dasharray: 6 4; }
 /* A break in a line (figures either side do not compare): an upright mark in the line's colour. */
 .gt-lc__break { fill: none; stroke: var(--ink); stroke-width: 2; vector-effect: non-scaling-stroke; }

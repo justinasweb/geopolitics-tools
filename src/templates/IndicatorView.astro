@@ -41,8 +41,9 @@ import { formatDate } from '../lib/format';
 import { armsPeriod, armsPeriods } from '../lib/arms';
 import { ARMS_TEXT as RX } from '../i18n/arms.en';
 import { groupsOf, worldMix } from '../lib/electricity';
-import { areaAt, areaLabel, catastrophe, ipcDay, monthSpan, ofAnalysed } from '../lib/hunger';
+import { areaAt, areaLabel, catastrophe, foodTags, ipcDay, monthSpan, ofAnalysed, ofAnalysedAt } from '../lib/hunger';
 import AreaTag from '../components/AreaTag.astro';
+import FigureLabels from '../components/FigureLabels.astro';
 import { HUNGER_TEXT as HG } from '../i18n/hunger.en';
 import { POWER_TEXT as PW } from '../i18n/electricity.en';
 import { basesOf, cyberData, ownState, pairs as cyberPairs } from '../lib/cyber';
@@ -114,8 +115,11 @@ const cons = p.id === 'satellites' ? constellations() : [];
 const wmix = p.family.id === 'electricity' ? worldMix(p.year) : null;
 // Food crises: countries whose analysis in force on the snapshot's day counts people in catastrophe.
 const cat = p.family.id === 'food-crises' ? catastrophe() : [];
-// Food crises: the area an analysis covers, beside each of its figures ("Gaza Strip only").
-const areaOf = (id: string, yr: number) => (p.family.id === 'food-crises' ? areaAt(id, yr) : null);
+// Food crises: what sits beside each figure (FigureLabels): its tags, the area its analysis covers ("Gaza Strip only")
+// and the people an analysis of part of the country covered.
+const food = p.family.id === 'food-crises';
+const labelsOf = (id: string, yr: number) => (food ? { tags: foodTags(id, yr), area: areaAt(id, yr), of: ofAnalysedAt(id, yr) } : null);
+const labelled = (l: ReturnType<typeof labelsOf>) => !!l && (l.tags.length > 0 || !!l.area || !!l.of);
 // Chips: the year's largest flows, supplier to buyer.
 const chipFlows = CHIP_LAYERS[p.id] ? chipFlowsFor(p.id, p.year).slice(0, 20) : [];
 const twh = (v: number) => formatValue(v, { kind: 'number', digits: v < 10 ? 1 : 0 });
@@ -140,7 +144,7 @@ const cyber = p.id === 'cyber' ? cyberData() : null;
 // A state's incidents in its own country are not a pair between countries, so they stay in the panel only.
 const attributions = cyber ? cyberPairs(cyber, p.year).filter((x) => !ownState(x)).slice(0, 20) : [];
 const spaceDate = spaceAsOf() ? formatDate(spaceAsOf()!) : '';
-const bars = (rs: Row[], max: number, yr: number) => rs.map((r) => ({ id: r.id, text: valueText(p, r.value), w: max ? (100 * Math.abs(r.value)) / max : 0, area: areaOf(r.id, yr) }));
+const bars = (rs: Row[], max: number, yr: number) => rs.map((r) => ({ id: r.id, text: valueText(p, r.value), w: max ? (100 * Math.abs(r.value)) / max : 0, labels: labelsOf(r.id, yr) }));
 ---
 <Page title={T.title} description={T.description(p.year)} hub={p.family.hub} container="mv" image={route(key(p.id))!.image}
   jsonld={[breadcrumbs(crumbs.map((c) => ({ label: c.label, href: c.href })))]}>
@@ -158,7 +162,7 @@ const bars = (rs: Row[], max: number, yr: number) => rs.map((r) => ({ id: r.id, 
     periods={p.layer.span ? { label: W.periodLabel(p.layer.span), options: Object.fromEntries(p.years.map((yr) => [yr, yearText(p, yr)])) } : undefined} />
 
   <MapStage layer={layerPath(`${p.family.id}-${p.id}`)} label={mapLabel(p.year)} labels={byYear(p.years, mapLabel)} title={T.title}
-    legend={{ title: legendOf(p, p.year), scale: p.layer.scale, ticks: p.ticks, ends: T.ends, none: T.none ?? fam.none ?? W.noData, ...(unreported.length ? { withheld: unreportedLabel } : {}), ...(p.id === 'launches' ? { marks: [{ symbol: 'hollow', label: SP.sitesMark }] } : p.id === 'exchanges' ? { marks: [{ symbol: 'hollow', label: EX.mark }] } : p.id === 'aicompute' ? { marks: [{ symbol: 'hollow', label: AX.mark }] } : p.id === 'waterstress' ? { marks: [{ symbol: 'triangle', label: DX.mark }] } : CHIP_LAYERS[p.id] ? { marks: [{ symbol: 'arc', label: AX.arcs }] } : p.id === 'cyber' ? { marks: [{ symbol: 'arc', label: CX.arcs }] } : {}) }}>
+    legend={{ title: legendOf(p, p.year), scale: p.layer.scale, ticks: p.ticks, ends: T.ends, none: T.none ?? fam.none ?? W.noData, ...(food ? { partial: HG.partialLegend } : {}), ...(unreported.length ? { withheld: unreportedLabel } : {}), ...(p.id === 'launches' ? { marks: [{ symbol: 'hollow', label: SP.sitesMark }] } : p.id === 'exchanges' ? { marks: [{ symbol: 'hollow', label: EX.mark }] } : p.id === 'aicompute' ? { marks: [{ symbol: 'hollow', label: AX.mark }] } : p.id === 'waterstress' ? { marks: [{ symbol: 'triangle', label: DX.mark }] } : CHIP_LAYERS[p.id] ? { marks: [{ symbol: 'arc', label: AX.arcs }] } : p.id === 'cyber' ? { marks: [{ symbol: 'arc', label: CX.arcs }] } : {}) }}>
     <div data-panel="world" slot="panel">
       <div class="gt-panel__head">
         <div class="gt-panel__title"><span class="gt-kicker">{T.title} · <span data-year-text>{when}</span></span><h2 class="gt-h3">{MAP_TEXT.world}</h2></div>
@@ -187,7 +191,7 @@ const bars = (rs: Row[], max: number, yr: number) => rs.map((r) => ({ id: r.id, 
                   <span class="gt-label">{g.label}</span>
                   <ol class="gt-bars gt-bars--tight" aria-label={`${g.label}, ${T.figureLabel.toLowerCase()}, ${yr}`}>
                     {g.items.map((x) => (
-                      <li><span class="gt-bars__name"><button type="button" data-select={x.id}>{nameOf(x.id)}</button></span><span class="gt-bars__track"><span class="gt-bars__fill" style={`width:${x.w.toFixed(1)}%`}></span></span><span class="gt-bars__val">{x.text}</span>{x.area && <span class="gt-bars__note"><AreaTag label={x.area} /></span>}</li>
+                      <li><span class="gt-bars__name"><button type="button" data-select={x.id}>{nameOf(x.id)}</button></span><span class="gt-bars__track"><span class="gt-bars__fill" style={`width:${x.w.toFixed(1)}%`}></span></span><span class="gt-bars__val">{x.text}</span>{labelled(x.labels) && <span class="gt-bars__note"><FigureLabels {...x.labels!} /></span>}</li>
                     ))}
                   </ol>
                 </div>
@@ -227,7 +231,7 @@ const bars = (rs: Row[], max: number, yr: number) => rs.map((r) => ({ id: r.id, 
             {rows.map(({ r, q, ch, diff, broken, parts }) => (
               <tr data-place={r.id}>
                 <th scope="row">{countryHref(r.id) ? <a href={countryHref(r.id)}>{nameOf(r.id)}</a> : nameOf(r.id)}{noteNo(r.id) > 0 && <sup class="gt-fn"><a href={`#mv-note-${noteNo(r.id)}`} aria-label={`${W.notes} ${noteNo(r.id)}`}>{noteNo(r.id)}</a></sup>}</th>
-                <td class="n" data-v={r.value}>{valueText(p, r.value)}{areaOf(r.id, p.year) && <> <AreaTag label={areaOf(r.id, p.year)!} /></>}</td>
+                <td class="n" data-v={r.value}>{valueText(p, r.value)}{labelled(labelsOf(r.id, p.year)) && <FigureLabels {...labelsOf(r.id, p.year)!} block />}</td>
                 {p.layer.sums && <td class="n" data-v={y.world ? r.value / y.world : ''}>{shareOf(r.value, y.world) ?? '–'}</td>}
                 {prev && (q ? <td class="n" data-v={q.value}>{valueText(p, q.value)}</td> : <td class="n gt-na" data-v="">–</td>)}
                 {prev && !div && (broken ? <td class="n gt-muted" style="white-space:normal;min-width:6em" data-v="">{HG.coverageChanged}</td> : ch === null ? <td class="n gt-na" data-v="">–</td> : <td class="n" data-v={ch}><span class="gt-chg"><Icon name={flat(p, ch) ? 'flat' : ch > 0 ? 'up' : 'down'} />{diff ?? pct(ch)}</span></td>)}

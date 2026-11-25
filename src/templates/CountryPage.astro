@@ -26,8 +26,9 @@ import ComparePicker from '../components/ComparePicker.astro';
 import '../styles/atlas/country.css';
 import '../styles/atlas/bars.css';
 import { INDICATORS, type Format } from '../data/indicators';
-import { areaFor, tagsAt } from '../lib/indicator';
+import { areaFor, labelsAt, tagsAt } from '../lib/indicator';
 import AreaTag from '../components/AreaTag.astro';
+import FigureLabels from '../components/FigureLabels.astro';
 import { INDICATOR_TEXT, SOURCE_TEXT } from '../i18n/en';
 import { NOT_REPORTED_TEXT } from '../i18n/views.en';
 import {
@@ -206,7 +207,7 @@ const citation = COUNTRY_TEXT.citation(name, kind, url, Number(m.updated.slice(0
             <span class="gt-cpkf__label">{indicatorHref(f.id) ? <a href={indicatorHref(f.id)}>{label(f.id)}</a> : label(f.id)}</span>
             <span class="gt-cpkf__num">{parts(f).num}<small>{parts(f).unit}</small></span>
             {f.of > 1 && <span class="gt-rank"><b>{ordinal(f.rank)}</b> of {f.of}</span>}
-            <span class="gt-cpkf__src">{short(f.source)} · {yearOrAsOf(f.id, f.year)}{tagsOf(f).map((t) => <StatusTag status={t} small />)}{areaFor(INDICATORS[f.id], p.id, f.year) && <AreaTag label={areaFor(INDICATORS[f.id], p.id, f.year)!} />}</span>
+            <span class="gt-cpkf__src">{short(f.source)} · {yearOrAsOf(f.id, f.year)}<FigureLabels {...labelsAt(INDICATORS[f.id], p.id, f.year)} /></span>
           </li>
         ))}
       </ul>
@@ -450,7 +451,7 @@ const citation = COUNTRY_TEXT.citation(name, kind, url, Number(m.updated.slice(0
               ]}
               rows={m.allFigures.map((f) => [
                 { v: INDICATOR_TEXT[f.id].label, href: indicatorHref(f.id) },
-                { v: f.value, text: formatValue(f.value, INDICATORS[f.id].format), status: tagsOf(f)[0], tags: tagsOf(f).slice(1), area: areaFor(INDICATORS[f.id], p.id, f.year), fn: fnOf(f) },
+                { v: f.value, text: formatValue(f.value, INDICATORS[f.id].format), status: tagsOf(f)[0], tags: tagsOf(f).slice(1), area: areaFor(INDICATORS[f.id], p.id, f.year), of: labelsAt(INDICATORS[f.id], p.id, f.year).of, fn: fnOf(f) },
                 { v: f.year, text: yearOrAsOf(f.id, f.year) },
                 f.of > 1 ? { v: f.rank, text: `${ordinal(f.rank)} of ${f.of}` } : null,
                 short(f.source),

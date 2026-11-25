@@ -15,6 +15,10 @@ export const HUNGER_TEXT = {
     `${SYSTEM(system)} ${PERIOD[kind] ?? 'analysis'}, ${period}: people by phase, of ${analysed} analysed${population ? ` (of ${population} in the country, by IPC’s count)` : ''}.`,
   /** Beside a count from an analysis of part of the country. */
   ofAnalysed: (analysed: string) => `(of ${analysed} people analysed)`,
+  /** The same beside a figure that has its tags with it. */
+  ofAnalysedShort: (analysed: string) => `of ${analysed} people analysed`,
+  /** The map legend's words for the lines over such a figure. */
+  partialLegend: 'Analysis of part of the country',
   /** The map's note on such a figure. */
   mapNote: (analysed: string, population: string) => `The analysis covered ${analysed} people, part of the ${population} IPC counts in the country.`,
   /** Beside every figure from an analysis of an area IPC's list of analyses names ("Palestine (Gaza Strip)"). */

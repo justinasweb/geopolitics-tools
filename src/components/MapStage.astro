@@ -25,7 +25,9 @@ interface Props {
   labels?: string;
   /** The view's name, for the phone map's top bar. */
   title: string;
-  legend: { title: string; scale: 'seq' | 'div'; ticks: string[]; ends?: [string, string]; none: string; withheld?: boolean | string; notyet?: string; marks?: { symbol: MarkSymbol; label: string }[];
+  legend: { title: string; scale: 'seq' | 'div'; ticks: string[]; ends?: [string, string]; none: string; withheld?: boolean | string; notyet?: string;
+    /** Lines over a figure from an analysis of part of a place (IPC): their words. */
+    partial?: string; marks?: { symbol: MarkSymbol; label: string }[];
     /** Marks only, no shaded countries (the chokepoints): the legend lists the marks and says the countries are not shaded. */
     marksOnly?: boolean;
     /** Named classes in place of a scale (a bloc's members): each a sequential class and its word. */
@@ -80,6 +82,7 @@ const n = steps.length;
             <span><i class="gt-sw gt-sw--nodata"></i>{legend.none}</span>
             {legend.withheld && <span><i class="gt-sw gt-sw--withheld"></i>{typeof legend.withheld === 'string' ? legend.withheld : MAP_TEXT.withheldBy}</span>}
             {legend.notyet && <span><i class="gt-sw gt-sw--notyet"></i>{legend.notyet}</span>}
+            {legend.partial && <span><i class="gt-sw gt-sw--partial"></i>{legend.partial}</span>}
           </div>
           {legend.marks && legend.marks.length > 0 && <div class="gt-legend__extra gt-legend__marks">{legend.marks.map((m) => <span><MarkIcon symbol={m.symbol} />{m.label}</span>)}</div>}
         </div>

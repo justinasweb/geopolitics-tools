@@ -21,8 +21,8 @@ import '../styles/atlas/country.css';
 import { INDICATORS } from '../data/indicators';
 import { INDICATOR_TEXT } from '../i18n/en';
 import { ANSWER, DEFINITION, INDICATOR_PAGE as T, RELATED, SOURCE_NOTE, list } from '../i18n/pages.en';
-import { answerFor, areaFor, breaksFor, csvAllowed, indicatorModel, tagsAt } from '../lib/indicator';
-import AreaTag from '../components/AreaTag.astro';
+import { answerFor, breaksFor, csvAllowed, indicatorModel, labelsAt, tagsAt } from '../lib/indicator';
+import FigureLabels from '../components/FigureLabels.astro';
 import { HUNGER_TEXT } from '../i18n/hunger.en';
 import { creditLine, creditName, licenceOf, refreshed } from '../lib/data';
 import { edgeTexts, formatValue } from '../lib/format';
@@ -118,8 +118,8 @@ const description = indicatorDescription(id);
                   <tr data-name={nameOf(r.id).toLowerCase()}>
                     <td class="n gt-rk" data-v={r.rank}>{r.rank}</td>
                     <th scope="row">{countryHref(r.id) ? <a href={countryHref(r.id)}>{nameOf(r.id)}</a> : nameOf(r.id)}</th>
-                    <td class="n" data-v={r.value}><span class="gt-inbar" style={`--w:${Math.max(0, (r.value / max) * 100).toFixed(1)}%`}></span><b>{formatValue(r.value, fmt)}</b></td>
-                    {!ind.static && <td class="n" data-v={r.year}><span class:list={['gt-yr', { 'gt-oldyr': r.year < m.year }]}>{r.year}</span>{tagsAt(ind, r.id, r.year).map((t) => <StatusTag status={t} small />)}{areaFor(ind, r.id, r.year) && <AreaTag label={areaFor(ind, r.id, r.year)!} />}</td>}
+                    <td class="n" data-v={r.value}><span class="gt-inbar" style={`--w:${Math.max(0, (r.value / max) * 100).toFixed(1)}%`}></span><b>{formatValue(r.value, fmt)}</b>{labelsAt(ind, r.id, r.year).of && <small class="gt-figof" style="display:block">{labelsAt(ind, r.id, r.year).of}</small>}</td>
+                    {!ind.static && <td class="n" data-v={r.year}><span class:list={['gt-yr', { 'gt-oldyr': r.year < m.year }]}>{r.year}</span><FigureLabels tags={labelsAt(ind, r.id, r.year).tags} area={labelsAt(ind, r.id, r.year).area} /></td>}
                   </tr>
                 ))}
               </tbody>
