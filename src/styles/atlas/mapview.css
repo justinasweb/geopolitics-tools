@@ -107,6 +107,10 @@
 /* ---------- below the map ---------- */
 .gt-mvbelow { display: grid; grid-template-columns: minmax(0, 8fr) minmax(0, 4fr); gap: 48px; margin-top: 28px; }
 .gt-mvbelow__main { display: grid; gap: 16px; align-content: start; min-width: 0; }
+/* A year's table, its source line and notes (one per year on the food crises views): laid out as the column's own
+   children, and as narrow as the column, so a wide table scrolls in its box. */
+.gt-mvyear { display: grid; gap: 16px; min-width: 0; }
+.gt-mvyear[hidden] { display: none; }
 .gt-mvbelow__main .gt-h2 { border-top: 3px double var(--ink); padding-top: 14px; margin: 0; }
 .gt-mvbelow__main .gt-h2 ~ .gt-h2 { margin-top: 20px; }
 .gt-mvbelow__side { display: grid; gap: 12px; align-content: start; border-top: 3px double var(--ink); padding-top: 14px; }

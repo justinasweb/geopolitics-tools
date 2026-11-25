@@ -1,6 +1,8 @@
 // IPC public API (free key, per implementation) → ipc/country.json: every country-level acute food insecurity
-// analysis, IPC and Cadre Harmonisé, in the API's own format (an array of analyses). The country endpoint gives each
-// analysis once, for its latest period (`ipc_period`: C current, P projection, A projection update), with months as
+// analysis, IPC and Cadre Harmonisé, in the API's own format (an array of analyses), for each of its periods. Asked
+// without a period, the country endpoint gives each analysis once, for its latest period only, so an analysis made in
+// October 2025 whose projection runs into 2026 left 2025 without a figure (Afghanistan, Sudan); asked for each period
+// (`period` C current, P projection, A second projection), it gives them all. Each row has its `ipc_period`, months as
 // "Nov 2026", the population analysed (`estimated_population`) and the people in each phase (`phases`).
 // → ipc/analyses.json: the list of analyses (id, title, link, created, modified), whose titles name an area when the
 // analysis covers only part of a place ("Palestine (Gaza Strip) - …"); the country endpoint's titles do not.
@@ -9,6 +11,8 @@ import { type Source, DAY, check, guardShrink, json } from '../lib/source.ts';
 
 type Row = Record<string, unknown>;
 
+/** IPC's periods: current, projection, second projection ("projection update"). */
+const PERIODS = ['C', 'P', 'A'] as const;
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 /** "Nov 2026" → "2026-11"; null for anything else. */
 const ym = (s: unknown) => {
@@ -30,8 +34,13 @@ const source: Source = {
     check(key, 'IPC_API_KEY is not set');
     const base = ctx.env.IPC_BASE ?? 'https://api.ipcinfo.org';
     // The key travels in the query, which error messages and logs never show (redact in ../lib/http.ts).
-    const rows = await getJson<Row[]>(ctx.http, `${base}/country?format=json&type=A&key=${key}`, { timeout: 120_000 });
-    check(Array.isArray(rows), 'country: not an array of analyses; the format changed');
+    const rows: Row[] = [];
+    for (const period of PERIODS) {
+      const got = await getJson<Row[]>(ctx.http, `${base}/country?format=json&type=A&period=${period}&key=${key}`, { timeout: 120_000 });
+      check(Array.isArray(got), `country (${period}): not an array of analyses; the format changed`);
+      check(got.every((r) => r.ipc_period === undefined || r.ipc_period === period), `country (${period}): rows for another period; the period filter changed`);
+      rows.push(...got.map((r) => ({ ...r, ipc_period: period })));
+    }
     const data = rows.filter((r) => r.condition === 'A' || r.condition === undefined);
     check(
       data.every((r) => typeof r.country === 'string' && ym(r.from) && ym(r.to) && Array.isArray(r.phases) && r.phases.length === 5 && 'estimated_population' in r),
@@ -42,12 +51,13 @@ const source: Source = {
     const name = 'country.json';
     guardShrink(ctx, name, data.length, await ctx.previous(name), (prev) => (JSON.parse(prev) as Row[]).length, 0.8);
     const latest = data.reduce((m, r) => (ym(r.from)! > m ? ym(r.from)! : m), '');
-    ctx.log(`${name}: ${data.length} analyses, ${countries.size} countries, latest from ${latest}`);
+    ctx.log(`${name}: ${data.length} periods of ${new Set(data.map((r) => r.id)).size} analyses, ${countries.size} countries, latest from ${latest}`);
     const list = await getJson<Row[]>(ctx.http, `${base}/analyses?format=json&type=A&key=${key}`, { timeout: 120_000 });
     check(Array.isArray(list) && list.every((r) => r.id && typeof r.title === 'string'), 'analyses: not a list of analyses with id and title; the format changed');
     const ids = new Set(list.map((r) => String(r.id)));
-    const missing = data.filter((r) => !ids.has(String(r.id))).length;
-    check(missing <= data.length * 0.1, `analyses: ${missing} of the country endpoint's analyses are not in the list`);
+    const theirs = new Set(data.map((r) => String(r.id)));
+    const missing = [...theirs].filter((id) => !ids.has(id)).length;
+    check(missing <= theirs.size * 0.1, `analyses: ${missing} of the country endpoint's analyses are not in the list`);
     ctx.log(`analyses.json: ${list.length} analyses`);
     return { files: [json(name, data), json('analyses.json', list)], rows: data.length, dataTo: latest };
   },

@@ -369,7 +369,10 @@ calendar years only.
 ## Food crises (phase 5b)
 
 `/food-crises` (people in IPC Phase 3 or worse) and `/food-crises/share` (their share of the people analysed): each
-country's latest IPC or Cadre Harmonisé analysis starting in the year (two analyses for one period: the later one;
+country's latest IPC or Cadre Harmonisé analysis period starting in the year, of any analysis's current, projection or
+second projection periods (since 25 Nov 2026; before, only each analysis's latest period, so Afghanistan and Sudan had
+no 2025 figure). The table under the map follows the year control: one table per year (`data-for-year`), each with
+the year before (two analyses for one period: the later one;
 IPC's regional "LAC" analysis is left out, as are early analyses with no people in any phase). A country without an analysis reads "No IPC
 analysis", never "No data" or zero. The total covers the countries analysed, which change from year to year, so its
 change is not shown, and it is never called the world's: "190 m across the analyses shown", shares "of the total

@@ -63,8 +63,6 @@ const updated = refreshed([p.loaded.indicator.source].flat()[0]);
 // IPC: the day the site fetched its data, kept apart from the date in its credit (the day its analyses last changed).
 const updatedLabel = p.family.id === 'food-crises' ? HG.lastFetched : undefined;
 const y = p.byYear[p.year];
-const prevYear = p.years.includes(prevOf(p, p.year)) ? prevOf(p, p.year) : null;
-const prev = prevYear ? p.byYear[prevYear] : null;
 const answer = lede(p);
 const nameOf = (id: string) => place(id)?.name ?? (id === OTHER_SUPPLIER ? DEP_TEXT.otherSuppliers : id);
 const when = T.period ? T.period(p.year) : String(p.year);
@@ -72,31 +70,41 @@ const yearsText = p.layer.span ? `${p.years[0] - p.layer.span + 1}–${p.year}` 
 const crumbs: { label: string; href?: string }[] = [hubCrumb(p.family.hub), { label: fam.section, href: viewHref(p.family.id) }, { label: T.title }];
 const div = p.layer.scale === 'div';
 const pct = (ch: number) => changeText(p, ch);
+const food = p.family.id === 'food-crises';
 
-// The table: every country with a figure for the default year, the year before and the change.
-const rows = y.rows.map((r) => {
-  const q = prev?.rows.find((x) => x.id === r.id);
-  // Shares of a country's own total (electricity) change in percentage points.
-  const ch = div || !q ? null : placeChange(p, r.value, q.value);
-  // Food crises: analyses of different populations give no change (Yemen nationwide in 2025, its south in 2026).
-  const broken = !!q && coverageBreak(p, r.id, p.year);
-  // Small counts (cyber incidents under 10) change by a number of incidents, not a percentage.
-  const diff = div || !q ? null : diffText(p, r.value, q.value);
-  return { r, q, ch, diff, broken, parts: partsOf(p, r.id, p.year) };
-});
-// Refugees: the three groups UNHCR adds together, as columns; notes on single countries, numbered under the table.
-const hasParts = p.layer.sums && rows.some((x) => x.parts);
+// The table: every country with a figure for a year, the year before and the change. One table for the default year;
+// on the food crises views one for each year, shown with the year control, since their figures move with it.
 const count = (v: number) => formatValue(v, { kind: 'count' });
-// A place's own note, then any for the table's year only (a grid operator's figure beside Ember's).
-const notes = rows.map((x) => ({ id: x.r.id, text: [placeNote(p, x.r.id, !hasParts), yearNote(p, x.r.id, p.year)].filter(Boolean).join(' ') })).filter((n) => !!n.text);
-// Places not reported this year (src/data/not-reported.ts): a row after the others, with the words and no figure.
-const unreported = unreportedIn(p, p.year).map((n) => n.place);
 const unreportedLabel = unreportedText(p)?.label;
-for (const id of unreported) {
-  const text = placeNote(p, id, false);
-  if (text && !notes.some((n) => n.id === id)) notes.push({ id, text });
+function tableFor(yr: number) {
+  const Y = p.byYear[yr];
+  const before = p.years.includes(prevOf(p, yr)) ? p.byYear[prevOf(p, yr)] : null;
+  const rows = Y.rows.map((r) => {
+    const q = before?.rows.find((x) => x.id === r.id);
+    // Shares of a country's own total (electricity) change in percentage points.
+    const ch = div || !q ? null : placeChange(p, r.value, q.value);
+    // Food crises: analyses of different populations give no change (Yemen nationwide in 2025, its south in 2026).
+    const broken = !!q && coverageBreak(p, r.id, yr);
+    // Small counts (cyber incidents under 10) change by a number of incidents, not a percentage.
+    const diff = div || !q ? null : diffText(p, r.value, q.value);
+    return { r, q, ch, diff, broken, parts: partsOf(p, r.id, yr) };
+  });
+  // Refugees: the three groups UNHCR adds together, as columns; notes on single countries, numbered under the table.
+  const hasParts = p.layer.sums && rows.some((x) => x.parts);
+  // A place's own note, then any for the table's year only (a grid operator's figure beside Ember's).
+  const notes = rows.map((x) => ({ id: x.r.id, text: [placeNote(p, x.r.id, !hasParts), yearNote(p, x.r.id, yr)].filter(Boolean).join(' ') })).filter((n) => !!n.text);
+  // Places not reported this year (src/data/not-reported.ts): a row after the others, with the words and no figure.
+  const unreported = unreportedIn(p, yr).map((n) => n.place);
+  for (const id of unreported) {
+    const text = placeNote(p, id, false);
+    if (text && !notes.some((n) => n.id === id)) notes.push({ id, text });
+  }
+  const noteNo = (id: string) => notes.findIndex((n) => n.id === id) + 1;
+  // Note anchors are unique on the page: one set per table.
+  const noteId = (n: number) => (yr === p.year ? `mv-note-${n}` : `mv-note-${yr}-${n}`);
+  return { yr, Y, prev: before, rows, hasParts, notes, unreported, noteNo, noteId };
 }
-const noteNo = (id: string) => notes.findIndex((n) => n.id === id) + 1;
+const tables = (food ? p.years : [p.year]).map(tableFor);
 const top = y.rows.slice(0, 3);
 const related = [
   ...(indicatorHref(p.id) ? [{ href: indicatorHref(p.id)!, name: indicatorLabel(p), note: W.indicatorPage }] : []),
@@ -119,7 +127,6 @@ const wmix = p.family.id === 'electricity' ? worldMix(p.year) : null;
 const cat = p.family.id === 'food-crises' ? catastrophe() : [];
 // Food crises: what sits beside each figure (FigureLabels): its tags, the area its analysis covers ("Gaza Strip only")
 // and the people an analysis of part of the country covered.
-const food = p.family.id === 'food-crises';
 const labelsOf = (id: string, yr: number) => (food ? { tags: foodTags(id, yr), area: areaAt(id, yr), of: ofAnalysedAt(id, yr), period: periodAt(id, yr) } : null);
 const labelled = (l: ReturnType<typeof labelsOf>) => !!l && (l.tags.length > 0 || !!l.area || !!l.of || !!l.period);
 // Chips: the year's largest flows, supplier to buyer.
@@ -164,7 +171,7 @@ const bars = (rs: Row[], max: number, yr: number) => rs.map((r) => ({ id: r.id, 
     periods={p.layer.span ? { label: W.periodLabel(p.layer.span), options: Object.fromEntries(p.years.map((yr) => [yr, yearText(p, yr)])) } : undefined} />
 
   <MapStage layer={layerPath(`${p.family.id}-${p.id}`)} label={mapLabel(p.year)} labels={byYear(p.years, mapLabel)} title={T.title}
-    legend={{ title: legendOf(p, p.year), scale: p.layer.scale, ticks: p.ticks, ends: T.ends, none: T.none ?? fam.none ?? W.noData, ...(food ? { partial: HG.partialLegend } : {}), ...(unreported.length ? { withheld: unreportedLabel } : {}), ...(p.id === 'launches' ? { marks: [{ symbol: 'hollow', label: SP.sitesMark }] } : p.id === 'exchanges' ? { marks: [{ symbol: 'hollow', label: EX.mark }] } : p.id === 'aicompute' ? { marks: [{ symbol: 'hollow', label: AX.mark }] } : p.id === 'waterstress' ? { marks: [{ symbol: 'triangle', label: DX.mark }] } : CHIP_LAYERS[p.id] ? { marks: [{ symbol: 'arc', label: AX.arcs }] } : p.id === 'cyber' ? { marks: [{ symbol: 'arc', label: CX.arcs }] } : {}) }}>
+    legend={{ title: legendOf(p, p.year), scale: p.layer.scale, ticks: p.ticks, ends: T.ends, none: T.none ?? fam.none ?? W.noData, ...(food ? { partial: HG.partialLegend } : {}), ...(unreportedIn(p, p.year).length ? { withheld: unreportedLabel } : {}), ...(p.id === 'launches' ? { marks: [{ symbol: 'hollow', label: SP.sitesMark }] } : p.id === 'exchanges' ? { marks: [{ symbol: 'hollow', label: EX.mark }] } : p.id === 'aicompute' ? { marks: [{ symbol: 'hollow', label: AX.mark }] } : p.id === 'waterstress' ? { marks: [{ symbol: 'triangle', label: DX.mark }] } : CHIP_LAYERS[p.id] ? { marks: [{ symbol: 'arc', label: AX.arcs }] } : p.id === 'cyber' ? { marks: [{ symbol: 'arc', label: CX.arcs }] } : {}) }}>
     <div data-panel="world" slot="panel">
       <div class="gt-panel__head">
         <div class="gt-panel__title"><span class="gt-kicker">{T.title} · <span data-year-text>{when}</span></span><h2 class="gt-h3">{T.worldHeading ?? MAP_TEXT.world}</h2></div>
@@ -217,58 +224,62 @@ const bars = (rs: Row[], max: number, yr: number) => rs.map((r) => ({ id: r.id, 
       <div class="gt-prose" data-by-year={byYear(p.years, (yr) => summary(p, yr))}>{summary(p).map((s) => <p>{s}</p>)}</div>
       <SourceLine source={source} years={sourceYears} year={p.year} updated={updated} updatedLabel={updatedLabel} />
       <h2 class="gt-h2" id="table">{W.table}</h2>
+      {tables.map((t) => (
+        <div class="gt-mvyear" data-for-year={food ? t.yr : undefined} hidden={t.yr !== p.year}>
       <div class="gt-tablewrap" style="--gt-table-h:560px" tabindex="0" role="region" aria-label={W.tableLabel(T.title)}>
         <table class="gt-table" data-gt-sort>
-          <caption class="gt-caption">{W.caption(p.year, prev?.year ?? null)}{T.totalOf?.caveat && ` ${T.totalOf.caveat}`}</caption>
+          <caption class="gt-caption">{W.caption(t.yr, t.prev?.year ?? null)}{T.totalOf?.caveat && ` ${T.totalOf.caveat}`}</caption>
           <thead><tr>
             <th scope="col" data-key="n"><button type="button">{W.country}</button></th>
-            <th scope="col" class="n" data-key="v" data-type="num" aria-sort="descending"><button type="button">{when}</button></th>
+            <th scope="col" class="n" data-key="v" data-type="num" aria-sort="descending"><button type="button">{yearText(p, t.yr)}</button></th>
             {p.layer.sums && <th scope="col" class="n" data-key="s" data-type="num"><button type="button">{T.totalOf?.column ?? W.share}</button></th>}
-            {prev && <th scope="col" class="n" data-key="q" data-type="num"><button type="button">{yearText(p, prev.year)}</button></th>}
-            {prev && !div && <th scope="col" class="n" data-key="c" data-type="num"><button type="button">{W.change}</button></th>}
-            {hasParts && <th scope="col" class="n" data-key="pr" data-type="num"><button type="button">{PX.refugees}</button></th>}
-            {hasParts && <th scope="col" class="n" data-key="pa" data-type="num"><button type="button">{PX.asylum}</button></th>}
-            {hasParts && <th scope="col" class="n" data-key="po" data-type="num"><button type="button">{PX.oipShort}</button></th>}
+            {t.prev && <th scope="col" class="n" data-key="q" data-type="num"><button type="button">{yearText(p, t.prev.year)}</button></th>}
+            {t.prev && !div && <th scope="col" class="n" data-key="c" data-type="num"><button type="button">{W.change}</button></th>}
+            {t.hasParts && <th scope="col" class="n" data-key="pr" data-type="num"><button type="button">{PX.refugees}</button></th>}
+            {t.hasParts && <th scope="col" class="n" data-key="pa" data-type="num"><button type="button">{PX.asylum}</button></th>}
+            {t.hasParts && <th scope="col" class="n" data-key="po" data-type="num"><button type="button">{PX.oipShort}</button></th>}
           </tr></thead>
           <tbody>
-            {rows.map(({ r, q, ch, diff, broken, parts }) => (
+            {t.rows.map(({ r, q, ch, diff, broken, parts }) => (
               <tr data-place={r.id}>
-                <th scope="row">{countryHref(r.id) ? <a href={countryHref(r.id)}>{nameOf(r.id)}</a> : nameOf(r.id)}{noteNo(r.id) > 0 && <sup class="gt-fn"><a href={`#mv-note-${noteNo(r.id)}`} aria-label={`${W.notes} ${noteNo(r.id)}`}>{noteNo(r.id)}</a></sup>}</th>
-                <td class="n" data-v={r.value}>{valueText(p, r.value)}{labelled(labelsOf(r.id, p.year)) && <FigureLabels {...labelsOf(r.id, p.year)!} block />}</td>
-                {p.layer.sums && <td class="n" data-v={y.world ? r.value / y.world : ''}>{shareOf(r.value, y.world) ?? '–'}</td>}
-                {prev && (q ? <td class="n" data-v={q.value}>{valueText(p, q.value)}</td> : <td class="n gt-na" data-v="">–</td>)}
-                {prev && !div && (broken ? <td class="n gt-muted" style="white-space:normal;min-width:6em" data-v="">{HG.coverageChanged}</td> : ch === null ? <td class="n gt-na" data-v="">–</td> : <td class="n" data-v={ch}><span class="gt-chg"><Icon name={flat(p, ch) ? 'flat' : ch > 0 ? 'up' : 'down'} />{diff ?? pct(ch)}</span></td>)}
-                {hasParts && (parts ? [parts.refugees, parts.asylum, parts.oip].map((v) => <td class="n" data-v={v}>{count(v)}</td>) : [0, 1, 2].map(() => <td class="n gt-na" data-v="">–</td>))}
+                <th scope="row">{countryHref(r.id) ? <a href={countryHref(r.id)}>{nameOf(r.id)}</a> : nameOf(r.id)}{t.noteNo(r.id) > 0 && <sup class="gt-fn"><a href={`#${t.noteId(t.noteNo(r.id))}`} aria-label={`${W.notes} ${t.noteNo(r.id)}`}>{t.noteNo(r.id)}</a></sup>}</th>
+                <td class="n" data-v={r.value}>{valueText(p, r.value)}{labelled(labelsOf(r.id, t.yr)) && <FigureLabels {...labelsOf(r.id, t.yr)!} block />}</td>
+                {p.layer.sums && <td class="n" data-v={t.Y.world ? r.value / t.Y.world : ''}>{shareOf(r.value, t.Y.world) ?? '–'}</td>}
+                {t.prev && (q ? <td class="n" data-v={q.value}>{valueText(p, q.value)}</td> : <td class="n gt-na" data-v="">–</td>)}
+                {t.prev && !div && (broken ? <td class="n gt-muted" style="white-space:normal;min-width:6em" data-v="">{HG.coverageChanged}</td> : ch === null ? <td class="n gt-na" data-v="">–</td> : <td class="n" data-v={ch}><span class="gt-chg"><Icon name={flat(p, ch) ? 'flat' : ch > 0 ? 'up' : 'down'} />{diff ?? pct(ch)}</span></td>)}
+                {t.hasParts && (parts ? [parts.refugees, parts.asylum, parts.oip].map((v) => <td class="n" data-v={v}>{count(v)}</td>) : [0, 1, 2].map(() => <td class="n gt-na" data-v="">–</td>))}
               </tr>
             ))}
-            {unreported.map((id) => (
+            {t.unreported.map((id) => (
               <tr data-place={id}>
-                <th scope="row">{countryHref(id) ? <a href={countryHref(id)}>{nameOf(id)}</a> : nameOf(id)}{noteNo(id) > 0 && <sup class="gt-fn"><a href={`#mv-note-${noteNo(id)}`} aria-label={`${W.notes} ${noteNo(id)}`}>{noteNo(id)}</a></sup>}</th>
+                <th scope="row">{countryHref(id) ? <a href={countryHref(id)}>{nameOf(id)}</a> : nameOf(id)}{t.noteNo(id) > 0 && <sup class="gt-fn"><a href={`#${t.noteId(t.noteNo(id))}`} aria-label={`${W.notes} ${t.noteNo(id)}`}>{t.noteNo(id)}</a></sup>}</th>
                 <td class="n gt-na" data-v="">{unreportedLabel}</td>
                 {p.layer.sums && <td class="n gt-na" data-v="">–</td>}
-                {prev && <td class="n gt-na" data-v="">{prev.rows.some((x) => x.id === id) ? valueText(p, prev.rows.find((x) => x.id === id)!.value) : '–'}</td>}
-                {prev && !div && <td class="n gt-na" data-v="">–</td>}
-                {hasParts && [0, 1, 2].map(() => <td class="n gt-na" data-v="">–</td>)}
+                {t.prev && <td class="n gt-na" data-v="">{t.prev.rows.some((x) => x.id === id) ? valueText(p, t.prev.rows.find((x) => x.id === id)!.value) : '–'}</td>}
+                {t.prev && !div && <td class="n gt-na" data-v="">–</td>}
+                {t.hasParts && [0, 1, 2].map(() => <td class="n gt-na" data-v="">–</td>)}
               </tr>
             ))}
           </tbody>
-          {y.world !== null && p.layer.sums && (
+          {t.Y.world !== null && p.layer.sums && (
             <tfoot><tr>
-              <td>{y.worldOwn ? W.worldRow : T.totalOf?.row ?? W.totalRow}</td><td class="n">{valueText(p, y.world)}</td><td class="n">100%</td>
-              {prev && <td class="n">{prev.world !== null ? valueText(p, prev.world) : '–'}</td>}
-              {prev && <td class="n">{worldChange(p, p.year) !== null && p.id !== 'co2cum' ? pct(worldChange(p, p.year)!) : '–'}</td>}
-              {hasParts && (['refugees', 'asylum', 'oip'] as const).map((k) => <td class="n">{count(rows.reduce((t, x) => t + (x.parts?.[k] ?? 0), 0))}</td>)}
+              <td>{t.Y.worldOwn ? W.worldRow : T.totalOf?.row ?? W.totalRow}</td><td class="n">{valueText(p, t.Y.world!)}</td><td class="n">100%</td>
+              {t.prev && <td class="n">{t.prev.world !== null ? valueText(p, t.prev.world) : '–'}</td>}
+              {t.prev && <td class="n">{worldChange(p, t.yr) !== null && p.id !== 'co2cum' ? pct(worldChange(p, t.yr)!) : '–'}</td>}
+              {t.hasParts && (['refugees', 'asylum', 'oip'] as const).map((k) => <td class="n">{count(t.rows.reduce((t, x) => t + (x.parts?.[k] ?? 0), 0))}</td>)}
             </tr></tfoot>
           )}
         </table>
       </div>
-      <SourceLine source={source} parts={[prev ? `${prev.year} and ${p.year}` : when]} updated={updated} updatedLabel={updatedLabel} />
-      {notes.length > 0 && (
+      <SourceLine source={source} parts={[t.prev ? `${t.prev.year} and ${t.yr}` : yearText(p, t.yr)]} updated={updated} updatedLabel={updatedLabel} />
+      {t.notes.length > 0 && (
         <div class="gt-mvnotes">
           <h3 class="gt-label">{W.notes}</h3>
-          <ol class="gt-caption">{notes.map((n, i) => <li id={`mv-note-${i + 1}`}><b>{nameOf(n.id)}:</b> {n.text}</li>)}</ol>
+          <ol class="gt-caption">{t.notes.map((n, i) => <li id={t.noteId(i + 1)}><b>{nameOf(n.id)}:</b> {n.text}</li>)}</ol>
         </div>
       )}
+        </div>
+      ))}
       {attributions.length > 0 && (
         <>
           <h2 class="gt-h2" id="attributions">{CX.pairs}</h2>

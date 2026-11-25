@@ -299,7 +299,8 @@ export function initMapView(root: HTMLElement): void {
 
   function showRow(id: string) {
     closeFull();
-    const row = document.querySelector<HTMLTableRowElement>(`tr[data-place="${CSS.escape(id)}"]`);
+    // A view with a table per year (food crises) has the place in each: the one shown.
+    const row = [...document.querySelectorAll<HTMLTableRowElement>(`tr[data-place="${CSS.escape(id)}"]`)].find((r) => !r.closest('[hidden]'));
     if (!row) return;
     row.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
     row.classList.add('is-flash');

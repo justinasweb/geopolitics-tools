@@ -316,7 +316,8 @@ export function foodCard(input: WeekInput): { card: FoodCard; feed: FeedItem[] }
     .sort((a, b) => b.phases[4] - a.phases[4] || a.place.localeCompare(b.place)).map((a) => ({ ...of(a), people: a.phases[4], ...(isPartial(a) ? { analysed: a.analysed, population: a.population! } : {}) }));
   // New analyses: those the copy from the period's first day did not have, dated on the day IPC's data last changed.
   const base = input.baseline?.raw.has('ipc', 'country.json') ? new Set(ipc(input.baseline.raw).map((a) => a.id)) : null;
-  const added = base ? all.filter((a) => !base.has(a.id)).map(of).sort((a, b) => b.from.localeCompare(a.from) || a.place.localeCompare(b.place)) : null;
+  // An analysis comes once per period (current, projection, second projection): it is named once, for its latest.
+  const added = base ? [...new Map(all.filter((a) => !base.has(a.id)).map((a) => [a.id, a])).values()].map(of).sort((a, b) => b.from.localeCompare(a.from) || a.place.localeCompare(b.place)) : null;
   const feed: FeedItem[] = added && inPeriod(src.changed, p) ? added.map((a) => ({ kind: 'food', date: src.changed.slice(0, 10), ...a })) : [];
   return { card: { kind: 'food', src, quiet, day: p.to, phase5: p5.length, partial: p5.filter((r) => r.analysed).length, rows: quiet ? [] : p5, added: quiet ? [] : added }, feed };
 }

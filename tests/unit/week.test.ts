@@ -138,6 +138,13 @@ describe('This week cards', () => {
     expect(computeWeek(withIpc({ baseline: null })).cards.find((c) => c.kind === 'food')).toMatchObject({ added: null });
   });
 
+  it('names a new analysis once, for its latest period, though IPC gives it for each', () => {
+    const current = { ...ipcAn('3', 'HT', 'Jul 2026', 'Aug 2026', 0), ipc_period: 'C' };
+    const fw = computeWeek(withIpc({ raw: memRaw({ ...files, 'ipc/country.json': [...ipcNow, current] }) }));
+    expect(fw.cards.find((c) => c.kind === 'food')).toMatchObject({ added: [{ place: 'HTI', from: '2026-09', period: 'projection' }] });
+    expect(fw.feed.filter((x) => x.kind === 'food')).toHaveLength(1);
+  });
+
   it('keeps the Phase 5 count on a quiet food card, without its figures', () => {
     const old = { fetched: '2026-10-22T06:00:00Z', changed: '2026-10-01T06:00:00Z' };
     const fw = computeWeek(withIpc({ sources: { ...input().sources, ipc: old } }));
