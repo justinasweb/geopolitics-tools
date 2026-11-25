@@ -3,7 +3,7 @@
 import { coverageChanged, ipc, isPartial, latestByYear, latestOf, type Analysis } from '../adapters/ipc.ts';
 import type { Status } from './tags.ts';
 import { formatValue } from './format.ts';
-import { data, shared } from './data.ts';
+import { data, editionOf, shared, sourceName } from './data.ts';
 import { HUNGER_TEXT } from '../i18n/hunger.en.ts';
 
 const analyses = shared(ipc);
@@ -72,6 +72,9 @@ export function ofAnalysedAt(id: string, year: number): string | null {
 export const areaLabel = (a: Analysis | undefined) => (a?.area ? HUNGER_TEXT.only(a.area) : null);
 /** The same for a place's figure in a year on the maps. */
 export const areaAt = (id: string, year: number) => areaLabel(analysisIn(id, year));
+
+/** The credit for figures from one analysis: Cadre Harmonisé's named as such, both with IPC's date, sites and licence. */
+export const creditFor = (a: Analysis) => (a.system === 'CH' && editionOf('ipc') ? `${HUNGER_TEXT.chCredit}, ${editionOf('ipc')}` : sourceName('ipc'));
 
 /** Places whose analysis in force counts people in Phase 5, most first. */
 export const catastrophe = () => [...analysesInForce().values()].filter((a) => a.phases[4] > 0).sort((a, b) => b.phases[4] - a.phases[4]);

@@ -64,6 +64,13 @@ export const HUNGER_TEXT = {
   /** The latest analysis is for a period that has not begun. */
   blockAhead: (month: string) => `Its period begins in ${month}.`,
   blockLink: 'Food crises map',
-  /** The source line's period part: "Oct 2026 – Jan 2027 projection". */
-  sourcePart: (kind: string, period: string) => `${period} ${kindOf(kind)}`,
+  /** The source line's period part: "Covers Oct 2026 – Jan 2027 (projection)". */
+  sourcePart: (kind: string, period: string) => `Covers ${period} (${kindOf(kind)})`,
+  /** A view's or indicator page's period part: its figures are each country's latest analysis starting in the year. */
+  covers: (year: number | string) => `Covers analyses starting in ${year}`,
+  /** Before the day the site last fetched IPC's data, kept apart from the "updated" date IPC's terms ask for in the
+   *  credit, which is the day its analyses last changed. */
+  lastFetched: 'Last fetched',
+  /** The credit's name for Cadre Harmonisé figures, which reach the site through IPC's API. */
+  chCredit: 'Cadre Harmonisé, via the IPC API',
 };

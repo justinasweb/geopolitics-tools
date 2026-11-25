@@ -37,7 +37,7 @@ import {
 import { countryModel, countrySources, DOSSIERS, MINERAL_SHARE, type Figure } from '../lib/country';
 import { leadImports } from '../lib/dependence';
 import { dossierFor } from '../lib/dossier';
-import { creditName, data, sourceName } from '../lib/data';
+import { creditName, data, refreshed, sourceName } from '../lib/data';
 import { fitSentences, formatDate, formatParts, formatShare, formatValue } from '../lib/format';
 import { notesFor, place } from '../lib/places';
 import { countryHref, indicatorHref, live, paths } from '../lib/routes';
@@ -53,7 +53,7 @@ import { warheads } from '../lib/nuclear';
 import { CYBER_TEXT } from '../i18n/cyber.en';
 import { cyberData } from '../lib/cyber';
 import { HUNGER_TEXT } from '../i18n/hunger.en';
-import { areaLabel, monthSpan } from '../lib/hunger';
+import { areaLabel, creditFor, monthSpan } from '../lib/hunger';
 import { isPartial } from '../adapters/ipc';
 import { publishedText } from '../lib/ai/texts';
 
@@ -381,7 +381,7 @@ const citation = COUNTRY_TEXT.citation(name, kind, url, Number(m.updated.slice(0
                   {fa.phases[4] > 0 && <p class="gt-caption">{HUNGER_TEXT.blockPhase5(fa.phases[4], fa.period, isPartial(fa) ? foodCount(fa.analysed) : null)} {HUNGER_TEXT.phase5Note}</p>}
                   {isPartial(fa) && <p class="gt-caption">{HUNGER_TEXT.blockPart(foodCount(fa.analysed), foodCount(fa.population!))} <StatusTag status="partial" small /></p>}
                   {foodLink && <p class="gt-caption"><a href={`${foodLink.path}?country=${m.place.slug}`}>{HUNGER_TEXT.blockLink}</a></p>}
-                  <SourceLine source={sourceName('ipc')} parts={[HUNGER_TEXT.sourcePart(fa.period, monthSpan(fa.from, fa.to))]} status={fa.period === 'current' ? undefined : 'projection'} />
+                  <SourceLine source={creditFor(fa)} parts={[HUNGER_TEXT.sourcePart(fa.period, monthSpan(fa.from, fa.to))]} updated={refreshed('ipc')} updatedLabel={HUNGER_TEXT.lastFetched} status={fa.period === 'current' ? undefined : 'projection'} />
                 </article>
               )}
               {blocks.disasters && (

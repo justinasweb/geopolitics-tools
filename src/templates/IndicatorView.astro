@@ -60,6 +60,8 @@ const path = route(key(p.id))!.path;
 const url = new URL(path, Astro.site).href;
 const source = creditOf(p);
 const updated = refreshed([p.loaded.indicator.source].flat()[0]);
+// IPC: the day the site fetched its data, kept apart from the date in its credit (the day its analyses last changed).
+const updatedLabel = p.family.id === 'food-crises' ? HG.lastFetched : undefined;
 const y = p.byYear[p.year];
 const prevYear = p.years.includes(prevOf(p, p.year)) ? prevOf(p, p.year) : null;
 const prev = prevYear ? p.byYear[prevYear] : null;
@@ -108,7 +110,7 @@ const mapLabel = (yr: number) => {
   return `${legendOf(p, yr)}. ${top}. ${W.caption(yr, null)}`;
 };
 // A still-running year counted on one day (satellites) says "as of {date}" (src/lib/as-of.ts).
-const sourceYears = p.years.map((yr) => ({ year: yr, parts: [asOfDate(p.loaded.indicator.id, yr) ? `as of ${asOfDate(p.loaded.indicator.id, yr)}` : yearText(p, yr)] }));
+const sourceYears = p.years.map((yr) => ({ year: yr, parts: [asOfDate(p.loaded.indicator.id, yr) ? `as of ${asOfDate(p.loaded.indicator.id, yr)}` : p.family.id === 'food-crises' ? HG.covers(yr) : yearText(p, yr)] }));
 // Space: the largest constellations (satellites) or the launch sites (launches), under the country table.
 const cons = p.id === 'satellites' ? constellations() : [];
 // Electricity: the world's power mix in the default year, under the country table.
@@ -152,7 +154,7 @@ const bars = (rs: Row[], max: number, yr: number) => rs.map((r) => ({ id: r.id, 
     <Breadcrumbs items={crumbs} />
     <h1 class="gt-title gt-mvhead__t">{T.title} <span class="gt-mvhead__sub">{T.sub}</span></h1>
     <p class="gt-lede gt-mvhead__a" data-headline data-by-year={byYear(p.years, (yr) => lede(p, yr))} hidden={!answer}>{answer}</p>
-    <SourceLine source={source} years={sourceYears} year={p.year} updated={updated} />
+    <SourceLine source={source} years={sourceYears} year={p.year} updated={updated} updatedLabel={updatedLabel} />
   </div>
 
   <MapControls
@@ -203,7 +205,7 @@ const bars = (rs: Row[], max: number, yr: number) => rs.map((r) => ({ id: r.id, 
         <div class="gt-blocline" hidden><span class="gt-blocline__key" aria-hidden="true"></span><p></p></div>
         <Notice>
           <p>{T.caveat}</p>
-          <SourceLine source={source} parts={[yearsText]} updated={updated} />
+          <SourceLine source={source} parts={[yearsText]} updated={updated} updatedLabel={updatedLabel} />
         </Notice>
       </div>
     </div>
@@ -213,7 +215,7 @@ const bars = (rs: Row[], max: number, yr: number) => rs.map((r) => ({ id: r.id, 
     <div class="gt-mvbelow__main">
       <h2 class="gt-h2" id="mv-sum">{W.summary}</h2>
       <div class="gt-prose" data-by-year={byYear(p.years, (yr) => summary(p, yr))}>{summary(p).map((s) => <p>{s}</p>)}</div>
-      <SourceLine source={source} years={sourceYears} year={p.year} updated={updated} />
+      <SourceLine source={source} years={sourceYears} year={p.year} updated={updated} updatedLabel={updatedLabel} />
       <h2 class="gt-h2" id="table">{W.table}</h2>
       <div class="gt-tablewrap" style="--gt-table-h:560px" tabindex="0" role="region" aria-label={W.tableLabel(T.title)}>
         <table class="gt-table" data-gt-sort>
@@ -260,7 +262,7 @@ const bars = (rs: Row[], max: number, yr: number) => rs.map((r) => ({ id: r.id, 
           )}
         </table>
       </div>
-      <SourceLine source={source} parts={[prev ? `${prev.year} and ${p.year}` : when]} updated={updated} />
+      <SourceLine source={source} parts={[prev ? `${prev.year} and ${p.year}` : when]} updated={updated} updatedLabel={updatedLabel} />
       {notes.length > 0 && (
         <div class="gt-mvnotes">
           <h3 class="gt-label">{W.notes}</h3>
@@ -281,7 +283,7 @@ const bars = (rs: Row[], max: number, yr: number) => rs.map((r) => ({ id: r.id, 
             </table>
           </div>
           <p class="gt-caption">{CX.caveat}</p>
-          <SourceLine source={source} parts={[String(p.year)]} updated={updated} />
+          <SourceLine source={source} parts={[String(p.year)]} updated={updated} updatedLabel={updatedLabel} />
         </>
       )}
       {chipFlows.length > 0 && (
@@ -294,7 +296,7 @@ const bars = (rs: Row[], max: number, yr: number) => rs.map((r) => ({ id: r.id, 
               <tbody>{chipFlows.map((f) => <tr><td>{nameOf(f.from)}</td><th scope="row">{nameOf(f.to)}</th><td class="n">{money(f.amount)}</td></tr>)}</tbody>
             </table>
           </div>
-          <SourceLine source={source} parts={[String(p.year)]} updated={updated} />
+          <SourceLine source={source} parts={[String(p.year)]} updated={updated} updatedLabel={updatedLabel} />
         </>
       )}
       {cat.length > 0 && (
@@ -307,7 +309,7 @@ const bars = (rs: Row[], max: number, yr: number) => rs.map((r) => ({ id: r.id, 
               <tbody>{cat.map((a) => <tr><th scope="row">{countryHref(a.place) ? <a href={countryHref(a.place)}>{nameOf(a.place)}</a> : nameOf(a.place)}{areaLabel(a) && <> <AreaTag label={areaLabel(a)!} /></>}</th><td>{HG.label(a.system, a.period, monthSpan(a.from, a.to))}</td><td class="n">{count(a.phases[4])}{ofAnalysed(a) && <small>{ofAnalysed(a).trim()}</small>}</td><td class="n">{count(a.crisis)}{ofAnalysed(a) && <small>{ofAnalysed(a).trim()}</small>}</td></tr>)}</tbody>
             </table>
           </div>
-          <SourceLine source={source} updated={updated} />
+          <SourceLine source={source} updated={updated} updatedLabel={updatedLabel} />
         </>
       )}
       {wmix && (
@@ -321,7 +323,7 @@ const bars = (rs: Row[], max: number, yr: number) => rs.map((r) => ({ id: r.id, 
               <tfoot><tr><td>{PW.total}</td><td class="n">{twh(wmix.mix.total)}</td><td class="n">100%</td></tr></tfoot>
             </table>
           </div>
-          <SourceLine source={source} parts={[String(p.year)]} updated={updated} />
+          <SourceLine source={source} parts={[String(p.year)]} updated={updated} updatedLabel={updatedLabel} />
         </>
       )}
       {cons.length > 0 && (
@@ -334,7 +336,7 @@ const bars = (rs: Row[], max: number, yr: number) => rs.map((r) => ({ id: r.id, 
               <tbody>{cons.map((c) => <tr><th scope="row">{SP.names[c.id] ?? c.id}</th><td>{c.place ? nameOf(c.place) : SP.intl}</td><td class="n">{count(c.active)}</td></tr>)}</tbody>
             </table>
           </div>
-          <SourceLine source={source} parts={[spaceDate]} updated={updated} />
+          <SourceLine source={source} parts={[spaceDate]} updated={updated} updatedLabel={updatedLabel} />
         </>
       )}
       {clusters.length > 0 && (
@@ -350,7 +352,7 @@ const bars = (rs: Row[], max: number, yr: number) => rs.map((r) => ({ id: r.id, 
               <tbody>{clusters.map((c) => <tr><th scope="row">{c.name}{c.owner && <small class="gt-caption" style="display:block">{c.owner}</small>}</th><td>{nameOf(c.place)}</td><td class="n">{count(c.h100e)}</td><td class="n">{c.start.slice(0, 4)}</td></tr>)}</tbody>
             </table>
           </div>
-          <SourceLine source={source} parts={[String(p.year)]} updated={updated} />
+          <SourceLine source={source} parts={[String(p.year)]} updated={updated} updatedLabel={updatedLabel} />
         </>
       )}
       {dams.length > 0 && (
@@ -383,7 +385,7 @@ const bars = (rs: Row[], max: number, yr: number) => rs.map((r) => ({ id: r.id, 
               <tbody>{projects.map((x) => <tr><th scope="row" style="font-weight:400">{x.title}</th><td>{nameOf(x.place)}</td><td class="n">{money(x.amount)}</td><td class="n">{x.year}</td></tr>)}</tbody>
             </table>
           </div>
-          <SourceLine source={source} parts={['2000–2021']} updated={updated} />
+          <SourceLine source={source} parts={['2000–2021']} updated={updated} updatedLabel={updatedLabel} />
         </>
       )}
       {flows.length > 0 && (
@@ -399,7 +401,7 @@ const bars = (rs: Row[], max: number, yr: number) => rs.map((r) => ({ id: r.id, 
               <tbody>{flows.map((x) => <tr><th scope="row">{nameOf(x.from)}</th><td>{nameOf(x.to)}</td><td class="n">{tiv(x.amount)}</td><td class="n">{x.share}</td></tr>)}</tbody>
             </table>
           </div>
-          <SourceLine source={source} parts={[armsPeriod(p.year)]} updated={updated} />
+          <SourceLine source={source} parts={[armsPeriod(p.year)]} updated={updated} updatedLabel={updatedLabel} />
         </>
       )}
       {ixps.length > 0 && (
@@ -415,7 +417,7 @@ const bars = (rs: Row[], max: number, yr: number) => rs.map((r) => ({ id: r.id, 
               <tbody>{ixps.map((x) => <tr><th scope="row">{x.name}{x.city && <small class="gt-caption" style="display:block">{x.city}</small>}</th><td>{nameOf(x.place)}</td><td class="n">{count(x.networks)}</td></tr>)}</tbody>
             </table>
           </div>
-          <SourceLine source={source} parts={[when]} updated={updated} />
+          <SourceLine source={source} parts={[when]} updated={updated} updatedLabel={updatedLabel} />
         </>
       )}
       {sites.length > 0 && (
@@ -433,7 +435,7 @@ const bars = (rs: Row[], max: number, yr: number) => rs.map((r) => ({ id: r.id, 
               <tbody>{sites.map((x) => <tr><th scope="row">{x.name}</th><td>{x.place ? nameOf(x.place) : SP.intl}</td><td class="n" data-v={x.n}>{count(x.n)}</td><td class="n" data-v={x.total}>{count(x.total)}</td></tr>)}</tbody>
             </table>
           </div>
-          <SourceLine source={source} parts={[String(p.year)]} updated={updated} />
+          <SourceLine source={source} parts={[String(p.year)]} updated={updated} updatedLabel={updatedLabel} />
         </>
       )}
     </div>

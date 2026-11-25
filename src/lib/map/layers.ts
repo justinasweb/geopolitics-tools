@@ -46,7 +46,7 @@ import { CYBER_TEXT } from '../../i18n/cyber.en.ts';
 import { groupsOf, mixOf } from '../electricity.ts';
 import { cells, conflictPage, deathClass, VIOLENCE } from '../conflict.ts';
 import { CONFLICT_TEXT, monthText } from '../../i18n/conflict.en.ts';
-import { areaAt, areaLabel, coverageChangedAt, foodTags, latestAnalyses, monthSpan, periodAt } from '../hunger.ts';
+import { areaAt, areaLabel, coverageChangedAt, creditFor, foodTags, latestAnalyses, monthSpan, periodAt } from '../hunger.ts';
 import { isPartial } from '../../adapters/ipc.ts';
 import { HUNGER_TEXT } from '../../i18n/hunger.en.ts';
 import { POWER_TEXT } from '../../i18n/electricity.en.ts';
@@ -320,6 +320,8 @@ function withPhases(more: Record<string, PanelBlock[]>): Record<string, PanelBlo
       label: H.latest, caption: `${H.latestCaption(a.system, a.period, monthSpan(a.from, a.to), f(a.analysed), isPartial(a) ? f(a.population!) : null)}${areaLabel(a) ? ` ${areaLabel(a)}.` : ''}`,
       rows: ([5, 4, 3, 2, 1] as const).map((k) => ({ name: H.phase[k], value: f(a.phases[k - 1]), note: a.analysed ? formatValue(a.phases[k - 1] / a.analysed, { kind: 'share' }) : undefined })),
       more: H.phase5Note,
+      // Its own credit: Cadre Harmonisé's analyses are named as such.
+      source: creditFor(a),
     }];
   }
   return out;

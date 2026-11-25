@@ -91,7 +91,7 @@ const description = indicatorDescription(id);
     <h1 class="gt-title gt-tlhead__t">{label}{text.unit && !['US$', 'people'].includes(text.unit) && <span class="gt-mvhead__sub"> {text.unit}</span>}</h1>
     {answer && <p class="gt-lede gt-tlhead__a">{answer}{leadTags.map((t) => <> <StatusTag status={t} small /></>)}</p>}
     <p class="gt-tldef"><b>{T.definition}</b> {DEFINITION[id] ?? text.note} <a href={paths.page('methodology')}>{T.methodology}</a></p>
-    <SourceLine source={credit} parts={ind.static ? [] : [yearText]} updated={updated} status={projected(m.year) ? 'projection' : undefined} />
+    <SourceLine source={credit} parts={ind.static ? [] : [ind.source === 'ipc' ? HUNGER_TEXT.covers(yearText) : yearText]} updated={updated} updatedLabel={ind.source === 'ipc' ? HUNGER_TEXT.lastFetched : undefined} status={projected(m.year) ? 'projection' : undefined} />
   </header>
 
   <div class="gt-indgrid">
@@ -127,7 +127,7 @@ const description = indicatorDescription(id);
           </div>
         ))}
         {/* The ranking runs to some 200 rows: its own source line under it, as in the header. */}
-        <SourceLine source={credit} parts={ind.static ? [] : [yearText]} updated={updated} status={projected(m.year) ? 'projection' : undefined} />
+        <SourceLine source={credit} parts={ind.static ? [] : [ind.source === 'ipc' ? HUNGER_TEXT.covers(yearText) : yearText]} updated={updated} updatedLabel={ind.source === 'ipc' ? HUNGER_TEXT.lastFetched : undefined} status={projected(m.year) ? 'projection' : undefined} />
       </section>
     </div>
     <div class="gt-indgrid__b">
@@ -152,7 +152,7 @@ const description = indicatorDescription(id);
         {trendFind && <p class="gt-cpsec__find">{trendFind}</p>}
         <LineChart label={`${label}, ${trend.years[0]}–${trend.years.at(-1)}`} years={trend.years} lines={trendLines} format={fmt} projectedAfter={ind.projectedAfter} zero={ind.scale === 'log'} />
         <p class="gt-caption">{T.trendCaption(m.year)}{trendLines.some((l) => l.breaks?.length) && ` ${HUNGER_TEXT.coverageBreak}`}</p>
-        <SourceLine source={credit} parts={[`${trend.years[0]}–${trend.years.at(-1)}`]} updated={updated} />
+        <SourceLine source={credit} parts={[`${trend.years[0]}–${trend.years.at(-1)}`]} updated={updated} updatedLabel={ind.source === 'ipc' ? HUNGER_TEXT.lastFetched : undefined} />
       </section>
     ) : <div />}
     <aside class="gt-indside">
