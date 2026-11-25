@@ -17,7 +17,7 @@ import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { checkDraft, problemLines } from './check.ts';
-import { factsHash, kindOf, refusals, type FactsFile } from './facts.ts';
+import { factsHash, kindOf, refusals, validateFacts, type FactsFile } from './facts.ts';
 
 export type Author = 'ai' | 'owner';
 export type Via = 'cli' | 'telegram' | 'pr';
@@ -136,6 +136,20 @@ export function writeText(t: StoredText, root = process.cwd()): void {
  *  figure that would now read differently changes it), or of the whole file for a long text or one saved before. */
 export const currentHash = (t: Pick<StoredText, 'usedFacts' | 'text'>, facts: FactsFile) =>
   (t.usedFacts ? factsHash(facts, t.usedFacts, checkDraft(t.text, facts).shown) : factsHash(facts));
+
+/**
+ * A stored text fails its check only because a source update moved its facts: an approved AI text, with its approval
+ * date, that still matches the facts file it was approved against (`stored`, the committed file: same hash, passes the
+ * check) but not the facts made from the latest data (`now`: another figure or year). Anything else that fails (a text
+ * edited or not approved, a text the check rejects on its own facts, facts with a missing source or date) is not drift.
+ * Only dossiers can drift: their facts are made from the data; the other kinds are checked against the committed file.
+ */
+export function driftOnly(t: StoredText, stored: FactsFile | null, now: FactsFile | null): boolean {
+  if (t.author !== 'ai' || !t.approved || !t.approvedOn || !stored || !now) return false;
+  if (validateFacts(stored).length || validateFacts(now).length || refusals(now).length) return false;
+  if (t.factsHash !== currentHash(t, stored) || !checkDraft(t.text, stored).ok) return false;
+  return t.factsHash !== currentHash(t, now) || !checkDraft(t.text, now).ok;
+}
 
 /** The facts a text uses and their hash, for saving it: from the checker's matches. Long pages and hub intros are
  *  mostly prose the checker cannot tie to facts, so they keep the whole file's hash. */

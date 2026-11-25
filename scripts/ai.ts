@@ -6,12 +6,13 @@
 //                                           --pr commits them on a new branch and opens a pull request
 //   npm run ai:paste -- <id> <file>         the manual path: check a draft made in a Claude chat and save it
 //   npm run ai:own -- <id> <file>           save the owner's own text; it is never overwritten and has no AI label
-//   npm run ai:check [-- <id>…]             check stored texts against their facts (CI runs this)
+//   npm run ai:check [-- <id>… | --all] [--drift-warns]   check stored texts against their facts (CI runs this);
+//                                           --drift-warns: facts moved by a source update only warn (pull requests)
 //   npm run ai:approve -- <id> [--text-hash <h>] [--via cli|telegram]   approve a short text
 //
 // A text id is dossier:USA, history:nato, river:nile, page:about or hub:power.
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { checkDraft, problemLines, strayNumbers } from '../src/lib/ai/check.ts';
 import { AI_MODEL, MANUAL_MODEL } from '../src/lib/ai/config.ts';
@@ -19,7 +20,7 @@ import { anthropicClient, draftText, NoKeyError, type DraftClient } from '../src
 import { canonical, duplicateFacts, factsHash, factsPath, kindOf, loadFacts, refusals, validateFacts, type FactsFile } from '../src/lib/ai/facts.ts';
 import { tryLoadDossierFacts } from '../src/lib/ai/current.ts';
 import { hubFacts, pageFacts } from '../src/lib/ai/page-facts.ts';
-import { approveText, currentHash, isLong, readText, saveDraft, stateOf, textHash, writeText, type Via } from '../src/lib/ai/store.ts';
+import { approveText, currentHash, driftOnly, isLong, readText, saveDraft, stateOf, textHash, writeText, type StoredText, type Via } from '../src/lib/ai/store.ts';
 import { currentFacts, isTextId, TEXT_IDS } from '../src/lib/ai/texts.ts';
 import { place } from '../src/lib/places.ts';
 
@@ -108,32 +109,60 @@ function cmdStatus(args: string[]) {
 }
 
 /** Checks one stored text against its current facts; returns lines to show, empty when it passes. */
-function checkStored(id: string): { lines: string[]; checked: boolean } {
-  const t = readText(id);
-  if (!t || !t.text.trim()) return { lines: [], checked: false };
-  if (t.author === 'owner') return { lines: [], checked: false };
+function checkStored(id: string, read: CheckReaders): { lines: string[]; checked: boolean; drift: boolean } {
+  const t = read.text(id);
+  if (!t || !t.text.trim()) return { lines: [], checked: false, drift: false };
+  if (t.author === 'owner') return { lines: [], checked: false, drift: false };
   // Drafts made before the pipeline carry no facts hash; they are checked once they are approved or redrafted.
-  if (!t.factsHash && !t.approved) return { lines: [], checked: false };
-  const f = currentFacts(id);
-  if (!f) return { lines: kindOf(id) === 'dossier' ? [] : [`${id}: no facts file`], checked: false };
+  if (!t.factsHash && !t.approved) return { lines: [], checked: false, drift: false };
+  const f = read.now(id);
+  if (!f) return { lines: kindOf(id) === 'dossier' ? [] : [`${id}: no facts file`], checked: false, drift: false };
   const out: string[] = [];
   if (t.factsHash !== currentHash(t, f)) out.push(`${id}: ${t.usedFacts ? `facts it uses (${t.usedFacts.length})` : 'its facts'} changed since it was drafted (stored ${t.factsHash ?? 'none'}, now ${currentHash(t, f)}): redraft it, or for a pasted text run npm run ai:paste again.`);
   const r = checkDraft(t.text, f);
   if (!r.ok) out.push(`${id}: the text does not pass the check:`, ...problemLines(r));
   if (t.approved && !t.approvedOn) out.push(`${id}: approved, but approvedOn (the approval date, YYYY-MM-DD) is missing.`);
-  return { lines: out, checked: true };
+  return { lines: out, checked: true, drift: out.length > 0 && driftOnly(t, read.stored(id), f) };
+}
+
+/** Where the check reads a text, the facts file committed with it, and the facts it is checked against now. */
+export interface CheckReaders {
+  text: (id: string) => StoredText | null;
+  stored: (id: string) => FactsFile | null;
+  now: (id: string) => FactsFile | null;
+}
+const REPO_READERS: CheckReaders = { text: (id) => readText(id), stored: (id) => loadFacts(id), now: (id) => currentFacts(id) };
+
+/**
+ * Checks texts against their facts. With `driftWarns` (pull requests in ci.yml), an approved text that fails only
+ * because a source update moved its facts (driftOnly) is a warning, not a failure; everything else fails. Without it
+ * (pushes to main, production deploys, the data run's and ai-review's rebuilds), drift fails too.
+ */
+export function checkTexts(list: string[], o: { driftWarns: boolean }, read: CheckReaders = REPO_READERS): { checked: number; failed: string[]; warned: string[]; lines: string[] } {
+  const out = { checked: 0, failed: [] as string[], warned: [] as string[], lines: [] as string[] };
+  for (const id of list) {
+    const r = checkStored(id, read);
+    if (r.checked) out.checked++;
+    if (!r.lines.length) continue;
+    if (o.driftWarns && r.drift) { out.warned.push(id); out.lines.push(...r.lines.map((l) => `warning: ${l}`)); } else { out.failed.push(id); out.lines.push(...r.lines); }
+  }
+  return out;
 }
 
 function cmdCheck(args: string[]) {
-  let failed = 0;
-  let checked = 0;
-  for (const id of ids(args, args.includes('--all'))) {
-    const r = checkStored(id);
-    if (r.checked) checked++;
-    if (r.lines.length) { failed++; r.lines.forEach(say); }
+  const r = checkTexts(ids(args, args.includes('--all')), { driftWarns: args.includes('--drift-warns') });
+  r.lines.forEach(say);
+  say(`${r.checked} texts checked, ${r.failed.length} with problems${r.warned.length ? `, ${r.warned.length} with facts moved by a source update (warning)` : ''}.`);
+  // On GitHub, drift shows in the job summary, where it is seen without opening the log.
+  if (r.warned.length && process.env.GITHUB_STEP_SUMMARY) {
+    const summary = [
+      '### AI texts: facts moved by a source update', '',
+      ...r.warned.map((id) => `- \`${id}\`: approved, but its facts changed since. Redraft or re-paste it, and approve it, before it reaches production.`),
+      '', '```', ...r.lines.filter((l) => l.startsWith('warning:')), '```', '',
+    ];
+    appendFileSync(process.env.GITHUB_STEP_SUMMARY, summary.join('\n'));
   }
-  say(`${checked} texts checked, ${failed} with problems.`);
-  if (failed) process.exitCode = 1;
+  if (r.failed.length) process.exitCode = 1;
 }
 
 function cmdPaste(args: string[], author: 'ai' | 'owner') {
