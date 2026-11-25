@@ -153,6 +153,9 @@ export interface LayerFile {
    * Each place's figure as a number, one per entry of `data` (null where it has none): the panel's trend line and
    * its bars. Formatted in the browser with `format`.
    */
+  /** Where a place's trend line in the panel does not join, by place: indexes into `data` whose figure does not compare
+   *  with the one before (food crises: an analysis of another population, as the tables' "Coverage changed"). */
+  breaks?: Record<string, number[]>;
   series?: Record<string, (number | null)[]>;
   format?: Format;
   /** Blocks for a selected place that stay the same in every year (its other measures, its other minerals). */

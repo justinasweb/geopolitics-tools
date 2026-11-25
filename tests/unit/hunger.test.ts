@@ -157,6 +157,21 @@ describe('food crisis tags', () => {
     }
   });
 
+  it('break the panel’s trend line where the tables say Coverage changed, and draw a figure left alone as a dot', async () => {
+    const { sparkHtml } = await import('../../src/scripts/map/panel.ts');
+    const p = V.familyPages('food-crises')[0];
+    const f = L.layerFile('food-crises-hunger');
+    for (const [i, y] of p.years.entries()) for (const r of p.byYear[y].rows) {
+      expect(f.breaks?.[r.id]?.includes(i) ?? false).toBe(i > 0 && V.coverageBreak(p, r.id, y) && p.years[i - 1] === y - 1);
+    }
+    // A made-up series: 10, 18 | 5 (coverage changed in the last year): one line, one dot.
+    const g = { ...f, data: f.data.slice(0, 3), series: { YEM: [10e6, 18e6, 5e6] }, breaks: { YEM: [2] } };
+    const html = sparkHtml(g, 'YEM', 'x');
+    expect(html.match(/class="gt-spark__line"/g)).toHaveLength(1);
+    expect(html).toContain('gt-spark__line--dot');
+    expect(sparkHtml({ ...g, breaks: {} }, 'YEM', 'x')).not.toContain('gt-spark__line--dot');
+  });
+
   it('draw partial analyses with lines the legend names', () => {
     const f = L.layerFile('food-crises-hunger');
     expect(f.notes.PSE).toBeUndefined();

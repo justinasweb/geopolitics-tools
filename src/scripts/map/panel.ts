@@ -77,15 +77,26 @@ export function sparkHtml(f: LayerFile, id: string, label: string): string {
   const pct = (i: number) => `${(share(i) * 100).toFixed(2)}%`;
   const Y = (v: number) => (hi === lo ? B : B - ((B - T) * (v - lo)) / (hi - lo));
   const lines = grid.map((g) => `<line x1="0" x2="100%" y1="${Y(g).toFixed(1)}" y2="${Y(g).toFixed(1)}" class="gt-spark__grid"/><text x="-6" y="${(Y(g) + 4).toFixed(1)}" text-anchor="end">${esc(gridText[grid.indexOf(g)])}</text>`).join('');
-  // Gaps (years without a figure) break the line.
+  // Gaps (years without a figure) break the line, as do figures that do not compare with the one before (f.breaks: food
+  // crises, where the population analysed changed). A figure a break leaves joined to neither neighbour is a dot: a
+  // stroke of no length.
+  const breaks = f.breaks?.[id] ?? [];
+  const joined = (i: number) => i > 0 && !!pts[i] && !!pts[i - 1] && !breaks.includes(i);
   let d = '';
-  pts.forEach((p, i) => { if (p) d += `${d && pts[i - 1] ? 'L' : 'M'}${(share(p.x) * PW).toFixed(1)},${Y(p.v).toFixed(1)}`; });
+  let dots = '';
+  pts.forEach((p, i) => {
+    if (!p) return;
+    const at = `${(share(p.x) * PW).toFixed(1)},${Y(p.v).toFixed(1)}`;
+    if (joined(i)) d += `L${at}`;
+    else if (joined(i + 1) || !(breaks.includes(i) || breaks.includes(i + 1))) d += `M${at}`;
+    else dots += `M${at}h0.01`;
+  });
   const first = have[0], last = have.at(-1)!;
   const tag = (y: LayerYear) => (y.status ? 'e' : '');
   const caption = fill(f.text.trendCaption ?? '{first} in {from}, {last} in {to}.', { first: fmt(first.v), from: first.year, last: fmt(last.v), to: last.year });
   return `<div class="gt-pblock"><div class="gt-pblock__head"><span class="gt-label">${esc(label)}</span></div>`
     + `<svg class="gt-spark" height="${H}" style="--l:${L}px" role="img" aria-label="${esc(`${label}: ${caption}`)}">${lines}`
-    + `<svg width="100%" height="${H}" viewBox="0 0 ${PW} ${H}" preserveAspectRatio="none" overflow="visible" aria-hidden="true"><path d="${d}" class="gt-spark__line"/></svg>`
+    + `<svg width="100%" height="${H}" viewBox="0 0 ${PW} ${H}" preserveAspectRatio="none" overflow="visible" aria-hidden="true"><path d="${d}" class="gt-spark__line"/>${dots ? `<path d="${dots}" class="gt-spark__line gt-spark__line--dot"/>` : ''}</svg>`
     + `<circle cx="${pct(last.x)}" cy="${Y(last.v).toFixed(1)}" r="3" class="gt-spark__dot"/>`
     + `<text x="${pct(first.x)}" y="92" text-anchor="start">${first.year}${tag(f.data[first.x])}</text><text x="${pct(last.x)}" y="92" text-anchor="end">${last.year}${tag(f.data[last.x])}</text></svg>`
     + `<p class="gt-caption gt-pblock__cap">${esc(caption)}</p></div>`;

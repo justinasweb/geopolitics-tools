@@ -46,7 +46,7 @@ import { CYBER_TEXT } from '../../i18n/cyber.en.ts';
 import { groupsOf, mixOf } from '../electricity.ts';
 import { cells, conflictPage, deathClass, VIOLENCE } from '../conflict.ts';
 import { CONFLICT_TEXT, monthText } from '../../i18n/conflict.en.ts';
-import { areaAt, foodTags, latestAnalyses, monthSpan, panelNote, periodAt } from '../hunger.ts';
+import { areaAt, coverageChangedAt, foodTags, latestAnalyses, monthSpan, panelNote, periodAt } from '../hunger.ts';
 import { isPartial } from '../../adapters/ipc.ts';
 import { HUNGER_TEXT } from '../../i18n/hunger.en.ts';
 import { POWER_TEXT } from '../../i18n/electricity.en.ts';
@@ -282,6 +282,7 @@ function indicatorLayer(p: ViewPage): LayerFile {
       ...(p.text.barsLabel ? { bars: `${p.text.barsLabel}, {year}` } : {}),
     },
     tags: { ...c.tags, ...areaTags }, names: c.names, hrefs: c.hrefs, slugs: c.slugs, notes, blocs: c.blocs, data,
+    ...(p.family.id === 'food-crises' ? { breaks: foodBreaks(p) } : {}),
     ...(p.family.id === 'food-crises' ? { tagWords: { ended: STATUS_TEXT.ended, ...areaWords } } : {}),
     series: seriesOf(p.years.map((year) => Object.fromEntries(p.byYear[year].rows.map((r) => [r.id, r.value])))),
     format: p.format, more: p.family.id === 'space' ? withSpace(viewMore(p)) : p.family.id === 'sanctions' ? withSanctions(viewMore(p), p.id) : p.id === 'outages' ? withOutages(viewMore(p)) : p.id === 'exchanges' ? withExchanges(viewMore(p)) : p.family.id === 'chinese-lending' ? withLending(viewMore(p), p.id) : p.family.id === 'electricity' ? withMix(viewMore(p), p) : p.family.id === 'food-crises' ? withPhases(viewMore(p)) : CHIP_LAYERS[p.id] ? withSuppliers(viewMore(p), p) : viewMore(p),
@@ -310,6 +311,17 @@ function withSpace(more: Record<string, PanelBlock[]>): Record<string, PanelBloc
 
 /** Arms: for each place, its main partners over the period and, for importers, its suppliers by group (now and, when
  * the data reaches back far enough, in the period before). */
+/** Food crises: where each place's trend line in the panel does not join, as indexes into the layer's years: a figure
+ *  from an analysis of another population than the year before's, by the tables' rule (coverageChangedAt). */
+function foodBreaks(p: ViewPage): Record<string, number[]> {
+  const out: Record<string, number[]> = {};
+  p.years.forEach((year, i) => {
+    if (i === 0) return;
+    for (const r of p.byYear[year].rows) if (coverageChangedAt(r.id, year, p.years[i - 1])) (out[r.id] ??= []).push(i);
+  });
+  return out;
+}
+
 /** Food crises: each country's latest IPC or Cadre Harmonisé analysis, people by phase, after its other blocks. */
 function withPhases(more: Record<string, PanelBlock[]>): Record<string, PanelBlock[]> {
   const H = HUNGER_TEXT;
