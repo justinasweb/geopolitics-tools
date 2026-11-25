@@ -217,7 +217,7 @@ function indicatorLayer(p: ViewPage): LayerFile {
       if (area) areaTags[areaKey(area)] = areaTagHtml(area);
       if (area) areaWords[areaKey(area)] = area;
       const tags = p.family.id === 'food-crises' ? [...foodTags(r.id, year), ...(area ? [areaKey(area)] : [])].join(' ') : 0;
-      v[r.id] = [classFor(p, r.value), valueText(p, r.value), share ? (y.worldOwn ? W.ofWorld(share) : W.ofTotal(share)) : '', tags || 0, p.layer.neutral ? 0 : i + 1];
+      v[r.id] = [classFor(p, r.value), valueText(p, r.value), share ? (y.worldOwn ? W.ofWorld(share) : p.text.totalOf?.share?.(share) ?? W.ofTotal(share)) : '', tags || 0, p.layer.neutral ? 0 : i + 1];
     });
     // Not reported (src/data/not-reported.ts): hatched like "withheld by source", with the layer's own words for it.
     for (const n of unreportedIn(p, year)) v[n.place] ??= [0, unreported!.label, '', 0, 0];
@@ -266,6 +266,7 @@ function indicatorLayer(p: ViewPage): LayerFile {
       detailLabel: p.layer.sums ? PT.share : undefined, rankLabel: PT.rank, rankOf: PT.rankOf, statusLabel: PT.status,
       trend: PT.figureTrend(p.text.figureLabel), trendCaption: PT.trendCaption, ranking: PT.ranking,
       ...(p.family.id === 'food-crises' ? { breakNote: HUNGER_TEXT.coverageBreak, periodLabel: HUNGER_TEXT.analysis } : {}),
+      ...(p.text.worldHeading ? { world: p.text.worldHeading } : {}),
       ...(p.text.barsLabel ? { bars: `${p.text.barsLabel}, {year}` } : {}),
     },
     tags: { ...c.tags, ...areaTags }, names: c.names, hrefs: c.hrefs, slugs: c.slugs, notes, blocs: c.blocs, data,
