@@ -46,7 +46,7 @@ import { CYBER_TEXT } from '../../i18n/cyber.en.ts';
 import { groupsOf, mixOf } from '../electricity.ts';
 import { cells, conflictPage, deathClass, VIOLENCE } from '../conflict.ts';
 import { CONFLICT_TEXT, monthText } from '../../i18n/conflict.en.ts';
-import { areaAt, areaLabel, coverageChangedAt, creditFor, foodTags, latestAnalyses, monthSpan, periodAt } from '../hunger.ts';
+import { areaAt, foodTags, latestAnalyses, monthSpan, panelNote, periodAt } from '../hunger.ts';
 import { isPartial } from '../../adapters/ipc.ts';
 import { HUNGER_TEXT } from '../../i18n/hunger.en.ts';
 import { POWER_TEXT } from '../../i18n/electricity.en.ts';
@@ -201,23 +201,32 @@ function indicatorLayer(p: ViewPage): LayerFile {
   const unreported = unreportedText(p);
   const W = VIEWS_TEXT;
   const memberships = blocs();
-  // Food crises: the labels for the areas analyses cover ("Gaza Strip only"), keyed for the entries' tags.
+  // Food crises: the labels for the areas analyses cover ("Gaza Strip only"), keyed for the tooltip's tags.
   const areaTags: Record<string, string> = {};
   // …and the tooltip's words for them, which it says in plain text (tagWords).
   const areaWords: Record<string, string> = {};
+  // The tooltip's place notes on these views: the layer's, without the general note on what other sources count for
+  // Palestine ("West Bank and Gaza"), which the "Gaza Strip only" tag would contradict.
+  const tipPlaceNote = (id: string) => [id === 'PSE' ? null : c.notes[id], placeNote(p, id)].filter(Boolean).join(' ');
   const data: LayerYear[] = p.years.map((year) => {
     const y = p.byYear[year];
     const v: Record<string, Entry> = {};
+    const tip: NonNullable<LayerYear['tip']> = {};
     y.rows.forEach((r, i) => {
       const share = p.layer.sums ? shareOf(r.value, y.world) : null;
       // No rank on a neutral layer (documented cyber incidents): the panel shows no "3 of 120".
-      // The food crisis figures are the ones these views tag on the map: Part of country, Period ended and the area the
-      // analysis covers (../hunger.ts).
-      const area = p.family.id === 'food-crises' ? areaAt(r.id, year) : null;
-      if (area) areaTags[areaKey(area)] = areaTagHtml(area);
-      if (area) areaWords[areaKey(area)] = area;
-      const tags = p.family.id === 'food-crises' ? [...foodTags(r.id, year), ...(area ? [areaKey(area)] : [])].join(' ') : 0;
-      v[r.id] = [classFor(p, r.value), valueText(p, r.value), share ? (y.worldOwn ? W.ofWorld(share) : p.text.totalOf?.share?.(share) ?? W.ofTotal(share)) : '', tags || 0, p.layer.neutral ? 0 : i + 1];
+      // Partial (IPC analyses of some areas) is the one per-place status these views tag in the panel.
+      const partial = p.family.id === 'food-crises' && foodTags(r.id, year).includes('partial') ? 'partial' : 0;
+      v[r.id] = [classFor(p, r.value), valueText(p, r.value), share ? (y.worldOwn ? W.ofWorld(share) : W.ofTotal(share)) : '', partial, p.layer.neutral ? 0 : i + 1];
+      // Food crises: the tooltip says more than the panel: the share "of the total shown", every tag (Part of country,
+      // Period ended, the area the analysis covers) and its own notes (../hunger.ts).
+      if (p.family.id === 'food-crises') {
+        const area = areaAt(r.id, year);
+        if (area) areaTags[areaKey(area)] = areaTagHtml(area);
+        if (area) areaWords[areaKey(area)] = area;
+        const note = [tipPlaceNote(r.id), yearNote(p, r.id, year)].filter(Boolean).join(' ');
+        tip[r.id] = { d: share && !y.worldOwn ? p.text.totalOf?.share?.(share) : undefined, t: [...foodTags(r.id, year), ...(area ? [areaKey(area)] : [])].join(' ') || undefined, n: note };
+      }
     });
     // Not reported (src/data/not-reported.ts): hatched like "withheld by source", with the layer's own words for it.
     for (const n of unreportedIn(p, year)) v[n.place] ??= [0, unreported!.label, '', 0, 0];
@@ -242,15 +251,13 @@ function indicatorLayer(p: ViewPage): LayerFile {
     if (p.family.id === 'arms') Object.assign(more, armsBlocks(p.id === 'armsexp5', year, y.rows.map((r) => r.id)));
     if (p.id === 'ictexp') Object.assign(more, ictShares(year, y.rows.map((r) => r.id)));
     if (p.id === 'cyber') Object.assign(more, cyberBlocks(year));
-    const notes = Object.fromEntries(y.rows.flatMap((r) => { const n = yearNote(p, r.id, year); return n ? [[r.id, n]] : []; }));
+    // The panel's notes for the year; on the food crises views as on main, the tooltip's are in `tip`.
+    const notes = Object.fromEntries(y.rows.flatMap((r) => { const n = p.family.id === 'food-crises' ? panelNote(r.id, year) : yearNote(p, r.id, year); return n ? [[r.id, n]] : []; }));
     // Food crises: the analysis behind each figure, its period and whether it is an assessment or a projection.
     const periods = p.family.id === 'food-crises' ? Object.fromEntries(y.rows.flatMap((r) => { const t = periodAt(r.id, year); return t ? [[r.id, t]] : []; })) : {};
-    return { year, ...(p.text.period ? { label: p.text.period(year) } : {}), legend: legendOf(p, year), v, order: y.rows.map((r) => r.id), blocs: bl, ...(Object.keys(more).length ? { more } : {}), ...(Object.keys(notes).length ? { notes } : {}), ...(Object.keys(periods).length ? { periods } : {}) };
+    return { year, ...(p.text.period ? { label: p.text.period(year) } : {}), legend: legendOf(p, year), v, order: y.rows.map((r) => r.id), blocs: bl, ...(Object.keys(more).length ? { more } : {}), ...(Object.keys(notes).length ? { notes } : {}), ...(Object.keys(periods).length ? { periods } : {}), ...(Object.keys(tip).length ? { tip } : {}) };
   });
   const notes = { ...c.notes };
-  // Food crises: the label on each figure says what an analysis covered, so the general note on what other sources
-  // count for Palestine ("West Bank and Gaza") would mislead here.
-  if (p.family.id === 'food-crises') delete notes.PSE;
   for (const id of new Set(p.years.flatMap((yr) => p.byYear[yr].rows.map((r) => r.id)))) {
     const n = placeNote(p, id);
     if (n) notes[id] = notes[id] ? `${notes[id]} ${n}` : n;
@@ -265,13 +272,10 @@ function indicatorLayer(p: ViewPage): LayerFile {
       rank: W.rank(0, 1).replace('0', '{rank}').replace('1', '{of}'),
       detailLabel: p.layer.sums ? PT.share : undefined, rankLabel: PT.rank, rankOf: PT.rankOf, statusLabel: PT.status,
       trend: PT.figureTrend(p.text.figureLabel), trendCaption: PT.trendCaption, ranking: PT.ranking,
-      ...(p.family.id === 'food-crises' ? { breakNote: HUNGER_TEXT.coverageBreak, periodLabel: HUNGER_TEXT.analysis } : {}),
-      ...(p.text.worldHeading ? { world: p.text.worldHeading } : {}),
       ...(p.text.barsLabel ? { bars: `${p.text.barsLabel}, {year}` } : {}),
     },
     tags: { ...c.tags, ...areaTags }, names: c.names, hrefs: c.hrefs, slugs: c.slugs, notes, blocs: c.blocs, data,
     ...(p.family.id === 'food-crises' ? { tagWords: { ended: STATUS_TEXT.ended, ...areaWords } } : {}),
-    ...(p.family.id === 'food-crises' ? { breaks: foodBreaks(p), tagRows: true } : {}),
     series: seriesOf(p.years.map((year) => Object.fromEntries(p.byYear[year].rows.map((r) => [r.id, r.value])))),
     format: p.format, more: p.family.id === 'space' ? withSpace(viewMore(p)) : p.family.id === 'sanctions' ? withSanctions(viewMore(p), p.id) : p.id === 'outages' ? withOutages(viewMore(p)) : p.id === 'exchanges' ? withExchanges(viewMore(p)) : p.family.id === 'chinese-lending' ? withLending(viewMore(p), p.id) : p.family.id === 'electricity' ? withMix(viewMore(p), p) : p.family.id === 'food-crises' ? withPhases(viewMore(p)) : CHIP_LAYERS[p.id] ? withSuppliers(viewMore(p), p) : viewMore(p),
     ...(p.id === 'launches' ? { overlays: [launchSites(p)] } : p.id === 'exchanges' ? { overlays: [exchangeMarks()] } : p.id === 'aicompute' ? { overlays: [aiClusters(p)] } : p.id === 'waterstress' ? { overlays: [damMarks()] } : p.family.id === 'arms' ? { overlays: [armsArcs(p)] } : p.id === 'cyber' ? { overlays: [cyberArcs(p)] } : CHIP_LAYERS[p.id] ? { overlays: [chipArcs(p)] } : {}),
@@ -299,17 +303,6 @@ function withSpace(more: Record<string, PanelBlock[]>): Record<string, PanelBloc
 
 /** Arms: for each place, its main partners over the period and, for importers, its suppliers by group (now and, when
  * the data reaches back far enough, in the period before). */
-/** Food crises: where each place's trend line does not join, as indexes into the layer's years: a figure from an analysis
- *  of another population than the year before's (../hunger.ts). */
-function foodBreaks(p: ViewPage): Record<string, number[]> {
-  const out: Record<string, number[]> = {};
-  p.years.forEach((year, i) => {
-    if (i === 0) return;
-    for (const r of p.byYear[year].rows) if (coverageChangedAt(r.id, year, p.years[i - 1])) (out[r.id] ??= []).push(i);
-  });
-  return out;
-}
-
 /** Food crises: each country's latest IPC or Cadre Harmonisé analysis, people by phase, after its other blocks. */
 function withPhases(more: Record<string, PanelBlock[]>): Record<string, PanelBlock[]> {
   const H = HUNGER_TEXT;
@@ -317,11 +310,8 @@ function withPhases(more: Record<string, PanelBlock[]>): Record<string, PanelBlo
   for (const [id, a] of latestAnalyses()) {
     const f = (v: number) => formatValue(v, { kind: 'count' });
     out[id] = [...(out[id] ?? []), {
-      label: H.latest, caption: `${H.latestCaption(a.system, a.period, monthSpan(a.from, a.to), f(a.analysed), isPartial(a) ? f(a.population!) : null)}${areaLabel(a) ? ` ${areaLabel(a)}.` : ''}`,
+      label: H.latest, caption: H.latestCaption(a.system, a.period, monthSpan(a.from, a.to), f(a.analysed), isPartial(a) ? f(a.population!) : null),
       rows: ([5, 4, 3, 2, 1] as const).map((k) => ({ name: H.phase[k], value: f(a.phases[k - 1]), note: a.analysed ? formatValue(a.phases[k - 1] / a.analysed, { kind: 'share' }) : undefined })),
-      more: H.phase5Note,
-      // Its own credit: Cadre Harmonisé's analyses are named as such.
-      source: creditFor(a),
     }];
   }
   return out;

@@ -153,7 +153,7 @@ const cyber = p.id === 'cyber' ? cyberData() : null;
 // A state's incidents in its own country are not a pair between countries, so they stay in the panel only.
 const attributions = cyber ? cyberPairs(cyber, p.year).filter((x) => !ownState(x)).slice(0, 20) : [];
 const spaceDate = spaceAsOf() ? formatDate(spaceAsOf()!) : '';
-const bars = (rs: Row[], max: number, yr: number) => rs.map((r) => ({ id: r.id, text: valueText(p, r.value), w: max ? (100 * Math.abs(r.value)) / max : 0, labels: labelsOf(r.id, yr) }));
+const bars = (rs: Row[], max: number) => rs.map((r) => ({ id: r.id, text: valueText(p, r.value), w: max ? (100 * Math.abs(r.value)) / max : 0 }));
 ---
 <Page title={T.title} description={T.description(p.year)} hub={p.family.hub} container="mv" image={route(key(p.id))!.image}
   jsonld={[breadcrumbs(crumbs.map((c) => ({ label: c.label, href: c.href })))]}>
@@ -174,7 +174,7 @@ const bars = (rs: Row[], max: number, yr: number) => rs.map((r) => ({ id: r.id, 
     legend={{ title: legendOf(p, p.year), scale: p.layer.scale, ticks: p.ticks, ends: T.ends, none: T.none ?? fam.none ?? W.noData, ...(food ? { partial: HG.partialLegend } : {}), ...(unreportedIn(p, p.year).length ? { withheld: unreportedLabel } : {}), ...(p.id === 'launches' ? { marks: [{ symbol: 'hollow', label: SP.sitesMark }] } : p.id === 'exchanges' ? { marks: [{ symbol: 'hollow', label: EX.mark }] } : p.id === 'aicompute' ? { marks: [{ symbol: 'hollow', label: AX.mark }] } : p.id === 'waterstress' ? { marks: [{ symbol: 'triangle', label: DX.mark }] } : CHIP_LAYERS[p.id] ? { marks: [{ symbol: 'arc', label: AX.arcs }] } : p.id === 'cyber' ? { marks: [{ symbol: 'arc', label: CX.arcs }] } : {}) }}>
     <div data-panel="world" slot="panel">
       <div class="gt-panel__head">
-        <div class="gt-panel__title"><span class="gt-kicker">{T.title} · <span data-year-text>{when}</span></span><h2 class="gt-h3">{T.worldHeading ?? MAP_TEXT.world}</h2></div>
+        <div class="gt-panel__title"><span class="gt-kicker">{T.title} · <span data-year-text>{when}</span></span><h2 class="gt-h3">{MAP_TEXT.world}</h2></div>
       </div>
       <div class="gt-panel__body">
         {p.years.map((yr) => {
@@ -182,15 +182,14 @@ const bars = (rs: Row[], max: number, yr: number) => rs.map((r) => ({ id: r.id, 
           const ch = worldChange(p, yr);
           const max = Math.max(...Y.rows.map((r) => Math.abs(r.value)));
           const groups = div
-            ? [{ label: W.importers, items: bars(Y.rows.filter((r) => r.value > 0).slice(0, 5), max, yr) }, { label: W.exporters, items: bars(Y.rows.filter((r) => r.value < 0).reverse().slice(0, 5), max, yr) }]
-            : [{ label: T.barsLabel ?? W.highest, items: bars(Y.rows.slice(0, 8), max, yr) }];
+            ? [{ label: W.importers, items: bars(Y.rows.filter((r) => r.value > 0).slice(0, 5), max) }, { label: W.exporters, items: bars(Y.rows.filter((r) => r.value < 0).reverse().slice(0, 5), max) }]
+            : [{ label: T.barsLabel ?? W.highest, items: bars(Y.rows.slice(0, 8), max) }];
           return (
             <div class="gt-pyear" data-year={yr} hidden={yr !== p.year}>
               {Y.world !== null && T.worldLabel && (
                 <div class="gt-pkf">
                   <span class="gt-pkf__label">{T.worldLabel}</span>
                   <span class="gt-pkf__num">{valueText(p, Y.world)}</span>
-                  {T.totalOf?.caveat && <span class="gt-pkf__meta">{T.totalOf.caveat}</span>}
                   {ch !== null && p.id !== 'co2cum' && (Y.world || p.layer.points) && (
                     <span class="gt-pkf__meta"><span class="gt-kf__change"><Icon name={flat(p, ch) ? 'flat' : ch > 0 ? 'up' : 'down'} />{flat(p, ch) ? W.sameAs(yearText(p, prevOf(p, yr))) : W.change2(changeSize(p, ch), ch > 0, yearText(p, prevOf(p, yr)), valueText(p, p.byYear[prevOf(p, yr)].world!))}</span></span>
                   )}
@@ -201,7 +200,7 @@ const bars = (rs: Row[], max: number, yr: number) => rs.map((r) => ({ id: r.id, 
                   <span class="gt-label">{g.label}</span>
                   <ol class="gt-bars gt-bars--tight" aria-label={`${g.label}, ${T.figureLabel.toLowerCase()}, ${yr}`}>
                     {g.items.map((x) => (
-                      <li><span class="gt-bars__name"><button type="button" data-select={x.id}>{nameOf(x.id)}</button></span><span class="gt-bars__track"><span class="gt-bars__fill" style={`width:${x.w.toFixed(1)}%`}></span></span><span class="gt-bars__val">{x.text}</span>{labelled(x.labels) && <span class="gt-bars__note"><FigureLabels {...x.labels!} /></span>}</li>
+                      <li><span class="gt-bars__name"><button type="button" data-select={x.id}>{nameOf(x.id)}</button></span><span class="gt-bars__track"><span class="gt-bars__fill" style={`width:${x.w.toFixed(1)}%`}></span></span><span class="gt-bars__val">{x.text}</span></li>
                     ))}
                   </ol>
                 </div>
@@ -212,7 +211,7 @@ const bars = (rs: Row[], max: number, yr: number) => rs.map((r) => ({ id: r.id, 
         <div class="gt-blocline" hidden><span class="gt-blocline__key" aria-hidden="true"></span><p></p></div>
         <Notice>
           <p>{T.caveat}</p>
-          <SourceLine source={source} parts={[yearsText]} updated={updated} updatedLabel={updatedLabel} />
+          <SourceLine source={source} parts={[yearsText]} updated={updated} />
         </Notice>
       </div>
     </div>

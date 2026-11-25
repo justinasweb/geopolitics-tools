@@ -23,7 +23,7 @@ export interface LayerText {
   /** The panel's key figure label, when the layer has a world figure. */
   worldLabel?: string;
   /** What the shares are of, where the total is not the world's ("the total for countries reporting"), the table's column
-   *  for them and, where set, its total row, the tooltip's share ("19% of the total shown") and a line under the total. */
+   *  for them and, where set, its total row, the tooltip's share ("19% of the total shown") and a line after the table's caption. */
   totalOf?: { phrase: string; column: string; row?: string; share?: (share: string) => string; caveat?: string };
   /** The one-sentence answer under the title: `top` starts a sentence ("The United States"), `topIn` sits inside one.
    *  `past`: a year before the page's latest, said in the past tense. */
@@ -46,8 +46,6 @@ export interface LayerText {
    *  panel's line with the year. */
   none?: string;
   noneIn?: (year: string) => string;
-  /** The overview panel's heading where "World" would mislead (food crises: the analyses shown, not the world). */
-  worldHeading?: string;
   /** The world panel's label over its bars, for layers that must not read as a ranking ("Highest" otherwise). */
   barsLabel?: string;
 }
@@ -64,7 +62,7 @@ const fossil = 'from fossil fuels and cement';
 /** Aqueduct's top category, said in full wherever a count of countries in it is given. */
 const highestStress = 'in WRI Aqueduct’s highest water-stress category (withdrawals above 80% of renewable supply)';
 const totalCaveat = 'Periods and coverage differ between countries.';
-const hungerCaveat = 'IPC analyses, and those of Cadre Harmonisé, the food security analysis used in West Africa and the Sahel, cover the countries and areas that ask for them, often part of a country, for a few months; each country’s figure is its latest analysis starting in the year. A country with no analysis is shown as such: that does not mean no one there is hungry.';
+const hungerCaveat = 'IPC and Cadre Harmonisé analyses cover the countries and areas that ask for them, often part of a country, for a few months; each country’s figure is its latest analysis starting in the year. A country with no analysis is shown as such: that does not mean no one there is hungry.';
 const chipsCaveat = (what: string) => `Imports of ${what} as the importing countries report them to UN Comtrade, at their value in US dollars. Chips cross borders several times as they are made, tested and packaged, so imports count some chips more than once. Taiwan does not report to Comtrade; its sales show in its partners’ imports.`;
 const power5 = ['Under 20%', '20–40%', '40–60%', '60–80%', '80% or more'];
 const powerCaveat = 'Shares of the electricity generated inside each country, before trade in electricity. A small system can reach a high share with one large plant. Changes are in percentage points.';
@@ -93,9 +91,9 @@ export const VIEW_TEXT: Record<string, FamilyText> = {
     layers: {
       hunger: {
         pick: 'People', title: 'People in food crisis', sub: 'IPC Phase 3 or worse, by country', measure: 'in Phase 3 or worse', figureLabel: 'People in Phase 3 or worse',
-        legend: (y) => `People in food crisis or worse (IPC Phase 3+), latest analysis in ${y}`, worldLabel: 'Total across the analyses shown',
+        legend: (y) => `People in food crisis or worse (IPC Phase 3+), latest analysis in ${y}`, worldLabel: 'Total, countries analysed',
         // Not a world total: each country's latest analysis in the year, for its own months and the people it covered.
-        totalOf: { phrase: 'the total shown', column: 'Share of the total shown', row: 'Total across the analyses shown', share: (s) => `${s} of the total shown`, caveat: totalCaveat }, worldHeading: 'All analyses shown',
+        totalOf: { phrase: 'the total shown', column: 'Share of the total shown', row: 'Total across the analyses shown', share: (s) => `${s} of the total shown`, caveat: totalCaveat },
         lede: ({ top, value, share, top3, year }) => `${top} had the most people in food crisis or worse in its latest analysis of ${year}: ${value}, ${share} of the total shown${top3 ? `; the top three had ${top3}` : ''}.`,
         total: (v, y, ch) => `${v} people were in food crisis or worse across the analyses shown for ${y}${ch ? `, ${ch}` : ''}. ${totalCaveat}`,
         bloc: (b, s, y) => `${todaysMembers(b, { start: true })} had ${s} of them in ${y}.`,

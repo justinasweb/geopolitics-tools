@@ -12,22 +12,23 @@ const KIND: Record<string, string> = { current: 'assessment', projection: 'proje
 const kindOf = (kind: string) => KIND[kind] ?? 'analysis';
 /** "IPC projection for Oct 2026 – Jan 2027", "Cadre Harmonisé assessment for Oct–Dec 2025". */
 const labelOf = (system: string, kind: string, period: string) => `${SYSTEM(system)} ${kindOf(kind)} for ${period}`;
+// The map panel's words for the periods, kept as they were (the panel is unchanged from main).
+const PANEL_PERIOD: Record<string, string> = { current: 'current situation', projection: 'projection', update: 'projection update' };
 
 export const HUNGER_TEXT = {
   months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
   phase: { 1: 'Phase 1, minimal', 2: 'Phase 2, stressed', 3: 'Phase 3, crisis', 4: 'Phase 4, emergency', 5: 'Phase 5, catastrophe' } as Record<1 | 2 | 3 | 4 | 5, string>,
   latest: 'Latest analysis',
-  /** "IPC projection for Oct 2026 – Jan 2027: people by phase, of 8.3 m analysed (of 48 m in the country, by IPC's count)." */
+  /** The map panel's caption on a place's latest analysis, as on main: "IPC projection update, Oct 2026 – Jan 2027:
+   *  people by phase, of 8.3 m analysed (of 48 m in the country, by IPC's count)." */
   latestCaption: (system: string, kind: string, period: string, analysed: string, population: string | null) =>
-    `${labelOf(system, kind, period)}: people by phase, of ${analysed} analysed${population ? ` (of ${population} in the country, by IPC’s count)` : ''}.`,
+    `${SYSTEM(system)} ${PANEL_PERIOD[kind] ?? 'analysis'}, ${period}: people by phase, of ${analysed} analysed${population ? ` (of ${population} in the country, by IPC’s count)` : ''}.`,
   /** An analysis named in full: "IPC projection for Oct 2026 – Jan 2027". */
   label: labelOf,
   /** The same after a figure in a ranked row: "Oct 2026 – Jan 2027 projection". */
   rowPeriod: (kind: string, period: string) => `${period} ${kindOf(kind)}`,
   /** What the analysis does with its people: an assessment estimates them, a projection projects them. */
   verb: (kind: string) => (kindOf(kind) === 'projection' ? 'projected' : 'estimated'),
-  /** The map panel's label for the analysis behind a figure. */
-  analysis: 'Analysis',
   /** Beside a count from an analysis of part of the country. */
   ofAnalysed: (analysed: string) => `(of ${analysed} people analysed)`,
   /** The same beside a figure that has its tags with it. */
@@ -37,6 +38,8 @@ export const HUNGER_TEXT = {
   /** The map's note on such a figure, starting with the place's possessive: "Sudan’s analysis covered 8.3 m of the 48 m
    *  people IPC counts in the country." */
   mapNote: (placeOf: string, analysed: string, population: string) => `${placeOf} analysis covered ${analysed} of the ${population} people IPC counts in the country.`,
+  /** The map panel's note on such a figure, as on main. */
+  panelNote: (analysed: string, population: string) => `The analysis covered ${analysed} people, part of the ${population} IPC counts in the country.`,
   /** Beside every figure from an analysis of an area IPC's list of analyses names ("Palestine (Gaza Strip)"). */
   only: (area: string) => `${area} only`,
   /** In place of a change between two analyses that covered different populations. */

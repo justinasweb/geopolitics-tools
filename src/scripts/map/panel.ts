@@ -14,12 +14,7 @@ const CLOSE = '<svg class="gt-ico" viewBox="0 0 24 24" aria-hidden="true"><path 
 const nameOf = (f: LayerFile, id: string, y?: LayerYear) => y?.names?.[id] ?? f.names[id] ?? id;
 /** A year as the layer says it: the year, or a period's words. */
 const when = (y: LayerYear) => y.label ?? y.year;
-/** A ranking row's tags under it, on layers that ask for them (`tagRows`). */
-const rowTags = (f: LayerFile, y: LayerYear, id: string) => {
-  const s = f.tagRows ? y.v[id]?.[3] : 0;
-  return s ? `<span class="gt-bars__note">${tagsHtml(f, s)}</span>` : '';
-};
-/** An entry's tags as HTML: one, or two separated by a space (Part of country, Period ended). */
+/** An entry's tags as HTML: one key of the file's `tags`, or several separated by spaces. */
 const tagsHtml = (f: LayerFile, s: string) => s.split(' ').map((t) => f.tags[t] ?? '').join(' ');
 /**
  * A tooltip's tags: those the layer says in words (`tagWords`: Period ended, the area an analysis covers) as plain text
@@ -43,13 +38,18 @@ export function tooltipHtml(f: LayerFile, y: LayerYear, id: string | null, fallb
   // Not yet reported: the word, then the last figure and its year.
   else if (e[0] === -1) parts.push(`<span class="gt-tip__val gt-tip__val--word">${esc(e[1])}</span>`, `<span class="tnum">${esc(e[2])}</span>`);
   else {
+    // The tooltip's own detail, tags and notes where the layer gives them (y.tip: food crises), else the panel's.
+    const tip = id ? y.tip?.[id] : undefined;
+    const detail = tip?.d ?? e[2];
+    const tags = tip?.t ?? e[3];
     parts.push(`<span class="gt-tip__val">${esc(e[1])}<small>${esc(f.text.measure)}</small></span>`);
     // A detail that is just the year (a historical series) is not followed by the year again.
-    if (e[2]) parts.push(`<span class="tnum">${esc(e[2])}${e[2] === String(when(y)) ? '' : ` · ${when(y)}`}</span>`);
-    parts.push(...tipTags(f, e[3], id ? y.periods?.[id] : undefined));
+    if (detail) parts.push(`<span class="tnum">${esc(detail)}${detail === String(when(y)) ? '' : ` · ${when(y)}`}</span>`);
+    parts.push(...tipTags(f, tags, id ? y.periods?.[id] : undefined));
   }
-  // The place's note, then this year's own (y.notes).
-  for (const n of id ? [f.notes[id], y.notes?.[id]] : []) if (n) parts.push(`<span class="gt-tip__note">${INFO}${esc(n)}</span>`);
+  // The place's note, then this year's own (y.notes); or the tooltip's own notes.
+  const tipNote = id && e && e[0] > 0 ? y.tip?.[id]?.n : undefined;
+  for (const n of id ? (tipNote !== undefined ? [tipNote] : [f.notes[id], y.notes?.[id]]) : []) if (n) parts.push(`<span class="gt-tip__note">${INFO}${esc(n)}</span>`);
   parts.push(`<span class="gt-tip__src">${esc(f.source)}</span>`);
   if (id) parts.push(`<span class="gt-tip__hint">${esc(touch ? f.text.tapHint : f.text.hint)}</span>`);
   return parts.join('');
@@ -77,33 +77,18 @@ export function sparkHtml(f: LayerFile, id: string, label: string): string {
   const pct = (i: number) => `${(share(i) * 100).toFixed(2)}%`;
   const Y = (v: number) => (hi === lo ? B : B - ((B - T) * (v - lo)) / (hi - lo));
   const lines = grid.map((g) => `<line x1="0" x2="100%" y1="${Y(g).toFixed(1)}" y2="${Y(g).toFixed(1)}" class="gt-spark__grid"/><text x="-6" y="${(Y(g) + 4).toFixed(1)}" text-anchor="end">${esc(gridText[grid.indexOf(g)])}</text>`).join('');
-  // Gaps (years without a figure) break the line, as do figures that do not compare with the one before (f.breaks),
-  // which get a short upright mark between the two.
-  const breaks = f.breaks?.[id] ?? [];
+  // Gaps (years without a figure) break the line.
   let d = '';
-  // A figure joined to neither neighbour is a dot: a stroke of no length with round ends.
-  const joined = (i: number) => i > 0 && !!pts[i] && !!pts[i - 1] && !breaks.includes(i);
-  let dots = '';
-  pts.forEach((p, i) => {
-    if (!p) return;
-    const at = `${(share(p.x) * PW).toFixed(1)},${Y(p.v).toFixed(1)}`;
-    if (joined(i)) d += `L${at}`;
-    else if (joined(i + 1)) d += `M${at}`;
-    else dots += `M${at}h0.01`;
-  });
-  const marks = breaks.filter((i) => pts[i] && pts[i - 1]).map((i) => {
-    const mx = ((share(i - 1) + share(i)) / 2) * PW, my = (Y(pts[i - 1]!.v) + Y(pts[i]!.v)) / 2;
-    return `<path d="M${mx.toFixed(1)},${(my - 6).toFixed(1)}V${(my + 6).toFixed(1)}" class="gt-spark__line"/>`;
-  }).join('');
+  pts.forEach((p, i) => { if (p) d += `${d && pts[i - 1] ? 'L' : 'M'}${(share(p.x) * PW).toFixed(1)},${Y(p.v).toFixed(1)}`; });
   const first = have[0], last = have.at(-1)!;
   const tag = (y: LayerYear) => (y.status ? 'e' : '');
   const caption = fill(f.text.trendCaption ?? '{first} in {from}, {last} in {to}.', { first: fmt(first.v), from: first.year, last: fmt(last.v), to: last.year });
   return `<div class="gt-pblock"><div class="gt-pblock__head"><span class="gt-label">${esc(label)}</span></div>`
     + `<svg class="gt-spark" height="${H}" style="--l:${L}px" role="img" aria-label="${esc(`${label}: ${caption}`)}">${lines}`
-    + `<svg width="100%" height="${H}" viewBox="0 0 ${PW} ${H}" preserveAspectRatio="none" overflow="visible" aria-hidden="true"><path d="${d}" class="gt-spark__line"/>${dots ? `<path d="${dots}" class="gt-spark__line gt-spark__line--dot"/>` : ''}${marks}</svg>`
+    + `<svg width="100%" height="${H}" viewBox="0 0 ${PW} ${H}" preserveAspectRatio="none" overflow="visible" aria-hidden="true"><path d="${d}" class="gt-spark__line"/></svg>`
     + `<circle cx="${pct(last.x)}" cy="${Y(last.v).toFixed(1)}" r="3" class="gt-spark__dot"/>`
     + `<text x="${pct(first.x)}" y="92" text-anchor="start">${first.year}${tag(f.data[first.x])}</text><text x="${pct(last.x)}" y="92" text-anchor="end">${last.year}${tag(f.data[last.x])}</text></svg>`
-    + `<p class="gt-caption gt-pblock__cap">${esc(caption)}${breaks.length && f.text.breakNote ? ` ${esc(f.text.breakNote)}` : ''}</p></div>`;
+    + `<p class="gt-caption gt-pblock__cap">${esc(caption)}</p></div>`;
 }
 
 /** The ranking around a place: the top three, then the place with its neighbours, as bars with the place marked. */
@@ -121,7 +106,7 @@ export function rankingHtml(f: LayerFile, yearIndex: number, id: string, label: 
     const pid = y.order[i];
     const w = max ? (100 * num(pid)) / max : 0;
     rows.push(`<li${pid === id ? ' data-selected="true"' : ''}><span class="gt-bars__name"><span class="gt-bars__rank">${i + 1}</span>${pid === id ? `<span class="gt-bars__sel">${esc(nameOf(f, pid, y))}</span>` : `<button type="button" data-select="${esc(pid)}">${esc(nameOf(f, pid, y))}</button>`}</span>`
-      + `<span class="gt-bars__track"><span class="gt-bars__fill" style="width:${w.toFixed(1)}%"></span></span><span class="gt-bars__val">${esc(y.v[pid]?.[1] ?? '')}</span>${rowTags(f, y, pid)}</li>`);
+      + `<span class="gt-bars__track"><span class="gt-bars__fill" style="width:${w.toFixed(1)}%"></span></span><span class="gt-bars__val">${esc(y.v[pid]?.[1] ?? '')}</span></li>`);
   });
   return `<div class="gt-pblock gt-pgroup"><span class="gt-label">${esc(label)}</span><ol class="gt-bars gt-bars--tight gt-bars--rank" aria-label="${esc(label)}">${rows.join('')}</ol></div>`;
 }
@@ -156,7 +141,7 @@ export interface PanelOptions {
  */
 export function previousHtml(f: LayerFile, yearIndex: number, id: string, title: string, line: string, label: string): string {
   const status = f.data[yearIndex]?.v[id]?.[3] || f.data[yearIndex]?.status;
-  const tag = status ? ` ${tagsHtml(f, status)}` : '';
+  const tag = status ? ` ${f.tags[status]}` : '';
   return `<div class="gt-atprev"><span class="gt-label">${esc(label)}</span><p><b>${esc(title)}:</b> ${esc(line)}${tag}</p>`
     + `<p class="gt-source"><span>${sourceLinksHtml(f.source)}</span></p></div>`;
 }
@@ -179,13 +164,11 @@ export function countryPanelHtml(f: LayerFile, yearIndex: number, id: string, op
   } else {
     const facts: [string, string][] = [[f.text.shareLabel, `<dd>${esc(e[1])}</dd>`]];
     if (e[2] && f.text.detailLabel) facts.push([f.text.detailLabel, `<dd class="gt-panel__dsmall">${esc(e[2])}</dd>`]);
-    if (y.periods?.[id]) facts.push([f.text.periodLabel ?? '', `<dd class="gt-panel__dsmall">${esc(y.periods[id])}</dd>`]);
     if (e[4]) facts.push([f.text.rankLabel ?? '', `<dd>${e[4]} <small>${esc(fill(f.text.rankOf ?? 'of {of}', { of: y.order.length }))}</small></dd>`]);
     const p = prev?.v[id];
-    if (e[3]) facts.push([f.text.statusLabel ?? '', `<dd class="gt-panel__tagdd">${tagsHtml(f, e[3])}</dd>`]);
-    // The year before, labelled with what it measures ("Share of world in 2024"), not the year alone; on layers whose
-    // rows carry tags (food crises) beside them too.
-    if ((!e[3] || f.tagRows) && prev && p) facts.push([fill(f.text.inYear ?? '{label}, {year}', { label: f.text.shareLabel, year: when(prev) }), `<dd class="gt-panel__dsmall">${esc(p[0] === 0 ? f.text.withheld : p[1])}</dd>`]);
+    if (e[3]) facts.push([f.text.statusLabel ?? '', `<dd class="gt-panel__tagdd">${f.tags[e[3]]}</dd>`]);
+    // The year before, labelled with what it measures ("Share of world in 2024"), not the year alone.
+    else if (prev && p) facts.push([fill(f.text.inYear ?? '{label}, {year}', { label: f.text.shareLabel, year: when(prev) }), `<dd class="gt-panel__dsmall">${esc(p[0] === 0 ? f.text.withheld : p[1])}</dd>`]);
     body.push(`<dl class="gt-panel__facts">${facts.map(([dt, dd]) => `<div><dt>${esc(dt)}</dt>${dd}</div>`).join('')}</dl>`);
     if (e[2] && !f.text.detailLabel) body.push(`<p class="gt-ptrend">${esc(e[2])}</p>`);
   }
@@ -219,7 +202,7 @@ export function worldPanelHtml(f: LayerFile, yearIndex: number, o: { hint: strin
   const num = (pid: string) => Math.abs(f.series?.[pid]?.[yearIndex] ?? 0);
   const max = Math.max(0, ...ids.map(num));
   const rows = ids.map((pid, i) => `<li><span class="gt-bars__name">${f.unranked ? '' : `<span class="gt-bars__rank">${i + 1}</span>`}<button type="button" data-select="${esc(pid)}">${esc(nameOf(f, pid, y))}</button></span>`
-    + `<span class="gt-bars__track">${max ? `<span class="gt-bars__fill" style="width:${((100 * num(pid)) / max).toFixed(1)}%"></span>` : ''}</span><span class="gt-bars__val">${esc(y.v[pid]?.[1] ?? '')}</span>${rowTags(f, y, pid)}</li>`).join('');
+    + `<span class="gt-bars__track">${max ? `<span class="gt-bars__fill" style="width:${((100 * num(pid)) / max).toFixed(1)}%"></span>` : ''}</span><span class="gt-bars__val">${esc(y.v[pid]?.[1] ?? '')}</span></li>`).join('');
   const label = fill(f.unranked && f.text.bars ? f.text.bars : o.top, { year: when(y) });
   // Unordered classes (treaty status): how many places are in each, never a "largest" list.
   const cats = f.tally ?? (f.palette === 'cat' && f.categories ? f.categories.map((c) => ({ label: c.label, n: Object.values(y.v).filter((e) => e[0] === c.cls).length })) : null);

@@ -14,10 +14,8 @@ export type Status = 'estimate' | 'projection' | 'preliminary' | 'partial' | 'en
  * Class: 1–5 on a sequential scale, 1–7 on a diverging one; 0 withheld by the source; -1 not yet reported; -2 the
  * layer's `hatch` class (a named class drawn as a pattern).
  * Value is the figure the map shades by ("32%"), detail the absolute figure ("92,000 t"); rank is among places listed.
- * Status is one key of the file's `tags`, or several separated by spaces (an IPC figure from part of a country whose
- * period has ended; "area-…" for the area an analysis covers).
  */
-export type Entry = [cls: number, value: string, detail: string, status: string | 0, rank: number];
+export type Entry = [cls: number, value: string, detail: string, status: Status | 0, rank: number];
 
 export interface LayerYear {
   /** The year, or for a layer over periods (axis "days") the period's length in days. */
@@ -40,8 +38,13 @@ export interface LayerYear {
   more?: Record<string, PanelBlock[]>;
   /** Notes for this year only, by place id, after the layer's own notes (a grid operator's figure beside Ember's). */
   notes?: Record<string, string>;
-  /** What each figure comes from, by place id, under its value (food crises: "Oct 2026 – Jan 2027 projection"). */
+  /** What each figure comes from, by place id, under its value in the tooltip (food crises: "Oct 2026 – Jan 2027
+   *  projection"). */
   periods?: Record<string, string>;
+  /** The tooltip's own words for a place's figure where they differ from the panel's (food crises): its detail, its
+   *  tags (keys of the file's `tags`, separated by spaces: Part of country, Period ended, "area-…") and its notes, in
+   *  place of the layer's and the year's. */
+  tip?: Record<string, { d?: string; t?: string; n?: string }>;
 }
 
 /** A short block in a selected place's panel: a label, optional caption, rows of name and value, a source line. */
@@ -104,8 +107,6 @@ export interface LayerFile {
   ends?: [string, string];
   /** Figures that must not read as a ranking (documented cyber incidents): no rank, no ranking around the place, and
    *  the world panel's bars without numbers. */
-  /** Its rankings repeat each figure's tags under its row (food crises: Part of country, Period ended, the area). */
-  tagRows?: boolean;
   unranked?: boolean;
   /** A caveat every place's panel shows next to its figure, with or without one (documented incidents are not how
    *  often a country is targeted). */
@@ -132,10 +133,6 @@ export interface LayerFile {
     /** The selected place's panel: fact labels, the trend's title ({from}, {to}) and caption ({first}, {from}, {last}, {to}), the ranking's title ({year}). */
     detailLabel?: string; rankLabel?: string; rankOf?: string; statusLabel?: string;
     trend?: string; trendCaption?: string; ranking?: string;
-    /** Under a trend line with a break in it (food crises: the population analysed changed). */
-    breakNote?: string;
-    /** The panel's label for a figure's `periods` entry ("Analysis"). */
-    periodLabel?: string;
     /** The world panel's label over its bars ({year}), for an `unranked` layer, in place of the page's "Largest". */
     bars?: string;
   };
@@ -156,9 +153,6 @@ export interface LayerFile {
    * Each place's figure as a number, one per entry of `data` (null where it has none): the panel's trend line and
    * its bars. Formatted in the browser with `format`.
    */
-  /** Where a place's trend line does not join, by place: indexes into `data` whose figure does not compare with the one
-   *  before (an IPC analysis of another population). */
-  breaks?: Record<string, number[]>;
   series?: Record<string, (number | null)[]>;
   format?: Format;
   /** Blocks for a selected place that stay the same in every year (its other measures, its other minerals). */

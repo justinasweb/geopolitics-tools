@@ -30,8 +30,6 @@
 .gt-spark__grid { stroke: var(--rule); stroke-width: 1; }
 .gt-spark__line { fill: none; stroke: var(--brand); stroke-width: 2; vector-effect: non-scaling-stroke; }
 .gt-spark__dot { fill: var(--brand); }
-/* A figure joined to neither neighbour (breaks either side): a round dot. */
-.gt-spark__line--dot { stroke-linecap: round; stroke-width: 4; }
 .gt-prows { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; font: 400 14px/20px var(--sans); }
 .gt-prows li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: baseline; padding: 5px 0; border-bottom: 1px solid var(--rule); }
 .gt-prows li:last-child { border-bottom: 0; }

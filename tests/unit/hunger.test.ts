@@ -154,14 +154,12 @@ describe('food crisis tags', () => {
     for (const y of p.years.slice(1)) for (const r of p.byYear[y].rows) {
       if (!V.coverageBreak(p, r.id, y)) continue;
       expect(V.yearNote(p, r.id, y)).toContain(`Coverage changed from ${y - 1}`);
-      expect(L.layerFile('food-crises-hunger').breaks?.[r.id]).toContain(p.years.indexOf(y));
     }
   });
 
-  it('draw partial analyses with lines the legend names, and repeat tags under ranking rows', () => {
+  it('draw partial analyses with lines the legend names', () => {
     const f = L.layerFile('food-crises-hunger');
     expect(f.missing.partial).toBe('Analysis of part of the country');
-    expect(f.tagRows).toBe(true);
     for (const [id, a] of H.latestAnalyses()) if (isPartial(a)) expect(H.ofAnalysedAt(id, Number(a.from.slice(0, 4)))).toMatch(/^of .+ people analysed$/);
   });
 
@@ -175,9 +173,27 @@ describe('food crisis tags', () => {
     expect(H.analysisNote(parseIpc([an(3, 'Oct 2026', 300, { population: 1000 })])[0])).toBeNull();
   });
 
-  it('put the same tags on the map as beside the figure elsewhere', () => {
+  it('put the same tags in the tooltip as beside the figure elsewhere, and only Part of country in the panel, as on main', () => {
     const f = L.layerFile('food-crises-hunger');
     const i = f.years.indexOf(f.year);
-    for (const [id, e] of Object.entries(f.data[i].v)) expect(e[3] || '').toBe(H.foodTags(id, f.year).join(' '));
+    for (const [id, e] of Object.entries(f.data[i].v)) {
+      const tags = H.foodTags(id, f.year);
+      expect(e[3]).toBe(tags.includes('partial') ? 'partial' : 0);
+      expect((f.data[i].tip?.[id]?.t ?? '').split(' ').filter((t) => !t.startsWith('area-')).join(' ')).toBe(tags.join(' '));
+      expect(f.data[i].notes?.[id] ?? null).toBe(H.panelNote(id, f.year));
+    }
+  });
+
+  it('keep the panel as on main: no periods, area labels or coverage notes there, all of them in the tooltip', async () => {
+    const { countryPanelHtml, tooltipHtml } = await import('../../src/scripts/map/panel.ts');
+    const f = L.layerFile('food-crises-hunger');
+    const i = f.years.indexOf(f.year);
+    for (const id of Object.keys(f.data[i].v)) {
+      const panel = countryPanelHtml(f, i, id);
+      const tip = tooltipHtml(f, f.data[i], id, id);
+      if (f.data[i].periods?.[id]) { expect(tip).toContain(f.data[i].periods![id]); expect(panel).not.toContain(f.data[i].periods![id]); }
+      expect(panel).not.toMatch(/Period ended|Coverage changed| only<|of the total shown|IPC counts in the country\. These figures/);
+      if (H.foodTags(id, f.year).includes('ended')) expect(tip).toContain('Period ended');
+    }
   });
 });
