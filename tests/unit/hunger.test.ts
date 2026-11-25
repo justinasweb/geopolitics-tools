@@ -117,6 +117,11 @@ describe('country pages', () => {
     expect(f.ended).toBe(H.isEnded(f.analysis));
     expect(C.countryModel('FRA')?.blocks.food).toBeUndefined();
   });
+
+  it('say on a place IPC has not analysed that there is no analysis, rather than nothing', () => {
+    expect(C.countryModel('FRA')?.blocks.foodNone).toBe(true);
+    expect(C.countryModel('SDN')?.blocks.foodNone).toBeUndefined();
+  });
 });
 
 describe('food crisis tags', () => {

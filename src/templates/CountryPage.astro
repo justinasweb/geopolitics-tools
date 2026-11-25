@@ -121,7 +121,7 @@ const people = d.people;
 const co2Stat = d.climate?.stats.find((f) => f.id === 'co2');
 // CO2 per person sits in Climate when that section shows it, so More figures leaves it out.
 const emissions = d.climate?.stats.some((f) => f.id === 'co2pc') ? undefined : blocks.emissions;
-const hasBlocks = Boolean(blocks.refugees || blocks.food || blocks.disasters || emissions || blocks.sanctions || blocks.lending || blocks.nuclear || blocks.cyber);
+const hasBlocks = Boolean(blocks.refugees || blocks.food || blocks.foodNone || blocks.disasters || emissions || blocks.sanctions || blocks.lending || blocks.nuclear || blocks.cyber);
 const pop = m.allFigures.find((f) => f.id === 'population');
 // The age pyramid: one drawing per five-year step on one shared scale, so moving the slider shows the shape change.
 const pyr = people?.pyramid ?? null;
@@ -382,6 +382,14 @@ const citation = COUNTRY_TEXT.citation(name, kind, url, Number(m.updated.slice(0
                   {isPartial(fa) && <p class="gt-caption">{HUNGER_TEXT.blockPart(foodCount(fa.analysed), foodCount(fa.population!))} <StatusTag status="partial" small /></p>}
                   {foodLink && <p class="gt-caption"><a href={`${foodLink.path}?country=${m.place.slug}`}>{HUNGER_TEXT.blockLink}</a></p>}
                   <SourceLine source={creditFor(fa)} parts={[HUNGER_TEXT.sourcePart(fa.period, monthSpan(fa.from, fa.to))]} updated={refreshed('ipc')} updatedLabel={HUNGER_TEXT.lastFetched} status={fa.period === 'current' ? undefined : 'projection'} />
+                </article>
+              )}
+              {blocks.foodNone && (
+                <article class="gt-cpblock">
+                  <h3 class="gt-h3">{HUNGER_TEXT.block}</h3>
+                  <p class="gt-caption">{HUNGER_TEXT.blockNone(inSentence(name))}</p>
+                  {foodLink && <p class="gt-caption"><a href={foodLink.path}>{HUNGER_TEXT.blockLink}</a></p>}
+                  <SourceLine source={sourceName('ipc')} updated={refreshed('ipc')} updatedLabel={HUNGER_TEXT.lastFetched} />
                 </article>
               )}
               {blocks.disasters && (

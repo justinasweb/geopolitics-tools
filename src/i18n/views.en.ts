@@ -64,7 +64,7 @@ const fossil = 'from fossil fuels and cement';
 /** Aqueduct's top category, said in full wherever a count of countries in it is given. */
 const highestStress = 'in WRI Aqueduct’s highest water-stress category (withdrawals above 80% of renewable supply)';
 const totalCaveat = 'Periods and coverage differ between countries.';
-const hungerCaveat = 'IPC and Cadre Harmonisé analyses cover the countries and areas that ask for them, often part of a country, for a few months; each country’s figure is its latest analysis starting in the year. A country with no analysis is shown as such: that does not mean no one there is hungry.';
+const hungerCaveat = 'IPC analyses, and those of Cadre Harmonisé, the food security analysis used in West Africa and the Sahel, cover the countries and areas that ask for them, often part of a country, for a few months; each country’s figure is its latest analysis starting in the year. A country with no analysis is shown as such: that does not mean no one there is hungry.';
 const chipsCaveat = (what: string) => `Imports of ${what} as the importing countries report them to UN Comtrade, at their value in US dollars. Chips cross borders several times as they are made, tested and packaged, so imports count some chips more than once. Taiwan does not report to Comtrade; its sales show in its partners’ imports.`;
 const power5 = ['Under 20%', '20–40%', '40–60%', '60–80%', '80% or more'];
 const powerCaveat = 'Shares of the electricity generated inside each country, before trade in electricity. A small system can reach a high share with one large plant. Changes are in percentage points.';

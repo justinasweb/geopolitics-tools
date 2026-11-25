@@ -388,6 +388,9 @@ other sources' "West Bank and Gaza". The page lists countries whose
 analysis in force on the snapshot's day counts people in Phase 5, which counts people in catastrophe, not famine (an
 area classification this endpoint does not give). Country pages have a Food crisis block for every place IPC has
 analysed: the same analysis the maps show, tagged "Period ended" when its period ended before the snapshot's day.
+A country page with no analysis in IPC's data says so in a short Food crisis block ("IPC and Cadre Harmonisé have
+no analysis for India. These pages cover only places with an analysis."), and the views' caveat says once what Cadre
+Harmonisé is (the food security analysis used in West Africa and the Sahel).
 Analyses are named one way everywhere (src/i18n/hunger.en.ts): "IPC projection for Oct 2026 – Jan 2027", "Cadre
 Harmonisé assessment for Oct–Dec 2025"; IPC's current period is an assessment ("estimated") and its projection and
 second projection are projections ("projected"); nothing says "revised", which the API does not mark. Each ranked row

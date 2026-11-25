@@ -64,6 +64,8 @@ export const HUNGER_TEXT = {
   /** The latest analysis is for a period that has not begun. */
   blockAhead: (month: string) => `Its period begins in ${month}.`,
   blockLink: 'Food crises map',
+  /** A place IPC's data has no analysis of. */
+  blockNone: (place: string) => `IPC and Cadre Harmonisé have no analysis for ${place}. These pages cover only places with an analysis.`,
   /** The source line's period part: "Covers Oct 2026 – Jan 2027 (projection)". */
   sourcePart: (kind: string, period: string) => `Covers ${period} (${kindOf(kind)})`,
   /** A view's or indicator page's period part: its figures are each country's latest analysis starting in the year. */
