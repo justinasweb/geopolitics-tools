@@ -1,6 +1,7 @@
 // The extras on the food crises views and country pages, from the IPC analyses (../adapters/ipc.ts): each country's
 // latest analysis, people by phase, and the countries with people in Phase 5 (catastrophe) in the analyses in force.
 import { ipc, isPartial, latestByYear, latestOf, type Analysis } from '../adapters/ipc.ts';
+import type { Status } from './tags.ts';
 import { formatValue } from './format.ts';
 import { data, shared } from './data.ts';
 import { HUNGER_TEXT } from '../i18n/hunger.en.ts';
@@ -10,14 +11,30 @@ const analyses = shared(ipc);
 /** The day "in force" is counted on: the snapshot's. */
 export const ipcDay = () => data().snapshot.created.slice(0, 10);
 
+const latest = shared(() => latestOf(analyses() ?? []));
 /** Each place's latest analysis, by the start of its period. */
-export const latestAnalyses = (): Map<string, Analysis> => latestOf(analyses() ?? []);
+export const latestAnalyses = (): Map<string, Analysis> => latest() ?? new Map();
 
 /** Each place's latest analysis valid on the snapshot's day. */
 export const analysesInForce = (): Map<string, Analysis> => latestOf(analyses() ?? [], ipcDay());
 
+const byYear = shared(() => latestByYear(analyses() ?? []));
 /** The analysis behind a place's figure in a year on the maps: the latest starting in that year. */
-export const analysisIn = (id: string, year: number): Analysis | undefined => latestByYear(analyses() ?? [])[id]?.[year];
+export const analysisIn = (id: string, year: number): Analysis | undefined => byYear()?.[id]?.[year];
+
+/** The analysis's period ended before the snapshot's day (its last month is before the day's). */
+export const isEnded = (a: Analysis, day = ipcDay()) => a.to < day.slice(0, 7);
+
+/**
+ * A food crisis figure's tags, wherever it is shown (maps, tables, indicator and country pages): Part of country when
+ * the analysis covered part of it, and Period ended when it is the place's latest analysis and no longer in force, so
+ * a figure the source has not replaced never reads as current. Earlier years' figures are past by their year.
+ */
+export function foodTags(id: string, year: number): Status[] {
+  const a = analysisIn(id, year);
+  if (!a) return [];
+  return [...(isPartial(a) ? ['partial' as const] : []), ...(latestAnalyses().get(id) === a && isEnded(a) ? ['ended' as const] : [])];
+}
 
 const people = (v: number) => formatValue(v, { kind: 'count' });
 /** "(of 8.3 m people analysed)" beside a count from an analysis of part of the country; empty otherwise. */

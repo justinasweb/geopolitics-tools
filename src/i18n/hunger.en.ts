@@ -33,9 +33,10 @@ export const HUNGER_TEXT = {
     `people in ${SYSTEM(system)} Phase 3 (crisis) or worse, ${period} (${PERIOD[kind] ?? 'analysis'}): ${share} of the ${analysed} analysed`,
   blockPart: (analysed: string, population: string) => `The analysis covered ${analysed} of the ${population} people IPC counts in the country.`,
   blockPhase5: (x: number, analysed: string | null) => `${n(x)} of them in Phase 5 (catastrophe)${analysed ? `, of ${analysed} people analysed` : ''}.`,
-  /** The latest analysis is no longer in force: said in the past, with its period. */
-  blockOld: (day: string, period: string, crisis: string, analysed: string) =>
-    `No IPC or Cadre Harmonisé analysis is in force on ${day}. The latest, for ${period}, counted ${crisis} people in Phase 3 or worse of ${analysed} analysed.`,
+  /** The latest analysis is no longer in force: its figure is still the one the maps show, tagged Period ended. */
+  blockOld: (day: string) => `Its period has ended, and no newer IPC or Cadre Harmonisé analysis is in force on ${day}.`,
+  /** The latest analysis is for a period that has not begun. */
+  blockAhead: (month: string) => `Its period begins in ${month}.`,
   blockLink: 'Food crises map',
   /** The source line's period part. */
   sourcePart: (kind: string, period: string) => `${period}, ${PERIOD[kind] ?? 'analysis'}`,

@@ -8,6 +8,8 @@ import { formatValue } from './format.ts';
 import { place } from './places.ts';
 import { ANSWER, DEFAULT_VERB, INDICATOR_PAGE, inSentence } from '../i18n/pages.en.ts';
 import { tagged } from '../i18n/en.ts';
+import { foodTags } from './hunger.ts';
+import type { Status } from './tags.ts';
 import { counts, defaultYear, median, preliminaryYears, ranked, ranking, type Row } from './stats.ts';
 
 /** Fewer reporting places than this in the common year, and the page is built but not indexed. */
@@ -57,6 +59,14 @@ export function indicatorModel(id: string): IndicatorModel | null {
   }
   cache.set(id, out);
   return out;
+}
+
+/** A figure's tags where it is shown beside its value: the registry's one (statusAt), or for the food crisis measures
+ *  their own from the analysis behind them (./hunger.ts: Part of country, Period ended). */
+export function tagsAt(ind: Indicator, id: string, year: number): Status[] {
+  if (ind.source === 'ipc') return foodTags(id, year);
+  const s = statusAt(ind, id, year);
+  return s ? [s] : [];
 }
 
 /** A figure's tag, as the CSV gives it: an estimate or projection (statusAt), else preliminary in the source's preliminary years. */

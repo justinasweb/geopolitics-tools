@@ -7,15 +7,18 @@ type Views = typeof import('../../src/lib/views.ts');
 type Layers = typeof import('../../src/lib/map/layers.ts');
 type Routes = typeof import('../../src/lib/routes.ts');
 type Country = typeof import('../../src/lib/country.ts');
+type Hunger = typeof import('../../src/lib/hunger.ts');
 let V: Views;
 let C: Country;
 let L: Layers;
 let R: Routes;
+let H: Hunger;
 beforeAll(async () => {
   V = await import('../../src/lib/views.ts');
   L = await import('../../src/lib/map/layers.ts');
   R = await import('../../src/lib/routes.ts');
   C = await import('../../src/lib/country.ts');
+  H = await import('../../src/lib/hunger.ts');
 });
 
 // One analysis in the IPC API's format: months as "Oct 2025", people by phase in `phases`.
@@ -85,10 +88,42 @@ describe('food crises views', () => {
 });
 
 describe('country pages', () => {
-  it('give a place IPC has analysed its latest analysis, in force or not, and no block to others', () => {
+  it('give a place IPC has analysed the analysis the maps show, ended or not, and no block to others', () => {
     const f = C.countryModel('SDN')!.blocks.food!;
-    expect(f.analysis.place).toBe('SDN');
-    expect(typeof f.inForce).toBe('boolean');
+    expect(f.analysis).toBe(H.latestAnalyses().get('SDN'));
+    expect(f.ended).toBe(H.isEnded(f.analysis));
     expect(C.countryModel('FRA')?.blocks.food).toBeUndefined();
+  });
+});
+
+describe('food crisis tags', () => {
+  it('say Period ended and the area in plain words in the tooltip, never as a tag its dark ground would hide', async () => {
+    const { tooltipHtml } = await import('../../src/scripts/map/panel.ts');
+    const f = L.layerFile('food-crises-hunger');
+    f.data.forEach((y, i) => {
+      for (const id of Object.keys(y.v)) {
+        const html = tooltipHtml(f, y, id, id);
+        expect(html).not.toMatch(/gt-tag--(ended|area)/);
+        expect(html).not.toMatch(/<span[^>]*>\s*<\/span>/);
+        if (H.foodTags(id, f.years[i]).includes('ended')) expect(html).toMatch(/<span>[^<]*Period ended<\/span>/);
+      }
+    });
+  });
+
+  it('tag a place’s latest figure Period ended when its period ended before the snapshot’s day, and no earlier one', () => {
+    const [a] = parseIpc([an(1, 'Jun 2026', 300, { to: 'Aug 2026' })]);
+    expect([H.isEnded(a, '2026-08-31'), H.isEnded(a, '2026-09-01')]).toEqual([false, true]);
+    for (const [id, a] of H.latestAnalyses()) {
+      const year = Number(a.from.slice(0, 4));
+      expect(H.foodTags(id, year).includes('ended')).toBe(H.isEnded(a));
+      expect(H.foodTags(id, year).includes('partial')).toBe(isPartial(a));
+      for (const y of [year - 1, year - 2]) expect(H.foodTags(id, y)).not.toContain('ended');
+    }
+  });
+
+  it('put the same tags on the map as beside the figure elsewhere', () => {
+    const f = L.layerFile('food-crises-hunger');
+    const i = f.years.indexOf(f.year);
+    for (const [id, e] of Object.entries(f.data[i].v)) expect(e[3] || '').toBe(H.foodTags(id, f.year).join(' '));
   });
 });

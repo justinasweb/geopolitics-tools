@@ -2,6 +2,7 @@
 // /map/<id>.json at build time. A map view page loads its layer file; the Atlas (src/lib/atlas.ts) lists the same
 // registry. Each layer says which view it belongs to, so the Atlas panel can link to "See full page".
 import { MAP_TEXT, BLOC_TEXT, PANEL_TEXT as PT } from '../../i18n/map.en.ts';
+import { STATUS_TEXT } from '../../i18n/en.ts';
 import { tagHtml } from '../tags.ts';
 import { BLOCS_CHECKED, blocs } from '../blocs.ts';
 import { blocPage, blocPages, blocsOf, countClass as blocCountClass, measureYear, membershipCounts, weightIn } from '../blocview.ts';
@@ -13,7 +14,6 @@ import { countryHref, live } from '../routes.ts';
 import { amount, listed, mineralPages, shareClass, withheld, nameOf, type MineralPage } from '../minerals.ts';
 import { list, inSentence } from '../../i18n/pages.en.ts';
 import { EXCHANGE_TEXT, ICT_TEXT, OUTAGE_TEXT, PARTS_TEXT as PX, VIEW_TEXT, VIEWS_TEXT } from '../../i18n/views.en.ts';
-import { statusAt } from '../../data/indicators.ts';
 import { classFor, creditOf, familyPages, legendOf, partsOf, yearNote, placeNote, shareOf, unreportedIn, unreportedText, valueText, viewPages, type ViewPage } from '../views.ts';
 import { creditName, data, indicator, shared } from '../data.ts';
 import { loadFlows } from '../../data/flows.ts';
@@ -46,7 +46,7 @@ import { CYBER_TEXT } from '../../i18n/cyber.en.ts';
 import { groupsOf, mixOf } from '../electricity.ts';
 import { cells, conflictPage, deathClass, VIOLENCE } from '../conflict.ts';
 import { CONFLICT_TEXT, monthText } from '../../i18n/conflict.en.ts';
-import { latestAnalyses, monthSpan } from '../hunger.ts';
+import { foodTags, latestAnalyses, monthSpan } from '../hunger.ts';
 import { isPartial } from '../../adapters/ipc.ts';
 import { HUNGER_TEXT } from '../../i18n/hunger.en.ts';
 import { POWER_TEXT } from '../../i18n/electricity.en.ts';
@@ -99,7 +99,7 @@ function common(): Pick<LayerFile, 'tags' | 'names' | 'hrefs' | 'slugs' | 'notes
   const bl: LayerFile['blocs'] = {};
   for (const [id, members] of blocs()) bl[id] = { name: BLOC_TEXT[id] ?? id, members };
   return {
-    tags: { estimate: tagHtml('estimate'), projection: tagHtml('projection'), preliminary: tagHtml('preliminary'), partial: tagHtml('partial') },
+    tags: { estimate: tagHtml('estimate'), projection: tagHtml('projection'), preliminary: tagHtml('preliminary'), partial: tagHtml('partial'), ended: tagHtml('ended') },
     names, hrefs, slugs, notes, blocs: bl,
     words: {
       world: MAP_TEXT.world, close: MAP_TEXT.close, countryPage: MAP_TEXT.countryPage, inTable: MAP_TEXT.inTable,
@@ -207,9 +207,9 @@ function indicatorLayer(p: ViewPage): LayerFile {
     y.rows.forEach((r, i) => {
       const share = p.layer.sums ? shareOf(r.value, y.world) : null;
       // No rank on a neutral layer (documented cyber incidents): the panel shows no "3 of 120".
-      // Partial (IPC analyses of some areas) is the one per-place status these views tag on the map.
-      const partial = statusAt(p.loaded.indicator, r.id, year) === 'partial' ? 'partial' : 0;
-      v[r.id] = [classFor(p, r.value), valueText(p, r.value), share ? (y.worldOwn ? W.ofWorld(share) : W.ofTotal(share)) : '', partial, p.layer.neutral ? 0 : i + 1];
+      // The food crisis figures are the ones these views tag on the map: Part of country, Period ended (../hunger.ts).
+      const tags = p.family.id === 'food-crises' ? foodTags(r.id, year).join(' ') as Entry[3] : 0;
+      v[r.id] = [classFor(p, r.value), valueText(p, r.value), share ? (y.worldOwn ? W.ofWorld(share) : W.ofTotal(share)) : '', tags || 0, p.layer.neutral ? 0 : i + 1];
     });
     // Not reported (src/data/not-reported.ts): hatched like "withheld by source", with the layer's own words for it.
     for (const n of unreportedIn(p, year)) v[n.place] ??= [0, unreported!.label, '', 0, 0];
@@ -255,6 +255,7 @@ function indicatorLayer(p: ViewPage): LayerFile {
       ...(p.text.barsLabel ? { bars: `${p.text.barsLabel}, {year}` } : {}),
     },
     tags: c.tags, names: c.names, hrefs: c.hrefs, slugs: c.slugs, notes, blocs: c.blocs, data,
+    ...(p.family.id === 'food-crises' ? { tagWords: { ended: STATUS_TEXT.ended } } : {}),
     series: seriesOf(p.years.map((year) => Object.fromEntries(p.byYear[year].rows.map((r) => [r.id, r.value])))),
     format: p.format, more: p.family.id === 'space' ? withSpace(viewMore(p)) : p.family.id === 'sanctions' ? withSanctions(viewMore(p), p.id) : p.id === 'outages' ? withOutages(viewMore(p)) : p.id === 'exchanges' ? withExchanges(viewMore(p)) : p.family.id === 'chinese-lending' ? withLending(viewMore(p), p.id) : p.family.id === 'electricity' ? withMix(viewMore(p), p) : p.family.id === 'food-crises' ? withPhases(viewMore(p)) : CHIP_LAYERS[p.id] ? withSuppliers(viewMore(p), p) : viewMore(p),
     ...(p.id === 'launches' ? { overlays: [launchSites(p)] } : p.id === 'exchanges' ? { overlays: [exchangeMarks()] } : p.id === 'aicompute' ? { overlays: [aiClusters(p)] } : p.id === 'waterstress' ? { overlays: [damMarks()] } : p.family.id === 'arms' ? { overlays: [armsArcs(p)] } : p.id === 'cyber' ? { overlays: [cyberArcs(p)] } : CHIP_LAYERS[p.id] ? { overlays: [chipArcs(p)] } : {}),

@@ -7,15 +7,16 @@
 
 import type { Format } from '../../data/indicators.ts';
 
-export type Status = 'estimate' | 'projection' | 'preliminary' | 'partial';
+export type Status = 'estimate' | 'projection' | 'preliminary' | 'partial' | 'ended';
 
 /**
  * One place's entry for a year: [class, value, detail, status, rank].
  * Class: 1–5 on a sequential scale, 1–7 on a diverging one; 0 withheld by the source; -1 not yet reported; -2 the
  * layer's `hatch` class (a named class drawn as a pattern).
  * Value is the figure the map shades by ("32%"), detail the absolute figure ("92,000 t"); rank is among places listed.
+ * Status is one tag, or two separated by a space (an IPC figure from part of a country whose period has ended).
  */
-export type Entry = [cls: number, value: string, detail: string, status: Status | 0, rank: number];
+export type Entry = [cls: number, value: string, detail: string, status: Status | `${Status} ${Status}` | 0, rank: number];
 
 export interface LayerYear {
   /** The year, or for a layer over periods (axis "days") the period's length in days. */
@@ -130,6 +131,8 @@ export interface LayerFile {
   };
   /** Status tags as HTML (their glyph and word). */
   tags: Record<Status, string>;
+  /** Tags the tooltip says in plain words, by key (food crises: "Period ended", the area an analysis covers). */
+  tagWords?: Record<string, string>;
   names: Record<string, string>;
   /** Country pages that exist. */
   hrefs: Record<string, string>;

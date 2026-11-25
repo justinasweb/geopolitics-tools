@@ -15,6 +15,8 @@ export interface Cell {
   missing?: 'withheld' | 'none';
   /** A tag (Estimate, Projection, Preliminary): beside the value when the cell has one, else the cell itself. */
   status?: Status;
+  /** More tags after it (Part of country and Period ended on an IPC figure). */
+  tags?: Status[];
   /** Year marker when the row's period differs from the column's. */
   year?: { year: string; title: string };
   /** Smaller muted text instead of a value (status column notes). */
@@ -79,6 +81,7 @@ const SortIcon = '<path class="up" d="M5 0 9 5H1z"/><path class="down" d="M5 12 
                   : c.href ? <a href={c.href}>{shown(c, num)}</a>
                   : num ? shown(c, num) : <SourceText text={String(shown(c, num))} />}
                 {c.status && valued(c) && <>{' '}<StatusTag status={c.status} small /></>}
+                {c.tags?.map((t) => <>{' '}<StatusTag status={t} small /></>)}
                 {c.year && <abbr class="gt-yr" title={c.year.title}>{c.year.year}</abbr>}
                 {c.fn && <sup class="gt-fn"><a href={c.fn.href} aria-label={c.fn.label}>{c.fn.n}</a></sup>}
               </td>

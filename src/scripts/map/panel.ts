@@ -14,6 +14,19 @@ const CLOSE = '<svg class="gt-ico" viewBox="0 0 24 24" aria-hidden="true"><path 
 const nameOf = (f: LayerFile, id: string, y?: LayerYear) => y?.names?.[id] ?? f.names[id] ?? id;
 /** A year as the layer says it: the year, or a period's words. */
 const when = (y: LayerYear) => y.label ?? y.year;
+/** An entry's tags as HTML: one, or two separated by a space (Part of country, Period ended). */
+const tagsHtml = (f: LayerFile, s: string) => s.split(' ').map((t) => f.tags[t as keyof LayerFile['tags']] ?? '').join(' ');
+/**
+ * A tooltip's tags: those the layer says in words (`tagWords`: Period ended, the area an analysis covers) as plain text
+ * on one line, after the figure's period when it has one ("Jun–Aug 2026 projection · Period ended"), since a tag's ink
+ * does not show on the tooltip's dark ground; the others as tags.
+ */
+function tipTags(f: LayerFile, tags: string | 0 | undefined, period?: string): string[] {
+  const keys = tags ? tags.split(' ') : [];
+  const line = [period, ...keys.filter((k) => f.tagWords?.[k]).map((k) => f.tagWords![k])].filter(Boolean);
+  const boxed = keys.filter((k) => !f.tagWords?.[k]).join(' ');
+  return [...(line.length ? [`<span>${esc(line.join(' · '))}</span>`] : []), ...(boxed ? [tagsHtml(f, boxed)] : [])];
+}
 
 /** The tooltip for a place on a year: name, value with what it measures, detail and year, status, source, hint. */
 export function tooltipHtml(f: LayerFile, y: LayerYear, id: string | null, fallbackName: string, touch = false): string {
@@ -28,7 +41,7 @@ export function tooltipHtml(f: LayerFile, y: LayerYear, id: string | null, fallb
     parts.push(`<span class="gt-tip__val">${esc(e[1])}<small>${esc(f.text.measure)}</small></span>`);
     // A detail that is just the year (a historical series) is not followed by the year again.
     if (e[2]) parts.push(`<span class="tnum">${esc(e[2])}${e[2] === String(when(y)) ? '' : ` · ${when(y)}`}</span>`);
-    if (e[3]) parts.push(f.tags[e[3]]);
+    parts.push(...tipTags(f, e[3]));
   }
   // The place's note, then this year's own (y.notes).
   for (const n of id ? [f.notes[id], y.notes?.[id]] : []) if (n) parts.push(`<span class="gt-tip__note">${INFO}${esc(n)}</span>`);
@@ -123,7 +136,7 @@ export interface PanelOptions {
  */
 export function previousHtml(f: LayerFile, yearIndex: number, id: string, title: string, line: string, label: string): string {
   const status = f.data[yearIndex]?.v[id]?.[3] || f.data[yearIndex]?.status;
-  const tag = status ? ` ${f.tags[status]}` : '';
+  const tag = status ? ` ${tagsHtml(f, status)}` : '';
   return `<div class="gt-atprev"><span class="gt-label">${esc(label)}</span><p><b>${esc(title)}:</b> ${esc(line)}${tag}</p>`
     + `<p class="gt-source"><span>${sourceLinksHtml(f.source)}</span></p></div>`;
 }
@@ -148,7 +161,7 @@ export function countryPanelHtml(f: LayerFile, yearIndex: number, id: string, op
     if (e[2] && f.text.detailLabel) facts.push([f.text.detailLabel, `<dd class="gt-panel__dsmall">${esc(e[2])}</dd>`]);
     if (e[4]) facts.push([f.text.rankLabel ?? '', `<dd>${e[4]} <small>${esc(fill(f.text.rankOf ?? 'of {of}', { of: y.order.length }))}</small></dd>`]);
     const p = prev?.v[id];
-    if (e[3]) facts.push([f.text.statusLabel ?? '', `<dd class="gt-panel__tagdd">${f.tags[e[3]]}</dd>`]);
+    if (e[3]) facts.push([f.text.statusLabel ?? '', `<dd class="gt-panel__tagdd">${tagsHtml(f, e[3])}</dd>`]);
     // The year before, labelled with what it measures ("Share of world in 2024"), not the year alone.
     else if (prev && p) facts.push([fill(f.text.inYear ?? '{label}, {year}', { label: f.text.shareLabel, year: when(prev) }), `<dd class="gt-panel__dsmall">${esc(p[0] === 0 ? f.text.withheld : p[1])}</dd>`]);
     body.push(`<dl class="gt-panel__facts">${facts.map(([dt, dd]) => `<div><dt>${esc(dt)}</dt>${dd}</div>`).join('')}</dl>`);

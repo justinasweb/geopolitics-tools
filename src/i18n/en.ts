@@ -172,7 +172,7 @@ export const UI_TEXT = {
 };
 
 export const STATUS_TEXT = {
-  estimate: 'Estimate', projection: 'Projection', preliminary: 'Preliminary', partial: 'Part of country', notyet: 'Not yet reported', sample: 'Sample',
+  estimate: 'Estimate', projection: 'Projection', preliminary: 'Preliminary', partial: 'Part of country', ended: 'Period ended', notyet: 'Not yet reported', sample: 'Sample',
   sampleTitle: 'Illustrative figure, not real data',
 };
 
