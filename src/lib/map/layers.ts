@@ -3,7 +3,7 @@
 // registry. Each layer says which view it belongs to, so the Atlas panel can link to "See full page".
 import { MAP_TEXT, BLOC_TEXT, PANEL_TEXT as PT } from '../../i18n/map.en.ts';
 import { STATUS_TEXT } from '../../i18n/en.ts';
-import { tagHtml } from '../tags.ts';
+import { areaKey, areaTagHtml, tagHtml } from '../tags.ts';
 import { BLOCS_CHECKED, blocs } from '../blocs.ts';
 import { blocPage, blocPages, blocsOf, countClass as blocCountClass, measureYear, membershipCounts, weightIn } from '../blocview.ts';
 import { BLOCS_TEXT, HISTORY_TEXT, MEASURE_TEXT, MEMBER_NOTES } from '../../i18n/blocs.en.ts';
@@ -46,7 +46,7 @@ import { CYBER_TEXT } from '../../i18n/cyber.en.ts';
 import { groupsOf, mixOf } from '../electricity.ts';
 import { cells, conflictPage, deathClass, VIOLENCE } from '../conflict.ts';
 import { CONFLICT_TEXT, monthText } from '../../i18n/conflict.en.ts';
-import { foodTags, latestAnalyses, monthSpan } from '../hunger.ts';
+import { areaAt, areaLabel, foodTags, latestAnalyses, monthSpan } from '../hunger.ts';
 import { isPartial } from '../../adapters/ipc.ts';
 import { HUNGER_TEXT } from '../../i18n/hunger.en.ts';
 import { POWER_TEXT } from '../../i18n/electricity.en.ts';
@@ -201,14 +201,22 @@ function indicatorLayer(p: ViewPage): LayerFile {
   const unreported = unreportedText(p);
   const W = VIEWS_TEXT;
   const memberships = blocs();
+  // Food crises: the labels for the areas analyses cover ("Gaza Strip only"), keyed for the entries' tags.
+  const areaTags: Record<string, string> = {};
+  // …and the tooltip's words for them, which it says in plain text (tagWords).
+  const areaWords: Record<string, string> = {};
   const data: LayerYear[] = p.years.map((year) => {
     const y = p.byYear[year];
     const v: Record<string, Entry> = {};
     y.rows.forEach((r, i) => {
       const share = p.layer.sums ? shareOf(r.value, y.world) : null;
       // No rank on a neutral layer (documented cyber incidents): the panel shows no "3 of 120".
-      // The food crisis figures are the ones these views tag on the map: Part of country, Period ended (../hunger.ts).
-      const tags = p.family.id === 'food-crises' ? foodTags(r.id, year).join(' ') as Entry[3] : 0;
+      // The food crisis figures are the ones these views tag on the map: Part of country, Period ended and the area the
+      // analysis covers (../hunger.ts).
+      const area = p.family.id === 'food-crises' ? areaAt(r.id, year) : null;
+      if (area) areaTags[areaKey(area)] = areaTagHtml(area);
+      if (area) areaWords[areaKey(area)] = area;
+      const tags = p.family.id === 'food-crises' ? [...foodTags(r.id, year), ...(area ? [areaKey(area)] : [])].join(' ') : 0;
       v[r.id] = [classFor(p, r.value), valueText(p, r.value), share ? (y.worldOwn ? W.ofWorld(share) : W.ofTotal(share)) : '', tags || 0, p.layer.neutral ? 0 : i + 1];
     });
     // Not reported (src/data/not-reported.ts): hatched like "withheld by source", with the layer's own words for it.
@@ -238,6 +246,9 @@ function indicatorLayer(p: ViewPage): LayerFile {
     return { year, ...(p.text.period ? { label: p.text.period(year) } : {}), legend: legendOf(p, year), v, order: y.rows.map((r) => r.id), blocs: bl, ...(Object.keys(more).length ? { more } : {}), ...(Object.keys(notes).length ? { notes } : {}) };
   });
   const notes = { ...c.notes };
+  // Food crises: the label on each figure says what an analysis covered, so the general note on what other sources
+  // count for Palestine ("West Bank and Gaza") would mislead here.
+  if (p.family.id === 'food-crises') delete notes.PSE;
   for (const id of new Set(p.years.flatMap((yr) => p.byYear[yr].rows.map((r) => r.id)))) {
     const n = placeNote(p, id);
     if (n) notes[id] = notes[id] ? `${notes[id]} ${n}` : n;
@@ -254,8 +265,8 @@ function indicatorLayer(p: ViewPage): LayerFile {
       trend: PT.figureTrend(p.text.figureLabel), trendCaption: PT.trendCaption, ranking: PT.ranking,
       ...(p.text.barsLabel ? { bars: `${p.text.barsLabel}, {year}` } : {}),
     },
-    tags: c.tags, names: c.names, hrefs: c.hrefs, slugs: c.slugs, notes, blocs: c.blocs, data,
-    ...(p.family.id === 'food-crises' ? { tagWords: { ended: STATUS_TEXT.ended } } : {}),
+    tags: { ...c.tags, ...areaTags }, names: c.names, hrefs: c.hrefs, slugs: c.slugs, notes, blocs: c.blocs, data,
+    ...(p.family.id === 'food-crises' ? { tagWords: { ended: STATUS_TEXT.ended, ...areaWords } } : {}),
     series: seriesOf(p.years.map((year) => Object.fromEntries(p.byYear[year].rows.map((r) => [r.id, r.value])))),
     format: p.format, more: p.family.id === 'space' ? withSpace(viewMore(p)) : p.family.id === 'sanctions' ? withSanctions(viewMore(p), p.id) : p.id === 'outages' ? withOutages(viewMore(p)) : p.id === 'exchanges' ? withExchanges(viewMore(p)) : p.family.id === 'chinese-lending' ? withLending(viewMore(p), p.id) : p.family.id === 'electricity' ? withMix(viewMore(p), p) : p.family.id === 'food-crises' ? withPhases(viewMore(p)) : CHIP_LAYERS[p.id] ? withSuppliers(viewMore(p), p) : viewMore(p),
     ...(p.id === 'launches' ? { overlays: [launchSites(p)] } : p.id === 'exchanges' ? { overlays: [exchangeMarks()] } : p.id === 'aicompute' ? { overlays: [aiClusters(p)] } : p.id === 'waterstress' ? { overlays: [damMarks()] } : p.family.id === 'arms' ? { overlays: [armsArcs(p)] } : p.id === 'cyber' ? { overlays: [cyberArcs(p)] } : CHIP_LAYERS[p.id] ? { overlays: [chipArcs(p)] } : {}),
@@ -290,7 +301,7 @@ function withPhases(more: Record<string, PanelBlock[]>): Record<string, PanelBlo
   for (const [id, a] of latestAnalyses()) {
     const f = (v: number) => formatValue(v, { kind: 'count' });
     out[id] = [...(out[id] ?? []), {
-      label: H.latest, caption: H.latestCaption(a.system, a.period, monthSpan(a.from, a.to), f(a.analysed), isPartial(a) ? f(a.population!) : null),
+      label: H.latest, caption: `${H.latestCaption(a.system, a.period, monthSpan(a.from, a.to), f(a.analysed), isPartial(a) ? f(a.population!) : null)}${areaLabel(a) ? ` ${areaLabel(a)}.` : ''}`,
       rows: ([5, 4, 3, 2, 1] as const).map((k) => ({ name: H.phase[k], value: f(a.phases[k - 1]), note: a.analysed ? formatValue(a.phases[k - 1] / a.analysed, { kind: 'share' }) : undefined })),
     }];
   }

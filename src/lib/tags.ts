@@ -15,6 +15,10 @@ export const GLYPH: Record<Status, string> = {
   sample: '<rect x="1.5" y="1.5" width="9" height="9" fill="none" stroke="currentColor" stroke-width="1.3" stroke-dasharray="2 1.4"/>',
 };
 
+/** The label for the area an analysis covers ("Gaza Strip only"), styled as a tag with no glyph: a key for map files. */
+export const areaKey = (label: string) => `area-${label.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+export const areaTagHtml = (label: string) => `<span class="gt-tag gt-tag--area gt-tag--sm">${label.replace(/[&<>"]/g, (c) => `&#${c.charCodeAt(0)};`)}</span>`;
+
 /** A small status tag as HTML, for markup built outside Astro components. */
 export const tagHtml = (s: Status) =>
   `<span class="gt-tag gt-tag--${s} gt-tag--sm"><svg viewBox="0 0 12 12" aria-hidden="true">${GLYPH[s]}</svg>${STATUS_TEXT[s]}</span>`;

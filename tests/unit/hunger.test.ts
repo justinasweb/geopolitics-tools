@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, it } from 'vitest';
-import { hungerSeries, inForce, ipcMonth, isPartial, latestOf, parseIpc, partialSeries } from '../../src/adapters/ipc.ts';
+import { areaIn, hungerSeries, inForce, ipcMonth, isPartial, latestOf, parseIpc, partialSeries } from '../../src/adapters/ipc.ts';
 
 // The food crises views and the IPC adapter, built from the sample file.
 process.env.GT_DATA = 'sample';
@@ -56,13 +56,17 @@ describe('IPC adapter', () => {
     expect(parseIpc([an(1, 'Mar 2013', 300, { estimated_population: 144 })])[0].analysed).toBe(1000);
   });
 
-  it('tells analyses of part of a country, and names the Gaza Strip only when the title does', () => {
+  it('tells analyses of part of a country, and names the area only when IPC’s list of analyses does', () => {
     const [whole, part] = parseIpc([an(1, 'Jun 2026', 300, { population: 1020 }), an(2, 'Jul 2026', 300, { country: 'YE', population: 35000 })]);
     expect([isPartial(whole), isPartial(part)]).toEqual([false, true]);
     expect(partialSeries([whole, part])).toEqual({ YEM: { 2026: 1 } });
     expect(parseIpc([an(3, 'Jul 2026', 10, { country: 'PS', population: 0 })])[0]).toMatchObject({ population: null, area: null });
     expect(isPartial(parseIpc([an(3, 'Jul 2026', 10, { country: 'PS', population: 0 })])[0])).toBe(false);
-    expect(parseIpc([an(4, 'Jul 2026', 10, { country: 'PS', title: 'Gaza Strip: Acute Food Insecurity Situation' })])[0].area).toBe('the Gaza Strip');
+    // The country endpoint's titles never name it; the list's do, by analysis id.
+    const list = [{ id: '4', title: 'Palestine (Gaza Strip) - Acute Food Insecurity Analysis – PS May 2026', link: 'https://www.ipcinfo.org/x/' }];
+    expect(parseIpc([an(4, 'Jul 2026', 10, { country: 'PS' })], list)[0]).toMatchObject({ area: 'Gaza Strip', link: 'https://www.ipcinfo.org/x/' });
+    expect(parseIpc([an(5, 'Jul 2026', 10, { country: 'PS' })], list)[0].area).toBeNull();
+    expect([areaIn('Nigeria - Cadre Harmonisé Analysis March 2025'), areaIn('Guinea-Bissau - Cadre Harmonisé Analysis March 2025'), areaIn('Yemen - Acute Food Insecurity (Projection)')]).toEqual([null, null, null]);
   });
 
   it('knows which analyses are in force on a day', () => {

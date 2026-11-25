@@ -21,6 +21,7 @@ import { computeWeek, alertCount, phase5Count, phase5Partial, hasFigures, CARD_O
 import { isWeekId, lastClosedWeek, rollingWeek, weekNumber, weekRange } from './week/period.ts';
 import { WEEK_TEXT as W, PRICE_TEXT, day, month, months, pct, range } from '../i18n/week.en.ts';
 import { monthSpan } from './hunger.ts';
+import { HUNGER_TEXT } from '../i18n/hunger.en.ts';
 import { formatValue } from './format.ts';
 import type { Status } from './tags.ts';
 
@@ -82,6 +83,8 @@ export function weekSummary(id: string): Summary | null {
 // ---- What the page shows ---------------------------------------------------------------------------------------
 
 const nameOf = (id: string) => place(id)?.name ?? id;
+/** A food analysis's place, with the area it covers when IPC names one: "Palestine (Gaza Strip only)". */
+const foodPlace = (a: { place: string; area?: string }) => (a.area ? `${nameOf(a.place)} (${HUNGER_TEXT.only(a.area)})` : nameOf(a.place));
 const HOURLY = new Set(['disaster', 'outage']);
 /** "21 Oct" or, for hourly sources, "21 Oct, 06:00 UTC". */
 const updatedText = (kind: string, fetched: string) => W.updated(day(fetched), HOURLY.has(kind) ? fetched.slice(11, 16) : undefined);
@@ -270,7 +273,7 @@ function cardView(c: Card, w: WeekData): CardView {
         ...base, headline: W.foodHead(c.phase5), source: creditName('ipc'), period: inForce,
         body: c.rows.length ? {
           type: 'ref', label: W.foodLabel,
-          rows: c.rows.map((r) => ({ name: nameOf(r.place), width: (100 * r.people) / top, value: new Intl.NumberFormat('en').format(r.people) })),
+          rows: c.rows.map((r) => ({ name: foodPlace(r), width: (100 * r.people) / top, value: new Intl.NumberFormat('en').format(r.people) })),
           notes: [
             W.foodCaption(day(c.day, { year: true })),
             ...c.rows.filter((r) => r.analysed).map((r) => W.foodPartial(nameOf(r.place), formatValue(r.analysed!, { kind: 'count' }), formatValue(r.population!, { kind: 'count' }))),
@@ -306,7 +309,7 @@ function cardView(c: Card, w: WeekData): CardView {
 }
 
 /** A new analysis in a sentence: "Haiti (IPC, Sep 2026 – Feb 2027)". */
-const foodItem = (a: FoodAnalysis) => W.foodItem(nameOf(a.place), a.system, monthSpan(a.from, a.to));
+const foodItem = (a: FoodAnalysis) => W.foodItem(foodPlace(a), a.system, monthSpan(a.from, a.to));
 
 export interface FeedView { kind: string; label: string; date: string; datetime: string; time?: string; text: string; href?: string; source: string }
 
@@ -317,7 +320,7 @@ function feedView(f: FeedItem): FeedView {
     case 'outage': return { ...common, text: W.feedItem.outage(nameOf(f.place), W.hours(f.hours)), href: viewHref('internet') };
     case 'conflict': return { ...common, text: W.feedItem.conflict(month(f.month, true)), href: viewHref('conflict') };
     case 'prices': return { ...common, text: W.feedItem.prices(month(f.month, true)) };
-    case 'food': return { ...common, text: W.feedItem.food(f.system, nameOf(f.place), monthSpan(f.from, f.to)), href: viewHref('food-crises') };
+    case 'food': return { ...common, text: W.feedItem.food(f.system, foodPlace(f), monthSpan(f.from, f.to)), href: viewHref('food-crises') };
   }
 }
 

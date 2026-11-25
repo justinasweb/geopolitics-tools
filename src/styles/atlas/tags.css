@@ -10,6 +10,8 @@
 .gt-tag--projection { background: var(--proj-bg); color: var(--proj-ink); }
 .gt-tag--preliminary { background: var(--prelim-bg); color: var(--prelim-ink); }
 .gt-tag--partial { background: var(--paper-sunk); color: var(--ink); box-shadow: inset 0 0 0 1px var(--rule-strong); }
+/* The area an analysis covers ("Gaza Strip only"): a label in the tags' shape, outlined, no glyph. */
+.gt-tag--area { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink-muted); }
 .gt-tag--ended { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1px var(--rule-strong); }
 .gt-tag--notyet { background: transparent; color: var(--ink-muted); box-shadow: inset 0 0 0 1px var(--rule-strong); }
 .gt-tag--sm { height: 18px; padding: 0 5px; font-size: 11px; }

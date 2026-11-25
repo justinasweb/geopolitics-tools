@@ -17,8 +17,8 @@ export const HUNGER_TEXT = {
   ofAnalysed: (analysed: string) => `(of ${analysed} people analysed)`,
   /** The map's note on such a figure. */
   mapNote: (analysed: string, population: string) => `The analysis covered ${analysed} people, part of the ${population} IPC counts in the country.`,
-  /** An area the analysis's title names. */
-  area: (area: string) => `The analysis covers ${area}.`,
+  /** Beside every figure from an analysis of an area IPC's list of analyses names ("Palestine (Gaza Strip)"). */
+  only: (area: string) => `${area} only`,
   catastrophe: 'People in catastrophe (Phase 5)',
   catastropheCaption: (day: string) => `Countries whose analysis in force on ${day} counts people in IPC Phase 5. Phase 5 counts households facing catastrophe; famine is a classification of an area, made only when several thresholds are met.`,
   country: 'Country',

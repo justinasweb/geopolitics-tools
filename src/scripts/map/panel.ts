@@ -15,7 +15,7 @@ const nameOf = (f: LayerFile, id: string, y?: LayerYear) => y?.names?.[id] ?? f.
 /** A year as the layer says it: the year, or a period's words. */
 const when = (y: LayerYear) => y.label ?? y.year;
 /** An entry's tags as HTML: one, or two separated by a space (Part of country, Period ended). */
-const tagsHtml = (f: LayerFile, s: string) => s.split(' ').map((t) => f.tags[t as keyof LayerFile['tags']] ?? '').join(' ');
+const tagsHtml = (f: LayerFile, s: string) => s.split(' ').map((t) => f.tags[t] ?? '').join(' ');
 /**
  * A tooltip's tags: those the layer says in words (`tagWords`: Period ended, the area an analysis covers) as plain text
  * on one line, after the figure's period when it has one ("Jun–Aug 2026 projection · Period ended"), since a tag's ink

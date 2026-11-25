@@ -8,7 +8,7 @@ import { formatValue } from './format.ts';
 import { place } from './places.ts';
 import { ANSWER, DEFAULT_VERB, INDICATOR_PAGE, inSentence } from '../i18n/pages.en.ts';
 import { tagged } from '../i18n/en.ts';
-import { foodTags } from './hunger.ts';
+import { areaAt, foodTags } from './hunger.ts';
 import type { Status } from './tags.ts';
 import { counts, defaultYear, median, preliminaryYears, ranked, ranking, type Row } from './stats.ts';
 
@@ -68,6 +68,9 @@ export function tagsAt(ind: Indicator, id: string, year: number): Status[] {
   const s = statusAt(ind, id, year);
   return s ? [s] : [];
 }
+
+/** The area a figure's analysis covers, said beside it ("Gaza Strip only"): the food crisis measures only. */
+export const areaFor = (ind: Indicator, id: string, year: number): string | null => (ind.source === 'ipc' ? areaAt(id, year) : null);
 
 /** A figure's tag, as the CSV gives it: an estimate or projection (statusAt), else preliminary in the source's preliminary years. */
 export const tagOf = (m: IndicatorModel, id: string, year: number): ValueStatus | 'preliminary' | undefined =>

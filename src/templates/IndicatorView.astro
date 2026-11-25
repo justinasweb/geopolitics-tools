@@ -41,7 +41,8 @@ import { formatDate } from '../lib/format';
 import { armsPeriod, armsPeriods } from '../lib/arms';
 import { ARMS_TEXT as RX } from '../i18n/arms.en';
 import { groupsOf, worldMix } from '../lib/electricity';
-import { catastrophe, ipcDay, monthSpan, ofAnalysed } from '../lib/hunger';
+import { areaAt, areaLabel, catastrophe, ipcDay, monthSpan, ofAnalysed } from '../lib/hunger';
+import AreaTag from '../components/AreaTag.astro';
 import { HUNGER_TEXT as HG } from '../i18n/hunger.en';
 import { POWER_TEXT as PW } from '../i18n/electricity.en';
 import { basesOf, cyberData, ownState, pairs as cyberPairs } from '../lib/cyber';
@@ -111,6 +112,8 @@ const cons = p.id === 'satellites' ? constellations() : [];
 const wmix = p.family.id === 'electricity' ? worldMix(p.year) : null;
 // Food crises: countries whose analysis in force on the snapshot's day counts people in catastrophe.
 const cat = p.family.id === 'food-crises' ? catastrophe() : [];
+// Food crises: the area an analysis covers, beside each of its figures ("Gaza Strip only").
+const areaOf = (id: string, yr: number) => (p.family.id === 'food-crises' ? areaAt(id, yr) : null);
 // Chips: the year's largest flows, supplier to buyer.
 const chipFlows = CHIP_LAYERS[p.id] ? chipFlowsFor(p.id, p.year).slice(0, 20) : [];
 const twh = (v: number) => formatValue(v, { kind: 'number', digits: v < 10 ? 1 : 0 });
@@ -135,7 +138,7 @@ const cyber = p.id === 'cyber' ? cyberData() : null;
 // A state's incidents in its own country are not a pair between countries, so they stay in the panel only.
 const attributions = cyber ? cyberPairs(cyber, p.year).filter((x) => !ownState(x)).slice(0, 20) : [];
 const spaceDate = spaceAsOf() ? formatDate(spaceAsOf()!) : '';
-const bars = (rs: Row[], max: number) => rs.map((r) => ({ id: r.id, text: valueText(p, r.value), w: max ? (100 * Math.abs(r.value)) / max : 0 }));
+const bars = (rs: Row[], max: number, yr: number) => rs.map((r) => ({ id: r.id, text: valueText(p, r.value), w: max ? (100 * Math.abs(r.value)) / max : 0, area: areaOf(r.id, yr) }));
 ---
 <Page title={T.title} description={T.description(p.year)} hub={p.family.hub} container="mv" image={route(key(p.id))!.image}
   jsonld={[breadcrumbs(crumbs.map((c) => ({ label: c.label, href: c.href })))]}>
@@ -164,8 +167,8 @@ const bars = (rs: Row[], max: number) => rs.map((r) => ({ id: r.id, text: valueT
           const ch = worldChange(p, yr);
           const max = Math.max(...Y.rows.map((r) => Math.abs(r.value)));
           const groups = div
-            ? [{ label: W.importers, items: bars(Y.rows.filter((r) => r.value > 0).slice(0, 5), max) }, { label: W.exporters, items: bars(Y.rows.filter((r) => r.value < 0).reverse().slice(0, 5), max) }]
-            : [{ label: T.barsLabel ?? W.highest, items: bars(Y.rows.slice(0, 8), max) }];
+            ? [{ label: W.importers, items: bars(Y.rows.filter((r) => r.value > 0).slice(0, 5), max, yr) }, { label: W.exporters, items: bars(Y.rows.filter((r) => r.value < 0).reverse().slice(0, 5), max, yr) }]
+            : [{ label: T.barsLabel ?? W.highest, items: bars(Y.rows.slice(0, 8), max, yr) }];
           return (
             <div class="gt-pyear" data-year={yr} hidden={yr !== p.year}>
               {Y.world !== null && T.worldLabel && (
@@ -182,7 +185,7 @@ const bars = (rs: Row[], max: number) => rs.map((r) => ({ id: r.id, text: valueT
                   <span class="gt-label">{g.label}</span>
                   <ol class="gt-bars gt-bars--tight" aria-label={`${g.label}, ${T.figureLabel.toLowerCase()}, ${yr}`}>
                     {g.items.map((x) => (
-                      <li><span class="gt-bars__name"><button type="button" data-select={x.id}>{nameOf(x.id)}</button></span><span class="gt-bars__track"><span class="gt-bars__fill" style={`width:${x.w.toFixed(1)}%`}></span></span><span class="gt-bars__val">{x.text}</span></li>
+                      <li><span class="gt-bars__name"><button type="button" data-select={x.id}>{nameOf(x.id)}</button></span><span class="gt-bars__track"><span class="gt-bars__fill" style={`width:${x.w.toFixed(1)}%`}></span></span><span class="gt-bars__val">{x.text}</span>{x.area && <span class="gt-bars__note"><AreaTag label={x.area} /></span>}</li>
                     ))}
                   </ol>
                 </div>
@@ -222,7 +225,7 @@ const bars = (rs: Row[], max: number) => rs.map((r) => ({ id: r.id, text: valueT
             {rows.map(({ r, q, ch, diff, parts }) => (
               <tr data-place={r.id}>
                 <th scope="row">{countryHref(r.id) ? <a href={countryHref(r.id)}>{nameOf(r.id)}</a> : nameOf(r.id)}{noteNo(r.id) > 0 && <sup class="gt-fn"><a href={`#mv-note-${noteNo(r.id)}`} aria-label={`${W.notes} ${noteNo(r.id)}`}>{noteNo(r.id)}</a></sup>}</th>
-                <td class="n" data-v={r.value}>{valueText(p, r.value)}</td>
+                <td class="n" data-v={r.value}>{valueText(p, r.value)}{areaOf(r.id, p.year) && <> <AreaTag label={areaOf(r.id, p.year)!} /></>}</td>
                 {p.layer.sums && <td class="n" data-v={y.world ? r.value / y.world : ''}>{shareOf(r.value, y.world) ?? '–'}</td>}
                 {prev && (q ? <td class="n" data-v={q.value}>{valueText(p, q.value)}</td> : <td class="n gt-na" data-v="">–</td>)}
                 {prev && !div && (ch === null ? <td class="n gt-na" data-v="">–</td> : <td class="n" data-v={ch}><span class="gt-chg"><Icon name={flat(p, ch) ? 'flat' : ch > 0 ? 'up' : 'down'} />{diff ?? pct(ch)}</span></td>)}
@@ -294,7 +297,7 @@ const bars = (rs: Row[], max: number) => rs.map((r) => ({ id: r.id, text: valueT
             <table class="gt-table">
               <caption class="gt-caption">{HG.catastropheCaption(formatDate(ipcDay()))}</caption>
               <thead><tr><th scope="col">{HG.country}</th><th scope="col">{HG.period}</th><th scope="col" class="n">{HG.people5}</th><th scope="col" class="n">{HG.people3}</th></tr></thead>
-              <tbody>{cat.map((a) => <tr><th scope="row">{countryHref(a.place) ? <a href={countryHref(a.place)}>{nameOf(a.place)}</a> : nameOf(a.place)}</th><td>{monthSpan(a.from, a.to)}</td><td class="n">{count(a.phases[4])}{ofAnalysed(a) && <small>{ofAnalysed(a).trim()}</small>}</td><td class="n">{count(a.crisis)}{ofAnalysed(a) && <small>{ofAnalysed(a).trim()}</small>}</td></tr>)}</tbody>
+              <tbody>{cat.map((a) => <tr><th scope="row">{countryHref(a.place) ? <a href={countryHref(a.place)}>{nameOf(a.place)}</a> : nameOf(a.place)}{areaLabel(a) && <> <AreaTag label={areaLabel(a)!} /></>}</th><td>{monthSpan(a.from, a.to)}</td><td class="n">{count(a.phases[4])}{ofAnalysed(a) && <small>{ofAnalysed(a).trim()}</small>}</td><td class="n">{count(a.crisis)}{ofAnalysed(a) && <small>{ofAnalysed(a).trim()}</small>}</td></tr>)}</tbody>
             </table>
           </div>
           <SourceLine source={source} updated={updated} />

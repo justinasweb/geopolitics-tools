@@ -153,11 +153,11 @@ drops by itself once Ember's own other-fossil share for Costa Rica 2024 is above
   ("YESOUTH", 10.5 of 35.3 million people), Pakistan's of March 2026 (Punjab), Sudan's update of February 2026 (8.3 of
   48 million). Decided 24 Nov 2026: every Phase 5 and Phase 3+ count from such an analysis says how many people it
   covered ("71,424 (of 8.3 m people analysed)"), and the maps, tables and country rows tag it "Part of country". The
-  maps' year values can still jump between a national and a partial analysis. Areas are named only when the title
-  names one the site words for itself (`AREAS` in src/adapters/ipc.ts: the Gaza Strip).
-- **Palestine.** Decided 24 Nov 2026: no hand note. IPC gives about 2.1 million people for Palestine, but its titles
-  do not say "Gaza", so nothing names the Gaza Strip; IPC's own population for the country equals the people
-  analysed, so these analyses are not tagged Part of country either.
+  maps' year values can still jump between a national and a partial analysis.
+- **Palestine.** Decided 24 Nov 2026: no hand note. Since 25 Nov the fetcher also keeps IPC's list of analyses
+  (`analyses.json`), whose titles say "Palestine (Gaza Strip) - …", so every Palestine food figure says "Gaza Strip
+  only" from IPC's own data. IPC's population for the country equals the people analysed, so these analyses are not
+  tagged Part of country.
 - **New analyses on This week.** An analysis is "new" when the IPC copy kept on the period's first day did not have
   it, and is dated on the day IPC's data changed: IPC's API gives no publication date. The first copies are kept from
   the first data run after merge, so the first week names none.

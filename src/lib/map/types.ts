@@ -14,9 +14,10 @@ export type Status = 'estimate' | 'projection' | 'preliminary' | 'partial' | 'en
  * Class: 1–5 on a sequential scale, 1–7 on a diverging one; 0 withheld by the source; -1 not yet reported; -2 the
  * layer's `hatch` class (a named class drawn as a pattern).
  * Value is the figure the map shades by ("32%"), detail the absolute figure ("92,000 t"); rank is among places listed.
- * Status is one tag, or two separated by a space (an IPC figure from part of a country whose period has ended).
+ * Status is one key of the file's `tags`, or several separated by spaces (an IPC figure from part of a country whose
+ * period has ended; "area-…" for the area an analysis covers).
  */
-export type Entry = [cls: number, value: string, detail: string, status: Status | `${Status} ${Status}` | 0, rank: number];
+export type Entry = [cls: number, value: string, detail: string, status: string | 0, rank: number];
 
 export interface LayerYear {
   /** The year, or for a layer over periods (axis "days") the period's length in days. */
@@ -129,8 +130,8 @@ export interface LayerFile {
     /** The world panel's label over its bars ({year}), for an `unranked` layer, in place of the page's "Largest". */
     bars?: string;
   };
-  /** Status tags as HTML (their glyph and word). */
-  tags: Record<Status, string>;
+  /** Status tags as HTML (their glyph and word), and labels for the areas IPC analyses cover ("area-gaza-strip"). */
+  tags: Record<Status, string> & Record<string, string>;
   /** Tags the tooltip says in plain words, by key (food crises: "Period ended", the area an analysis covers). */
   tagWords?: Record<string, string>;
   names: Record<string, string>;

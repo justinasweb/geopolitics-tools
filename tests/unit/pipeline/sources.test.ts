@@ -503,10 +503,20 @@ describe('ipc', () => {
   const phases = [1, 2, 3, 4, 5].map((phase) => ({ phase, population: 200, percentage: 0.2 }));
   const an = (n: number) => Array.from({ length: n }, (_, i) => ({ id: String(i), country: iso(i).slice(0, 2), condition: 'A', from: `${M[i % 9]} 2026`, to: 'Dec 2026', ipc_period: 'P', year: 2026, estimated_population: 1000, population: 5000, phases }));
 
-  it('saves the acute analyses in the API format', async () => {
-    const r = await ipc.fetch({ ...ctxFor(fakeHttp([[/country\?format=json&type=A&key=k/, () => [...an(40), { id: '99', country: 'XX', condition: 'C', from: 'Jan 2026', to: 'Mar 2026', estimated_population: 1, phases }]]])), env });
+  const list = (n: number) => Array.from({ length: n }, (_, i) => ({ id: String(i), title: `Place ${i} - Acute Food Insecurity Analysis`, link: '', country: iso(i).slice(0, 2), year: 2026, condition: 'A', created: '2026-11-01', modified: '2026-11-01' }));
+
+  it('saves the acute analyses and IPC’s list of them in the API format', async () => {
+    const r = await ipc.fetch({ ...ctxFor(fakeHttp([
+      [/country\?format=json&type=A&key=k/, () => [...an(40), { id: '99', country: 'XX', condition: 'C', from: 'Jan 2026', to: 'Mar 2026', estimated_population: 1, phases }]],
+      [/analyses\?format=json&type=A&key=k/, () => list(40)],
+    ])), env });
     expect(JSON.parse(body(r, 'country.json'))).toHaveLength(40);
+    expect(JSON.parse(body(r, 'analyses.json'))).toHaveLength(40);
     expect(r.dataTo).toBe('2026-09');
+  });
+
+  it('refuses a list of analyses that lacks most of the country endpoint’s', async () => {
+    await expect(ipc.fetch({ ...ctxFor(fakeHttp([[/country/, () => an(40)], [/analyses/, () => list(5)]])), env })).rejects.toThrow(/are not in the list/);
   });
 
   it('refuses too few countries', async () => {

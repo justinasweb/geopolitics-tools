@@ -375,8 +375,11 @@ analysis", never "No data" or zero. The total covers the countries analysed, whi
 change is not shown. A country's panel gives its latest analysis by phase, with its period, whether it is a projection and the people
 analysed (with IPC's population for the whole country when the analysis covers less). A figure from an analysis
 of part of the country (people analysed under 95% of IPC's population for it) is tagged "Part of country" (status
-`partial`, from the indicator's `partial` series) and its note says how many people the analysis covered; an area is
-named only from the analysis's title (`AREAS` in src/adapters/ipc.ts). The page lists countries whose
+`partial`, from the indicator's `partial` series) and its note says how many people the analysis covered. An area is
+named only where IPC's list of analyses names it in the title ("Palestine (Gaza Strip) - …", `areaIn` in
+src/adapters/ipc.ts): "Gaza Strip only" sits beside every such figure (map tooltip, panel and rankings as a label in
+the tags' shape, `AreaTag` on the pages, This week's card and feed), and the views drop the general Palestine note on
+other sources' "West Bank and Gaza". The page lists countries whose
 analysis in force on the snapshot's day counts people in Phase 5, which counts people in catastrophe, not famine (an
 area classification this endpoint does not give). Country pages have a Food crisis block for every place IPC has
 analysed: the analysis in force, or the latest in the past tense with its period.

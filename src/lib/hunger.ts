@@ -39,12 +39,15 @@ export function foodTags(id: string, year: number): Status[] {
 const people = (v: number) => formatValue(v, { kind: 'count' });
 /** "(of 8.3 m people analysed)" beside a count from an analysis of part of the country; empty otherwise. */
 export const ofAnalysed = (a: Analysis) => (isPartial(a) ? ` ${HUNGER_TEXT.ofAnalysed(people(a.analysed))}` : '');
-/** The note on a map figure from a partial analysis, or one naming its area: people analysed against IPC's count for
- *  the country, and the area its title names. */
+/** The note on a map figure from a partial analysis: people analysed against IPC's count for the country. */
 export function analysisNote(a: Analysis): string | null {
-  const parts = [isPartial(a) ? HUNGER_TEXT.mapNote(people(a.analysed), people(a.population!)) : '', a.area ? HUNGER_TEXT.area(a.area) : ''].filter(Boolean);
-  return parts.length ? parts.join(' ') : null;
+  return isPartial(a) ? HUNGER_TEXT.mapNote(people(a.analysed), people(a.population!)) : null;
 }
+
+/** The label beside every figure from an analysis of a named area ("Gaza Strip only"), as IPC's list of analyses names it. */
+export const areaLabel = (a: Analysis | undefined) => (a?.area ? HUNGER_TEXT.only(a.area) : null);
+/** The same for a place's figure in a year on the maps. */
+export const areaAt = (id: string, year: number) => areaLabel(analysisIn(id, year));
 
 /** Places whose analysis in force counts people in Phase 5, most first. */
 export const catastrophe = () => [...analysesInForce().values()].filter((a) => a.phases[4] > 0).sort((a, b) => b.phases[4] - a.phases[4]);
