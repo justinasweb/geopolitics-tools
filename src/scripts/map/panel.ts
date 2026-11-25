@@ -46,7 +46,7 @@ export function tooltipHtml(f: LayerFile, y: LayerYear, id: string | null, fallb
     parts.push(`<span class="gt-tip__val">${esc(e[1])}<small>${esc(f.text.measure)}</small></span>`);
     // A detail that is just the year (a historical series) is not followed by the year again.
     if (e[2]) parts.push(`<span class="tnum">${esc(e[2])}${e[2] === String(when(y)) ? '' : ` · ${when(y)}`}</span>`);
-    parts.push(...tipTags(f, e[3]));
+    parts.push(...tipTags(f, e[3], id ? y.periods?.[id] : undefined));
   }
   // The place's note, then this year's own (y.notes).
   for (const n of id ? [f.notes[id], y.notes?.[id]] : []) if (n) parts.push(`<span class="gt-tip__note">${INFO}${esc(n)}</span>`);
@@ -179,6 +179,7 @@ export function countryPanelHtml(f: LayerFile, yearIndex: number, id: string, op
   } else {
     const facts: [string, string][] = [[f.text.shareLabel, `<dd>${esc(e[1])}</dd>`]];
     if (e[2] && f.text.detailLabel) facts.push([f.text.detailLabel, `<dd class="gt-panel__dsmall">${esc(e[2])}</dd>`]);
+    if (y.periods?.[id]) facts.push([f.text.periodLabel ?? '', `<dd class="gt-panel__dsmall">${esc(y.periods[id])}</dd>`]);
     if (e[4]) facts.push([f.text.rankLabel ?? '', `<dd>${e[4]} <small>${esc(fill(f.text.rankOf ?? 'of {of}', { of: y.order.length }))}</small></dd>`]);
     const p = prev?.v[id];
     if (e[3]) facts.push([f.text.statusLabel ?? '', `<dd class="gt-panel__tagdd">${tagsHtml(f, e[3])}</dd>`]);

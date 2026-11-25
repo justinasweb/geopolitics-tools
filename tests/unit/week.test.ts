@@ -133,7 +133,7 @@ describe('This week cards', () => {
     expect(f).toMatchObject({ day: '2026-10-22', phase5: 1, partial: 1, rows: [{ place: 'SDN', people: 60, from: '2026-10', to: '2027-01', analysed: 1000, population: 5000 }], added: [{ place: 'HTI', system: 'IPC' }] });
     expect(phase5Count(fw)).toBe(1);
     expect(phase5Partial(fw)).toBe(1);
-    expect(fw.feed.filter((x) => x.kind === 'food')).toEqual([{ kind: 'food', date: '2026-10-21', place: 'HTI', system: 'IPC', from: '2026-09', to: '2027-02' }]);
+    expect(fw.feed.filter((x) => x.kind === 'food')).toEqual([{ kind: 'food', date: '2026-10-21', place: 'HTI', system: 'IPC', from: '2026-09', to: '2027-02', period: 'projection' }]);
     // Without a copy from the period's first day, no analysis is called new.
     expect(computeWeek(withIpc({ baseline: null })).cards.find((c) => c.kind === 'food')).toMatchObject({ added: null });
   });

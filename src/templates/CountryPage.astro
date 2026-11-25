@@ -378,7 +378,7 @@ const citation = COUNTRY_TEXT.citation(name, kind, url, Number(m.updated.slice(0
                   {areaLabel(fa) && <p class="gt-caption"><AreaTag label={areaLabel(fa)!} /></p>}
                   {food.ended && <p class="gt-caption">{HUNGER_TEXT.blockOld(formatDate(food.day))} <StatusTag status="ended" small /></p>}
                   {food.ahead && <p class="gt-caption">{HUNGER_TEXT.blockAhead(monthSpan(fa.from, fa.from))}</p>}
-                  {fa.phases[4] > 0 && <p class="gt-caption">{HUNGER_TEXT.blockPhase5(fa.phases[4], isPartial(fa) ? foodCount(fa.analysed) : null)}</p>}
+                  {fa.phases[4] > 0 && <p class="gt-caption">{HUNGER_TEXT.blockPhase5(fa.phases[4], fa.period, isPartial(fa) ? foodCount(fa.analysed) : null)}</p>}
                   {isPartial(fa) && <p class="gt-caption">{HUNGER_TEXT.blockPart(foodCount(fa.analysed), foodCount(fa.population!))} <StatusTag status="partial" small /></p>}
                   {foodLink && <p class="gt-caption"><a href={`${foodLink.path}?country=${m.place.slug}`}>{HUNGER_TEXT.blockLink}</a></p>}
                   <SourceLine source={sourceName('ipc')} parts={[HUNGER_TEXT.sourcePart(fa.period, monthSpan(fa.from, fa.to))]} status={fa.period === 'current' ? undefined : 'projection'} />
@@ -451,7 +451,7 @@ const citation = COUNTRY_TEXT.citation(name, kind, url, Number(m.updated.slice(0
               ]}
               rows={m.allFigures.map((f) => [
                 { v: INDICATOR_TEXT[f.id].label, href: indicatorHref(f.id) },
-                { v: f.value, text: formatValue(f.value, INDICATORS[f.id].format), status: tagsOf(f)[0], tags: tagsOf(f).slice(1), area: areaFor(INDICATORS[f.id], p.id, f.year), of: labelsAt(INDICATORS[f.id], p.id, f.year).of, fn: fnOf(f) },
+                { v: f.value, text: formatValue(f.value, INDICATORS[f.id].format), status: tagsOf(f)[0], tags: tagsOf(f).slice(1), area: areaFor(INDICATORS[f.id], p.id, f.year), of: [labelsAt(INDICATORS[f.id], p.id, f.year).period, labelsAt(INDICATORS[f.id], p.id, f.year).of].filter(Boolean).join(', ') || null, fn: fnOf(f) },
                 { v: f.year, text: yearOrAsOf(f.id, f.year) },
                 f.of > 1 ? { v: f.rank, text: `${ordinal(f.rank)} of ${f.of}` } : null,
                 short(f.source),

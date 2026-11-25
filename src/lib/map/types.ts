@@ -40,6 +40,8 @@ export interface LayerYear {
   more?: Record<string, PanelBlock[]>;
   /** Notes for this year only, by place id, after the layer's own notes (a grid operator's figure beside Ember's). */
   notes?: Record<string, string>;
+  /** What each figure comes from, by place id, under its value (food crises: "Oct 2026 – Jan 2027 projection"). */
+  periods?: Record<string, string>;
 }
 
 /** A short block in a selected place's panel: a label, optional caption, rows of name and value, a source line. */
@@ -132,6 +134,8 @@ export interface LayerFile {
     trend?: string; trendCaption?: string; ranking?: string;
     /** Under a trend line with a break in it (food crises: the population analysed changed). */
     breakNote?: string;
+    /** The panel's label for a figure's `periods` entry ("Analysis"). */
+    periodLabel?: string;
     /** The world panel's label over its bars ({year}), for an `unranked` layer, in place of the page's "Largest". */
     bars?: string;
   };

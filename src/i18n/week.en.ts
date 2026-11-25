@@ -256,6 +256,8 @@ export const WEEK_TEXT = {
     conflict: (m: string) => `Conflict events for ${m} published`,
     prices: (m: string) => `Commodity prices for ${m} published`,
     food: (system: string, place: string, period: string) => `New ${system === 'CH' ? 'Cadre Harmonisé' : 'IPC'} analysis: ${place}, ${period}`,
+    /** With the analysis's kind (weeks frozen from 25 Nov 2026): "New IPC projection for Oct 2026 – Jan 2027: Sudan". */
+    foodKind: (analysis: string, place: string) => `New ${analysis}: ${place}`,
   },
 
   // Week navigation

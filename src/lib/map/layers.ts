@@ -46,7 +46,7 @@ import { CYBER_TEXT } from '../../i18n/cyber.en.ts';
 import { groupsOf, mixOf } from '../electricity.ts';
 import { cells, conflictPage, deathClass, VIOLENCE } from '../conflict.ts';
 import { CONFLICT_TEXT, monthText } from '../../i18n/conflict.en.ts';
-import { areaAt, areaLabel, coverageChangedAt, foodTags, latestAnalyses, monthSpan } from '../hunger.ts';
+import { areaAt, areaLabel, coverageChangedAt, foodTags, latestAnalyses, monthSpan, periodAt } from '../hunger.ts';
 import { isPartial } from '../../adapters/ipc.ts';
 import { HUNGER_TEXT } from '../../i18n/hunger.en.ts';
 import { POWER_TEXT } from '../../i18n/electricity.en.ts';
@@ -243,7 +243,9 @@ function indicatorLayer(p: ViewPage): LayerFile {
     if (p.id === 'ictexp') Object.assign(more, ictShares(year, y.rows.map((r) => r.id)));
     if (p.id === 'cyber') Object.assign(more, cyberBlocks(year));
     const notes = Object.fromEntries(y.rows.flatMap((r) => { const n = yearNote(p, r.id, year); return n ? [[r.id, n]] : []; }));
-    return { year, ...(p.text.period ? { label: p.text.period(year) } : {}), legend: legendOf(p, year), v, order: y.rows.map((r) => r.id), blocs: bl, ...(Object.keys(more).length ? { more } : {}), ...(Object.keys(notes).length ? { notes } : {}) };
+    // Food crises: the analysis behind each figure, its period and whether it is an assessment or a projection.
+    const periods = p.family.id === 'food-crises' ? Object.fromEntries(y.rows.flatMap((r) => { const t = periodAt(r.id, year); return t ? [[r.id, t]] : []; })) : {};
+    return { year, ...(p.text.period ? { label: p.text.period(year) } : {}), legend: legendOf(p, year), v, order: y.rows.map((r) => r.id), blocs: bl, ...(Object.keys(more).length ? { more } : {}), ...(Object.keys(notes).length ? { notes } : {}), ...(Object.keys(periods).length ? { periods } : {}) };
   });
   const notes = { ...c.notes };
   // Food crises: the label on each figure says what an analysis covered, so the general note on what other sources
@@ -263,7 +265,7 @@ function indicatorLayer(p: ViewPage): LayerFile {
       rank: W.rank(0, 1).replace('0', '{rank}').replace('1', '{of}'),
       detailLabel: p.layer.sums ? PT.share : undefined, rankLabel: PT.rank, rankOf: PT.rankOf, statusLabel: PT.status,
       trend: PT.figureTrend(p.text.figureLabel), trendCaption: PT.trendCaption, ranking: PT.ranking,
-      ...(p.family.id === 'food-crises' ? { breakNote: HUNGER_TEXT.coverageBreak } : {}),
+      ...(p.family.id === 'food-crises' ? { breakNote: HUNGER_TEXT.coverageBreak, periodLabel: HUNGER_TEXT.analysis } : {}),
       ...(p.text.barsLabel ? { bars: `${p.text.barsLabel}, {year}` } : {}),
     },
     tags: { ...c.tags, ...areaTags }, names: c.names, hrefs: c.hrefs, slugs: c.slugs, notes, blocs: c.blocs, data,

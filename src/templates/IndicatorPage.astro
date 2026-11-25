@@ -119,7 +119,7 @@ const description = indicatorDescription(id);
                     <td class="n gt-rk" data-v={r.rank}>{r.rank}</td>
                     <th scope="row">{countryHref(r.id) ? <a href={countryHref(r.id)}>{nameOf(r.id)}</a> : nameOf(r.id)}</th>
                     <td class="n" data-v={r.value}><span class="gt-inbar" style={`--w:${Math.max(0, (r.value / max) * 100).toFixed(1)}%`}></span><b>{formatValue(r.value, fmt)}</b>{labelsAt(ind, r.id, r.year).of && <small class="gt-figof" style="display:block">{labelsAt(ind, r.id, r.year).of}</small>}</td>
-                    {!ind.static && <td class="n" data-v={r.year}><span class:list={['gt-yr', { 'gt-oldyr': r.year < m.year }]}>{r.year}</span><FigureLabels tags={labelsAt(ind, r.id, r.year).tags} area={labelsAt(ind, r.id, r.year).area} /></td>}
+                    {!ind.static && <td class="n" data-v={r.year}><span class:list={['gt-yr', { 'gt-oldyr': r.year < m.year }]}>{r.year}</span><FigureLabels tags={labelsAt(ind, r.id, r.year).tags} area={labelsAt(ind, r.id, r.year).area} period={labelsAt(ind, r.id, r.year).period} /></td>}
                   </tr>
                 ))}
               </tbody>

@@ -56,6 +56,12 @@ export function analysisNote(a: Analysis): string | null {
   return isPartial(a) ? HUNGER_TEXT.mapNote(people(a.analysed), people(a.population!)) : null;
 }
 
+/** The analysis behind a place's figure in a year, after the figure in a ranked row: "Oct 2026 – Jan 2027 projection". */
+export function periodAt(id: string, year: number): string | null {
+  const a = analysisIn(id, year);
+  return a ? HUNGER_TEXT.rowPeriod(a.period, monthSpan(a.from, a.to)) : null;
+}
+
 /** "of 8.3 m people analysed" beside a place's figure in a year from an analysis of part of it; null otherwise. */
 export function ofAnalysedAt(id: string, year: number): string | null {
   const a = analysisIn(id, year);

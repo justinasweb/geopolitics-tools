@@ -4,15 +4,28 @@
 // analysis has none, which does not mean no hunger.
 const n = (x: number) => new Intl.NumberFormat('en').format(x);
 const SYSTEM = (s: string) => (s === 'CH' ? 'Cadre Harmonisé' : 'IPC');
-const PERIOD: Record<string, string> = { current: 'current situation', projection: 'projection', update: 'projection update' };
+// IPC's current period is an assessment; its projection and second projection (the API's P and A) are both projections.
+// The API marks no revision, so nothing here says "revised".
+const KIND: Record<string, string> = { current: 'assessment', projection: 'projection', update: 'projection' };
+const kindOf = (kind: string) => KIND[kind] ?? 'analysis';
+/** "IPC projection for Oct 2026 – Jan 2027", "Cadre Harmonisé assessment for Oct–Dec 2025". */
+const labelOf = (system: string, kind: string, period: string) => `${SYSTEM(system)} ${kindOf(kind)} for ${period}`;
 
 export const HUNGER_TEXT = {
   months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
   phase: { 1: 'Phase 1, minimal', 2: 'Phase 2, stressed', 3: 'Phase 3, crisis', 4: 'Phase 4, emergency', 5: 'Phase 5, catastrophe' } as Record<1 | 2 | 3 | 4 | 5, string>,
   latest: 'Latest analysis',
-  /** "IPC projection, Oct 2026 – Jan 2027: people by phase, of 8,289,603 analysed (of 50,448,963 in the country)." */
+  /** "IPC projection for Oct 2026 – Jan 2027: people by phase, of 8.3 m analysed (of 48 m in the country, by IPC's count)." */
   latestCaption: (system: string, kind: string, period: string, analysed: string, population: string | null) =>
-    `${SYSTEM(system)} ${PERIOD[kind] ?? 'analysis'}, ${period}: people by phase, of ${analysed} analysed${population ? ` (of ${population} in the country, by IPC’s count)` : ''}.`,
+    `${labelOf(system, kind, period)}: people by phase, of ${analysed} analysed${population ? ` (of ${population} in the country, by IPC’s count)` : ''}.`,
+  /** An analysis named in full: "IPC projection for Oct 2026 – Jan 2027". */
+  label: labelOf,
+  /** The same after a figure in a ranked row: "Oct 2026 – Jan 2027 projection". */
+  rowPeriod: (kind: string, period: string) => `${period} ${kindOf(kind)}`,
+  /** What the analysis does with its people: an assessment estimates them, a projection projects them. */
+  verb: (kind: string) => (kindOf(kind) === 'projection' ? 'projected' : 'estimated'),
+  /** The map panel's label for the analysis behind a figure. */
+  analysis: 'Analysis',
   /** Beside a count from an analysis of part of the country. */
   ofAnalysed: (analysed: string) => `(of ${analysed} people analysed)`,
   /** The same beside a figure that has its tags with it. */
@@ -32,22 +45,22 @@ export const HUNGER_TEXT = {
   catastrophe: 'People in catastrophe (Phase 5)',
   catastropheCaption: (day: string) => `Countries whose analysis in force on ${day} counts people in IPC Phase 5. Phase 5 counts households facing catastrophe; famine is a classification of an area, made only when several thresholds are met.`,
   country: 'Country',
-  period: 'Period',
+  period: 'Analysis',
   people5: 'Phase 5',
   people3: 'Phase 3 or above',
 
   // The country page's block.
   block: 'Food crisis',
-  /** Under the figure: what it counts, for which period, of how many. */
+  /** Under the figure: what it counts, of how many, and the analysis with its period. */
   blockCaption: (system: string, kind: string, period: string, analysed: string, share: string) =>
-    `people in ${SYSTEM(system)} Phase 3 (crisis) or worse, ${period} (${PERIOD[kind] ?? 'analysis'}): ${share} of the ${analysed} analysed`,
+    `people ${kindOf(kind) === 'projection' ? 'projected' : 'estimated'} to be in Phase 3 (crisis) or worse, ${share} of the ${analysed} analysed. ${labelOf(system, kind, period)}.`,
   blockPart: (analysed: string, population: string) => `The analysis covered ${analysed} of the ${population} people IPC counts in the country.`,
-  blockPhase5: (x: number, analysed: string | null) => `${n(x)} of them in Phase 5 (catastrophe)${analysed ? `, of ${analysed} people analysed` : ''}.`,
+  blockPhase5: (x: number, kind: string, analysed: string | null) => `${n(x)} of them ${kindOf(kind) === 'projection' ? 'projected' : 'estimated'} to be in Phase 5 (catastrophe)${analysed ? `, of ${analysed} people analysed` : ''}.`,
   /** The latest analysis is no longer in force: its figure is still the one the maps show, tagged Period ended. */
   blockOld: (day: string) => `Its period has ended, and no newer IPC or Cadre Harmonisé analysis is in force on ${day}.`,
   /** The latest analysis is for a period that has not begun. */
   blockAhead: (month: string) => `Its period begins in ${month}.`,
   blockLink: 'Food crises map',
-  /** The source line's period part. */
-  sourcePart: (kind: string, period: string) => `${period}, ${PERIOD[kind] ?? 'analysis'}`,
+  /** The source line's period part: "Oct 2026 – Jan 2027 projection". */
+  sourcePart: (kind: string, period: string) => `${period} ${kindOf(kind)}`,
 };

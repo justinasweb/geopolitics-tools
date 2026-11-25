@@ -383,6 +383,11 @@ other sources' "West Bank and Gaza". The page lists countries whose
 analysis in force on the snapshot's day counts people in Phase 5, which counts people in catastrophe, not famine (an
 area classification this endpoint does not give). Country pages have a Food crisis block for every place IPC has
 analysed: the same analysis the maps show, tagged "Period ended" when its period ended before the snapshot's day.
+Analyses are named one way everywhere (src/i18n/hunger.en.ts): "IPC projection for Oct 2026 – Jan 2027", "Cadre
+Harmonisé assessment for Oct–Dec 2025"; IPC's current period is an assessment ("estimated") and its projection and
+second projection are projections ("projected"); nothing says "revised", which the API does not mark. Each ranked row
+(rankings, tables, indicator rows, country figures, the map's tooltip and panel, This week's Phase 5 rows) carries its
+analysis's period ("Oct 2026 – Jan 2027 projection").
 Beside every food figure (`FigureLabels`: the view's rankings and table, indicator rows, country figures) go its
 tags (Part of country, Period ended), the area its analysis covers and, from a partial analysis, "of N people
 analysed"; the map panel's rankings repeat the tags under each row (`tagRows`). On the map, a figure from a partial

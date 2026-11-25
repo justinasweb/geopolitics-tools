@@ -80,8 +80,9 @@ export interface ConflictCard extends Base {
 export interface PriceRow { code: string; value: number; month: number | null; year: number | null }
 export interface PricesCard extends Base { kind: 'prices'; month: string; rows: PriceRow[] }
 export interface OutageCard extends Base { kind: 'outage'; rows: { place: string; start: string; hours: number }[] }
-/** `area`: the area the analysis covers when IPC's list names one ("Gaza Strip"); absent in weeks frozen before 25 Nov 2026. */
-export interface FoodAnalysis { place: string; system: 'IPC' | 'CH'; from: string; to: string; area?: string }
+/** `area`: the area the analysis covers when IPC's list names one ("Gaza Strip"); `period`: the analysis's kind (IPC's
+ *  current, projection or second projection). Both absent in weeks frozen before 25 Nov 2026. */
+export interface FoodAnalysis { place: string; system: 'IPC' | 'CH'; from: string; to: string; area?: string; period?: 'current' | 'projection' | 'update' }
 export interface FoodCard extends Base {
   kind: 'food';
   /** The day the analyses in force are counted on: the period's last day. */
@@ -310,7 +311,7 @@ export function foodCard(input: WeekInput): { card: FoodCard; feed: FeedItem[] }
   if (!src || !all?.length) return null;
   const p = input.period;
   const quiet = quietOf(src, p);
-  const of = (a: (typeof all)[number]): FoodAnalysis => ({ place: a.place, system: a.system, from: a.from, to: a.to, ...(a.area ? { area: a.area } : {}) });
+  const of = (a: (typeof all)[number]): FoodAnalysis => ({ place: a.place, system: a.system, from: a.from, to: a.to, period: a.period, ...(a.area ? { area: a.area } : {}) });
   const p5 = [...latestOf(all, p.to).values()].filter((a) => a.phases[4] > 0)
     .sort((a, b) => b.phases[4] - a.phases[4] || a.place.localeCompare(b.place)).map((a) => ({ ...of(a), people: a.phases[4], ...(isPartial(a) ? { analysed: a.analysed, population: a.population! } : {}) }));
   // New analyses: those the copy from the period's first day did not have, dated on the day IPC's data last changed.

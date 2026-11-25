@@ -8,7 +8,7 @@ import { formatValue } from './format.ts';
 import { place } from './places.ts';
 import { ANSWER, DEFAULT_VERB, INDICATOR_PAGE, inSentence } from '../i18n/pages.en.ts';
 import { tagged } from '../i18n/en.ts';
-import { areaAt, coverageChangedAt, foodTags, ofAnalysedAt } from './hunger.ts';
+import { areaAt, coverageChangedAt, foodTags, ofAnalysedAt, periodAt } from './hunger.ts';
 import type { Status } from './tags.ts';
 import { counts, defaultYear, median, preliminaryYears, ranked, ranking, type Row } from './stats.ts';
 
@@ -72,10 +72,11 @@ export function tagsAt(ind: Indicator, id: string, year: number): Status[] {
 /** The area a figure's analysis covers, said beside it ("Gaza Strip only"): the food crisis measures only. */
 export const areaFor = (ind: Indicator, id: string, year: number): string | null => (ind.source === 'ipc' ? areaAt(id, year) : null);
 
-/** Everything said beside a figure (FigureLabels): its tags, the area its analysis covers and, from an analysis of part
- *  of a country, the people it covered. */
+/** Everything said beside a figure (FigureLabels): its tags, the area its analysis covers, from an analysis of part of a
+ *  country the people it covered, and the analysis's period. */
 export const labelsAt = (ind: Indicator, id: string, year: number) => ({
-  tags: tagsAt(ind, id, year), area: areaFor(ind, id, year), of: ind.source === 'ipc' ? ofAnalysedAt(id, year) : null,
+  tags: tagsAt(ind, id, year), area: areaFor(ind, id, year),
+  of: ind.source === 'ipc' ? ofAnalysedAt(id, year) : null, period: ind.source === 'ipc' ? periodAt(id, year) : null,
 });
 
 /** Where a line of the measure over `years` does not join (../linechart.ts `breaks`): the food crisis measures, between
