@@ -3,6 +3,7 @@
 // on August"). IODA states no causes, so outages have none. Sanctions changes are counts of entries added and removed,
 // never a judgement of the targets. Phase 5 of the IPC scale is "catastrophic hunger (IPC Phase 5)", never "famine".
 // Dates read "21 Oct", times are UTC, and every count gives its period.
+import { PHASE5_NOTE } from './hunger.en.ts';
 import { list } from './pages.en.ts';
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -187,7 +188,7 @@ export const WEEK_TEXT = {
   countries: (x: number) => s(x, 'country', 'countries'),
   foodHead: (x: number) => (x ? `${s(x, 'country', 'countries')} with people in catastrophic hunger (IPC Phase 5)` : 'No country with people in catastrophic hunger (IPC Phase 5)'),
   foodLabel: 'People in IPC Phase 5 (catastrophe), by country',
-  foodCaption: (d: string) => `People in Phase 5 (catastrophe) in each country’s IPC or Cadre Harmonisé analysis in force on ${d}. Phase 5 counts people, household by household; IPC classifies areas separately.`,
+  foodCaption: (d: string) => `People in Phase 5 (catastrophe) in each country’s IPC or Cadre Harmonisé analysis in force on ${d}. ${PHASE5_NOTE}`,
   /** A bar from an analysis of part of the country. */
   foodPartial: (place: string, analysed: string, population: string) => `${place}: of ${analysed} people analysed, part of the ${population} IPC counts in the country.`,
   /** On the count: how many of the countries come from such analyses. */

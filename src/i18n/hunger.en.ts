@@ -3,6 +3,8 @@
 // classifies by area. Every figure keeps its analysis's period and the population analysed; a country with no
 // analysis has none, which does not mean no hunger.
 const n = (x: number) => new Intl.NumberFormat('en').format(x);
+/** The one caption wherever Phase 5 figures are shown (the views, country pages, the map panel, This week). */
+export const PHASE5_NOTE = 'These figures count people in households classified in Phase 5 (Catastrophe). IPC classifies areas separately.';
 const SYSTEM = (s: string) => (s === 'CH' ? 'Cadre Harmonisé' : 'IPC');
 // IPC's current period is an assessment; its projection and second projection (the API's P and A) are both projections.
 // The API marks no revision, so nothing here says "revised".
@@ -43,7 +45,8 @@ export const HUNGER_TEXT = {
   /** Under a trend chart with a break in a line, and in the map panel's trend. */
   coverageBreak: 'A break in a line marks a change in the population analysed: the figures either side do not compare.',
   catastrophe: 'People in catastrophe (Phase 5)',
-  catastropheCaption: (day: string) => `Countries whose analysis in force on ${day} counts people in IPC Phase 5. Phase 5 counts households facing catastrophe; famine is a classification of an area, made only when several thresholds are met.`,
+  catastropheCaption: (day: string) => `Countries whose analysis in force on ${day} has people in Phase 5. ${PHASE5_NOTE}`,
+  phase5Note: PHASE5_NOTE,
   country: 'Country',
   period: 'Analysis',
   people5: 'Phase 5',

@@ -319,6 +319,7 @@ function withPhases(more: Record<string, PanelBlock[]>): Record<string, PanelBlo
     out[id] = [...(out[id] ?? []), {
       label: H.latest, caption: `${H.latestCaption(a.system, a.period, monthSpan(a.from, a.to), f(a.analysed), isPartial(a) ? f(a.population!) : null)}${areaLabel(a) ? ` ${areaLabel(a)}.` : ''}`,
       rows: ([5, 4, 3, 2, 1] as const).map((k) => ({ name: H.phase[k], value: f(a.phases[k - 1]), note: a.analysed ? formatValue(a.phases[k - 1] / a.analysed, { kind: 'share' }) : undefined })),
+      more: H.phase5Note,
     }];
   }
   return out;
